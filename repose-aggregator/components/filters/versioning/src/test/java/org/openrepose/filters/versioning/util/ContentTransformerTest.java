@@ -1,12 +1,6 @@
 package org.openrepose.filters.versioning.util;
 
 
-import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.transform.Transform;
-import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
-import com.rackspace.papi.components.versioning.schema.VersionChoice;
-import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -15,6 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.commons.utils.transform.Transform;
+import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.filters.versioning.schema.VersionChoice;
+import org.openrepose.filters.versioning.schema.VersionChoiceList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -37,8 +37,8 @@ public class ContentTransformerTest {
         try {
             xmlTransformer = new StreamToJaxbTransform(
                     JAXBContext.newInstance(
-                    com.rackspace.papi.components.versioning.schema.ObjectFactory.class,
-                    com.rackspace.papi.components.versioning.config.ObjectFactory.class));
+                    org.openrepose.filters.versioning.schema.ObjectFactory.class,
+                    org.openrepose.filters.versioning.config.ObjectFactory.class));
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create JAXBContext for test", ex);
         }

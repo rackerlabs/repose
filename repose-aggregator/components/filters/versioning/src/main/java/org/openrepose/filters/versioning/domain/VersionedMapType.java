@@ -1,10 +1,7 @@
-
-
 package org.openrepose.filters.versioning.domain;
 
-import com.rackspace.papi.components.versioning.config.MediaType;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-
+import org.openrepose.filters.versioning.config.MediaType;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 
 public class VersionedMapType {
     

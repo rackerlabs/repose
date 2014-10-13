@@ -3,7 +3,7 @@ package org.openrepose.filters.versioning.domain;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.string.JCharSequenceFactory;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
 import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
 

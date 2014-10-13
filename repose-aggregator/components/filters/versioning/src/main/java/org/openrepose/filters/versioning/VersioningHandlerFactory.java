@@ -1,22 +1,22 @@
 package org.openrepose.filters.versioning;
 
 import com.google.common.base.Optional;
-import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
-import org.openrepose.filters.versioning.domain.ConfigurationData;
-import org.openrepose.filters.versioning.util.ContentTransformer;
-import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.domain.ServicePorts;
+import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
+import org.openrepose.filters.versioning.domain.ConfigurationData;
+import org.openrepose.filters.versioning.util.ContentTransformer;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

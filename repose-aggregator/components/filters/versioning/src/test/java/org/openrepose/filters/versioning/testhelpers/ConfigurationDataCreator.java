@@ -1,9 +1,9 @@
 package org.openrepose.filters.versioning.testhelpers;
 
-import com.rackspace.papi.components.versioning.config.MediaType;
-import com.rackspace.papi.components.versioning.config.MediaTypeList;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.components.versioning.config.VersionStatus;
+import org.openrepose.filters.versioning.config.MediaType;
+import org.openrepose.filters.versioning.config.MediaTypeList;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.config.VersionStatus;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
 
