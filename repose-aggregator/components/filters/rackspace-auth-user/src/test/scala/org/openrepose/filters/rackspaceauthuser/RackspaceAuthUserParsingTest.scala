@@ -1,4 +1,4 @@
-package com.rackspace.identity.repose.rackspaceauthuser
+package org.openrepose.filters.rackspaceauthuser
 
 import java.io.ByteArrayInputStream
 

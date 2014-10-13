@@ -1,15 +1,15 @@
-package com.rackspace.identity.repose.rackspaceauthuser
+package org.openrepose.filters.rackspaceauthuser
 
 import java.io.InputStream
 import javax.servlet.http.HttpServletRequest
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.io.Source
