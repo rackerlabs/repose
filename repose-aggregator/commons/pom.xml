@@ -33,7 +33,8 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
+            <!--plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
 
                 <executions>
@@ -47,7 +48,7 @@
                             <goal>run</goal>
                         </goals>
 
-                        <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
+
 
                         <configuration>
                             <target>
@@ -60,7 +61,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>
