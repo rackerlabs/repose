@@ -11,7 +11,7 @@
     </filter>
     <filter>
         <filter-name>tightly-coupled-filter</filter-name>
-        <filter-class>com.rackspace.repose.experimental.servletContract.TightlyCoupledFilter</filter-class>
+        <filter-class>org.openrepose.experimental.filters.servletcontract.TightlyCoupledFilter</filter-class>
     </filter>
 
 </web-fragment>
