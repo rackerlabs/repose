@@ -1,7 +1,7 @@
 package org.openrepose.core.valve.jetty;
 
 import org.openrepose.core.valve.jetty.servlet.ProxyServlet;
-import com.rackspace.papi.container.config.SslConfiguration;
+import org.openrepose.core.container.config.SslConfiguration;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.domain.ServicePorts;

@@ -1,7 +1,7 @@
 package org.openrepose.core.services.deploy;
 
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
-import com.rackspace.papi.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServiceContext;

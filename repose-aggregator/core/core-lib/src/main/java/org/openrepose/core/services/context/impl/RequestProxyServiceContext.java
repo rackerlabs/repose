@@ -3,7 +3,7 @@ package org.openrepose.core.services.context.impl;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
-import com.rackspace.papi.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;

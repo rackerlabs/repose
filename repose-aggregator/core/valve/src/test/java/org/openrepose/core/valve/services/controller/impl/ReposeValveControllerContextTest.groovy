@@ -1,7 +1,7 @@
 package org.openrepose.core.valve.services.controller.impl
 
 import org.openrepose.core.valve.services.controller.ControllerService
-import com.rackspace.papi.container.config.ContainerConfiguration
+import org.openrepose.core.container.config.ContainerConfiguration
 import com.rackspace.papi.model.DestinationEndpoint
 import com.rackspace.papi.model.DestinationList
 import com.rackspace.papi.model.ReposeCluster

@@ -1,7 +1,7 @@
 package org.openrepose.core.services.context.impl;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServiceContext;

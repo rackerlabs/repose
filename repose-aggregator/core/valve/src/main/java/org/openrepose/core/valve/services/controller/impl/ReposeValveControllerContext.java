@@ -5,7 +5,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.net.NetUtilities;
 import org.openrepose.commons.utils.regex.ExtractorResult;
-import com.rackspace.papi.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.ContainerConfiguration;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
