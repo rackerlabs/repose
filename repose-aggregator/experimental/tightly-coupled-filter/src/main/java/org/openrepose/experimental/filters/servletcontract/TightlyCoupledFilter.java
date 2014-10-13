@@ -1,4 +1,4 @@
-package com.rackspace.repose.experimental.servletContract;
+package org.openrepose.experimental.filters.servletcontract;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
