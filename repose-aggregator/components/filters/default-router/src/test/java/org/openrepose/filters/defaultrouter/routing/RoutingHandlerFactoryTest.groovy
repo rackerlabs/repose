@@ -2,9 +2,9 @@ package org.openrepose.filters.defaultrouter.routing
 
 import com.google.common.base.Optional
 import org.openrepose.core.filter.SystemModelInterrogator
-import com.rackspace.papi.model.ReposeCluster
-import com.rackspace.papi.model.SystemModel
-import com.rackspace.papi.model.Destination
+import org.openrepose.core.systemmodel.ReposeCluster
+import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.Destination
 import org.springframework.context.ApplicationContext
 import spock.lang.Shared
 import spock.lang.Specification
@@ -87,7 +87,7 @@ class RoutingHandlerFactoryTest extends Specification {
 
         then:
         factory.listeners.size() == 1
-        factory.listeners.containsKey(com.rackspace.papi.model.SystemModel)
+        factory.listeners.containsKey(org.openrepose.core.systemmodel.SystemModel)
     }
 
     def "RoutingConfigurationListener - configurationUpdated - happy path"(){

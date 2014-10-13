@@ -2,7 +2,7 @@ package org.openrepose.filters.destinationrouter;
 
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

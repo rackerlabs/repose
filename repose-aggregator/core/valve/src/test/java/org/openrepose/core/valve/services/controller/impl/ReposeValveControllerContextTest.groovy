@@ -2,10 +2,10 @@ package org.openrepose.core.valve.services.controller.impl
 
 import org.openrepose.core.valve.services.controller.ControllerService
 import org.openrepose.core.container.config.ContainerConfiguration
-import com.rackspace.papi.model.DestinationEndpoint
-import com.rackspace.papi.model.DestinationList
-import com.rackspace.papi.model.ReposeCluster
-import com.rackspace.papi.model.SystemModel
+import org.openrepose.core.systemmodel.DestinationEndpoint
+import org.openrepose.core.systemmodel.DestinationList
+import org.openrepose.core.systemmodel.ReposeCluster
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.core.services.ServiceRegistry
 import org.openrepose.core.services.config.ConfigurationService
 import spock.lang.Specification
@@ -84,9 +84,9 @@ class ReposeValveControllerContextTest extends Specification {
         SystemModel sysModel = new SystemModel()
 
         cluster.setId("cluster1")
-        cluster.setNodes(new com.rackspace.papi.model.NodeList())
+        cluster.setNodes(new org.openrepose.core.systemmodel.NodeList())
         cluster.getNodes().getNode() <<
-                new com.rackspace.papi.model.Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
+                new org.openrepose.core.systemmodel.Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
         cluster.setDestinations(new DestinationList())
         cluster.getDestinations().getEndpoint() << new DestinationEndpoint(
                 hostname: "localhost", port: 9090, default: true, id: "dest1", protocol: "http")

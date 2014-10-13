@@ -3,8 +3,8 @@ package org.openrepose.core.filter.routing;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.domain.Port;
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationEndpoint;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;

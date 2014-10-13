@@ -9,7 +9,7 @@ public class FilterContext implements Destroyable {
 
    private final ClassLoader filterClassLoader;
    private final Filter filter;
-   private final com.rackspace.papi.model.Filter filterConfig;
+   private final org.openrepose.core.systemmodel.Filter filterConfig;
    private final String name;
    private final String regex;
    private final Pattern pattern;
@@ -18,7 +18,7 @@ public class FilterContext implements Destroyable {
       this(filter, filterClassLoader, null);
    }
 
-   public FilterContext(Filter filter, ClassLoader filterClassLoader, com.rackspace.papi.model.Filter filterConfig) {
+   public FilterContext(Filter filter, ClassLoader filterClassLoader, org.openrepose.core.systemmodel.Filter filterConfig) {
       this.filter = filter;
       this.filterClassLoader = filterClassLoader;
       this.filterConfig = filterConfig;
@@ -43,7 +43,7 @@ public class FilterContext implements Destroyable {
       return filterClassLoader;
    }
 
-   public com.rackspace.papi.model.Filter getFilterConfig() {
+   public org.openrepose.core.systemmodel.Filter getFilterConfig() {
       return filterConfig;
    }
 

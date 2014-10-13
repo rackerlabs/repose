@@ -366,7 +366,7 @@
                         </xs:documentation>
                         <xs:appinfo>
                             <jaxb:property>
-                                <jaxb:baseType name="com.rackspace.papi.model.Cluster" />
+                                <jaxb:baseType name="org.openrepose.core.systemmodel.Cluster" />
                             </jaxb:property>
                         </xs:appinfo>
                     </xs:annotation>

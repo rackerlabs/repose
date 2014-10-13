@@ -1,7 +1,7 @@
 package org.openrepose.core.services.routing.robin;
 
-import com.rackspace.papi.model.Cluster;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Cluster;
+import org.openrepose.core.systemmodel.SystemModel;
 
 import java.util.HashMap;
 import java.util.Map;

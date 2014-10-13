@@ -4,7 +4,7 @@
  */
 package org.openrepose.core.services.routing.robin
 
-import com.rackspace.papi.model.*
+import org.openrepose.core.systemmodel.*
 import spock.lang.Specification
 
 import static org.junit.Assert.assertEquals

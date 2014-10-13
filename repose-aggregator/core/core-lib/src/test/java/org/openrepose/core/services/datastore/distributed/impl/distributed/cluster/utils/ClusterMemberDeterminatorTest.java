@@ -4,12 +4,12 @@
  */
 package org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils;
 
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.core.systemmodel.FilterList;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.NodeList;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.HostAccessControlList;

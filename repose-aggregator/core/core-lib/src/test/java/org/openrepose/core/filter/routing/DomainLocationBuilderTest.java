@@ -1,6 +1,6 @@
 package org.openrepose.core.filter.routing;
 
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.core.services.routing.RoutingService;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,8 +1,8 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.Destroyable;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;

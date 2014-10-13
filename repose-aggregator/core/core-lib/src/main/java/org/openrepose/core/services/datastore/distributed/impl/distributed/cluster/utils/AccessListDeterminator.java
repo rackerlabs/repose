@@ -1,8 +1,8 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils;
 
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;

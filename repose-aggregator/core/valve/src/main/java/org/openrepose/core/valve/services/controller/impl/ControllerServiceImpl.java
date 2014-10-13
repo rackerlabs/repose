@@ -10,7 +10,7 @@ import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.container.config.SslConfiguration;
 import org.openrepose.core.domain.Port;
-import com.rackspace.papi.model.Node;
+import org.openrepose.core.systemmodel.Node;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

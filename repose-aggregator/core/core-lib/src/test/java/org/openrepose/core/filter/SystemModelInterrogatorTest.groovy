@@ -2,7 +2,7 @@ package org.openrepose.core.filter
 import com.google.common.base.Optional
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
-import com.rackspace.papi.model.*
+import org.openrepose.core.systemmodel.*
 import org.junit.Before
 import org.junit.Test
 

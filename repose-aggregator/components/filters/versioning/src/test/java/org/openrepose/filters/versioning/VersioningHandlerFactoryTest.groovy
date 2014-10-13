@@ -3,7 +3,7 @@ package org.openrepose.filters.versioning
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
-import com.rackspace.papi.model.SystemModel
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.mockito.Mockito

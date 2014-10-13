@@ -6,7 +6,7 @@ import com.mockrunner.mock.web.MockHttpServletResponse
 import com.rackspace.papi.components.versioning.config.MediaType
 import com.rackspace.papi.components.versioning.config.MediaTypeList
 import org.openrepose.filters.versioning.testhelpers.VersioningFilterSpecification
-import com.rackspace.papi.model.DestinationEndpoint
+import org.openrepose.core.systemmodel.DestinationEndpoint
 
 import javax.servlet.http.HttpServletRequest
 

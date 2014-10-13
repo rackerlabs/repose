@@ -2,8 +2,8 @@ package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import javax.servlet.ServletContext;

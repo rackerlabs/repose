@@ -2,9 +2,9 @@ package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class FilterContextInitializer {
       }
 
        if (domain.getFilters() != null && domain.getFilters().getFilter() != null) {
-           for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
+           for (org.openrepose.core.systemmodel.Filter papiFilter : domain.getFilters().getFilter()) {
 
                if (StringUtilities.isBlank(papiFilter.getName())) {
                    LOG.error(

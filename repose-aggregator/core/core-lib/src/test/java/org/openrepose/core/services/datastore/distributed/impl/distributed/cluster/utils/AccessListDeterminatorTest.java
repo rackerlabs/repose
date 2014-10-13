@@ -1,6 +1,6 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils;
 
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.*;
 import org.junit.Before;

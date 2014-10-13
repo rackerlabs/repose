@@ -1,7 +1,7 @@
 package org.openrepose.core.services.routing;
 
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.SystemModel;
 
 public interface RoutingService {
    Node getRoutableNode(String domainId);

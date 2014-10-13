@@ -5,7 +5,7 @@ import com.oracle.javaee6.FullyQualifiedClassType;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import org.openrepose.commons.utils.classloader.ear.EarDescriptor;
-import com.rackspace.papi.model.Filter;
+import org.openrepose.core.systemmodel.Filter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

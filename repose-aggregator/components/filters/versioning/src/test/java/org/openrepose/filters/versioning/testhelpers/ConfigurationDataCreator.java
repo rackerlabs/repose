@@ -4,8 +4,8 @@ import org.openrepose.filters.versioning.config.MediaType;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.VersionStatus;
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationEndpoint;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
 
 import java.util.HashMap;
 import java.util.Map;

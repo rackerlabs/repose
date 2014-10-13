@@ -6,7 +6,7 @@
         schemaLocation="system-model.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.model" />
+        <package name="org.openrepose.core.systemmodel" />
     </schemaBindings>
     <globalBindings>
         <serializable uid="100" />

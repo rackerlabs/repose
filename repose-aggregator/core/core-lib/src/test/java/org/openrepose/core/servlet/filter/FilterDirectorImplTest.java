@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.DestinationCluster;
+import org.openrepose.core.systemmodel.DestinationCluster;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

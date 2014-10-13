@@ -3,7 +3,7 @@ package org.openrepose.core.services.context.impl;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;

@@ -2,7 +2,7 @@ package org.openrepose.core.filter;
 
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class LocalhostFilterListTest {
          
          assertNotNull(localServiceDomain);
          
-         List<com.rackspace.papi.model.Filter> filters = localServiceDomain.getFilters().getFilter();
+         List<org.openrepose.core.systemmodel.Filter> filters = localServiceDomain.getFilters().getFilter();
 
          assertNotNull(filters);
       }
@@ -83,7 +83,7 @@ public class LocalhostFilterListTest {
        * List<Host> hosts = new ArrayList<Host>(); when(mockedPowerProxy.getHost()).thenReturn(hosts);
        *
        * SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080);
-       * List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalNode().getFilters().getFilter();
+       * List<org.openrepose.core.systemmodel.Filter> filters = localhostFilterList.getLocalNode().getFilters().getFilter();
        *
        * assertNotNull(filters); }
        *

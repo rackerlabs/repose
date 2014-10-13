@@ -10,7 +10,7 @@ import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
-import com.rackspace.papi.model.Destination;
+import org.openrepose.core.systemmodel.Destination;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,7 +1,7 @@
 package org.openrepose.core.filter;
 
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.FilterList;
+import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.core.systemmodel.FilterList;
 
 import java.util.ArrayList;
 

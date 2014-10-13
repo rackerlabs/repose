@@ -5,7 +5,7 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.filter.logic.impl.SimplePassFilterDirector
-import com.rackspace.papi.model.Destination
+import org.openrepose.core.systemmodel.Destination
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest

@@ -1,10 +1,10 @@
 package org.openrepose.filters.versioning;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.SystemModelInterrogator;

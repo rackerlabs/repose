@@ -1,7 +1,7 @@
 package org.openrepose.core.services.routing.robin;
 
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.routing.RoutingService;
 import org.springframework.stereotype.Component;
 

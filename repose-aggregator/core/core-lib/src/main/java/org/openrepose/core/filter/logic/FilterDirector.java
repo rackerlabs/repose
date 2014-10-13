@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
-import com.rackspace.papi.model.Destination;
+import org.openrepose.core.systemmodel.Destination;
 
 import java.io.IOException;
 import java.io.OutputStream;

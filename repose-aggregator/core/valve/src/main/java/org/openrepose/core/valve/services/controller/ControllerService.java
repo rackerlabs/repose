@@ -2,7 +2,7 @@
 package org.openrepose.core.valve.services.controller;
 
 import org.openrepose.commons.utils.regex.ExtractorResult;
-import com.rackspace.papi.model.Node;
+import org.openrepose.core.systemmodel.Node;
 import java.util.Map;
 import java.util.Set;
 

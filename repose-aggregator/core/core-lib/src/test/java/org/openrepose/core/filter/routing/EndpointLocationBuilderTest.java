@@ -1,7 +1,7 @@
 package org.openrepose.core.filter.routing;
 
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.Node;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
+import org.openrepose.core.systemmodel.Node;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

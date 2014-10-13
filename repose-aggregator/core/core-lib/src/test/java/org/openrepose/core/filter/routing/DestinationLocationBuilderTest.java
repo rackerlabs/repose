@@ -1,8 +1,8 @@
 package org.openrepose.core.filter.routing;
 
-import com.rackspace.papi.model.DestinationCluster;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.Node;
+import org.openrepose.core.systemmodel.DestinationCluster;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
+import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.services.routing.RoutingService;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

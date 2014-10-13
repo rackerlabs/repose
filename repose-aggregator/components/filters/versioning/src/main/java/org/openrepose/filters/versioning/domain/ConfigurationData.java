@@ -1,8 +1,8 @@
 package org.openrepose.filters.versioning.domain;
 
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
 import org.openrepose.commons.utils.StringUriUtilities;

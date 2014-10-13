@@ -1,8 +1,8 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

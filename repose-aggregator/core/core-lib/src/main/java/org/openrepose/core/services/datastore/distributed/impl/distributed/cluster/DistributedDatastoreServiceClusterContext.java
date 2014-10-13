@@ -4,7 +4,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.ThreadSafeClusterView;
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServiceContext;

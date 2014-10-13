@@ -4,8 +4,8 @@ import com.google.common.base.Optional
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.proxy.RequestProxyService
 import org.openrepose.core.filter.SystemModelInterrogator
-import com.rackspace.papi.model.ReposeCluster
-import com.rackspace.papi.model.SystemModel
+import org.openrepose.core.systemmodel.ReposeCluster
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.core.services.ServiceRegistry
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.services.healthcheck.HealthCheckService

@@ -10,7 +10,7 @@ import com.rackspace.papi.components.versioning.config.MediaTypeList
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
-import com.rackspace.papi.model.DestinationEndpoint
+import org.openrepose.core.systemmodel.DestinationEndpoint
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder

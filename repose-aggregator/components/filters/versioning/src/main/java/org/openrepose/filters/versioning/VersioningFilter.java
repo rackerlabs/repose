@@ -1,6 +1,6 @@
 package org.openrepose.filters.versioning;
 
-import com.rackspace.papi.model.SystemModel;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;

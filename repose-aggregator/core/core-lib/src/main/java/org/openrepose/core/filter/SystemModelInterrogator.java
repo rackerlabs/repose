@@ -7,7 +7,7 @@ import org.openrepose.commons.utils.net.StaticNetworkInterfaceProvider;
 import org.openrepose.commons.utils.net.StaticNetworkNameResolver;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
-import com.rackspace.papi.model.*;
+import org.openrepose.core.systemmodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

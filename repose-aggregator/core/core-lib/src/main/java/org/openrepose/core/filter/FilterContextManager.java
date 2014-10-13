@@ -1,7 +1,7 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.model.Filter;
+import org.openrepose.core.systemmodel.Filter;
 import java.util.Collection;
 
 /**

@@ -5,7 +5,7 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.Destination;
+import org.openrepose.core.systemmodel.Destination;
 
 
 import javax.servlet.http.HttpServletRequest;
