@@ -4,9 +4,9 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
+import org.openrepose.filters.headernormalization.config.HeaderFilterList;
+import org.openrepose.filters.headernormalization.config.HeaderNormalizationConfig;
+import org.openrepose.filters.headernormalization.config.Target;
 import org.slf4j.Logger;
 
 import java.util.HashMap;

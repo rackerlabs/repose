@@ -3,7 +3,7 @@ package org.openrepose.filters.headernormalization;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;
+import org.openrepose.filters.headernormalization.config.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

@@ -2,8 +2,8 @@
 package org.openrepose.filters.headernormalization.util;
 
 import org.openrepose.commons.utils.http.header.HeaderName;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeader;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
+import org.openrepose.filters.headernormalization.config.HttpHeader;
+import org.openrepose.filters.headernormalization.config.HttpMethod;
 
 import java.util.HashSet;
 import java.util.List;

@@ -5,7 +5,7 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
+import org.openrepose.filters.headernormalization.config.HeaderNormalizationConfig;
 
 import javax.servlet.*;
 import java.io.IOException;
