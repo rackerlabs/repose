@@ -1,8 +1,6 @@
-package com.rackspace.papi.components.rackspace.identity.basicauth
+package org.openrepose.filters.rackspaceidentitybasicauth
 
 import org.apache.commons.codec.binary.Base64
-
-import scala.collection.JavaConverters
 
 object BasicAuthUtils {
   /**

@@ -1,6 +1,6 @@
-package com.rackspace.papi.components.rackspace.identity.basicauth
+package org.openrepose.filters.rackspaceidentitybasicauth
 
-import com.rackspace.papi.components.rackspace.identity.basicauth.BasicAuthUtils._
+import org.openrepose.filters.rackspaceidentitybasicauth.BasicAuthUtils._
 import org.apache.commons.codec.binary.Base64
 import org.scalatest.{FunSpec, Matchers}
 

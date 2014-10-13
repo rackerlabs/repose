@@ -1,11 +1,11 @@
-package com.rackspace.papi.components.rackspace.identity.basicauth
+package org.openrepose.filters.rackspaceidentitybasicauth
 
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
+import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}

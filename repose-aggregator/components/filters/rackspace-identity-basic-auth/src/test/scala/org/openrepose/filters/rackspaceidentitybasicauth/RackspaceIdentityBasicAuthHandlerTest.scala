@@ -1,14 +1,12 @@
-package com.rackspace.papi.components.rackspace.identity.basicauth
-
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+package org.openrepose.filters.rackspaceidentitybasicauth
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
-import org.openrepose.core.filter.logic.FilterAction
+import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.junit.runner.RunWith
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.scalatest.junit.JUnitRunner
