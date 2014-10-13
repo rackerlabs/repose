@@ -1,9 +1,9 @@
 package org.openrepose.filters.clientauth.common;
 
-import com.rackspace.auth.AuthGroup;
-import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthServiceException;
-import com.rackspace.auth.AuthToken;
+import org.openrepose.common.auth.AuthGroup;
+import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthServiceException;
+import org.openrepose.common.auth.AuthToken;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;

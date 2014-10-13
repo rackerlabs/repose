@@ -1,11 +1,11 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.AuthGroup;
-import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.OpenStackGroup;
-import com.rackspace.auth.openstack.OpenStackToken;
+import org.openrepose.common.auth.AuthGroup;
+import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthToken;
+import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.OpenStackGroup;
+import org.openrepose.common.auth.openstack.OpenStackToken;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openrepose.core.filter.logic.FilterAction;

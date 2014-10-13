@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.AuthenticationServiceFactory;
+import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;

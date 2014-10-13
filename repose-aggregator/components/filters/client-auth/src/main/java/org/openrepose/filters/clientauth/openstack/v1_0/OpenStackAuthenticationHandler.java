@@ -1,10 +1,10 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.AuthGroup;
-import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.OpenStackToken;
+import org.openrepose.common.auth.AuthGroup;
+import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthToken;
+import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.clientauth.common.*;

@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.common;
 
-import com.rackspace.auth.AuthGroups;
+import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.services.datastore.Datastore;
 
 import java.io.IOException;

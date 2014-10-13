@@ -1,8 +1,8 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
-import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.openstack.OpenStackToken;
+import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthToken;
+import org.openrepose.common.auth.openstack.OpenStackToken;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.openstack.v1_0
 
-import com.rackspace.auth.AuthGroup
-import com.rackspace.auth.AuthToken
+import org.openrepose.common.auth.AuthGroup
+import org.openrepose.common.auth.AuthToken
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.core.filter.logic.FilterDirector

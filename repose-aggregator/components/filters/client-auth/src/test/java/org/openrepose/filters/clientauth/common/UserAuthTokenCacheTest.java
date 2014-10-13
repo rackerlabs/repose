@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.common;
 
-import com.rackspace.auth.AuthToken;
+import org.openrepose.common.auth.AuthToken;
 import org.openrepose.services.datastore.Datastore;
 import org.junit.Before;
 import org.junit.Test;

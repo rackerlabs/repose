@@ -1,7 +1,7 @@
 package org.openrepose.filters.authz;
 
-import com.rackspace.auth.AuthServiceException;
-import com.rackspace.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.AuthServiceException;
+import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;

@@ -4,8 +4,8 @@ package org.openrepose.filters.clientauth.atomfeed.sax;
 // TODO: this should be refactored into the openstack stuff I think
 // TODO: also I wish JSON instead of sax and xml and marshalling :(
 
-import com.rackspace.auth.ResponseUnmarshaller;
-import com.rackspace.auth.openstack.AdminToken;
+import org.openrepose.common.auth.ResponseUnmarshaller;
+import org.openrepose.common.auth.openstack.AdminToken;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;

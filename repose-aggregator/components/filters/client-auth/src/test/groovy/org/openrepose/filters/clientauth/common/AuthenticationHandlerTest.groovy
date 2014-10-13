@@ -1,8 +1,8 @@
 package org.openrepose.filters.clientauth.common
 
-import com.rackspace.auth.AuthGroup
-import com.rackspace.auth.AuthGroups
-import com.rackspace.auth.AuthToken
+import org.openrepose.common.auth.AuthGroup
+import org.openrepose.common.auth.AuthGroups
+import org.openrepose.common.auth.AuthToken
 import org.openrepose.commons.utils.regex.ExtractorResult
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterDirector

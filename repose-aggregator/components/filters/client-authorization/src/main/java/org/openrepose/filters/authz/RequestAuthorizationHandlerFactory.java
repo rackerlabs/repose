@@ -1,7 +1,7 @@
 package org.openrepose.filters.authz;
 
-import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.AuthenticationServiceFactory;
+import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
