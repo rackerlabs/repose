@@ -2,7 +2,7 @@ package org.openrepose.filters.urinormalization.normalizer;
 
 import org.openrepose.commons.utils.http.normal.ParameterFilter;
 import org.openrepose.commons.utils.http.normal.ParameterFilterFactory;
-import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
+import org.openrepose.filters.urinormalization.config.HttpUriParameterList;
 
 /**
  *

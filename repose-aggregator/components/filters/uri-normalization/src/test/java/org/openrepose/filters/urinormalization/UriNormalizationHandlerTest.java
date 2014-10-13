@@ -1,15 +1,15 @@
 package org.openrepose.filters.urinormalization;
 
-import org.openrepose.commons.utils.http.normal.Normalizer;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
-import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.normal.Normalizer;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.urinormalization.config.HttpMethod;
+import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedList;

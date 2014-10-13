@@ -1,12 +1,14 @@
 package org.openrepose.filters.urinormalization.normalizer;
 
-import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
-import com.rackspace.papi.components.uri.normalization.config.UriParameter;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.urinormalization.config.HttpUriParameterList;
+import org.openrepose.filters.urinormalization.config.UriParameter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Enclosed.class)
 public class MultiInstanceWhiteListFactoryTest {

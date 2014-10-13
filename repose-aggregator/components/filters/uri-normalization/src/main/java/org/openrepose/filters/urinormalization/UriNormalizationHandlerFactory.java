@@ -2,14 +2,14 @@ package org.openrepose.filters.urinormalization;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer;
-import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
-import org.openrepose.filters.urinormalization.normalizer.MultiInstanceWhiteListFactory;
-import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
-import com.rackspace.papi.components.uri.normalization.config.Target;
-import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
-import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.filters.urinormalization.config.HttpMethod;
+import org.openrepose.filters.urinormalization.config.Target;
+import org.openrepose.filters.urinormalization.config.UriFilterList;
+import org.openrepose.filters.urinormalization.config.UriNormalizationConfig;
+import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
+import org.openrepose.filters.urinormalization.normalizer.MultiInstanceWhiteListFactory;
 
 import java.util.Collection;
 import java.util.HashMap;

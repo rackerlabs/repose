@@ -1,8 +1,8 @@
 package org.openrepose.filters.urinormalization.normalizer;
 
 import org.openrepose.commons.utils.http.normal.ParameterFilter;
-import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
-import com.rackspace.papi.components.uri.normalization.config.UriParameter;
+import org.openrepose.filters.urinormalization.config.HttpUriParameterList;
+import org.openrepose.filters.urinormalization.config.UriParameter;
 
 import java.util.HashMap;
 import java.util.Map;

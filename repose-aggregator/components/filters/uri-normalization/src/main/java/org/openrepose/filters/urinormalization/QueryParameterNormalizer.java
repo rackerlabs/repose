@@ -3,8 +3,8 @@ package org.openrepose.filters.urinormalization;
 import org.openrepose.commons.utils.http.normal.Normalizer;
 import org.openrepose.commons.utils.regex.RegexSelector;
 import org.openrepose.commons.utils.regex.SelectorResult;
-import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.filters.urinormalization.config.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;
