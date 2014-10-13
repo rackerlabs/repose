@@ -1,8 +1,8 @@
 package org.openrepose.filters.translation.httpx.node;
 
-import com.rackspace.httpx.ComplexParameter;
-import com.rackspace.httpx.RequestHead;
-import com.rackspace.httpx.RequestHeaders;
+import org.openrepose.core.httpx.ComplexParameter;
+import org.openrepose.core.httpx.RequestHead;
+import org.openrepose.core.httpx.RequestHeaders;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 

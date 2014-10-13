@@ -1,8 +1,8 @@
 package org.openrepose.filters.translation.httpx.node;
 
-import com.rackspace.httpx.AcceptHeader;
-import com.rackspace.httpx.RequestHeaders;
-import com.rackspace.httpx.SimpleParameter;
+import org.openrepose.core.httpx.AcceptHeader;
+import org.openrepose.core.httpx.RequestHeaders;
+import org.openrepose.core.httpx.SimpleParameter;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.media.MediaRangeParser;
 import org.openrepose.commons.utils.http.media.MediaType;
@@ -31,7 +31,7 @@ public class AcceptHeaderNode extends ObjectFactoryUser implements Node {
             final List<MediaType> mediaRanges = new MediaRangeParser(requestAcceptHeader).parse();
 
             for (org.openrepose.commons.utils.http.media.MediaType range : mediaRanges) {
-                com.rackspace.httpx.MediaRange mediaRange = getObjectFactory().createMediaRange();
+                org.openrepose.core.httpx.MediaRange mediaRange = getObjectFactory().createMediaRange();
 
                 mediaRange.setType(range.getMimeType().getType());
                 mediaRange.setSubtype(range.getMimeType().getSubType());

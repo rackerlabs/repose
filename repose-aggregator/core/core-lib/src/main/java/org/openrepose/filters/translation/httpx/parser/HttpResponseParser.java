@@ -1,8 +1,8 @@
 package org.openrepose.filters.translation.httpx.parser;
 
-import com.rackspace.httpx.MessageDetail;
-import com.rackspace.httpx.MessageEnvelope;
-import com.rackspace.httpx.ResponseHeadDetail;
+import org.openrepose.core.httpx.MessageDetail;
+import org.openrepose.core.httpx.MessageEnvelope;
+import org.openrepose.core.httpx.ResponseHeadDetail;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 import org.openrepose.filters.translation.httpx.marshaller.MarshallerFactory;
 import org.openrepose.filters.translation.httpx.node.ComplexNode;

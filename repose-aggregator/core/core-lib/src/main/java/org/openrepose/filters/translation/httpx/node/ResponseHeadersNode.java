@@ -1,8 +1,8 @@
 package org.openrepose.filters.translation.httpx.node;
 
-import com.rackspace.httpx.ComplexParameter;
-import com.rackspace.httpx.ResponseHead;
-import com.rackspace.httpx.ResponseHeaders;
+import org.openrepose.core.httpx.ComplexParameter;
+import org.openrepose.core.httpx.ResponseHead;
+import org.openrepose.core.httpx.ResponseHeaders;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletResponse;

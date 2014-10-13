@@ -1,6 +1,6 @@
 package org.openrepose.filters.translation.httpx;
 
-import com.rackspace.httpx.ObjectFactory;
+import org.openrepose.core.httpx.ObjectFactory;
 
 /**
  * @author fran

@@ -1,7 +1,7 @@
 package org.openrepose.filters.translation.httpx.parser;
 
-import com.rackspace.httpx.MessageDetail;
-import com.rackspace.httpx.RequestHeadDetail;
+import org.openrepose.core.httpx.MessageDetail;
+import org.openrepose.core.httpx.RequestHeadDetail;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;

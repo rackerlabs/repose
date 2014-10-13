@@ -1,7 +1,7 @@
 package org.openrepose.filters.translation.httpx.node;
 
-import com.rackspace.httpx.Body;
-import com.rackspace.httpx.Request;
+import org.openrepose.core.httpx.Body;
+import org.openrepose.core.httpx.Request;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;

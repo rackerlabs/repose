@@ -1,6 +1,6 @@
 package org.openrepose.filters.translation.httpx.parser;
 
-import com.rackspace.httpx.MessageDetail;
+import org.openrepose.core.httpx.MessageDetail;
 
 import java.io.InputStream;
 import java.util.List;

@@ -1,10 +1,10 @@
 package org.openrepose.filters.translation.httpx.node;
 
-import com.rackspace.httpx.MessageDetail;
-import com.rackspace.httpx.MessageEnvelope;
-import com.rackspace.httpx.Method;
-import com.rackspace.httpx.Request;
-import com.rackspace.httpx.RequestHeadDetail;
+import org.openrepose.core.httpx.MessageDetail;
+import org.openrepose.core.httpx.MessageEnvelope;
+import org.openrepose.core.httpx.Method;
+import org.openrepose.core.httpx.Request;
+import org.openrepose.core.httpx.RequestHeadDetail;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletRequest;
