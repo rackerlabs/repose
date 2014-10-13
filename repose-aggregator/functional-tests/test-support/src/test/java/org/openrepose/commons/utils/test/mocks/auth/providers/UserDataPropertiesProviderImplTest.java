@@ -1,4 +1,4 @@
-package org.openrepose.commons.util.test.mocks.auth.providers;
+package org.openrepose.commons.utils.test.mocks.auth.providers;
 
 import org.openrepose.commons.utils.test.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import org.junit.Before;

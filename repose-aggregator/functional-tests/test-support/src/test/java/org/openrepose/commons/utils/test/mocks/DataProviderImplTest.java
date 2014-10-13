@@ -1,4 +1,4 @@
-package org.openrepose.commons.util.test.mocks;
+package org.openrepose.commons.utils.test.mocks;
 
 import org.junit.Before;
 import org.junit.Test;

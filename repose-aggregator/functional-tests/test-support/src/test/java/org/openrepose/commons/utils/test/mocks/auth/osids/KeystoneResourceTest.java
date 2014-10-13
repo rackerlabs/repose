@@ -1,4 +1,4 @@
-package org.openrepose.commons.util.test.mocks.auth.osids;
+package org.openrepose.commons.utils.test.mocks.auth.osids;
 
 import org.junit.Before;
 import org.junit.Ignore;
