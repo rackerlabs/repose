@@ -1,13 +1,13 @@
-package com.rackspace.identity.repose.rackspaceauthuser
+package org.openrepose.filters.rackspaceauthuser
 
 import javax.servlet._
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
-import com.typesafe.scalalogging.slf4j.LazyLogging
 
 class RackspaceAuthUserFilter extends Filter with LazyLogging {
 
