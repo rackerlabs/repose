@@ -1,23 +1,23 @@
 package org.openrepose.filters.versioning.domain;
 
-import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueParser;
-import org.openrepose.commons.utils.http.media.MediaType;
-import com.rackspace.papi.components.versioning.config.MediaTypeList;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.components.versioning.schema.VersionChoice;
-import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
-import org.openrepose.filters.versioning.util.VersionChoiceFactory;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
-import org.openrepose.core.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueParser;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.filters.versioning.config.MediaTypeList;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.schema.VersionChoice;
+import org.openrepose.filters.versioning.schema.VersionChoiceList;
+import org.openrepose.filters.versioning.util.VersionChoiceFactory;
+import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
+import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
 
 import java.util.Collection;
 import java.util.Map;
@@ -105,7 +105,7 @@ public class ConfigurationData {
    }
 
    public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
-      com.rackspace.papi.components.versioning.config.MediaType mediaType;
+      org.openrepose.filters.versioning.config.MediaType mediaType;
       for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
          mediaType = getMatchingMediaType((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange);
          if (mediaType != null) {
@@ -115,12 +115,12 @@ public class ConfigurationData {
       return null;
    }
 
-   public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
+   public org.openrepose.filters.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
       final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
        if(configuredMediaTypes == null){
            return null;
        }
-      for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
+      for (org.openrepose.filters.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
          HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();
          if(preferedMediaType.equalsTo(mediaType)){
             return configuredMediaType;

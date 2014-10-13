@@ -1,11 +1,10 @@
 package org.openrepose.filters.versioning.util;
 
-
-import com.rackspace.papi.components.versioning.config.MediaType;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.components.versioning.schema.MediaTypeList;
-import com.rackspace.papi.components.versioning.schema.VersionChoice;
-import com.rackspace.papi.components.versioning.schema.VersionStatus;
+import org.openrepose.filters.versioning.config.MediaType;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.schema.MediaTypeList;
+import org.openrepose.filters.versioning.schema.VersionChoice;
+import org.openrepose.filters.versioning.schema.VersionStatus;
 
 /**
  * @author fran
@@ -33,8 +32,8 @@ public class VersionChoiceFactory {
         if (serviceVersionMapping.getMediaTypes() != null) {
             mediaTypeList = new MediaTypeList();
 
-            for (MediaType configuredMediaType : serviceVersionMapping.getMediaTypes().getMediaType()){                
-                com.rackspace.papi.components.versioning.schema.MediaType responseMediaType = new com.rackspace.papi.components.versioning.schema.MediaType();
+            for (MediaType configuredMediaType : serviceVersionMapping.getMediaTypes().getMediaType()){
+                org.openrepose.filters.versioning.schema.MediaType responseMediaType = new org.openrepose.filters.versioning.schema.MediaType();
 
                 responseMediaType.setBase(configuredMediaType.getBase());
                 responseMediaType.setType(configuredMediaType.getType());

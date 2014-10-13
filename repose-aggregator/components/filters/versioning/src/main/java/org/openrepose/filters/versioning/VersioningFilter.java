@@ -1,15 +1,15 @@
 package org.openrepose.filters.versioning;
 
-import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
+import com.rackspace.papi.model.SystemModel;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.model.SystemModel;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
+import org.openrepose.services.healthcheck.HealthCheckService;
 import org.slf4j.Logger;
 
 import javax.servlet.*;

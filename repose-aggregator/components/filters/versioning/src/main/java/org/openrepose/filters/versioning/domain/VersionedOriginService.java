@@ -1,7 +1,7 @@
 package org.openrepose.filters.versioning.domain;
 
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.model.Destination;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 
 public class VersionedOriginService {
 

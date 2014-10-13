@@ -1,18 +1,18 @@
 package org.openrepose.filters.versioning.domain;
 
-import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.MimeType;
-import com.rackspace.papi.components.versioning.config.MediaTypeList;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
-import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.versioning.config.MediaTypeList;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
+import org.openrepose.filters.versioning.schema.VersionChoiceList;
+import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
+import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class ConfigurationDataTest {
       version1.setId("/v1");
       version1.setPpDestId("localhost");
       MediaTypeList v1MediaTypeList = new MediaTypeList();
-      com.rackspace.papi.components.versioning.config.MediaType v1MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
+      org.openrepose.filters.versioning.config.MediaType v1MediaType1 = new org.openrepose.filters.versioning.config.MediaType();
       v1MediaType1.setBase("application/xml");
       v1MediaType1.setType("application/vnd.vendor.service-v1+xml");
       v1MediaTypeList.getMediaType().add(v1MediaType1);
@@ -67,7 +67,7 @@ public class ConfigurationDataTest {
       version2.setId("/v2");
       version2.setPpDestId("localhost");
       MediaTypeList v2MediaTypeList = new MediaTypeList();
-      com.rackspace.papi.components.versioning.config.MediaType v2MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
+      org.openrepose.filters.versioning.config.MediaType v2MediaType1 = new org.openrepose.filters.versioning.config.MediaType();
       v2MediaType1.setBase("application/xml");
       v2MediaType1.setType("application/vnd.vendor.service-v2+xml");
       v2MediaTypeList.getMediaType().add(v2MediaType1);

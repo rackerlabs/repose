@@ -1,15 +1,15 @@
 package org.openrepose.filters.versioning.domain;
 
-import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.MimeType;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfoImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.filters.versioning.config.ServiceVersionMapping;
+import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
+import org.openrepose.filters.versioning.util.http.HttpRequestInfoImpl;
 
 import java.util.LinkedList;
 import java.util.List;
