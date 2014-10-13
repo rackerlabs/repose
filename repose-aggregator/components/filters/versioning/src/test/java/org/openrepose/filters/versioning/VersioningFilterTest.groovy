@@ -3,10 +3,10 @@ package org.openrepose.filters.versioning
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
-import com.rackspace.papi.components.versioning.config.MediaType
-import com.rackspace.papi.components.versioning.config.MediaTypeList
-import org.openrepose.filters.versioning.testhelpers.VersioningFilterSpecification
 import org.openrepose.core.systemmodel.DestinationEndpoint
+import org.openrepose.filters.versioning.config.MediaType
+import org.openrepose.filters.versioning.config.MediaTypeList
+import org.openrepose.filters.versioning.testhelpers.VersioningFilterSpecification
 
 import javax.servlet.http.HttpServletRequest
 
