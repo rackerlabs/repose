@@ -1,4 +1,4 @@
-package com.rackspace.repose.experimental.servletContract;
+package org.openrepose.experimental.filters.servletcontract;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
