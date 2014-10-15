@@ -100,6 +100,7 @@ public class FilterContextManagerImpl implements FilterContextManager {
         final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
        
         try {
+            //TODO: Filter Context building
             currentThread.setContextClassLoader(nextClassLoader);
             final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
 
