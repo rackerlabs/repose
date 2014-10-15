@@ -11,7 +11,7 @@ import spock.lang.Specification
 @Category(Slow.class)
 class HeaderNormalizationJMXTest extends Specification {
 
-    String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
+    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
 
     String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
     String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""

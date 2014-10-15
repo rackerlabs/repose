@@ -8,6 +8,6 @@
    <globalBindings generateIsSetMethod="true" />
     
    <schemaBindings>
-      <package name="org.openrepose.components.routing.servlet.config" />
+      <package name="org.openrepose.filters.routing.servlet.config" />
    </schemaBindings>
 </bindings>

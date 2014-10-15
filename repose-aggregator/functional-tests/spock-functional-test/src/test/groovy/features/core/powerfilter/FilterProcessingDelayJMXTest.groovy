@@ -6,7 +6,7 @@ import org.rackspace.deproxy.Response
 
 class FilterProcessingDelayJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"FilterProcessingTime\",scope=\"Delay\""
+    String PREFIX = "\"repose-node1-org.openrepose.core\":type=\"FilterProcessingTime\",scope=\"Delay\""
 
     String API_VALIDATOR = PREFIX + ",name=\"api-validator\""
     String IP_IDENTITY = PREFIX + ",name=\"ip-identity\""

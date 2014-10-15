@@ -1,12 +1,11 @@
 package features.services.datastore
-import com.rackspace.papi.commons.util.io.ObjectSerializer
+import org.openrepose.commons.utils.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
-import org.junit.Ignore
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
-import static org.junit.Assert.*
+
 import static org.junit.Assert.assertTrue;
 
 class DistDatastoreServicePutTest extends ReposeValveTest {

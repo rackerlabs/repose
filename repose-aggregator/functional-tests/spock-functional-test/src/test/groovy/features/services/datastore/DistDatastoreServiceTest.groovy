@@ -1,7 +1,7 @@
 package features.services.datastore
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer
-import com.rackspace.papi.components.datastore.StringValue
+import org.openrepose.commons.utils.io.ObjectSerializer
+import org.openrepose.services.datastore.StringValue
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category

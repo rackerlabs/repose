@@ -6,6 +6,6 @@
         schemaLocation="httpx.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.httpx" />
+        <package name="org.openrepose.core.httpx" />
     </schemaBindings>
 </bindings>

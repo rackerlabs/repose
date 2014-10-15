@@ -7,6 +7,6 @@
           schemaLocation="rackspace-identity-basic-auth.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.components.rackspace.identity.basicauth.config"/>
+        <package name="org.openrepose.filters.rackspaceidentitybasicauth.config"/>
     </schemaBindings>
 </bindings>

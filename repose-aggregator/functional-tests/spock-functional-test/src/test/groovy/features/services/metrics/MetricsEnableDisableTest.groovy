@@ -5,8 +5,8 @@ import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
-    String RESPONSE_CODE_PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""
+    String PREFIX = "\"repose-node1-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
+    String RESPONSE_CODE_PREFIX = "\"repose-node1-org.openrepose.core\":type=\"ResponseCode\",scope=\""
 
     String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_2XX = "\",name=\"2XX\""

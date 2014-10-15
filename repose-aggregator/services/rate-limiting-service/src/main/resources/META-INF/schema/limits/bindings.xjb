@@ -6,6 +6,6 @@
         schemaLocation="limits.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.repose.service.limits.schema" />
+        <package name="org.openrepose.services.ratelimit.config" />
     </schemaBindings>
 </bindings>

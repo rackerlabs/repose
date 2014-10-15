@@ -7,7 +7,7 @@
         schemaLocation="rate-limiting-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.repose.service.ratelimit.config" />
+        <package name="org.openrepose.services.ratelimit.config" />
     </schemaBindings>
     <globalBindings>
         <xjc:serializable/>

@@ -9,7 +9,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
-    String PREFIX = "\"repose-node-com.rackspace.papi.filters\":type=\"ApiValidator\",scope=\""
+    String PREFIX = "\"repose-node-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
     String NAME_ROLE_1 = "\",name=\"role-1\""
     String NAME_ROLE_2 = "\",name=\"role-2\""
@@ -41,8 +41,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register Configuration MXBeans"() {
 
-        String ConfigurationBeanDomain = 'repose-node-com.rackspace.papi.jmx:*'
-        String ConfigurationClassName = "com.rackspace.papi.jmx.ConfigurationInformation"
+        String ConfigurationBeanDomain = 'repose-node-org.openrepose.core.jmx:*'
+        String ConfigurationClassName = "org.openrepose.core.jmx.ConfigurationInformation"
 
         deproxy.makeRequest(url:reposeEndpoint + "/")
 

@@ -1,6 +1,6 @@
 package org.openrepose.cli;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.cli.command.Command;
 import org.openrepose.cli.command.results.CommandResult;
 

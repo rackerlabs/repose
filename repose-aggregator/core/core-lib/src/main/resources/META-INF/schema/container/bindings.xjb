@@ -6,6 +6,6 @@
         schemaLocation="container-configuration.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.container.config" />
+        <package name="org.openrepose.core.container.config" />
     </schemaBindings>
 </bindings>

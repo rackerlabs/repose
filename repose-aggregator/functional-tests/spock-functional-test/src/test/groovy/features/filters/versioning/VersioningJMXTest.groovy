@@ -19,7 +19,7 @@ import spock.lang.Specification
 @Category(Slow.class)
 class VersioningJMXTest extends Specification {
 
-    String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"Versioning\",scope=\"versioning\""
+    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"Versioning\",scope=\"versioning\""
 
     String VERSION_UNVERSIONED = "${PREFIX},name=\"Unversioned\""
     String VERSION_V1 = "${PREFIX},name=\"v1\""

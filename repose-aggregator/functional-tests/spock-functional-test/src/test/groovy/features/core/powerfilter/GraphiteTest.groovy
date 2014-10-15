@@ -10,7 +10,7 @@ import org.rackspace.deproxy.PortFinder
 class GraphiteTest extends ReposeValveTest {
 
     static String METRIC_PREFIX = "test.1.metrics"
-    static String METRIC_NAME = "repose-node1-com.rackspace.papi.ResponseCode.Repose.2XX.count"
+    static String METRIC_NAME = "repose-node1-org.openrepose.core.ResponseCode.Repose.2XX.count"
 
     int graphitePort;
     MockGraphite mockGraphite

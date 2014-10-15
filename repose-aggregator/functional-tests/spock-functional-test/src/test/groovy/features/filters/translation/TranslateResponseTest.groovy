@@ -88,8 +88,6 @@ class TranslateResponseTest extends ReposeValveTest {
         contentJSON    | jsonResponse               | 200      | xmlJSON + [add]| [filterChainUnavailable] | "PUT"
         contentOther   | jsonResponse               | 200      | [jsonResponse] | [add]                    | "PUT"
         contentXML     | xmlResponseWithExtEntities | 200      | ["\"somebody"] | [remove]                 | "POST"
-
-
     }
 
 

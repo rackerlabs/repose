@@ -11,7 +11,7 @@ import spock.lang.Specification
 @Category(Slow.class)
 class UriNormalizationJMXTest extends Specification {
 
-    String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""
+    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""
 
     String URI_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
     String URI_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""

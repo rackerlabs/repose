@@ -8,14 +8,14 @@
     <import resource="repose-core-context.xml"/>
 
     <bean name="httpConnectionPoolService" scope="singleton"
-          class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
+          class="org.openrepose.services.httpclient.impl.HttpConnectionPoolServiceImpl"/>
 
-    <bean name="requestProxyService" class="com.rackspace.papi.service.proxy.httpcomponent.RequestProxyServiceImpl">
+    <bean name="requestProxyService" class="org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl">
         <property name="httpClientService" ref="httpConnectionPoolService"/>
     </bean>
 
     <bean name="httpConnectionPoolServiceContext"
-          class="com.rackspace.papi.service.context.impl.HttpConnectionPoolServiceContext">
+          class="org.openrepose.core.services.context.impl.HttpConnectionPoolServiceContext">
       
         <constructor-arg index="0" ref="serviceRegistry"/>
         <constructor-arg index="1" ref="configurationManager"/>
@@ -24,12 +24,12 @@
     </bean>
 
     <bean name="akkaServiceClientService"
-          class="com.rackspace.papi.service.serviceclient.akka.AkkaServiceClientImpl">
+          class="org.openrepose.services.serviceclient.akka.impl.AkkaServiceClientImpl">
         <constructor-arg index="0" ref="httpConnectionPoolService"/>
     </bean>
 
     <bean name="akkaServiceClientContext"
-          class="com.rackspace.papi.service.context.impl.AkkaServiceClientContext">
+          class="org.openrepose.core.services.context.impl.AkkaServiceClientContext">
 
         <constructor-arg index="0" ref="serviceRegistry"/>
         <constructor-arg index="1" ref="akkaServiceClientService"/>

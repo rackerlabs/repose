@@ -6,6 +6,6 @@
         schemaLocation="normalization-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.components.normalization.config" />
+        <package name="org.openrepose.filters.cnorm.config" />
     </schemaBindings>
 </bindings>

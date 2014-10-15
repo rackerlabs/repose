@@ -6,6 +6,6 @@
         schemaLocation="rackspace-auth-user-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.identity.repose.rackspaceauthuser" />
+        <package name="org.openrepose.filters.rackspaceauthuser" />
     </schemaBindings>
 </bindings>

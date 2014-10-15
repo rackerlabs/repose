@@ -6,6 +6,6 @@
           schemaLocation="request-info.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.test.mocks" />
+        <package name="org.openrepose.commons.utils.test.mocks" />
     </schemaBindings>
 </bindings>
