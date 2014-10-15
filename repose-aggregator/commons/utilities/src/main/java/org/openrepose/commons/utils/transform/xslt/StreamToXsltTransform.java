@@ -1,7 +1,6 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.ResourceContextException;
-import org.openrepose.commons.utils.pooling.SimpleResourceContext;
+import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.transform.StreamTransform;
 
 import javax.xml.transform.Templates;
@@ -24,17 +23,27 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
 
    @Override
    public void transform(final InputStream source, final OutputStream target) {
-      getXslTransformerPool().use(new SimpleResourceContext<Transformer>() {
-
-         @Override
-         public void perform(Transformer resource) throws ResourceContextException {
+        Transformer pooledObject = null;
+        final ObjectPool<Transformer> objectPool = getXslTransformerPool();
+        try {
+            pooledObject = objectPool.borrowObject();
             try {
-               resource.transform(new StreamSource(source), new StreamResult(target));
+                pooledObject.transform(new StreamSource(source), new StreamResult(target));
             } catch (TransformerException te) {
-               throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
-                       + te.getMessage(), te);
+               throw new XsltTransformationException("Failed while attempting XSLT transformation.", te);
+            } catch (Exception e) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
+                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+            } finally {
+                if (null != pooledObject) {
+                    objectPool.returnObject(pooledObject);
+                }
             }
-         }
-      });
+        } catch (XsltTransformationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
    }
 }

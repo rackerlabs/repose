@@ -22,7 +22,7 @@ public class XmlChainPool {
   private final boolean acceptAllContentTypes;
   private final String accept;
   private final boolean acceptAll;
-  private final ObjectPool<XmlFilterChain> pool;
+  private final ObjectPool<XmlFilterChain> objectPool;
   private final String resultContentType;
   private final Pattern statusRegex;
   private boolean allMethods;
@@ -35,7 +35,7 @@ public class XmlChainPool {
     this.accept = accept;
     this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
     this.resultContentType = resultContentType;
-    this.pool = pool;
+    this.objectPool = pool;
     this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<HttpMethod>();
     this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
     this.params = params;
@@ -76,55 +76,35 @@ public class XmlChainPool {
   }
 
   public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
-      TranslationResult result = null;
-      XmlFilterChain xmlFilterChain;
-      try {
-          xmlFilterChain = getPool().borrowObject();
-          try {
-              inputs.addAll(getParams());
-              List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
+        TranslationResult rtn = null;
+        XmlFilterChain pooledObject = null;
+        try {
+            pooledObject = objectPool.borrowObject();
+            try {
+                inputs.addAll(params);
+                List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
+                pooledObject.executeChain(in, out, inputs, outputs);
+                rtn = new TranslationResult(true, outputs);
+            } catch (XsltException e) {
+                LOG.warn("Error processing transforms", e.getMessage(), e);
+                rtn = new TranslationResult(false);
+            } catch (Exception e) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
+                LOG.error("Failed to utilize the XmlFilterChain.", e);
+            } finally {
+                if (null != pooledObject) {
+                    objectPool.returnObject(pooledObject);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to obtain a FIX_POOLED", e);
+        }
 
-              xmlFilterChain.executeChain(in, out, inputs, outputs);
-              result = new TranslationResult(true, outputs);
-          } catch (XsltException ex) {
-              LOG.warn("Error processing transforms", ex.getMessage(), ex);
-              result = new TranslationResult(false);
-              getPool().invalidateObject(xmlFilterChain);
-              xmlFilterChain = null;
-          } finally {
-              if(xmlFilterChain != null) {
-                  getPool().returnObject(xmlFilterChain);
-              }
-          }
-      } catch (Exception e) {
-          LOG.warn("Error getting xmlFilterChain from the pool", e);
-          result = new TranslationResult(false);
-      }
-
-      return result;
-  }
-
-  public String getContentType() {
-    return contentType;
-  }
-
-  public String getAccept() {
-    return accept;
-  }
-
-  public ObjectPool<XmlFilterChain> getPool() {
-    return pool;
+        return rtn;
   }
 
   public String getResultContentType() {
     return resultContentType;
-  }
-
-  public Pattern getStatusRegex() {
-    return statusRegex;
-  }
-
-  public List<XsltParameter> getParams() {
-    return params;
   }
 }

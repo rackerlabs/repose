@@ -1,9 +1,8 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.ConstructionStrategy;
-import org.openrepose.commons.utils.pooling.GenericBlockingResourcePool;
-import org.openrepose.commons.utils.pooling.Pool;
-import org.openrepose.commons.utils.pooling.ResourceConstructionException;
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -11,16 +10,16 @@ import javax.xml.transform.TransformerConfigurationException;
 
 public abstract class AbstractXslTransform {
 
-   private final Pool<Transformer> xsltResourcePool;
+   private final ObjectPool<Transformer> xsltResourcePool;
    private final Templates transformationTemplates;
 
    public AbstractXslTransform(Templates transformTemplates) {
       this.transformationTemplates = transformTemplates;
 
-      xsltResourcePool = new GenericBlockingResourcePool<Transformer>(new ConstructionStrategy<Transformer>() {
+      xsltResourcePool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Transformer>() {
 
          @Override
-         public Transformer construct() throws ResourceConstructionException {
+         public Transformer makeObject() throws Exception {
             try {
                return transformationTemplates.newTransformer();
             } catch (TransformerConfigurationException configurationException) {
@@ -31,7 +30,7 @@ public abstract class AbstractXslTransform {
       });
    }
 
-   protected Pool<Transformer> getXslTransformerPool() {
+   protected ObjectPool<Transformer> getXslTransformerPool() {
       return xsltResourcePool;
    }
 }

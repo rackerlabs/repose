@@ -1,12 +1,12 @@
 package org.openrepose.commons.utils.digest;
 
-import org.openrepose.commons.utils.pooling.ConstructionStrategy;
+import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.openrepose.commons.utils.pooling.ResourceConstructionException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class MessageDigestConstructionStrategy implements ConstructionStrategy<MessageDigest> {
+public class MessageDigestConstructionStrategy extends BasePoolableObjectFactory<MessageDigest> {
 
    private final String digestSpecName;
 
@@ -15,7 +15,7 @@ public class MessageDigestConstructionStrategy implements ConstructionStrategy<M
    }
 
    @Override
-   public MessageDigest construct() throws ResourceConstructionException {
+   public MessageDigest makeObject() throws Exception {
       try {
          return MessageDigest.getInstance(digestSpecName);
       } catch (NoSuchAlgorithmException nsae) {

@@ -333,6 +333,13 @@
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
         </dependency>
+
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
+        </dependency>
     </dependencies>
 
     <build>

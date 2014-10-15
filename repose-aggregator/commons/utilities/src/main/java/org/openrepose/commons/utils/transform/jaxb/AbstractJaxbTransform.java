@@ -1,8 +1,8 @@
 package org.openrepose.commons.utils.transform.jaxb;
 
-import org.openrepose.commons.utils.pooling.ConstructionStrategy;
-import org.openrepose.commons.utils.pooling.GenericBlockingResourcePool;
-import org.openrepose.commons.utils.pooling.Pool;
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.openrepose.commons.utils.pooling.ResourceConstructionException;
 
 import javax.xml.bind.JAXBContext;
@@ -16,17 +16,16 @@ import javax.xml.bind.Unmarshaller;
  */
 public abstract class AbstractJaxbTransform {
 
-   private final Pool<Marshaller> marshallerPool;
-   private final Pool<Unmarshaller> unmarshallerPool;
+   private final ObjectPool<Marshaller> marshallerPool;
+   private final ObjectPool<Unmarshaller> unmarshallerPool;
    private final JAXBContext jaxbContext;
 
    public AbstractJaxbTransform(JAXBContext ctx) {
       jaxbContext = ctx;
 
-      marshallerPool = new GenericBlockingResourcePool<Marshaller>(new ConstructionStrategy<Marshaller>() {
-
+      marshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Marshaller>() {
          @Override
-         public Marshaller construct() throws ResourceConstructionException {
+         public Marshaller makeObject() throws Exception {
             try {
                return jaxbContext.createMarshaller();
             } catch (JAXBException jaxbe) {
@@ -35,10 +34,9 @@ public abstract class AbstractJaxbTransform {
          }
       });
 
-      unmarshallerPool = new GenericBlockingResourcePool<Unmarshaller>(new ConstructionStrategy<Unmarshaller>() {
-
+      unmarshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
          @Override
-         public Unmarshaller construct() throws ResourceConstructionException {
+         public Unmarshaller makeObject() throws Exception {
             try {
                return jaxbContext.createUnmarshaller();
             } catch (JAXBException jaxbe) {
@@ -48,11 +46,11 @@ public abstract class AbstractJaxbTransform {
       });
    }
 
-   protected Pool<Marshaller> getMarshallerPool() {
+   protected ObjectPool<Marshaller> getMarshallerPool() {
       return marshallerPool;
    }
 
-   protected Pool<Unmarshaller> getUnmarshallerPool() {
+   protected ObjectPool<Unmarshaller> getUnmarshallerPool() {
       return unmarshallerPool;
    }
 }

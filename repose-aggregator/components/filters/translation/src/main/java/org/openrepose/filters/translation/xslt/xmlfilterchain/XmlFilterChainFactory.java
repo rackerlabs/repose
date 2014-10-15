@@ -5,8 +5,6 @@ import org.openrepose.filters.translation.config.StyleSheet;
 import org.openrepose.filters.translation.config.TranslationBase;
 import org.openrepose.filters.translation.xslt.StyleSheetInfo;
 import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import java.util.List;
 
 public class XmlFilterChainFactory extends BasePoolableObjectFactory<XmlFilterChain> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainFactory.class);
     private final XmlFilterChainBuilder builder;
     private final TranslationBase translation;
     private final String configRoot;
@@ -32,7 +29,7 @@ public class XmlFilterChainFactory extends BasePoolableObjectFactory<XmlFilterCh
     }
 
     @Override
-    public XmlFilterChain makeObject() {
+    public XmlFilterChain makeObject() throws Exception {
         List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
