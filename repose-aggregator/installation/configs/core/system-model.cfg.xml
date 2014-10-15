@@ -13,7 +13,6 @@
       <!--
       <filter name="ip-identity" />
       <filter name="header-identity" />
-
       -->
       <filter name="rate-limiting" />
     </filters>
