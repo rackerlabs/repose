@@ -10,12 +10,12 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.deb.cli-utils</groupId>
-    <artifactId>cli-utils</artifactId>
+    <artifactId>repose-cli-utils</artifactId>
 
     <name>Repose - Installation Cloud Integration CLI-Utilities DEB</name>
 
     <description>
-        Module for the CLI-Utils DEB.
+        Module for the Repose CLI-Utils DEB.
     </description>
 
     <packaging>pom</packaging>
@@ -72,7 +72,7 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]].deb</deb>
+                                    <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
 
                                     <dataSet>
@@ -99,7 +99,7 @@
                                             </src>
                                         </data>
 
-                                        <!-- The start script -->
+                                        <!-- The dd-remove script -->
                                         <data>
                                             <type>file</type>
                                             <mapper>
@@ -143,7 +143,6 @@
                                                 ${basedir}/../../../../LICENSE.txt
                                             </src>
                                         </data>
-
                                     </dataSet>
                                 </configuration>
                             </execution>
