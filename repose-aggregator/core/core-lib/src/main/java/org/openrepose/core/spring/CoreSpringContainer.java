@@ -2,6 +2,7 @@ package org.openrepose.core.spring;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 /**
  * This class should not be used directly. It's built here so that it can be proven via tests.
@@ -21,7 +22,7 @@ public class CoreSpringContainer {
         return coreContext;
     }
 
-    public ApplicationContext getContextForFilter(ClassLoader loader, String className, String contextName) throws ClassNotFoundException {
+    public AbstractApplicationContext getContextForFilter(ClassLoader loader, String className, String contextName) throws ClassNotFoundException {
         AnnotationConfigApplicationContext filterContext = new AnnotationConfigApplicationContext();
         filterContext.setClassLoader(loader);
         filterContext.setParent(getCoreContext());
