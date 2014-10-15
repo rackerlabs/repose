@@ -1,9 +1,10 @@
 package org.openrepose.core.spring
 
+import javax.servlet.Filter
+
 import org.openrepose.core.spring.test.foo.FooBean
-import org.openrepose.core.spring.test.{HerpBean, DerpBean}
+import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.{FunSpec, Matchers}
-import org.springframework.context.ApplicationContext
 
 class CoreSpringContainerTest extends FunSpec with Matchers{
 
@@ -27,7 +28,15 @@ class CoreSpringContainerTest extends FunSpec with Matchers{
       csc.getCoreContext.getDisplayName shouldBe "ReposeCoreContext"
     }
     it("provides a per-filter context"){
-      pending
+      val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
+      val classLoader = this.getClass.getClassLoader
+      val filterBeanContext = csc.getContextForFilter(classLoader, "org.openrepose.core.spring.testfilter.TestFilter", "TestFilterContextName")
+
+      filterBeanContext.getDisplayName should be("TestFilterContextName")
+
+      val actualFilter = filterBeanContext.getBean[Filter](classOf[Filter])
+
+      classOf[Filter].isAssignableFrom(actualFilter.getClass) shouldBe true
     }
     it("closes down a filter context") {
       pending

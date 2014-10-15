@@ -14,9 +14,24 @@ public class CoreSpringContainer {
         coreContext = new AnnotationConfigApplicationContext();
         coreContext.setDisplayName("ReposeCoreContext");
         coreContext.scan(coreScanPackage);
+        coreContext.refresh();
     }
 
     public ApplicationContext getCoreContext() {
         return coreContext;
+    }
+
+    public ApplicationContext getContextForFilter(ClassLoader loader, String className, String contextName) throws ClassNotFoundException {
+        AnnotationConfigApplicationContext filterContext = new AnnotationConfigApplicationContext();
+        filterContext.setClassLoader(loader);
+        filterContext.setParent(getCoreContext());
+        filterContext.setDisplayName(contextName);
+
+        Class tehFilter = loader.loadClass(className);
+
+        filterContext.scan(tehFilter.getPackage().getName());
+        filterContext.refresh();
+
+        return filterContext;
     }
 }
