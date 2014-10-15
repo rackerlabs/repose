@@ -5,11 +5,13 @@ import javax.servlet.Filter
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.{FunSpec, Matchers}
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import org.springframework.context.support.AbstractApplicationContext
 
-class CoreSpringContainerTest extends FunSpec with Matchers{
+class CoreSpringContainerTest extends FunSpec with Matchers {
 
   describe("Core Spring Container") {
-    it("provides all beans from a specific package onward"){
+    it("provides all beans from a specific package onward") {
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
 
       val coreContext = csc.getCoreContext
@@ -27,7 +29,7 @@ class CoreSpringContainerTest extends FunSpec with Matchers{
       val csc = new CoreSpringContainer("org.nope.nothingtoscan")
       csc.getCoreContext.getDisplayName shouldBe "ReposeCoreContext"
     }
-    it("provides a per-filter context from a given classloader"){
+    it("provides a per-filter context from a given classloader") {
       // TODO: How to verify that we're doing this actual classloader
       // TODO: do we build a test support ear for core to verify its interaction
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
@@ -40,8 +42,18 @@ class CoreSpringContainerTest extends FunSpec with Matchers{
 
       classOf[Filter].isAssignableFrom(actualFilter.getClass) shouldBe true
     }
-    it("closes down a filter context") {
-      pending
+    it("provides a closeable filter context") {
+      val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
+
+      val classLoader = this.getClass.getClassLoader
+      val filterBeanContext = csc.getContextForFilter(classLoader, "org.openrepose.core.spring.testfilter.TestFilter", "TestFilterContextName")
+
+      //This should compile and close the context!
+      filterBeanContext.close()
+
+      intercept[NoSuchBeanDefinitionException] {
+        filterBeanContext.getBean("org.openrepose.core.spring.testfilter.TestFilter")
+      }
     }
   }
 }
