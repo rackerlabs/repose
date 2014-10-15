@@ -78,51 +78,70 @@
                                     <dataSet>
                                         <!-- The jar file -->
                                         <data>
-                                            <src>
-                                                <!-- TODO: The actual artifact ID should be used.
-                                                ${project.build.directory}/cli-utils-${project.version}.jar-->
-                                                ${project.build.directory}/repose-cli.jar
-                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/lib/repose</prefix>
-                                                <filemode>755</filemode>
+                                                <prefix>
+                                                    /usr/share/repose
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>555</filemode>
                                             </mapper>
+                                            <src>
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/cli-utils-${project.version}.jar -->
+                                                ${project.build.directory}/repose-cli.jar
+                                            </src>
                                         </data>
 
                                         <!-- The start script -->
                                         <data>
-                                            <src>${basedir}/../../bash/dd-remove</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/etc/init.d</prefix>
+                                                <prefix>
+                                                    /usr/bin
+                                                </prefix>
                                                 <filemode>755</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../bash/dd-remove
+                                            </src>
                                         </data>
 
                                         <!-- The clean up script -->
                                         <data>
-                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
                                             <type>file</type>
-
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/bin</prefix>
+                                                <prefix>
+                                                    /usr/bin
+                                                </prefix>
                                                 <filemode>755</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </src>
                                         </data>
 
                                         <!--This adds the license file on installation.-->
                                         <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/repose/${project.artifactId}</prefix>
-                                                <filemode>644</filemode>
+                                                <prefix>
+                                                    /usr/share/doc/repose/${project.artifactId}
+                                                </prefix>
+                                                <filemode>444</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                         </data>
 
                                     </dataSet>

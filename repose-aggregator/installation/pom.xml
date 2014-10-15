@@ -27,6 +27,7 @@
     <build>
         <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
         <pluginManagement>
+            <!-- TODO: Can these plugins be removed? -->
             <plugins>
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
