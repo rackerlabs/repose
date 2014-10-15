@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -9,12 +10,12 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.deb.filters.extensions</groupId>
-    <artifactId>repose-extension-filters</artifactId>
+    <artifactId>repose-extension-filter-bundle</artifactId>
 
-    <name>Repose - Installation Extension Filters DEB</name>
+    <name>Repose - Installation Extension Filter Bundle DEB</name>
 
     <description>
-        Module for the Extension Filters Bundle DEB.
+        Module for the Extension Filter Bundle DEB.
     </description>
 
     <packaging>pom</packaging>
@@ -68,21 +69,30 @@
 
                         <executions>
                             <execution>
-
                                 <configuration>
                                     <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
+
                                     <dataSet>
-                                        <!-- The jar file -->
+                                        <!-- The extensions archive -->
                                         <data>
-                                            <src>
-                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
-                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/repose/filters</prefix>
+                                                <prefix>
+                                                    /usr/share/repose/filters
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>555</filemode>
                                             </mapper>
+                                            <src>
+                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
+                                            </src>
                                         </data>
 
                                         <!--The git.properties file -->
@@ -98,27 +108,38 @@
 
                                         <!-- The sample configuration files for the filters -->
                                         <data>
-                                            <src>${basedir}/../../configs/extensions</src>
                                             <type>directory</type>
                                             <includes>*.cfg.xml</includes>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/etc/repose</prefix>
-                                                <filemode>600</filemode>
+                                                <prefix>
+                                                    /etc/repose
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>640</filemode>
                                             </mapper>
+                                            <src>${basedir}/../../configs/extensions</src>
                                         </data>
 
-                                        <!--This adds the license file on installation.-->
+                                        <!-- This adds the license file on installation -->
                                         <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/repose/${project.artifactId}</prefix>
-                                                <filemode>644</filemode>
+                                                <prefix>
+                                                    /usr/share/doc/${project.artifactId}
+                                                </prefix>
+                                                <filemode>444</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                         </data>
-
                                     </dataSet>
                                 </configuration>
                             </execution>
