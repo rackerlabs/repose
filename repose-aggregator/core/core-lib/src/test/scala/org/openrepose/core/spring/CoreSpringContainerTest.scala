@@ -27,7 +27,9 @@ class CoreSpringContainerTest extends FunSpec with Matchers{
       val csc = new CoreSpringContainer("org.nope.nothingtoscan")
       csc.getCoreContext.getDisplayName shouldBe "ReposeCoreContext"
     }
-    it("provides a per-filter context"){
+    it("provides a per-filter context from a given classloader"){
+      // TODO: How to verify that we're doing this actual classloader
+      // TODO: do we build a test support ear for core to verify its interaction
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
       val classLoader = this.getClass.getClassLoader
       val filterBeanContext = csc.getContextForFilter(classLoader, "org.openrepose.core.spring.testfilter.TestFilter", "TestFilterContextName")
