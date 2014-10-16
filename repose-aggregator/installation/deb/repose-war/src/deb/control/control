@@ -3,8 +3,9 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Maintainer: Repose Dev <repose-dev@openrepose.org>
+Maintainer: Repose Development <repose-development@lists.openrepose.org>
 Description: Debian Package for the Repose WAR
 Homepage: http://openrepose.org
 Depends: java7-runtime-headless
-Recommends: repose-valve, repose-filter-bundle, logrotate
+Recommends: repose-filter-bundle
+Suggests: repose-extension-filter-bundle, logrotate
