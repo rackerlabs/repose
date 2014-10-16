@@ -45,6 +45,9 @@ public class AbstractXslTransformTest {
 
         @Test
         public void shouldReturnPoolWithDefaultMinSizeOfOne() throws Exception {
+            when(templates.newTransformer())
+                    .thenReturn(mock(Transformer.class));
+
             Integer expected, actual;
 
             ObjectPool<Transformer> transformerPool;
@@ -56,7 +59,7 @@ public class AbstractXslTransformTest {
 
             actual = transformerPool.getNumActive() + transformerPool.getNumIdle();
 
-            if(null != pooledObject) {
+            if(pooledObject != null) {
                 transformerPool.returnObject(pooledObject);
             }
 
@@ -64,12 +67,12 @@ public class AbstractXslTransformTest {
         }
 
         @Test(expected=XsltTransformationException.class)
-        public void shouldThrowExceptionIfXslTransformerCanNotBeGenerated() throws TransformerConfigurationException {
+        public void shouldThrowExceptionIfXslTransformerCanNotBeGenerated() throws Exception {
             when(templates.newTransformer())
                     .thenThrow(new TransformerConfigurationException());
 
             //TODO: review...is it possible that too much is being done during construction?
-            new SampleXslTransform(templates);
+            new SampleXslTransform(templates).getXslTransformerPool().borrowObject();
         }
     }
 
