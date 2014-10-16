@@ -55,7 +55,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
         if (!configurationClass().isInstance(rtn)) {
             throw new ClassCastException("Parsed object from XML does not match the expected configuration class. "
                     + "Expected: " + configurationClass().getCanonicalName() + "  -  "
-                    + "Actual: " + rtn.getClass().getCanonicalName());
+                    + "Actual: " + (rtn==null?null:rtn.getClass().getCanonicalName()));
         }
         return configurationClass().cast(rtn);
     }

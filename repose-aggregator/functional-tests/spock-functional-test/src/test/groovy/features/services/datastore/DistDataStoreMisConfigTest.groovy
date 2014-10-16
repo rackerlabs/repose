@@ -23,7 +23,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     @Unroll("When start data store config #configuration")
     def "Test data store with wrong config"() {
         given:
-        def searchError = "Configuration update error. Reason: Validation error on resource"
+        def searchError = "Configuration update error. Reason: "
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
