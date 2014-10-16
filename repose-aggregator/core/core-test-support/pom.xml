@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi</groupId>
+        <artifactId>profile-support</artifactId>
+        <version>6.2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.core</groupId>
+    <artifactId>core-test-support</artifactId>
+
+    <name>Repose Core - Core Test Support</name>
+
+    <description>
+        A parent package to group test support packages, that's all.
+        These are needed to do testing in core, given classloaders and such.
+   </description>
+
+   <packaging>pom</packaging>
+
+   <modules>
+      <module>core-test-filter-bundle</module>
+      <module>core-test-filter</module>
+   </modules>
+</project>
+

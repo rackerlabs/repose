@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.core</groupId>
+        <artifactId>core-test-support</artifactId>
+        <version>6.2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.core</groupId>
+    <artifactId>core-test-filter</artifactId>
+
+    <name>Core Test Filter</name>
+    <description>
+        Only for providing a super simple filter for unit testing core's classloader stuff.
+    </description>
+
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <!-- The plugin that gets Scala running -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
