@@ -15,7 +15,7 @@
     <name>Repose - Installation Valve DEB</name>
 
     <description>
-        Module for the valve DEB.
+        Module for the Valve DEB.
     </description>
 
     <packaging>pom</packaging>
@@ -137,7 +137,9 @@
                                                 </group>
                                                 <filemode>644</filemode>
                                             </mapper>
-                                            <src>${basedir}/target/git.properties</src>
+                                            <src>
+                                                ${basedir}/target/git.properties
+                                            </src>
                                         </data>
 
                                         <!-- The /etc/repose directory -->
@@ -176,7 +178,9 @@
                                                 </group>
                                                 <filemode>640</filemode>
                                             </mapper>
-                                            <src>${basedir}/../../configs/core</src>
+                                            <src>
+                                                ${basedir}/../../configs/core
+                                            </src>
                                         </data>
 
                                         <!-- The clean up script -->
@@ -195,7 +199,9 @@
                                                 </group>
                                                 <filemode>755</filemode>
                                             </mapper>
-                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
+                                            <src>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </src>
                                         </data>
 
                                         <!-- The start script -->
@@ -214,7 +220,9 @@
                                                 </group>
                                                 <filemode>755</filemode>
                                             </mapper>
-                                            <src>src/deb/etc/init.d/repose-valve</src>
+                                            <src>
+                                                src/deb/etc/init.d/repose-valve
+                                            </src>
                                         </data>
 
                                         <!-- The /var/log/repose directory. -->
@@ -274,7 +282,9 @@
                                                 </group>
                                                 <filemode>644</filemode>
                                             </mapper>
-                                            <src>src/deb/etc/logrotate.d/repose</src>
+                                            <src>
+                                                src/deb/etc/logrotate.d/repose
+                                            </src>
                                         </data>
 
                                         <!--This adds the license file on installation.-->
@@ -287,7 +297,9 @@
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                         </data>
                                     </dataSet>
                                 </configuration>
