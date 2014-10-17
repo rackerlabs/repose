@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -58,15 +59,24 @@
 
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM.-->
+                                 to this RPM. -->
                             <name>repose-extension-filters</name>
 
                             <mappings>
+                                <!-- The extensions archive. -->
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <directory>
+                                        /usr/share/repose/filters
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
 
                                     <sources>
                                         <source>
@@ -77,41 +87,57 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The sample configuration files for the filters. -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <configuration>noreplace</configuration>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <configuration>noreplace</configuration>
+                                    <filemode>640</filemode>
 
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../../configs/extensions</location>
+                                            <location>
+                                                ${basedir}/../../configs/extensions
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation. -->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <directory>
+                                        /usr/share/doc/${project.artifactId}
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
-
                             </mappings>
 
                             <requires>
-                                <require>repose-filters</require>
+                                <require>repose</require>
                             </requires>
                             <group>Applications/Internet</group>
                         </configuration>
