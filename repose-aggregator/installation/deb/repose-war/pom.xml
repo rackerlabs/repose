@@ -80,7 +80,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    usr/share/repose
+                                                    /usr/share/repose
                                                 </path>
                                             </paths>
                                             <mapper>
@@ -122,7 +122,9 @@
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/${project.artifactId}</prefix>
+                                                <prefix>
+                                                    /usr/share/doc/${project.artifactId}
+                                                </prefix>
                                                 <user>
                                                     repose
                                                 </user>
@@ -142,7 +144,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    var/repose
+                                                    /var/repose
                                                 </path>
                                             </paths>
                                             <mapper>
@@ -162,7 +164,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    var/log/repose
+                                                    /var/log/repose
                                                 </path>
                                             </paths>
                                             <mapper>
@@ -225,7 +227,9 @@
                                             <type>directory</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/etc/repose</prefix>
+                                                <prefix>
+                                                    /etc/repose
+                                                </prefix>
                                                 <user>
                                                     repose
                                                 </user>
