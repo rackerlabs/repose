@@ -223,7 +223,7 @@
                                                 <filemode>755</filemode>
                                             </mapper>
                                             <src>
-                                                ${basedir}/../../configs/etc/init.d/repose-valve
+                                                ${basedir}/../../configs/etc/init.d/deb/repose-valve
                                             </src>
                                         </data>
 

@@ -154,7 +154,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                            <location>${basedir}/../../configs/etc/init.d/rpm/repose-valve</location>
                                         </source>
                                     </sources>
                                 </mapping>
