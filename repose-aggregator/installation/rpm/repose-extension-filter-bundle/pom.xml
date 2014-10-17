@@ -139,6 +139,7 @@
                             <requires>
                                 <require>repose</require>
                             </requires>
+                            
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
