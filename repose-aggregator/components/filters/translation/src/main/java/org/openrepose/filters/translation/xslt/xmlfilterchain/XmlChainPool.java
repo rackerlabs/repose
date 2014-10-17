@@ -76,7 +76,7 @@ public class XmlChainPool {
   }
 
   public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
-        TranslationResult rtn = null;
+        TranslationResult rtn = new TranslationResult(false);
         XmlFilterChain pooledObject;
         try {
             pooledObject = objectPool.borrowObject();
@@ -89,7 +89,6 @@ public class XmlChainPool {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
                 LOG.warn("Error processing transforms", e.getMessage(), e);
-                rtn = new TranslationResult(false);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
@@ -101,7 +100,6 @@ public class XmlChainPool {
             }
         } catch (Exception e) {
             LOG.error("Failed to obtain an XmlFilterChain", e);
-            rtn = new TranslationResult(false);
         }
 
         return rtn;
