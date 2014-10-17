@@ -72,11 +72,18 @@
                         <configuration>
                             <name>ug-repose-valve</name>
                             <mappings>
+                                <!-- The JAR file. -->
                                 <mapping>
-                                    <directory>/usr/share/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <username>
+                                        intermediary
+                                    </username>
+                                    <groupname>
+                                        intermediary
+                                    </groupname>
+                                    <filemode>555</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -88,6 +95,7 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- Git snashot data -->
                                 <mapping>
                                     <directory>/usr/share/doc/repose-valve</directory>
                                     <username>root</username>
@@ -100,12 +108,34 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The /etc/repose directory. -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
+                                    <username>
+                                        intermediary
+                                    </username>
+                                    <groupname>
+                                        intermediary
+                                    </groupname>
+                                    <filemode>770</filemode>
+                                </mapping>
+
+                                <!-- The config files. -->
+                                <mapping>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>
+                                        intermediary
+                                    </username>
+                                    <groupname>
+                                        intermediary
+                                    </groupname>
+                                    <filemode>640</filemode>
                                     <configuration>noreplace</configuration>
-                                    <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
@@ -114,10 +144,14 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The start script. -->
                                 <mapping>
-                                    <directory>/etc/init.d</directory>
+                                    <directory>
+                                        /etc/init.d
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
+
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/init.d/repose-valve</location>
@@ -125,43 +159,57 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The /var/repose directory. -->
+                                <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
                                 <mapping>
-                                    <directory>/var/log/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/.log_dir_placeholder</location>
-                                        </source>
-                                    </sources>
+                                    <directory>
+                                        /var/repose
+                                    </directory>
+                                    <username>
+                                        intermediary
+                                    </username>
+                                    <groupname>
+                                        intermediary
+                                    </groupname>
+                                    <filemode>750</filemode>
                                 </mapping>
 
+                                <!-- The /var/log/repose directory. -->
                                 <mapping>
-                                    <directory>/var/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>760</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/.var_repose_dir_placeholder</location>
-                                        </source>
-                                    </sources>
+                                    <directory>
+                                        /var/log/repose
+                                    </directory>
+                                    <username>
+                                        intermediary
+                                    </username>
+                                    <groupname>
+                                        intermediary
+                                    </groupname>
+                                    <filemode>750</filemode>
                                 </mapping>
 
+                                <!-- The logrotate script. -->
                                 <mapping>
-                                    <directory>/etc/logrotate.d</directory>
+                                    <directory>
+                                        /etc/logrotate.d
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/logrotate.d/repose
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/usr/local/bin</directory>
+                                    <directory>
+                                        /usr/bin
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
@@ -173,11 +221,9 @@
                                 <!--This adds the license file.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../../../LICENSE.txt</location>
@@ -198,7 +244,30 @@
                                     getent group intermediary || groupadd -r intermediary
                                     getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
                                 </script>
+                                <script>
+                                    #!/bin/sh
+                                    CONFIG_DIR=/etc/repose
+                                    SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
+
+                                    # IF this is not a new install,
+                                    # THEN make sure we are compatible with the current configuration;
+                                    # ELSE since it is a new install create the user and group.
+                                    if [ -f $SYSTEM_MODEL ]
+                                    then
+                                    # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
+                                    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
+                                    then
+                                    echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
+                                    exit 1
+                                    fi
+                                    else
+                                    getent group  intermediary >> /dev/null 2>&amp;1 || groupadd -r intermediary
+                                    getent passwd intermediary >> /dev/null 2>&amp;1 || useradd -r -g intermediary -s /sbin/nologin -d /usr/share/repose -c "Intermediary" intermediary
+                                    fi
+                                    exit 0
+                                </script>
                             </preinstallScriptlet>
+
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
