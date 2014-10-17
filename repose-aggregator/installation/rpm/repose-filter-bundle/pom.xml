@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
-    <artifactId>repose-filters</artifactId>
+    <artifactId>repose-filter-bundle</artifactId>
 
     <name>Repose - Installation Filter Bundle RPM</name>
 
@@ -57,13 +57,23 @@
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
-                            <name>repose-filters</name>
+                            <name>repose-filter-bundle</name>
+
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <directory>
+                                        /usr/share/repose/filters
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
+
                                     <sources>
                                         <source>
                                             <location>
@@ -73,6 +83,7 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The filters archive. -->
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
