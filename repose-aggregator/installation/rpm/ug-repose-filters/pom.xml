@@ -74,7 +74,7 @@
                                     <directory>/usr/share/repose/filters</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -102,7 +102,7 @@
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
@@ -118,7 +118,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../../../LICENSE.txt</location>
