@@ -30,6 +30,8 @@ public class StreamToJaxbTransform<T> extends AbstractJaxbTransform implements T
             try {
                 rtn = (JAXBElement<T>) pooledObject.unmarshal(source);
             } catch (JAXBException jbe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 throw new ResourceContextException(jbe.getMessage(), jbe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);

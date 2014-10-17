@@ -86,6 +86,8 @@ public class XmlChainPool {
                 pooledObject.executeChain(in, out, inputs, outputs);
                 rtn = new TranslationResult(true, outputs);
             } catch (XsltException e) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 LOG.warn("Error processing transforms", e.getMessage(), e);
                 rtn = new TranslationResult(false);
             } catch (Exception e) {

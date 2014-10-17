@@ -52,8 +52,12 @@ public class ResponseUnmarshaller {
                     rtn = unmarshalledObject;
                 }
             } catch (UnsupportedEncodingException e) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 LOG.error("Error reading Response stream in Response Unmarshaller", e);
             } catch (JAXBException jaxbe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 throw new AuthServiceException("Failed to unmarshall response body. Body output is in debug. Reason: " + jaxbe.getMessage(), jaxbe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);

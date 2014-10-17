@@ -29,6 +29,8 @@ public class JaxbToStreamTransform<T extends OutputStream> extends AbstractJaxbT
             try {
                 pooledObject.marshal(source, target);
             } catch (JAXBException jaxbe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 throw new ResourceContextException(jaxbe.getMessage(), jaxbe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);

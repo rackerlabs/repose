@@ -30,6 +30,8 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
             try {
                 pooledObject.transform(new StreamSource(source), new StreamResult(target));
             } catch (TransformerException te) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                throw new XsltTransformationException("Failed while attempting XSLT transformation.", te);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);

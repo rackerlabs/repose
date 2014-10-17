@@ -32,6 +32,8 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
                 pooledObject.marshal(source, w);
                 rtn = w.getBuffer().toString();
             } catch (JAXBException jaxbe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
                 throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
