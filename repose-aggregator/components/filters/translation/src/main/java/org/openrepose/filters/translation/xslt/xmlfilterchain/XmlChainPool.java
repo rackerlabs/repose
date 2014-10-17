@@ -100,7 +100,8 @@ public class XmlChainPool {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain a FIX_POOLED", e);
+            LOG.error("Failed to obtain an XmlFilterChain", e);
+            rtn = new TranslationResult(false);
         }
 
         return rtn;
