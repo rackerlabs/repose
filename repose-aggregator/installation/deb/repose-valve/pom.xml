@@ -223,7 +223,7 @@
                                                 <filemode>755</filemode>
                                             </mapper>
                                             <src>
-                                                src/deb/etc/init.d/repose-valve
+                                                ${basedir}/../../configs/etc/init.d/repose-valve
                                             </src>
                                         </data>
 
@@ -285,7 +285,7 @@
                                                 <filemode>644</filemode>
                                             </mapper>
                                             <src>
-                                                src/deb/etc/logrotate.d/repose
+                                                ${basedir}/../../configs/etc/logrotate.d/repose
                                             </src>
                                         </data>
 
