@@ -1,0 +1,40 @@
+# gradle bits from: https://github.com/github/gitignore/blob/master/Gradle.gitignore
+.gradle
+build/
+# Ignore Gradle GUI config
+gradle-app.setting
+
+#swap files!
+*.swp
+
+# bits for scala from: https://github.com/github/gitignore/blob/master/Scala.gitignore
+*.class
+*.log
+# sbt specific
+.cache/
+.history/
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+# Bits for java from: https://github.com/github/gitignore/blob/master/Java.gitignore
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+# Package Files #
+*.jar
+*.war
+*.ear
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Ignore IDEA stuff
+*.iml
+*.ipr
+*.iws

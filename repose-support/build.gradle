@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
+}
+
+configure(allprojects) {
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+}
+
+
+allprojects {
+    apply plugin: 'idea'
+}
+
+subprojects {
+//    apply plugin: 'java'
+    apply plugin: 'scala'
+    group = 'org.openrepose.filters.core.test'
+    version = '1.0'
+
+    repositories {
+        mavenCentral()
+//        mavenLocal()
+    }
+
+    dependencies {
+        compile "org.scala-lang:scala-library:2.10.4"
+    }
+
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+
+    task 'create-dirs' << {
+        sourceSets.all { set ->
+            set.allSource.srcDirs.each {it.mkdirs()}
+        }
+    }
+}
+
+project(':core-test-filter') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':core-test-filter-bundle') {
+    apply plugin: 'ear'
+
+    dependencies {
+        deploy project(':core-test-filter')
+    }
+}
