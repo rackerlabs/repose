@@ -27,7 +27,6 @@
       <module>core-lib</module>
       <module>web-application</module>
       <module>valve</module>
-      <module>core-test-support</module>
    </modules>
 
     <dependencyManagement>
