@@ -20,7 +20,7 @@ CONFIG_DIRECTORY=/etc/repose
 JAVA=/usr/bin/java
 
 NAME=repose-valve
-DAEMON_HOME=/usr/share/lib/repose
+DAEMON_HOME=/usr/share/repose
 PID_FILE=/var/run/repose-valve.pid
 REPOSE_JAR=${DAEMON_HOME}/repose-valve.jar
 START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --background"

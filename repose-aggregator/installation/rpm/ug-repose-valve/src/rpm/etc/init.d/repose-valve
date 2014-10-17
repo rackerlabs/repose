@@ -16,7 +16,7 @@ USER=root
 NAME=repose-valve
 LOG_PATH=/var/log/repose
 PID_FILE=/var/run/repose-valve.pid
-DAEMON_HOME=/usr/share/lib/repose
+DAEMON_HOME=/usr/share/repose
 CLEAN=/usr/bin/clean-repose-deploy
 
 # Source /etc/repose/repose.conf

@@ -123,27 +123,30 @@
                                         </source>
                                     </sources>
                                 </mapping>
-
                             </mappings>
 
                             <requires>
                                 <require>java &gt;= 1.7.0</require>
                             </requires>
+
                             <provides>
                                 <provide>repose</provide>
                             </provides>
+
                             <conflicts>
                                 <conflict>repose-valve</conflict>
                             </conflicts>
+
                             <preinstallScriptlet>
                                 <script>
                                     getent group repose &gt;dev/null || groupadd -r repose
                                     getent passwd repose &gt;dev/null || \
-                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
                                     usermod -a -G repose tomcat
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
+
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
