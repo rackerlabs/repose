@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.filters.extensions</groupId>
-    <artifactId>repose-extension-filters</artifactId>
+    <artifactId>repose-extension-filter-bundle</artifactId>
 
     <name>Repose - Installation Extension Filters RPM</name>
 
@@ -60,7 +60,7 @@
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
                                  to this RPM. -->
-                            <name>repose-extension-filters</name>
+                            <name>repose-extension-filter-bundle</name>
 
                             <mappings>
                                 <!-- The extensions archive. -->
