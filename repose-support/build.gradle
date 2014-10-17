@@ -1,8 +1,12 @@
 buildscript {
     repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "http://repository.jboss.org/nexus/content/groups/public/" }
         maven { url 'https://repo.spring.io/plugins-release' }
     }
     dependencies {
+        classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
     }
 }
@@ -13,20 +17,17 @@ configure(allprojects) {
     apply plugin: 'propdeps-idea'
 }
 
-
 allprojects {
     apply plugin: 'idea'
 }
 
 subprojects {
-//    apply plugin: 'java'
     apply plugin: 'scala'
     group = 'org.openrepose.filters.core.test'
-    version = '1.0'
+    version = '1.1'
 
     repositories {
         mavenCentral()
-//        mavenLocal()
     }
 
     dependencies {
@@ -53,8 +54,25 @@ project(':core-test-filter') {
 
 project(':core-test-filter-bundle') {
     apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
 
     dependencies {
         deploy project(':core-test-filter')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
     }
 }
