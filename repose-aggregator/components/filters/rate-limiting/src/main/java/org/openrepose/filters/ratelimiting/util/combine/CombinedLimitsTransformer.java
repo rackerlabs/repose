@@ -54,7 +54,7 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
                 pooledObject = null;
                 throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

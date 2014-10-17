@@ -46,7 +46,7 @@ public final class Sha1Digester {
                 pooledObject = null;
                 LOG.error("Failed to utilize the MessageDigest.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     MESSAGE_DIGEST_POOL.returnObject(pooledObject);
                 }
             }

@@ -40,7 +40,7 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
                 pooledObject = null;
                 LOG.error("Failed to utilize the Marshaller.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

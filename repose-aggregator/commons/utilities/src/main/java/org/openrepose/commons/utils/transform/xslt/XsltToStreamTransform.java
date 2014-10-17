@@ -34,7 +34,7 @@ public class XsltToStreamTransform<T extends OutputStream> implements StreamTran
                 pooledObject = null;
                 throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     xsltResourcePool.returnObject(pooledObject);
                 }
             }

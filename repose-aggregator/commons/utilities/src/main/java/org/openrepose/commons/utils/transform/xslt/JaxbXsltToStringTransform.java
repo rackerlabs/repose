@@ -42,7 +42,7 @@ public class JaxbXsltToStringTransform implements Transform<JAXBElement, String>
                 pooledObject = null;
                 throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     xsltResourcePool.returnObject(pooledObject);
                 }
             }

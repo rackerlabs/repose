@@ -45,7 +45,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                 pooledObject = null;
                 LOG.error("Failed to utilize the UnmarshallerValidator.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

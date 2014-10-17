@@ -64,7 +64,7 @@ public class ResponseUnmarshaller {
                 pooledObject = null;
                 LOG.error("Error reading Response stream in Response Unmarshaller", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

@@ -95,7 +95,7 @@ public class XmlChainPool {
                 pooledObject = null;
                 LOG.error("Failed to utilize the XmlFilterChain.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

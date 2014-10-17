@@ -37,7 +37,7 @@ public class JaxbToStreamTransform<T extends OutputStream> extends AbstractJaxbT
                 pooledObject = null;
                 LOG.error("Failed to utilize the Marshaller.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }

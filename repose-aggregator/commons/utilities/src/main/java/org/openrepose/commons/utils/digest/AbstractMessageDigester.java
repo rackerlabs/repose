@@ -35,7 +35,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
                 pooledObject = null;
                 LOG.error("Failed to utilize the MessageDigest.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     MESSAGE_DIGEST_POOL.returnObject(pooledObject);
                 }
             }
@@ -65,7 +65,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
                 pooledObject = null;
                 LOG.error("Failed to utilize the MessageDigest.", e);
             } finally {
-                if (null != pooledObject) {
+                if (pooledObject != null) {
                     MESSAGE_DIGEST_POOL.returnObject(pooledObject);
                 }
             }
