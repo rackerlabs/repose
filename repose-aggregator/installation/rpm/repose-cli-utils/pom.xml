@@ -12,7 +12,7 @@
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
     <artifactId>repose-cli-utils</artifactId>
 
-    <name>Repose - Installation Cloud Integration CLI-Utils RPM</name>
+    <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
 
     <description>
         Module for the CLI-Utils RPM.
@@ -27,6 +27,16 @@
             <build>
                 <plugins>
                     <plugin>
+                        <plugin>
+                            <groupId>pl.project13.maven</groupId>
+                            <artifactId>git-commit-id-plugin</artifactId>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>properties-maven-plugin</artifactId>
+                        </plugin>
+
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
@@ -61,15 +71,22 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-
                             <name>repose-cli-utils</name>
 
                             <mappings>
+                                <!-- The JAR file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>755</filemode>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
 
                                     <sources>
                                         <source>
@@ -82,11 +99,18 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The dd-remove script -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <directory>
+                                        /usr/bin
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -97,9 +121,12 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/usr/bin</directory>
-                                    <filemode>770</filemode>
+                                    <directory>
+                                        /usr/bin
+                                    </directory>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -112,15 +139,19 @@
 
                                 <!--This adds the license file on installation.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
+                                    <directory>
+                                        /usr/share/doc/repose/${project.artifactId}/
+                                    </directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -132,7 +163,7 @@
                             </obsoletes>
 
                             <requires>
-                                <require>repose</require>
+                                <require>java &gt;= 1.7.0</require>
                             </requires>
                             <group>Applications/Internet</group>
                         </configuration>
