@@ -186,6 +186,8 @@ class ReposeValveLauncher extends ReposeLauncher {
             if (throwExceptionOnKill) {
                 throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
             }
+        } finally {
+            configurationProvider.cleanConfigDirectory()
         }
     }
 
