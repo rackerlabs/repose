@@ -63,8 +63,35 @@
                             <name>repose-war</name>
 
                             <mappings>
+                                <!-- The /usr/share/repose directory. -->
                                 <mapping>
-                                    <directory>/usr/share/repose/</directory>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
+
+                                <!-- The WAR file. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -74,52 +101,108 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The /var/repose directory. -->
+                                <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
-                                    <configuration>noreplace</configuration>
+                                    <directory>
+                                        /var/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>750</filemode>
+                                </mapping>
+
+                                <!-- The /var/log/repose directory. -->
+                                <mapping>
+                                    <directory>
+                                        /var/log/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>750</filemode>
+                                </mapping>
+
+                                <!-- The logrotate script. -->
+                                <mapping>
+                                    <directory>
+                                        /etc/logrotate.d
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <!-- Grabs all the config files in configs/core -->
-                                            <location>${basedir}/../../configs/core</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/logrotate.d/repose
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The /etc/repose directory. -->
                                 <mapping>
-                                    <directory>/var/log/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
                                     <filemode>770</filemode>
                                 </mapping>
 
+                                <!-- The sample configuration files for the filters. -->
                                 <mapping>
-                                    <directory>/var/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/repose/filters/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
-                                </mapping>
-
-                                <!--This adds the license file.-->
-                                <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <configuration>noreplace</configuration>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>640</filemode>
+                                    <configuration>noreplace</configuration>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                <!-- Grabs all the config files in configs/core -->
+                                                ${basedir}/../../configs/core
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- This adds the license file on installation. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/doc/${project.artifactId}
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>444</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -139,10 +222,25 @@
 
                             <preinstallScriptlet>
                                 <script>
-                                    getent group repose &gt;dev/null || groupadd -r repose
-                                    getent passwd repose &gt;dev/null || \
-                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
-                                    usermod -a -G repose tomcat
+                                    #!/bin/sh
+                                    CONFIG_DIR=/etc/repose
+                                    SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
+
+                                    # IF this is not a new install,
+                                    # THEN make sure we are compatible with the current configuration;
+                                    # ELSE since it is a new install create the user and group.
+                                    if [ -f $SYSTEM_MODEL ]
+                                    then
+                                    # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
+                                    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
+                                    then
+                                    echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
+                                    exit 1
+                                    fi
+                                    else
+                                    getent group  repose >> /dev/null 2>&amp;1 || groupadd -r repose
+                                    getent passwd repose >> /dev/null 2>&amp;1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
+                                    fi
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
