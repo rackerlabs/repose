@@ -305,6 +305,26 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>copy-core-test-bundle</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>core-test-filter-bundle</artifactId>
+                                    <version>${core.test.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>unpack</id>
                         <phase>generate-resources</phase>
                         <goals>
