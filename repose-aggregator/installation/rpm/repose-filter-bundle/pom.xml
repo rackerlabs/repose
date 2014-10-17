@@ -60,6 +60,22 @@
                             <name>repose-filter-bundle</name>
 
                             <mappings>
+                                <!-- The filters directory. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose/filters
+                                    </directory>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
+
+                                <!-- The filters archive. -->
                                 <mapping>
                                     <directory>
                                         /usr/share/repose/filters
@@ -73,7 +89,6 @@
                                         repose
                                     </groupname>
                                     <filemode>555</filemode>
-
                                     <sources>
                                         <source>
                                             <location>
@@ -83,42 +98,52 @@
                                     </sources>
                                 </mapping>
 
-                                <!-- The filters archive. -->
+                                <!-- The sample configuration files for the filters. -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <configuration>noreplace</configuration>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>640</filemode>
+                                    <configuration>noreplace</configuration>
                                     <sources>
                                         <source>
-                                            <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../../configs/filters</location>
+                                            <location>
+                                                <!-- This grabs all the config files in configs directory -->
+                                                ${basedir}/../../configs/filters
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation. -->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <directory>
+                                        /usr/share/doc/${project.artifactId}
+                                    </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
-
                             </mappings>
 
                             <requires>
                                 <require>repose</require>
                             </requires>
+
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
