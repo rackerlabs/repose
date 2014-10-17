@@ -47,9 +47,7 @@ FILES=(\
 /usr/share/repose/filters \
 /usr/share/repose/filters/extensions-filter-bundle-7.0.0-SNAPSHOT.ear \
 /usr/share/repose/filters/filter-bundle-7.0.0-SNAPSHOT.ear \
-/usr/share/repose/jetty-runner-9.2.0.v20140526.jar \
 /usr/share/repose/repose-7.0.0-SNAPSHOT.war \
-/usr/share/repose/servo.jar \
 #/var \
 #/var/log \
 /var/log/repose \
