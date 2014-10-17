@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -74,91 +75,185 @@
                                     <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
                                     <dataSet>
-                                        <!-- The war file -->
+                                        <!-- The /usr/share/repose directory. -->
                                         <data>
-                                            <src>
-                                                ${project.build.directory}/ROOT.war
-                                            </src>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    usr/share/repose
+                                                </path>
+                                            </paths>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <!-- TODO: Should probably be root/root -->
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
+                                        <!-- The WAR file -->
+                                        <data>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/lib/repose</prefix>
+                                                <prefix>
+                                                    /usr/share/repose
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>555</filemode>
                                             </mapper>
+                                            <src>
+                                                ${project.build.directory}/ROOT.war
+                                            </src>
                                         </data>
 
                                         <!--The git.properties file -->
                                         <data>
-                                            <src>${basedir}/target/git.properties</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/usr/share/doc/${project.artifactId}</prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
                                                 <filemode>644</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/target/git.properties
+                                            </src>
                                         </data>
 
-                                        <!-- The /var/log/repose directory -->
+                                        <!-- The /var/repose directory. -->
+                                        <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
                                         <data>
-                                            <src>src/deb/.log_dir_placeholder</src>
-                                            <type>file</type>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    var/repose
+                                                </path>
+                                            </paths>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/var/log/repose</prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>750</filemode>
                                             </mapper>
                                         </data>
 
-                                        <!-- The /var/repose directory -->
+                                        <!-- The /var/log/repose directory. -->
                                         <data>
-                                            <src>src/deb/.var_repose_dir_placeholder</src>
-                                            <type>file</type>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    var/log/repose
+                                                </path>
+                                            </paths>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/var/repose</prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>750</filemode>
                                             </mapper>
                                         </data>
 
                                         <!-- The logrotate script -->
                                         <data>
-                                            <src>src/deb/etc/logrotate.d/repose</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/etc/logrotate.d</prefix>
+                                                <prefix>
+                                                    /etc/logrotate.d
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
                                                 <filemode>644</filemode>
+                                            </mapper>
+                                            <src>
+                                                src/deb/etc/logrotate.d/repose
+                                            </src>
+                                        </data>
+
+                                        <!-- The /etc/repose directory -->
+                                        <data>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    etc/repose
+                                                </path>
+                                            </paths>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <!-- TODO: This does not set the permissions properly. -->
+                                                <dirmode>770</dirmode>
+                                                <filemode>770</filemode>
                                             </mapper>
                                         </data>
 
-                                        <!-- The sample configuration files for the filters -->
+                                        <!-- The sample configuration files -->
                                         <data>
-                                            <src>${basedir}/../../configs/core</src>
                                             <type>directory</type>
-                                            <includes>*.cfg.xml</includes>
-
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/etc/repose</prefix>
-                                                <filemode>600</filemode>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>640</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../configs/core
+                                            </src>
                                         </data>
 
                                         <!--This adds the license file on installation.-->
                                         <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/repose/${project.artifactId}</prefix>
-                                                <filemode>644</filemode>
+                                                <prefix>
+                                                    /usr/share/doc/repose/${project.artifactId}
+                                                </prefix>
+                                                <filemode>444</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                         </data>
-
                                     </dataSet>
-                                    <preinstallScriptlet>
-                                        <script>
-                                            usermod -a -G repose tomcat
-                                            exit 0
-                                        </script>
-                                    </preinstallScriptlet>
                                 </configuration>
                             </execution>
                         </executions>
