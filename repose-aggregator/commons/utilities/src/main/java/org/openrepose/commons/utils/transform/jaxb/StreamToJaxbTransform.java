@@ -23,7 +23,7 @@ public class StreamToJaxbTransform<T> extends AbstractJaxbTransform implements T
    @Override
    public JAXBElement<T> transform(final InputStream source) {
         JAXBElement<T> rtn = null;
-        Unmarshaller pooledObject = null;
+        Unmarshaller pooledObject;
         final ObjectPool<Unmarshaller> objectPool = getUnmarshallerPool();
         try {
             pooledObject = objectPool.borrowObject();

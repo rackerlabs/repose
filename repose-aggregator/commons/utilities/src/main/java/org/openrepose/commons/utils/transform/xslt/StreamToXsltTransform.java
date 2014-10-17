@@ -23,7 +23,7 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
 
    @Override
    public void transform(final InputStream source, final OutputStream target) {
-        Transformer pooledObject = null;
+        Transformer pooledObject;
         final ObjectPool<Transformer> objectPool = getXslTransformerPool();
         try {
             pooledObject = objectPool.borrowObject();

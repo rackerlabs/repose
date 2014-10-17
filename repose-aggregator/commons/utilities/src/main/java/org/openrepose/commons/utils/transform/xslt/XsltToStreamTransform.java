@@ -24,7 +24,7 @@ public class XsltToStreamTransform<T extends OutputStream> implements StreamTran
 
     @Override
     public void transform(final JAXBElement source, final T target) {
-        Transformer pooledObject = null;
+        Transformer pooledObject;
         try {
             pooledObject = xsltResourcePool.borrowObject();
             try {

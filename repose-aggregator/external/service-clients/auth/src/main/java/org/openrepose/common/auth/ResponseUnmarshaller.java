@@ -41,7 +41,7 @@ public class ResponseUnmarshaller {
 
    public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
         Object rtn = null;
-        Unmarshaller pooledObject = null;
+        Unmarshaller pooledObject;
         try {
             pooledObject = objectPool.borrowObject();
             try {

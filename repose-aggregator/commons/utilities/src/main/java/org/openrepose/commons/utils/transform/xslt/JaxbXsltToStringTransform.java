@@ -29,7 +29,7 @@ public class JaxbXsltToStringTransform implements Transform<JAXBElement, String>
     @Override
     public String transform(final JAXBElement source) {
         String rtn = null;
-        Transformer pooledObject = null;
+        Transformer pooledObject;
         try {
             pooledObject = xsltResourcePool.borrowObject();
             try {

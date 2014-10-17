@@ -36,7 +36,7 @@ public final class Sha1Digester {
     private byte[] digest = new byte[0];
 
     public Sha1Digester(final byte[] sourceBytes) {
-        MessageDigest pooledObject = null;
+        MessageDigest pooledObject;
         try {
             pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
             try {

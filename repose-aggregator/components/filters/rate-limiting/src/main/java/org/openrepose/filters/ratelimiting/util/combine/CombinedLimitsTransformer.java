@@ -35,7 +35,7 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
     
     @Override
     public void transform(final LimitsTransformPair source, final OutputStream target) {
-        Transformer pooledObject = null;
+        Transformer pooledObject;
         final ObjectPool<Transformer> objectPool = getXslTransformerPool();
         try {
             pooledObject = objectPool.borrowObject();

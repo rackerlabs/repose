@@ -30,7 +30,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
     @Override
     public T read(ConfigurationResource cr) {
         Object rtn = null;
-        UnmarshallerValidator pooledObject = null;
+        UnmarshallerValidator pooledObject;
         try {
             pooledObject = objectPool.borrowObject();
             try {

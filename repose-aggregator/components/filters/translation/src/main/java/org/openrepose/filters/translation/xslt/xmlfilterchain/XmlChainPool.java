@@ -77,7 +77,7 @@ public class XmlChainPool {
 
   public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
         TranslationResult rtn = null;
-        XmlFilterChain pooledObject = null;
+        XmlFilterChain pooledObject;
         try {
             pooledObject = objectPool.borrowObject();
             try {

@@ -22,7 +22,7 @@ public class JaxbToStreamTransform<T extends OutputStream> extends AbstractJaxbT
 
    @Override
    public void transform(final JAXBElement source, final T target) {
-        Marshaller pooledObject = null;
+        Marshaller pooledObject;
         final ObjectPool<Marshaller> objectPool = getMarshallerPool();
         try {
             pooledObject = objectPool.borrowObject();

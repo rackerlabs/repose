@@ -25,7 +25,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
     @Override
     public byte[] digestBytes(byte[] bytes) {
         byte[] rtn = new byte[0];
-        MessageDigest pooledObject = null;
+        MessageDigest pooledObject;
         try {
             pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
             try {
@@ -48,7 +48,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
     @Override
     public byte[] digestStream(final InputStream stream) {
         byte[] rtn = new byte[0];
-        MessageDigest pooledObject = null;
+        MessageDigest pooledObject;
         try {
             pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
             try {

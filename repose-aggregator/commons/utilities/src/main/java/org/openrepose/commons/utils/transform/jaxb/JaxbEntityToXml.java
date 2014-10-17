@@ -23,7 +23,7 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
    @Override
    public String transform(final JAXBElement source) {
         String rtn = null;
-        Marshaller pooledObject = null;
+        Marshaller pooledObject;
         final ObjectPool<Marshaller> objectPool = getMarshallerPool();
         try {
             pooledObject = objectPool.borrowObject();
