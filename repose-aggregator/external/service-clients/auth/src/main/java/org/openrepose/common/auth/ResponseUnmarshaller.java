@@ -29,7 +29,7 @@ public class ResponseUnmarshaller {
       objectPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
 
          @Override
-         public Unmarshaller makeObject() throws Exception {
+         public Unmarshaller makeObject() {
             try {
                return ResponseUnmarshaller.this.jaxbContext.createUnmarshaller();
             } catch (JAXBException ex) {

@@ -23,7 +23,7 @@ public final class Sha1Digester {
             new BasePoolableObjectFactory<MessageDigest>() {
 
                 @Override
-                public MessageDigest makeObject() throws Exception {
+                public MessageDigest makeObject() {
                     try {
                         return MessageDigest.getInstance(DEFAULT_DIGEST_SPEC);
                     } catch (NoSuchAlgorithmException nsae) {

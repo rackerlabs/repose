@@ -15,7 +15,7 @@ public class MessageDigestConstructionStrategy extends BasePoolableObjectFactory
    }
 
    @Override
-   public MessageDigest makeObject() throws Exception {
+   public MessageDigest makeObject() {
       try {
          return MessageDigest.getInstance(digestSpecName);
       } catch (NoSuchAlgorithmException nsae) {

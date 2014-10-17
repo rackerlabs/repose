@@ -25,7 +25,7 @@ public abstract class AbstractJaxbTransform {
 
       marshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Marshaller>() {
          @Override
-         public Marshaller makeObject() throws Exception {
+         public Marshaller makeObject() {
             try {
                return jaxbContext.createMarshaller();
             } catch (JAXBException jaxbe) {
@@ -36,7 +36,7 @@ public abstract class AbstractJaxbTransform {
 
       unmarshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
          @Override
-         public Unmarshaller makeObject() throws Exception {
+         public Unmarshaller makeObject() {
             try {
                return jaxbContext.createUnmarshaller();
             } catch (JAXBException jaxbe) {

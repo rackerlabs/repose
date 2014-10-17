@@ -15,7 +15,7 @@ public class XsltTransformConstruction {
                 new BasePoolableObjectFactory<Transformer>() {
 
                     @Override
-                    public Transformer makeObject() throws Exception {
+                    public Transformer makeObject() {
                         try {
                             return transformationTemplates.newTransformer();
                         } catch (TransformerConfigurationException configurationException) {

@@ -36,7 +36,7 @@ public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory
      }
     
     @Override
-    public UnmarshallerValidator makeObject() throws Exception {
+    public UnmarshallerValidator makeObject() {
         try {
             UnmarshallerValidator uv = new UnmarshallerValidator(context);
             if (xsdStreamSource != null) {
