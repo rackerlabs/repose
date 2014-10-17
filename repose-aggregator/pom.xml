@@ -850,6 +850,7 @@
                 </executions>
             </plugin>
 
+
             <!-- this is working now that doxygen is commented out-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -866,7 +867,7 @@
                             <target>
                                 <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath"/>
                                 <codenarc
-                                        ruleSetFiles="file:ruleset.xml"
+                                        ruleSetFiles="file:repose-aggregator/ruleset.xml"
                                         maxPriority1Violations="0"
                                         maxPriority2Violations="0"
                                         maxPriority3Violations="0"
