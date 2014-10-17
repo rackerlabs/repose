@@ -73,7 +73,7 @@
 
 
 
-    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before else, catch, or finally"/>
         <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
         <property name='priority' value='1'/>
@@ -89,7 +89,7 @@
         <property name="name" value="Require space before and after a :"/>
         <property name='regex' value='[^\s-]:|:[^\s-]'/>
         <property name='priority' value='1'/>
-    </rule>
+    </rule-->
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Max 2 blank lines before }"/>
