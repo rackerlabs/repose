@@ -23,16 +23,13 @@ public class FilterContextInitializer {
 
    private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
    private final FilterContextManager filterContextManager;
-   private final ReposeInstanceInfo instanceInfo;
 
-   public FilterContextInitializer(FilterConfig filterConfig, ApplicationContext applicationContext) {
-      filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
-      instanceInfo = (ReposeInstanceInfo) applicationContext.getBean("reposeInstanceInfo");
-      
-   }
+   public FilterContextInitializer(FilterConfig filterConfig) {
+      filterContextManager = new FilterContextManagerImpl(filterConfig);
+  }
 
    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {
-      Thread.currentThread().setName(instanceInfo.toString());
+       //TODO: it wants to set the thread name based on instance info
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
 
       if (localHost == null || domain == null) {
