@@ -124,13 +124,7 @@
                                                 <prefix>
                                                     /usr/share/doc/${project.artifactId}
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
-                                                <filemode>644</filemode>
+                                                <filemode>444</filemode>
                                             </mapper>
                                             <src>
                                                 ${basedir}/target/git.properties
