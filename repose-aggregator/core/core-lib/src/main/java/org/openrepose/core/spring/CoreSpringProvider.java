@@ -16,7 +16,7 @@ public class CoreSpringProvider implements SpringProvider{
         coreSpringContainer = new CoreSpringContainer("org.openrepose.core");
     }
 
-    public static CoreSpringProvider getInstance() {
+    public static SpringProvider getInstance() {
         return instance;
     }
 
