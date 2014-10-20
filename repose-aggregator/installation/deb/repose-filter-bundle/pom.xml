@@ -102,7 +102,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/usr/share/doc/${project.artifactId}</prefix>
-                                                <filemode>644</filemode>
+                                                <filemode>444</filemode>
                                             </mapper>
                                         </data>
 
