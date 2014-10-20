@@ -7,13 +7,16 @@ import org.openrepose.core.servlet.PowerApiContextException;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.openrepose.core.spring.SpringProvider;
 import org.openrepose.core.systemmodel.Filter;
+
 import java.util.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
@@ -29,14 +32,14 @@ public class FilterContextManagerImpl implements FilterContextManager {
     public FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications) throws FilterInitializationException {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
-        for(EarClassLoaderContext classLoaderContext: loadedApplications) {
+        for (EarClassLoaderContext classLoaderContext : loadedApplications) {
             filterType = classLoaderContext.getEarDescriptor().getRegisteredFilters().get(filter.getName());
-            if(filterType != null){
+            if (filterType != null) {
                 filterClassLoader = classLoaderContext.getClassLoader();
             }
         }
 
-        if(filterType != null && filterClassLoader != null) {
+        if (filterType != null && filterClassLoader != null) {
             String filterClassName = filterType.getFilterClass().getValue();
             //We got a filter info and a classloader, we can do actual work
             try {
@@ -60,6 +63,11 @@ public class FilterContextManagerImpl implements FilterContextManager {
                 throw new PowerApiContextException("Provided filter, \""
                         + filterClassName
                         + "\" does not implement javax.servlet.Filter - this class is unusable as a filter.");
+            } catch (NoSuchBeanDefinitionException e) {
+                LOG.error("Unable to find an annotated bean for {}", filterClassName, e);
+                //TODO: this runtime exception might never be caught, we should probably throw it explicitly...
+                throw new PowerApiContextException("Requested filter, \"" + filterClassName + "\"" +
+                        " is not an annotated Component. It must be annotated with @Component or @Named to be loaded");
             }
         } else {
             throw new FilterInitializationException("No deployed artifact found to satisfy filter:" + filter.getName());
@@ -68,7 +76,7 @@ public class FilterContextManagerImpl implements FilterContextManager {
 
     private String getUniqueContextName(Filter filterInfo) {
         StringBuilder sb = new StringBuilder();
-        if(filterInfo.getId() != null){
+        if (filterInfo.getId() != null) {
             sb.append(filterInfo.getId()).append("-");
         }
         sb.append(filterInfo.getName()).append("-");
