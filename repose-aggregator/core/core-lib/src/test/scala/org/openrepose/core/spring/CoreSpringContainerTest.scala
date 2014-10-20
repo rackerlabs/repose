@@ -1,12 +1,14 @@
 package org.openrepose.core.spring
 
+import java.io.{File, FileFilter}
+import java.net.{URL, URLClassLoader}
 import javax.servlet.Filter
 
+import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
-import org.springframework.context.support.AbstractApplicationContext
 
 class CoreSpringContainerTest extends FunSpec with Matchers {
 
@@ -30,17 +32,22 @@ class CoreSpringContainerTest extends FunSpec with Matchers {
       csc.getCoreContext.getDisplayName shouldBe "ReposeCoreContext"
     }
     it("provides a per-filter context from a given classloader") {
-      // TODO: How to verify that we're doing this actual classloader
-      // TODO: do we build a test support ear for core to verify its interaction
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
-      val classLoader = this.getClass.getClassLoader
-      val filterBeanContext = csc.getContextForFilter(classLoader, "org.openrepose.core.spring.testfilter.TestFilter", "TestFilterContextName")
+      val directory: File = new File("./repose-aggregator/core/core-lib/target/core-test-filter-bundle/")
+      val fileFilter: FileFilter = new WildcardFileFilter("core-test-filter-*.jar")
+      val files: Array[File] = directory.listFiles(fileFilter)
+      val classLoader = new URLClassLoader(Array(files(0).toURI.toURL), getClass.getClassLoader)
 
+      val filterBeanContext = csc.getContextForFilter(classLoader, "org.openrepose.filters.core.test.TestFilter", "TestFilterContextName")
+      intercept[ClassNotFoundException] {
+        csc.getContextForFilter(getClass.getClassLoader, "org.openrepose.filters.core.test.TestFilter", "TestFilterContextBaseLoader")
+      }
       filterBeanContext.getDisplayName should be("TestFilterContextName")
 
       val actualFilter = filterBeanContext.getBean[Filter](classOf[Filter])
 
       classOf[Filter].isAssignableFrom(actualFilter.getClass) shouldBe true
+      actualFilter.getClass.getSimpleName shouldBe "TestFilter"
     }
     it("provides a closeable filter context") {
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
