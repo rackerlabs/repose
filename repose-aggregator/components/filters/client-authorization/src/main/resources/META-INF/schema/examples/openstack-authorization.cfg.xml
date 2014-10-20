@@ -5,7 +5,7 @@
     <service-endpoint href="https://service.api.rackspacecloud.com/v1.0/" region="ORD" name="OpenStackCompute"
                       type="compute"/>
     <ignore-tenant-roles>
-        <ignore-tenant-role>testRole0</ignore-tenant-role>
-        <ignore-tenant-role>testRole1</ignore-tenant-role>
+        <role>testRole0</role>
+        <role>testRole1</role>
     </ignore-tenant-roles>
 </rackspace-authorization>
