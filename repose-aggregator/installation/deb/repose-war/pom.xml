@@ -79,7 +79,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    /usr/share/repose
+                                                    usr/share/repose
                                                 </path>
                                             </paths>
                                             <mapper>
@@ -143,7 +143,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    /var/repose
+                                                    var/repose
                                                 </path>
                                             </paths>
                                             <mapper>
@@ -163,7 +163,7 @@
                                             <type>template</type>
                                             <paths>
                                                 <path>
-                                                    /var/log/repose
+                                                    var/log/repose
                                                 </path>
                                             </paths>
                                             <mapper>
