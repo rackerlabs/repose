@@ -45,12 +45,8 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private List<String> getListOfRoles(IgnoreTenantRoles ignoreTenantRoles) {
         List<String> roles = new ArrayList<>();
         if(ignoreTenantRoles != null) {
-            if (ignoreTenantRoles.getIgnoreTenantRole() != null) {
-                roles.addAll(ignoreTenantRoles.getIgnoreTenantRole());
-            }
-            if (ignoreTenantRoles.getRole() != null) {
-                roles.addAll(ignoreTenantRoles.getRole());
-            }
+            roles.addAll(ignoreTenantRoles.getIgnoreTenantRole());
+            roles.addAll(ignoreTenantRoles.getRole());
         }
         return roles;
     }
