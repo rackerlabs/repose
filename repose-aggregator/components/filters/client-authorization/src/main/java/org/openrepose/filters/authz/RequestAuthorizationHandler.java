@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,14 +32,27 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
-    private final IgnoreTenantRoles ignoreTenantRoles;
+    private final List<String> ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles serviceAdminRoles) {
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
-        this.ignoreTenantRoles = serviceAdminRoles;
+        this.ignoreTenantRoles = getListOfRoles(ignoreTenantRoles);
+    }
+
+    private List<String> getListOfRoles(IgnoreTenantRoles ignoreTenantRoles) {
+        List<String> roles = new ArrayList<>();
+        if(ignoreTenantRoles != null) {
+            if (ignoreTenantRoles.getIgnoreTenantRole() != null) {
+                roles.addAll(ignoreTenantRoles.getIgnoreTenantRole());
+            }
+            if (ignoreTenantRoles.getRole() != null) {
+                roles.addAll(ignoreTenantRoles.getRole());
+            }
+        }
+        return roles;
     }
 
     @Override
@@ -65,7 +79,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (ignoreTenantRoles != null && !(ignoreTenantRoles.getIgnoreTenantRole().isEmpty())) {
+        } else if (!ignoreTenantRoles.isEmpty()) {
             //if service admin roles from cfg populated then compare to x-roles header
             final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
 
@@ -90,7 +104,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
 
-        for (String ignoreTenantRole : ignoreTenantRoles.getIgnoreTenantRole()) {
+        for (String ignoreTenantRole : ignoreTenantRoles) {
             for (String role : roleStringList) {
                 if (ignoreTenantRole.equalsIgnoreCase(role)) {
                     return true;
