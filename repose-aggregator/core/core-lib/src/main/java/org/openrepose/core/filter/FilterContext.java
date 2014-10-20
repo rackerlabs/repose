@@ -65,6 +65,7 @@ public class FilterContext implements Destroyable {
 
    @Override
    public void destroy() {
+       //TODO: maybe hand this guy the filter application context so it can be tanked as well
       if (filter != null) {
          filter.destroy();
       }
