@@ -166,6 +166,7 @@
                                 <require>java &gt;= 1.7.0</require>
                                 <require>repose = ${project.version}</require>
                             </requires>
+
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
