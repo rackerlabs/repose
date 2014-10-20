@@ -201,12 +201,6 @@
                                         /usr/bin
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
@@ -220,12 +214,6 @@
                                     <directory>
                                         /usr/share/doc/${project.artifactId}
                                     </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>
