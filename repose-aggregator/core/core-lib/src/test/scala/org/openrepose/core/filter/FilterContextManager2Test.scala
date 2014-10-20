@@ -11,18 +11,21 @@ import org.scalatest.{FunSpec, Matchers}
 
 class FilterContextManager2Test extends FunSpec with Matchers with MockitoSugar with TestFilterBundlerHelper{
 
-  def mockEarClassLoader(): EarClassLoaderContext = {
+  def mockEarClassLoader(classMapping:Map[String, String]): EarClassLoaderContext = {
     import org.mockito.Mockito.when
 
     val earContext = mock[SimpleEarClassLoaderContext]
     val earDescriptor = new EarDescriptor()
 
-    val filterType = new FilterType()
-    val whatTheFuck = new FullyQualifiedClassType
-    whatTheFuck.setValue("org.openrepose.filters.core.test.TestFilter")
-    filterType.setFilterClass(whatTheFuck)
 
-    earDescriptor.getRegisteredFiltersMap.put("test-filter", filterType)
+    classMapping.foreach { case (filterName, filterClass) =>
+      val filterType = new FilterType()
+      val fullyQualifiedClassType = new FullyQualifiedClassType
+      fullyQualifiedClassType.setValue(filterClass)
+      filterType.setFilterClass(fullyQualifiedClassType)
+
+      earDescriptor.getRegisteredFiltersMap.put(filterName, filterType)
+    }
 
     when(earContext.getEarDescriptor()).thenReturn(earDescriptor)
 
@@ -33,7 +36,7 @@ class FilterContextManager2Test extends FunSpec with Matchers with MockitoSugar 
   }
 
   it("loads a filter context"){
-    val classLoaderContext = mockEarClassLoader()
+    val classLoaderContext = mockEarClassLoader(Map("test-filter" -> "org.openrepose.filters.core.test.TestFilter"))
 
     import scala.collection.JavaConverters._
 
@@ -48,6 +51,9 @@ class FilterContextManager2Test extends FunSpec with Matchers with MockitoSugar 
     val filterContext = fcm.loadFilterContext(jaxbFilterConfig, list)
 
     filterContext shouldNot be(null)
+  }
+  it("loads a filter context when there's many filters") {
+    pending
   }
   describe("Throws a FilterInitializationException when"){
     it("the filter is not annotated with @Inject"){
