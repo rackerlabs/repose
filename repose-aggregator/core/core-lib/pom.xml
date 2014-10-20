@@ -350,6 +350,12 @@
                 <artifactId>scala-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources/</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <resources>
             <resource>
                 <directory>src/main/resources/</directory>
