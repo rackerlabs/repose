@@ -18,7 +18,7 @@
         Module for the Extension Filter Bundle DEB.
     </description>
 
-    <packaging>pom</packaging>
+    <packaging>deb</packaging>
 
     <profiles>
         <profile>
