@@ -18,7 +18,7 @@
         Module for the ROOT.WAR DEB.
     </description>
 
-    <packaging>pom</packaging>
+    <packaging>deb</packaging>
 
     <profiles>
         <profile>

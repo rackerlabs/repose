@@ -18,7 +18,7 @@
         Module for the Repose CLI-Utils DEB.
     </description>
 
-    <packaging>pom</packaging>
+    <packaging>deb</packaging>
 
     <profiles>
         <profile>

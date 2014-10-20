@@ -18,7 +18,7 @@
         Module for the filter bundle DEB.
     </description>
 
-    <packaging>pom</packaging>
+    <packaging>deb</packaging>
 
     <profiles>
         <profile>
