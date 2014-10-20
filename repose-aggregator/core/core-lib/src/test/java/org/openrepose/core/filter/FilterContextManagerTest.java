@@ -70,7 +70,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManager(mockedFilterConfig, mock(ApplicationContext.class));
             FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
@@ -85,7 +85,7 @@ public class FilterContextManagerTest {
             loadedApplications.add(mockedEarClassLoaderContextWithNullClassName);
             loadedApplications.add(mockedEarClassLoaderContextWithClassName);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManager(mockedFilterConfig, mock(ApplicationContext.class));
             FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
@@ -97,7 +97,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManager(mockedFilterConfig, mock(ApplicationContext.class));
             contextManager.loadFilterContext(filter, loadedApplications);
         }
     }
@@ -105,7 +105,7 @@ public class FilterContextManagerTest {
     public static class WhenGettingFilterClassFactory {
         @Test (expected=IllegalStateException.class)
         public void shouldThrowExceptionIfGivenAnEmptyList() throws ClassNotFoundException {
-            assertNull(FilterContextManagerImpl.getFilterClassFactory("", new LinkedList<EarClassLoaderContext>()));
+            assertNull(FilterContextManager.getFilterClassFactory("", new LinkedList<EarClassLoaderContext>()));
         }
     }
 }

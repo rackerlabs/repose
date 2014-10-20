@@ -1,14 +1,12 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import java.util.LinkedList;
@@ -25,7 +23,7 @@ public class FilterContextInitializer {
    private final FilterContextManager filterContextManager;
 
    public FilterContextInitializer(FilterConfig filterConfig) {
-      filterContextManager = new FilterContextManagerImpl(filterConfig);
+      filterContextManager = new FilterContextManager(filterConfig);
   }
 
    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {
