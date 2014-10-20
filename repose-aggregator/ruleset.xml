@@ -71,13 +71,41 @@
         <property name='priority' value='1'/>
     </rule>
 
-
-
-    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before else, catch, or finally"/>
-        <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before else unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*[^\s-"]else|[^"]*[^\s-"]else|'/>
         <property name='priority' value='1'/>
-    </rule-->
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after else unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*else[^\s-"]|[^"]*else[^\s-"]|'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before catch unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*[^\s-"]catch|[^"]*[^\s-"]catch|'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after catch unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*catch[^\s-"]|[^"]*catch[^\s-"]|'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before finally unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*[^\s-"]finally|[^"]*[^\s-"]finally|'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after finally unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*finally[^\s-"]|[^"]*finally[^\s-"]|'/>
+        <property name='priority' value='1'/>
+    </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before : unless it's in a string"/>
