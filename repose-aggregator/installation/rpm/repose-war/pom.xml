@@ -189,12 +189,6 @@
                                     <directory>
                                         /usr/share/doc/${project.artifactId}
                                     </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>

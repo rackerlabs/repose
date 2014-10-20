@@ -193,12 +193,6 @@
                                                 <prefix>
                                                     /usr/bin
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
                                                 <filemode>755</filemode>
                                             </mapper>
                                             <src>
@@ -214,12 +208,6 @@
                                                 <prefix>
                                                     /etc/init.d
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
                                                 <filemode>755</filemode>
                                             </mapper>
                                             <src>
@@ -276,12 +264,6 @@
                                                 <prefix>
                                                     /etc/logrotate.d
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
                                                 <filemode>644</filemode>
                                             </mapper>
                                             <src>
