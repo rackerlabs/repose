@@ -6,5 +6,21 @@
         <filter-name>test-filter</filter-name>
         <filter-class>org.openrepose.filters.core.test.TestFilter</filter-class>
     </filter>
+    <filter>
+        <filter-name>broken-filter</filter-name>
+        <filter-class>org.openrepose.filters.core.brokenfilter.BrokenFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>unannotated-filter</filter-name>
+        <filter-class>org.openrepose.filters.core.unannotated.UnannotatedFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>annotated-not-filter</filter-name>
+        <filter-class>org.openrepose.filters.core.annotatednotfilter.AnnotatedNotFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>nonexistent-filter</filter-name>
+        <filter-class>org.openrepose.filters.core.test.NopesFilter</filter-class>
+    </filter>
 
 </web-fragment>
