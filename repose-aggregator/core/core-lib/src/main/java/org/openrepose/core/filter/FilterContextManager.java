@@ -26,6 +26,13 @@ public class FilterContextManager {
         this.filterConfig = filterConfig;
     }
 
+    /**
+     * Load a FilterContext for a filter
+     * @param filter the Jaxb filter configuration information from the system-model
+     * @param loadedApplications The list of EarClassLoaders
+     * @return a FilterContext containing an instance of the filter and metatadata
+     * @throws FilterInitializationException
+     */
     public FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications) throws FilterInitializationException {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
@@ -44,30 +51,30 @@ public class FilterContextManager {
                 SpringProvider spring = CoreSpringProvider.getInstance();
                 ApplicationContext filterContext = spring.getContextForFilter(filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
 
-                //TODO: This used to have a wrapped classloader change thingy around it per thread, hopefully that's not actually necessary...
+                //Get the specific class to load from the application context
                 Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
-                //TODO: could have a classcast exception
-                final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter)filterContext.getBean(c);
+
+                final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
 
                 newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
 
                 LOG.info("Filter Instance: {} successfully created", newFilterInstance);
 
+                //TODO: maybe we don't need to put the classLoader in there any more
                 return new FilterContext(newFilterInstance, filterClassLoader, filter);
-            } catch (ClassNotFoundException | ServletException e) {
+            } catch (ClassNotFoundException e) {
+                throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
+            } catch (ServletException e) {
                 LOG.error("Failed to initialize filter {}", filterClassName);
                 throw new FilterInitializationException(e.getMessage(), e);
-            } catch (BeanNotOfRequiredTypeException e) {
-                throw new FilterInitializationException("Provided filter, \""
-                        + filterClassName
-                        + "\" does not implement javax.servlet.Filter - this class is unusable as a filter.");
             } catch (NoSuchBeanDefinitionException e) {
-                LOG.error("Unable to find an annotated bean for {}", filterClassName, e);
-                throw new FilterInitializationException("Requested filter, \"" + filterClassName + "\"" +
-                        " is not an annotated Component. It must be annotated with @Component or @Named to be loaded");
+                throw new FilterInitializationException("Requested filter, " + filterClassName +
+                        " is not an annotated Component. Make sure your filter is an annotated Spring Bean.");
+            } catch (ClassCastException e) {
+                throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter");
             }
         } else {
-            throw new FilterInitializationException("No deployed artifact found to satisfy filter: " + filter.getName());
+            throw new FilterInitializationException("No deployed artifact found to satisfy filter named: " + filter.getName());
         }
     }
 
