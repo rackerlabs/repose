@@ -1,9 +1,10 @@
 package org.openrepose.core.spring
 
 import java.io.{File, FileFilter}
-import java.net.{URL, URLClassLoader}
+import java.net.URLClassLoader
 import javax.servlet.Filter
 
+import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
@@ -33,7 +34,7 @@ class CoreSpringContainerTest extends FunSpec with Matchers {
     }
     it("provides a per-filter context from a given classloader") {
       val csc = new CoreSpringContainer("org.openrepose.core.spring.test")
-      val directory: File = new File("./repose-aggregator/core/core-lib/target/core-test-filter-bundle/")
+      val directory: File = new File(ConfigFactory.load("test.properties").getString("coreTestFilterBundleLocation"))
       val fileFilter: FileFilter = new WildcardFileFilter("core-test-filter-*.jar")
       val files: Array[File] = directory.listFiles(fileFilter)
       val classLoader = new URLClassLoader(Array(files(0).toURI.toURL), getClass.getClassLoader)
