@@ -113,8 +113,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 }
 
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                        filterConfig,
-                        ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                        filterConfig).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -158,8 +157,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     }
 
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                            filterConfig,
-                            ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                            filterConfig).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
