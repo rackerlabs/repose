@@ -77,13 +77,19 @@
         <property name="name" value="Require space before else, catch, or finally"/>
         <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
         <property name='priority' value='1'/>
+    </rule-->
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before : unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*[^\s-"]\:|[^"]*[^\s-"]\:|'/>
+        <property name='priority' value='1'/>
     </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before and after a :"/>
-        <property name='regex' value='[^\s-]:|:[^\s-]'/>
+        <property name="name" value="Require space after : unless it's in a string"/>
+        <property name='regex' value='("[^"]*")+[^"]*\:[^\s-"]|[^"]*\:[^\s-"]|'/>
         <property name='priority' value='1'/>
-    </rule-->
+    </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before ? unless it's in a string"/>
