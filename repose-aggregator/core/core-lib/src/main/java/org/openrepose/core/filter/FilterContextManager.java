@@ -40,12 +40,14 @@ public class FilterContextManager {
             String filterClassName = filterType.getFilterClass().getValue();
             //We got a filter info and a classloader, we can do actual work
             try {
-                LOG.info("getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
+                LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
                 SpringProvider spring = CoreSpringProvider.getInstance();
                 ApplicationContext filterContext = spring.getContextForFilter(filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
 
                 //TODO: This used to have a wrapped classloader change thingy around it per thread, hopefully that's not actually necessary...
-                final javax.servlet.Filter newFilterInstance = filterContext.getBean(filterClassName, javax.servlet.Filter.class);
+                Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
+                //TODO: could have a classcast exception
+                final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter)filterContext.getBean(c);
 
                 newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
 
@@ -65,7 +67,7 @@ public class FilterContextManager {
                         " is not an annotated Component. It must be annotated with @Component or @Named to be loaded");
             }
         } else {
-            throw new FilterInitializationException("No deployed artifact found to satisfy filter:" + filter.getName());
+            throw new FilterInitializationException("No deployed artifact found to satisfy filter: " + filter.getName());
         }
     }
 
