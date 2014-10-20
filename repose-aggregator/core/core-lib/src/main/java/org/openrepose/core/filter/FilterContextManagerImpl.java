@@ -3,21 +3,19 @@ package org.openrepose.core.filter;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
-import org.openrepose.core.servlet.PowerApiContextException;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.openrepose.core.spring.SpringProvider;
 import org.openrepose.core.systemmodel.Filter;
-
-import java.util.*;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import java.util.*;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
@@ -59,14 +57,12 @@ public class FilterContextManagerImpl implements FilterContextManager {
                 LOG.error("Failed to initialize filter {}", filterClassName);
                 throw new FilterInitializationException(e.getMessage(), e);
             } catch (BeanNotOfRequiredTypeException e) {
-                //TODO: this is a runtime exception, only doing to follow current paradigms FIXME
-                throw new PowerApiContextException("Provided filter, \""
+                throw new FilterInitializationException("Provided filter, \""
                         + filterClassName
                         + "\" does not implement javax.servlet.Filter - this class is unusable as a filter.");
             } catch (NoSuchBeanDefinitionException e) {
                 LOG.error("Unable to find an annotated bean for {}", filterClassName, e);
-                //TODO: this runtime exception might never be caught, we should probably throw it explicitly...
-                throw new PowerApiContextException("Requested filter, \"" + filterClassName + "\"" +
+                throw new FilterInitializationException("Requested filter, \"" + filterClassName + "\"" +
                         " is not an annotated Component. It must be annotated with @Component or @Named to be loaded");
             }
         } else {
