@@ -3,6 +3,9 @@ package org.openrepose.core.filter;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.core.servlet.PowerApiContextException;
+import org.openrepose.core.spring.CoreSpringProvider;
+import org.openrepose.core.spring.SpringProvider;
 import org.openrepose.core.systemmodel.Filter;
 import java.util.*;
 import javax.servlet.FilterConfig;
@@ -10,36 +13,67 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.context.ApplicationContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
     private final FilterConfig filterConfig;
-    private final ApplicationContext applicationContext;
 
-    public FilterContextManagerImpl(FilterConfig filterConfig, ApplicationContext applicationContext) {
+    public FilterContextManagerImpl(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
-        this.applicationContext = applicationContext;
     }
 
     @Override
-    public FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications) throws ClassNotFoundException {
-        FilterClassFactory filterClassFactory = FilterContextManagerImpl.getFilterClassFactory(filter.getName(), loadedApplications);
-
-        return initializeFilter(filterClassFactory, filter);
-    }
-
-    public static FilterClassFactory getFilterClassFactory(String filterName, Collection<EarClassLoaderContext> loadedApplications) {
-        for (EarClassLoaderContext classLoaderCtx : loadedApplications) {
-            final FilterType filterClass = classLoaderCtx.getEarDescriptor().getRegisteredFilters().get(filterName);
-
-            if (filterClass != null) {
-                return new FilterClassFactory(filterClass, classLoaderCtx.getClassLoader());
+    public FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications) throws FilterInitializationException {
+        FilterType filterType = null;
+        ClassLoader filterClassLoader = null;
+        for(EarClassLoaderContext classLoaderContext: loadedApplications) {
+            filterType = classLoaderContext.getEarDescriptor().getRegisteredFilters().get(filter.getName());
+            if(filterType != null){
+                filterClassLoader = classLoaderContext.getClassLoader();
             }
         }
 
-        throw new IllegalStateException("Unable to look up filter " + filterName + " - this is protected by a validation guard in a higher level of the architecture and should be logged as a defect");
+        if(filterType != null && filterClassLoader != null) {
+            String filterClassName = filterType.getFilterClass().getValue();
+            //We got a filter info and a classloader, we can do actual work
+            try {
+                LOG.info("getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
+                SpringProvider spring = CoreSpringProvider.getInstance();
+                ApplicationContext filterContext = spring.getContextForFilter(filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
+
+                //TODO: This used to have a wrapped classloader change thingy around it per thread, hopefully that's not actually necessary...
+                final javax.servlet.Filter newFilterInstance = filterContext.getBean(filterClassName, javax.servlet.Filter.class);
+
+                newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
+
+                LOG.info("Filter Instance: {} successfully created", newFilterInstance);
+
+                return new FilterContext(newFilterInstance, filterClassLoader, filter);
+            } catch (ClassNotFoundException | ServletException e) {
+                LOG.error("Failed to initialize filter {}", filterClassName);
+                throw new FilterInitializationException(e.getMessage(), e);
+            } catch (BeanNotOfRequiredTypeException e) {
+                //TODO: this is a runtime exception, only doing to follow current paradigms FIXME
+                throw new PowerApiContextException("Provided filter, \""
+                        + filterClassName
+                        + "\" does not implement javax.servlet.Filter - this class is unusable as a filter.");
+            }
+        } else {
+            throw new FilterInitializationException("No deployed artifact found to satisfy filter:" + filter.getName());
+        }
+    }
+
+    private String getUniqueContextName(Filter filterInfo) {
+        StringBuilder sb = new StringBuilder();
+        if(filterInfo.getId() != null){
+            sb.append(filterInfo.getId()).append("-");
+        }
+        sb.append(filterInfo.getName()).append("-");
+        sb.append(UUID.randomUUID().toString());
+        return sb.toString();
     }
 
     private static class FilterConfigWrapper implements FilterConfig {
@@ -91,34 +125,6 @@ public class FilterContextManagerImpl implements FilterContextManager {
 
         public String getFilterConfig() {
             return config;
-        }
-    }
-
-    public FilterContext initializeFilter(FilterClassFactory filterClassFactory, Filter filter) {
-        final Thread currentThread = Thread.currentThread();
-        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
-        final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
-       
-        try {
-            //TODO: Filter Context building
-            currentThread.setContextClassLoader(nextClassLoader);
-            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
-
-            newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType(), filter.getConfiguration()));
-            
-          
-
-            LOG.info("Filter: " + newFilterInstance + " successfully created");
-
-            return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader(), filter);
-        } catch (ClassNotFoundException e) {
-            LOG.error("Failed to initialize filter " + filterClassFactory + ".");
-            throw new FilterInitializationException(e.getMessage(), e);
-        } catch (ServletException e) {
-            LOG.error("Failed to initialize filter " + filterClassFactory + ".");
-            throw new FilterInitializationException(e.getMessage(), e);
-        } finally {
-            currentThread.setContextClassLoader(previousClassLoader);
         }
     }
 }
