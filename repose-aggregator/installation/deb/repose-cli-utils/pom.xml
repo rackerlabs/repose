@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.rackspace.repose.installation.deb</groupId>
         <artifactId>deb</artifactId>
-        <version>6.1.1.0-SNAPSHOT</version>
+        <version>6.2.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.deb.cli-utils</groupId>
