@@ -1,6 +1,7 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.Destroyable;
+
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
