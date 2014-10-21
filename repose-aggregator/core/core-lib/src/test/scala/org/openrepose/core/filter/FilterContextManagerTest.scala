@@ -109,10 +109,43 @@ class FilterContextManagerTest extends FunSpec with Matchers with MockitoSugar w
   }
   describe("filter context naming") {
     it("with the filter name and a uuid") {
-      pending
+      val classLoaderContext = mockEarClassLoader(Map("test-filter" -> "org.openrepose.filters.core.test.TestFilter"))
+
+      import scala.collection.JavaConverters._
+
+      val list = List(classLoaderContext).asJava
+      val mockFilterConfig = mock[FilterConfig]
+
+      val fcm = new FilterContextManager(mockFilterConfig)
+
+      val jaxbFilterConfig = new Filter()
+      jaxbFilterConfig.setName("test-filter")
+
+      val filterContext = fcm.loadFilterContext(jaxbFilterConfig, list)
+      filterContext shouldNot be(null)
+
+      filterContext.getFilterAppContext.getDisplayName should startWith("test-filter-")
+
     }
     it("with the id, name, and uuid") {
-      pending
+      val classLoaderContext = mockEarClassLoader(Map("test-filter" -> "org.openrepose.filters.core.test.TestFilter"))
+
+      import scala.collection.JavaConverters._
+
+      val list = List(classLoaderContext).asJava
+      val mockFilterConfig = mock[FilterConfig]
+
+      val fcm = new FilterContextManager(mockFilterConfig)
+
+      val jaxbFilterConfig = new Filter()
+      jaxbFilterConfig.setName("test-filter")
+      jaxbFilterConfig.setId("my-test-id")
+
+      val filterContext = fcm.loadFilterContext(jaxbFilterConfig, list)
+      filterContext shouldNot be(null)
+
+      filterContext.getFilterAppContext.getDisplayName should startWith("my-test-id-test-filter-")
+
     }
   }
 
