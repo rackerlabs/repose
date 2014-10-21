@@ -103,7 +103,6 @@
                                                 <prefix>
                                                     /usr/share/repose
                                                 </prefix>
-                                                </group>
                                                 <filemode>555</filemode>
                                             </mapper>
                                             <src>
