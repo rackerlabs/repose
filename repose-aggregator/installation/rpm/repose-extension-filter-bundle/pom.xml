@@ -105,6 +105,23 @@
                                     </sources>
                                 </mapping>
 
+                                <!--The git.properties file -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/doc/${project.artifactId}
+                                    </directory>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>444</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/target/git.properties
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
                                 <!-- This adds the license file on installation. -->
                                 <mapping>
                                     <directory>
