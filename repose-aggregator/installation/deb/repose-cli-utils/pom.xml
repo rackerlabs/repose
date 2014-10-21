@@ -113,6 +113,21 @@
                                             </src>
                                         </data>
 
+                                        <!--The git.properties file -->
+                                        <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>
+                                                    /usr/share/doc/repose-valve
+                                                </prefix>
+                                                <filemode>444</filemode>
+                                            </mapper>
+                                            <src>
+                                                ${basedir}/target/git.properties
+                                            </src>
+                                        </data>
+
                                         <!--This adds the license file on installation.-->
                                         <data>
                                             <type>file</type>
