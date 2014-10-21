@@ -247,7 +247,7 @@
                             </requires>
 
                             <provides>
-                                <provide>repose</provide>
+                                <provide>repose-${project.version}</provide>
                             </provides>
 
                             <conflicts>
