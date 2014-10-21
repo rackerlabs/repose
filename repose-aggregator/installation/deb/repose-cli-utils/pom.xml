@@ -84,12 +84,6 @@
                                                 <prefix>
                                                     /usr/share/repose
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
                                                 <filemode>555</filemode>
                                             </mapper>
                                             <src>
