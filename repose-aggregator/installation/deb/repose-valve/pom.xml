@@ -75,7 +75,7 @@
 
                                 <configuration>
                                     <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
-                                    <timestamped>true</timestamped>
+                                    <timestamped>false</timestamped>
                                     <dataSet>
                                         <!-- The /usr/share/repose directory. -->
                                         <data>
