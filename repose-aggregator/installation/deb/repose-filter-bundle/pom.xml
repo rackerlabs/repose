@@ -71,7 +71,7 @@
                             <execution>
                                 <configuration>
                                     <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
-                                    <timestamped>true</timestamped>
+                                    <timestamped>false</timestamped>
 
                                     <dataSet>
                                         <!-- The jar file -->
