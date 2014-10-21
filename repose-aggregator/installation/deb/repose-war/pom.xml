@@ -80,6 +80,7 @@
                                                 <group>
                                                     repose
                                                 </group>
+                                                <dirmode>755</dirmode>
                                                 <filemode>755</filemode>
                                             </mapper>
                                         </data>
