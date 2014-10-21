@@ -84,7 +84,6 @@
                                             </paths>
                                             <mapper>
                                                 <type>perm</type>
-                                                <!-- TODO: Should probably be root/root -->
                                                 <user>
                                                     repose
                                                 </user>
