@@ -37,14 +37,12 @@ public class RequestFilterChainStateTest {
             List<FilterContext> filterContextList = new ArrayList<FilterContext>();
             Filter mockedFilter = mock(Filter.class);
             FilterContext mockedFilterContext = mock(FilterContext.class);
-            ClassLoader mockedClassLoader = mock(ClassLoader.class);
             ServletContext context = mock(ServletContext.class);
             ApplicationContext appContext = mock(ApplicationContext.class);
             RoutingServiceContext routingContext = mock(RoutingServiceContext.class);
             ContainerConfigurationService containerConfigurationService = mock(ContainerConfigurationService.class);
             when(containerConfigurationService.getVia()).thenReturn("");
             when(mockedFilterContext.getFilter()).thenReturn(mockedFilter);
-            when(mockedFilterContext.getFilterClassLoader()).thenReturn(mockedClassLoader);
             when(appContext.getBean(anyString())).thenReturn(routingContext);
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
