@@ -93,7 +93,6 @@
                                         <!-- The sample configuration files for the filters -->
                                         <data>
                                             <type>directory</type>
-                                            <includes>*.cfg.xml</includes>
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
