@@ -69,13 +69,6 @@
                                         /usr/share/repose/filters
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <!-- TODO: Should probably be root/root -->
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>555</filemode>
 
                                     <sources>
@@ -117,12 +110,6 @@
                                     <directory>
                                         /usr/share/doc/${project.artifactId}
                                     </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>

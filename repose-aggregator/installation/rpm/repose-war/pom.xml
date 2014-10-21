@@ -68,7 +68,6 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
-                                    <!-- TODO: Should probably be root/root -->
                                     <username>
                                         repose
                                     </username>
@@ -84,13 +83,6 @@
                                         /usr/share/repose
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <!-- TODO: Should probably be root/root -->
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>555</filemode>
                                     <sources>
                                         <source>
@@ -135,6 +127,12 @@
                                     <directory>
                                         /etc/logrotate.d
                                     </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
                                     <sources>

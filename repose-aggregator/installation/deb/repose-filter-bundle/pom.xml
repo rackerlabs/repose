@@ -82,12 +82,6 @@
                                                 <prefix>
                                                     /usr/share/repose/filters
                                                 </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
                                                 <filemode>555</filemode>
                                             </mapper>
                                             <src>
