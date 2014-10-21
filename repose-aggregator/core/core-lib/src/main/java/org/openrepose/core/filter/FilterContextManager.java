@@ -8,9 +8,8 @@ import org.openrepose.core.spring.SpringProvider;
 import org.openrepose.core.systemmodel.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -49,7 +48,7 @@ public class FilterContextManager {
             try {
                 LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
                 SpringProvider spring = CoreSpringProvider.getInstance();
-                ApplicationContext filterContext = spring.getContextForFilter(filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
+                AbstractApplicationContext filterContext = spring.getContextForFilter(filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
 
                 //Get the specific class to load from the application context
                 Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
@@ -61,7 +60,7 @@ public class FilterContextManager {
                 LOG.info("Filter Instance: {} successfully created", newFilterInstance);
 
                 //TODO: maybe we don't need to put the classLoader in there any more
-                return new FilterContext(newFilterInstance, filterClassLoader, filter);
+                return new FilterContext(newFilterInstance, filterContext, filter);
             } catch (ClassNotFoundException e) {
                 throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
             } catch (ServletException e) {
