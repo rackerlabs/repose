@@ -75,7 +75,6 @@
                                     <groupname>
                                         repose
                                     </groupname>
-                                    <dirmode>755</dirmode>
                                     <filemode>755</filemode>
                                 </mapping>
 
