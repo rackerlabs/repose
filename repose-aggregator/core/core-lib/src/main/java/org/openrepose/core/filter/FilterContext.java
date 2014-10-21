@@ -1,37 +1,41 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.Destroyable;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 
+/**
+ * Holds information about a filter, the filter itself and the filter's application context.
+ */
 public class FilterContext implements Destroyable {
 
-    private final ClassLoader filterClassLoader;
     private final Filter filter;
     private final org.openrepose.core.systemmodel.Filter filterConfig;
     private final String name;
-    private final String regex;
-    private final Pattern pattern;
+    private final String uriRegex;
+    private final Pattern uriPattern;
+    private final AbstractApplicationContext filterAppContext;
 
-    public FilterContext(Filter filter, ClassLoader filterClassLoader) {
-        this(filter, filterClassLoader, null);
+    public FilterContext(Filter filter, AbstractApplicationContext filterAppContext) {
+        this(filter, filterAppContext, null);
     }
 
-    public FilterContext(Filter filter, ClassLoader filterClassLoader, org.openrepose.core.systemmodel.Filter filterConfig) {
+    public FilterContext(Filter filter, AbstractApplicationContext filterAppContext, org.openrepose.core.systemmodel.Filter filterConfig) {
         this.filter = filter;
-        this.filterClassLoader = filterClassLoader;
+        this.filterAppContext = filterAppContext;
         this.filterConfig = filterConfig;
         if (filterConfig != null && filterConfig.getUriRegex() != null) {
             filterConfig.getName();
             this.name = filterConfig.getName();
-            this.regex = filterConfig.getUriRegex();
-            this.pattern = Pattern.compile(regex);
+            this.uriRegex = filterConfig.getUriRegex();
+            this.uriPattern = Pattern.compile(uriRegex);
         } else {
             this.name = "n/a";
-            this.regex = ".*";
-            this.pattern = Pattern.compile(this.regex);
+            this.uriRegex = ".*";
+            this.uriPattern = Pattern.compile(this.uriRegex);
         }
 
     }
@@ -40,16 +44,12 @@ public class FilterContext implements Destroyable {
         return filter;
     }
 
-    public ClassLoader getFilterClassLoader() {
-        return filterClassLoader;
-    }
-
     public org.openrepose.core.systemmodel.Filter getFilterConfig() {
         return filterConfig;
     }
 
     public Pattern getUriPattern() {
-        return pattern;
+        return uriPattern;
     }
 
     public String getName() {
@@ -61,14 +61,20 @@ public class FilterContext implements Destroyable {
     }
 
     public String getUriRegex() {
-        return regex;
+        return uriRegex;
+    }
+
+    public AbstractApplicationContext getFilterAppContext() {
+        return filterAppContext;
     }
 
     @Override
     public void destroy() {
-        //TODO: maybe hand this guy the filter application context so it can be tanked as well
         if (filter != null) {
             filter.destroy();
+        }
+        if(filterAppContext != null) {
+            filterAppContext.close();
         }
     }
 }
