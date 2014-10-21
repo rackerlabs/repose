@@ -17,6 +17,7 @@ class EmptyRequestBodyTest extends ReposeValveTest {
         repose.start()
     }
 
+    @Unroll("Deproxy should not remove the body of a HTTP requests #method")
     def "Deproxy should not remove the body of a HTTP request"() {
         given:
         String requestBody = "request body"
@@ -43,10 +44,13 @@ class EmptyRequestBodyTest extends ReposeValveTest {
     def "Repose should remove request bodies"() {
         given:
         String requestBody = "request body"
+        def headers = [
+                "Content-Type":"plain/text"
+        ]
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
-
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers, requestBody: requestBody)
+        println(reposeEndpoint)
         then:
         mc.getSentRequest().getBody().toString() == requestBody
         mc.getHandlings().get(0).getRequest().getBody().toString() == ""
