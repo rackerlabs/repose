@@ -65,7 +65,6 @@
                                     <directory>
                                         /usr/share/repose/filters
                                     </directory>
-                                    <!-- TODO: Should probably be root/root -->
                                     <username>
                                         repose
                                     </username>
@@ -81,13 +80,6 @@
                                         /usr/share/repose/filters
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <!-- TODO: Should probably be root/root -->
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>555</filemode>
                                     <sources>
                                         <source>

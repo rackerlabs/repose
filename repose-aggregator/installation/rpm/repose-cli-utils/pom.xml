@@ -79,13 +79,6 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
-                                    <!-- TODO: Should probably be root/root -->
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>555</filemode>
 
                                     <sources>
@@ -104,12 +97,6 @@
                                     <directory>
                                         /usr/bin
                                     </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
                                     <filemode>755</filemode>
 
                                     <sources>
@@ -142,8 +129,6 @@
                                     <directory>
                                         /usr/share/doc/repose/${project.artifactId}/
                                     </directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>

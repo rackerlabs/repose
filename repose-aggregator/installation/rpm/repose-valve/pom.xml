@@ -64,7 +64,7 @@
                             <name>repose-valve</name>
 
                             <mappings>
-                                <!-- The JAR file. -->
+                                <!-- The /usr/share/repose directory. -->
                                 <mapping>
                                     <directory>
                                         /usr/share/repose
@@ -75,6 +75,14 @@
                                     <groupname>
                                         repose
                                     </groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
+
+                                <!-- The JAR file. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
                                     <filemode>555</filemode>
                                     <sources>
                                         <source>
@@ -184,6 +192,12 @@
                                     <directory>
                                         /etc/logrotate.d
                                     </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
                                     <sources>
