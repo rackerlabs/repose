@@ -234,7 +234,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/repose/${project.artifactId}
+                                                    /usr/share/doc/${project.artifactId}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
