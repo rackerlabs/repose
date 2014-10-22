@@ -23,7 +23,7 @@
         <module>repose-cli-utils</module>
         <module>repose-war</module>
         <module>repose-filter-bundle</module>
-        <module>repose-extension-filter-bundle</module>
+        <module>repose-extensions-filter-bundle</module>
         <module>repose-valve</module>
     </modules>
 

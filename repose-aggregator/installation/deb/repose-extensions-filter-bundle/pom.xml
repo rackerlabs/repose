@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.deb.filters.extensions</groupId>
-    <artifactId>repose-extension-filter-bundle</artifactId>
+    <artifactId>repose-extensions-filter-bundle</artifactId>
 
     <name>Repose - Installation Extension Filter Bundle DEB</name>
 
