@@ -164,9 +164,12 @@ public class PowerFilter extends DelegatingFilterProxy {
                     serviceDomain = lc.get();
                     defaultDst = dd.get();
                     healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
-
-                    final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
-                    updateFilterChainBuilder(newFilterChain);
+                    try {
+                        final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
+                        updateFilterChainBuilder(newFilterChain);
+                    } catch (FilterInitializationException fie) {
+                        LOG.error("Unable to create new filter chain", fie);
+                    }
                 } else {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
@@ -209,8 +212,12 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                         healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
 
-                        final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
-                        updateFilterChainBuilder(newFilterChain);
+                        try {
+                            final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
+                            updateFilterChainBuilder(newFilterChain);
+                        } catch (FilterInitializationException fie) {
+                            LOG.error("Unable to create new filter chain", fie);
+                        }
                     } else {
                         LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                         healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +

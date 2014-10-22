@@ -40,7 +40,7 @@ public class FilterContextFactory {
         this.classLoaderManagerService = classLoaderManagerService;
     }
 
-    public List<FilterContext> buildFilterContexts(FilterConfig filterConfig, List<Filter> filtersToCreate) {
+    public List<FilterContext> buildFilterContexts(FilterConfig filterConfig, List<Filter> filtersToCreate) throws FilterInitializationException {
         final List<FilterContext> filterContexts = new LinkedList<>();
 
         for (org.openrepose.core.systemmodel.Filter papiFilter : filtersToCreate) {
@@ -50,34 +50,15 @@ public class FilterContextFactory {
             }
 
             if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
-                final FilterContext context = getFilterContext(classLoaderManagerService, papiFilter, filterConfig);
-
-                if (context != null) {
-                    filterContexts.add(context);
-                } else {
-                    filterContexts.add(new FilterContext(null, null, papiFilter));
-                }
+                final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), filterConfig);
+                filterContexts.add(context);
             } else {
                 LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " +
                         papiFilter.getName());
-                filterContexts.add(new FilterContext(null, null, papiFilter));
+                throw new FilterInitializationException("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
             }
         }
         return filterContexts;
-    }
-
-    @Deprecated
-    public FilterContext getFilterContext(ClassLoaderManagerService classLoaderManagerService, Filter papiFilter, FilterConfig filterConfig) {
-        FilterContext context = null;
-
-        try {
-            //TODO: This ignores failures in filters!!!!
-            context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), filterConfig);
-        } catch (Exception e) {
-            LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
-        }
-
-        return context;
     }
 
     /**

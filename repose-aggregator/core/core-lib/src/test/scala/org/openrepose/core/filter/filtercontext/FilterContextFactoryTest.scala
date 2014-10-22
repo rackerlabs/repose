@@ -161,7 +161,7 @@ import scala.collection.JavaConverters._
     }
   }
 
-  ignore("Throws a FilterInitializationException when") {
+  describe("Throws a FilterInitializationException when") {
 
     val classMap = Map(
       "test-filter" -> "org.openrepose.filters.core.test.TestFilter",
@@ -216,7 +216,7 @@ import scala.collection.JavaConverters._
       val exception = intercept[FilterInitializationException] {
         fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
       }
-      exception.getMessage should be("No deployed artifact found to satisfy filter named: nopenopenope")
+      exception.getMessage should be("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named nopenopenope")
     }
   }
 }
