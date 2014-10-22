@@ -157,6 +157,7 @@
                                                 <group>
                                                     repose
                                                 </group>
+                                                <!-- TODO: Jdeb is not setting these permissions correctly -->
                                                 <dirmode>770</dirmode>
                                                 <filemode>770</filemode>
                                             </mapper>
