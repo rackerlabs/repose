@@ -154,6 +154,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
 
             if (currentSystemModel != null) {
+                //TODO: this is copy/pasta code for the system model event as well. Needs to be refactored to a method to
+                // not have duplicated code!
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
 
                 Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
