@@ -60,20 +60,6 @@
                             <name>repose-filter-bundle</name>
 
                             <mappings>
-                                <!-- The filters directory. -->
-                                <mapping>
-                                    <directory>
-                                        /usr/share/repose/filters
-                                    </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
-                                    <filemode>755</filemode>
-                                </mapping>
-
                                 <!-- The filters archive. -->
                                 <mapping>
                                     <directory>
