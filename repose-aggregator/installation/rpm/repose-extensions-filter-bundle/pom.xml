@@ -140,6 +140,10 @@
                                 </mapping>
                             </mappings>
 
+                            <provides>
+                                <provide>repose-extension-filters</provide>
+                            </provides>
+
                             <requires>
                                 <require>java &gt;= 1.7.0</require>
                                 <require>repose-${project.version}</require>
