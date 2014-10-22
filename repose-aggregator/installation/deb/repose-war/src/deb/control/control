@@ -8,6 +8,5 @@ Description: Debian Package for the Repose WAR
 Homepage: http://openrepose.org
 Depends: java7-runtime-headless
 Conflicts: repose-valve
-Provides: repose
 Recommends: repose-filter-bundle
 Suggests: repose-extension-filter-bundle, logrotate
