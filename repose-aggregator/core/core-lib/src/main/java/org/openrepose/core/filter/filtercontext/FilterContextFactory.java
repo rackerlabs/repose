@@ -81,8 +81,7 @@ public class FilterContextFactory {
         //We got a filter info and a classloader, we can do actual work
         try {
             LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
-            //TODO: this is the wrong filterContext to use. We shouldn't be operating on the core context, we need to operate on the one that's been created for us
-            // It should be handed to this somehow, because it has to start at the PowerFilter (ReposeFilter) in the prototype
+
             AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
 
             //Get the specific class to load from the application context
