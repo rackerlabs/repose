@@ -132,7 +132,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/repose-valve
+                                                    /usr/share/doc/${project.artifactId}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
