@@ -21,9 +21,6 @@ import static org.mockito.Mockito.*
 
 class ConfigurationInformationTest extends Specification {
     @Shared
-    ConfigurationInformation configurationInformation
-
-    @Shared
     ConfigurationService configurationService
 
     @Shared
@@ -42,20 +39,18 @@ class ConfigurationInformationTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        configurationInformation = new ConfigurationInformation(configurationService, ports, healthCheckService)
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
         given:
+        def configurationInformation = new ConfigurationInformation(configurationService, "cluster1", "node1", healthCheckService)
+
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
-        ports.clear()
-        ports.add(new Port("http", 8080))
-
         configurationInformation.contextInitialized(null)
 
         listenerObject = listenerCaptor.getValue()
@@ -70,6 +65,8 @@ class ConfigurationInformationTest extends Specification {
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
         given:
+        def configurationInformation = new ConfigurationInformation(configurationService, "cluster1", "nopes", healthCheckService)
+
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
@@ -78,7 +75,6 @@ class ConfigurationInformationTest extends Specification {
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
-        ports.clear()
 
         configurationInformation.contextInitialized(null)
 

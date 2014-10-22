@@ -36,9 +36,10 @@
     </servlet-mapping>
 
     <!-- Filters -->
+    <!-- TODO: replace this with the delegating filter like in the prototype -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>org.openrepose.core.filter.ValvePowerFilter</filter-class>
+        <filter-class>org.nope.cant.use.words</filter-class>
     </filter>
     
     <filter-mapping id="power-api-filter-mapping">

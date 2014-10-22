@@ -1,6 +1,7 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.filter.filtercontext.FilterContext;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.services.context.ServletContextHelper;
@@ -26,8 +27,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChainBuilderImpl.class);
     private final PowerFilterRouter router;
     private List<FilterContext> currentFilterChain;
-    private ReposeCluster domain;
-    private Node localhost;
     private ReposeInstanceInfo instanceInfo;
     private ServletContext servletContext;
 
@@ -43,8 +42,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     public void initialize(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain, ServletContext servletContext, String defaultDst) throws PowerFilterChainException {
         LOG.info("Initializing filter chain builder");
         this.currentFilterChain = currentFilterChain;
-        this.domain = domain;
-        this.localhost = localhost;
         this.servletContext = servletContext;
         this.router.initialize(domain, localhost, servletContext, defaultDst);
     }
@@ -57,16 +54,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         }
         return new PowerFilterChain(currentFilterChain, containerFilterChain, router, instanceInfo,
                                     ServletContextHelper.getInstance(servletContext).getPowerApiContext().metricsService());
-    }
-
-    @Override
-    public ReposeCluster getReposeCluster() {
-        return domain;
-    }
-
-    @Override
-    public Node getLocalhost() {
-        return localhost;
     }
 
     @Override

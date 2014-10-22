@@ -2,84 +2,25 @@ package org.openrepose.core.services.context.impl;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpsURLConnectionSslInitializer;
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.context.ContextAdapter;
-import org.openrepose.core.services.context.ServiceContext;
-import org.openrepose.core.services.context.ServletContextAware;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.context.banner.PapiBanner;
 import org.openrepose.core.services.deploy.ArtifactManagerServiceContext;
 import org.openrepose.core.services.threading.impl.ThreadingServiceContext;
 import org.openrepose.core.servlet.InitParameter;
-import org.openrepose.core.spring.SpringWithServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Map;
 
 public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-   private AbstractApplicationContext applicationContext;
-   private ServicePorts ports;
    private boolean contextInitialized = false;
-   private ReposeInstanceInfo instanceInfo;
 
    public PowerApiContextManager() {
-   }
-
-   public PowerApiContextManager setPorts(ServicePorts ports, ReposeInstanceInfo instanceInfo) {
-      this.ports = ports;
-      this.instanceInfo = instanceInfo;
-      configurePorts(applicationContext);
-      configureReposeInfo(applicationContext);
-      return this;
-   }
-
-   private AbstractApplicationContext initApplicationContext(ServletContext servletContext) {
-      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringWithServices.class);
-
-      configurePorts(context);
-      configureReposeInfo(context);
-      Thread.currentThread().setName(instanceInfo.toString());
-      context.getBean("exporter");
-
-      return context;
-
-   }
-
-   private void configurePorts(ApplicationContext context) {
-      if (ports == null || context == null) {
-         return;
-      }
-      ServicePorts servicePorts = context.getBean("servicePorts", ServicePorts.class);
-      servicePorts.clear();
-      servicePorts.addAll(ports);
-   }
-
-   private void configureReposeInfo(ApplicationContext context) {
-      if (instanceInfo == null) {
-
-         String clusterId = System.getProperty("repose-cluster-id");
-         String nodeId = System.getProperty("repose-node-id");
-         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
-      }
-      if (context == null) {
-         return;
-      }
-
-
-      ReposeInstanceInfo reposeInstanceInfo = context.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
-      reposeInstanceInfo.setClusterId(instanceInfo.getClusterId());
-      reposeInstanceInfo.setNodeId(instanceInfo.getNodeId());
    }
 
    private void intializeServices(ServletContextEvent sce) {
@@ -107,12 +48,6 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(HttpConnectionPoolServiceContext.class).contextInitialized(sce);
       ca.getContext(AkkaServiceClientContext.class).contextInitialized(sce);
 
-      Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
-
-      for (ServletContextAware bean : contextAwareBeans.values()) {
-         bean.contextInitialized(sce);
-      }
-
    }
 
    @Override
@@ -126,8 +61,6 @@ public class PowerApiContextManager implements ServletContextListener {
          new HttpsURLConnectionSslInitializer().allowAllServerCerts();
       }
 
-      applicationContext = initApplicationContext(servletContext);
-
       //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
       System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
@@ -136,7 +69,7 @@ public class PowerApiContextManager implements ServletContextListener {
       // first before anything else
       ServletContextHelper.configureInstance(
               servletContext,
-              applicationContext);
+              null);
 
       intializeServices(sce);
       servletContext.setAttribute("powerApiContextManager", this);
@@ -150,20 +83,5 @@ public class PowerApiContextManager implements ServletContextListener {
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       contextInitialized = false;
-
-      Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
-
-      for (ServletContextAware bean : contextAwareBeans.values()) {
-         bean.contextDestroyed(sce);
-      }
-
-      ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
-      for (ServiceContext ctx : registry.getServices()) {
-         ctx.contextDestroyed(sce);
-      }
-
-      LOG.info("Shutting down Spring application context");
-      applicationContext.close();
-
    }
 }

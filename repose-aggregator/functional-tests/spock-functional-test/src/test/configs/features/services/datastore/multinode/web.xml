@@ -36,9 +36,10 @@
     </servlet-mapping>
 
     <!-- Filters -->
+    <!-- TODO: this should be the delegating filter used in the prototype when doing the WAR work -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>org.openrepose.core.filter.ValvePowerFilter</filter-class>
+        <filter-class>org.nope.fix.me.kthx</filter-class>
     </filter>
 
     <filter-mapping id="power-api-filter-mapping">

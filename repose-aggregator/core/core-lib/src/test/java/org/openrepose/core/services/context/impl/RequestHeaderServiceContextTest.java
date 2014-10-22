@@ -89,33 +89,35 @@ public class RequestHeaderServiceContextTest {
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
         servletContextEvent = mock(ServletContextEvent.class);
-        ServiceRegistry serviceRegistry = mock(ServiceRegistry.class);
         ServletContext servletContext = mock(ServletContext.class);
         ContextAdapter contextAdapter = mock(ContextAdapter.class);
-        RequestHeaderService requestHeaderService = mock(RequestHeaderService.class);
 
         ServletContextHelper servletContextHelper = PowerMockito.mock(ServletContextHelper.class);
 
         when(servletContext.getAttribute(any(String.class))).thenReturn(servletContextHelper);
         when(servletContextEvent.getServletContext()).thenReturn(servletContext);
-        when(servletContextHelper.getServerPorts()).thenReturn(ports);
         when(servletContextHelper.getPowerApiContext()).thenReturn(contextAdapter);
         when(contextAdapter.getReposeVersion()).thenReturn("4.0.0");
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
 
-        requestHeaderServiceContext = new RequestHeaderServiceContext(requestHeaderService, serviceRegistry, configurationService, healthCheckService);
     }
 
     @Test
     public void systemModelListener_configurationUpdated_localhostFound() throws Exception {
+        RequestHeaderServiceContext requestHeaderServiceContext = new RequestHeaderServiceContext(
+                mock(RequestHeaderService.class),
+                mock(ServiceRegistry.class),
+                configurationService,
+                healthCheckService,
+                "cluster1",
+                "node1");
+
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
-        ports.clear();
-        ports.add(new Port("http", 8080));
 
         requestHeaderServiceContext.contextInitialized(servletContextEvent);
 
@@ -129,13 +131,20 @@ public class RequestHeaderServiceContextTest {
 
     @Test
     public void systemModelListener_configurationUpdated_localhostNotFound() throws Exception {
+        RequestHeaderServiceContext requestHeaderServiceContext = new RequestHeaderServiceContext(
+                mock(RequestHeaderService.class),
+                mock(ServiceRegistry.class),
+                configurationService,
+                healthCheckService,
+                "clusterId",
+                "nodeId");
+
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
-        ports.clear();
 
         requestHeaderServiceContext.contextInitialized(servletContextEvent);
 

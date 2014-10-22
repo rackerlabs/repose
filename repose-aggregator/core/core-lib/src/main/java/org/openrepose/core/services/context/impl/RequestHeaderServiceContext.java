@@ -5,6 +5,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.ServiceRegistry;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
@@ -36,6 +38,8 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     private final ContainerConfigurationListener configurationListener;
     private final SystemModelListener systemModelListener;
     private final HealthCheckService healthCheckService;
+    private final String clusterId;
+    private final String nodeId;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private ServicePorts ports;
     private String reposeVersion = "";
@@ -46,11 +50,16 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     public RequestHeaderServiceContext(@Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
                                        @Qualifier("serviceRegistry") ServiceRegistry registry,
                                        @Qualifier("configurationManager") ConfigurationService configurationManager,
-                                       @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
+                                       @Qualifier("healthCheckService") HealthCheckService healthCheckService,
+                                       @Value(ReposeSpringProperties.CLUSTER_ID) String clusterId,
+                                       @Value(ReposeSpringProperties.NODE_ID) String nodeId
+                                       ) {
         this.requestHeaderService = requestHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;
         this.healthCheckService = healthCheckService;
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
         this.configurationListener = new ContainerConfigurationListener();
         this.systemModelListener = new SystemModelListener();
     }
@@ -127,7 +136,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
-            final SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            final SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
             Optional<Node> ln = interrogator.getLocalNode(systemModel);
 
             if (ln.isPresent()) {

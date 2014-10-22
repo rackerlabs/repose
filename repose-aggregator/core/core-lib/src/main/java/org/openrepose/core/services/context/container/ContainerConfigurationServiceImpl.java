@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 
+//TODO: this should probably die in a fire, and be handled in a properties or something
 @Component("containerConfigurationService")
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
