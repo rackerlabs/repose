@@ -6,4 +6,4 @@ Architecture: all
 Maintainer: Repose Development <repose-development@lists.openrepose.org>
 Description: Debian Package for Repose Extension Filter Bundle
 Homepage: http://openrepose.org
-Depends: java7-runtime-headless, repose-[[version]]
+Depends: java7-runtime-headless, repose (=[[version]])
