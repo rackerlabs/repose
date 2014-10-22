@@ -1,13 +1,5 @@
 <scalastyle commentFilter="enabled">
     <name>Scalastyle standard configuration</name>
-    <check level="warning" class="org.scalastyle.file.FileTabChecker" enabled="true" />
-    <check level="warning" class="org.scalastyle.file.FileLengthChecker" enabled="true">
-        <parameters>
-            <parameter name="maxFileLength">3500</parameter>
-        </parameters>
-    </check>
-
-    <check enabled="true" class="org.scalastyle.scalariform.ImportGroupingChecker" level="warning"></check>
 
     <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
@@ -93,54 +85,20 @@
         <customMessage>Too many spaces before try, catch, or finally left brace</customMessage>
     </check>
 
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">,[^\s-]|;[^\s-]|:[^\s-]</parameter>
+        </parameters>
+        <customMessage>Require space after comma, semicolon, and colon</customMessage>
+    </check>
+
     <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
             <parameter name="regex">\n\s*\{</parameter>
         </parameters>
         <customMessage>Brace on a newline</customMessage>
     </check>
-
-
-    <!-- the autoformat doesn't enforce this rule :( -->
-
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
-        <parameters>
-            <parameter name="regex">else\s*\n\s*if</parameter>
-        </parameters>
-        <customMessage>else if on separate lines</customMessage>
-    </check-->
-
-
-    <!-- these 2 rules are causing the build to hand for some reason :( -->
-
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
-        <parameters>
-            <parameter name="regex">def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def</parameter>
-        </parameters>
-        <customMessage>min 1 blank lines around methods</customMessage>
-    </check>
-
-    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
-        <parameters>
-            <parameter name="regex">class.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def</parameter>
-        </parameters>
-        <customMessage>min 1 blank lines around class</customMessage>
-    </check-->
-
-
-    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
-        <parameters>
-            <parameter name="regex">\n\n\n(\n)+.*\}</parameter>
-        </parameters>
-        <customMessage>max 2 blank lines before }</customMessage>
-    </check>
-
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
-        <parameters>
-            <parameter name="regex"></parameter>
-        </parameters>
-        <customMessage>indent cases in switch or match</customMessage>
-    </check-->
 
     <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
@@ -156,7 +114,13 @@
         <customMessage>Blank line after import please!</customMessage>
     </check>
 
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">\n\n\n\n</parameter>
+        </parameters>
+        <customMessage>max 2 blank lines in the code</customMessage>
+    </check>
 
-
+    <check enabled="true" class="org.scalastyle.scalariform.ImportGroupingChecker" level="warning"></check>
 
 </scalastyle>
