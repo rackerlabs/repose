@@ -44,10 +44,6 @@ public class FilterContextFactory {
         final List<FilterContext> filterContexts = new LinkedList<>();
 
         for (org.openrepose.core.systemmodel.Filter papiFilter : filtersToCreate) {
-            if (StringUtilities.isBlank(papiFilter.getName())) {
-                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
-                continue;
-            }
 
             if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
                 final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), filterConfig);
@@ -79,38 +75,36 @@ public class FilterContextFactory {
             }
         }
 
-        if (filterType != null && filterClassLoader != null) {
-            String filterClassName = filterType.getFilterClass().getValue();
-            //We got a filter info and a classloader, we can do actual work
-            try {
-                LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
-                //TODO: this is the wrong filterContext to use. We shouldn't be operating on the core context, we need to operate on the one that's been created for us
-                // It should be handed to this somehow, because it has to start at the PowerFilter (ReposeFilter) in the prototype
-                AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
+        //FilterType and filterClassloader are guaranteed to not be null, by a different check in the previous method
 
-                //Get the specific class to load from the application context
-                Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
+        String filterClassName = filterType.getFilterClass().getValue();
+        //We got a filter info and a classloader, we can do actual work
+        try {
+            LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
+            //TODO: this is the wrong filterContext to use. We shouldn't be operating on the core context, we need to operate on the one that's been created for us
+            // It should be handed to this somehow, because it has to start at the PowerFilter (ReposeFilter) in the prototype
+            AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
 
-                final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+            //Get the specific class to load from the application context
+            Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
 
-                newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
+            final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
 
-                LOG.info("Filter Instance: {} successfully created", newFilterInstance);
+            newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
 
-                return new FilterContext(newFilterInstance, filterContext, filter);
-            } catch (ClassNotFoundException e) {
-                throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
-            } catch (ServletException e) {
-                LOG.error("Failed to initialize filter {}", filterClassName);
-                throw new FilterInitializationException(e.getMessage(), e);
-            } catch (NoSuchBeanDefinitionException e) {
-                throw new FilterInitializationException("Requested filter, " + filterClassName +
-                        " is not an annotated Component. Make sure your filter is an annotated Spring Bean.");
-            } catch (ClassCastException e) {
-                throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter");
-            }
-        } else {
-            throw new FilterInitializationException("No deployed artifact found to satisfy filter named: " + filter.getName());
+            LOG.info("Filter Instance: {} successfully created", newFilterInstance);
+
+            return new FilterContext(newFilterInstance, filterContext, filter);
+        } catch (ClassNotFoundException e) {
+            throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
+        } catch (ServletException e) {
+            LOG.error("Failed to initialize filter {}", filterClassName);
+            throw new FilterInitializationException(e.getMessage(), e);
+        } catch (NoSuchBeanDefinitionException e) {
+            throw new FilterInitializationException("Requested filter, " + filterClassName +
+                    " is not an annotated Component. Make sure your filter is an annotated Spring Bean.");
+        } catch (ClassCastException e) {
+            throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter");
         }
     }
 
