@@ -88,6 +88,27 @@
                                             </mapper>
                                         </data>
 
+                                        <!-- The /usr/share/repose/filters directory. -->
+                                        <data>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    usr/share/repose/filters
+                                                </path>
+                                            </paths>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <dirmode>755</dirmode>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
                                         <!-- The JAR file -->
                                         <data>
                                             <type>file</type>

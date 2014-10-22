@@ -77,6 +77,20 @@
                                     <filemode>755</filemode>
                                 </mapping>
 
+                                <!-- The /usr/share/repose/filters directory. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose/filters
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
+
                                 <!-- The WAR file. -->
                                 <mapping>
                                     <directory>
