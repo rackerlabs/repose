@@ -47,6 +47,8 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  *   - TODO
  * <p>
  * This class also instruments the response codes coming from the endpoint.
+ *
+ * TODO: is this really supposed to be a prototype?!?!?
  */
 @Component("powerFilterRouter")
 @Scope("prototype")
@@ -68,6 +70,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private MetricsService metricsService;
 
+    //TODO: maybe use spring to inject the servlet context into here
     @Autowired
     public PowerFilterRouterImpl(
           @Qualifier("metricsService") MetricsService metricsService,

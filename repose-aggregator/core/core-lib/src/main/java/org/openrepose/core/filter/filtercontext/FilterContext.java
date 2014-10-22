@@ -1,4 +1,4 @@
-package org.openrepose.core.filter;
+package org.openrepose.core.filter.filtercontext;
 
 import org.openrepose.commons.utils.Destroyable;
 import org.springframework.context.support.AbstractApplicationContext;

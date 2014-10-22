@@ -1,0 +1,145 @@
+package org.openrepose.core.filter.filtercontext;
+
+import com.oracle.javaee6.FilterType;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.core.filter.FilterInitializationException;
+import org.openrepose.core.services.classloader.ClassLoaderManagerService;
+import org.openrepose.core.spring.CoreSpringProvider;
+import org.openrepose.core.spring.SpringProvider;
+import org.openrepose.core.systemmodel.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
+
+@Named
+public class FilterContextFactory {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FilterContextFactory.class);
+    private final ClassLoaderManagerService classLoaderManagerService;
+    private final ApplicationContext applicationContext;
+
+    @Inject
+    public FilterContextFactory(
+            ApplicationContext applicationContext,
+            ClassLoaderManagerService classLoaderManagerService
+    ) {
+        this.applicationContext = applicationContext;
+        this.classLoaderManagerService = classLoaderManagerService;
+    }
+
+    public List<FilterContext> buildFilterContexts(FilterConfig filterConfig, List<Filter> filtersToCreate) {
+        final List<FilterContext> filterContexts = new LinkedList<>();
+
+        for (org.openrepose.core.systemmodel.Filter papiFilter : filtersToCreate) {
+            if (StringUtilities.isBlank(papiFilter.getName())) {
+                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
+                continue;
+            }
+
+            if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
+                final FilterContext context = getFilterContext(classLoaderManagerService, papiFilter, filterConfig);
+
+                if (context != null) {
+                    filterContexts.add(context);
+                } else {
+                    filterContexts.add(new FilterContext(null, null, papiFilter));
+                }
+            } else {
+                LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " +
+                        papiFilter.getName());
+                filterContexts.add(new FilterContext(null, null, papiFilter));
+            }
+        }
+        return filterContexts;
+    }
+
+    @Deprecated
+    public FilterContext getFilterContext(ClassLoaderManagerService classLoaderManagerService, Filter papiFilter, FilterConfig filterConfig) {
+        FilterContext context = null;
+
+        try {
+            //TODO: This ignores failures in filters!!!!
+            context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), filterConfig);
+        } catch (Exception e) {
+            LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
+        }
+
+        return context;
+    }
+
+    /**
+     * Load a FilterContext for a filter
+     *
+     * @param filter             the Jaxb filter configuration information from the system-model
+     * @param loadedApplications The list of EarClassLoaders
+     * @return a FilterContext containing an instance of the filter and metatadata
+     * @throws org.openrepose.core.filter.FilterInitializationException
+     */
+    private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, FilterConfig filterConfig) throws FilterInitializationException {
+        FilterType filterType = null;
+        ClassLoader filterClassLoader = null;
+        for (EarClassLoaderContext classLoaderContext : loadedApplications) {
+            filterType = classLoaderContext.getEarDescriptor().getRegisteredFilters().get(filter.getName());
+            if (filterType != null) {
+                filterClassLoader = classLoaderContext.getClassLoader();
+            }
+        }
+
+        if (filterType != null && filterClassLoader != null) {
+            String filterClassName = filterType.getFilterClass().getValue();
+            //We got a filter info and a classloader, we can do actual work
+            try {
+                LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
+                //TODO: this is the wrong filterContext to use. We shouldn't be operating on the core context, we need to operate on the one that's been created for us
+                // It should be handed to this somehow, because it has to start at the PowerFilter (ReposeFilter) in the prototype
+                AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
+
+                //Get the specific class to load from the application context
+                Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
+
+                final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+
+                newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
+
+                LOG.info("Filter Instance: {} successfully created", newFilterInstance);
+
+                return new FilterContext(newFilterInstance, filterContext, filter);
+            } catch (ClassNotFoundException e) {
+                throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
+            } catch (ServletException e) {
+                LOG.error("Failed to initialize filter {}", filterClassName);
+                throw new FilterInitializationException(e.getMessage(), e);
+            } catch (NoSuchBeanDefinitionException e) {
+                throw new FilterInitializationException("Requested filter, " + filterClassName +
+                        " is not an annotated Component. Make sure your filter is an annotated Spring Bean.");
+            } catch (ClassCastException e) {
+                throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter");
+            }
+        } else {
+            throw new FilterInitializationException("No deployed artifact found to satisfy filter named: " + filter.getName());
+        }
+    }
+
+    private String getUniqueContextName(Filter filterInfo) {
+        StringBuilder sb = new StringBuilder();
+        if (filterInfo.getId() != null) {
+            sb.append(filterInfo.getId()).append("-");
+        }
+        sb.append(filterInfo.getName()).append("-");
+        sb.append(UUID.randomUUID().toString());
+        return sb.toString();
+    }
+}

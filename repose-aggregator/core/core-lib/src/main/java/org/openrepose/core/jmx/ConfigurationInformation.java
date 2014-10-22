@@ -6,6 +6,7 @@ import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.digest.impl.SHA1MessageDigester;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
@@ -41,8 +43,9 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     private final List<FilterInformation> filterChain;
 
     private HealthCheckServiceProxy healthCheckServiceProxy;
-    private ServicePorts ports;
     private SystemModelListener systemModelListener;
+    private String clusterId;
+    private String nodeId;
 
     public static class FilterInformation {
         private final String id;
@@ -115,7 +118,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             LOG.info("System model updated");
             initialized = false;
 
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
             if (cluster.isPresent()) {
@@ -147,12 +150,15 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     }
 
     @Autowired
-    public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService,
-                                    @Qualifier("servicePorts") ServicePorts ports,
-                                    HealthCheckService healthCheckService) {
+    public ConfigurationInformation(
+            @Qualifier("configurationManager") ConfigurationService configurationService,
+            @Value(ReposeSpringProperties.CLUSTER_ID)String clusterId,
+            @Value(ReposeSpringProperties.NODE_ID)String nodeId,
+            HealthCheckService healthCheckService) {
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
         filterChain = new ArrayList<>();
         this.configurationService = configurationService;
-        this.ports = ports;
         this.healthCheckServiceProxy = healthCheckService.register();
     }
 
