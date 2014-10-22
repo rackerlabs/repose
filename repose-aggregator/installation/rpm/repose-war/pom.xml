@@ -68,13 +68,7 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
-                                    <username>
-                                        repose
-                                    </username>
-                                    <groupname>
-                                        repose
-                                    </groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>555</filemode>
                                 </mapping>
 
                                 <!-- The /usr/share/repose/filters directory. -->

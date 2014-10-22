@@ -77,14 +77,8 @@
                                             </paths>
                                             <mapper>
                                                 <type>perm</type>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
-                                                <dirmode>755</dirmode>
-                                                <filemode>755</filemode>
+                                                <dirmode>555</dirmode>
+                                                <filemode>555</filemode>
                                             </mapper>
                                         </data>
 
