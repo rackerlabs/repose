@@ -46,7 +46,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         authenticateResponse = Mock()
         endpointListCache = Mock()
         serviceEndpoint = Mock()
-        ignoreTenantRoles = Mock()
+        ignoreTenantRoles = new IgnoreTenantRoles()
         filterDirector = new FilterDirectorImpl()
         httpServletRequest = mock(HttpServletRequest.class)
         requestAuthorizationHandler = Mock()

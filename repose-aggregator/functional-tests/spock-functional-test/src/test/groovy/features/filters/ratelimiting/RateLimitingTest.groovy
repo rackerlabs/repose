@@ -511,7 +511,9 @@ class RateLimitingTest extends ReposeValveTest {
     }
     // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
+        factory.setNamespaceAware(true)
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder()
         Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
 
         document.getDocumentElement().normalize()
@@ -520,7 +522,9 @@ class RateLimitingTest extends ReposeValveTest {
     }
 
     private int parseAbsoluteFromXML(String s, int limit) {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
+        factory.setNamespaceAware(true)
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder()
         Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
 
         document.getDocumentElement().normalize()
