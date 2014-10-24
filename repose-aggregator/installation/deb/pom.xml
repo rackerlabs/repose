@@ -28,6 +28,14 @@
     </modules>
 
     <build>
+        <extensions>
+            <!-- Add support for the "deb" packaging -->
+            <extension>
+                <groupId>org.vafer</groupId>
+                <artifactId>jdeb</artifactId>
+                <version>1.3</version>
+            </extension>
+        </extensions>
         <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
         <pluginManagement>
             <plugins>
@@ -35,7 +43,20 @@
                     <groupId>org.vafer</groupId>
                     <artifactId>jdeb</artifactId>
                     <version>1.3</version>
-                    <extensions>true</extensions>
+
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jdeb</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-jdeb</id>
+                            <goals/>
+                            <phase/>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
