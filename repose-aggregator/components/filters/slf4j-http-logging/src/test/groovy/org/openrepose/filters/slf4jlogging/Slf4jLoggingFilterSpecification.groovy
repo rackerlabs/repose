@@ -9,7 +9,7 @@ import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.Logger
 import org.apache.log4j.SimpleLayout
 import org.apache.log4j.WriterAppender
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
