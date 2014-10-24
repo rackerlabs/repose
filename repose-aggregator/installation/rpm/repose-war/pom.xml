@@ -60,7 +60,7 @@
                         <configuration>
                             <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
                                  to this RPM.-->
-                            <name>repose-war</name>
+                            <name>${project.artifactId}</name>
 
                             <mappings>
                                 <!-- The /usr/share/repose directory. -->

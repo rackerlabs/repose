@@ -71,7 +71,7 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <name>repose-cli-utils</name>
+                            <name>${project.artifactId}</name>
 
                             <mappings>
                                 <!-- The JAR file -->

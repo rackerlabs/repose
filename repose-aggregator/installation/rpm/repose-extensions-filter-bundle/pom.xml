@@ -60,7 +60,7 @@
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
                                  to this RPM. -->
-                            <name>repose-extension-filter-bundle</name>
+                            <name>${project.artifactId}</name>
 
                             <mappings>
                                 <!-- The extensions archive. -->
@@ -145,10 +145,6 @@
                                     </sources>
                                 </mapping>
                             </mappings>
-
-                            <provides>
-                                <provide>repose-extension-filters</provide>
-                            </provides>
 
                             <requires>
                                 <require>java &gt;= 1.7.0</require>

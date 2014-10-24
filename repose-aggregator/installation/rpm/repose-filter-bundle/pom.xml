@@ -57,7 +57,7 @@
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
-                            <name>repose-filter-bundle</name>
+                            <name>${project.artifactId}</name>
 
                             <mappings>
                                 <!-- The filters archive. -->
