@@ -32,7 +32,7 @@
                         <executions>
                             <execution>
                                 <id>copy-extensions-filter-bundle-ear</id>
-                                <phase>package</phase>
+                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>copy</goal>
                                 </goals>
@@ -57,80 +57,76 @@
                         <groupId>org.vafer</groupId>
                         <artifactId>jdeb</artifactId>
 
-                        <executions>
-                            <execution>
-                                <configuration>
-                                    <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
-                                    <timestamped>false</timestamped>
+                        <configuration>
+                            <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
+                            <timestamped>false</timestamped>
 
-                                    <dataSet>
-                                        <!-- The extensions archive -->
-                                        <data>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>
-                                                    /usr/share/repose/filters
-                                                </prefix>
-                                                <filemode>555</filemode>
-                                            </mapper>
-                                            <src>
-                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
-                                            </src>
-                                        </data>
+                            <dataSet>
+                                <!-- The extensions archive -->
+                                <data>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>
+                                            /usr/share/repose/filters
+                                        </prefix>
+                                        <filemode>555</filemode>
+                                    </mapper>
+                                    <src>
+                                        ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
+                                    </src>
+                                </data>
 
-                                        <!--The git.properties file -->
-                                        <data>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>
-                                                    /usr/share/doc/${project.artifactId}
-                                                </prefix>
-                                                <filemode>444</filemode>
-                                            </mapper>
-                                            <src>
-                                                ${basedir}/target/git.properties
-                                            </src>
-                                        </data>
+                                <!--The git.properties file -->
+                                <data>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>
+                                            /usr/share/doc/${project.artifactId}
+                                        </prefix>
+                                        <filemode>444</filemode>
+                                    </mapper>
+                                    <src>
+                                        ${basedir}/target/git.properties
+                                    </src>
+                                </data>
 
-                                        <!-- The sample configuration files for the filters -->
-                                        <data>
-                                            <type>directory</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>
-                                                    /etc/repose
-                                                </prefix>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
-                                                <filemode>640</filemode>
-                                            </mapper>
-                                            <src>${basedir}/../../configs/extensions</src>
-                                        </data>
+                                <!-- The sample configuration files for the filters -->
+                                <data>
+                                    <type>directory</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>
+                                            /etc/repose
+                                        </prefix>
+                                        <user>
+                                            repose
+                                        </user>
+                                        <group>
+                                            repose
+                                        </group>
+                                        <filemode>640</filemode>
+                                    </mapper>
+                                    <src>${basedir}/../../configs/extensions</src>
+                                </data>
 
-                                        <!-- This adds the license file on installation -->
-                                        <data>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>
-                                                    /usr/share/doc/${project.artifactId}
-                                                </prefix>
-                                                <filemode>444</filemode>
-                                            </mapper>
-                                            <src>
-                                                ${basedir}/../../../../LICENSE.txt
-                                            </src>
-                                        </data>
-                                    </dataSet>
-                                </configuration>
-                            </execution>
-                        </executions>
+                                <!-- This adds the license file on installation -->
+                                <data>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>
+                                            /usr/share/doc/${project.artifactId}
+                                        </prefix>
+                                        <filemode>444</filemode>
+                                    </mapper>
+                                    <src>
+                                        ${basedir}/../../../../LICENSE.txt
+                                    </src>
+                                </data>
+                            </dataSet>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
