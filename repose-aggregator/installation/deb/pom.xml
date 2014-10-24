@@ -51,6 +51,11 @@
                                 <goal>jdeb</goal>
                             </goals>
                         </execution>
+                        <execution>
+                            <id>default-jdeb</id>
+                            <goals/>
+                            <phase/>
+                        </execution>
                     </executions>
                 </plugin>
             </plugins>
