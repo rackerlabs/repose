@@ -24,7 +24,7 @@
         <module>configuration</module>
         <module>classloader</module>
         <module>jetty</module>
-        <module>delegable-headers</module>
+        <module>delegation-headers</module>
     </modules>
 
     <dependencyManagement>
