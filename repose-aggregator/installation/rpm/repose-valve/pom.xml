@@ -69,6 +69,8 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>555</filemode>
                                 </mapping>
 
@@ -91,6 +93,8 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>555</filemode>
                                     <sources>
                                         <source>
@@ -109,6 +113,8 @@
                                         /etc/init.d
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>755</filemode>
 
                                     <sources>
@@ -187,6 +193,8 @@
                                 <mapping>
                                     <directory>/etc/sysconfig</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
@@ -223,6 +231,8 @@
                                         /usr/bin
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
@@ -238,6 +248,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>
@@ -255,6 +267,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>

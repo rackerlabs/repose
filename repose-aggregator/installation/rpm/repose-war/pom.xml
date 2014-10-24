@@ -68,6 +68,8 @@
                                     <directory>
                                         /usr/share/repose
                                     </directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>555</filemode>
                                 </mapping>
 
@@ -91,6 +93,8 @@
                                         /usr/share/repose
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>555</filemode>
                                     <sources>
                                         <source>
@@ -197,6 +201,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>
@@ -214,6 +220,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>

@@ -69,6 +69,8 @@
                                         /usr/share/repose/filters
                                     </directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>555</filemode>
 
                                     <sources>
@@ -112,6 +114,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>
@@ -129,6 +133,8 @@
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>444</filemode>
                                     <sources>
                                         <source>
