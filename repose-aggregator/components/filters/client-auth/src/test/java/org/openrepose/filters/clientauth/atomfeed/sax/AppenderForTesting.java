@@ -1,27 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppenderForTesting extends AppenderSkeleton {
+public class AppenderForTesting implements Appender {
     private static List messages = new ArrayList();
+    private static volatile State state = State.INITIALIZED;
 
-    protected void append(LoggingEvent event) {
-        messages.add(event.getRenderedMessage());
-    }
-
-    public void close() {
-    }
-
-    public boolean requiresLayout() {
-        return false;
+    @Override
+    public void append(LogEvent logEvent) {
+        messages.add(logEvent.getMessage().getFormattedMessage());
     }
 
     public static String[] getMessages() {
@@ -31,5 +22,49 @@ public class AppenderForTesting extends AppenderSkeleton {
     public static void clear() {
         messages.clear();
     }
-}
 
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public Layout<? extends Serializable> getLayout() {
+        return null;
+    }
+
+    @Override
+    public boolean ignoreExceptions() {
+        return false;
+    }
+
+    @Override
+    public ErrorHandler getHandler() {
+        return null;
+    }
+
+    @Override
+    public void setHandler(ErrorHandler errorHandler) {
+
+    }
+
+    @Override
+    public void start() {
+        state = State.STARTED;
+    }
+
+    @Override
+    public void stop() {
+        state = State.STOPPED;
+    }
+
+    @Override
+    public boolean isStarted() {
+        return state == State.STARTED;
+    }
+
+    @Override
+    public boolean isStopped() {
+        return state == State.STOPPED;
+    }
+}
