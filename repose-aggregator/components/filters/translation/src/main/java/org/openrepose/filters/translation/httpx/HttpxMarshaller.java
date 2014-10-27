@@ -5,13 +5,11 @@ import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
 import org.openrepose.repose.httpx.v1.QueryParameters;
 import org.openrepose.repose.httpx.v1.RequestInformation;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import javax.xml.bind.*;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -19,7 +17,10 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 public class HttpxMarshaller {
@@ -33,28 +34,14 @@ public class HttpxMarshaller {
   private Unmarshaller unmarshaller;
   private final SAXParserFactory parserFactory;
   private final ObjectFactory objectFactory;
-  private final DocumentBuilderFactory builderFactory;
 
   public HttpxMarshaller() {
-    builderFactory = DocumentBuilderFactory.newInstance();
     objectFactory = new ObjectFactory();
     parserFactory = SAXParserFactory.newInstance();
     parserFactory.setNamespaceAware(true);
     parserFactory.setXIncludeAware(false);
     parserFactory.setValidating(true);
     parserFactory.setSchema(getSchemaSource());
-  }
-
-  private Document buildDocument(InputStream xml) {
-    try {
-      return builderFactory.newDocumentBuilder().parse(xml);
-    } catch (SAXException ex) {
-      throw new HttpxException(ex);
-    } catch (IOException ex) {
-      throw new HttpxException(ex);
-    } catch (ParserConfigurationException ex) {
-      throw new HttpxException(ex);
-    }
   }
   
   private Schema getSchemaSource() {
@@ -149,19 +136,11 @@ public class HttpxMarshaller {
         return (T) element.getValue();
       }
       return (T) result;
-    } catch (SAXException ex) {
-      throw new HttpxException("Error unmarshalling xml input", ex);
-    } catch (ParserConfigurationException ex) {
-      throw new HttpxException("Error unmarshalling xml input", ex);
-    } catch (JAXBException ex) {
+    } catch (SAXException | ParserConfigurationException | JAXBException ex) {
       throw new HttpxException("Error unmarshalling xml input", ex);
     }
   }
 
-  public Document getDocument(Headers headers) {
-    return buildDocument(marshall(headers));
-  }
-  
   public InputStream marshall(RequestInformation request) {
     return marshall(objectFactory.createRequestInformation(request));
   }
@@ -178,10 +157,6 @@ public class HttpxMarshaller {
     marshall(objectFactory.createHeaders(headers), out);
   }
 
-  public Document getDocument(QueryParameters params) {
-    return buildDocument(marshall(params));
-  }
-  
   public InputStream marshall(QueryParameters params) {
     return marshall(objectFactory.createParameters(params));
   }
@@ -205,8 +180,6 @@ public class HttpxMarshaller {
   private synchronized void marshall(Object o, OutputStream out) {
     try {
       getMarshaller().marshal(o, out);
-    } catch (JAXBException ex) {
-      throw new HttpxException("Error marshalling HTTPX object", ex);
     } catch (Exception ex) {
         throw new HttpxException("Error marshalling HTTPX object", ex);
     }

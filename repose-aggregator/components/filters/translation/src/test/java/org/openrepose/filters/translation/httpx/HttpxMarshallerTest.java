@@ -44,17 +44,6 @@ public class HttpxMarshallerTest {
       instance = new HttpxMarshaller();
     }
 
-    private String readResourceToString(String resource) throws UnsupportedEncodingException, IOException {
-      StringBuilder sb = new StringBuilder();
-
-      BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resource), "UTF-8"));
-      for (int c = br.read(); c != -1; c = br.read()) {
-        sb.append((char) c);
-      }
-      
-      return sb.toString();
-    }
-
     @Test
     public void shouldMarshallExampleHeaders() throws IOException, SAXException {
       InputStream xml = getClass().getResourceAsStream(EXAMPLE_HEADERS_XML);
