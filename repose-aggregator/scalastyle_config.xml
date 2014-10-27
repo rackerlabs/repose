@@ -123,4 +123,11 @@
 
     <check enabled="true" class="org.scalastyle.scalariform.ImportGroupingChecker" level="warning"></check>
 
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">import.*\n[^\s-]</parameter>
+        </parameters>
+        <customMessage>Blank line after import please!</customMessage>
+    </check>
+
 </scalastyle>
