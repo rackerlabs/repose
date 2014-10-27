@@ -29,7 +29,7 @@ public class HttpxMarshaller {
   private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
   private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
   private static final String HTTPX_PACKAGE = "org.openrepose.repose.httpx.v1";
-  private JAXBContext jaxbContext;
+  private static final JAXBContext jaxbContext = getContext();
   private Marshaller marshaller;
   private Unmarshaller unmarshaller;
   private final SAXParserFactory parserFactory;
@@ -56,16 +56,12 @@ public class HttpxMarshaller {
     }
   }
 
-  private synchronized JAXBContext getContext() {
-    if (jaxbContext == null) {
-      try {
-        jaxbContext = JAXBContext.newInstance(HTTPX_PACKAGE);
-      } catch (JAXBException ex) {
-        throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
-      }
+  private static synchronized JAXBContext getContext() {
+    try {
+      return JAXBContext.newInstance(HTTPX_PACKAGE);
+    } catch (JAXBException ex) {
+      throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
     }
-
-    return jaxbContext;
   }
 
   private synchronized Marshaller getMarshaller() {
@@ -74,7 +70,7 @@ public class HttpxMarshaller {
     }
 
     try {
-      marshaller = getContext().createMarshaller();
+      marshaller = jaxbContext.createMarshaller();
       marshaller.setSchema(getSchemaSource());
       return marshaller;
     } catch (JAXBException ex) {
@@ -88,7 +84,7 @@ public class HttpxMarshaller {
     }
 
     try {
-      unmarshaller = getContext().createUnmarshaller();
+      unmarshaller = jaxbContext.createUnmarshaller();
       unmarshaller.setSchema(getSchemaSource());
       return unmarshaller;
 
