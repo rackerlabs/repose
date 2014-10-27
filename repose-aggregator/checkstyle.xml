@@ -12,6 +12,8 @@
 
     <module name="TreeWalker">
 
+
+
         <property name="tabWidth" value="4"/>
 
         <module name="Indentation">
@@ -20,6 +22,17 @@
             <property name="braceAdjustment" value="0"/>
             <property name="throwsIndent" value="4"/>
         </module>
+
+
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI"/>
+        </module>
+
+
+
+
+
 
         <module name="AvoidStarImport">
             <property name="excludes" value=""/>
