@@ -19,7 +19,7 @@
         </module>
 
         <module name="Regexp">
-            <property name="format" value="for[^\s-](|if[^\s-](|while[^\s-](|switch[^\s-](|try[^\s-](|catch[^\s-](|synchronized[^\s-](|"/>
+            <property name="format" value="for[^\s-]\(|if[^\s-]\(|while[^\s-]\(|switch[^\s-]\(|try[^\s-]\(|catch[^\s-]\(|synchronized[^\s-]\("/>
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Space before paren of if, for, while, switch, try, catch, synchronized"/>
@@ -45,9 +45,7 @@
             <property name="message" value="Maximum 2 blank lines"/>
         </module>
 
-        <module name="EmptyLineSeparator"/>
 
-        <module name="JavadocPackage"/>
 
     </module>
 </module>
