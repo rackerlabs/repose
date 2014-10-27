@@ -1,20 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <display-name>Repose Root Web Application</display-name>
-    <description>Proxies for fun</description>
-
-    <!-- This tells Power API where to look for its configurations -->
-    <context-param>
-        <param-name>powerapi-config-directory</param-name>
-        <param-value>/etc/repose</param-value>
-    </context-param>
-    <context-param>
-        <param-name>repose-cluster-id</param-name>
-        <param-value>repose</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>repose-node-id</param-name>
-        <param-value>repose_node1</param-value>
-    </context-param>
 </web-app>
