@@ -59,6 +59,8 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * TODO: this must have the application context wired into it....
  * THen the application context must be handed down into things that need it to build filters.
+ * TODO: this also needs to check the properties to make sure they exist before we start up like the empty servlet used
+ *          to do.
  */
 @Named("powerFilter")
 public class PowerFilter extends DelegatingFilterProxy {
