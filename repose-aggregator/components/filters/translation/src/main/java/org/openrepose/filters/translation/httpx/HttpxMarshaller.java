@@ -92,16 +92,8 @@ public class HttpxMarshaller {
       throw new HttpxException("Unable to create HTTPX unmarshaller", ex);
     }
   }
-  
-  public RequestInformation unmarshallRequestInformation(String xml) {
-    return unmarshall(xml);
-  }
 
   public RequestInformation unmarshallRequestInformation(InputStream xml) {
-    return unmarshall(xml);
-  }
-
-  public Headers unmarshallHeaders(String xml) {
     return unmarshall(xml);
   }
 
@@ -109,16 +101,8 @@ public class HttpxMarshaller {
     return unmarshall(xml);
   }
 
-  public QueryParameters unmarshallQueryParameters(String xml) {
-    return unmarshall(xml);
-  }
-
   public QueryParameters unmarshallQueryParameters(InputStream xml) {
     return unmarshall(xml);
-  }
-
-  public <T> T unmarshall(String xml) {
-    return unmarshall(new ByteArrayInputStream(xml.getBytes(CharacterSets.UTF_8)));
   }
 
   public <T> T unmarshall(InputStream xml) {
@@ -141,10 +125,6 @@ public class HttpxMarshaller {
     return marshall(objectFactory.createRequestInformation(request));
   }
   
-  public void marshall(RequestInformation request, OutputStream out) {
-    marshall(objectFactory.createRequestInformation(request), out);
-  }
-  
   public InputStream marshall(Headers header) {
     return marshall(objectFactory.createHeaders(header));
   }
@@ -155,10 +135,6 @@ public class HttpxMarshaller {
 
   public InputStream marshall(QueryParameters params) {
     return marshall(objectFactory.createParameters(params));
-  }
-
-  public void marshall(QueryParameters params, OutputStream out) {
-    marshall(objectFactory.createParameters(params), out);
   }
 
   private InputStream marshall(Object o) {
