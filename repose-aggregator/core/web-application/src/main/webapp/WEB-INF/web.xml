@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    
     <display-name>Repose Root Web Application</display-name>
     <description>Proxies for fun</description>
-        
+
     <!-- This tells Power API where to look for its configurations -->
     <context-param>
         <param-name>powerapi-config-directory</param-name>
@@ -13,37 +12,9 @@
         <param-name>repose-cluster-id</param-name>
         <param-value>repose</param-value>
     </context-param>
-    
+
     <context-param>
         <param-name>repose-node-id</param-name>
         <param-value>repose_node1</param-value>
     </context-param>
-    
-    <listener>
-        <display-name>Repose Context Loader</display-name>
-        <listener-class>org.openrepose.core.services.context.impl.PowerApiContextManager</listener-class>
-    </listener>
-
-    <!-- Servlets -->
-    <servlet id="power-api-servlet">
-        <servlet-name>empty-servlet</servlet-name>
-        <servlet-class>org.openrepose.core.EmptyServlet</servlet-class>
-    </servlet>
-    
-    <servlet-mapping id="power-api-servlet-mapping">
-        <servlet-name>empty-servlet</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-
-    <!-- Filters -->
-    <!-- TODO: replace this with the delegating filter like in the prototype -->
-    <filter id="power-api-filter">
-        <filter-name>power-api-filter</filter-name>
-        <filter-class>org.nope.cant.use.words</filter-class>
-    </filter>
-    
-    <filter-mapping id="power-api-filter-mapping">
-        <filter-name>power-api-filter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
 </web-app>

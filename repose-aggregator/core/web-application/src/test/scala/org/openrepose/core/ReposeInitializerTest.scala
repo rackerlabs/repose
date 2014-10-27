@@ -1,12 +1,10 @@
 package org.openrepose.core
 
 import java.util
-import java.util.EnumSet
-import javax.servlet.{DispatcherType, FilterRegistration, ServletRegistration, ServletContext}
+import javax.servlet.{DispatcherType, FilterRegistration, ServletContext, ServletRegistration}
 
 import org.junit.runner.RunWith
-import org.mockito.{ArgumentCaptor, Mockito}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -15,7 +13,6 @@ import org.springframework.web.filter.DelegatingFilterProxy
 
 @RunWith(classOf[JUnitRunner])
 class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar{
-
   describe("The repose initializer") {
     it("should add the core context to the servlet context") {
       //TODO: I dont know how to get to the context to see whats in it yet....
