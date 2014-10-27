@@ -160,7 +160,7 @@
                     <args>
                         <arg>-XtoString</arg>
                         <arg>
-                            -XtoString-toStringStrategyClass=org.openrepose.commons.utils.string.PasswordSensitiveToStringStrategy
+                            -XtoString-toStringStrategyClass=com.rackspace.papi.commons.util.string.PasswordSensitiveToStringStrategy
                         </arg>
                     </args>
                 </configuration>
