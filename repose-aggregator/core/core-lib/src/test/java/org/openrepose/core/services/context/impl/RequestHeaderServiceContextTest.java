@@ -40,6 +40,8 @@ import static org.mockito.Mockito.*;
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
+    private static final String CONFIG = "classpath:log4j2-test.xml";
+
     private final ServicePorts ports = new ServicePorts();
 
     private RequestHeaderServiceContext requestHeaderServiceContext;
@@ -50,12 +52,12 @@ public class RequestHeaderServiceContextTest {
     private ServletContextEvent servletContextEvent;
 
     @Rule
-    public InitialLoggerContext loggerContext = new InitialLoggerContext("classpath:log4j2-test.xml");
-    private ListAppender listAppender;
+    public InitialLoggerContext init = new InitialLoggerContext(CONFIG);
+    private ListAppender app;
 
     @Before
     public void setUp() throws Exception {
-        listAppender = loggerContext.getListAppender("List").clear();
+        app = init.getListAppender("List").clear();
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
@@ -117,7 +119,7 @@ public class RequestHeaderServiceContextTest {
         verify(healthCheckServiceProxy).reportIssue(eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity.class));
         assertFalse(listenerObject.isInitialized());
-        assertTrue(logContainsMessage(listAppender, "Unable to identify the local host in the system model"));
+        assertTrue(logContainsMessage(app, "Unable to identify the local host in the system model"));
     }
 
     private static boolean logContainsMessage(ListAppender log, String msg) {
