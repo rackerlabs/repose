@@ -90,19 +90,19 @@
     </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before else unless in a string"/>
+        <property name="name" value="Require space before else"/>
         <property name='regex' value='[^\s-]else'/>
         <property name='priority' value='1'/>
     </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before catch unless in a string"/>
+        <property name="name" value="Require space before catch"/>
         <property name='regex' value='[^\s-]catch'/>
         <property name='priority' value='1'/>
     </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before finally unless in a string"/>
+        <property name="name" value="Require space before finally"/>
         <property name='regex' value='[^\s-]finally'/>
         <property name='priority' value='1'/>
     </rule>
