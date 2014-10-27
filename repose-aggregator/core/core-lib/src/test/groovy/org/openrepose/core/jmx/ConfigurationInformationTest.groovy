@@ -1,17 +1,18 @@
 package org.openrepose.core.jmx
 
+import org.apache.logging.log4j.core.LogEvent
+import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import org.junit.Rule
+import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
-import org.openrepose.core.systemmodel.*
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.systemmodel.*
 import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.Severity
-import org.apache.logging.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
-import org.mockito.ArgumentCaptor
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -19,7 +20,9 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
+
 class ConfigurationInformationTest extends Specification {
+    private static final String CONFIG = "classpath:log4j2-test.xml";
     @Shared
     ConfigurationInformation configurationInformation
 
@@ -35,14 +38,11 @@ class ConfigurationInformationTest extends Specification {
     @Shared
     ServicePorts ports = new ServicePorts()
 
-    @Shared
-    ByteArrayOutputStream log = new ByteArrayOutputStream()
+    @Rule
+    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
+    ListAppender app;
 
     def setupSpec() {
-        def logger = Logger.getLogger(ConfigurationInformation.class)
-
-        logger.addAppender(new WriterAppender(new SimpleLayout(), log))
-
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
         healthCheckServiceProxy = mock(HealthCheckServiceProxy)
@@ -50,6 +50,10 @@ class ConfigurationInformationTest extends Specification {
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         configurationInformation = new ConfigurationInformation(configurationService, ports, healthCheckService)
+    }
+
+    def setup() {
+        app = init.getListAppender("List").clear();
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -94,9 +98,20 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         !listenerObject.isInitialized()
-        new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
+        logContainsMessage(app, "Unable to identify the local host in the system model")
         verify(healthCheckServiceProxy).reportIssue(eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String),
                 any(Severity))
+    }
+
+    private static boolean logContainsMessage(ListAppender log, String msg) {
+        boolean rtn = false;
+        final List<LogEvent> events = log.getEvents();
+        LogEvent event;
+        for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+            event = iterator.next();
+            rtn = event.getMessage().getFormattedMessage().contains(msg);
+        }
+        return rtn;
     }
 
     /**
