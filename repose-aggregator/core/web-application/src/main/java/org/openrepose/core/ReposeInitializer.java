@@ -21,7 +21,7 @@ public class ReposeInitializer implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.setParent(CoreSpringProvider.getInstance().getCoreContext());
-        rootContext.setDisplayName("WARFileContext");
+        rootContext.setDisplayName("ReposeWARFileContext");
         rootContext.register(PowerFilter.class);
 
         servletContext.addListener(new ContextLoaderListener(rootContext));
