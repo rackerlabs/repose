@@ -10,9 +10,9 @@
         <version>6.2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>delegable-headers</artifactId>
+    <artifactId>delegation-headers</artifactId>
 
-    <name>Repose Commons - Delegable Headers Library</name>
+    <name>Repose Commons - Delegation Headers Library</name>
 
     <description>
         A collection of headers used to implement delegation, and standard functions to operate on those headers.
