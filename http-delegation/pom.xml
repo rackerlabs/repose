@@ -50,7 +50,10 @@
     </distributionManagement>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.license>apache20</project.license>
         <scala.language.version>2.10.3</scala.language.version>
+        <java.ee.api.version>6.0</java.ee.api.version>
         <scala.test.version>2.2.0</scala.test.version>
         <scala.maven.plugin.version>3.2.0</scala.maven.plugin.version>
     </properties>
@@ -60,14 +63,14 @@
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
+            <version>${java.ee.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
+            <version>${java.ee.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
