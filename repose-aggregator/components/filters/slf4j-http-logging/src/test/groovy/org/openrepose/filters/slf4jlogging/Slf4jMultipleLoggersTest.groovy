@@ -3,22 +3,40 @@ package org.openrepose.filters.slf4jlogging
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
+import org.apache.logging.log4j.core.LogEvent
+import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import org.junit.Rule
 import spock.lang.Shared
+import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
-class Slf4jMultipleLoggersTest extends Slf4jLoggingFilterSpecification {
+class Slf4jMultipleLoggersTest extends Specification {
+    private static final String CONFIG = "classpath:log4j2-Slf4jMultipleLoggersTest.xml";
+
+    @Rule
+    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
+    ListAppender app1;
+    ListAppender app2;
+    ListAppender app3;
 
     @Shared
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
-        filter = configureFilter([
+        filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                logConfig("firstLogger", "%r"),
-                logConfig("secondLogger", "%m"),
-                logConfig("thirdLogger", "%a")
+                Slf4jLoggingFilterTestUtil.logConfig("Logger1", "%r"),
+                Slf4jLoggingFilterTestUtil.logConfig("Logger2", "%m"),
+                Slf4jLoggingFilterTestUtil.logConfig("Logger3", "%a")
         ])
+    }
+
+    def setup() {
+        app1 = init.getListAppender("List1").clear();
+        app2 = init.getListAppender("List2").clear();
+        app3 = init.getListAppender("List3").clear();
     }
 
     def "The SLF4j logging filter logs to the named loggers"(){
@@ -48,31 +66,23 @@ class Slf4jMultipleLoggersTest extends Slf4jLoggingFilterSpecification {
         response.getWriter().flush()
         response.getWriter().close() //I think this should shove the body in there
 
-        def os1 = prepLoggerOutputStream("firstLogger")
-        def os2 = prepLoggerOutputStream("secondLogger")
-        def os3 = prepLoggerOutputStream("thirdLogger")
-
-
-
         when:
         filter.doFilter(request, response, chain)
         List<HttpServletRequest> requestList = chain.getRequestList();
+        List<LogEvent> events1 = app1.getEvents();
+        List<LogEvent> events2 = app2.getEvents();
+        List<LogEvent> events3 = app3.getEvents();
 
         then:
         requestList.size() == 1
 
-        def stream1 = logLines(os1)
-        stream1.size() == 1
-        stream1.first() == "INFO - GET http://www.example.com/derp/derp?herp=derp HTTP/1.1"
+        events1.size() == 1
+        events1.first().getMessage().getFormattedMessage().equals("GET http://www.example.com/derp/derp?herp=derp HTTP/1.1");
 
-        def stream2 = logLines(os2)
-        stream2.size() == 1
-        stream2.first() == "INFO - GET"
+        events2.size() == 1
+        events2.first().getMessage().getFormattedMessage().equals("GET");
 
-        def stream3 = logLines(os3)
-        stream3.size() == 1
-        stream3.first() == "INFO - 127.0.0.1"
-
+        events3.size() == 1
+        events3.first().getMessage().getFormattedMessage().equals("127.0.0.1");
     }
-
 }

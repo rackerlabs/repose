@@ -10,7 +10,6 @@ import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import spock.lang.Specification
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when

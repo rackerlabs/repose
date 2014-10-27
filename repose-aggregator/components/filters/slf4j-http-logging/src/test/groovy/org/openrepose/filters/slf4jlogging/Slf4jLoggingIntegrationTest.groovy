@@ -3,19 +3,33 @@ package org.openrepose.filters.slf4jlogging
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
+import org.apache.logging.log4j.core.LogEvent
+import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import org.junit.Rule
 import spock.lang.Shared
+import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
-class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
+class Slf4jLoggingIntegrationTest extends Specification {
+    private static final String CONFIG = "classpath:log4j2-test.xml";
+
+    @Rule
+    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
+    ListAppender app;
+
+    def setup() {
+        app = init.getListAppender("List").clear();
+    }
 
     @Shared
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
-        filter = configureFilter([
+        filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                Slf4jLoggingFilterTestUtil.logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
         ])
     }
 
@@ -46,11 +60,6 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         response.getWriter().flush()
         response.getWriter().close() //I think this should shove the body in there
 
-        //Set up a logger target to get those bits of information
-        //This implementation is log4j dependent because we're verifying the backend
-        def outputStream = prepLoggerOutputStream("uberLogger")
-
-
         when:
         filter.doFilter(request, response, chain)
         List<HttpServletRequest> requestList = chain.getRequestList();
@@ -58,11 +67,10 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         then:
         requestList.size() == 1
 
-        def allLogs = logLines(outputStream)
+        List<LogEvent> events = app.getEvents();
+        events.size() == 1
 
-        allLogs.size() == 1
-
-        def splitLog = allLogs.first().split("\t").toList()
+        def splitLog = events.first().getMessage().getFormattedMessage().split("\t").toList()
 
         //splitLog.size() == 19
 
@@ -84,7 +92,5 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         splitLog[15] == "lolwut"
 
         //The rest seem to be somewhat magical, or it's my argument parsing insanity
-
     }
-
 }
