@@ -5,11 +5,11 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.repose.httpx.v1.Headers;
-import org.xml.sax.SAXException;
 
-import java.io.*;
+import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Enclosed.class)
 public class HttpxMarshallerTest {
@@ -32,30 +32,6 @@ public class HttpxMarshallerTest {
 
       assertNotNull(headers);
       assertEquals(5, headers.getRequest().getHeader().size());
-    }
-  }
-
-  public static class WhenMarshallingHttpxObjects {
-
-    private HttpxMarshaller instance;
-
-    @Before
-    public void setUp() {
-      instance = new HttpxMarshaller();
-    }
-
-    @Test
-    public void shouldMarshallExampleHeaders() throws IOException, SAXException {
-      InputStream xml = getClass().getResourceAsStream(EXAMPLE_HEADERS_XML);
-      Headers headers = instance.unmarshallHeaders(xml);
-
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      instance.marshall(headers, out);
-
-      String result = new String(out.toByteArray());
-
-      assertNotNull(result);
-      assertTrue(result.length() > 0);
     }
   }
 }

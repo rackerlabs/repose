@@ -1,5 +1,8 @@
 package org.openrepose.filters.translation.httpx;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
@@ -30,7 +33,21 @@ public class HttpxMarshaller {
   private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
   private static final String HTTPX_PACKAGE = "org.openrepose.repose.httpx.v1";
   private static final JAXBContext jaxbContext = getContext();
-  private Marshaller marshaller;
+  private static final Schema schema = getSchemaSource();
+  private static final ObjectPool<Marshaller> marshallerPool = new SoftReferenceObjectPool<>(
+          new BasePoolableObjectFactory<Marshaller>() {
+              @Override
+              public Marshaller makeObject() {
+                  try {
+                      Marshaller marshaller = jaxbContext.createMarshaller();
+                      marshaller.setSchema(schema);
+                      return marshaller;
+                  } catch (JAXBException ex) {
+                      throw new HttpxException("Unable to create HTTPX marshaller", ex);
+                  }
+              }
+          }
+  );
   private Unmarshaller unmarshaller;
   private final SAXParserFactory parserFactory;
   private final ObjectFactory objectFactory;
@@ -41,40 +58,34 @@ public class HttpxMarshaller {
     parserFactory.setNamespaceAware(true);
     parserFactory.setXIncludeAware(false);
     parserFactory.setValidating(true);
-    parserFactory.setSchema(getSchemaSource());
+    parserFactory.setSchema(schema);
   }
   
-  private Schema getSchemaSource() {
-    SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
-    InputStream inputStream = getClass().getResourceAsStream(HTTPX_SCHEMA);
-    URL inputURL = getClass().getResource(HTTPX_SCHEMA);
-    Source schemaSource = new StreamSource(inputStream, inputURL.toExternalForm());
-    try {
-      return factory.newSchema(schemaSource);
-    } catch (SAXException ex) {
-      throw new HttpxException("Unable to load HTTPX schema", ex);
+  private static synchronized Schema getSchemaSource() {
+    if(schema == null) {
+        SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
+        InputStream inputStream = HttpxMarshaller.class.getResourceAsStream(HTTPX_SCHEMA);
+        URL inputURL = HttpxMarshaller.class.getResource(HTTPX_SCHEMA);
+        Source schemaSource = new StreamSource(inputStream, inputURL.toExternalForm());
+        try {
+            return factory.newSchema(schemaSource);
+        } catch (SAXException ex) {
+            throw new HttpxException("Unable to load HTTPX schema", ex);
+        }
+    } else {
+        return schema;
     }
   }
 
   private static synchronized JAXBContext getContext() {
-    try {
-      return JAXBContext.newInstance(HTTPX_PACKAGE);
-    } catch (JAXBException ex) {
-      throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
-    }
-  }
-
-  private synchronized Marshaller getMarshaller() {
-    if (marshaller != null) {
-      return marshaller;
-    }
-
-    try {
-      marshaller = jaxbContext.createMarshaller();
-      marshaller.setSchema(getSchemaSource());
-      return marshaller;
-    } catch (JAXBException ex) {
-      throw new HttpxException("Unable to create HTTPX marshaller", ex);
+    if (jaxbContext == null) {
+        try {
+            return JAXBContext.newInstance(HTTPX_PACKAGE);
+        } catch (JAXBException ex) {
+            throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
+        }
+    } else {
+        return jaxbContext;
     }
   }
 
@@ -85,7 +96,7 @@ public class HttpxMarshaller {
 
     try {
       unmarshaller = jaxbContext.createUnmarshaller();
-      unmarshaller.setSchema(getSchemaSource());
+      unmarshaller.setSchema(schema);
       return unmarshaller;
 
     } catch (JAXBException ex) {
@@ -129,10 +140,6 @@ public class HttpxMarshaller {
     return marshall(objectFactory.createHeaders(header));
   }
 
-  public void marshall(Headers headers, OutputStream out) {
-    marshall(objectFactory.createHeaders(headers), out);
-  }
-
   public InputStream marshall(QueryParameters params) {
     return marshall(objectFactory.createParameters(params));
   }
@@ -149,11 +156,25 @@ public class HttpxMarshaller {
     return new ByteArrayInputStream(out.toByteArray());
   }
 
-  private synchronized void marshall(Object o, OutputStream out) {
-    try {
-      getMarshaller().marshal(o, out);
-    } catch (Exception ex) {
-        throw new HttpxException("Error marshalling HTTPX object", ex);
+  private void marshall(Object o, OutputStream out) {
+      Marshaller pooledObject = null;
+      try {
+          try {
+              pooledObject = marshallerPool.borrowObject();
+              pooledObject.marshal(o, out);
+          } catch (Exception ex) {
+              marshallerPool.invalidateObject(pooledObject);
+              pooledObject = null;
+              throw new HttpxException("Error marshalling HTTPX object", ex);
+          } finally {
+              if (pooledObject != null) {
+                  marshallerPool.returnObject(pooledObject);
+              }
+          }
+      } catch (HttpxException ex) {
+          throw ex;
+      } catch (Exception e) {
+        LOG.error("Error marshalling HTTPX object", e);
     }
   }
 }
