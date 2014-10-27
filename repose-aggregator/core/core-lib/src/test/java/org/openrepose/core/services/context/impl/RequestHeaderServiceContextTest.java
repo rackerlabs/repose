@@ -1,34 +1,36 @@
 package org.openrepose.core.services.context.impl;
 
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.junit.InitialLoggerContext;
+import org.apache.logging.log4j.test.appender.ListAppender;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.systemmodel.*;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.headers.request.RequestHeaderService;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.apache.logging.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
-import org.apache.log4j.WriterAppender;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
+import java.util.List;
 
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -36,7 +38,6 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
-    private final ByteArrayOutputStream log = new ByteArrayOutputStream();
     private final ServicePorts ports = new ServicePorts();
 
     private RequestHeaderServiceContext requestHeaderServiceContext;
@@ -46,12 +47,13 @@ public class RequestHeaderServiceContextTest {
     private ConfigurationService configurationService;
     private ServletContextEvent servletContextEvent;
 
+    @Rule
+    public InitialLoggerContext loggerContext = new InitialLoggerContext("classpath:log4j2-test.xml");
+    private ListAppender listAppender;
+
     @Before
     public void setUp() throws Exception {
-        Logger logger = Logger.getLogger(RequestHeaderServiceContext.class);
-
-        logger.addAppender(new WriterAppender(new SimpleLayout(), log));
-
+        listAppender = loggerContext.getListAppender("List").clear();
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
@@ -113,7 +115,18 @@ public class RequestHeaderServiceContextTest {
         verify(healthCheckServiceProxy).reportIssue(eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity.class));
         assertFalse(listenerObject.isInitialized());
-        assertThat(new String(log.toByteArray()), containsString("Unable to identify the local host in the system model"));
+        assertTrue(logContainsMessage(listAppender, "Unable to identify the local host in the system model"));
+    }
+
+    private static boolean logContainsMessage(ListAppender log, String msg) {
+        boolean rtn = false;
+        final List<LogEvent> events = log.getEvents();
+        LogEvent event;
+        for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+            event = iterator.next();
+            rtn = event.getMessage().getFormattedMessage().contains(msg);
+        }
+        return rtn;
     }
 
     /**
