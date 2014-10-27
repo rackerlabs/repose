@@ -850,7 +850,6 @@
                 </executions>
             </plugin>
 
-            
             <!-- this is working now that doxygen is commented out-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
