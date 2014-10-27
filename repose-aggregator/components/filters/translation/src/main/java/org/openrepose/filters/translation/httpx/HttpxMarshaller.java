@@ -13,7 +13,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import javax.xml.bind.*;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
@@ -48,7 +47,21 @@ public class HttpxMarshaller {
               }
           }
   );
-  private Unmarshaller unmarshaller;
+  private static final ObjectPool<Unmarshaller> unmarshallerPool = new SoftReferenceObjectPool<>(
+          new BasePoolableObjectFactory<Unmarshaller>() {
+              @Override
+              public Unmarshaller makeObject() {
+                  try {
+                      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                      unmarshaller.setSchema(schema);
+                      return unmarshaller;
+
+                  } catch (JAXBException ex) {
+                      throw new HttpxException("Unable to create HTTPX unmarshaller", ex);
+                  }
+              }
+          }
+  );
   private final SAXParserFactory parserFactory;
   private final ObjectFactory objectFactory;
 
@@ -89,21 +102,6 @@ public class HttpxMarshaller {
     }
   }
 
-  private synchronized Unmarshaller getUnmarshaller() {
-    if (unmarshaller != null) {
-      return unmarshaller;
-    }
-
-    try {
-      unmarshaller = jaxbContext.createUnmarshaller();
-      unmarshaller.setSchema(schema);
-      return unmarshaller;
-
-    } catch (JAXBException ex) {
-      throw new HttpxException("Unable to create HTTPX unmarshaller", ex);
-    }
-  }
-
   public RequestInformation unmarshallRequestInformation(InputStream xml) {
     return unmarshall(xml);
   }
@@ -117,19 +115,36 @@ public class HttpxMarshaller {
   }
 
   public <T> T unmarshall(InputStream xml) {
+    T rtnObject = null;
+    Unmarshaller pooledObject = null;
     try {
-
-      XMLReader xmlReader = parserFactory.newSAXParser().getXMLReader();
-      SAXSource source = new SAXSource(xmlReader, new InputSource(xml));
-      Object result = getUnmarshaller().unmarshal(source);
-      if (result instanceof JAXBElement) {
-        JAXBElement element = (JAXBElement) result;
-        return (T) element.getValue();
-      }
-      return (T) result;
-    } catch (SAXException | ParserConfigurationException | JAXBException ex) {
-      throw new HttpxException("Error unmarshalling xml input", ex);
+        try {
+            pooledObject = unmarshallerPool.borrowObject();
+            XMLReader xmlReader = parserFactory.newSAXParser().getXMLReader();
+            SAXSource source = new SAXSource(xmlReader, new InputSource(xml));
+            Object result = pooledObject.unmarshal(source);
+            if (result instanceof JAXBElement) {
+                JAXBElement element = (JAXBElement) result;
+                rtnObject = (T) element.getValue();
+            } else {
+                rtnObject = (T) result;
+            }
+        } catch (Exception ex) {
+            unmarshallerPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new HttpxException("Error unmarshalling xml input", ex);
+        } finally {
+            if (pooledObject != null) {
+                unmarshallerPool.returnObject(pooledObject);
+            }
+        }
+    } catch (HttpxException ex) {
+        LOG.error("Error unmarshalling xml input", ex);
+        throw ex;
+    } catch (Exception e) {
+        LOG.error("Error unmarshalling xml input", e);
     }
+    return rtnObject;
   }
 
   public InputStream marshall(RequestInformation request) {
