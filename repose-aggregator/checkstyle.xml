@@ -5,52 +5,54 @@
 <module name="Checker">
 
 
-
-
     <module name="FileTabCharacter"/>
 
 
     <module name="TreeWalker">
 
 
-
-        <property name="tabWidth" value="4"/>
-
-        <module name="Indentation">
-            <property name="caseIndent" value="4"/>
-            <property name="basicOffset" value="4"/>
-            <property name="braceAdjustment" value="0"/>
-            <property name="throwsIndent" value="4"/>
+        <module name="Regexp">
+            <property name="format" value="[^\s-]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space before left brace"/>
         </module>
 
-
-
-        <module name="WhitespaceAfter">
-            <property name="tokens" value="COMMA, SEMI"/>
+        <module name="Regexp">
+            <property name="format" value="for[^\s-](|if[^\s-](|while[^\s-](|switch[^\s-](|try[^\s-](|catch[^\s-](|synchronized[^\s-](|"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space before paren of if, for, while, switch, try, catch, synchronized"/>
         </module>
 
+        <module name="WhitespaceAfter"/>
 
-
-
-
-
-        <module name="AvoidStarImport">
-            <property name="excludes" value=""/>
-            <property name="allowClassImports" value="true"/>
-            <property name="allowStaticMemberImports" value="true"/>
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
         </module>
 
-        <module name="GenericWhitespace"/>
-        <module name="NoWhitespaceBefore">
-            <property name="tokens" value="DOT"/>
-            <property name="allowLineBreaks" value="true"/>
+        <module name="Regexp">
+            <property name="format" value="[^\s-]else|[^\s-]catch|[^\s-]finally|[^\s-]while"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space before else, catch, or finally"/>
         </module>
 
-        <module name="NoWhitespaceBefore">
-            <property name="tokens" value="SEMI"/>
+        <module name="Regexp">
+            <property name="format" value="\n\n\n\n"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Maximum 2 blank lines"/>
         </module>
 
-        <module name="WhitespaceAround">
+        <module name="EmptyLineSeparator"/>
+
+        <module name="JavadocPackage"/>
+
+
+
+
+        <!--module name="WhitespaceAround">
             <property name="tokens" value="ASSIGN"/>
         </module>
 
@@ -175,10 +177,6 @@
         </module>
 
         <module name="WhitespaceAround">
-            <property name="tokens" value="LCURLY"/>
-        </module>
-
-        <module name="WhitespaceAround">
             <property name="tokens" value="BOR"/>
         </module>
 
@@ -220,13 +218,23 @@
 
         <module name="WhitespaceAround">
             <property name="tokens" value="SR"/>
-        </module>
+        </module-->
+
+
+        <!--module name="GenericWhitespace"/>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="DOT"/>
+            <property name="allowLineBreaks" value="true"/>
+        </module-->
 
 
 
-        <module name="LeftCurly">
-            <property name="option" value="eol"/>
-        </module>
+
+
+
+
+
 
     </module>
 </module>
