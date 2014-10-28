@@ -1,8 +1,6 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.Pool;
-import org.openrepose.commons.utils.pooling.ResourceContextException;
-import org.openrepose.commons.utils.pooling.SimpleResourceContext;
+import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.transform.StreamTransform;
 
 import javax.xml.bind.JAXBContext;
@@ -15,32 +13,35 @@ import java.io.OutputStream;
 
 public class XsltToStreamTransform<T extends OutputStream> implements StreamTransform<JAXBElement, T> {
 
-    private final Pool<Transformer> xsltResourcePool;
-    private final Templates transformationTemplates;
+    private final ObjectPool<Transformer> xsltResourcePool;
     private final JAXBContext jaxbContext;
-    private final XsltTransformConstruction construction;
 
     public XsltToStreamTransform(Templates transformTemplates, JAXBContext jaxbContext) {
-        this.construction = new XsltTransformConstruction();
-        this.transformationTemplates = transformTemplates;
         this.jaxbContext = jaxbContext;
-
-        xsltResourcePool = construction.generateXsltResourcePool(transformationTemplates);
+        final XsltTransformConstruction construction = new XsltTransformConstruction();
+        xsltResourcePool = construction.generateXsltResourcePool(transformTemplates);
     }
 
     @Override
     public void transform(final JAXBElement source, final T target) {
-        xsltResourcePool.use(new SimpleResourceContext<Transformer>() {
-
-            @Override
-            public void perform(Transformer resource) throws ResourceContextException {
-                try {
-                    resource.transform(new JAXBSource(jaxbContext, source), new StreamResult(target));
-                } catch (Exception e) {
-                    throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
-                                                                  + e.getMessage(), e);
+        Transformer pooledObject;
+        try {
+            pooledObject = xsltResourcePool.borrowObject();
+            try {
+                pooledObject.transform(new JAXBSource(jaxbContext, source), new StreamResult(target));
+            } catch (Exception e) {
+                xsltResourcePool.invalidateObject(pooledObject);
+                pooledObject = null;
+                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+            } finally {
+                if (pooledObject != null) {
+                    xsltResourcePool.returnObject(pooledObject);
                 }
             }
-        });
+        } catch (XsltTransformationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.Pool;
+import org.apache.commons.pool.ObjectPool;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -36,7 +36,7 @@ public class AbstractXslTransformTest {
 
         @Test
         public void shouldReturnNonNullForTransformerPool() {
-            Pool<Transformer> transformerPool;
+            ObjectPool<Transformer> transformerPool;
 
             transformerPool = xslTransform.getXslTransformerPool();
 
@@ -44,26 +44,35 @@ public class AbstractXslTransformTest {
         }
 
         @Test
-        public void shouldReturnPoolWithDefaultMinSizeOfOne() {
+        public void shouldReturnPoolWithDefaultMinSizeOfOne() throws Exception {
+            when(templates.newTransformer())
+                    .thenReturn(mock(Transformer.class));
+
             Integer expected, actual;
 
-            Pool<Transformer> transformerPool;
+            ObjectPool<Transformer> transformerPool;
 
             expected = 1;
 
             transformerPool = xslTransform.getXslTransformerPool();
-            actual = transformerPool.size();
+            final Transformer pooledObject = transformerPool.borrowObject();
+
+            actual = transformerPool.getNumActive() + transformerPool.getNumIdle();
+
+            if(pooledObject != null) {
+                transformerPool.returnObject(pooledObject);
+            }
 
             assertEquals(expected, actual);
         }
 
         @Test(expected=XsltTransformationException.class)
-        public void shouldThrowExceptionIfXslTransformerCanNotBeGenerated() throws TransformerConfigurationException {
+        public void shouldThrowExceptionIfXslTransformerCanNotBeGenerated() throws Exception {
             when(templates.newTransformer())
                     .thenThrow(new TransformerConfigurationException());
 
             //TODO: review...is it possible that too much is being done during construction?
-            new SampleXslTransform(templates);
+            new SampleXslTransform(templates).getXslTransformerPool().borrowObject();
         }
     }
 

@@ -1,24 +1,19 @@
 package org.openrepose.commons.config.parser.jaxb;
 
-import org.openrepose.commons.utils.pooling.ConstructionStrategy;
+import org.apache.commons.pool.PoolableObjectFactory;
 import org.openrepose.commons.utils.pooling.ResourceConstructionException;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
-public class UnmarshallerConstructionStrategyTest {
+public class UnmarshallerBasePoolableObjectFactoryTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -38,16 +33,14 @@ public class UnmarshallerConstructionStrategyTest {
 
     public static class WhenUsingUnmarshallerConstructionStrategy {
 
-        @Test(expected= ResourceConstructionException.class)
-        public void testConstruct() throws JAXBException {
+        @Test(expected = ResourceConstructionException.class)
+        public void testMakeObject() throws Exception {
             JAXBContext jaxbContext = mock(JAXBContext.class);
             when(jaxbContext.createUnmarshaller()).thenThrow(new JAXBException("mock jaxb exception"));
                         
-            ConstructionStrategy<UnmarshallerValidator> constructionStrategy = new UnmarshallerConstructionStrategy(jaxbContext);
+            PoolableObjectFactory<UnmarshallerValidator> poolableObjectFactory = new UnmarshallerPoolableObjectFactory(jaxbContext);
 
-            constructionStrategy.construct();
+            poolableObjectFactory.makeObject();
         }
     }
-
-
 }
