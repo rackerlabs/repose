@@ -12,20 +12,100 @@
 
 
         <module name="Regexp">
-            <property name="format" value="[^\s-]\{"/>
+            <property name="format" value=" class[^\s-\n]\{"/>
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
-            <property name="message" value="Space before left brace"/>
+            <property name="message" value="Space required before class left brace"/>
+        </module>
+
+        <!--module name="Regexp">
+            <property name="format" value="??????[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before method left brace"/>
+        </module-->
+
+        <module name="Regexp">
+            <property name="format" value=" if[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before if left brace"/>
         </module>
 
         <module name="Regexp">
-            <property name="format" value="for[^\s-]\(|if[^\s-]\(|while[^\s-]\(|switch[^\s-]\(|try[^\s-]\(|catch[^\s-]\(|synchronized[^\s-]\("/>
+            <property name="format" value=" else[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before else left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" for[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before for left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" while[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before while left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" do[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before do left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" switch[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before switch left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" try[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before try left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" catch[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before catch left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" finally[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before finally left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" synchronized[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before synchronized left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format"
+                      value=" for[^\s-]\(| if[^\s-]\(| while[^\s-]\(| switch[^\s-]\(| try[^\s-]\(| catch[^\s-]\(| synchronized[^\s-]\("/>
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Space before paren of if, for, while, switch, try, catch, synchronized"/>
         </module>
 
-        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, TYPECAST"/>
+        </module>
 
         <module name="LeftCurly">
             <property name="option" value="eol"/>
@@ -44,7 +124,6 @@
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Maximum 2 blank lines"/>
         </module>
-
 
 
     </module>
