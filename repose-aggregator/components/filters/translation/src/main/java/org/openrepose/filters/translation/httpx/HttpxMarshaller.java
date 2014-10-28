@@ -92,7 +92,7 @@ public class HttpxMarshaller {
     return marshall(objectFactory.createParameters(params));
   }
 
-  private InputStream marshall(Object o) {
+  public InputStream marshall(Object o) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     marshall(o, out);

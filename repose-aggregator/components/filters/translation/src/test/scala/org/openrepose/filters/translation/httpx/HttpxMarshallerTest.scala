@@ -1,9 +1,10 @@
 package org.openrepose.filters.translation.httpx
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.{ByteArrayOutputStream, ByteArrayInputStream, InputStream}
+import java.nio.charset.StandardCharsets
 
 import org.junit.runner.RunWith
-import org.openrepose.repose.httpx.v1.{RequestInformation, QueryParameters, Headers}
+import org.openrepose.repose.httpx.v1._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
@@ -44,16 +45,57 @@ class HttpxMarshallerTest extends FunSpec with Matchers{
   }
   describe("The HttpxMarshaller when marshalling") {
     it("should turn RequestInformation into an input stream") {
-      pending
+      val httpxMarshaller = new HttpxMarshaller
+      val requestInfo = new RequestInformation
+      requestInfo.setUri("foo")
+      requestInfo.setUrl("bar")
+      stringify(httpxMarshaller.marshall(requestInfo)) shouldBe
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<request-information xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+          "<uri>foo</uri>" +
+          "<url>bar</url>" +
+          "</request-information>"
     }
     it("should turn Headers into an input stream") {
-      pending
+      val httpxMarshaller = new HttpxMarshaller
+      val headers = new Headers
+      val headerList = new HeaderList
+      val pair = new QualityNameValuePair()
+      pair.setName("header1")
+      pair.setValue("value1")
+      pair.setQuality(.25)
+      headerList.getHeader.add(pair)
+      headers.setRequest(headerList)
+      stringify(httpxMarshaller.marshall(headers)) shouldBe
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<headers xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+            "<request><header quality=\"0.25\" name=\"header1\" value=\"value1\"/></request>" +
+          "</headers>"
     }
-    it("should turn QueryParamters into an input stream") {
-      pending
+    it("should turn QueryParameters into an input stream") {
+      val httpxMarshaller = new HttpxMarshaller
+      val queryParameters = new QueryParameters
+      val pair = new NameValuePair
+      pair.setName("name1")
+      pair.setValue("paramValue")
+      queryParameters.getParameter.add(pair)
+      stringify(httpxMarshaller.marshall(queryParameters)) shouldBe
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<parameters xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+            "<parameter name=\"name1\" value=\"paramValue\"/>" +
+          "</parameters>"
     }
-    it("should use a pool of marshallers") {
-      pending
+    it("should throw an exception when it cant marshall the object") {
+      val httpxMarshaller = new HttpxMarshaller
+      val ex = intercept[Exception] {
+        httpxMarshaller.marshall(new Object)
+      }
+      ex.getMessage shouldBe "Error marshalling HTTPX object"
     }
+  }
+  val stringify: InputStream => String = { marshalled =>
+    val bytes = new Array[Byte](marshalled.available)
+    marshalled.read(bytes, 0, marshalled.available)
+    new String(bytes)
   }
 }
