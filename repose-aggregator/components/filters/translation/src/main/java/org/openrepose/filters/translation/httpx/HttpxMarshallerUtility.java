@@ -74,4 +74,6 @@ public class HttpxMarshallerUtility {
             throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
         }
     }
+
+    private HttpxMarshallerUtility() {  }
 }
