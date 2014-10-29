@@ -11,7 +11,7 @@
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="List0"/>
         </Root>
-        <Logger name="log4j.logger.org.apache.commons.httpclient" level="warn"/>
-        <Logger name="log4j.logger.org.apache.commons.httpclient.auth" level="warn"/>
+        <Logger name="org.apache.commons.httpclient" level="warn"/>
+        <Logger name="org.apache.commons.httpclient.auth" level="warn"/>
     </Loggers>
 </Configuration>
