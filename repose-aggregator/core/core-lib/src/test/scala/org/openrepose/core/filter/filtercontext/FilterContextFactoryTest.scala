@@ -202,7 +202,7 @@ import scala.collection.JavaConverters._
     }
     it("the requested filter fails to initialize") {
       failureTest("broken-filter") { (className, exception) =>
-        exception.getMessage should be("WELL MY HEAD ASPLODE")
+        exception.getMessage should be("Failed to initialize filter org.openrepose.filters.core.brokenfilter.BrokenFilter")
       }
     }
     it("when there is no artifact to satisfy the filter request") {
