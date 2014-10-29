@@ -1,9 +1,11 @@
 package org.openrepose.core.jmx
 
+import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
-import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.core.config.ConfigurationFactory
+import org.apache.logging.log4j.status.StatusLogger
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.junit.Rule
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.domain.Port
@@ -20,9 +22,8 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
-
 class ConfigurationInformationTest extends Specification {
-    private static final String CONFIG = "classpath:log4j2-test.xml";
+//    private static final String CONFIG = "log4j2-ConfigurationInformationTest.xml";
     @Shared
     ConfigurationInformation configurationInformation
 
@@ -38,8 +39,8 @@ class ConfigurationInformationTest extends Specification {
     @Shared
     ServicePorts ports = new ServicePorts()
 
-    @Rule
-    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
+//    @Shared
+//    LoggerContext ctx;
     ListAppender app;
 
     def setupSpec() {
@@ -50,10 +51,20 @@ class ConfigurationInformationTest extends Specification {
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         configurationInformation = new ConfigurationInformation(configurationService, ports, healthCheckService)
+
+//        System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, CONFIG);
+//        ctx = (LoggerContext) LogManager.getContext(false);
+//    }
+//
+//    def cleanupSpec() {
+//        System.clearProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY);
+//        ctx.reconfigure();
+//        StatusLogger.getLogger().reset();
     }
 
     def setup() {
-        app = init.getListAppender("List").clear();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List"))).clear();
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {

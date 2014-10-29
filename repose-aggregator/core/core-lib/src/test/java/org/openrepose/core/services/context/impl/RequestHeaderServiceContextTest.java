@@ -1,10 +1,14 @@
 package org.openrepose.core.services.context.impl;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.junit.InitialLoggerContext;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.status.StatusLogger;
 import org.apache.logging.log4j.test.appender.ListAppender;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -40,7 +44,7 @@ import static org.mockito.Mockito.*;
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
-    private static final String CONFIG = "classpath:log4j2-test.xml";
+    private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContextTest.xml";
 
     private final ServicePorts ports = new ServicePorts();
 
@@ -51,13 +55,32 @@ public class RequestHeaderServiceContextTest {
     private ConfigurationService configurationService;
     private ServletContextEvent servletContextEvent;
 
-    @Rule
-    public InitialLoggerContext init = new InitialLoggerContext(CONFIG);
+    private static LoggerContext ctx;
     private ListAppender app;
+
+    /*
+     * This should work, but doesn't.
+     * @ClassRule
+     * public InitialLoggerContext init = new InitialLoggerContext(CONFIG);
+     * ...
+     * app = init.getListAppender("List").clear();
+     */
+    @BeforeClass
+    public static void setupSpec() {
+        System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, CONFIG);
+        ctx = (LoggerContext) LogManager.getContext(false);
+    }
+
+    @AfterClass
+    public static void cleanupClass() {
+        System.clearProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY);
+        ctx.reconfigure();
+        StatusLogger.getLogger().reset();
+    }
 
     @Before
     public void setUp() throws Exception {
-        app = init.getListAppender("List").clear();
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
