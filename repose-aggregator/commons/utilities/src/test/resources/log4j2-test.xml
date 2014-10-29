@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration packages="org.openrepose.commons.utils.xslt">
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%-4r [%t] %-5p %c %x - %m%n"/>
         </Console>
         <List name="List0"/>
+        <LogErrorListener name="ErrorListener"/>
     </Appenders>
     <Loggers>
         <Root level="trace">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="List0"/>
+            <AppenderRef ref="ErrorListener"/>
         </Root>
         <Logger name="com.sun.jersey" level="off"/>
         <Logger name="org.apache.commons.httpclient" level="warn"/>
