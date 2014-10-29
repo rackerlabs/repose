@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="${repose.log}">
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="2"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+        <Logger name="com.sun.jersey" level="off"/>
+        <Logger name="org.apache.commons.httpclient" level="warn"/>
+        <Logger name="org.apache.commons.httpclient.auth" level="warn"/>
+        <Logger name="org.eclipse.jetty" level="off"/>
+        <Logger name="org.rackspace.deproxy" level="info"/>
+        <Logger name="org.springframework" level="warn"/>
+        <Logger name="intrafilter-logging" level="info"/>
+    </Loggers>
+</Configuration>
