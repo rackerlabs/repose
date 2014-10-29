@@ -206,18 +206,18 @@ public class PowerFilter extends DelegatingFilterProxy {
                 } else {
                     SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
 
-                    Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
-                    Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
-                    Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
+                    Optional<Node> localNode = interrogator.getLocalNode(currentSystemModel);
+                    Optional<ReposeCluster> localCluster = interrogator.getLocalCluster(currentSystemModel);
+                    Optional<Destination> defaultDestination = interrogator.getDefaultDestination(currentSystemModel);
 
-                    if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
-                        serviceDomain = lc.get();
-                        defaultDst = dd.get();
+                    if (localNode.isPresent() && localCluster.isPresent() && defaultDestination.isPresent()) {
+                        serviceDomain = localCluster.get();
+                        defaultDst = defaultDestination.get();
 
                         healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
 
                         try {
-                            final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
+                            final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter());
                             updateFilterChainBuilder(newFilterChain);
                         } catch (FilterInitializationException fie) {
                             LOG.error("Unable to create new filter chain", fie);

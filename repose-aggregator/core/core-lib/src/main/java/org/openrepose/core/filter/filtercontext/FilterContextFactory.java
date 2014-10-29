@@ -1,12 +1,10 @@
 package org.openrepose.core.filter.filtercontext;
 
 import com.oracle.javaee6.FilterType;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import org.openrepose.core.filter.FilterInitializationException;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.spring.CoreSpringProvider;
-import org.openrepose.core.spring.SpringProvider;
 import org.openrepose.core.systemmodel.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,15 +93,15 @@ public class FilterContextFactory {
 
             return new FilterContext(newFilterInstance, filterContext, filter);
         } catch (ClassNotFoundException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts");
+            throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts", e);
         } catch (ServletException e) {
             LOG.error("Failed to initialize filter {}", filterClassName);
-            throw new FilterInitializationException(e.getMessage(), e);
+            throw new FilterInitializationException("Failed to initialize filter " + filterClassName, e);
         } catch (NoSuchBeanDefinitionException e) {
             throw new FilterInitializationException("Requested filter, " + filterClassName +
-                    " is not an annotated Component. Make sure your filter is an annotated Spring Bean.");
+                    " is not an annotated Component. Make sure your filter is an annotated Spring Bean.", e);
         } catch (ClassCastException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter");
+            throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter", e);
         }
     }
 
