@@ -4,13 +4,27 @@
         <Console name="STDOUT">
             <PatternLayout pattern="%-4r [%t] %-5p %c %x - %m%n"/>
         </Console>
-        <List name="List"/>
+        <List name="List0"/>
+        <List name="List1"/>
+        <List name="List2"/>
+        <List name="List3"/>
     </Appenders>
     <Loggers>
         <Root level="trace">
             <AppenderRef ref="STDOUT"/>
-            <AppenderRef ref="List"/>
         </Root>
+        <Logger name="Logger0" level="info">
+            <AppenderRef ref="List0"/>
+        </Logger>
+        <Logger name="Logger1" level="info">
+            <AppenderRef ref="List1"/>
+        </Logger>
+        <Logger name="Logger2" level="info">
+            <AppenderRef ref="List2"/>
+        </Logger>
+        <Logger name="Logger3" level="info">
+            <AppenderRef ref="List3"/>
+        </Logger>
         <Logger name="log4j.logger.org.apache.commons.httpclient" level="warn"/>
         <Logger name="log4j.logger.org.apache.commons.httpclient.auth" level="warn"/>
     </Loggers>
