@@ -25,9 +25,6 @@ nbactions.xml
 *.iws
 .idea/
 
-## Gradle
-.gradle/
-
 ## generic files to ignore
 *~
 *.lock
