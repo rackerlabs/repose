@@ -43,7 +43,7 @@ class RequestProxyServiceContextTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List"))).clear();
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         def requestProxyService = mock(RequestProxyService.class)
         def serviceRegistry = mock(ServiceRegistry.class)
         systemModelInterrogator = mock(SystemModelInterrogator.class)
@@ -96,19 +96,8 @@ class RequestProxyServiceContextTest extends Specification {
 
         then:
         !listenerObject.isInitialized()
-        logContainsMessage(app, "Unable to identify the local host in the system model")
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to identify the local host in the system model" }
         verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity))
-    }
-
-    private static boolean logContainsMessage(ListAppender log, String msg) {
-        boolean rtn = false;
-        final List<LogEvent> events = log.getEvents();
-        LogEvent event;
-        for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
-            event = iterator.next();
-            rtn = event.getMessage().getFormattedMessage().contains(msg);
-        }
-        return rtn;
     }
 }

@@ -51,7 +51,7 @@ class ConfigurationInformationTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List"))).clear();
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -96,20 +96,9 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         !listenerObject.isInitialized()
-        logContainsMessage(app, "Unable to identify the local host in the system model")
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to identify the local host in the system model" }
         verify(healthCheckServiceProxy).reportIssue(eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String),
                 any(Severity))
-    }
-
-    private static boolean logContainsMessage(ListAppender log, String msg) {
-        boolean rtn = false;
-        final List<LogEvent> events = log.getEvents();
-        LogEvent event;
-        for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
-            event = iterator.next();
-            rtn = event.getMessage().getFormattedMessage().contains(msg);
-        }
-        return rtn;
     }
 
     /**
