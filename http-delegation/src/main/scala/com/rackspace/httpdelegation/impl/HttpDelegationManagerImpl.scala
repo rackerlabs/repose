@@ -8,7 +8,7 @@ import com.rackspace.httpdelegation.{HttpDelegationHeaders, HttpDelegationManage
   */
 object HttpDelegationManagerImpl extends HttpDelegationManager {
 
-  override def buildDelegationHeaders(statusCode: Int, component: String, message: String, quality: Double): Map[String, Set[String]] = {33
+  override def buildDelegationHeaders(statusCode: Int, component: String, message: String, quality: Double): Map[String, Set[String]] = {
     Map[String, Set[String]](
       HttpDelegationHeaders.Delegated -> Set(
         statusCode + ";component=" + component + ";msg=" + message + ";q=" + quality
