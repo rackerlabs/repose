@@ -8,6 +8,5 @@
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
 
         <logging-configuration href="log4j.properties"/>
-
     </deployment-config>
 </repose-container>

@@ -1,4 +1,18 @@
 #!/bin/sh
 
-getent group repose &> /dev/null || groupadd -r repose
-getent passwd repose &> /dev/null || useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+CONFIG_DIR=/etc/repose
+SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
+
+if [ -f $SYSTEM_MODEL ]
+then
+    #Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
+    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
+    then
+        echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
+        exit 1
+    fi
+else
+    getent group  repose >> /dev/null 2>&1 || groupadd -r repose
+    getent passwd repose >> /dev/null 2>&1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
+fi
+exit 0

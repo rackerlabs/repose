@@ -9,13 +9,13 @@
         <version>6.2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.deb.filters</groupId>
-    <artifactId>repose-filter-bundle</artifactId>
+    <groupId>com.rackspace.repose.installation.deb.filters.extensions</groupId>
+    <artifactId>repose-extensions-filter-bundle</artifactId>
 
-    <name>Repose - Installation Filter Bundle DEB</name>
+    <name>Repose - Installation Extension Filter Bundle DEB</name>
 
     <description>
-        Module for the filter bundle DEB.
+        Module for the Extension Filter Bundle DEB.
     </description>
 
     <packaging>deb</packaging>
@@ -31,7 +31,7 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-filter-bundle-ear</id>
+                                <id>copy-extensions-filter-bundle-ear</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -39,8 +39,8 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.components</groupId>
-                                            <artifactId>filter-bundle</artifactId>
+                                            <groupId>com.rackspace.papi.components.extensions</groupId>
+                                            <artifactId>extensions-filter-bundle</artifactId>
                                             <version>${project.version}</version>
                                             <type>ear</type>
                                         </artifactItem>
@@ -64,7 +64,7 @@
                                     <timestamped>false</timestamped>
 
                                     <dataSet>
-                                        <!-- The jar file -->
+                                        <!-- The extensions archive -->
                                         <data>
                                             <type>file</type>
                                             <mapper>
@@ -75,7 +75,7 @@
                                                 <filemode>555</filemode>
                                             </mapper>
                                             <src>
-                                                ${project.build.directory}/filter-bundle-${project.version}.ear
+                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
                                             </src>
                                         </data>
 
@@ -110,10 +110,10 @@
                                                 </group>
                                                 <filemode>640</filemode>
                                             </mapper>
-                                            <src>${basedir}/../../configs/filters</src>
+                                            <src>${basedir}/../../configs/extensions</src>
                                         </data>
 
-                                        <!--This adds the license file on installation.-->
+                                        <!-- This adds the license file on installation -->
                                         <data>
                                             <type>file</type>
                                             <mapper>

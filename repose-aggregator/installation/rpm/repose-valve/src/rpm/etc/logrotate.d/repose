@@ -1,7 +1,0 @@
-/var/log/repose/*.log {
-    daily
-    rotate 31
-    missingok
-    notifempty
-    compress
-}
