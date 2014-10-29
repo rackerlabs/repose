@@ -3,20 +3,16 @@ package org.openrepose.filters.slf4jlogging
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
+import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
-import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.junit.Rule
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
 class Slf4jMultipleLoggersTest extends Specification {
-    private static final String CONFIG = "classpath:log4j2-Slf4jMultipleLoggersTest.xml";
-
-    @Rule
-    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
     ListAppender app1;
     ListAppender app2;
     ListAppender app3;
@@ -34,9 +30,10 @@ class Slf4jMultipleLoggersTest extends Specification {
     }
 
     def setup() {
-        app1 = init.getListAppender("List1").clear();
-        app2 = init.getListAppender("List2").clear();
-        app3 = init.getListAppender("List3").clear();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app1 = ((ListAppender)(ctx.getConfiguration().getAppender("List1"))).clear();
+        app2 = ((ListAppender)(ctx.getConfiguration().getAppender("List2"))).clear();
+        app3 = ((ListAppender)(ctx.getConfiguration().getAppender("List3"))).clear();
     }
 
     def "The SLF4j logging filter logs to the named loggers"(){

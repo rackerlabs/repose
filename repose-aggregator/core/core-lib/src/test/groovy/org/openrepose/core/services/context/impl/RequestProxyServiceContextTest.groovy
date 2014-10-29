@@ -1,10 +1,10 @@
 package org.openrepose.core.services.context.impl
 
 import com.google.common.base.Optional
+import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
-import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.junit.Rule
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.proxy.RequestProxyService
@@ -24,8 +24,6 @@ import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
 class RequestProxyServiceContextTest extends Specification {
-    private static final String CONFIG = "classpath:log4j2-test.xml";
-
     @Shared
     def RequestProxyServiceContext requestProxyServiceContext
 
@@ -41,13 +39,11 @@ class RequestProxyServiceContextTest extends Specification {
     @Shared
     def HealthCheckServiceProxy healthCheckServiceProxy
 
-    @Rule
-    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
     ListAppender app;
 
     def setup() {
-        init.getContext().reconfigure();
-        app = init.getListAppender("List").clear();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List"))).clear();
         def requestProxyService = mock(RequestProxyService.class)
         def serviceRegistry = mock(ServiceRegistry.class)
         systemModelInterrogator = mock(SystemModelInterrogator.class)
@@ -75,10 +71,8 @@ class RequestProxyServiceContextTest extends Specification {
 
         listenerObject = listenerCaptor.getValue()
 
-
         when:
         listenerObject.configurationUpdated(null)
-
 
         then:
         listenerObject.isInitialized()
@@ -97,10 +91,8 @@ class RequestProxyServiceContextTest extends Specification {
 
         listenerObject = listenerCaptor.getValue()
 
-
         when:
         listenerObject.configurationUpdated(null)
-
 
         then:
         !listenerObject.isInitialized()

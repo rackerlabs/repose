@@ -3,25 +3,17 @@ package org.openrepose.filters.slf4jlogging
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
+import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
-import org.apache.logging.log4j.junit.InitialLoggerContext
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.junit.Rule
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
 class Slf4jLoggingIntegrationTest extends Specification {
-    private static final String CONFIG = "classpath:log4j2-test.xml";
-
-    @Rule
-    InitialLoggerContext init = new InitialLoggerContext(CONFIG)
     ListAppender app;
-
-    def setup() {
-        app = init.getListAppender("List").clear();
-    }
 
     @Shared
     Slf4jHttpLoggingFilter filter
@@ -29,8 +21,13 @@ class Slf4jLoggingIntegrationTest extends Specification {
     def setupSpec() {
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                Slf4jLoggingFilterTestUtil.logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
         ])
+    }
+
+    def setup() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
     }
 
     def "The SLF4j logging filter logs to the named logger"(){
