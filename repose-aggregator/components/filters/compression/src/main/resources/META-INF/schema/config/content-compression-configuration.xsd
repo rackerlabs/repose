@@ -44,7 +44,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Debug to servlet log This attribute is deprecated. Logging can be
-                        controlled through the log4j.properties file </html:p>
+                        controlled through the log4j2.xml file </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
