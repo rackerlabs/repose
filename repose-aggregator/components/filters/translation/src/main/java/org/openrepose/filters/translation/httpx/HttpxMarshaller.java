@@ -71,11 +71,9 @@ public class HttpxMarshaller {
                 unmarshallerPool.returnObject(pooledObject);
             }
         }
-    } catch (HttpxException ex) {
-        LOG.error("Error unmarshalling xml input", ex);
-        throw ex;
     } catch (Exception e) {
         LOG.error("Error unmarshalling xml input", e);
+        throw new HttpxException("Error unmarshalling xml input", e);
     }
     return rtnObject;
   }
@@ -120,10 +118,8 @@ public class HttpxMarshaller {
                   marshallerPool.returnObject(pooledObject);
               }
           }
-      } catch (HttpxException ex) {
-          throw ex;
       } catch (Exception e) {
-        LOG.error("Error marshalling HTTPX object", e);
-    }
+        throw new HttpxException("Error marshalling HTTPX object", e);
+      }
   }
 }
