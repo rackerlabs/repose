@@ -5,7 +5,7 @@
 
     <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
 
-        <logging-configuration href="log4j.properties" />
+        <logging-configuration href="log4j2-test.xml" />
 
         <ssl-configuration>
             <keystore-filename>keystore.jks</keystore-filename>

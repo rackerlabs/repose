@@ -2,6 +2,6 @@
     <deployment-config client-request-logging="true" content-body-read-limit="32000">
         <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
         <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
-        <logging-configuration href="log4j.properties" />
+        <logging-configuration href="log4j2-test.xml" />
     </deployment-config>
 </repose-container>
