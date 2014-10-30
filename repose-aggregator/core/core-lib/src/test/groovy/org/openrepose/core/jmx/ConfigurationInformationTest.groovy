@@ -96,7 +96,7 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         !listenerObject.isInitialized()
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to identify the local host in the system model" }
+        app.getEvents().find { it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model") }
         verify(healthCheckServiceProxy).reportIssue(eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String),
                 any(Severity))
     }
