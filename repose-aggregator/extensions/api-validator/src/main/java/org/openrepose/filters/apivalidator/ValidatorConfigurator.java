@@ -1,10 +1,7 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Config;
-import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler;
-import com.rackspace.com.papi.components.checker.handler.ResultHandler;
-import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
-import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
+import com.rackspace.com.papi.components.checker.handler.*;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
@@ -95,7 +92,9 @@ public class ValidatorConfigurator {
     private DispatchHandler getHandlers(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
-        if (!multiRoleMatch) {
+        if (validatorItem.isDelegating()) {
+            handlers.add(new DelegationHandler(validatorItem.getDelegatingQuality()));
+        } else if (!multiRoleMatch) {
             handlers.add(new ServletResultHandler());
         }
 
