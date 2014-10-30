@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class HttpxMarshallerTest extends FunSpec with Matchers{
+class HttpxMarshallerTest extends FunSpec with Matchers {
   describe("The HttpxMarshaller when unmarshalling") {
     it("should turn an input stream into RequestInformation") {
       val httpxMarshaller = new HttpxMarshaller
