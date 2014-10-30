@@ -4,16 +4,13 @@ import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.servlet.http.HttpServletRequest
-
 class Slf4jLoggingIntegrationTest extends Specification {
-    ListAppender app;
+    ListAppender app
 
     @Shared
     Slf4jHttpLoggingFilter filter
@@ -27,7 +24,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
     }
 
     def "The SLF4j logging filter logs to the named logger"(){
@@ -59,15 +56,13 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
         when:
         filter.doFilter(request, response, chain)
-        List<HttpServletRequest> requestList = chain.getRequestList();
 
         then:
-        requestList.size() == 1
+        chain.getRequestList().size() == 1
 
-        List<LogEvent> events = app.getEvents();
-        events.size() == 1
+        app.getEvents().size() == 1
 
-        def splitLog = events.first().getMessage().getFormattedMessage().split("\t").toList()
+        def splitLog = app.getEvents().first().getMessage().getFormattedMessage().split("\t").toList()
 
         //splitLog.size() == 19
 

@@ -4,18 +4,15 @@ import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.servlet.http.HttpServletRequest
-
 class Slf4jMultipleLoggersTest extends Specification {
-    ListAppender app1;
-    ListAppender app2;
-    ListAppender app3;
+    ListAppender app1
+    ListAppender app2
+    ListAppender app3
 
     @Shared
     Slf4jHttpLoggingFilter filter
@@ -31,9 +28,9 @@ class Slf4jMultipleLoggersTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app1 = ((ListAppender)(ctx.getConfiguration().getAppender("List1"))).clear();
-        app2 = ((ListAppender)(ctx.getConfiguration().getAppender("List2"))).clear();
-        app3 = ((ListAppender)(ctx.getConfiguration().getAppender("List3"))).clear();
+        app1 = ((ListAppender)(ctx.getConfiguration().getAppender("List1"))).clear()
+        app2 = ((ListAppender)(ctx.getConfiguration().getAppender("List2"))).clear()
+        app3 = ((ListAppender)(ctx.getConfiguration().getAppender("List3"))).clear()
     }
 
     def "The SLF4j logging filter logs to the named loggers"(){
@@ -65,21 +62,17 @@ class Slf4jMultipleLoggersTest extends Specification {
 
         when:
         filter.doFilter(request, response, chain)
-        List<HttpServletRequest> requestList = chain.getRequestList();
-        List<LogEvent> events1 = app1.getEvents();
-        List<LogEvent> events2 = app2.getEvents();
-        List<LogEvent> events3 = app3.getEvents();
 
         then:
-        requestList.size() == 1
+        chain.getRequestList().size() == 1
 
-        events1.size() == 1
-        events1.first().getMessage().getFormattedMessage().equals("GET http://www.example.com/derp/derp?herp=derp HTTP/1.1");
+        app1.getEvents().size() == 1
+        app1.getEvents().find { it.getMessage().getFormattedMessage() == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1" }
 
-        events2.size() == 1
-        events2.first().getMessage().getFormattedMessage().equals("GET");
+        app2.getEvents().size() == 1
+        app2.getEvents().find { it.getMessage().getFormattedMessage() == "GET" }
 
-        events3.size() == 1
-        events3.first().getMessage().getFormattedMessage().equals("127.0.0.1");
+        app3.getEvents().size() == 1
+        app3.getEvents().find { it.getMessage().getFormattedMessage() == "127.0.0.1" }
     }
 }
