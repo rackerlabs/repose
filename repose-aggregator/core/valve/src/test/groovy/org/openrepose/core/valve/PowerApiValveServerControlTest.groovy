@@ -9,16 +9,12 @@ public class PowerApiValveServerControlTest extends Specification {
     PowerApiValveServerControl powerApiValveServerControl
     CommandLineArguments commandLineArguments
 
-    ListAppender app;
-
     def setupSpec() {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
     }
 
     def setup() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         commandLineArguments = new CommandLineArguments()
         commandLineArguments.setConfigDirectory("/")
         commandLineArguments.setHttpPort(9090)
@@ -38,6 +34,10 @@ public class PowerApiValveServerControlTest extends Specification {
     }
 
     def "Should Stop After Starting Successfully"() {
+        given:
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
+
         when:
         powerApiValveServerControl.startPowerApiValve()
         powerApiValveServerControl.serverInstance.isStarted()
