@@ -11,6 +11,11 @@ public class PowerApiValveServerControlTest extends Specification {
 
     ListAppender app;
 
+    def setupSpec() {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+    }
+
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
         app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
@@ -23,7 +28,6 @@ public class PowerApiValveServerControlTest extends Specification {
                 commandLineArguments.getConfigDirectory(),
                 commandLineArguments.getInsecure())
     }
-
 
     def "Should Start With Valid CLA"() {
         when:

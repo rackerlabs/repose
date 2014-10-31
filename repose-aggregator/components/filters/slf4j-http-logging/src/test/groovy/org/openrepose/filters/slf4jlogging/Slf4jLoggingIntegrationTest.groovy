@@ -16,6 +16,8 @@ class Slf4jLoggingIntegrationTest extends Specification {
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
                 Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
@@ -66,7 +68,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
         //splitLog.size() == 19
 
-        splitLog[0] == "INFO - 127.0.0.1" //REMOTE_ADDRESS
+        splitLog[0] == "127.0.0.1" //REMOTE_ADDRESS
         splitLog[1] == "10.10.220.220" //LOCAL_ADDRESS
         splitLog[2] == "-" //REPSONSE_CLF_BYTES -- Should be contentLength, but it's not, maybe because mocking
         splitLog[3] == "0" //Should be response Bytes, 10, but it's not
