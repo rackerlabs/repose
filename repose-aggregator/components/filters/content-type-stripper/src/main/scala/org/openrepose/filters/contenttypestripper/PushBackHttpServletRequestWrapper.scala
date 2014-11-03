@@ -10,7 +10,7 @@ import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 
 class PushBackHttpServletRequestWrapper(request: HttpServletRequest) extends HttpServletRequestWrapper(request) {
   private val headerBlacklist: CopyOnWriteArrayList[String] = new CopyOnWriteArrayList[String]
-  val pushbackInputStream: PushbackInputStream = new PushbackInputStream(request.getInputStream)
+  val pushbackInputStream: PushbackInputStream = new PushbackInputStream(request.getInputStream, 8)
 
   override def getInputStream: ServletInputStream = new ServletInputStreamWrapper(pushbackInputStream)
 

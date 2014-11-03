@@ -16,35 +16,51 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class ContentTypeStripperFilterTest extends FunSpec with Matchers with MockitoSugar {
   describe("The ContentTypeStripperFilter") {
-    it("should not modify the content-type header if it and a body exist") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.addHeader("content-type","application/json")
-      request.setContent("some content".getBytes)
-      val filterChain: FilterChain = mock[FilterChain]
+    val shouldReturnParams = List(
+      ("body exists", "some content"),
+      ("body exists with fewer than 4 characters", "some"),
+      ("body exists with white space intermingled", "hi hi")
+    )
+    shouldReturnParams.foreach { case (testName: String, bodyContent: String) =>
+      it(s"should not modify the content-type header if it exists and a non-white space $testName") {
+        val request: MockHttpServletRequest = new MockHttpServletRequest()
+        request.addHeader("content-type", "application/json")
+        request.setContent(bodyContent.getBytes)
+        val filterChain: FilterChain = mock[FilterChain]
 
-      (new ContentTypeStripperFilter).doFilter(request, mock[ServletResponse], filterChain)
+        (new ContentTypeStripperFilter).doFilter(request, mock[ServletResponse], filterChain)
 
-      val servletRequest: org.mockito.ArgumentCaptor[ServletRequest] = ArgumentCaptor.forClass(classOf[ServletRequest])
-      Mockito.verify(filterChain).doFilter(servletRequest.capture(), any())
-      val chainRequest = servletRequest.getValue
-
-      chainRequest.isInstanceOf[PushBackHttpServletRequestWrapper] shouldBe true
-      IOUtils.toString(chainRequest.getInputStream) shouldBe "some content"
+        val servletRequest: org.mockito.ArgumentCaptor[ServletRequest] = ArgumentCaptor.forClass(classOf[ServletRequest])
+        Mockito.verify(filterChain).doFilter(servletRequest.capture(), any())
+        val chainRequest = servletRequest.getValue
+        val wrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(chainRequest.asInstanceOf[HttpServletRequest])
+        wrapper.getHeaderNames exists (_.equalsIgnoreCase("content-type")) shouldBe true
+        wrapper.getHeader("content-type") shouldBe "application/json"
+        IOUtils.toString(chainRequest.getInputStream) shouldBe bodyContent
+      }
     }
-    it("should not return the content-type header if there is no body") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.addHeader("content-type","application/json")
-      request.setContent("".getBytes)
-      val filterChain: FilterChain = mock[FilterChain]
+    val notReturnParams = List(
+      ("there is no body", ""),
+      ("there is only white space in the first 8 bytes", "\f \n \r \t this wont get read..."),
+      ("there is only white space in the 4 byte input", "    ")
+    )
+    notReturnParams.foreach { case (testName: String, bodyContent: String) =>
+      it(s"should not return the content-type header if $testName") {
+        val request: MockHttpServletRequest = new MockHttpServletRequest()
+        request.addHeader("content-type", "application/json")
+        request.setContent(bodyContent.getBytes)
+        val filterChain: FilterChain = mock[FilterChain]
 
-      (new ContentTypeStripperFilter).doFilter(request, mock[ServletResponse], filterChain)
+        (new ContentTypeStripperFilter).doFilter(request, mock[ServletResponse], filterChain)
 
-      val servletRequest: org.mockito.ArgumentCaptor[ServletRequest] = ArgumentCaptor.forClass(classOf[ServletRequest])
-      Mockito.verify(filterChain).doFilter(servletRequest.capture(), any())
-      val chainRequest = servletRequest.getValue
-      val wrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(chainRequest.asInstanceOf[HttpServletRequest])
-      wrapper.getHeaderNames exists (_.equalsIgnoreCase("content-type")) shouldBe false
-      wrapper.getHeader("content-type") shouldBe null
+        val servletRequest: org.mockito.ArgumentCaptor[ServletRequest] = ArgumentCaptor.forClass(classOf[ServletRequest])
+        Mockito.verify(filterChain).doFilter(servletRequest.capture(), any())
+        val chainRequest = servletRequest.getValue
+        val wrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(chainRequest.asInstanceOf[HttpServletRequest])
+        wrapper.getHeaderNames exists (_.equalsIgnoreCase("content-type")) shouldBe false
+        wrapper.getHeader("content-type") shouldBe null
+        IOUtils.toString(chainRequest.getInputStream) shouldBe bodyContent
+      }
     }
   }
 }
