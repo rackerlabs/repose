@@ -29,9 +29,7 @@
         <property name='priority' value='1'/>
     </rule>
 
-    <rule class='org.codenarc.rule.formatting.SpaceBeforeOpeningBraceRule'>
-        <property name='priority' value='1'/>
-    </rule>
+
 
     <rule class='org.codenarc.rule.formatting.SpaceAfterOpeningBraceRule'>
         <property name='priority' value='1'/>
@@ -83,11 +81,11 @@
         <property name='priority' value='1'/>
     </rule>
 
-    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Maximum two blank lines in a row"/>
         <property name='regex' value='\n\n\n\n'/>
         <property name='priority' value='1'/>
-    </rule>
+    </rule-->
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before else"/>
@@ -107,9 +105,37 @@
         <property name='priority' value='1'/>
     </rule>
 
+
+
+
+    <!--rule class='org.codenarc.rule.formatting.SpaceBeforeOpeningBraceRule'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!-- this needs to exclue ({ situations
+    but we also have to avoid strings and comments :(-->
+
+
+
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before ? unless in a string"/>
-        <property name='regex' value='(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?'/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(]\{)|^[^"]*[^\s-&lt;\(]\{'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before ? unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?)|^[^"]*[^\s-&lt;]\?'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+
+
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before ? unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?)|^[^"]*[^\s-&lt;]\?'/>
         <property name='priority' value='1'/>
     </rule>
 
