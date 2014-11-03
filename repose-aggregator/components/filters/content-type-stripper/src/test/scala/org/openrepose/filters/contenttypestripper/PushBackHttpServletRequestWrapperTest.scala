@@ -2,9 +2,12 @@ package org.openrepose.filters.contenttypestripper
 
 import java.util
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSpec}
 import org.springframework.mock.web.MockHttpServletRequest
 
+@RunWith(classOf[JUnitRunner])
 class PushBackHttpServletRequestWrapperTest extends FunSpec with Matchers{
   describe("The PushBackHttpServletRequestWrapper") {
     val mockRequest: MockHttpServletRequest = new MockHttpServletRequest()
