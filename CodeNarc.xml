@@ -1,0 +1,1996 @@
+<?xml version='1.0'?>
+<CodeNarc url='http://www.codenarc.org' version='0.21'>
+    <Report timestamp='Oct 29, 2014 3:47:59 PM'/>
+    <Project title='Repose - Build Support Profiles'>
+        <SourceDirectory></SourceDirectory>
+    </Project>
+    <PackageSummary totalFiles='250' filesWithViolations='62' priority1='182' priority2='0'
+                    priority3='0'></PackageSummary>
+    <Package path='commons' totalFiles='10' filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/configuration/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/configuration/src/test' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace/papi' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace/papi/commons' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace/papi/commons/config' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace/papi/commons/config/resource' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/configuration/src/test/groovy/com/rackspace/papi/commons/config/resource/impl' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities' totalFiles='9' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/utilities/src' totalFiles='9' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/utilities/src/test' totalFiles='9' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy' totalFiles='9' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com' totalFiles='9' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace' totalFiles='9' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi' totalFiles='9' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons' totalFiles='9' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util' totalFiles='9'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/http' totalFiles='5'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/http/header' totalFiles='3'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/http/media' totalFiles='1'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='MediaRangeProcessorTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='0'>
+                <SourceLine><![CDATA[package com.rackspace.papi.commons.util.http.media
+
+import com.rackspace.papi.commons.util.http.header.HeaderValue
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl
+import spock.lang.Specification
+
+
+class MediaRangeProcessorTest extends Specification {
+
+    MediaRangeProcessor mediaRangeProcessor
+    List<?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/logging' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/logging/apache' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/logging/apache/format'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/logging/apache/format/converters'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/servlet' totalFiles='3'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='commons/utilities/src/test/groovy/com/rackspace/papi/commons/util/servlet/http' totalFiles='3'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components' totalFiles='25' filesWithViolations='4' priority1='6' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/cli-utils' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/cli-utils/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/cli-utils/src/test' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java/org' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java/org/openrepose' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java/org/openrepose/cli' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java/org/openrepose/cli/command' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/cli-utils/src/test/java/org/openrepose/cli/command/results' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters' totalFiles='24' filesWithViolations='4' priority1='6' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/client-auth' totalFiles='4' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/client-auth/src' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com' totalFiles='4' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace' totalFiles='4' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace/papi' totalFiles='4'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace/papi/components' totalFiles='4'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace/papi/components/clientauth'
+             totalFiles='4' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace/papi/components/clientauth/common'
+             totalFiles='3' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-auth/src/test/groovy/com/rackspace/papi/components/clientauth/openstack'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package
+            path='components/filters/client-auth/src/test/groovy/com/rackspace/papi/components/clientauth/openstack/v1_0'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy/org' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy/org/openrepose' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy/org/openrepose/components' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy/org/openrepose/components/rackspace'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/client-authorization/src/test/groovy/org/openrepose/components/rackspace/authz'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization' totalFiles='5' filesWithViolations='1' priority1='2'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src' totalFiles='5' filesWithViolations='1' priority1='2'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test' totalFiles='5' filesWithViolations='1'
+             priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy' totalFiles='5' filesWithViolations='1'
+             priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy/com' totalFiles='5' filesWithViolations='1'
+             priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy/com/rackspace' totalFiles='5'
+             filesWithViolations='1' priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy/com/rackspace/papi' totalFiles='5'
+             filesWithViolations='1' priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy/com/rackspace/papi/components'
+             totalFiles='5' filesWithViolations='1' priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/content-normalization/src/test/groovy/com/rackspace/papi/components/cnorm'
+             totalFiles='5' filesWithViolations='1' priority1='2' priority2='0' priority3='0'>
+        <File name='MediaTypeNormalizerTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='57'>
+                <SourceLine>
+                    <![CDATA["ignores query parameters"                   | "/a/request/uri.xml?name=name&value=1"          | "http://localhost/a/request/uri.xml?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='59'>
+                <SourceLine>
+                    <![CDATA["ignores uri fragments and query parameters" | "/a/request/uri.xml?name=name&value=1#fragment" | "http://localhost/a/request/uri.xml?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='components/filters/default-router' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/default-router/src' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java/com' totalFiles='2' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java/com/rackspace' totalFiles='2' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java/com/rackspace/papi' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java/com/rackspace/papi/components' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/default-router/src/test/java/com/rackspace/papi/components/routing' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy/com/rackspace' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy/com/rackspace/papi' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy/com/rackspace/papi/components' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/header-translation/src/test/groovy/com/rackspace/papi/components/header'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package
+            path='components/filters/header-translation/src/test/groovy/com/rackspace/papi/components/header/translation'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy/com/rackspace' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy/com/rackspace/repose' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy/com/rackspace/repose/service' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/rate-limiting/src/test/groovy/com/rackspace/repose/service/ratelimit'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy' totalFiles='3' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy/com' totalFiles='3' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy/com/rackspace' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy/com/rackspace/papi' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy/com/rackspace/papi/components' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/slf4j-http-logging/src/test/groovy/com/rackspace/papi/components/slf4jlogging'
+             totalFiles='3' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='Slf4jMultipleLoggersTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='55'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='components/filters/translation' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/translation/src' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com/rackspace/papi' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com/rackspace/papi/components' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com/rackspace/papi/components/translation'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/translation/src/test/groovy/com/rackspace/papi/components/translation/xslt'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper' totalFiles='2' filesWithViolations='2' priority1='3' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src' totalFiles='2' filesWithViolations='2' priority1='3'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test' totalFiles='2' filesWithViolations='2' priority1='3'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy' totalFiles='2' filesWithViolations='2' priority1='3'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy/com' totalFiles='2' filesWithViolations='2'
+             priority1='3' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy/com/rackspace' totalFiles='2' filesWithViolations='2'
+             priority1='3' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy/com/rackspace/papi' totalFiles='2'
+             filesWithViolations='2' priority1='3' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy/com/rackspace/papi/components' totalFiles='2'
+             filesWithViolations='2' priority1='3' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/uri-stripper/src/test/groovy/com/rackspace/papi/components/uristripper'
+             totalFiles='2' filesWithViolations='2' priority1='3' priority2='0' priority3='0'>
+        <File name='NewUriStripperHandlerFactoryTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='84'>
+                <SourceLine>
+                    <![CDATA["/v1/12345/path/to/resource" | 1     | "12345" | "http://service.com/v1/path/to/resource?a=b&c=d" | "http://service.com/v1/12345/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='85'>
+                <SourceLine>
+                    <![CDATA["/v1/12345/path/to/resource" | 1     | "12345" | "/v1/path/to/resource?a=b&c=d"                   | "/v1/12345/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='SchemaTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='40'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='components/filters/versioning' totalFiles='4' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/versioning/src' totalFiles='4' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com' totalFiles='4' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com/rackspace' totalFiles='4' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com/rackspace/papi' totalFiles='4'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com/rackspace/papi/components' totalFiles='4'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com/rackspace/papi/components/versioning' totalFiles='4'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='components/filters/versioning/src/test/java/com/rackspace/papi/components/versioning/testhelpers'
+             totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core' totalFiles='14' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib' totalFiles='12' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src' totalFiles='12' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test' totalFiles='12' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy' totalFiles='9' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com' totalFiles='9' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace' totalFiles='9' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi' totalFiles='9' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/filter' totalFiles='2' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/filter/logic' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/filter/logic/common' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/jmx' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service' totalFiles='6' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/context' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/context/impl' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/event' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/proxy' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/proxy/httpcomponent' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/routing' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/groovy/com/rackspace/papi/service/routing/robin' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java' totalFiles='3' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com' totalFiles='3' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace' totalFiles='3' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi' totalFiles='3' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/filter' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service' totalFiles='2' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/context' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/context/impl' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/datastore' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/datastore/distributed' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/datastore/distributed/impl' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/core-lib/src/test/java/com/rackspace/papi/service/datastore/distributed/impl/distributed'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package
+            path='core/core-lib/src/test/java/com/rackspace/papi/service/datastore/distributed/impl/distributed/cluster'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy/com' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy/com/rackspace/cloud' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy/com/rackspace/cloud/valve' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/groovy/com/rackspace/cloud/valve/server' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud/valve' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud/valve/controller' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud/valve/controller/service' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud/valve/controller/service/context' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='core/valve/src/test/java/com/rackspace/cloud/valve/controller/service/context/impl' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='extensions' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='extensions/api-validator' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='extensions/api-validator/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy/org' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy/org/openrepose' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy/org/openrepose/components' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy/org/openrepose/components/apivalidator' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='extensions/api-validator/src/test/groovy/org/openrepose/components/apivalidator/filter'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test/java' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test/java/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test/java/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test/java/com/rackspace/external' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/pjl-compressingFilter/src/test/java/com/rackspace/external/pjlcompression' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='external/service-clients/auth' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='external/service-clients/auth/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test/groovy/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test/groovy/com/rackspace/auth' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='external/service-clients/auth/src/test/groovy/com/rackspace/auth/openstack' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests' totalFiles='184' filesWithViolations='55' priority1='173' priority2='0'
+             priority3='0'></Package>
+    <Package path='functional-tests/mocks-util' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src' totalFiles='2' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com' totalFiles='2' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com/rackspace' totalFiles='2' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com/rackspace/papi' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com/rackspace/papi/external' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com/rackspace/papi/external/testing' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/mocks-util/src/test/groovy/com/rackspace/papi/external/testing/mocks' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test' totalFiles='182' filesWithViolations='55' priority1='173'
+             priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src' totalFiles='182' filesWithViolations='55' priority1='173'
+             priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test' totalFiles='182' filesWithViolations='55'
+             priority1='173' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy' totalFiles='182' filesWithViolations='55'
+             priority1='173' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features' totalFiles='160'
+             filesWithViolations='45' priority1='150' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core' totalFiles='43'
+             filesWithViolations='9' priority1='41' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/clusterdestination'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/config' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/configloadingandreloading'
+             totalFiles='6' filesWithViolations='3' priority1='3' priority2='0' priority3='0'>
+        <File name='StartWithMissingConfigsTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='65'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='TransitionBadToGoodConfigsTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='87'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='TransitionGoodToBadConfigsTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='84'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/connectionframework'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/embedded' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/headers' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/powerfilter' totalFiles='11'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='URIEncodingWithApiValidatorTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='32'>
+                <SourceLine><![CDATA["/+messages?ids=locations" | "/+messages?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/proxy' totalFiles='11'
+             filesWithViolations='2' priority1='26' priority2='0' priority3='0'>
+        <File name='HeaderSplittingTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='47'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='RequestQueryParamTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='47'>
+                <SourceLine><![CDATA["/path/to/resource?a=12345" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='48'>
+                <SourceLine><![CDATA["/path/to/resource?a=12345" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='49'>
+                <SourceLine><![CDATA["/path/to/resource?&a=12345" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='50'>
+                <SourceLine><![CDATA["/path/to/resource?&a=12345" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='51'>
+                <SourceLine><![CDATA["/path/to/resource/?&a=12345" | "/path/to/resource/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='52'>
+                <SourceLine><![CDATA["/path/to/resource/?&a=12345" | "/path/to/resource/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='53'>
+                <SourceLine><![CDATA["/path/to/resource?&a=12345&b=54321" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='54'>
+                <SourceLine><![CDATA["/path/to/resource?&a=12345&b=54321" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='70'>
+                <SourceLine><![CDATA["/path/to/resource?key=value@%"            | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='71'>
+                <SourceLine><![CDATA["/path/to/resource?key=va%lu@e"            | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='72'>
+                <SourceLine><![CDATA["/path/to/resource?key=value/othervalue"   | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='73'>
+                <SourceLine><![CDATA["/path/to/resource?key=value:value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='74'>
+                <SourceLine><![CDATA["/path/to/resource?key=value@value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='75'>
+                <SourceLine><![CDATA["/path/to/resource?key=value?value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='76'>
+                <SourceLine><![CDATA["/path/to/resource?key=value[value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='77'>
+                <SourceLine><![CDATA["/path/to/resource?key=value]value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='78'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%2Fothervalue" | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='79'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%3Avalue"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='80'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%40value"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='81'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%3Fvalue"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='82'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%5Bvalue"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='83'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%5Dvalue"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='84'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%20value"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='85'>
+                <SourceLine><![CDATA["/path/to/resource?key=value+value"        | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='86'>
+                <SourceLine><![CDATA["/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/security' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/servicesconfig' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/startup' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/core/valveSelfConfigure'
+             totalFiles='4' filesWithViolations='3' priority1='11' priority2='0' priority3='0'>
+        <File name='RuntimeSysmodChangesTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='89'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='107'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='126'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='141'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='159'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='197'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='217'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='StartWithSingleNonLocalhostNodeTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='67'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='80'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='StartWithZeroNodesTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='67'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='80'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters' totalFiles='104'
+             filesWithViolations='35' priority1='106' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/apivalidator' totalFiles='27'
+             filesWithViolations='3' priority1='36' priority2='0' priority3='0'>
+        <File name='ApiValidatorTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='222'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='ClientRaxRolesTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='135'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='136'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='137'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='138'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='139'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='140'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='141'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='142'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='143'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='144'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='145'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='146'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='147'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='148'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='149'>
+                <SourceLine><![CDATA["PUT"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='150'>
+                <SourceLine><![CDATA["DELETE" | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='151'>
+                <SourceLine><![CDATA["PATCH"  | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='153'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='154'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='155'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='156'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='157'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='158'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='159'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='160'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='161'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='162'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='163'>
+                <SourceLine><![CDATA["GET"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='164'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='165'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='166'>
+                <SourceLine><![CDATA["POST"   | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='167'>
+                <SourceLine><![CDATA["PUT"    | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='168'>
+                <SourceLine><![CDATA["DELETE" | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='169'>
+                <SourceLine><![CDATA["PATCH"  | "/v1/methods?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='MultipleValidatorsTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='71'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\" encoding=\"UTF-8\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/apivalidator/multimatch'
+             totalFiles='13' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/apivalidator/multipleRoles'
+             totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/apivalidator/qvalue'
+             totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn' totalFiles='24'
+             filesWithViolations='4' priority1='6' priority2='0' priority3='0'>
+        <File name='AtomFeedResponseSimulator.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='53'>
+                <SourceLine><![CDATA["""<?xml version="1.0"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='68'>
+                <SourceLine><![CDATA["""<?xml version="1.0"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/admin_token'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/burst'
+             totalFiles='3' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/cache'
+             totalFiles='4' filesWithViolations='1' priority1='2' priority2='0' priority3='0'>
+        <File name='InvalidateCacheUsingAtomFeedTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='0'>
+                <SourceLine><![CDATA[package features.filters.clientauthn.cache
+
+import features.filters.clientauthn.AtomFeedResponseSimulator
+import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+
+/**
+ B-48277
+ Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
+ https://www15.v1host.com/RACKSPCE/story.mvc/Summary?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='160'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package
+            path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/connectionpooling'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/nogroups'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/regionheader'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/serviceresponse'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/tenantvalidation'
+             totalFiles='10' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='TenantedNonDelegableTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='173'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package
+            path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthn/tokenexpireheader'
+            totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='PassTokenExpirationInHeaderTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='111'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthz' totalFiles='6'
+             filesWithViolations='1' priority1='2' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthz/burst'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package
+            path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthz/connectionpooling'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/clientauthz/serviceresponse'
+             totalFiles='4' filesWithViolations='1' priority1='2' priority2='0' priority3='0'>
+        <File name='ClientAuthZTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='91'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='145'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/compression' totalFiles='3'
+             filesWithViolations='2' priority1='2' priority2='0' priority3='0'>
+        <File name='CompressionHeaderTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='159'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='CompressionTranslationTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='17'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/contentNormalization'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/contentidentity'
+             totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='ContentIdentityTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='116'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/decomissionedfilter'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/headerNormalization'
+             totalFiles='2' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='HeaderNormalizationTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='153'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/headeridentity'
+             totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='HeaderIdentityTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='84'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/headeridmapping'
+             totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='HeaderIdMappingTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='88'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/headertranslation'
+             totalFiles='3' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='HeaderTranslationTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='281'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/ipidentity' totalFiles='1'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='IpIdentityTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='105'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/ratelimiting' totalFiles='10'
+             filesWithViolations='4' priority1='20' priority2='0' priority3='0'>
+        <File name='CaptureGroupsTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='75'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='95'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='115'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='285'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='334'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='373'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='393'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='413'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='BracesForMethod' priority='1' lineNumber='438'>
+                <SourceLine><![CDATA[// DEFECT: D-16373]]></SourceLine>
+                <Message>
+                    <![CDATA[Opening brace for the method Requests to an url and a percent-encoded equivalent form of that url should go into the same bucket should start on the same line]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='468'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='BracesForMethod' priority='1' lineNumber='483'>
+                <SourceLine><![CDATA[// DEFECT: D-16373]]></SourceLine>
+                <Message>
+                    <![CDATA[Opening brace for the method Capitalization of hex digits in percent-encoded octets should be treated as equivalent should start on the same line]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='514'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='NoCaptureGroupsTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='67'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='104'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='PatchMethodTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='73'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='116'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='162'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='RateLimitingTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='30'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='433'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='491'>
+                <SourceLine><![CDATA["location"      : "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/responseMessaging'
+             totalFiles='1' filesWithViolations='1' priority1='2' priority2='0' priority3='0'>
+        <File name='ResponseMessagingTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='58'>
+                <SourceLine>
+                    <![CDATA["text/plain"       | 404                       | null                      | "404"                | "You are not authorized... Did you drop your ID?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='148'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/serviceAuthentication'
+             totalFiles='2' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='ServiceAuthenticationTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='92'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/slf4jlogging' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/translation' totalFiles='11'
+             filesWithViolations='5' priority1='8' priority2='0' priority3='0'>
+        <File name='TranslateResponseDoctypefalseTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='18'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='TranslateResponseTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='19'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='142'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='TranslationMultiMatchTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='134'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='167'>
+                <SourceLine>
+                    <![CDATA["translation-b"]                  | ["translation-a"]       | "/somepath?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='168'>
+                <SourceLine>
+                    <![CDATA["translation-a", "translation-b"] | []                      | "/somepath?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='TranslationRequestDoctypefalseTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='16'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='TranslationRequestTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='18'>
+                <SourceLine><![CDATA["<?xml version=\"1.0\"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/translation/saxonEE'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/uriNormalization'
+             totalFiles='2' filesWithViolations='2' priority1='10' priority2='0' priority3='0'>
+        <File name='UriNormalizationFilterTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='33'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='63'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='100'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='125'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='155'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='180'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='204'>
+                <SourceLine><![CDATA["/" + matchingUriRegex + "/?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='246'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='UriNormalizationJMXTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='64'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='123'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/uriidentity' totalFiles='1'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='UriIdentityTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='85'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/uristripper' totalFiles='2'
+             filesWithViolations='2' priority1='9' priority2='0' priority3='0'>
+        <File name='UriStripperLocationRewriteTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='70'>
+                <SourceLine>
+                    <![CDATA["/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='71'>
+                <SourceLine>
+                    <![CDATA["/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='72'>
+                <SourceLine>
+                    <![CDATA["/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='73'>
+                <SourceLine>
+                    <![CDATA["/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='81'>
+                <SourceLine><![CDATA["/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='82'>
+                <SourceLine><![CDATA["/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='83'>
+                <SourceLine><![CDATA["/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='84'>
+                <SourceLine><![CDATA["/v1/${tenantId}/path/to/resource"        | "/v1/path/resource?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+        <File name='UriStripperNoLocationRewriteTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='99'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/uritranslation'
+             totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/uritranslation/perftest'
+             totalFiles='1' filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='UriTranslationPerformanceTest.groovy'>
+            <Violation ruleName='SpaceBeforeOpeningBrace' priority='1' lineNumber='61'>
+                <SourceLine><![CDATA[def th = new Thread({]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for the closure in class features.filters.uritranslation.perftest.UriTranslationPerformanceTest is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/filters/versioning' totalFiles='2'
+             filesWithViolations='2' priority1='2' priority2='0' priority3='0'>
+        <File name='VersioningJMXTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='66'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+        <File name='VersioningTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='153'>
+                <SourceLine><![CDATA["location": "http://somehost.com/blah?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/services' totalFiles='13'
+             filesWithViolations='1' priority1='3' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/services/datastore' totalFiles='9'
+             filesWithViolations='1' priority1='3' priority2='0' priority3='0'>
+        <File name='DistDatastoreServiceTest.groovy'>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='188'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='203'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+            <Violation ruleName='Maximum two blank lines in a row' priority='1' lineNumber='218'>
+                <SourceLine><![CDATA[
+
+
+                        ]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "\n\n\n\n"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/services/healthcheck' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/services/httpconnectionpool'
+             totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/features/services/metrics' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework' totalFiles='22'
+             filesWithViolations='10' priority1='23' priority2='0' priority3='0'>
+        <File name='ReposeContainerLauncher.groovy'>
+            <Violation ruleName='SpaceBeforeOpeningBrace' priority='1' lineNumber='69'>
+                <SourceLine><![CDATA[def th = new Thread({ this.process = cmd.execute() });]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for the closure in class framework.ReposeContainerLauncher is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='ReposeValveLauncher.groovy'>
+            <Violation ruleName='SpaceBeforeOpeningBrace' priority='1' lineNumber='122'>
+                <SourceLine><![CDATA[def th = new Thread({ this.process = cmd.execute() });]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for the closure in class framework.ReposeValveLauncher is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework/category' totalFiles='7'
+             filesWithViolations='7' priority1='14' priority2='0' priority3='0'>
+        <File name='Benchmark.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='11'>
+                <SourceLine><![CDATA[public interface Benchmark extends Slow {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Benchmark is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='11'>
+                <SourceLine><![CDATA[public interface Benchmark extends Slow {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Benchmark is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='Bug.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Bug {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Bug is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Bug {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Bug is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='Flaky.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='10'>
+                <SourceLine><![CDATA[public interface Flaky {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Flaky is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='10'>
+                <SourceLine><![CDATA[public interface Flaky {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Flaky is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='Release.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Release {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Release is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Release {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Release is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='SaxonEE.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface SaxonEE {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.SaxonEE is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface SaxonEE {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.SaxonEE is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='Slow.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Slow {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Slow is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Slow {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Slow is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+        <File name='Smoke.groovy'>
+            <Violation ruleName='SpaceAfterOpeningBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Smoke {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The opening brace for interface framework.category.Smoke is not followed by a space or whitespace]]></Message>
+            </Violation>
+            <Violation ruleName='SpaceBeforeClosingBrace' priority='1' lineNumber='9'>
+                <SourceLine><![CDATA[public interface Smoke {}]]></SourceLine>
+                <Message>
+                    <![CDATA[The closing brace for interface framework.category.Smoke is not preceded by a space or whitespace]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework/client' totalFiles='3'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework/client/http' totalFiles='2'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework/client/jmx' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='functional-tests/spock-functional-test/src/test/groovy/framework/mocks' totalFiles='2'
+             filesWithViolations='1' priority1='7' priority2='0' priority3='0'>
+        <File name='MockIdentityService.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='498'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='518'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='626'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='704'>
+                <SourceLine>
+                    <![CDATA["href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='734'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='764'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='806'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8" standalone="yes"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='services' totalFiles='14' filesWithViolations='2' priority1='2' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/datastore' totalFiles='2' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/datastore/impl' totalFiles='2' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/datastore/impl/src' totalFiles='2' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test' totalFiles='2' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy' totalFiles='2' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com' totalFiles='2' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com/rackspace' totalFiles='2' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com/rackspace/papi' totalFiles='2' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com/rackspace/papi/service' totalFiles='2'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com/rackspace/papi/service/datastore' totalFiles='2'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/datastore/impl/src/test/groovy/com/rackspace/papi/service/datastore/impl' totalFiles='2'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='SchemaTest.groovy'>
+            <Violation ruleName='Require space before ? unless in a string' priority='1' lineNumber='41'>
+                <SourceLine><![CDATA["""<?xml version="1.0" encoding="UTF-8"?]]></SourceLine>
+                <Message>
+                    <![CDATA[Match found for illegal regular expression "(".*")+.*[^\s-]\?|^[^"]*[^\s-]\?"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='services/health-check' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/health-check/impl' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/health-check/impl/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy/com' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy/com/rackspace/papi' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy/com/rackspace/papi/service' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/health-check/impl/src/test/groovy/com/rackspace/papi/service/healthcheck' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient' totalFiles='7' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/httpclient/impl' totalFiles='7' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/httpclient/impl/src' totalFiles='7' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test' totalFiles='7' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy' totalFiles='7' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com' totalFiles='7' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com/rackspace' totalFiles='7' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com/rackspace/papi' totalFiles='7' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com/rackspace/papi/service' totalFiles='7'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com/rackspace/papi/service/httpclient' totalFiles='7'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/httpclient/impl/src/test/groovy/com/rackspace/papi/service/httpclient/impl' totalFiles='7'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service' totalFiles='3' filesWithViolations='1' priority1='1' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy' totalFiles='3' filesWithViolations='1' priority1='1'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com' totalFiles='3' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace' totalFiles='3' filesWithViolations='1'
+             priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose/service' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose/service/ratelimit' totalFiles='3'
+             filesWithViolations='1' priority1='1' priority2='0' priority3='0'>
+        <File name='RateLimitingServiceImplTest.groovy'>
+            <Violation ruleName='Require space before catch' priority='1' lineNumber='79'>
+                <SourceLine><![CDATA["catch]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "[^\s-]catch"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose/service/ratelimit/cache'
+             totalFiles='2' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose/service/ratelimit/cache/cache'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package
+            path='services/rate-limiting-service/src/test/groovy/com/rackspace/repose/service/ratelimit/cache/cache/util'
+            totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/service-client/impl' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/service-client/impl/src' totalFiles='1' filesWithViolations='0' priority1='0' priority2='0'
+             priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy' totalFiles='1' filesWithViolations='0' priority1='0'
+             priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com/rackspace' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com/rackspace/papi' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com/rackspace/papi/service' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com/rackspace/papi/service/serviceclient' totalFiles='1'
+             filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='services/service-client/impl/src/test/groovy/com/rackspace/papi/service/serviceclient/akka'
+             totalFiles='1' filesWithViolations='0' priority1='0' priority2='0' priority3='0'></Package>
+    <Rules>
+        <Rule name='BracesForClass'>
+            <Description>
+                <![CDATA[Checks the location of the opening brace ({) for classes. By default, requires them on the same line, but the sameLine property can be set to false to override this.]]></Description>
+        </Rule>
+        <Rule name='BracesForForLoop'>
+            <Description>
+                <![CDATA[Checks the location of the opening brace ({) for for loops. By default, requires them on the same line, but the sameLine property can be set to false to override this.]]></Description>
+        </Rule>
+        <Rule name='BracesForIfElse'>
+            <Description>
+                <![CDATA[Checks the location of the opening brace ({) for if statements. By default, requires them on the same line, but the sameLine property can be set to false to override this.]]></Description>
+        </Rule>
+        <Rule name='BracesForMethod'>
+            <Description>
+                <![CDATA[Checks the location of the opening brace ({) for constructors and methods. By default, requires them on the same line, but the sameLine property can be set to false to override this.]]></Description>
+        </Rule>
+        <Rule name='BracesForTryCatchFinally'>
+            <Description>
+                <![CDATA[Checks the location of the opening brace ({) for try statements. By default, requires them on the line, but the sameLine property can be set to false to override this.]]></Description>
+        </Rule>
+        <Rule name='Max 2 blank lines before }'>
+            <Description><![CDATA[No description provided for rule named [Max 2 blank lines before }]]]></Description>
+        </Rule>
+        <Rule name='Maximum two blank lines in a row'>
+            <Description>
+                <![CDATA[No description provided for rule named [Maximum two blank lines in a row]]]></Description>
+        </Rule>
+        <Rule name='MissingBlankLineAfterImports'>
+            <Description>
+                <![CDATA[Makes sure there is a blank line after the imports of a source code file.]]></Description>
+        </Rule>
+        <Rule name='MissingBlankLineAfterPackage'>
+            <Description>
+                <![CDATA[Makes sure there is a blank line after the package statement of a source code file.]]></Description>
+        </Rule>
+        <Rule name='Require space before ? unless in a string'>
+            <Description>
+                <![CDATA[No description provided for rule named [Require space before ? unless in a string]]]></Description>
+        </Rule>
+        <Rule name='Require space before catch'>
+            <Description><![CDATA[No description provided for rule named [Require space before catch]]]></Description>
+        </Rule>
+        <Rule name='Require space before else'>
+            <Description><![CDATA[No description provided for rule named [Require space before else]]]></Description>
+        </Rule>
+        <Rule name='Require space before finally'>
+            <Description><![CDATA[No description provided for rule named [Require space before finally]]]></Description>
+        </Rule>
+        <Rule name='Require space before paren after synchronized'>
+            <Description>
+                <![CDATA[No description provided for rule named [Require space before paren after synchronized]]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterCatch'>
+            <Description>
+                <![CDATA[Check that there is exactly one space (blank) after the catch keyword and before the opening parenthesis.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterComma'>
+            <Description>
+                <![CDATA[Checks that there is at least one space or whitespace following each comma. That includes checks for method and closure declaration parameter lists, method call parameter lists, Map literals and List literals.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterFor'>
+            <Description>
+                <![CDATA[Check that there is exactly one space (blank) after the for keyword and before the opening parenthesis.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterIf'>
+            <Description>
+                <![CDATA[Check that there is exactly one space (blank) after the if keyword and before the opening parenthesis.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterOpeningBrace'>
+            <Description>
+                <![CDATA[Check that there is at least one space (blank) or whitespace after each opening brace ("{") for method/class/interface declarations, closure expressions and block statements.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterSemicolon'>
+            <Description>
+                <![CDATA[Checks that there is at least one space or whitespace following each semicolon separating multiple statements on a single line or the clauses within a classic for loop.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterSwitch'>
+            <Description>
+                <![CDATA[Check that there is exactly one space (blank) after the switch keyword and before the opening parenthesis.]]></Description>
+        </Rule>
+        <Rule name='SpaceAfterWhile'>
+            <Description>
+                <![CDATA[Check that there is exactly one space (blank) after the while keyword and before the opening parenthesis.]]></Description>
+        </Rule>
+        <Rule name='SpaceAroundOperator'>
+            <Description>
+                <![CDATA[Check that there is at least one space (blank) or whitespace around each binary operator.]]></Description>
+        </Rule>
+        <Rule name='SpaceBeforeClosingBrace'>
+            <Description>
+                <![CDATA[Check that there is at least one space (blank) or whitespace before each closing brace ("}") for method/class/interface declarations, closure expressions and block statements.]]></Description>
+        </Rule>
+        <Rule name='SpaceBeforeOpeningBrace'>
+            <Description>
+                <![CDATA[Check that there is at least one space (blank) or whitespace before each opening brace ("{") for method/class/interface declarations, closure expressions and block statements.]]></Description>
+        </Rule>
+    </Rules>
+</CodeNarc>
