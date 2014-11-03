@@ -7,6 +7,7 @@ class TestProperties {
     String configDirectory
     String rawConfigDirectory
     String logFile
+    String logFilePattern
     String configTemplates
     String connFramework
     String reposeContainer = "valve"
@@ -47,7 +48,8 @@ class TestProperties {
             projectBuildDirectory = properties.getProperty("project.build.directory")
             configDirectory = properties.getProperty("repose.config.directory")
             configTemplates = properties.getProperty("repose.config.templates")
-            logFile = properties.getProperty("repose.log")
+            logFile = properties.getProperty("repose.log.name")
+            logFilePattern = properties.getProperty("repose.log.pattern")
 
             connFramework = "jersey"
             def value = properties.getProperty("repose.container")
@@ -89,8 +91,10 @@ class TestProperties {
                 atomPort: atomPort,
                 targetHostname: targetHostname,
                 logFile: logFile,
+                logFileName: logFile,
                 reposeLog: logFile,
-                'repose.log': logFile,
+                'repose.log.name': logFile,
+                'repose.log.pattern': logFilePattern,
                 reposeHome: reposeHome,
                 'repose.home': reposeHome,
                 configDirectory: configDirectory,

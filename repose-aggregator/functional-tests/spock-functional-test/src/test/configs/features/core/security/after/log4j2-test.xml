@@ -4,10 +4,10 @@
         <Console name="STDOUT">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="${repose.log}">
+        <RollingFile name="RollingFile" fileName="${repose.log.name}"
+                     filePattern="${repose.log.pattern}">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
             <Policies>
-                <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="200 MB"/>
             </Policies>
             <DefaultRolloverStrategy max="2"/>
