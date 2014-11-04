@@ -245,13 +245,6 @@
                 <version>2.2</version>
             </dependency>
 
-            <!--Apache Pool Support-->
-            <dependency>
-                <groupId>commons-pool</groupId>
-                <artifactId>commons-pool</artifactId>
-                <version>1.6</version>
-            </dependency>
-
             <!--For SLF4J/Log4J 2.x logging support-->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -390,6 +383,7 @@
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
         </dependency>
     </dependencies>
 
