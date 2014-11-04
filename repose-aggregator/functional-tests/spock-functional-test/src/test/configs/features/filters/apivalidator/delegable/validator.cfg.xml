@@ -9,7 +9,7 @@
                delegating-quality=".5">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
-                <resource path="/a">
+                <resource path="/a/">
                     <method name="GET" rax:roles="a:observer a:admin"/>
                     <method name="POST" rax:roles="a:admin"/>
                     <method name="DELETE" rax:roles="a:admin"/>
