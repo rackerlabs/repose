@@ -9,9 +9,12 @@ import com.rackspace.httpdelegation.{HttpDelegationHeaders, HttpDelegationManage
 object HttpDelegationManagerImpl extends HttpDelegationManager {
 
   override def buildDelegationHeaders(statusCode: Int, component: String, message: String, quality: Double): Map[String, Set[String]] = {
+    assume(component != null, "Component cannot be null")
+    assume(message != null, "Message cannot be null")
+
     Map[String, Set[String]](
       HttpDelegationHeaders.Delegated -> Set(
-        statusCode + ";component=" + component + ";msg=" + message + ";q=" + quality
+        "status_code=" + statusCode + "`component=" + component + "`message=" + message + ";q=" + quality
       )
     )
   }
