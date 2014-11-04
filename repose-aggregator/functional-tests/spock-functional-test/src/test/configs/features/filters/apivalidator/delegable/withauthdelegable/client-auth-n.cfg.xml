@@ -9,10 +9,10 @@
         <identity-service username="admin_username"
                           password="admin_password"
                           uri="http://localhost:${identityPort}" />
-        <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
+        <client-mapping id-regex=".*/a/([-|\w]+)/?.*"/>
         <service-admin-roles>
-            <role>service:admin-role1</role>
-            <role>service:admin-role2</role>
+            <role>admin1</role>
+            <role>admin2</role>
         </service-admin-roles>
     </openstack-auth>
 </client-auth>
