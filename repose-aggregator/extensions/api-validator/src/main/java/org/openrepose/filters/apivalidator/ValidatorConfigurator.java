@@ -92,8 +92,8 @@ public class ValidatorConfigurator {
     private DispatchHandler getHandlers(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
-        if (validatorItem.isDelegating()) {
-            handlers.add(new DelegationHandler(validatorItem.getDelegatingQuality()));
+        if (validatorItem.isDelegable()) {
+            handlers.add(new DelegationHandler(validatorItem.getDelegableQuality()));
         } else if (!multiRoleMatch) {
             handlers.add(new ServletResultHandler());
         }

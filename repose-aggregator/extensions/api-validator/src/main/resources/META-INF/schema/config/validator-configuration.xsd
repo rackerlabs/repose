@@ -382,7 +382,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="delegating" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -395,7 +395,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="delegating-quality" type="xs:double" use="optional" default=".5"> <!-- TODO: Default value? -->
+        <xs:attribute name="delegable-quality" type="xs:double" use="optional" default=".3">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
