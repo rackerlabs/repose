@@ -11,14 +11,14 @@ buildscript {
     }
 }
 
+apply plugin: 'scala'
+apply plugin: 'idea'
+apply plugin: 'maven'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
-apply plugin: 'idea'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'maven-publish-auth'
-apply plugin: 'scala'
 
 group = 'org.openrepose'
 version = '1.0.0'
