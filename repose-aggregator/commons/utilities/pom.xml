@@ -84,6 +84,11 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 </project>
 

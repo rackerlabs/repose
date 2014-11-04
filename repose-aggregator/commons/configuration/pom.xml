@@ -37,6 +37,11 @@
             <version>2.12.0-rax</version>
         </dependency>
 
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 </project>
 

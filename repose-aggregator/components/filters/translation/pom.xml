@@ -89,6 +89,11 @@
             <scope>test</scope>
         </dependency>
 
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
