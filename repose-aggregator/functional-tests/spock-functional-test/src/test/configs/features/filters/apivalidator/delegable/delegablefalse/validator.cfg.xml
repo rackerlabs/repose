@@ -21,8 +21,7 @@
                default="false"
                enable-rax-roles="true"
                mask-rax-roles-403="true"
-               delegating="true"
-               delegating-quality=".2">
+               delegating="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/b">
