@@ -21,7 +21,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'maven-publish-auth'
 
 group = 'org.openrepose'
-version = '1.0.0'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
