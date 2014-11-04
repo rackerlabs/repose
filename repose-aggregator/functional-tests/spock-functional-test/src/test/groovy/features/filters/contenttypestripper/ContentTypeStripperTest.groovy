@@ -29,7 +29,7 @@ class ContentTypeStripperTest extends ReposeValveTest {
         }
     }
 
-    @Unroll
+    @Unroll("Reg with method:#method, req body:#requestBody - #desc")
     def "should maintain the content-type header when there is a body #desc and maintain the integrity of the body on a #method request"() {
         when:
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: ["content-type": "text/plain"], method: method])
@@ -49,9 +49,10 @@ class ContentTypeStripperTest extends ReposeValveTest {
         "less than 8 characters" | " Pie "      | "PUT"
         "less than 8 characters" | " Pie "      | "POST"
         "less than 8 characters" | " Pie "      | "DELETE"
+        "xml body"               | "<tag>test</tag>" | "POST"
     }
 
-    @Unroll
+    @Unroll("Remove content-type Reg with method:#method, req body:#requestBody - #desc")
     def "should remove the content-type header when there #desc for #method requests"() {
         when:
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: ["content-type": "apple/pie"], method: method])
@@ -73,5 +74,21 @@ class ContentTypeStripperTest extends ReposeValveTest {
         "is only whitespace in the first 8 characters"                | " \n \r \t  "                         | "DELETE"
         "is only whitespace in the first 8 characters even with text" | " \n \r \t  unfortunately heres text" | "POST"
         "is a less than 8 character white space body"                 | "    "                                | "POST"
+    }
+
+    @Unroll
+    def "should remove the content-type header and req body for GET"() {
+        when:
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: ["content-type": "plain/text"], method: method])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then:
+        ((Handling) sentRequest).request.body == ""
+        ((Handling) sentRequest).request.getHeaders().findAll("Content-Type").size() == 0
+
+        where:
+        desc                                           | requestBody   | method
+        "with req body"                                | "test test"   | "GET"
+        "is only whitespace in the first 8 characters" | " \n \r \t  " | "GET"
     }
 }
