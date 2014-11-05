@@ -4,6 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.test.appender.ListAppender;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
@@ -17,6 +20,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyMap;
@@ -73,8 +77,8 @@ public class SaxAuthFeedReaderTest {
         reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
         CacheKeys keys = reader.getCacheKeys();
 
-        assertTrue("Should log 401 with atom feed configured without auth",
-                logContainsMessage(app, "Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please reconfigure Feed atomId with valid credentials and/or configure isAuthed to true"));
+        assertThat("Should log 401 with atom feed configured without auth",
+                app.getEvents(), contains("Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please reconfigure Feed atomId with valid credentials and/or configure isAuthed to true"));
     }
 
     @Test
@@ -86,17 +90,26 @@ public class SaxAuthFeedReaderTest {
 
         CacheKeys keys = reader.getCacheKeys();
 
-        assertTrue(logContainsMessage(app, "Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503"));
+        assertThat(app.getEvents(), contains("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503"));
     }
 
-    private static boolean logContainsMessage(ListAppender log, String msg) {
-        boolean rtn = false;
-        final List<LogEvent> events = log.getEvents();
-        LogEvent event;
-        for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
-            event = iterator.next();
-            rtn = event.getMessage().getFormattedMessage().contains(msg);
-        }
-        return rtn;
+    private Matcher<List<LogEvent>> contains(final String msg) {
+        return new TypeSafeMatcher<List<LogEvent>>() {
+            @Override
+            protected boolean matchesSafely(final List<LogEvent> events) {
+                boolean rtn = false;
+                LogEvent event;
+                for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+                    event = iterator.next();
+                    rtn = event.getMessage().getFormattedMessage().contains(msg);
+                }
+                return rtn;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
+            }
+        };
     }
 }
