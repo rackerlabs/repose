@@ -9,6 +9,9 @@ import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServiceContext;
 import org.openrepose.core.services.logging.LoggingService;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +29,12 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
    private final LoggingService loggingService;
    private ConfigurationService configurationManager;
    private final ContainerConfigurationListener configurationListener;
-   private final LoggingConfigurationListener loggingConfigurationListener;
-   private String loggingConfigurationConfig = "";
+   private URI loggingConfigurationConfig = null;
    private final ServiceRegistry registry;
 
    public LoggingServiceContext(LoggingService loggingService, ServiceRegistry registry, ConfigurationService configurationManager) {
       this.loggingService = loggingService;
       this.configurationListener = new ContainerConfigurationListener();
-      this.loggingConfigurationListener = new LoggingConfigurationListener();
       this.configurationManager = configurationManager;
       this.registry = registry;
    }
@@ -68,9 +69,21 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
             final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
 
             if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
-               final String newLoggingConfig = loggingConfig.getHref();
-               loggingConfigurationConfig = newLoggingConfig;
-               updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
+                try {
+                    final URI newLoggingConfig = new URI(loggingConfig.getHref());
+                    if(!newLoggingConfig.equals(loggingConfigurationConfig)) {
+                        loggingConfigurationConfig = newLoggingConfig;
+                        loggingService.updateLoggingConfiguration(loggingConfigurationConfig);
+
+                        LOG.error("ERROR LEVEL LOG STATEMENT");
+                        LOG.warn("WARN  LEVEL LOG STATEMENT");
+                        LOG.info("INFO  LEVEL LOG STATEMENT");
+                        LOG.debug("DEBUG LEVEL LOG STATEMENT");
+                        LOG.trace("TRACE LEVEL LOG STATEMENT");
+                    }
+                } catch (URISyntaxException e) {
+                    LOG.trace("Exception caught on an updated configuration", e);
+                }
             }
          }
          isInitialized = true;
@@ -80,37 +93,6 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
       public boolean isInitialized() {
          return isInitialized;
       }
-   }
-
-   /**
-    * Listens for updates to the log properties file.
-    */
-   private class LoggingConfigurationListener implements UpdateListener<Properties> {
-
-      private boolean isInitialized = false;
-
-      @Override
-      public void configurationUpdated(Properties configurationObject) {
-         loggingService.updateLoggingConfiguration(configurationObject);
-
-         LOG.error("ERROR LEVEL LOG STATEMENT");
-         LOG.warn( "WARN  LEVEL LOG STATEMENT");
-         LOG.info( "INFO  LEVEL LOG STATEMENT");
-         LOG.debug("DEBUG LEVEL LOG STATEMENT");
-         LOG.trace("TRACE LEVEL LOG STATEMENT");
-         isInitialized = true;
-      }
-
-      @Override
-      public boolean isInitialized() {
-         return isInitialized;
-      }
-   }
-
-   private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
-
-      configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
-      configurationManager.subscribeTo("", loggingConfig, loggingConfigurationListener, new PropertiesFileConfigurationParser());
    }
 
    @Override
@@ -124,6 +106,5 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
    @Override
    public void contextDestroyed(ServletContextEvent servletContextEvent) {
       configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
-      configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
    }
 }
