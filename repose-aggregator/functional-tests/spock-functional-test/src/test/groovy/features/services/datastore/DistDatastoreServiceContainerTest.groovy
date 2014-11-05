@@ -223,7 +223,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         //ignore test - when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded
         //rate limiting is set to 3 an hour"
         def user = UUID.randomUUID().toString();
-        makeRequestsWRateLimit(reposeEndpoint1,reposeEndpoint2, user, true)
+        makeRequestsWRateLimit(reposeEndpoint1,reposeEndpoint2, user, false)
 
         //additional tests
         when: "User send request to repose hould not split request headers according to rfc"
@@ -255,6 +255,7 @@ class DistDatastoreServiceContainerTest extends Specification {
             assert new Date() < new Date(2014 - 1900, Calendar.OCTOBER, 31, 9, 0)
         }
         else {
+            println("Test rate limiting 2 nodes")
             for (int i = 0; i < 3; i++) {
                 MessageChain mc = deproxy.makeRequest(url: endpoint1 + "/test", headers: ['X-PP-USER': user])
                 if (mc.receivedResponse.code == 200) {
