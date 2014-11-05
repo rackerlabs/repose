@@ -244,6 +244,13 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.2</version>
             </dependency>
+
+            <!--Apache Pool Support-->
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -332,13 +339,6 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
-        </dependency>
-
-        <!--Apache Pool Support-->
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>1.6</version>
         </dependency>
     </dependencies>
 

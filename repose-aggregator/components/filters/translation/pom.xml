@@ -76,11 +76,6 @@
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
         </dependency>
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>1.6</version>
-        </dependency>
 
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -94,6 +89,11 @@
             <scope>test</scope>
         </dependency>
 
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -41,6 +41,12 @@
             <artifactId>jee6-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 </project>
 
