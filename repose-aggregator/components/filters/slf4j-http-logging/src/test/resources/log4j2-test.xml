@@ -10,7 +10,7 @@
         <List name="List3"/>
     </Appenders>
     <Loggers>
-        <Root level="trace">
+        <Root level="debug">
             <AppenderRef ref="STDOUT"/>
         </Root>
         <Logger name="Logger0" level="info">
@@ -26,6 +26,7 @@
             <AppenderRef ref="List3"/>
         </Logger>
         <Logger name="com.sun.jersey" level="off"/>
+        <Logger name="net.sf.ehcache" level="info"/>
         <Logger name="org.apache.commons.httpclient" level="warn"/>
         <Logger name="org.apache.commons.httpclient.auth" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>

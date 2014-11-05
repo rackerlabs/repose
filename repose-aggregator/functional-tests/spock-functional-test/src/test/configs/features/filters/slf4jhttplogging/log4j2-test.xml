@@ -14,11 +14,12 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Root level="trace">
+        <Root level="debug">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="RollingFile"/>
         </Root>
         <Logger name="com.sun.jersey" level="off"/>
+        <Logger name="net.sf.ehcache" level="info"/>
         <Logger name="org.apache.commons.httpclient" level="warn"/>
         <Logger name="org.apache.commons.httpclient.auth" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>
