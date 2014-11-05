@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>6.2.1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>content-type-stripper</artifactId>
+
+    <name>Repose Components - Content Type Stripper</name>
+    <description>
+        Filter that removes the Content-Type header when the body of the request is null or has whitespace for the first
+        8 bytes of the body.
+    </description>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+
+        <!-- Let's use Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- The plugin that gets Scala running -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
