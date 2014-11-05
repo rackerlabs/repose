@@ -382,6 +382,30 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true, a validator will not send a failing response when an invalid state is reached.
+                        Instead, the validator will add the data relating to the failure to a header and forward the
+                        request to be handled by a different filter or service.
+                        If set to false, the validator will send a failing response when an invalid state is reached.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="delegable-quality" type="xs:double" use="optional" default=".3">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                        value will be used to order delegation based on priority when multiple delegations are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:assert vc:minVersion="1.1"
                    test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
                    xerces:message="Roles list must contain unique roles"
