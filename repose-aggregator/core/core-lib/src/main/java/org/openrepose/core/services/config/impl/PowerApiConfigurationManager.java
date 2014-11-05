@@ -129,8 +129,8 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                     LOG.error("An I/O error has occurred while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
                  
                 } else {
-                    LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
-                  
+                    LOG.error("Configuration update error. Reason: " + ex.getMessage());
+                    LOG.trace("Configuration update error. Reason: " + ex.getMessage(), ex);
                 }
             }
         }
