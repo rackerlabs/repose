@@ -98,9 +98,9 @@ class ApiValidatorDelegableWAuthDelegableTest extends ReposeValveTest {
         where:
         reqtenant| adminrole | clienttoken     | roles                      | method   | responseCode | identitystatus | delegateMsg
         ""       | "regular" |""               | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate"| "404;component=api-checker;msg=Resource not found: /{a};q=0.5"
-        "test"   | "admin1"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"    | "405;component=api-checker;msg=Bad method: POST. The Method does not match the pattern: 'GET';q=0.5"
-        "test"   | "admin2"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"    | "405;component=api-checker;msg=Bad method: DELETE. The Method does not match the pattern: 'GET';q=0.5"
-        12345    | "default" |UUID.randomUUID()| "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"    | "405;component=api-checker;msg=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
+        "test"   | "admin1"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"    | "404;component=api-checker;msg=Resource not found: /a/{test};q=0.5"
+        "test"   | "admin2"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"    | "404;component=api-checker;msg=Resource not found: /a/{test};q=0.5"
+        12345    | "default" |UUID.randomUUID()| "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"    | "404;component=api-checker;msg=Resource not found: /a/{12345};q=0.5"
     }
 
     @Unroll("Sending request with roles: #roles and admin resp: #authresp")
