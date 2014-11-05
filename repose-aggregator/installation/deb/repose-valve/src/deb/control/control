@@ -9,4 +9,4 @@ Homepage: http://openrepose.org
 Depends: java7-runtime-headless
 Conflicts: repose-war
 Recommends: repose-filter-bundle (=[[version]])
-Suggests: repose-extension-filter-bundle (=[[version]]), logrotate
+Suggests: repose-extensions-filter-bundle (=[[version]]), logrotate
