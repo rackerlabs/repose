@@ -12,7 +12,10 @@
     <artifactId>content-type-stripper</artifactId>
 
     <name>Repose Components - Content Type Stripper</name>
-    <description>TODO</description>
+    <description>
+        Filter that removes the Content-Type header when the body of the request is null or has whitespace for the first
+        8 bytes of the body.
+    </description>
 
     <packaging>jar</packaging>
 
