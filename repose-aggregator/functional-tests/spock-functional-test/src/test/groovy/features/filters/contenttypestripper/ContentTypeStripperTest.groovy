@@ -37,13 +37,15 @@ class ContentTypeStripperTest extends ReposeValveTest {
 
         then:
         ((Handling) sentRequest).request.getHeaders().findAll("Content-Type").size() == 1
-        ((Handling) sentRequest).request.body == requestBody
+        ((Handling) sentRequest).request.body == (method == "GET" ? "" : requestBody) //We remove the body on a get when finally calling the service
 
         where:
-        desc                     | requestBody  | method //GET has any content automatically removed
+        desc                     | requestBody  | method
+        "over 8 characters"      | "I like pie" | "GET"
         "over 8 characters"      | "I like pie" | "PUT"
         "over 8 characters"      | "I like pie" | "POST"
         "over 8 characters"      | "I like pie" | "DELETE"
+        "less than 8 characters" | " Pie "      | "GET"
         "less than 8 characters" | " Pie "      | "PUT"
         "less than 8 characters" | " Pie "      | "POST"
         "less than 8 characters" | " Pie "      | "DELETE"
@@ -57,7 +59,7 @@ class ContentTypeStripperTest extends ReposeValveTest {
 
         then:
         ((Handling) sentRequest).request.getHeaders().findAll("Content-Type").size() == 0
-        ((Handling) sentRequest).request.body == requestBody
+        ((Handling) sentRequest).request.body == (method == "GET" ? "" : requestBody) //We remove the body on a get when finally calling the service
 
         where:
         desc                                                          | requestBody                           | method
@@ -65,10 +67,11 @@ class ContentTypeStripperTest extends ReposeValveTest {
         "is no body"                                                  | ""                                    | "POST"
         "is no body"                                                  | ""                                    | "PUT"
         "is no body"                                                  | ""                                    | "DELETE"
+        "is only whitespace in the first 8 characters"                | " \n \r \t  "                         | "GET"
         "is only whitespace in the first 8 characters"                | " \n \r \t  "                         | "POST"
         "is only whitespace in the first 8 characters"                | " \n \r \t  "                         | "PUT"
         "is only whitespace in the first 8 characters"                | " \n \r \t  "                         | "DELETE"
         "is only whitespace in the first 8 characters even with text" | " \n \r \t  unfortunately heres text" | "POST"
-        "is less than 8 character white space body"                   | "    "                                | "POST"
+        "is a less than 8 character white space body"                 | "    "                                | "POST"
     }
 }
