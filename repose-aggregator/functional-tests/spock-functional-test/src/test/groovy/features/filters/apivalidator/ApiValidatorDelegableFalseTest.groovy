@@ -73,11 +73,11 @@ class ApiValidatorDelegableFalseTest extends ReposeValveTest{
 
         where:
         method  | path  | headers                                   | responseCode  | delegateMsg
-        "GET"   | "/b"  | ["x-roles": "raxrole-test2"]              | "200"         | "404;component=api-checker;msg=Resource not found: /{b};q=0.3"
-        "PUT"   | "/b"  | ["x-roles": "raxrole-test2"]              | "200"         | "404;component=api-checker;msg=Resource not found: /{b};q=0.3"
-        "PUT"   | "/b"  | ["x-roles": "raxrole-test2, b:observer"]  | "200"         | "405;component=api-checker;msg=Bad method: PUT. The Method does not match the pattern: 'GET';q=0.3"
-        "DELETE"| "/b"  | ["x-roles": "raxrole-test2, b:bar"]       | "200"         | "404;component=api-checker;msg=Resource not found: /{b};q=0.3"
-        "POST"  | "/b"  | ["x-roles": "raxrole-test2, b:admin"]     | "200"         | "405;component=api-checker;msg=Bad method: POST. The Method does not match the pattern: 'DELETE|GET|PUT';q=0.3"
-        "PUT"   | "/b"  | ["x-roles": "raxrole-test2, a:admin"]     | "200"         | "404;component=api-checker;msg=Resource not found: /{b};q=0.3"
+        "GET"   | "/b"  | ["x-roles": "raxrole-test2"]              | "200"         | "status_code=404`component=api-checker`message=Resource not found: /{b};q=0.3"
+        "PUT"   | "/b"  | ["x-roles": "raxrole-test2"]              | "200"         | "status_code=404`component=api-checker`message=Resource not found: /{b};q=0.3"
+        "PUT"   | "/b"  | ["x-roles": "raxrole-test2, b:observer"]  | "200"         | "status_code=405`component=api-checker`message=Bad method: PUT. The Method does not match the pattern: 'GET';q=0.3"
+        "DELETE"| "/b"  | ["x-roles": "raxrole-test2, b:bar"]       | "200"         | "status_code=404`component=api-checker`message=Resource not found: /{b};q=0.3"
+        "POST"  | "/b"  | ["x-roles": "raxrole-test2, b:admin"]     | "200"         | "status_code=405`component=api-checker`message=Bad method: POST. The Method does not match the pattern: 'DELETE|GET|PUT';q=0.3"
+        "PUT"   | "/b"  | ["x-roles": "raxrole-test2, a:admin"]     | "200"         | "status_code=404`component=api-checker`message=Resource not found: /{b};q=0.3"
     }
 }
