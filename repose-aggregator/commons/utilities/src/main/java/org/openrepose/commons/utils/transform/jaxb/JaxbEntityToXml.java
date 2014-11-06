@@ -38,8 +38,8 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the Marshaller.");
-                LOG.trace("Failed to utilize the Marshaller.", e);
+                LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
@@ -48,8 +48,8 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
         } catch (ResourceConstructionException e) {
             throw e;
         } catch (Exception e) {
-            LOG.error("Failed to obtain a Marshaller.");
-            LOG.trace("Failed to obtain a Marshaller.", e);
+            LOG.error("Failed to obtain a Marshaller. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         return rtn;
    }

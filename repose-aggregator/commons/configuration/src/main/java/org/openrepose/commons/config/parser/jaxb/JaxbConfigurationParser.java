@@ -43,16 +43,16 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the UnmarshallerValidator.");
-                LOG.trace("Failed to utilize the UnmarshallerValidator.", e);
+                LOG.error("Failed to utilize the UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain an UnmarshallerValidator.");
-            LOG.trace("Failed to obtain an UnmarshallerValidator.", e);
+            LOG.error("Failed to obtain an UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         if (!configurationClass().isInstance(rtn)) {
             throw new ClassCastException("Parsed object from XML does not match the expected configuration class. "

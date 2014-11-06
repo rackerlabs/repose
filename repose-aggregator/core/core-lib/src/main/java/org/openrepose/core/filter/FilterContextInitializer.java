@@ -77,7 +77,7 @@ public class FilterContextInitializer {
                  papiFilter,
                  classLoaderContextManager.getLoadedApplications());
       } catch (Exception e) {
-         LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
+         LOG.info("Problem loading the filter class. Just process the next filter. Reason: {}", e.getMessage(), e);
       }
 
       return context;

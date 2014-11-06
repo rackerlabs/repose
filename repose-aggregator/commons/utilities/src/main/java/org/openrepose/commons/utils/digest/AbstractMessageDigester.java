@@ -33,16 +33,16 @@ public abstract class AbstractMessageDigester implements MessageDigester {
             } catch (Exception e) {
                 MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the MessageDigest.");
-                LOG.trace("Failed to utilize the MessageDigest.", e);
+                LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     MESSAGE_DIGEST_POOL.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain a MessageDigest");
-            LOG.trace("Failed to obtain a MessageDigest", e);
+            LOG.error("Failed to obtain a MessageDigest. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         return rtn;
     }
@@ -65,16 +65,16 @@ public abstract class AbstractMessageDigester implements MessageDigester {
             } catch (Exception e) {
                 MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the MessageDigest.");
-                LOG.trace("Failed to utilize the MessageDigest.", e);
+                LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     MESSAGE_DIGEST_POOL.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain a MessageDigest.");
-            LOG.trace("Failed to obtain a MessageDigest.", e);
+            LOG.error("Failed to obtain a MessageDigest. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         return rtn;
     }

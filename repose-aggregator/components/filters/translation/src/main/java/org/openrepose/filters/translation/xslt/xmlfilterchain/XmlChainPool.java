@@ -92,16 +92,16 @@ public class XmlChainPool {
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the XmlFilterChain.");
-                LOG.trace("Failed to utilize the XmlFilterChain.", e);
+                LOG.error("Failed to utilize the XmlFilterChain. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain an XmlFilterChain.");
-            LOG.trace("Failed to obtain an XmlFilterChain.", e);
+            LOG.error("Failed to obtain an XmlFilterChain. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
 
         return rtn;
