@@ -123,7 +123,11 @@ class ReposeValveLauncher extends ReposeLauncher {
         def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({
+            this.process = cmd.execute()
+            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            this.process.consumeProcessOutput()
+        });
 
         th.run()
         th.join()
