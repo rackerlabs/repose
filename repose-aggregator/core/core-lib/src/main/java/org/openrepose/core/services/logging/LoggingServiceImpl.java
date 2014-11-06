@@ -5,10 +5,9 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 
 /**
  * @author fran
@@ -20,10 +19,9 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     @Override
-    public void updateLoggingConfiguration(URI configLocation) {
+    public void updateLoggingConfiguration(Resource configLocation) {
         try {
-            URL url = configLocation.toURL();
-            ConfigurationSource configurationSource = new ConfigurationSource(url.openStream(), url);
+            ConfigurationSource configurationSource = new ConfigurationSource(configLocation.getInputStream());
             XmlConfiguration xmlConfiguration = new XmlConfiguration(configurationSource);
             ((Logger) LogManager.getRootLogger()).getContext().start(xmlConfiguration);
         } catch (IOException e) {
