@@ -110,6 +110,7 @@ public class OpenStackAuthenticationHandlerTest {
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(
                     delegable(),
+                    0.7,
                     "http://some.auth.endpoint",
                     keyedRegexExtractor,
                     isTenanted(),
@@ -453,6 +454,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             Configurables configurables = new Configurables(
                     delegable(),
+                    0.7,
                     "http://some.auth.endpoint",
                     keyedRegexExtractor,
                     isTenanted(),

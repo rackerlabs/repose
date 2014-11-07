@@ -52,7 +52,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
           
        
             openStackAuthenticationHeaderManager =
-                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
+                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, filterDirector,
                                                              tenantId, authGroupList, wwwAuthHeaderContents,
                                                              endpointsBase64, true, false);
       
@@ -132,7 +132,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
        
             openStackAuthenticationHeaderManager =
-                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
+                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, filterDirector,
                                                              tenantId, authGroupList, wwwAuthHeaderContents,
                                                              endpointsBase64, true, false);
              openStackAuthenticationHeaderManager.setFilterDirectorValues();

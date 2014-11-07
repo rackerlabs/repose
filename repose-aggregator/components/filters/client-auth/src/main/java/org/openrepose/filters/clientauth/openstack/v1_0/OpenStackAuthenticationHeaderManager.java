@@ -23,6 +23,7 @@ public class OpenStackAuthenticationHeaderManager {
     private final String authToken;
     private final AuthToken cachableToken;
     private final Boolean isDelagable;
+    private final double delegableQuality;
     private final Boolean isTenanted;
     private final FilterDirector filterDirector;
     private final String tenantId;
@@ -36,12 +37,13 @@ public class OpenStackAuthenticationHeaderManager {
     private final boolean sendAllTenantIds;
 
     //add base 64 string in here
-    public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
+    public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, double delegableQuality,
             FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
             boolean sendAllTenantIds) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
+        this.delegableQuality = delegableQuality;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
         this.validToken = token != null && token.getTokenId() != null;

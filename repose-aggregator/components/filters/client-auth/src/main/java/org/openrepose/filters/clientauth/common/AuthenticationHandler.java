@@ -36,9 +36,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted, boolean sendAllTenantIds);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, double delegableQuality, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted, boolean sendAllTenantIds);
 
     private final boolean delegable;
+    private final double delegableQuality;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final AuthTokenCache cache;
     private final AuthGroupCache grpCache;
@@ -59,6 +60,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
+        this.delegableQuality = configurables.getDelegableQuality();
         this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
         this.cache = cache;
         this.grpCache = grpCache;
@@ -161,7 +163,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
 
 
-        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
         return filterDirector;
