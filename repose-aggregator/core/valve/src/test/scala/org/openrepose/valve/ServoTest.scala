@@ -1,18 +1,43 @@
 package org.openrepose.valve
 
-import java.io.{PrintStream, ByteArrayOutputStream}
+import java.io.{File, PrintStream, ByteArrayOutputStream}
+import java.util.concurrent.ConcurrentSkipListSet
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
+import scala.concurrent.{Await, Future}
+
 @RunWith(classOf[JUnitRunner])
-class ServoTest extends FunSpec with Matchers {
+class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.duration._
 
   val defaultConfig = ConfigFactory.load("valve-config.conf")
   val myVersion = defaultConfig.getString("myVersion")
   val jettyVersion = defaultConfig.getString("jettyVersion")
+
+  val cleanUpDirs = new ConcurrentSkipListSet[File]()
+
+  /**
+   * Need to keep track of stuff to clean up, so this is used to clean up the mess
+   */
+  override protected def afterAll() = {
+    import scala.collection.JavaConverters._
+    cleanUpDirs.asScala.foreach { f =>
+      deleteRecursive(f.toPath)
+    }
+  }
+
+  def autoCleanTempDir(prefix: String): String = {
+    val dir = tempDir(prefix).toFile
+    cleanUpDirs.add(dir)
+    dir.getAbsolutePath
+  }
+
 
   def postExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
@@ -48,9 +73,44 @@ class ServoTest extends FunSpec with Matchers {
     }
   }
 
+  def servoConfig(systemModelResource: String,
+                  containerConfigResource: String = "/valveTesting/with-keystore.xml")(testFunc: (String, File) => Unit) = {
+    val configRoot = autoCleanTempDir("valve").toString
+    val systemModelContent = resourceContent(systemModelResource)
+    val containerConfigContent = resourceContent(containerConfigResource)
+    val log4jContent = resourceContent("/valveTesting/log4j.properties")
+
+    writeSystemModel(configRoot, systemModelContent)
+    writeContainerConfig(configRoot, containerConfigContent)
+    writeFileContent(new File(configRoot, "log4j.properties"), log4jContent)
+
+    val tmpOutput = tempFile("fakeRepose", ".out")
+
+    //There's no config to override, or anything, we're just going to hold on to our butts
+
+    //call the test function ...
+    testFunc(configRoot, tmpOutput)
+  }
+
   describe("for a good single node configuration") {
     it("starts listening on the configured port") {
-      pending
+      //Starts up a real jetty
+      //verify that I don't get a connection failed on that port, it should listen regardless (I hope?)
+      servoConfig("/valveTesting/system-model-1.cfg.xml") { (configRoot, tmpOutput) =>
+        //TODO
+        val valve = new Valve()
+        val exitValue = Future {
+          valve.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, defaultConfig)
+        }
+
+        //Verify that the thing is listening on the configured port!
+        //TODO: something on 8080
+
+        valve.shutdown() //Terminate it!
+
+
+        Await.result(exitValue, 1 second) shouldBe 0
+      }
     }
     it("outputs to stdout the settings it's going to hand to the individual jetties") {
       pending
@@ -63,11 +123,14 @@ class ServoTest extends FunSpec with Matchers {
     }
   }
 
-  describe("failing to start up") {
-    it("outputs a failure message and exits 1 if no local nodes found") {
+  describe("failing to start up, outputs a failure message and exits 1 ") {
+    it("if no local nodes found") {
       pending
     }
-    it("outputs a failure message and exits 1 if it cannot find the config file") {
+    it("if it cannot find the config file") {
+      pending
+    }
+    it("if ssl is specified, but no keystore is given") {
       pending
     }
   }
