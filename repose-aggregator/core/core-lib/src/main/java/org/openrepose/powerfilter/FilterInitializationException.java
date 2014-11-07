@@ -1,4 +1,4 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 public class FilterInitializationException extends Exception {
     public FilterInitializationException(String message, Throwable t) {

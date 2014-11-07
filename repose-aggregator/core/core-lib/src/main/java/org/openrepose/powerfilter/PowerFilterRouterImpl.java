@@ -1,4 +1,4 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 import org.openrepose.core.RequestTimeout;
 import org.openrepose.core.ResponseCode;
@@ -184,7 +184,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         MeterByCategory mbc = verifyGet( endpoint );
                         MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
 
-                        PowerFilter.markResponseCodeHelper( mbc, servletResponse.getStatus(), LOG, endpoint );
+                        PowerFilter.markResponseCodeHelper(mbc, servletResponse.getStatus(), LOG, endpoint);
                         PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
                         markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), endpoint );
                         markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );

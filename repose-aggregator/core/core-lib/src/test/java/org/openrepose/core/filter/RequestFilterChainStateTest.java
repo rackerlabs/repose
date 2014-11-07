@@ -1,7 +1,10 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.filter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.PowerFilterChain;
+import org.openrepose.powerfilter.PowerFilterChainException;
+import org.openrepose.powerfilter.PowerFilterRouter;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.context.impl.RoutingServiceContext;

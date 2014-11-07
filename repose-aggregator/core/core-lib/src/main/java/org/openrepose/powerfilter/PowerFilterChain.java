@@ -1,13 +1,13 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.filter.filtercontext.FilterContext;
-import org.openrepose.core.filter.intrafilterLogging.RequestLog;
-import org.openrepose.core.filter.intrafilterLogging.ResponseLog;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.intrafilterLogging.RequestLog;
+import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.apache.commons.lang3.StringUtils;

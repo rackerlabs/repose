@@ -1,9 +1,11 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.powerfilter.PowerFilterChainException;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import javax.servlet.ServletContext;

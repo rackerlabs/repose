@@ -1,7 +1,7 @@
-package org.openrepose.core.filter.intrafilterLogging;
+package org.openrepose.powerfilter.intrafilterLogging;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.core.filter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 

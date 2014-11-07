@@ -1,4 +1,4 @@
-package org.openrepose.core.filter.filtercontext
+package org.openrepose.powerfilter.filtercontext
 
 import javax.servlet.FilterConfig
 
@@ -7,10 +7,10 @@ import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.classloader.ear.{EarClassLoader, EarClassLoaderContext, EarDescriptor, SimpleEarClassLoaderContext}
-import org.openrepose.core.filter.FilterInitializationException
 import org.openrepose.core.services.classloader.ClassLoaderManagerService
 import org.openrepose.core.spring.{CoreSpringProvider, TestFilterBundlerHelper}
 import org.openrepose.core.systemmodel.Filter
+import org.openrepose.powerfilter.FilterInitializationException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Ignore, FunSpec, Matchers}

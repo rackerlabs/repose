@@ -1,4 +1,4 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -7,8 +7,9 @@ import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
-import org.openrepose.core.filter.filtercontext.FilterContext;
-import org.openrepose.core.filter.filtercontext.FilterContextFactory;
+import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;

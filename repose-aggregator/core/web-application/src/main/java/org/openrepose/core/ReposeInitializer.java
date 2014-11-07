@@ -1,6 +1,6 @@
 package org.openrepose.core;
 
-import org.openrepose.core.filter.PowerFilter;
+import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;

@@ -1,4 +1,4 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 /**
  *

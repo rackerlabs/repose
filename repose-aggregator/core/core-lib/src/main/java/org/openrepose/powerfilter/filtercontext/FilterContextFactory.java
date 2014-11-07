@@ -1,8 +1,8 @@
-package org.openrepose.core.filter.filtercontext;
+package org.openrepose.powerfilter.filtercontext;
 
 import com.oracle.javaee6.FilterType;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
-import org.openrepose.core.filter.FilterInitializationException;
+import org.openrepose.powerfilter.FilterInitializationException;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.openrepose.core.systemmodel.Filter;
@@ -61,7 +61,7 @@ public class FilterContextFactory {
      * @param filter             the Jaxb filter configuration information from the system-model
      * @param loadedApplications The list of EarClassLoaders
      * @return a FilterContext containing an instance of the filter and metatadata
-     * @throws org.openrepose.core.filter.FilterInitializationException
+     * @throws org.openrepose.powerfilter.FilterInitializationException
      */
     private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, FilterConfig filterConfig) throws FilterInitializationException {
         FilterType filterType = null;

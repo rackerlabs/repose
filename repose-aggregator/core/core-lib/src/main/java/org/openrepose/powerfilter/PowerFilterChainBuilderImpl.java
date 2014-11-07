@@ -1,7 +1,7 @@
-package org.openrepose.core.filter;
+package org.openrepose.powerfilter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.filter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.services.context.ServletContextHelper;

@@ -1,4 +1,4 @@
-package org.openrepose.core.filter.filtercontext;
+package org.openrepose.powerfilter.filtercontext;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
