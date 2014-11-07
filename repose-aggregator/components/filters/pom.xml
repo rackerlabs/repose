@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>components-support</artifactId>
         <groupId>com.rackspace.papi.components</groupId>
@@ -39,6 +40,10 @@
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
     </modules>
+
+    <properties>
+        <http.delegation.version>2.0.0</http.delegation.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -244,6 +249,12 @@
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>rackspace-identity-basic-auth</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openrepose</groupId>
+                <artifactId>http-delegation</artifactId>
+                <version>${http.delegation.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
