@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi.commons</groupId>
         <artifactId>commons-support</artifactId>
-        <version>6.2.0.0-SNAPSHOT</version>
+        <version>6.2.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.commons</groupId>
@@ -84,6 +84,11 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 </project>
 

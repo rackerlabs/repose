@@ -14,3 +14,4 @@
 /etc/repose/uri-identity.cfg.xml
 /etc/repose/uri-stripper.cfg.xml
 /etc/repose/header-translation.cfg.xml
+/etc/repose/openstack-identity-v3.cfg.xml

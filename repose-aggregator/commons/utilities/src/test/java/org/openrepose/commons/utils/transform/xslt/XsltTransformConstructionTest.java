@@ -1,6 +1,6 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.Pool;
+import org.apache.commons.pool.ObjectPool;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -34,7 +34,7 @@ public class XsltTransformConstructionTest {
         @Test
         public void shouldReturnTypePool() throws Exception {
             when(templates.newTransformer()).thenReturn(transformer);
-            assertThat(xsltTransformConstruction.generateXsltResourcePool(templates), is(instanceOf(Pool.class)));
+            assertThat(xsltTransformConstruction.generateXsltResourcePool(templates), is(instanceOf(ObjectPool.class)));
         }
     }
 }

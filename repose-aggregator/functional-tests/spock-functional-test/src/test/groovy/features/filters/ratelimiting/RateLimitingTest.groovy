@@ -13,9 +13,10 @@ import spock.lang.Unroll
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-
 /*
  * Rate limiting tests ported over from python and JMeter
+ *  update test to get limits response in json to parse response and calculate
+ *  since often get inconsistent xml response fro limits cause Rate Limiting Tests flaky.
  */
 class RateLimitingTest extends ReposeValveTest {
     final handler = {return new Response(200, "OK")}
@@ -23,6 +24,7 @@ class RateLimitingTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User" : "user"]
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups" : "customer"]
     final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
+    final Map<String, String> acceptHeaderJson  = ["Accept" : "application/json"]
 
     final def absoluteLimitResponse = {
         return new Response("200",
@@ -510,6 +512,7 @@ class RateLimitingTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
     // Helper methods
+    // not using this parsing xml for now since get limits got inconsistent xml response
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
         factory.setNamespaceAware(true)
@@ -546,11 +549,15 @@ class RateLimitingTest extends ReposeValveTest {
         return json.limits.absolute[limit].value
     }
 
-
-
-    private int parseRemainingFromJSON(String body, String limit) {
+    private int parseAbsoluteLimitFromJSON(String body, int limit){
         def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.absolute[limit].value
+        return json.limits.rate[limit].limit[0].value
+    }
+
+    //using this for now
+    private int parseRemainingFromJSON(String body, int limit) {
+        def json = JsonSlurper.newInstance().parseText(body)
+        return json.limits.rate[limit].limit[0].remaining
     }
 
     private int parseRateCountFromXML(String body){
@@ -567,13 +574,13 @@ class RateLimitingTest extends ReposeValveTest {
     private String getDefaultLimits(Map group = null) {
         def groupHeader = (group != null) ? group : groupHeaderDefault
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderDefault);
+                headers: userHeaderDefault + groupHeader + acceptHeaderJson);
 
         return messageChain.receivedResponse.body
     }
 
     private void waitForLimitReset(Map group = null) {
-        while (parseRemainingFromXML(getDefaultLimits(group), 0) != parseAbsoluteFromXML(getDefaultLimits(group), 0)) {
+        while (parseRemainingFromJSON(getDefaultLimits(group), 0) != parseAbsoluteLimitFromJSON(getDefaultLimits(group), 0)) {
             sleep(1000)
         }
     }

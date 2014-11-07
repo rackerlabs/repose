@@ -5,7 +5,7 @@
     <parent>
         <artifactId>service-client-support</artifactId>
         <groupId>com.rackspace.papi.external.clients</groupId>
-        <version>6.2.0.0-SNAPSHOT</version>
+        <version>6.2.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.cloud.services.clients</groupId>
@@ -64,5 +64,11 @@
            <artifactId>commons-codec</artifactId>
            <version>1.8</version>
        </dependency>
+
+        <!--Apache Pool Support-->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
     </dependencies>
 </project>

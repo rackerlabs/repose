@@ -3,7 +3,7 @@
     <parent>
         <artifactId>components-support</artifactId>
         <groupId>com.rackspace.papi.components</groupId>
-        <version>6.2.0.0-SNAPSHOT</version>
+        <version>6.2.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,6 +37,7 @@
         <module>uri-stripper</module>
         <module>openstack-identity-v3</module>
         <module>rackspace-identity-basic-auth</module>
+        <module>content-type-stripper</module>
     </modules>
 
     <dependencyManagement>

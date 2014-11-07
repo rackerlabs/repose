@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>6.2.0.0-SNAPSHOT</version>
+        <version>6.2.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
@@ -244,6 +244,13 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.2</version>
+            </dependency>
+
+            <!--Apache Pool Support-->
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

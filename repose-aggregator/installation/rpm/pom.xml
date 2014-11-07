@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.repose.installation</groupId>
         <artifactId>installation</artifactId>
-        <version>6.2.0.0-SNAPSHOT</version>
+        <version>6.2.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm</groupId>
@@ -20,16 +20,15 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--module>cli-utils</module-->
+        <module>repose-cli-utils</module>
         <module>repose-war</module>
-        <module>repose-filters</module>
-        <module>repose-extension-filters</module>
+        <module>repose-filter-bundle</module>
+        <module>repose-extensions-filter-bundle</module>
         <module>repose-valve</module>
-        <!--module>ug-repose-filters</module-->
-        <!--module>ug-repose-valve</module-->
     </modules>
 
     <build>
+        <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -51,7 +50,7 @@
                     </executions>
 
                     <configuration>
-                        <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                        <!-- _tmppath is not set correctly on all OSes so it is forced here -->
                         <defineStatements>
                             <defineStatement>_tmppath /tmp</defineStatement>
                         </defineStatements>

@@ -1,8 +1,6 @@
 package org.openrepose.commons.utils.transform.xslt;
 
-import org.openrepose.commons.utils.pooling.Pool;
-import org.openrepose.commons.utils.pooling.ResourceContext;
-import org.openrepose.commons.utils.pooling.ResourceContextException;
+import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.transform.Transform;
 
 import javax.xml.bind.JAXBContext;
@@ -15,7 +13,7 @@ import java.io.StringWriter;
 
 public class JaxbXsltToStringTransform implements Transform<JAXBElement, String> {
 
-    private final Pool<Transformer> xsltResourcePool;
+    private final ObjectPool<Transformer> xsltResourcePool;
     private final Templates transformationTemplates;
     private final JAXBContext jaxbContext;
     private final XsltTransformConstruction construction;
@@ -30,22 +28,29 @@ public class JaxbXsltToStringTransform implements Transform<JAXBElement, String>
 
     @Override
     public String transform(final JAXBElement source) {
-        return xsltResourcePool.use(new ResourceContext<Transformer, String>() {
-
-            @Override
-            public String perform(Transformer resource) throws ResourceContextException {
+        String rtn = null;
+        Transformer pooledObject;
+        try {
+            pooledObject = xsltResourcePool.borrowObject();
+            try {
                 final StringWriter stringWriter = new StringWriter();
                 final StreamResult resultWriter = new StreamResult(stringWriter);
-
-                try {
-                    resource.transform(new JAXBSource(jaxbContext, source), resultWriter);
-                } catch (Exception e) {
-                    throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
-                                                                  + e.getMessage(), e);
+                pooledObject.transform(new JAXBSource(jaxbContext, source), resultWriter);
+                rtn = stringWriter.getBuffer().toString();
+            } catch (Exception e) {
+                xsltResourcePool.invalidateObject(pooledObject);
+                pooledObject = null;
+                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+            } finally {
+                if (pooledObject != null) {
+                    xsltResourcePool.returnObject(pooledObject);
                 }
-
-                return stringWriter.getBuffer().toString();
             }
-        });
+        } catch (XsltTransformationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
+        return rtn;
     }
 }

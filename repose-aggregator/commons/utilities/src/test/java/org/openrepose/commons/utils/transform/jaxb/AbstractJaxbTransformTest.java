@@ -1,5 +1,6 @@
 package org.openrepose.commons.utils.transform.jaxb;
 
+import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.pooling.ResourceConstructionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -38,10 +40,10 @@ public class AbstractJaxbTransformTest {
         }
 
         @Test(expected=ResourceConstructionException.class)
-        public void shouldThrowExceptionIfCanNotCreateMarshallerPool() throws JAXBException {
+        public void shouldThrowExceptionIfCanNotCreateMarshallerPool() throws Exception {
             when(jaxbContext.createMarshaller()).thenThrow(new JAXBException("test"));
 
-            new SampleJaxbTransform(jaxbContext);
+            jaxbTransform.getMarshallerPool().borrowObject();
         }
 
         @Test
@@ -50,10 +52,10 @@ public class AbstractJaxbTransformTest {
         }
 
         @Test(expected=ResourceConstructionException.class)
-        public void shouldThrowExceptionIfCanNotCreateUnmarshallerPool() throws JAXBException {
+        public void shouldThrowExceptionIfCanNotCreateUnmarshallerPool() throws Exception {
             when(jaxbContext.createUnmarshaller()).thenThrow(new JAXBException("test"));
 
-            new SampleJaxbTransform(jaxbContext);
+            jaxbTransform.getUnmarshallerPool().borrowObject();
         }
     }
 

@@ -8,7 +8,7 @@ export PATCH_DIR=${SCRIPT_DIR}/../bash
 #cd ${REPOSE_DIR}/
 #mvn clean install -DskipTests=true
 cd ${SCRIPT_DIR}
-mvn clean install -P build-system-packages
+#mvn clean install -P build-system-packages
 mkdir -p ${VAGRANT_DIR}
 cp -f         repose-test-genric-deb.sh ${VAGRANT_DIR}/
 cp -f ${PATCH_DIR}/repose-test-genric-all.sh ${VAGRANT_DIR}/

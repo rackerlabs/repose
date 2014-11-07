@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<request-information
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://openrepose.org/repose/httpx/v1.0'
+        xsi:schemaLocation='http://openrepose.org/repose/httpx/v1.0 ../httpx.xsd'>
+
+    <informational>
+        <auth-type>auth</auth-type>
+        <context-path>foo</context-path>
+        <local-addr>localhost</local-addr>
+        <local-name>name</local-name>
+        <local-port>12345</local-port>
+        <request-method>POST</request-method>
+        <path-info>info</path-info>
+        <path-translated></path-translated>
+        <protocol></protocol>
+        <remote-addr></remote-addr>
+        <remote-host></remote-host>
+        <remote-port>54321</remote-port>
+        <remote-user></remote-user>
+        <session-id></session-id>
+        <scheme></scheme>
+        <server-name>serverName</server-name>
+        <server-port>8080</server-port>
+        <servlet-path>/</servlet-path>
+    </informational>
+    <uri>/foo/bar/baz</uri>
+    <url>http://foo</url>
+</request-information>
