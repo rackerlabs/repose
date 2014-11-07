@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -40,6 +41,10 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                 } else {
                     rtn = unmarshalledObject;
                 }
+            } catch (IOException ioe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
+                LOG.warn("This *MIGHT* be important! Unable to read configuration file: {}", ioe.getMessage());
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
