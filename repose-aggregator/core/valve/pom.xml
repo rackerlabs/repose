@@ -28,6 +28,23 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- will replace args4j -->
+        <dependency>
+            <groupId>com.github.scopt</groupId>
+            <!-- scopt built for scala 2.10 -->
+            <artifactId>scopt_2.10</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+        <!-- TODO: make sure this doesn't conflict with akka, because it'll be in the same class path -->
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <!-- not using the same version as akka, as it has bugs that are fixed in 1.2.1 -->
+            <!-- specifically around quoting of strings -->
+            <version>1.2.1</version>
+        </dependency>
+
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
@@ -90,6 +107,29 @@
 
     <build>
         <finalName>repose-valve</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>valve-config.conf</include>
+                </includes>
+            </resource>
+            <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>filteredProps.conf</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
 
         <plugins>
             <plugin>

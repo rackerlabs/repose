@@ -2,12 +2,15 @@ package org.openrepose.valve
 
 import java.io.{PrintStream, ByteArrayOutputStream}
 
+import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ServoTest extends FunSpec with Matchers {
+
+  val defaultConfig = ConfigFactory.load("valve-config.conf")
 
   def postExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
@@ -18,7 +21,7 @@ class ServoTest extends FunSpec with Matchers {
 
     val valve = new Valve()
 
-    val exitStatus = valve.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr))
+    val exitStatus = valve.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr), defaultConfig)
 
     val error = new String(stderr.toByteArray)
     val output = new String(stdout.toByteArray)
