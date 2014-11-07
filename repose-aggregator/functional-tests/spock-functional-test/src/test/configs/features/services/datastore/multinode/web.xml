@@ -27,7 +27,7 @@
     <!-- Servlets -->
     <servlet id="power-api-servlet">
         <servlet-name>empty-servlet</servlet-name>
-        <servlet-class>org.openrepose.core.EmptyServlet</servlet-class>
+        <servlet-class>org.openrepose.powerfilter.EmptyServlet</servlet-class>
     </servlet>
 
     <servlet-mapping id="power-api-servlet-mapping">

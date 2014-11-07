@@ -1,5 +1,6 @@
 package org.openrepose.core;
 
+import org.openrepose.powerfilter.EmptyServlet;
 import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.springframework.web.WebApplicationInitializer;

@@ -5,6 +5,7 @@ import javax.servlet.{DispatcherType, FilterRegistration, ServletContext, Servle
 
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
+import org.openrepose.powerfilter.EmptyServlet
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}

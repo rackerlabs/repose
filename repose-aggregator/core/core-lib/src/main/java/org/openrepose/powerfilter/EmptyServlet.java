@@ -1,4 +1,4 @@
-package org.openrepose.core;
+package org.openrepose.powerfilter;
 
 import javax.servlet.http.HttpServlet;
 
