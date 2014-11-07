@@ -19,6 +19,8 @@ class Valve {
     Console.setIn(in)
     Console.setErr(err)
 
+    val reposeVersion = config.getString("myVersion")
+    val jettyVersion = config.getString("jettyVersion")
 
     val banner =
       """
@@ -32,8 +34,8 @@ class Valve {
         | ╚████╔╝ ██║  ██║███████╗╚████╔╝ ███████╗     Jetty: $jettyVersion
         |  ╚═══╝  ╚═╝  ╚═╝╚══════╝ ╚═══╝  ╚══════╝
       """.stripMargin.
-        replaceAll("\\$myVersion", config.getString("myVersion")).
-        replaceAll("\\$jettyVersion", config.getString("jettyVersion"))
+        replaceAll("\\$myVersion", reposeVersion).
+        replaceAll("\\$jettyVersion", jettyVersion)
 
 
     val parser = new scopt.OptionParser[ValveConfig]("java -jar repose-valve.jar") {
@@ -61,6 +63,9 @@ class Valve {
     parser.parse(args, ValveConfig()) map {valveConfig =>
       if(valveConfig.showUsage) {
         parser.showUsage
+        1
+      } else if(valveConfig.showVersion) {
+        out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
       } else {
         0

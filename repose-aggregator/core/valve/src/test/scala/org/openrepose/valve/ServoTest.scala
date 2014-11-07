@@ -11,6 +11,8 @@ import org.scalatest.junit.JUnitRunner
 class ServoTest extends FunSpec with Matchers {
 
   val defaultConfig = ConfigFactory.load("valve-config.conf")
+  val myVersion = defaultConfig.getString("myVersion")
+  val jettyVersion = defaultConfig.getString("jettyVersion")
 
   def postExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
@@ -38,8 +40,11 @@ class ServoTest extends FunSpec with Matchers {
         exitStatus shouldBe 1
       })
     }
-    it("prints out the version when given --version and exits 1") {
-      pending
+    it(s"prints out the current version when given --version and exits 1") {
+      postExecution(Array("--version"), (output, error, exitStatus) => {
+        output should include(s"Repose Valve: $myVersion on Jetty $jettyVersion")
+        exitStatus shouldBe 1
+      })
     }
   }
 
