@@ -60,8 +60,8 @@ class ValidatorConfiguratorTest {
     void whenIsDelegatingIsTrueThenADelegationHandlerShouldBePresent() {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
-        vItem.setDelegating(true)
-        vItem.setDelegatingQuality(0.9)
+        vItem.setDelegable(true)
+        vItem.setDelegableQuality(0.9)
 
         DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
         assert handlers.handlers[0] instanceof DelegationHandler
