@@ -4,6 +4,8 @@ import java.io.{File, PrintStream, ByteArrayOutputStream}
 import java.util.concurrent.ConcurrentSkipListSet
 
 import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
@@ -11,7 +13,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.concurrent.{Await, Future}
 
 @RunWith(classOf[JUnitRunner])
-class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
+class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
@@ -105,9 +107,13 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
         //Verify that the thing is listening on the configured port!
         //TODO: something on 8080
+        val httpClient = new DefaultHttpClient()
+
+        val get = new HttpGet("http://localhost:8080")
+
+        val response = httpClient.execute(get)
 
         valve.shutdown() //Terminate it!
-
 
         Await.result(exitValue, 1 second) shouldBe 0
       }

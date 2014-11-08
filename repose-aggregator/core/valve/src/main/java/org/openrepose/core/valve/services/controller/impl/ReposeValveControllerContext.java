@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-@Component("reposeValveControllerContext")
 public class ReposeValveControllerContext implements ServiceContext<ControllerService> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeValveControllerContext.class);
@@ -43,11 +42,10 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
     private Set<String> curNodes = new HashSet<String>();
     private boolean initialized = false;
 
-    @Autowired
     public ReposeValveControllerContext(
-            @Qualifier("controllerService") ControllerService controllerService,
-            @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("configurationManager") ConfigurationService configurationManager) {
+            ControllerService controllerService,
+            ServiceRegistry registry,
+            ConfigurationService configurationManager) {
         this.configurationManager = configurationManager;
         this.registry = registry;
         this.controllerService = controllerService;

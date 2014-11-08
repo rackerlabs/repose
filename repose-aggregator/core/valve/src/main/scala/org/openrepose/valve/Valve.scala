@@ -68,6 +68,17 @@ class Valve {
         out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
       } else {
+        //This is where the magic happens
+        //Have to configure the springs
+        //Start with the core services only first, then build a webapp context for each one,
+        // So the core services need to be handed to the jetty builders
+        //Get a configuration service from the core service context
+        //Subscribe to the container.cfg.xml and the system-model.cfg.xml
+        //Also give it the properties that we know about here, "insecure" and "configRoot"
+        // Each one of the servers will also have a clusterId, nodeId, and port number
+        // if an HTTP and an HTTPS server is set up, then it still gets two servers, all three elements uniquely id a node
+        // Might need to know that it's HTTPS... (because if you swap from HTTP to HTTPS, without knowing it won't restart it)
+        //On each successful configuration of either of those, trigger a rebuild of the servers....
         0
       }
     } getOrElse {
