@@ -9,6 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
+    <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
     <artifactId>repose-cli-utils</artifactId>
 
     <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
