@@ -75,7 +75,8 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.findAll("x-delegated").size() == 2
-        request2.headers.getFirstValue("x-delegated").contains(delegatedMsg)
+        request2.headers.findAll("x-delegated").get(0).contains(authMsg)
+        request2.headers.findAll("x-delegated").get(1).contains(apiMsg)
 
         where:
         method  | path           | roles                 | identityStatus  | authMsg |apiMsg
