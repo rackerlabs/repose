@@ -247,7 +247,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         where:
         containerName       | serviceContainer
         "Tomcat"            | properties.getTomcatJar()
-        "GlassFist"         | properties.getGlassfishJar()
+        "GlassFish"         | properties.getGlassfishJar()
     }
 
     def cleanup() {
