@@ -14,7 +14,7 @@
             </resources>
         </application>
     </validator>
-    <validator role="raxRolesEnabled" default="false" enable-rax-roles="true">
+    <validator role="raxRole" default="false" enable-rax-roles="true" delegable="true" delegable-quality="0.6">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/servers/">
