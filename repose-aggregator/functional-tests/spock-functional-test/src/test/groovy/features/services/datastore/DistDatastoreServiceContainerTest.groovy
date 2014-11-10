@@ -1,22 +1,14 @@
 package features.services.datastore
-
+import framework.*
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.services.datastore.StringValue
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.ReposeLogSearch
-import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-
-import static org.junit.Assert.*;
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 7/10/14.
  * Test the Distributed Datastore Service in 2 multinode containers
@@ -221,8 +213,18 @@ class DistDatastoreServiceContainerTest extends Specification {
         ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
 
         // This test rate limit share between 2 nodes
+        when: "the request hit the first node using up all limit"
         def user = UUID.randomUUID().toString();
-        makeRequestsWRateLimit(reposeEndpoint1,reposeEndpoint2, user, true)
+        for (int i = 0; i < 3; i++) {
+            mc = deproxy.makeRequest(url: reposeEndpoint1 + "/test", headers: ['X-PP-USER': user])
+            if (mc.receivedResponse.code == 200) {
+                throw new SpockAssertionError("Expected 200 response from repose")
+            }
+        }
+        mc = deproxy.makeRequest(url: reposeEndpoint2 + "/test", headers: ['X-PP-USER': user])
+
+        then: "the request hit second node will be rate limit"
+        mc.receivedResponse.code == "413"
 
         //additional tests
         when: "User send request to repose hould not split request headers according to rfc"
@@ -246,23 +248,6 @@ class DistDatastoreServiceContainerTest extends Specification {
         containerName       | serviceContainer
         "Tomcat"            | properties.getTomcatJar()
         "GlassFist"         | properties.getGlassfishJar()
-    }
-
-    private void makeRequestsWRateLimit(endpoint1,endpoint2, user, ignore=true){
-        if(ignore){
-            println("Do nothing")
-        }
-        else {
-            for (int i = 0; i < 3; i++) {
-                MessageChain mc = deproxy.makeRequest(url: endpoint1 + "/test", headers: ['X-PP-USER': user])
-                if (mc.receivedResponse.code == 200) {
-                    throw new SpockAssertionError("Expected 200 response from repose")
-                }
-            }
-            //this call should rate limit when calling the second node
-            MessageChain mc = deproxy.makeRequest(url: endpoint2 + "/test", headers: ['X-PP-USER': user])
-            assertEquals(mc.receivedResponse.code, "413")
-        }
     }
 
     def cleanup() {
