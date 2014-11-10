@@ -9,6 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.war</groupId>
+    <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
     <artifactId>repose-war</artifactId>
 
     <name>Repose - Installation ROOT.WAR RPM</name>
@@ -58,8 +59,6 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM.-->
                             <name>${project.artifactId}</name>
 
                             <mappings>

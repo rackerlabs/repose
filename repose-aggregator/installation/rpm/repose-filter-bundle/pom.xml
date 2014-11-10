@@ -9,6 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
+    <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
     <artifactId>repose-filter-bundle</artifactId>
 
     <name>Repose - Installation Filter Bundle RPM</name>
@@ -56,7 +57,6 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>${project.artifactId}</name>
 
                             <mappings>
