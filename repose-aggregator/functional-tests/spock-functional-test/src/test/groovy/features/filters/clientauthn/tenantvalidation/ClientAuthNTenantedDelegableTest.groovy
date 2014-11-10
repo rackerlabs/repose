@@ -130,4 +130,42 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         ""            | 312             | "not-admin"           | "200"        | "Indeterminate" | ""
     }
 
+    /*
+        This test verify delegated message to service origin with tenanted
+     */
+    @Unroll ("Tenant: #requestTenant, response #responseTenant and #delegatedMsg")
+    def "When req with tenanted config fail delegable option forward failed message to origin" (){
+        given:
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Everything gets passed as is to the origin service (no matter the user)"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        and:
+        def request2 = mc.handlings[0].request
+        request2.headers.getFirstValue("x-identity-status") == identityStatus
+        request2.headers.getFirstValue("x-authorization").startsWith("Proxy")
+        request2.headers.contains("x-delegated")
+        request2.headers.getFirstValue("x-delegated").contains(delegatedMsg)
+
+        where:
+        requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
+        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "q=.7"
+        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "q=.7"
+    }
+
+
 }
