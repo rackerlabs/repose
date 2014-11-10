@@ -29,33 +29,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>classloader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
         </dependency>
 
         <dependency>
@@ -70,11 +51,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
-        <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
-            <artifactId>rate-limiting-service</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
