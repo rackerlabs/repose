@@ -9,6 +9,7 @@
 
     <filters>
       <filter name="client-auth" />
+      <filter name="api-validator" />
     </filters>
 
     <destinations>
