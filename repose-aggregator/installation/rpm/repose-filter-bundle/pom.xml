@@ -146,7 +146,11 @@
                                 <require>repose-${project.version}</require>
                             </requires>
 
-                            <obsoletes>repose-filters</obsoletes>
+                            <obsoletes>
+                                <obsolete>
+                                    repose-filters
+                                </obsolete>
+                            </obsoletes>
 
                             <group>Applications/Internet</group>
                         </configuration>
