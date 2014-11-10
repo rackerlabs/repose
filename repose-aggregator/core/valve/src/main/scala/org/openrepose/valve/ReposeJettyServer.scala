@@ -4,6 +4,7 @@ import java.io.File
 import java.util
 import javax.servlet.DispatcherType
 
+import com.typesafe.config.ConfigFactory
 import org.eclipse.jetty.server.{ServerConnector, Connector, Server}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
@@ -45,9 +46,11 @@ class ReposeJettyServer(configRoot: String,
   val server: Server = {
     val s = new Server()
 
+    val config = ConfigFactory.load("springConfiguration.conf")
+
     //Set up connectors
     val httpConnector: Option[Connector] = httpPort.map { port =>
-      val conn = new ServerConnector(server)
+      val conn = new ServerConnector(s)
       conn.setPort(port)
       conn
     }
@@ -61,7 +64,7 @@ class ReposeJettyServer(configRoot: String,
         cf.setKeyStorePassword(ssl.getKeystorePassword)
         cf.setKeyManagerPassword(ssl.getKeyPassword)
 
-        val sslConnector = new ServerConnector(server, cf)
+        val sslConnector = new ServerConnector(s, cf)
         sslConnector.setPort(port)
         sslConnector
       } getOrElse {
@@ -77,7 +80,7 @@ class ReposeJettyServer(configRoot: String,
     }
 
     //Hook up the port connectors!
-    server.setConnectors(connectors)
+    s.setConnectors(connectors)
 
     //Build us some springs
     val serverSpringContext = new AnnotationConfigWebApplicationContext()
@@ -85,7 +88,7 @@ class ReposeJettyServer(configRoot: String,
     serverSpringContext.setParent(CoreSpringProvider.getInstance().getCoreContext)
 
     //TODO: need to know what we need to be able to fire up stuff, might only be the powerfilter stuff. I think
-    serverSpringContext.scan("org.openrepose.powerfilter", "org.openrepose.valve")
+    serverSpringContext.scan(config.getString("powerFilterSpringContextPath"))
 
     //create properties based on what we know
     val props: Map[String, AnyRef] = Map(
@@ -96,7 +99,7 @@ class ReposeJettyServer(configRoot: String,
     )
 
     import scala.collection.JavaConversions._
-    val myProps = new MapPropertySource("dynamicNodeProps", props)
+    val myProps = new MapPropertySource(s"node-$nodeId-props", props)
     serverSpringContext.getEnvironment.getPropertySources.addFirst(myProps)
 
     val contextHandler = new ServletContextHandler()
