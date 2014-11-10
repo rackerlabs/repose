@@ -2,11 +2,11 @@
 <Configuration monitorInterval="15">
     <Appenders>
         <Console name="STDOUT">
-            <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c  - %m%n"/>
         </Console>
         <RollingFile name="RollingFile" fileName="/var/log/repose/current.log"
                      filePattern="${repose.home}/logs/current-%d{yyyy-MM-dd_HHmmss}.log">
-            <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c  - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>
             </Policies>
