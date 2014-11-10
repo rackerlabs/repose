@@ -104,44 +104,53 @@
     <!-- this one is working luckily -->
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before { unless in a string"/>
-        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(]\{)|^[^"]*[^\s-&lt;\(]\{'/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-\(]\{)|^[^"]*[^\s-\(]\{'/>
         <property name='priority' value='1'/>
     </rule>
-
-    <!--rule class='org.codenarc.rule.formatting.SpaceAfterOpeningBraceRule'>
-        <property name='priority' value='1'/>
-    </rule-->
-
-    <!--rule class='org.codenarc.rule.formatting.SpaceBeforeClosingBraceRule'>
-        <property name='priority' value='1'/>
-    </rule-->
 
     <!-- these suck because {} is 2 violations...and reformatting { } changes it back to {} -->
 
-    <!-- BRING THIS ONE BACK -->
-
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before } unless in a string"/>
-        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(\{]\})|^[^"]*[^\s-&lt;\(\{]\}'/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-\(\{]\})|^[^"]*[^\s-\(\{]\}'/>
         <property name='priority' value='1'/>
     </rule>
-
-    <!-- BRING THIS ONE BACK -->
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space after { unless in a string"/>
-        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(\{]\})|^[^"]*[^\s-&lt;\(\{]\}'/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-\(\{]\})|^[^"]*[^\s-\(\{]\}'/>
         <property name='priority' value='1'/>
     </rule>
 
-    <!-- BRING THIS ONE BACK -->
-    <!-- make it ignore comments somehow too -->
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after } unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*\}[^\s-\)])|^[^"]*\}[^\s-\)]'/>
+        <property name='priority' value='1'/>
+    </rule>
+
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before ? unless in a string"/>
         <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?[^\n"]*:)|^[^"]*[^\s-&lt;]\?[^\n"]*:'/>
         <property name='priority' value='1'/>
     </rule>
-    <!-- ^((?!/*).)*$ (something like this???)-->
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after ? unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*\?[^\s-][^\n"]*:)|^[^"]*\?[^\s-][^\n"]*:'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before : in ternary unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*\?[^\n"]*[^\s-]:)|^[^"]*\?[^\n"]*[^\s-]:'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after : in ternary unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*\?[^\n"]*:[^\s-])|^[^"]*\?[^\n"]*:[^\s-]'/>
+        <property name='priority' value='1'/>
+    </rule>
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before paren after synchronized"/>
