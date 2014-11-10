@@ -48,7 +48,6 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
         // set the common configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
