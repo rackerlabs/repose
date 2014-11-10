@@ -147,4 +147,43 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         506           | 506             | "not-admin"           | "Indeterminate" | ""                 | null
         ""            | 512             | "not-admin"           | "Indeterminate" | ""                 | null
     }
+
+    /*
+        This test to verify the forward fail reason and default quality for authn
+     */
+    @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
+    def "when non tenanted and delegable mode with client-mapping matching - fail"() {
+
+        fakeIdentityService.with {
+            client_token = ""
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
+
+        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request2 = mc.handlings[0].request
+        request2.headers.contains("x-identity-status")
+        request2.headers.contains("x-authorization")
+        request2.headers.getFirstValue("x-identity-status") == identityStatus
+        request2.headers.getFirstValue("x-authorization") == "Proxy"
+        request2.headers.contains("x-delegated")
+        request2.headers.getFirstValue("x-delegated").contains(delegatedMsg)
+
+        where:
+        requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
+        506           | 506             | "not-admin"       | "Indeterminate" | "q=.7"
+        ""            | 512             | "not-admin"       | "Indeterminate" | "q=.7"
+    }
+
 }
