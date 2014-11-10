@@ -42,13 +42,9 @@
             <version>3.2.0</version>
         </dependency>
 
-        <!-- TODO: make sure this doesn't conflict with akka, because it'll be in the same class path -->
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <!-- not using the same version as akka, as it has bugs that are fixed in 1.2.1 -->
-            <!-- specifically around quoting of strings -->
-            <version>1.2.1</version>
         </dependency>
 
         <dependency>
