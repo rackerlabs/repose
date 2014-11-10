@@ -51,8 +51,8 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                    if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
                     parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage()); 
                    }
-                   LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
-                   
+                   LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
+                   LOG.trace("", ex);
                 } finally {
                     currentThread.setContextClassLoader(previousClassLoader);
                 }
