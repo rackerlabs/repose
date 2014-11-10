@@ -149,6 +149,10 @@
                                 <require>java &gt;= 1.7.0</require>
                                 <require>repose-${project.version}</require>
                             </requires>
+
+                            <obsoletes>
+                                <obsolete>repose-extension-filters</obsolete>
+                            </obsoletes>
                             
                             <group>Applications/Internet</group>
                         </configuration>
