@@ -1,6 +1,7 @@
 package org.openrepose.filters.ratelimiting.util.combine;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openrepose.commons.utils.transform.StreamTransform;
@@ -38,6 +39,12 @@ public class CombineLimitsTransformTest {
     private final Pattern validationPattern = Pattern.compile(".*(<rates xmlns.*>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
     private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
+
+    @BeforeClass
+    public static void setUpClass() {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+    }
 
     @Before
     public void standUp() throws Exception {
