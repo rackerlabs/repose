@@ -47,7 +47,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
     /*
         This test to verify the forward fail reason and default quality for authn
     */
-    @Unroll("req method: #method, #path, and #delegatedMsg")
+    @Unroll("req method: #method, #path, #authMsg and #apiMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
         fakeIdentityService.with {
