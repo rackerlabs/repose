@@ -31,13 +31,6 @@
 
 
 
-    <rule class='org.codenarc.rule.formatting.SpaceAfterOpeningBraceRule'>
-        <property name='priority' value='1'/>
-    </rule>
-
-    <rule class='org.codenarc.rule.formatting.SpaceBeforeClosingBraceRule'>
-        <property name='priority' value='1'/>
-    </rule>
 
     <rule class='org.codenarc.rule.formatting.SpaceAfterCommaRule'>
         <property name='priority' value='1'/>
@@ -58,6 +51,8 @@
     <rule class='org.codenarc.rule.formatting.BracesForIfElseRule'>
         <property name='priority' value='1'/>
     </rule>
+
+    <!-- BRING THIS ONE BACK -->
 
     <rule class='org.codenarc.rule.formatting.BracesForMethodRule'>
         <property name='priority' value='1'/>
@@ -81,6 +76,9 @@
         <property name='priority' value='1'/>
     </rule>
 
+    <!-- This might have to stay gone -->
+    <!-- reformat isn't removing extra blank lines in groovy -->
+
     <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Maximum two blank lines in a row"/>
         <property name='regex' value='\n\n\n\n'/>
@@ -95,7 +93,7 @@
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before catch"/>
-        <property name='regex' value='[^\s-]catch'/>
+        <property name='regex' value='[^\s-"]catch'/>
         <property name='priority' value='1'/>
     </rule>
 
@@ -106,38 +104,65 @@
     </rule>
 
 
-
-
     <!--rule class='org.codenarc.rule.formatting.SpaceBeforeOpeningBraceRule'>
         <property name='priority' value='1'/>
     </rule-->
 
-    <!-- this needs to exclue ({ situations
+    <!-- this needs to exclude ({ situations
     but we also have to avoid strings and comments :(-->
 
-
-
+    <!-- this one is working luckily -->
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before ? unless in a string"/>
+        <property name="name" value="Require space before { unless in a string"/>
         <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(]\{)|^[^"]*[^\s-&lt;\(]\{'/>
         <property name='priority' value='1'/>
     </rule>
 
 
+
+
+
+    <!--rule class='org.codenarc.rule.formatting.SpaceAfterOpeningBraceRule'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.formatting.SpaceBeforeClosingBraceRule'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!-- these suck because {} is 2 violations...and reformatting { } changes it back to {} -->
+
+
+
+    <!-- BRING THIS ONE BACK -->
+
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Require space before ? unless in a string"/>
-        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?)|^[^"]*[^\s-&lt;]\?'/>
+        <property name="name" value="Require space before } unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(\{]\})|^[^"]*[^\s-&lt;\(\{]\}'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <!-- BRING THIS ONE BACK -->
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space after { unless in a string"/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;\(\{]\})|^[^"]*[^\s-&lt;\(\{]\}'/>
         <property name='priority' value='1'/>
     </rule>
 
 
 
 
+    <!-- BRING THIS ONE BACK -->
+    <!-- make it ignore comments somehow too -->
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before ? unless in a string"/>
-        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?)|^[^"]*[^\s-&lt;]\?'/>
+        <property name='regex' value='(^("[^"]*")+[^"]*[^\s-&lt;]\?[^\n"]*:)|^[^"]*[^\s-&lt;]\?[^\n"]*:'/>
         <property name='priority' value='1'/>
     </rule>
+    <!-- ^((?!/*).)*$ (something like this???)-->
+
+
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before paren after synchronized"/>
