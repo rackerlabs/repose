@@ -7,6 +7,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.components.authz.rackspace.config.Delegating;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
@@ -32,13 +33,15 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
+    private final Delegating delegating;
     private final List<String> ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles) {
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles, Delegating delegating) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
+        this.delegating = delegating;
         this.ignoreTenantRoles = getListOfRoles(ignoreTenantRoles);
     }
 

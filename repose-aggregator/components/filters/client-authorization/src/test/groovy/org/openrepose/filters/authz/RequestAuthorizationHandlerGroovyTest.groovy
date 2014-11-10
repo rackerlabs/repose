@@ -86,8 +86,8 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         myServiceEndpoint.setName(NAME);
         myServiceEndpoint.setType(TYPE);
 
-        handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
-        handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
+        handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
+        handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
 
         mockedRequest = mock(HttpServletRequest.class);
     }
@@ -100,7 +100,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, ignoreTenantRoles)
+                serviceEndpoint, ignoreTenantRoles, null)
 
         when:
         requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)
@@ -117,7 +117,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, ignoreTenantRoles)
+                serviceEndpoint, ignoreTenantRoles, null)
 
         when:
         requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)

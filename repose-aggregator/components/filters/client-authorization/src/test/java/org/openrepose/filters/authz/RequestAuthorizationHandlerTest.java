@@ -78,7 +78,7 @@ public class RequestAuthorizationHandlerTest {
             myServiceEndpoint.setName(NAME);
             myServiceEndpoint.setType(TYPE);
 
-            handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
+            handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
 
             mockedRequest = mock(HttpServletRequest.class);
         }
