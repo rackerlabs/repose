@@ -39,14 +39,32 @@ class ReposeJettyServer(configRoot: String,
                         sslConfig: Option[SslConfiguration],
                         insecure: Boolean) {
 
+  val config = ConfigFactory.load("springConfiguration.conf")
+
+  val appContext = new AnnotationConfigWebApplicationContext()
+  appContext.setParent(CoreSpringProvider.getInstance().getCoreContext)
+  appContext.scan(config.getString("powerFilterSpringContextPath"))
+
+  //create properties for spring
+  val props: Map[String, AnyRef] = Map(
+    ReposeSpringProperties.NODE_ID -> nodeId,
+    ReposeSpringProperties.CLUSTER_ID -> clusterId,
+    ReposeSpringProperties.CONFIG_ROOT -> configRoot,
+    ReposeSpringProperties.INSECURE -> new java.lang.Boolean(insecure.booleanValue)
+  )
+  val myProps = {
+    import scala.collection.JavaConversions._
+    new MapPropertySource(s"node-$nodeId-props", props)
+  }
+
+  appContext.getEnvironment.getPropertySources.addFirst(myProps)
+
 
   /**
    * Create the jetty server for this guy
    */
   val server: Server = {
     val s = new Server()
-
-    val config = ConfigFactory.load("springConfiguration.conf")
 
     //Set up connectors
     val httpConnector: Option[Connector] = httpPort.map { port =>
@@ -75,38 +93,18 @@ class ReposeJettyServer(configRoot: String,
 
     val connectors = List(httpConnector, httpsConnector).filter(_.isDefined).map(_.get).toArray
 
-    if(connectors.isEmpty) {
+    if (connectors.isEmpty) {
       throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
     }
 
     //Hook up the port connectors!
     s.setConnectors(connectors)
 
-    //Build us some springs
-    val serverSpringContext = new AnnotationConfigWebApplicationContext()
-    //TODO: might have to pass in the core context?
-    serverSpringContext.setParent(CoreSpringProvider.getInstance().getCoreContext)
-
-    //TODO: need to know what we need to be able to fire up stuff, might only be the powerfilter stuff. I think
-    serverSpringContext.scan(config.getString("powerFilterSpringContextPath"))
-
-    //create properties based on what we know
-    val props: Map[String, AnyRef] = Map(
-      ReposeSpringProperties.NODE_ID -> nodeId,
-      ReposeSpringProperties.CLUSTER_ID -> clusterId,
-      ReposeSpringProperties.CONFIG_ROOT -> configRoot,
-      ReposeSpringProperties.INSECURE -> new java.lang.Boolean(insecure.booleanValue)
-    )
-
-    import scala.collection.JavaConversions._
-    val myProps = new MapPropertySource(s"node-$nodeId-props", props)
-    serverSpringContext.getEnvironment.getPropertySources.addFirst(myProps)
-
     val contextHandler = new ServletContextHandler()
     contextHandler.setContextPath("/")
     contextHandler.addServlet(classOf[EmptyServlet], "/*")
 
-    val cll = new ContextLoaderListener(serverSpringContext)
+    val cll = new ContextLoaderListener(appContext)
     contextHandler.addEventListener(cll)
 
     val filterHolder = new FilterHolder()
@@ -126,4 +124,29 @@ class ReposeJettyServer(configRoot: String,
     s
   }
 
+  def start() = {
+    server.start()
+  }
+
+  def stop() = {
+    //TODO: make this a blocking method on "is stopped" ?
+    server.stop()
+  }
+
+  /**
+   * destroys everything, this class won't be usable again
+   */
+  def shutdown() = {
+    stop()
+    appContext.close()
+  }
+
+  /**
+   * Shuts this one down and returns a new one
+   * @return
+   */
+  def restart(): ReposeJettyServer = {
+    shutdown()
+    new ReposeJettyServer(configRoot, clusterId, nodeId, httpPort, httpsPort, sslConfig, insecure)
+  }
 }

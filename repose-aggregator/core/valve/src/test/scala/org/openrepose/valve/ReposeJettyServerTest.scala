@@ -9,7 +9,7 @@ import org.scalatest.{FunSpec, Matchers}
 class ReposeJettyServerTest extends FunSpec with Matchers {
 
   val sslConfig = {
-    val s =new SslConfiguration()
+    val s = new SslConfiguration()
     s.setKeyPassword("password")
     s.setKeystoreFilename("some.file")
     s.setKeystorePassword("lolpassword")
@@ -85,6 +85,81 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
         None,
         false
       )
+    }
+  }
+
+  it("Can terminate a server, shutting down it's spring context") {
+    val server = new ReposeJettyServer(
+      "/etc/repose",
+      "cluster",
+      "node",
+      Some(8080),
+      None,
+      None,
+      false
+    )
+
+    server.start()
+    server.appContext.isActive shouldBe true
+    server.appContext.isRunning shouldBe true
+
+    server.shutdown()
+    server.appContext.isActive shouldBe false
+    server.appContext.isRunning shouldBe false
+
+  }
+  it("can be restarted, terminating and restarting everything") {
+    val server = new ReposeJettyServer(
+      "/etc/repose",
+      "cluster",
+      "node",
+      Some(8080),
+      None,
+      None,
+      false
+    )
+
+    server.start()
+    server.appContext.isActive shouldBe true
+    server.appContext.isRunning shouldBe true
+    server.server.isRunning shouldBe true
+
+    val server2 = server.restart()
+
+    server2.appContext.isActive shouldBe false
+    //Cannot check to see if it's running, because it flips out
+    server2.server.isRunning shouldBe false
+
+    server2.start()
+
+    server2.server.isRunning shouldBe true
+    server2.appContext.isActive shouldBe true
+    server2.appContext.isRunning shouldBe true
+
+    //Clean up this server
+    server2.shutdown()
+  }
+
+  it("Fails when attempting to start a shutdown server") {
+    val server = new ReposeJettyServer(
+      "/etc/repose",
+      "cluster",
+      "node",
+      Some(8080),
+      None,
+      None,
+      false
+    )
+    println(s"app context active: ${server.appContext.isActive}")
+
+    server.start()
+    server.shutdown()
+
+    println(s"app context active: ${server.appContext.isActive}")
+
+    //TODO: handle this!
+    intercept[Exception] {
+      server.start()
     }
   }
 
