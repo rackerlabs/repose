@@ -45,6 +45,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
                 LOG.warn("This *MIGHT* be important! Unable to read configuration file: {}", ioe.getMessage());
+                LOG.trace("Unable to read configuration file.", ioe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
