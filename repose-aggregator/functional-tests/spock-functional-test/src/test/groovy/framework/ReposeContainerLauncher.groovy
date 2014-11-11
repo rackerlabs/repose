@@ -26,6 +26,8 @@ class ReposeContainerLauncher extends ReposeLauncher {
     def clock = new SystemClock()
     def Process process
 
+    def ReposeConfigurationProvider configurationProvider
+
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId, String nodeId,
                             String rootWarLocation, int reposePort, String... appWars) {
