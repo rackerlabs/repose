@@ -64,7 +64,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
                 myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
             } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
-                            isEndpointAuthorized(getEndpointsForToken(authenticationToken))) {
+                            isEndpointAuthorizedForToken(authenticationToken)) {
                 myDirector.setFilterAction(FilterAction.PASS);
             } else {
                     LOG.info("User token: " + authenticationToken +
@@ -94,52 +94,39 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorized(final List<CachedEndpoint> authorizedEndpoints) {
-        boolean authorized = false;
+    private boolean isEndpointAuthorizedForToken(String userToken) {
+        List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
 
-        for (CachedEndpoint authorizedEndpoint : authorizedEndpoints) {
-
+        for (CachedEndpoint authorizedEndpoint : cachedEndpoints) {
             if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
                 LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
             }
-
             if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
                 LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
             }
-
             if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
-                authorized = true;
-                break;
+                return true;
             }
         }
-
-        return authorized;
+        return false;
     }
 
-    private List<CachedEndpoint> getEndpointsForToken(String userToken) {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
-            cachedEndpoints = requestEndpointsForTokenFromAuthService(userToken);
+            List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
 
+            cachedEndpoints = new LinkedList<>();
+            for (Endpoint ep : authorizedEndpoints) {
+                cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
+            }
             try {
                 endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
             } catch (IOException ioe) {
                 LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
             }
         }
-
-        return cachedEndpoints;
-    }
-
-    private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
-        final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
-        final LinkedList<CachedEndpoint> cachedEndpoints = new LinkedList<>();
-
-        for (Endpoint ep : authorizedEndpoints) {
-            cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
-        }
-
         return cachedEndpoints;
     }
 }
