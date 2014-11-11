@@ -1,6 +1,5 @@
 package org.openrepose.filters.authz;
 
-import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -59,17 +58,25 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
-        if (StringUtilities.isBlank(authenticationToken)) {
-            // Reject if no token
-            LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
-            myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString()))) {
-            // Pass if the admin role matches
-            myDirector.setFilterAction(FilterAction.PASS);
-        } else {
-            checkTenantEndpoints(myDirector, authenticationToken);
+        try {
+            if (StringUtilities.isBlank(authenticationToken)) {
+                // Reject if no token
+                LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
+                myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+            } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
+                            isEndpointAuthorized(getEndpointsForToken(authenticationToken))) {
+                myDirector.setFilterAction(FilterAction.PASS);
+            } else {
+                    LOG.info("User token: " + authenticationToken +
+                             ": The user's service catalog does not contain an endpoint that matches " +
+                             "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                             myEndpoint.getHref() + "\".  User not authorized to access service.");
+                    myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+            }
+        } catch (Exception ex) {
+            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
+            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
-
         return myDirector;
     }
 
@@ -85,29 +92,6 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             }
         }
         return false;
-    }
-
-    public void checkTenantEndpoints(FilterDirector director, String userToken) {
-
-        try {
-            final List<CachedEndpoint> authorizedEndpoints = getEndpointsForToken(userToken);
-
-            if (isEndpointAuthorized(authorizedEndpoints)) {
-                director.setFilterAction(FilterAction.PASS);
-            } else {
-                LOG.info("User token: " + userToken +
-                         ": The user's service catalog does not contain an endpoint that matches " +
-                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                         myEndpoint.getHref() + "\".  User not authorized to access service.");
-                director.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            }
-        } catch (AuthServiceException ex) {
-            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        } catch (Exception ex) {
-            LOG.error("Failure in authorization component: " + ex.getMessage(), ex);
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
     }
 
     private boolean isEndpointAuthorized(final List<CachedEndpoint> authorizedEndpoints) {
