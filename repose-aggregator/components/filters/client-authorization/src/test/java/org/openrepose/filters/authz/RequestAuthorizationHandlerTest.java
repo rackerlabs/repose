@@ -1,17 +1,16 @@
 package org.openrepose.filters.authz;
 
-import org.openrepose.common.auth.openstack.AuthenticationService;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openstack.docs.identity.api.v2.Endpoint;
@@ -85,16 +84,6 @@ public class RequestAuthorizationHandlerTest {
     }
 
     public static class WhenAuthorizingRequests extends TestParent {
-
-        @Test
-        public void shouldRejectDelegatedAuthentication() {
-            when(mockedRequest.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString())).thenReturn("Confirmed");
-
-            final FilterDirector director = handler.handleRequest(mockedRequest, null);
-
-            assertEquals("Authorization component must return requests that have had authentication delegated", FilterAction.RETURN, director.getFilterAction());
-            assertEquals("Authorization component must reject delegated authentication with a 403", HttpStatusCode.FORBIDDEN, director.getResponseStatus());
-        }
 
         @Test
         public void shouldRejectRequestsWithoutAuthTokens() {
