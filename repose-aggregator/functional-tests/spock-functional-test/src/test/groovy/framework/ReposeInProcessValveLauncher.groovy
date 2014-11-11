@@ -40,6 +40,10 @@ class ReposeInProcessValveLauncher extends ReposeLauncher {
     }
 
     @Override
+    void enableSuspend() {
+    }
+
+    @Override
     void addToClassPath(String path) {
     }
 }
