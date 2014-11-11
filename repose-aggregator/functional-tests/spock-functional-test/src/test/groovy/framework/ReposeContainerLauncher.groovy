@@ -20,8 +20,8 @@ class ReposeContainerLauncher extends ReposeLauncher {
     String debugPort
     def classPaths =[]
 
-    def boolean debugEnabled = true
-    def boolean doSuspend = true
+    def boolean debugEnabled
+    def boolean doSuspend
 
     def clock = new SystemClock()
     def Process process

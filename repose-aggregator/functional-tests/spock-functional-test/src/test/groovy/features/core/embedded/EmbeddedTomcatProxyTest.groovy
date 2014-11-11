@@ -51,8 +51,8 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         config.applyConfigs("features/core/embedded", params)
 
-        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
-                reposePort, mocksWar)
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, mocksWar)
+        repose.enableDebug()
         repose.clusterId = "repose"
         repose.start()
         repose.waitForNon500FromUrl(tomcatEndpoint, 120)

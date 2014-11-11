@@ -48,9 +48,8 @@ abstract class ReposeValveTest extends Specification {
     }
 
     def configureReposeGlassfish(String glassfishJar) {
-        ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(properties)
-
         repose = new ReposeContainerLauncher(glassfishJar)
+        repose.enableDebug()
     }
 
 
