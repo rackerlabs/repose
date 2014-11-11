@@ -54,8 +54,8 @@
         </xs:annotation>
 
         <xs:sequence>
+            <xs:element name="delegating" type="scr:DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="delegating" type="scr:Delegating" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
@@ -404,8 +404,8 @@
                    xerces:message="Must define a wadl file OR an embedded wadl"
                    saxon:message="Must define a wadl file OR an embedded wadl"/>
     </xs:complexType>
-    
-    <xs:complexType name="Delegating">
+
+    <xs:complexType name="DelegatingType">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
@@ -419,7 +419,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="quality" type="xs:double" use="optional" default="0.3">
+        <xs:attribute name="quality" type="scr:QualityType" use="optional" default="0.3">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -430,4 +430,11 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
