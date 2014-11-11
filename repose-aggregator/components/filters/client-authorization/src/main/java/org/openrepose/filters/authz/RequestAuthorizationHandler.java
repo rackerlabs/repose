@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
@@ -66,15 +63,9 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (!ignoreTenantRoles.isEmpty()) {
-            //if service admin roles from cfg populated then compare to x-roles header
-            final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
-
-            if (checkForAdminRoles(xRolesHeaderValueList)) {
-                myDirector.setFilterAction(FilterAction.PASS);
-            } else {
-                checkTenantEndpoints(myDirector, authenticationToken);
-            }
+        } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString()))) {
+            // Pass if the admin role matches
+            myDirector.setFilterAction(FilterAction.PASS);
         } else {
             checkTenantEndpoints(myDirector, authenticationToken);
         }
@@ -82,25 +73,17 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return myDirector;
     }
 
-    private boolean checkForAdminRoles(List<String> xRolesHeaderValueStringList) {
-
-        if (xRolesHeaderValueStringList.size() > 0) {
-            return adminRoleMatchIgnoringCase(xRolesHeaderValueStringList);
-        }
-
-        return false;
-    }
-
-    private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
-
-        for (String ignoreTenantRole : ignoreTenantRoles) {
-            for (String role : roleStringList) {
-                if (ignoreTenantRole.equalsIgnoreCase(role)) {
-                    return true;
+    private boolean adminRoleMatchIgnoringCase(Enumeration<String> roleStringList) {
+        List<String> roles = Collections.list(roleStringList);
+        if(!roles.isEmpty()) {
+            for (String ignoreTenantRole : ignoreTenantRoles) {
+                for (String role : roles) {
+                    if (ignoreTenantRole.equalsIgnoreCase(role)) {
+                        return true;
+                    }
                 }
             }
         }
-
         return false;
     }
 
@@ -167,20 +150,12 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
         final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
-        final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
+        final LinkedList<CachedEndpoint> cachedEndpoints = new LinkedList<>();
 
         for (Endpoint ep : authorizedEndpoints) {
-            serializable.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
+            cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
         }
 
-        return serializable;
-    }
-
-    // The X-Identity-Status header gets set if client authentication is in delegated mode.  If the token is valid, the
-    // value of the X-Identity-Status header is "Confirmed".  If the token is not valid, then the X-Identity-Status
-    // header is set to "Indeterminate".  In the future, we may want to allow authorization for delegated requests
-    // that have a "Confirmed" status since we know the token is valid in that case.
-    public boolean authenticationWasDelegated(HttpServletRequest request) {
-        return StringUtilities.isNotBlank(request.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString()));
+        return cachedEndpoints;
     }
 }
