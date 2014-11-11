@@ -7,13 +7,13 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.components.authz.rackspace.config.Delegating;
+import org.openrepose.components.authz.rackspace.config.DelegatingType;
+import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
+import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
-import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openstack.docs.identity.api.v2.Endpoint;
@@ -33,11 +33,11 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
-    private final Delegating delegating;
+    private final DelegatingType delegating;
     private final List<String> ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles, Delegating delegating) {
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles, DelegatingType delegating) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
@@ -60,36 +60,26 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         myDirector.setFilterAction(FilterAction.RETURN);
         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
 
-        if (authenticationWasDelegated(request)) {
-            // We do not support delegation
-            myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            LOG.debug("Authentication delegation is not supported by the Rackspace authorization filter. Rejecting request.");
-        } else {
-            authorizeRequest(myDirector, request);
-        }
-
-        return myDirector;
-    }
-
-    public void authorizeRequest(FilterDirector director, HttpServletRequest request) {
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
         if (StringUtilities.isBlank(authenticationToken)) {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
-            director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+            myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
         } else if (!ignoreTenantRoles.isEmpty()) {
             //if service admin roles from cfg populated then compare to x-roles header
             final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
 
             if (checkForAdminRoles(xRolesHeaderValueList)) {
-                director.setFilterAction(FilterAction.PASS);
+                myDirector.setFilterAction(FilterAction.PASS);
             } else {
-                checkTenantEndpoints(director, authenticationToken);
+                checkTenantEndpoints(myDirector, authenticationToken);
             }
         } else {
-            checkTenantEndpoints(director, authenticationToken);
+            checkTenantEndpoints(myDirector, authenticationToken);
         }
+
+        return myDirector;
     }
 
     private boolean checkForAdminRoles(List<String> xRolesHeaderValueStringList) {

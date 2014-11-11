@@ -1,14 +1,12 @@
 package org.openrepose.filters.authz
-
 import org.openrepose.common.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
-import org.openrepose.core.filter.logic.FilterAction
-import org.openrepose.core.filter.logic.FilterDirector
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint
+import org.openrepose.core.filter.logic.FilterAction
+import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.authz.cache.CachedEndpoint
 import org.openrepose.filters.authz.cache.EndpointListCache
 import org.openstack.docs.identity.api.v2.AuthenticateResponse
@@ -29,7 +27,6 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     EndpointListCache endpointListCache
     ServiceEndpoint serviceEndpoint
     IgnoreTenantRoles ignoreTenantRoles
-    FilterDirector filterDirector
     HttpServletRequest httpServletRequest
     RequestAuthorizationHandler requestAuthorizationHandler
 
@@ -47,7 +44,6 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         endpointListCache = Mock()
         serviceEndpoint = Mock()
         ignoreTenantRoles = new IgnoreTenantRoles()
-        filterDirector = new FilterDirectorImpl()
         httpServletRequest = mock(HttpServletRequest.class)
         requestAuthorizationHandler = Mock()
 
@@ -103,7 +99,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                 serviceEndpoint, ignoreTenantRoles, null)
 
         when:
-        requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)
+        def filterDirector = requestAuthorizationHandler.handleRequest(httpServletRequest, null)
 
         then:
         filterDirector.getFilterAction() == FilterAction.PASS
@@ -120,21 +116,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                 serviceEndpoint, ignoreTenantRoles, null)
 
         when:
-        requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)
+        def filterDirector = requestAuthorizationHandler.handleRequest(httpServletRequest, null)
 
         then:
         filterDirector.getFilterAction() != FilterAction.PASS
-    }
-
-    def "should Reject Delegated Authentication"() {
-        when:
-        when(mockedRequest.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString())).thenReturn("Confirmed");
-
-        final FilterDirector director = handler.handleRequest(mockedRequest, null);
-
-        then:
-        assertEquals("Authorization component must return requests that have had authentication delegated", FilterAction.RETURN, director.getFilterAction());
-        assertEquals("Authorization component must reject delegated authentication with a 403", HttpStatusCode.FORBIDDEN, director.getResponseStatus());
     }
 
     def "should Reject Requests Without Auth Tokens"() {
