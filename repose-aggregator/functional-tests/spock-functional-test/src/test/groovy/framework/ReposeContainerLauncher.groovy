@@ -7,7 +7,7 @@ import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeContainerLauncher extends AbstractReposeLauncher {
+class ReposeContainerLauncher extends ReposeLauncher {
 
     int reposePort
 
@@ -18,8 +18,10 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
+    def classPaths =[]
 
     def boolean debugEnabled = true
+    def boolean doSuspend = true
 
     def clock = new SystemClock()
     def Process process
@@ -54,7 +56,13 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            webXmlOverrides = webXmlOverrides + " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+            webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
+            if(doSuspend) {
+                webXmlOverrides += "y"
+                println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
+            } else {
+                webXmlOverrides += "n"
+            }
         }
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
@@ -135,4 +143,18 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
+    @Override
+    void enableDebug() {
+        this.debugEnabled = true
+    }
+
+    @Override
+    void enableSuspend() {
+        this.doSuspend = true
+    }
+
+    @Override
+    void addToClassPath(String path){
+        classPaths.add(path)
+    }
 }
