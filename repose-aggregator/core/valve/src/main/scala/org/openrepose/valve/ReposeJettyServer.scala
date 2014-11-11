@@ -59,6 +59,8 @@ class ReposeJettyServer(configRoot: String,
 
   appContext.getEnvironment.getPropertySources.addFirst(myProps)
 
+  private var isShutdown = false
+
 
   /**
    * Create the jetty server for this guy
@@ -125,11 +127,13 @@ class ReposeJettyServer(configRoot: String,
   }
 
   def start() = {
+    if (isShutdown) {
+      throw new Exception("Cannot start again a shutdown ReposeJettyServer")
+    }
     server.start()
   }
 
   def stop() = {
-    //TODO: make this a blocking method on "is stopped" ?
     server.stop()
   }
 
@@ -137,6 +141,7 @@ class ReposeJettyServer(configRoot: String,
    * destroys everything, this class won't be usable again
    */
   def shutdown() = {
+    isShutdown = true
     stop()
     appContext.close()
   }
