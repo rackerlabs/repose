@@ -1,13 +1,10 @@
 package features.services.datastore
 
-import framework.ReposeLogSearch
 import framework.ReposeValveTest
-import framework.category.Bug
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 import static framework.TestUtils.timedSearch
@@ -27,7 +24,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -68,7 +65,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -102,7 +99,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -135,7 +132,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -168,7 +165,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 

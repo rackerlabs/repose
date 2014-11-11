@@ -43,9 +43,4 @@ class ReposeLogSearch {
     public def cleanLog(){
         new FileOutputStream(logFileLocation).getChannel().truncate(0).close();
     }
-
-    public def deleteLog(){
-        File logFile=new File(logFileLocation);
-        logFile.delete()
-    }
 }
