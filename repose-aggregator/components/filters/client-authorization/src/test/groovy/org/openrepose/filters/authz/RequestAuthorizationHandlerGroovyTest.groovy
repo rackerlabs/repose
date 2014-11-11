@@ -11,6 +11,7 @@ import org.openrepose.filters.authz.cache.CachedEndpoint
 import org.openrepose.filters.authz.cache.EndpointListCache
 import org.openstack.docs.identity.api.v2.AuthenticateResponse
 import org.openstack.docs.identity.api.v2.Endpoint
+import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
@@ -36,7 +37,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     protected AuthenticationService mockedAuthService;
     protected RequestAuthorizationHandler handler, handler2;
     protected EndpointListCache mockedCache;
-    protected HttpServletRequest mockedRequest;
+    protected MockHttpServletRequest mockedRequest;
 
     def setup() {
         authenticationService = Mock()
@@ -85,7 +86,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
         handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
 
-        mockedRequest = mock(HttpServletRequest.class);
+        mockedRequest = new MockHttpServletRequest();
     }
 
     def "auth should be bypassed if an x-roles header role matches within a configured list of service admin roles"() {
@@ -132,9 +133,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     def "should Reject Unauthorized Requests"() {
-        when:
-        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(UNAUTHORIZED_TOKEN);
+        given:
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), UNAUTHORIZED_TOKEN)
 
+        when:
         final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
         then:
@@ -143,9 +145,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     def "should Pass Authorized Requests"() {
-        when:
-        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
+        given:
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
 
+        when:
         final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
         then:
@@ -153,10 +156,11 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     def "should Return 500"() {
-        when:
-        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
+        given:
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
         when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new RuntimeException("Service Exception"));
 
+        when:
         final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
         then:
@@ -164,8 +168,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     def "should Cache Fresh Endpoint Lists"() {
+        given:
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
+
         when:
-        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
         handler.handleRequest(mockedRequest, null);
 
         then:
@@ -175,8 +181,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     def "should Use Cache For Cached Endpoint Lists"() {
+        given:
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), CACHED_TOKEN)
+
         when:
-        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(CACHED_TOKEN);
         handler.handleRequest(mockedRequest, null);
 
         then:
