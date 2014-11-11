@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="false" xmlns='http://openrepose.org/repose/validator/v1.0'>
+    <delegating quality="0.5"/>
     <validator role="raxrole-test1"
                default="false"
                enable-rax-roles="true"
-               mask-rax-roles-403="true"
-               delegable="true"
-               delegable-quality=".5">
+               mask-rax-roles-403="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/a/">
@@ -20,9 +19,7 @@
     <validator role="raxrole-test2"
                default="false"
                enable-rax-roles="true"
-               mask-rax-roles-403="true"
-               delegable="true"
-               delegable-quality=".2">
+               mask-rax-roles-403="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/b">
