@@ -66,15 +66,15 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
 
         where: "User with #roles expect response code #respcode"
         roles               |respcode   | authDelegatingMsg
-        'user-admin'        |"403"      | "q=.3"
-        'non-admin'         |"403"      | "q=.3"
-        null                |"403"      | "q=.3"
-        ''                  |"403"      | "q=.3"
-        'openstack%2Cadmin' |'403'      | "q=.3"
-        'admin%20'          |'403'      | "q=.3"
+        'user-admin'        |"200"      | "403 q=.3"    //these msg needs to update
+        'non-admin'         |"200"      | "403 q=.3"
+        null                |"200"      | "403 q=.3"
+        ''                  |"200"      | "403 q=.3"
+        'openstack%2Cadmin' |'200'      | "403 q=.3"
+        'admin%20'          |'200'      | "403 q=.3"
     }
 
-    def "When user requests a URL that is not in the user's service list should receive a 403 FORBIDDEN response"(){
+    def "When user requests a URL that is not in the user's service list repose should forward 403 FORBIDDEN to origin service"(){
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
@@ -86,10 +86,13 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 
-        then: "User should receive a 403 FORBIDDEN response"
+        then: "Repose should forward to origin service with failure message"
         foundLogs.size() == 1
         mc.handlings.size() == 0
-        mc.receivedResponse.code == "403"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-delegated")
+        //mc.handlings[0].request.headers.findAll("x-delegated").contains("Status=403")
     }
 }
 
