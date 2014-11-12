@@ -3,7 +3,7 @@ package com.rackspace.httpdelegation.impl
 import com.rackspace.httpdelegation.{JavaDelegationManagerProxy, HttpDelegationHeaders}
 import org.scalatest.{Matchers, FunSuite}
 
-class JavaDelegationManagerProxy$Test extends FunSuite with Matchers {
+class JavaDelegationManagerProxy extends FunSuite with Matchers {
 
   test("buildDelegationHeaders should return a header Java map with the appropriate values") {
     val headerMap = JavaDelegationManagerProxy.buildDelegationHeaders(404, "test", "not found", .8)
