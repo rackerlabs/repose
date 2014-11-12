@@ -9,6 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.valve</groupId>
+    <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
     <artifactId>repose-valve</artifactId>
 
     <name>Repose - Installation Valve RPM</name>
@@ -59,7 +60,6 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>${project.artifactId}</name>
 
                             <mappings>
