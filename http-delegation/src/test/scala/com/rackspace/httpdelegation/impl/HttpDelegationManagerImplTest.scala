@@ -10,6 +10,6 @@ class HttpDelegationManagerImplTest extends FunSuite with Matchers {
 
     headerMap.keySet should have size 1
     headerMap.keySet should contain(HttpDelegationHeaders.Delegated)
-    headerMap(HttpDelegationHeaders.Delegated) should contain("404;component=test;msg=not found;q=0.8")
+    headerMap(HttpDelegationHeaders.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
   }
 }
