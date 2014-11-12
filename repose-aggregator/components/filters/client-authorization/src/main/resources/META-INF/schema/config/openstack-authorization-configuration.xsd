@@ -16,12 +16,12 @@
             </xs:annotation>
 
             <xs:sequence>
+                <xs:element name="delegating" type="rs-auth-z:DelegatingType" minOccurs="0" maxOccurs="1"/>
                 <xs:element name="authentication-server" type="rs-auth-z:AuthenticationServer" minOccurs="1"
                             maxOccurs="1"/>
                 <xs:element name="service-endpoint" type="rs-auth-z:ServiceEndpoint" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="ignore-tenant-roles" type="rs-auth-z:ignore-tenant-roles" minOccurs="0"
                             maxOccurs="1"/>
-                <xs:element name="delegating" type="rs-auth-z:DelegatingType" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
