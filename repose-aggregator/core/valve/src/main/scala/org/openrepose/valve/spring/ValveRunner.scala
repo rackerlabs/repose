@@ -93,7 +93,14 @@ class ValveRunner @Autowired()(
         //ugly jaxb objects
         val newConfiguredLocalNodes = systemModel.getReposeCluster.toList.flatMap { cluster =>
           cluster.getNodes.getNode.toList.filter(node => isLocal(node.getHostname)).map { xmlNode =>
-            ConfiguredNode(cluster.getId, xmlNode.getId, xmlNode.getHostname, Some(xmlNode.getHttpPort), Some(xmlNode.getHttpsPort))
+            implicit val intToOption: Int => Option[Int] = { i =>
+              if (i == 0) {
+                None
+              } else {
+                Some(i)
+              }
+            }
+            ConfiguredNode(cluster.getId, xmlNode.getId, xmlNode.getHostname, xmlNode.getHttpPort, xmlNode.getHttpsPort)
           }
         }
 
@@ -120,7 +127,9 @@ class ValveRunner @Autowired()(
 
           //Start up all the new nodes
           activeNodes = activeNodes ++ startList.map { n =>
-            new ReposeJettyServer(configRoot, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Some(sslConfig), insecure)
+            val node = new ReposeJettyServer(configRoot, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), insecure)
+            node.start()
+            node
           }
         }
         //If there are nodes that are new, start them up
@@ -179,6 +188,14 @@ class ValveRunner @Autowired()(
     //Deregister from configs, will only happen after the runlatch has been released
     configService.unsubscribeFrom("container.cfg.xml", containerConfigListener)
     configService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigListener)
+
+    //Stop all local nodes
+    nodeModificationLock.synchronized {
+      activeNodes.foreach { n =>
+        n.shutdown()
+      }
+      activeNodes = Set.empty[ReposeJettyServer]
+    }
     0
   }
 

@@ -49,7 +49,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         runner.getActiveNodes shouldBe empty
 
         val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
-        val containerConfig = Marshaller.containerConfig("/valveTesting/with-keystore.xml")
+        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
         containerListener.configurationUpdated(containerConfig)
 
         //it should not have triggered any nodes
@@ -96,7 +96,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         systemModelListener.configurationUpdated(systemModel)
 
         val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
-        val containerConfig = Marshaller.containerConfig("/valveTesting/with-keystore.xml")
+        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
         containerListener.configurationUpdated(containerConfig)
 
         runner.getActiveNodes.size shouldBe 1
