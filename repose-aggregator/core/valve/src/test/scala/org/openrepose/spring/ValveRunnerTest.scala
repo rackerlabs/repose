@@ -20,6 +20,19 @@ class ValveRunnerTest extends FunSpec with Matchers {
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
 
+  def withRunner(configRoot: String = "/config/root", insecure: Boolean = false)(f: ValveRunner => Unit) = {
+    val runner = new ValveRunner(fakeConfigService)
+    Future {
+      runner.run(configRoot, insecure)
+    }
+
+    try {
+      f(runner)
+    } finally {
+      runner.stop()
+    }
+  }
+
   it("has a blocking run method") {
     val runner = new ValveRunner(fakeConfigService)
 
@@ -39,13 +52,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
   describe("Starting fresh") {
     it("Does nothing if the container-config is updated before the system-model") {
-      val runner = new ValveRunner(fakeConfigService)
-
-      Future {
-        runner.run("/root", false)
-      }
-
-      try {
+      withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
         val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
@@ -54,20 +61,11 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
-
-      } finally {
-        runner.stop()
       }
 
     }
     it("doesn't start nodes if only the system-model has been configured") {
-      val runner = new ValveRunner(fakeConfigService)
-
-      Future {
-        runner.run("/root", false)
-      }
-
-      try {
+      withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
         val containerListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
@@ -76,19 +74,10 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
-
-      } finally {
-        runner.stop()
       }
     }
     it("Starts up nodes as configured in the system-model when hit with a system model before a container config") {
-      val runner = new ValveRunner(fakeConfigService)
-
-      Future {
-        runner.run("/root", false)
-      }
-
-      try {
+      withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
         val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
@@ -100,19 +89,27 @@ class ValveRunnerTest extends FunSpec with Matchers {
         containerListener.configurationUpdated(containerConfig)
 
         runner.getActiveNodes.size shouldBe 1
-
-      } finally {
-        runner.stop()
       }
-
     }
     it("Starts up nodes as configured in the system-model when given a container config before a system-model") {
-      pending
+      withRunner() { runner =>
+        runner.getActiveNodes shouldBe empty
+
+        val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
+        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
+        containerListener.configurationUpdated(containerConfig)
+
+        val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
+        val systemModel = Marshaller.systemModel("/valveTesting/system-model-1.cfg.xml")
+        systemModelListener.configurationUpdated(systemModel)
+
+        runner.getActiveNodes.size shouldBe 1
+      }
     }
   }
 
   describe("When started with a single node") {
-    it("restarts all nodes when a change to the container.cfg.xml happens") {
+    it("restarts that node when a change to the container.cfg.xml happens") {
       pending
     }
     describe("When updating the system-model") {

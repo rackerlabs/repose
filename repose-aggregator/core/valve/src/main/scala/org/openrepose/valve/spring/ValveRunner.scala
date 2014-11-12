@@ -199,13 +199,6 @@ class ValveRunner @Autowired()(
     0
   }
 
-
-  private def restartAllNodes() = {
-    nodeModificationLock.synchronized {
-      //Acquired the lock, for each node, kill it, and create a new one
-    }
-  }
-
   /**
    * Tell the things to stop
    */
