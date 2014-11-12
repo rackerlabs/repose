@@ -52,7 +52,7 @@ class ValidatorConfiguratorTest {
         ValidatorItem vItem = new ValidatorItem()
         vItem.setEnableApiCoverage(true)
 
-        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
         assert handlers.handlers[0] instanceof InstrumentedHandler
     }
 
@@ -60,10 +60,8 @@ class ValidatorConfiguratorTest {
     void whenIsDelegatingIsTrueThenADelegationHandlerShouldBePresent() {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
-        vItem.setDelegable(true)
-        vItem.setDelegableQuality(0.9)
 
-        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
         assert handlers.handlers[0] instanceof DelegationHandler
     }
 
