@@ -96,16 +96,17 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private boolean isEndpointAuthorizedForToken(String userToken) {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
-
-        for (CachedEndpoint authorizedEndpoint : cachedEndpoints) {
-            if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
-                LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
-            }
-            if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
-                LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
-            }
-            if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
-                return true;
+        if(cachedEndpoints != null) {
+            for (CachedEndpoint authorizedEndpoint : cachedEndpoints) {
+                if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
+                    LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
+                    LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -116,15 +117,16 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
             List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
-
-            cachedEndpoints = new LinkedList<>();
-            for (Endpoint ep : authorizedEndpoints) {
-                cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
-            }
-            try {
-                endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
-            } catch (IOException ioe) {
-                LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
+            if(authorizedEndpoints != null) {
+                cachedEndpoints = new LinkedList<>();
+                for (Endpoint ep : authorizedEndpoints) {
+                    cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
+                }
+                try {
+                    endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
+                } catch (IOException ioe) {
+                    LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
+                }
             }
         }
         return cachedEndpoints;

@@ -13,6 +13,7 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse
 import org.openstack.docs.identity.api.v2.Endpoint
 import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletRequest
 
@@ -40,12 +41,12 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     protected MockHttpServletRequest mockedRequest;
 
     def setup() {
+        mockedRequest = new MockHttpServletRequest();
         authenticationService = Mock()
         authenticateResponse = Mock()
         endpointListCache = Mock()
         serviceEndpoint = Mock()
         ignoreTenantRoles = new IgnoreTenantRoles()
-        httpServletRequest = mock(HttpServletRequest.class)
         requestAuthorizationHandler = Mock()
 
         // Caching mocks
@@ -85,14 +86,12 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
 
         handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
         handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
-
-        mockedRequest = new MockHttpServletRequest();
     }
 
     def "auth should be bypassed if an x-roles header role matches within a configured list of service admin roles"() {
         given:
-        when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
-        when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role1", "role2"]))
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), "abc")
+        mockedRequest.addHeader(OpenStackServiceHeader.ROLES.toString(), ["role0", "role1", "role2"])
         ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
@@ -100,16 +99,17 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                 serviceEndpoint, ignoreTenantRoles, null)
 
         when:
-        def filterDirector = requestAuthorizationHandler.handleRequest(httpServletRequest, null)
+        def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
         filterDirector.getFilterAction() == FilterAction.PASS
     }
 
+    @Unroll
     def "auth should not be bypassed if the x-roles header role does not match within a configured list of service admin roles"() {
         given:
-        when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
-        when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role2"]))
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), "abc")
+        mockedRequest.addHeader(OpenStackServiceHeader.ROLES.toString(), ["role0", "role2"])
         ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
@@ -117,10 +117,11 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                 serviceEndpoint, ignoreTenantRoles, null)
 
         when:
-        def filterDirector = requestAuthorizationHandler.handleRequest(httpServletRequest, null)
+        def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
-        filterDirector.getFilterAction() != FilterAction.PASS
+        filterDirector.getFilterAction() == FilterAction.RETURN
+        filterDirector.getResponseStatus() == HttpStatusCode.FORBIDDEN
     }
 
     def "should Reject Requests Without Auth Tokens"() {
