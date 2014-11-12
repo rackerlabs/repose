@@ -11,12 +11,12 @@ trait HttpDelegationManager {
     *                delegations
     * @return a map of headers to be added to a HTTP request
     */
-  def buildDelegationHeaders(statusCode: Int, component: String, message: String, quality: Double): Map[String, Set[String]] = {
+  def buildDelegationHeaders(statusCode: Int, component: String, message: String, quality: Double): Map[String, List[String]] = {
     assume(component != null, "Component cannot be null")
     assume(message != null, "Message cannot be null")
 
-    Map[String, Set[String]](
-      HttpDelegationHeaders.Delegated -> Set(
+    Map[String, List[String]](
+      HttpDelegationHeaders.Delegated -> List(
         "status_code=" + statusCode + "`component=" + component + "`message=" + message + ";q=" + quality
       )
     )
