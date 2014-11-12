@@ -42,7 +42,7 @@
     </modules>
 
     <properties>
-        <http.delegation.version>2.0.0</http.delegation.version>
+        <http.delegation.version>3.0.0</http.delegation.version>
     </properties>
 
     <dependencyManagement>
