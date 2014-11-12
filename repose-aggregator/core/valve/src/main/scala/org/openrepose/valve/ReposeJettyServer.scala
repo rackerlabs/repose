@@ -32,10 +32,10 @@ case class ServerInitializationException(message: String, cause: Throwable = nul
  * @param insecure
  */
 class ReposeJettyServer(configRoot: String,
-                        clusterId: String,
-                        nodeId: String,
-                        httpPort: Option[Integer],
-                        httpsPort: Option[Integer],
+                        val clusterId: String,
+                        val nodeId: String,
+                        val httpPort: Option[Int],
+                        val httpsPort: Option[Int],
                         sslConfig: Option[SslConfiguration],
                         insecure: Boolean) {
 
