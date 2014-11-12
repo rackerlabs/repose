@@ -111,21 +111,48 @@ class ValveRunnerTest extends FunSpec with Matchers {
   }
 
   describe("When started with a single node") {
-    it("restarts that node when a change to the container.cfg.xml happens") {
-      pending
+    def withSingleNodeRunner(f: ValveRunner => Unit) = {
+      withRunner() { runner =>
+        runner.getActiveNodes shouldBe empty
+        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        f(runner)
+      }
+    }
+
+    it("restarts that node when an update event to the container.cfg.xml happens") {
+      withSingleNodeRunner { runner =>
+        runner.getActiveNodes.size shouldBe 1
+        val node = runner.getActiveNodes.head
+
+        updateContainerConfig("/valveTesting/without-keystore.xml")
+        runner.getActiveNodes.size shouldBe 1
+        runner.getActiveNodes.head shouldNot be(node)
+      }
     }
     describe("When updating the system-model") {
-      it("restarts only the changed nodes") {
-        pending
-      }
-      it("Stops removed nodes") {
-        pending
-      }
-      it("starts new nodes") {
-        pending
+      it("restarts the changed node") {
+        withSingleNodeRunner{ runner =>
+          val node = runner.getActiveNodes.head
+          node.nodeId shouldBe "repose_node1"
+
+          updateSystemModel("/valveTesting/change-node-1.xml")
+          runner.getActiveNodes.size shouldBe 1
+          runner.getActiveNodes.head shouldNot be(node)
+
+          val changedNode = runner.getActiveNodes.head
+          changedNode.nodeId shouldBe "le_repose_node"
+        }
       }
       it("will not do anything if the nodes are the same") {
-        pending
+        withSingleNodeRunner{ runner =>
+          val node = runner.getActiveNodes.head
+          node.nodeId shouldBe "repose_node1"
+
+          updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+          runner.getActiveNodes.size shouldBe 1
+          runner.getActiveNodes.head shouldBe node
+        }
       }
     }
   }
