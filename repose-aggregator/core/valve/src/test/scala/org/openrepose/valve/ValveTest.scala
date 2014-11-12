@@ -98,7 +98,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     it("starts listening on the configured port") {
       //Starts up a real jetty
       //verify that I don't get a connection failed on that port, it should listen regardless (I hope?)
-      servoConfig("/valveTesting/system-model-1.cfg.xml") { (configRoot, tmpOutput) =>
+      servoConfig("/valveTesting/1node/system-model-1.cfg.xml") { (configRoot, tmpOutput) =>
         //TODO
         val valve = new Valve()
         val exitValue = Future {

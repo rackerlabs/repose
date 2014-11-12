@@ -82,7 +82,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
@@ -92,7 +92,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
         updateContainerConfig("/valveTesting/without-keystore.xml")
 
         runner.getActiveNodes.size shouldBe 1
@@ -103,7 +103,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         runner.getActiveNodes shouldBe empty
 
         updateContainerConfig("/valveTesting/without-keystore.xml")
-        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
       }
@@ -115,7 +115,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
         updateContainerConfig("/valveTesting/without-keystore.xml")
-        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
         f(runner)
       }
     }
@@ -136,7 +136,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
 
-          updateSystemModel("/valveTesting/change-node-1.xml")
+          updateSystemModel("/valveTesting/1node/change-node-1.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldNot be(node)
 
@@ -149,7 +149,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
 
-          updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+          updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldBe node
         }
@@ -161,7 +161,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
         updateContainerConfig("/valveTesting/without-keystore.xml")
-        updateSystemModel("/valveTesting/system-model-2.cfg.xml")
+        updateSystemModel("/valveTesting/2node/system-model-2.cfg.xml")
         f(runner)
       }
     }
@@ -188,16 +188,62 @@ class ValveRunnerTest extends FunSpec with Matchers {
     }
     describe("When updating the system-model") {
       it("restarts only the changed nodes") {
-        pending
+        withTwoNodeRunner { runner =>
+          val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+          updateSystemModel("/valveTesting/2node/change-node-2.xml")
+
+          runner.getActiveNodes.size shouldBe 2
+          val newNode2 = runner.getActiveNodes.find(_.nodeId == "le_changed_node").get
+          newNode2 shouldNot be(node2)
+        }
       }
       it("Stops removed nodes") {
-        pending
+        withTwoNodeRunner { runner =>
+          runner.getActiveNodes.size shouldBe 2
+          val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+
+          updateSystemModel("/valveTesting/2node/remove-node-2.xml")
+          runner.getActiveNodes.size shouldBe 1
+          val stillNode1 = runner.getActiveNodes.head
+
+          stillNode1 shouldBe node1
+        }
       }
       it("starts new nodes") {
-        pending
+        withTwoNodeRunner { runner =>
+          runner.getActiveNodes.size shouldBe 2
+          val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+          val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+          updateSystemModel("/valveTesting/2node/add-node-3.xml")
+
+          runner.getActiveNodes.size shouldBe 3
+          val newNode1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+          val newNode2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+          val newNode3 = runner.getActiveNodes.find(_.nodeId == "repose_node3").get
+
+          newNode1 shouldBe node1
+          newNode2 shouldBe node2
+
+          newNode3.nodeId shouldBe "repose_node3"
+        }
       }
       it("will not do anything if the nodes are the same") {
-        pending
+        withTwoNodeRunner{runner =>
+          runner.getActiveNodes.size shouldBe 2
+          val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+          val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+          updateSystemModel("/valveTesting/2node/system-model-2.cfg.xml")
+
+          runner.getActiveNodes.size shouldBe 2
+          val newNode1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+          val newNode2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+          newNode1 shouldBe node1
+          newNode2 shouldBe node2
+        }
       }
     }
   }

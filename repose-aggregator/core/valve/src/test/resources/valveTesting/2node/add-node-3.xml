@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- just a dual node configuration for use in testing servo proper -->
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose">
+        <nodes>
+            <node id="repose_node1" hostname="localhost" http-port="8080"/>
+            <node id="repose_node2" hostname="localhost" http-port="8081"/>
+            <node id="repose_node3" hostname="localhost" http-port="8082"/>
+        </nodes>
+        <filters>
+            <filter name="ip-identity"/>
+        </filters>
+        <services>
+        </services>
+
+        <destinations>
+            <endpoint id="open_repose" protocol="http" hostname="openrepose.org" root-path="/" port="80"
+                      default="true"/>
+        </destinations>
+    </repose-cluster>
+</system-model>
