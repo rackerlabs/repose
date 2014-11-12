@@ -1,6 +1,7 @@
 package org.openrepose.spring
 
 import org.junit.runner.RunWith
+import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.spring.ValveRunner
@@ -8,7 +9,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, Future}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -22,7 +23,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
   def withRunner(configRoot: String = "/config/root", insecure: Boolean = false)(f: ValveRunner => Unit) = {
     val runner = new ValveRunner(fakeConfigService)
-    Future {
+    val runnerTask = Future {
       runner.run(configRoot, insecure)
     }
 
@@ -31,6 +32,21 @@ class ValveRunnerTest extends FunSpec with Matchers {
     } finally {
       runner.stop()
     }
+    Await.ready(runnerTask, 3 seconds)
+  }
+
+  def updateSystemModel(resource:String):UpdateListener[SystemModel] = {
+    val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
+    val systemModel = Marshaller.systemModel(resource)
+    systemModelListener.configurationUpdated(systemModel)
+    systemModelListener
+  }
+
+  def updateContainerConfig(resource:String):UpdateListener[ContainerConfiguration] = {
+    val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
+    val containerConfig = Marshaller.containerConfig(resource)
+    containerListener.configurationUpdated(containerConfig)
+    containerListener
   }
 
   it("has a blocking run method") {
@@ -55,9 +71,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
-        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
-        containerListener.configurationUpdated(containerConfig)
+        updateContainerConfig("/valveTesting/without-keystore.xml")
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
@@ -68,9 +82,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        val containerListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
-        val systemModel = Marshaller.systemModel("/valveTesting/system-model-1.cfg.xml")
-        containerListener.configurationUpdated(systemModel)
+        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
@@ -80,13 +92,8 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
-        val systemModel = Marshaller.systemModel("/valveTesting/system-model-1.cfg.xml")
-        systemModelListener.configurationUpdated(systemModel)
-
-        val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
-        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
-        containerListener.configurationUpdated(containerConfig)
+        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
+        updateContainerConfig("/valveTesting/without-keystore.xml")
 
         runner.getActiveNodes.size shouldBe 1
       }
@@ -95,13 +102,8 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
-        val containerConfig = Marshaller.containerConfig("/valveTesting/without-keystore.xml")
-        containerListener.configurationUpdated(containerConfig)
-
-        val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
-        val systemModel = Marshaller.systemModel("/valveTesting/system-model-1.cfg.xml")
-        systemModelListener.configurationUpdated(systemModel)
+        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateSystemModel("/valveTesting/system-model-1.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
       }
@@ -110,6 +112,25 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
   describe("When started with a single node") {
     it("restarts that node when a change to the container.cfg.xml happens") {
+      pending
+    }
+    describe("When updating the system-model") {
+      it("restarts only the changed nodes") {
+        pending
+      }
+      it("Stops removed nodes") {
+        pending
+      }
+      it("starts new nodes") {
+        pending
+      }
+      it("will not do anything if the nodes are the same") {
+        pending
+      }
+    }
+  }
+  describe("When started with multiple local nodes") {
+    it("restarts all nodes when a change to the container.cfg.xml happens") {
       pending
     }
     describe("When updating the system-model") {
