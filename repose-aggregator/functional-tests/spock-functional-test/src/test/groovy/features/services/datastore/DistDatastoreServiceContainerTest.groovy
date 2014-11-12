@@ -70,7 +70,7 @@ class DistDatastoreServiceContainerTest extends Specification {
     @Unroll("When start repose container #containerName")
     def "Test repose container with multi-nodes"() {
         given:
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         def rootWar = properties.getReposeRootWar()

@@ -19,9 +19,8 @@ class GrabReposeLogsOnFailureListener extends AbstractRunListener {
         def properties = new TestProperties()
         def logFile = new File(properties.logFile)
         if(logFile.exists() && logFile.canWrite()) {
-            def deleted = logFile.delete()
-            def created = logFile.createNewFile()
-            System.out.println("Deleted: ${deleted}  Created: ${created}")
+            new FileOutputStream(logFile).getChannel().truncate(0).close()
+            System.out.println("Truncated ${logFile}")
         }
         println("=============================  COMPLETED ============================")
     }

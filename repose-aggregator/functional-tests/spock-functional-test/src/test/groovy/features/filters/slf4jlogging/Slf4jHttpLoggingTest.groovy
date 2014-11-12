@@ -14,7 +14,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
     def setupSpec() {
         //remove old log
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        logSearch.cleanLog()
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)

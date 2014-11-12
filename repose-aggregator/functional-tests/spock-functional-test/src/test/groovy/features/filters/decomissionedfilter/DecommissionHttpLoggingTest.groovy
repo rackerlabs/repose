@@ -12,7 +12,7 @@ class DecommissionHttpLoggingTest extends ReposeValveTest{
         given:
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
