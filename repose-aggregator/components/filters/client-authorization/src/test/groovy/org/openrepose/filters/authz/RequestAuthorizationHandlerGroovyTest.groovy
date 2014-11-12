@@ -1,8 +1,12 @@
 package org.openrepose.filters.authz
+import com.rackspace.httpdelegation.HttpDelegationHeaders
+import com.rackspace.httpdelegation.JavaDelegationManagerProxy
 import org.openrepose.common.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
+import org.openrepose.commons.utils.http.header.HeaderName
+import org.openrepose.components.authz.rackspace.config.DelegatingType
 import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint
 import org.openrepose.core.filter.logic.FilterAction
@@ -88,7 +92,8 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
     }
 
-    def "auth should be bypassed if an x-roles header role matches within a configured list of service admin roles"() {
+    @Unroll
+    def "#desc auth should be bypassed if an x-roles header role matches within a configured list of service admin roles"() {
         given:
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), "abc")
         mockedRequest.addHeader(OpenStackServiceHeader.ROLES.toString(), ["role0", "role1", "role2"])
@@ -96,17 +101,24 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, ignoreTenantRoles, null)
+                serviceEndpoint, ignoreTenantRoles, delegable)
 
         when:
         def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
         filterDirector.getFilterAction() == FilterAction.PASS
+        filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated())) == null
+
+        where:
+        desc                   | delegable
+        "With delegable on,"   | new DelegatingType().with { it.quality = 0.3; it }
+        "With delegable off, " | null
+
     }
 
     @Unroll
-    def "auth should not be bypassed if the x-roles header role does not match within a configured list of service admin roles"() {
+    def "#desc bypassed if the x-roles header role does not match within a configured list of service admin roles"() {
         given:
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), "abc")
         mockedRequest.addHeader(OpenStackServiceHeader.ROLES.toString(), ["role0", "role2"])
@@ -114,14 +126,27 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, ignoreTenantRoles, null)
+                serviceEndpoint, ignoreTenantRoles, delegable)
 
         when:
         def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
-        filterDirector.getFilterAction() == FilterAction.RETURN
-        filterDirector.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        filterDirector.getFilterAction() == filterAction
+        filterDirector.getResponseStatus() == responseStatus
+        filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated()))?.getAt(0) ==
+                (delegable ? JavaDelegationManagerProxy.buildDelegationHeaders(responseStatus.intValue(),
+                        "client-authorization", serviceCatalogFailureMessage(), delegable.getQuality()).get(HttpDelegationHeaders.Delegated()).get(0) : null)
+
+        where:
+        desc                                         | filterAction        | responseStatus           | delegable
+        "with delegable on, auth failures should be" | FilterAction.PASS   | HttpStatusCode.FORBIDDEN | new DelegatingType().with { it.quality = 0.3; it }
+        "with delegable off, auth should not be"     | FilterAction.RETURN | HttpStatusCode.FORBIDDEN | null
+    }
+
+    def String serviceCatalogFailureMessage() {
+        "User token: abc: The user's service catalog does not contain an endpoint that matches the endpoint configured " +
+                "in openstack-authorization.cfg.xml: \"null\".  User not authorized to access service."
     }
 
     def "should Reject Requests Without Auth Tokens"() {

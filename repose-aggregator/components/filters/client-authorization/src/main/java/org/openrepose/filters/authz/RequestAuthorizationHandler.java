@@ -1,5 +1,6 @@
 package org.openrepose.filters.authz;
 
+import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -55,27 +56,39 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.RETURN);
         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        String message = "Failure in authorization component";
 
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
         try {
             if (StringUtilities.isBlank(authenticationToken)) {
                 // Reject if no token
-                LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
+                message = "Authentication token not found in X-Auth-Token header. Rejecting request.";
+                LOG.debug(message);
                 myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
             } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
                             isEndpointAuthorizedForToken(authenticationToken)) {
                 myDirector.setFilterAction(FilterAction.PASS);
             } else {
-                    LOG.info("User token: " + authenticationToken +
-                             ": The user's service catalog does not contain an endpoint that matches " +
-                             "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                             myEndpoint.getHref() + "\".  User not authorized to access service.");
-                    myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+                message = "User token: " + authenticationToken +
+                        ": The user's service catalog does not contain an endpoint that matches " +
+                        "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                        myEndpoint.getHref() + "\".  User not authorized to access service.";
+                LOG.info(message);
+                myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
         } catch (Exception ex) {
-            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
+            LOG.error(message + ex.getMessage(), ex);
             myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
+
+        if(delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {
+            myDirector.setFilterAction(FilterAction.PASS);
+            for(Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), "client-authorization", message, delegating.getQuality()).entrySet()) {
+                for (String headerValue : mapHeaders.getValue()) {
+                    myDirector.requestHeaderManager().appendHeader(mapHeaders.getKey(), headerValue);
+                }
+            }
         }
         return myDirector;
     }
