@@ -35,14 +35,14 @@ class ValveRunnerTest extends FunSpec with Matchers {
     Await.ready(runnerTask, 3 seconds)
   }
 
-  def updateSystemModel(resource:String):UpdateListener[SystemModel] = {
+  def updateSystemModel(resource: String): UpdateListener[SystemModel] = {
     val systemModelListener = fakeConfigService.getListener[SystemModel]("system-model.cfg.xml")
     val systemModel = Marshaller.systemModel(resource)
     systemModelListener.configurationUpdated(systemModel)
     systemModelListener
   }
 
-  def updateContainerConfig(resource:String):UpdateListener[ContainerConfiguration] = {
+  def updateContainerConfig(resource: String): UpdateListener[ContainerConfiguration] = {
     val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
     val containerConfig = Marshaller.containerConfig(resource)
     containerListener.configurationUpdated(containerConfig)
@@ -132,7 +132,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     }
     describe("When updating the system-model") {
       it("restarts the changed node") {
-        withSingleNodeRunner{ runner =>
+        withSingleNodeRunner { runner =>
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
 
@@ -145,7 +145,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         }
       }
       it("will not do anything if the nodes are the same") {
-        withSingleNodeRunner{ runner =>
+        withSingleNodeRunner { runner =>
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
 
@@ -157,8 +157,34 @@ class ValveRunnerTest extends FunSpec with Matchers {
     }
   }
   describe("When started with multiple local nodes") {
+    def withTwoNodeRunner(f: ValveRunner => Unit) = {
+      withRunner() { runner =>
+        runner.getActiveNodes shouldBe empty
+        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateSystemModel("/valveTesting/system-model-2.cfg.xml")
+        f(runner)
+      }
+    }
+
     it("restarts all nodes when a change to the container.cfg.xml happens") {
-      pending
+      withTwoNodeRunner { runner =>
+        runner.getActiveNodes.size shouldBe 2
+        val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+        val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+        updateContainerConfig("/valveTesting/without-keystore.xml")
+
+        runner.getActiveNodes.size shouldBe 2
+
+        val newNode1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
+        val newNode2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
+
+        newNode1 shouldNot be(node1)
+        newNode2 shouldNot be(node2)
+
+        newNode1.nodeId shouldBe node1.nodeId
+        newNode2.nodeId shouldBe node2.nodeId
+      }
     }
     describe("When updating the system-model") {
       it("restarts only the changed nodes") {
