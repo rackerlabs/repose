@@ -76,11 +76,13 @@ class DistDatastoreServiceContainerTest extends Specification {
         def rootWar = properties.getReposeRootWar()
 
         repose1 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node1", rootWar, reposePort1)
+        repose1.enableDebug()
         repose1.start()
         repose1.waitForNon500FromUrl(reposeEndpoint1, 120)
         repose1.waitForNon500FromUrl(datastoreEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node2", rootWar, reposePort2)
+        repose2.enableDebug()
         repose2.start()
         repose2.waitForNon500FromUrl(reposeEndpoint2, 120)
         repose2.waitForNon500FromUrl(datastoreEndpoint2, 120)

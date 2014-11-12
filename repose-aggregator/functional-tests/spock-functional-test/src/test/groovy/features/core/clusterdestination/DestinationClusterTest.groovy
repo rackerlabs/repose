@@ -46,6 +46,7 @@ class DestinationClusterTest extends Specification {
         config.applyConfigs("common", params)
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort)
+        repose.enableDebug()
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()

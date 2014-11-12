@@ -17,6 +17,8 @@ abstract class ReposeLauncher {
 
     abstract void enableDebug()
 
+    abstract void enableSuspend()
+
     abstract void addToClassPath(String path)
 
     def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
