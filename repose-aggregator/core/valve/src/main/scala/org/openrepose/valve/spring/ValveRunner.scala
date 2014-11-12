@@ -1,6 +1,7 @@
 package org.openrepose.valve.spring
 
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.{CountDownLatch, ConcurrentHashMap}
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Named
 
 import org.eclipse.jetty.server.Server
@@ -22,6 +23,9 @@ class ValveRunner @Autowired()(
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
+
+  //Just a single countdown latch that gets triggered when told to stop
+  private val runLatch = new CountDownLatch(1)
 
   case class ReposeNode(clusterId:String, nodeId:String)
 
@@ -47,6 +51,7 @@ class ValveRunner @Autowired()(
    */
   def run(configRoot: String, insecure: Boolean): Int = {
     //Putting the config listeners in here, because I want the context for the configRoot, and the Insecure string
+
     val containerConfigListener = new UpdateListener[ContainerConfiguration] {
       var initialized = false
 
@@ -74,12 +79,19 @@ class ValveRunner @Autowired()(
       }
     }
 
-
     //Only subscribe to the config files when told to start
     //Stupid APIs are stupid and also dumb
     configService.subscribeTo[ContainerConfiguration]("container.cfg.xml", containerXsdUrl, containerConfigListener, classOf[ContainerConfiguration])
     configService.subscribeTo[SystemModel]("system-model.cfg.xml", systemModelXsdURL, systemModelConfigListener, classOf[SystemModel])
 
+    //Stay running, so that the thing doesn't exit or something
+
+    //Await this latch forever!, better than a runloop
+    runLatch.await()
+
+    //Deregister from configs, will only happen after the runlatch has been released
+    configService.unsubscribeFrom("container.cfg.xml", containerConfigListener)
+    configService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigListener)
     0
   }
 
@@ -94,6 +106,6 @@ class ValveRunner @Autowired()(
    * Tell the things to stop
    */
   def stop(): Unit = {
-
+    runLatch.countDown()
   }
 }
