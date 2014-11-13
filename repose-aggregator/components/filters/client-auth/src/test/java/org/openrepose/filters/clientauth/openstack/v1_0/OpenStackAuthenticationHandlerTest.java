@@ -779,10 +779,10 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldRejectInvalidCredentials() {
+        public void shouldNotRejectInvalidCredentials() {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
+            assertEquals("Auth component must not reject requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
         }
         
      }
