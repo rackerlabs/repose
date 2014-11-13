@@ -27,6 +27,7 @@ import java.util.*;
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);
+    private static final String CLIENT_AUTHORIZATION = "client-authorization";
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
@@ -84,10 +85,9 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
         if(delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {
             myDirector.setFilterAction(FilterAction.PASS);
-            for(Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), "client-authorization", message, delegating.getQuality()).entrySet()) {
-                for (String headerValue : mapHeaders.getValue()) {
-                    myDirector.requestHeaderManager().appendHeader(mapHeaders.getKey(), headerValue);
-                }
+            for(Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), CLIENT_AUTHORIZATION, message, delegating.getQuality()).entrySet()) {
+                List<String> value = mapHeaders.getValue();
+                myDirector.requestHeaderManager().appendHeader(mapHeaders.getKey(), value.toArray(new String[value.size()]));
             }
         }
         return myDirector;

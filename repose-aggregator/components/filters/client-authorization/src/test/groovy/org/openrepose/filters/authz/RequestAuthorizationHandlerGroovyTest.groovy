@@ -134,9 +134,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         then:
         filterDirector.getFilterAction() == filterAction
         filterDirector.getResponseStatus() == responseStatus
-        filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated()))?.getAt(0) ==
-                (delegable ? JavaDelegationManagerProxy.buildDelegationHeaders(responseStatus.intValue(),
-                        "client-authorization", serviceCatalogFailureMessage(), delegable.getQuality()).get(HttpDelegationHeaders.Delegated()).get(0) : null)
+        isDelegableHeaderAccurateFor delegable, filterDirector, serviceCatalogFailureMessage()
 
         where:
         desc                                         | filterAction        | responseStatus           | delegable
@@ -144,18 +142,23 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         "with delegable off, auth should not be"     | FilterAction.RETURN | HttpStatusCode.FORBIDDEN | null
     }
 
-    def String serviceCatalogFailureMessage() {
-        "User token: abc: The user's service catalog does not contain an endpoint that matches the endpoint configured " +
-                "in openstack-authorization.cfg.xml: \"null\".  User not authorized to access service."
-    }
+    @Unroll
+    def "#desc reject requests without auth tokens"() {
+        given:
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
 
-    def "should Reject Requests Without Auth Tokens"() {
         when:
-        final FilterDirector director = handler.handleRequest(mockedRequest, null);
+        def director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        assertEquals("Authorization component must return requests that do not have auth tokens", FilterAction.RETURN, director.getFilterAction());
-        assertEquals("Authorization component must reject unauthenticated requests with a 401", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
+        director.getFilterAction() == filterAction
+        director.getResponseStatus() == responseStatus
+        isDelegableHeaderAccurateFor delegable, director, authTokenNotFoundMessage()
+
+        where:
+        desc                                    | filterAction        | responseStatus              | delegable
+        "When delegating is not set, it should" | FilterAction.RETURN | HttpStatusCode.UNAUTHORIZED | null
+        "When delegating is set, it should not" | FilterAction.PASS   | HttpStatusCode.UNAUTHORIZED | new DelegatingType()
     }
 
     def "should Reject Unauthorized Requests"() {
@@ -217,5 +220,20 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN) == null
         verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN) == null
         verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
+    }
+
+    void isDelegableHeaderAccurateFor(DelegatingType delegable, FilterDirector filterDirector, String message) {
+        assert filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated()))?.getAt(0) ==
+                (delegable ? JavaDelegationManagerProxy.buildDelegationHeaders(filterDirector.getResponseStatusCode(),
+                        "client-authorization", message, delegable.getQuality()).get(HttpDelegationHeaders.Delegated()).get(0) : null)
+    }
+
+    def String serviceCatalogFailureMessage() {
+        "User token: abc: The user's service catalog does not contain an endpoint that matches the endpoint configured " +
+                "in openstack-authorization.cfg.xml: \"null\".  User not authorized to access service."
+    }
+
+    def String authTokenNotFoundMessage() {
+        "Authentication token not found in X-Auth-Token header. Rejecting request."
     }
 }
