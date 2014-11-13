@@ -157,16 +157,21 @@
       <!-- TODO: add check that if auth-url is configured then user and password must be configured -->
    </xs:complexType>
 
-   <xs:complexType name="Delegating">
+   <xs:complexType name="DelegatingType">
       <xs:annotation>
          <xs:documentation>
             <html:p>
-                If present, tells the service to support auth delegation.
+               If present, the API Validator filter will not send a failing response when an invalid state
+               is reached.
+               Instead, a validator will add the data relating to the failure to a header and forward the
+               request to be handled by a different filter or service.
+               If not present, a validator will send a failing response when an invalid state is
+               reached.
             </html:p>
          </xs:documentation>
       </xs:annotation>
 
-      <xs:attribute name="quality" type="xs:double" use="optional" default="0.7">
+      <xs:attribute name="quality" type="auth:QualityType" use="optional" default="0.3">
          <xs:annotation>
             <xs:documentation>
                <html:p>
@@ -178,6 +183,13 @@
       </xs:attribute>
    </xs:complexType>
 
+   <xs:simpleType name="QualityType">
+      <xs:restriction base="xs:double">
+         <xs:minInclusive value="0"/>
+         <xs:maxInclusive value="1.0"/>
+      </xs:restriction>
+   </xs:simpleType>
+
    <xs:complexType name="clientAuthConfig">
       <xs:annotation>
          <xs:documentation>
@@ -186,7 +198,7 @@
       </xs:annotation>
                 
       <xs:sequence>
-         <xs:element name="delegating" type="auth:Delegating" minOccurs="0" maxOccurs="1"/>
+         <xs:element name="delegating" type="auth:DelegatingType" minOccurs="0" maxOccurs="1"/>
 
          <xs:choice>
             <xs:element ref="os-ids-auth:openstack-auth" />
