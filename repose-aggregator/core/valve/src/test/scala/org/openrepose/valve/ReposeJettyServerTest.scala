@@ -168,7 +168,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val server = new ReposeJettyServer(
       "/etc/repose",
       "cluster",
-      "node",
+      "le_node_id",
       Some(8080),
       None,
       None,
@@ -178,7 +178,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
 
     val expectedProperties = Map(
       CLUSTER_ID -> "cluster",
-      NODE_ID -> "node",
+      NODE_ID -> "le_node_id",
       CONFIG_ROOT -> "/etc/repose",
       INSECURE -> "false" //Spring puts this into a string for us
     )
