@@ -206,6 +206,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     void enableSuspend() {
+        this.debugEnabled = true
         this.doSuspend = true
     }
 

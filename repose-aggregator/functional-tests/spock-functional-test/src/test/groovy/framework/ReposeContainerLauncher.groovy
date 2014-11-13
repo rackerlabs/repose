@@ -76,7 +76,11 @@ class ReposeContainerLauncher extends ReposeLauncher {
         }
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({
+            this.process = cmd.execute()
+            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            this.process.consumeProcessOutput()
+        });
 
         th.run()
         th.join()
@@ -152,6 +156,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
     @Override
     void enableSuspend() {
+        this.debugEnabled = true
         this.doSuspend = true
     }
 
