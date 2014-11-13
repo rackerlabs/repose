@@ -40,7 +40,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     private static final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
 
     protected AuthenticationService mockedAuthService;
-    protected RequestAuthorizationHandler handler, handler2;
+    protected RequestAuthorizationHandler handler;
     protected EndpointListCache mockedCache;
     protected MockHttpServletRequest mockedRequest;
 
@@ -89,7 +89,6 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         myServiceEndpoint.setType(TYPE);
 
         handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
-        handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
     }
 
     @Unroll
