@@ -2,6 +2,7 @@ package org.openrepose.valve
 
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
@@ -161,6 +162,31 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     intercept[Exception] {
       server.start()
     }
+  }
+
+  it("Properly configures the spring properties we need") {
+    val server = new ReposeJettyServer(
+      "/etc/repose",
+      "cluster",
+      "node",
+      Some(8080),
+      None,
+      None,
+      false
+    )
+    import ReposeSpringProperties._
+
+    val expectedProperties = Map(
+      CLUSTER_ID -> "cluster",
+      NODE_ID -> "node",
+      CONFIG_ROOT -> "/etc/repose",
+      INSECURE -> "false" //Spring puts this into a string for us
+    )
+
+    expectedProperties.foreach { case (k, v) =>
+      server.appContext.getEnvironment.getProperty(k) shouldBe v
+    }
+
   }
 
 }
