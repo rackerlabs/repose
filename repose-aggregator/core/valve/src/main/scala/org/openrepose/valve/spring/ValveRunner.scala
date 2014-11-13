@@ -9,7 +9,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.valve.ReposeJettyServer
+import org.openrepose.valve.{ValveException, ReposeJettyServer}
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired
 class ValveRunner @Autowired()(
                                 configService: ConfigurationService
                                 ) extends DisposableBean {
+
+  private val LOG = LoggerFactory.getLogger(this.getClass)
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
@@ -96,40 +99,46 @@ class ValveRunner @Autowired()(
           }
         }
 
-        //Grab ahold of the node lock, so that no other thread dorks with our nodes while we are
-        nodeModificationLock.synchronized {
-          //Build a list of nodes that we're going to stop
-          //This list is things that are in the active list, but not in the newly parsed list.
-          val stopList = activeNodes.filterNot { activeNode =>
-            newConfiguredLocalNodes.exists { node =>
-              node.nodeId == activeNode.nodeId &&
-                node.clusterId == activeNode.clusterId
+        //If there are no configured local nodes, we're going to bail on all of it
+        if (newConfiguredLocalNodes.isEmpty) {
+          LOG.error("No local nodes found in system-model, exiting Valve!")
+          runLatch.countDown()
+        } else {
+          //Grab ahold of the node lock, so that no other thread dorks with our nodes while we are
+          nodeModificationLock.synchronized {
+            //Build a list of nodes that we're going to stop
+            //This list is things that are in the active list, but not in the newly parsed list.
+            val stopList = activeNodes.filterNot { activeNode =>
+              newConfiguredLocalNodes.exists { node =>
+                node.nodeId == activeNode.nodeId &&
+                  node.clusterId == activeNode.clusterId
+              }
             }
-          }
 
-          //Get things that aren't in the active nodes list, but are in the new configured nodes list
-          //These we're going to start up
-          val startList = newConfiguredLocalNodes.filterNot { n =>
-            activeNodes.exists { active =>
-              active.nodeId == n.nodeId &&
-                active.clusterId == n.clusterId
+            //Get things that aren't in the active nodes list, but are in the new configured nodes list
+            //These we're going to start up
+            val startList = newConfiguredLocalNodes.filterNot { n =>
+              activeNodes.exists { active =>
+                active.nodeId == n.nodeId &&
+                  active.clusterId == n.clusterId
+              }
             }
-          }
 
-          //The combination of these two lists will also duplicate nodes, so that a node will be restarted with
-          //different settings!
+            //The combination of these two lists will also duplicate nodes, so that a node will be restarted with
+            //different settings!
 
-          //Shutdown all the stop nodes
-          activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
-          stopList.foreach { node =>
-            node.shutdown()
-          }
+            //Shutdown all the stop nodes
+            activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
+            stopList.foreach { node =>
+              node.shutdown()
+            }
 
-          //Start up all the new nodes, replacing the existing nodes list with a new one
-          activeNodes = activeNodes ++ startList.map { n =>
-            val node = new ReposeJettyServer(configRoot, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), insecure)
-            node.start()
-            node
+            //Start up all the new nodes, replacing the existing nodes list with a new one
+            activeNodes = activeNodes ++ startList.map { n =>
+              val node = new ReposeJettyServer(configRoot, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), insecure)
+              node.start()
+              node
+            }
           }
         }
       }

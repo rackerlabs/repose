@@ -1,6 +1,6 @@
 package org.openrepose.valve
 
-import java.io.{File, PrintStream, InputStream}
+import java.io.{File, InputStream, PrintStream}
 
 import com.typesafe.config.Config
 import org.openrepose.core.spring.CoreSpringProvider

@@ -230,7 +230,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         }
       }
       it("will not do anything if the nodes are the same") {
-        withTwoNodeRunner{runner =>
+        withTwoNodeRunner { runner =>
           runner.getActiveNodes.size shouldBe 2
           val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
           val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
@@ -247,4 +247,22 @@ class ValveRunnerTest extends FunSpec with Matchers {
       }
     }
   }
+
+  describe("Error states") {
+    it("if no local nodes are detected, it shuts down valve!") {
+      val runner = new ValveRunner(fakeConfigService)
+      val runnerTask = Future {
+        runner.run("/config/root", false)
+      }
+
+      runner.getActiveNodes shouldBe empty
+
+      updateContainerConfig("/valveTesting/without-keystore.xml")
+      updateSystemModel("/valveTesting/0node/system-model-0.cfg.xml")
+      runner.getActiveNodes shouldBe empty
+      val exitCode = Await.result(runnerTask, 1 second)
+      exitCode shouldBe 0
+    }
+  }
+
 }
