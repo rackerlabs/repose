@@ -1,18 +1,20 @@
 package org.openrepose.core.valve
 
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import spock.lang.Specification
 
-import static org.junit.Assert.assertTrue
-
-public class PowerApiValveServerControlTest {
+public class PowerApiValveServerControlTest extends Specification {
     PowerApiValveServerControl powerApiValveServerControl
     CommandLineArguments commandLineArguments
 
-    @Before
-    public void setUp() throws Exception {
-        AppenderForTesting.clear()
+    def setupSpec() {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+    }
+
+    def setup() {
         commandLineArguments = new CommandLineArguments()
         commandLineArguments.setConfigDirectory("/")
         commandLineArguments.setHttpPort(9090)
@@ -23,27 +25,26 @@ public class PowerApiValveServerControlTest {
                 commandLineArguments.getInsecure())
     }
 
-    @After
-    public void tearDown() throws Exception {
-        AppenderForTesting.clear()
-    }
-
-    @Test
-    public void shouldStartWithValidCLA() throws Exception {
+    def "Should Start With Valid CLA"() {
+        when:
         powerApiValveServerControl.startPowerApiValve()
 
-        assertTrue(powerApiValveServerControl.serverInstance.isStarted())
+        then:
+        powerApiValveServerControl.serverInstance.isStarted()
     }
 
-    @Test
-    public void shouldStopAfterStartingSuccessfully() throws Exception {
+    def "Should Stop After Starting Successfully"() {
+        given:
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
+
+        when:
         powerApiValveServerControl.startPowerApiValve()
-
-        assertTrue(powerApiValveServerControl.serverInstance.isStarted())
-
+        powerApiValveServerControl.serverInstance.isStarted()
         powerApiValveServerControl.stopPowerApiValve()
 
-        assertTrue(powerApiValveServerControl.serverInstance.isStopped())
-        assertTrue(AppenderForTesting.getMessages().contains("Repose has been stopped"))
+        then:
+        powerApiValveServerControl.serverInstance.isStopped()
+        app.getEvents().find { it.getMessage().getFormattedMessage().contains("Repose has been stopped") }
     }
 }

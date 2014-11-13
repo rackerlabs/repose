@@ -9,19 +9,15 @@ import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
-import org.apache.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import spock.lang.Specification
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 
-class Slf4jLoggingFilterSpecification extends Specification{
+class Slf4jLoggingFilterTestUtil {
 
-    def buildFakeConfigXml(List<Slf4JHttpLog> logEntries) {
+    def static buildFakeConfigXml(List<Slf4JHttpLog> logEntries) {
         def xml = new StreamingMarkupBuilder().bind() {
             mkp.xmlDeclaration()
             "slf4j-http-logging"(
@@ -39,7 +35,7 @@ class Slf4jLoggingFilterSpecification extends Specification{
         return xml.toString()
     }
 
-    Slf4JHttpLog logConfig(String id, String format) {
+    static Slf4JHttpLog logConfig(String id, String format) {
         def hl = new Slf4JHttpLog()
         hl.setFormat(format)
         hl.setId(id)
@@ -47,7 +43,7 @@ class Slf4jLoggingFilterSpecification extends Specification{
         hl
     }
 
-    Slf4jHttpLoggingFilter configureFilter(List<Slf4JHttpLog> logEntries) {
+    static Slf4jHttpLoggingFilter configureFilter(List<Slf4JHttpLog> logEntries) {
         Slf4jHttpLoggingFilter filter = new Slf4jHttpLoggingFilter()
 
         def mockServletContext = new MockServletContext()
@@ -101,17 +97,5 @@ class Slf4jLoggingFilterSpecification extends Specification{
         filter.init(mockFilterConfig)
 
         return filter
-    }
-
-    OutputStream prepLoggerOutputStream(String name) {
-        def logger = Logger.getLogger(name)
-        def outputStream = new ByteArrayOutputStream()
-        logger.addAppender(new WriterAppender(new SimpleLayout(), outputStream))
-
-        outputStream
-    }
-
-    def logLines(OutputStream os) {
-        new String(os.toByteArray()).split("\n").toList()
     }
 }

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>functional-test-support</artifactId>
         <groupId>com.rackspace.papi.test</groupId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.external.testing</groupId>
@@ -28,6 +28,26 @@
             <groupId>com.rackspace.papi.external.testing</groupId>
             <artifactId>test-container-support</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!--For SLF4J/Log4J 2.x logging support-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
         </dependency>
     </dependencies>
 

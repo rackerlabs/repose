@@ -13,15 +13,16 @@ import org.rackspace.deproxy.MessageChain
  *
  * D-15731
  *
- * Client-request-logging attribute does not filter out logging information.  It is assigned to add request/response logging into log4j logs.  However, it maps to jetty properties.  Since we are not using Jetty but HttpClient, all requests are logged regardless of Client-request-logging attribute status.
-
- * Current workaround is to set the following properties in log4j.properties to anything but DEBU
-
- * log4j.logger.org.apache.commons.httpclient=WARN
- * log4j.logger.org.apache.http.wire=WARN
-
- * log4j.logger.org.apache.http.headers=WARN
-
+ * Client-request-logging attribute does not filter out logging information.
+ * It is assigned to add request/response logging into log4j logs.
+ * However, it maps to jetty properties.
+ * Since we are not using Jetty but HttpClient, all requests are logged regardless of Client-request-logging attribute status.
+ * Current workaround is to set the following properties in log4j2.xml to anything but DEBUG
+ *
+ *    <Logger name="org.apache.commons.httpclient" level="warn"/>
+ *    <Logger name="org.apache.http.wire"          level="warn"/>
+ *    <Logger name="org.apache.http.headers"       level="warn"/>
+ *
  * Fix would map client-request-logging attribute to HttpClient
  */
 @Category(Bug)
@@ -63,8 +64,6 @@ class ClientRequestLogging extends ReposeValveTest {
         then:
         after_wire_logs.size() - wire_logs.size() > 0
         after_headers_logs.size() - headers_logs.size() > 0
-
-
     }
 
     def "test with client request logging false"() {
@@ -84,7 +83,6 @@ class ClientRequestLogging extends ReposeValveTest {
         then:
         after_wire_logs.size() - wire_logs.size() == 0
         after_headers_logs.size() - headers_logs.size() == 0
-
     }
 
     def "test with client request logging missing"(){
@@ -104,6 +102,5 @@ class ClientRequestLogging extends ReposeValveTest {
         then:
         after_wire_logs.size() - wire_logs.size() == 0
         after_headers_logs.size() - headers_logs.size() == 0
-
     }
 }

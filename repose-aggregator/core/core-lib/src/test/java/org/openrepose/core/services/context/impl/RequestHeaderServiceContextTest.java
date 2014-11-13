@@ -1,42 +1,55 @@
 package org.openrepose.core.services.context.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.status.StatusLogger;
+import org.apache.logging.log4j.test.appender.ListAppender;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.systemmodel.*;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.headers.request.RequestHeaderService;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
-import org.apache.log4j.WriterAppender;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
+import java.util.List;
 
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
 @PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
-    private final ByteArrayOutputStream log = new ByteArrayOutputStream();
+    private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContextTest.xml";
+
     private final ServicePorts ports = new ServicePorts();
 
     private RequestHeaderServiceContext requestHeaderServiceContext;
@@ -46,12 +59,32 @@ public class RequestHeaderServiceContextTest {
     private ConfigurationService configurationService;
     private ServletContextEvent servletContextEvent;
 
+    private static LoggerContext ctx;
+    private ListAppender app;
+
+    /*
+     * This should work, but doesn't.
+     * @ClassRule
+     * public InitialLoggerContext init = new InitialLoggerContext(CONFIG);
+     * ...
+     * app = init.getListAppender("List").clear();
+     */
+    @BeforeClass
+    public static void setupSpec() {
+        System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, CONFIG);
+        ctx = (LoggerContext) LogManager.getContext(false);
+    }
+
+    @AfterClass
+    public static void cleanupClass() {
+        System.clearProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY);
+        ctx.reconfigure();
+        StatusLogger.getLogger().reset();
+    }
+
     @Before
     public void setUp() throws Exception {
-        Logger logger = Logger.getLogger(RequestHeaderServiceContext.class);
-
-        logger.addAppender(new WriterAppender(new SimpleLayout(), log));
-
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
@@ -113,7 +146,27 @@ public class RequestHeaderServiceContextTest {
         verify(healthCheckServiceProxy).reportIssue(eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity.class));
         assertFalse(listenerObject.isInitialized());
-        assertThat(new String(log.toByteArray()), containsString("Unable to identify the local host in the system model"));
+        assertThat(app.getEvents(), contains("Unable to identify the local host in the system model"));
+    }
+
+    private Matcher<List<LogEvent>> contains(final String msg) {
+        return new TypeSafeMatcher<List<LogEvent>>() {
+            @Override
+            protected boolean matchesSafely(final List<LogEvent> events) {
+                boolean rtn = false;
+                LogEvent event;
+                for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+                    event = iterator.next();
+                    rtn = event.getMessage().getFormattedMessage().contains(msg);
+                }
+                return rtn;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
+            }
+        };
     }
 
     /**

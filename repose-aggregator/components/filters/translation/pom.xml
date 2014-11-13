@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>filters-support</artifactId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -75,6 +75,11 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
         </dependency>
 
         <dependency>

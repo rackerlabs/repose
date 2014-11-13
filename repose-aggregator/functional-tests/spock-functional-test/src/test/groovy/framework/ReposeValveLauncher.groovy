@@ -95,16 +95,18 @@ class ReposeValveLauncher extends ReposeLauncher {
         def classPath = ""
 
         if (debugEnabled) {
+            println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nNOTE: All output (i.e. out & err) from the forked\n      container process is sent to /dev/null")
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if(doSuspend) {
                 debugProps += "y"
-                println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
+                println("\nConnect debugger to repose on port: ${debugPort}")
             } else {
                 debugProps += "n"
             }
+            println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
         }
 
         if (!jmxPort) {
@@ -123,7 +125,11 @@ class ReposeValveLauncher extends ReposeLauncher {
         def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({
+            this.process = cmd.execute()
+            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            this.process.consumeProcessOutput()
+        });
 
         th.run()
         th.join()
@@ -202,6 +208,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     void enableSuspend() {
+        this.debugEnabled = true
         this.doSuspend = true
     }
 

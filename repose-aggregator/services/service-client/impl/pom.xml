@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.rackspace.papi.service</groupId>
         <artifactId>service-client-support</artifactId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -47,8 +47,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
-
     </dependencies>
 
     <build>

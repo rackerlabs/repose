@@ -17,7 +17,7 @@ FILES=(\
 /etc/repose/header-normalization.cfg.xml \
 /etc/repose/header-translation.cfg.xml \
 /etc/repose/ip-identity.cfg.xml \
-/etc/repose/log4j.properties \
+/etc/repose/log4j2.xml \
 /etc/repose/openstack-authorization.cfg.xml \
 /etc/repose/pass.wadl \
 /etc/repose/rate-limiting.cfg.xml \
