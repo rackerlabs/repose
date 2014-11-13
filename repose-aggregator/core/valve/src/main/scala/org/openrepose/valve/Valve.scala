@@ -16,6 +16,8 @@ class Valve {
                          showUsage: Boolean = false
                           )
 
+  lazy val valveContext = new AnnotationConfigApplicationContext()
+
   def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config: Config): Int = {
     //Attach the actual console output streams to the passed in streams
     Console.setOut(out)
@@ -63,27 +65,30 @@ class Valve {
       } text "Display usage and exit"
     }
 
-    parser.parse(args, ValveConfig()) map {valveConfig =>
-      if(valveConfig.showUsage) {
+    parser.parse(args, ValveConfig()) map { valveConfig =>
+      if (valveConfig.showUsage) {
         parser.showUsage
         1
-      } else if(valveConfig.showVersion) {
+      } else if (valveConfig.showVersion) {
         out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
       } else {
         //Set up the core spring services, and get a ValveRunner
         val coreContext = CoreSpringProvider.getInstance().getCoreContext
 
-        val valveContext = new AnnotationConfigApplicationContext()
+        //TODO: in theory, the logging spring bean will have been activated, and I can probably get a logger
+
+        //Set up all the valve context, it's lazy, so it won't get instantiated until here as well.
         valveContext.setParent(coreContext)
         valveContext.scan("org.openrepose.valve.spring") //TODO: config file?
         valveContext.refresh()
 
         //Get dat bean
-        val valveRunner:ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])
+        val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])
 
         //make it go
-        valveRunner.run("", false) //TODO: fix this
+        //TODO: possibly a try/catch around this guy to deal with exceptions
+        valveRunner.run(valveConfig.configDirectory.getAbsolutePath, valveConfig.insecure)
       }
     } getOrElse {
       //Not a valid config!
@@ -92,7 +97,7 @@ class Valve {
   }
 
   def shutdown() = {
-    //TODO: I might not need to call a shutdown?
-    //Nothing for now
+    //Shutdown the spring context, which should kill everything
+    valveContext.close()
   }
 }

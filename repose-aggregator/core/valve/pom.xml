@@ -64,7 +64,6 @@
             <version>${jetty.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
@@ -77,31 +76,12 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>2.0.16</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
-        <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
-            <artifactId>rate-limiting-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.rackspace.papi.service</groupId>-->
+            <!--<artifactId>rate-limiting-service</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
 
         <!--For SLF4J/Log4J 2.x logging support-->
         <dependency>
