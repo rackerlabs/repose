@@ -10,6 +10,7 @@ import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 
 
@@ -19,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @Named("valveRunner")
 class ValveRunner @Autowired()(
                                 configService: ConfigurationService
-                                ) {
+                                ) extends DisposableBean {
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
@@ -199,10 +200,11 @@ class ValveRunner @Autowired()(
     0
   }
 
+
   /**
-   * Tell the things to stop
+   * This will destroy the bean and shut it all down
    */
-  def stop(): Unit = {
+  override def destroy(): Unit = {
     runLatch.countDown()
   }
 }

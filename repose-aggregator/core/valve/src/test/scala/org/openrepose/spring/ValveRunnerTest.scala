@@ -30,7 +30,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     try {
       f(runner)
     } finally {
-      runner.stop()
+      runner.destroy()
     }
     Await.ready(runnerTask, 3 seconds)
   }
@@ -57,7 +57,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     }
     future.isCompleted shouldBe false
 
-    runner.stop()
+    runner.destroy()
     Await.ready(future, 1 second)
     future.isCompleted shouldBe true
   }
