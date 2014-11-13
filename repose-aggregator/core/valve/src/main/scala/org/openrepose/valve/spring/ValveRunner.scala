@@ -9,7 +9,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.valve.{ValveException, ReposeJettyServer}
+import org.openrepose.valve.ReposeJettyServer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
