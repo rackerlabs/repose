@@ -138,13 +138,14 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             AuthToken cachableToken,
             Boolean delegatable,
             double delegableQuality,
+            String delegationMessage,
             FilterDirector filterDirector,
             String extractedResult,
             List<AuthGroup> groups,
             String endpointsInBase64, boolean tenanted, boolean sendAllTenantIds) {
 
-        new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, delegableQuality, filterDirector,
-                extractedResult, groups, wwwAuthHeaderContents, endpointsInBase64, tenanted, sendAllTenantIds)
+        new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, delegableQuality, delegationMessage,
+                filterDirector, extractedResult, groups, wwwAuthHeaderContents, endpointsInBase64, tenanted, sendAllTenantIds)
                 .setFilterDirectorValues();
     }
 }
