@@ -54,6 +54,7 @@
         </xs:annotation>
 
         <xs:sequence>
+            <xs:element name="delegating" type="scr:DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
@@ -382,30 +383,6 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        If set to true, a validator will not send a failing response when an invalid state is reached.
-                        Instead, the validator will add the data relating to the failure to a header and forward the
-                        request to be handled by a different filter or service.
-                        If set to false, the validator will send a failing response when an invalid state is reached.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="delegable-quality" type="xs:double" use="optional" default=".3">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
-                        value will be used to order delegation based on priority when multiple delegations are present.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
         <xs:assert vc:minVersion="1.1"
                    test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
                    xerces:message="Roles list must contain unique roles"
@@ -427,4 +404,37 @@
                    xerces:message="Must define a wadl file OR an embedded wadl"
                    saxon:message="Must define a wadl file OR an embedded wadl"/>
     </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, the API Validator filter will not send a failing response when an invalid state
+                    is reached.
+                    Instead, a validator will add the data relating to the failure to a header and forward the
+                    request to be handled by a different filter or service.
+                    If not present, a validator will send a failing response when an invalid state is
+                    reached.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="quality" type="scr:QualityType" use="optional" default="0.3">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                        value will be used to order delegation based on priority when multiple delegations are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
