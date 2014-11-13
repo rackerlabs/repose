@@ -95,16 +95,18 @@ class ReposeValveLauncher extends ReposeLauncher {
         def classPath = ""
 
         if (debugEnabled) {
+            println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nNOTE: All output (i.e. out & err) from the forked\n      container process is sent to /dev/null")
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if(doSuspend) {
                 debugProps += "y"
-                println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
+                println("\nConnect debugger to repose on port: ${debugPort}")
             } else {
                 debugProps += "n"
             }
+            println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
         }
 
         if (!jmxPort) {

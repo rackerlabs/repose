@@ -54,17 +54,18 @@ class ReposeContainerLauncher extends ReposeLauncher {
         }
 
         if (debugEnabled) {
-
+            println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nNOTE: All output (i.e. out & err) from the forked\n      container process is sent to /dev/null")
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if(doSuspend) {
                 webXmlOverrides += "y"
-                println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
+                println("\nConnect debugger to repose on port: ${debugPort}")
             } else {
                 webXmlOverrides += "n"
             }
+            println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
         }
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
