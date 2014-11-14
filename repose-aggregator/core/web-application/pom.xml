@@ -50,8 +50,6 @@
             <artifactId>scalatest_2.10</artifactId>
             <scope>test</scope>
         </dependency>
-
-        </dependency>
     </dependencies>
 
     <build>
