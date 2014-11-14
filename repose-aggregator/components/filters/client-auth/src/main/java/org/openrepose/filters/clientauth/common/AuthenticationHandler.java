@@ -62,6 +62,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
     private final boolean sendAllTenantIds;
 
+    protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
+        @Override
+        protected String initialValue() {
+            return "Failure in AuthN filter.";
+        }
+    };
+
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.delegableQuality = configurables.getDelegableQuality();
@@ -111,7 +118,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         filterDirector.setFilterAction(FilterAction.RETURN);
         int offset = getCacheOffset();
 
-        String delegationMessage = null;
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         ExtractorResult<String> account = null;
         AuthToken token = null;
@@ -154,26 +160,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
 
-            } catch (AuthServiceException ex) {
-                LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                delegationMessage = "could not get auth groups";
-            } catch (IllegalArgumentException ex) {
-                LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                delegationMessage = "could not get auth groups";
             } catch (Exception ex) {
-                LOG.error("Failure in auth: " + ex.getMessage(), ex);
+                LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                delegationMessage = "could not get auth groups";
+                delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
             }
-        } else if (!allow) {
-            delegationMessage = "could not verify tenant";
-        } else {
-            delegationMessage = "could not validate token";
         }
 
-        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage, filterDirector,
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
                 account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
         return filterDirector;
