@@ -18,7 +18,6 @@ import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.junit.Assert.assertEquals
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
@@ -174,27 +173,44 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
     }
 
-    def "should pass authorized requests"() {
+    @Unroll
+    def "#desc should pass authorized requests"() {
         given:
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
 
         when:
-        final FilterDirector director = handler.handleRequest(mockedRequest, null);
+        final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        assertEquals("Authorization component must pass authorized requests", FilterAction.PASS, director.getFilterAction());
+        director.getFilterAction() == FilterAction.PASS
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated())) == null
+
+        where:
+        desc                                    | delegable
+        "When delegating is not set, it should" | null
+        "When delegating is set, it should not" | new DelegatingType()
     }
 
-    def "should Return 500"() {
+    @Unroll
+    def "#desc return a 500 when the auth returns a service exception"() {
         given:
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
         when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new RuntimeException("Service Exception"));
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
 
         when:
-        final FilterDirector director = handler.handleRequest(mockedRequest, null);
+        final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        assertEquals("Authorization component must retrun 500 on service exception", HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), director.getResponseStatus().intValue());
+        director.getResponseStatus() == HttpStatusCode.INTERNAL_SERVER_ERROR
+        director.getFilterAction() == filterAction
+        isDelegableHeaderAccurateFor delegable, director, authServiceFailure()
+
+        where:
+        desc                                    | filterAction        | delegable
+        "When delegating is not set, it should" | FilterAction.RETURN | null
+        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
     }
 
     def "should Cache Fresh Endpoint Lists"() {
@@ -241,5 +257,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     String authTokenNotAuthorized() {
         "User token: abcdef-abcdef-abcdef-abcdef: The user's service catalog does not contain an endpoint that matches the endpoint configured in " +
                 "openstack-authorization.cfg.xml: \"http://service.api.f.com/v1.1\".  User not authorized to access service."
+    }
+
+    String authServiceFailure() {
+        "Failure in authorization component"
     }
 }
