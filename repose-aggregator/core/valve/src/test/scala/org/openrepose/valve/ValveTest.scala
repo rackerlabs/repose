@@ -4,6 +4,7 @@ import java.io.{File, PrintStream, ByteArrayOutputStream}
 import java.util.concurrent.ConcurrentSkipListSet
 
 import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.runner.RunWith
@@ -75,12 +76,12 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     }
   }
 
-  def servoConfig(systemModelResource: String,
-                  containerConfigResource: String = "/valveTesting/with-keystore.xml")(testFunc: (String, File) => Unit) = {
+  def valveConfig(systemModelResource: String,
+                  containerConfigResource: String = "/valveTesting/without-keystore.xml")(testFunc: (String, File) => Unit) = {
     val configRoot = autoCleanTempDir("valve").toString
     val systemModelContent = resourceContent(systemModelResource)
     val containerConfigContent = resourceContent(containerConfigResource)
-    val log4jContent = resourceContent("/valveTesting/log4j.properties")
+    val log4jContent = resourceContent("/valveTesting/log4j2.xml")
 
     writeSystemModel(configRoot, systemModelContent)
     writeContainerConfig(configRoot, containerConfigContent)
@@ -98,7 +99,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     it("starts listening on the configured port") {
       //Starts up a real jetty
       //verify that I don't get a connection failed on that port, it should listen regardless (I hope?)
-      servoConfig("/valveTesting/1node/system-model-1.cfg.xml") { (configRoot, tmpOutput) =>
+      valveConfig("/valveTesting/1node/system-model-1.cfg.xml") { (configRoot, tmpOutput) =>
         //TODO
         val valve = new Valve()
         val exitValue = Future {
@@ -111,7 +112,16 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
         val get = new HttpGet("http://localhost:8080")
 
-        val response = httpClient.execute(get)
+        var response: HttpResponse = null
+        while (response == null) {
+          try {
+            response = httpClient.execute(get)
+          } catch {
+            case e: Exception => {
+              Thread.sleep(100)
+            }
+          }
+        }
 
         valve.shutdown() //Terminate it!
 
