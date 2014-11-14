@@ -2,12 +2,13 @@ package org.openrepose.filters.openstackidentityv3
 
 import javax.servlet.http.HttpServletRequest
 
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
+import com.rackspace.httpdelegation.HttpDelegationManager
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -20,7 +21,7 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, identityAPI: OpenStackIdentityV3API)
-  extends AbstractFilterLogicHandler {
+  extends AbstractFilterLogicHandler with HttpDelegationManager {
 
   private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3Handler])
 
@@ -28,6 +29,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val forwardGroups = identityConfig.isForwardGroups
   private val forwardCatalog = identityConfig.isForwardCatalog
   private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
+  private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
@@ -40,6 +42,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
+
+    def delegateOrElse(responseCode: Int, message: String)(f: => Any) = {
+      delegatingWithQuality match {
+        case Some(quality) =>
+          buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
+            filterDirector.requestHeaderManager.appendHeader(key, values: _*)
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+          }
+        case None =>
+          f
+      }
+    }
 
     // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
@@ -61,8 +75,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
           failureInValidation = true
-          filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {
+            filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          }
           None
         case Failure(e) =>
           failureInValidation = true
