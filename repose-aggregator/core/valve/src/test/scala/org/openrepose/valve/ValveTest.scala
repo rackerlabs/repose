@@ -101,7 +101,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     testFunc(configRoot, tmpOutput)
   }
 
-  describe("for a good single node configuration") {
+  ignore("for a good single node configuration") {
     it("starts listening on the configured port") {
       //Starts up a real jetty
       //verify that I don't get a connection failed on that port, it should listen regardless (I hope?)
