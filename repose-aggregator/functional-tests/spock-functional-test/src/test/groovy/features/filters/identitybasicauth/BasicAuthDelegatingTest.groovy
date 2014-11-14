@@ -73,15 +73,29 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
 
     @Unroll ("#method with #caseDesc")
     def "No HTTP Basic authentication header sent and no token with delegating."() {
+        when: "the request does not have an HTTP Basic authentication or invalid key/username"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
+
+        then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
+        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.handlings.size() == 1
+        !mc.handlings[0].request.headers.contains("x-delegated")
+
+        where:
+        caseDesc                        | method      | delegatedMsg
+        "No HTTP Basic authentication"  | "GET"       | "401 Unauthorized"
+        "No HTTP Basic authentication"  | "PUT"       | "401 Unauthorized"
+        "No HTTP Basic authentication"  | "POST"      | "401 Unauthorized"
+        "No HTTP Basic authentication"  | "DELETE"    | "401 Unauthorized"
+        "No HTTP Basic authentication"  | "PATCH"     | "401 Unauthorized"
+    }
+
+    @Unroll ("#method with #caseDesc")
+    def "HTTP Basic authentication header sent and no token with delegating."() {
         given:
-        def headers = ""
-        if(caseDesc == "Invalid key or username") {
-            headers = [
+        def headers = [
                     (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
             ]
-        } else {
-            headers = ""
-        }
 
         when: "the request does not have an HTTP Basic authentication or invalid key/username"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
@@ -91,16 +105,9 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
-        //mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-        //mc.orphanedHandlings.size() == 0
 
         where:
         caseDesc                        | method      | delegatedMsg
-        "No HTTP Basic authentication"  | "GET"       | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "PUT"       | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "POST"      | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "DELETE"    | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "PATCH"     | "401 Unauthorized"
         "Invalid key or username"       | "GET"       | "401 Unauthorized"
         "Invalid key or username"       | "PUT"       | "401 Unauthorized"
         "Invalid key or username"       | "POST"      | "401 Unauthorized"
