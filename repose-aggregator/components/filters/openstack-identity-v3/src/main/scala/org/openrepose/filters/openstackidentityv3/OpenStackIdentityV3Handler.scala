@@ -120,14 +120,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
-        token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
-        if(identityConfig.isSendAllProjectIds) {
+        token.get.user.rax_default_region.map {
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
+        }
+        if (identityConfig.isSendAllProjectIds) {
           writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
         } else {
           projectIdUriRegex match {
             case Some(regex) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).orNull, token.flatMap(_.roles).get, writeAll = false, filterDirector)
             case None if token.flatMap(_.project).flatMap(_.id).isDefined =>
-              token flatMap(_.project) map { project =>
+              token flatMap (_.project) map { project =>
                 project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
                 project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
               }
@@ -135,8 +137,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           }
         }
         token.get.rax_impersonator.map { impersonator =>
-          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
-          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString,_))
+          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         }
         if (forwardCatalog) {
           token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
@@ -228,15 +230,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles:Set[String] = {
+    val projectsFromRoles: Set[String] = {
       if (writeAll && roles != null) {
-        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
-          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
+        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId} :::
+          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId}).toSet
       } else {
         Set.empty
       }
     }
-    def projects: Set[String] = if(projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
+    def projects: Set[String] = if (projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
     filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
