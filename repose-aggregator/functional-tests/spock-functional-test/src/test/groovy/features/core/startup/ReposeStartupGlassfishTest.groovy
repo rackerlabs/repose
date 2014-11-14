@@ -61,6 +61,7 @@ class ReposeStartupGlassfishTest extends Specification {
         repose = new ReposeContainerLauncher(configProvider, properties.getGlassfishJar(), null, "node", rootWar, reposePort)
 
         when:
+        repose.enableDebug()
         repose.start()
         sleep(10000)
 

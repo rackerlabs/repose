@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -40,17 +41,24 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                 } else {
                     rtn = unmarshalledObject;
                 }
+            } catch (IOException ioe) {
+                objectPool.invalidateObject(pooledObject);
+                pooledObject = null;
+                LOG.warn("This *MIGHT* be important! Unable to read configuration file: {}", ioe.getMessage());
+                LOG.trace("Unable to read configuration file.", ioe);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
-                LOG.error("Failed to utilize the UnmarshallerValidator.", e);
+                LOG.error("Failed to utilize the UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
+                LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
                     objectPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to obtain an UnmarshallerValidator.", e);
+            LOG.error("Failed to obtain an UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         if (!configurationClass().isInstance(rtn)) {
             throw new ClassCastException("Parsed object from XML does not match the expected configuration class. "

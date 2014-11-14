@@ -5,10 +5,11 @@
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
+    <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
     <artifactId>repose-cli-utils</artifactId>
 
     <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>

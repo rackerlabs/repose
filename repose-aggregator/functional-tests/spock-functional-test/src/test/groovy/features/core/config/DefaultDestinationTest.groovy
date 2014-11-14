@@ -78,7 +78,7 @@ class DefaultDestinationTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
 
         when: "starting Repose with more or less than one default destination endpoint"
@@ -133,7 +133,7 @@ class DefaultDestinationTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
 
         repose.start(killOthersBeforeStarting: false,
@@ -176,7 +176,7 @@ class DefaultDestinationTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
 
         when: "starting Repose with more or less than one default destination endpoint"

@@ -3,20 +3,30 @@ package org.openrepose.filters.slf4jlogging
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import spock.lang.Shared
+import spock.lang.Specification
 
-import javax.servlet.http.HttpServletRequest
-
-class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
+class Slf4jLoggingIntegrationTest extends Specification {
+    ListAppender app
 
     @Shared
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
-        filter = configureFilter([
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+        filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
         ])
+    }
+
+    def setup() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
     }
 
     def "The SLF4j logging filter logs to the named logger"(){
@@ -46,27 +56,19 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         response.getWriter().flush()
         response.getWriter().close() //I think this should shove the body in there
 
-        //Set up a logger target to get those bits of information
-        //This implementation is log4j dependent because we're verifying the backend
-        def outputStream = prepLoggerOutputStream("uberLogger")
-
-
         when:
         filter.doFilter(request, response, chain)
-        List<HttpServletRequest> requestList = chain.getRequestList();
 
         then:
-        requestList.size() == 1
+        chain.getRequestList().size() == 1
 
-        def allLogs = logLines(outputStream)
+        app.getEvents().size() == 1
 
-        allLogs.size() == 1
-
-        def splitLog = allLogs.first().split("\t").toList()
+        def splitLog = app.getEvents().first().getMessage().getFormattedMessage().split("\t").toList()
 
         //splitLog.size() == 19
 
-        splitLog[0] == "INFO - 127.0.0.1" //REMOTE_ADDRESS
+        splitLog[0] == "127.0.0.1" //REMOTE_ADDRESS
         splitLog[1] == "10.10.220.220" //LOCAL_ADDRESS
         splitLog[2] == "-" //REPSONSE_CLF_BYTES -- Should be contentLength, but it's not, maybe because mocking
         splitLog[3] == "0" //Should be response Bytes, 10, but it's not
@@ -84,7 +86,5 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         splitLog[15] == "lolwut"
 
         //The rest seem to be somewhat magical, or it's my argument parsing insanity
-
     }
-
 }

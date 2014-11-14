@@ -1,14 +1,11 @@
 package org.openrepose.filters.apivalidator
 
+import com.rackspace.com.papi.components.checker.handler.DelegationHandler
 import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
-import org.openrepose.filters.apivalidator.DispatchHandler
-import org.openrepose.filters.apivalidator.ValidatorConfigurator
-import org.openrepose.filters.apivalidator.ValidatorInfo
-
 
 class ValidatorConfiguratorTest {
 
@@ -55,8 +52,17 @@ class ValidatorConfiguratorTest {
         ValidatorItem vItem = new ValidatorItem()
         vItem.setEnableApiCoverage(true)
 
-        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
         assert handlers.handlers[0] instanceof InstrumentedHandler
+    }
+
+    @Test
+    void whenIsDelegatingIsTrueThenADelegationHandlerShouldBePresent() {
+        ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
+        ValidatorItem vItem = new ValidatorItem()
+
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
+        assert handlers.handlers[0] instanceof DelegationHandler
     }
 
     static String getFilePath(URL path) {

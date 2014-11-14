@@ -41,11 +41,12 @@ class ReposeLogSearch {
     }
 
     public def cleanLog(){
-        new FileOutputStream(logFileLocation).getChannel().truncate(0).close();
-    }
-
-    public def deleteLog(){
-        File logFile=new File(logFileLocation);
-        logFile.delete()
+        println("============================== Cleaning log file ==============================")
+        def logFile = new File(logFileLocation)
+        if(logFile.exists() && logFile.canWrite()) {
+            new FileOutputStream(logFile).getChannel().truncate(0).close()
+            System.out.println("Truncated ${logFile}")
+        }
+        println("================================== COMPLETED ==================================")
     }
 }

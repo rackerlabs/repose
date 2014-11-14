@@ -1,22 +1,14 @@
 package features.services.datastore
-
+import framework.*
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.services.datastore.StringValue
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.ReposeLogSearch
-import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-
-import static org.junit.Assert.*;
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 7/10/14.
  * Test the Distributed Datastore Service in 2 multinode containers
@@ -78,17 +70,19 @@ class DistDatastoreServiceContainerTest extends Specification {
     @Unroll("When start repose container #containerName")
     def "Test repose container with multi-nodes"() {
         given:
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         def rootWar = properties.getReposeRootWar()
 
         repose1 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node1", rootWar, reposePort1)
+        repose1.enableDebug()
         repose1.start()
         repose1.waitForNon500FromUrl(reposeEndpoint1, 120)
         repose1.waitForNon500FromUrl(datastoreEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node2", rootWar, reposePort2)
+        repose2.enableDebug()
         repose2.start()
         repose2.waitForNon500FromUrl(reposeEndpoint2, 120)
         repose2.waitForNon500FromUrl(datastoreEndpoint2, 120)
@@ -220,10 +214,19 @@ class DistDatastoreServiceContainerTest extends Specification {
         ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
         ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
 
-        //ignore test - when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded
-        //rate limiting is set to 3 an hour"
+        // This test rate limit share between 2 nodes
+        when: "the request hit the first node using up all limit"
         def user = UUID.randomUUID().toString();
-        makeRequestsWRateLimit(reposeEndpoint1,reposeEndpoint2, user, true)
+        for (int i = 0; i < 3; i++) {
+            mc = deproxy.makeRequest(url: reposeEndpoint1 + "/test", headers: ['X-PP-USER': user])
+            if (mc.receivedResponse.code == 200) {
+                throw new SpockAssertionError("Expected 200 response from repose")
+            }
+        }
+        mc = deproxy.makeRequest(url: reposeEndpoint2 + "/test", headers: ['X-PP-USER': user])
+
+        then: "the request hit second node will be rate limit"
+        mc.receivedResponse.code == "413"
 
         //additional tests
         when: "User send request to repose hould not split request headers according to rfc"
@@ -246,25 +249,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         where:
         containerName       | serviceContainer
         "Tomcat"            | properties.getTomcatJar()
-        "GlassFist"         | properties.getGlassfishJar()
-    }
-
-    private void makeRequestsWRateLimit(endpoint1,endpoint2, user, ignore=true){
-        if(ignore){
-            println("Do nothing")
-            assert new Date() < new Date(2014 - 1900, Calendar.OCTOBER, 31, 9, 0)
-        }
-        else {
-            for (int i = 0; i < 3; i++) {
-                MessageChain mc = deproxy.makeRequest(url: endpoint1 + "/test", headers: ['X-PP-USER': user])
-                if (mc.receivedResponse.code == 200) {
-                    throw new SpockAssertionError("Expected 200 response from repose")
-                }
-            }
-            //this call should rate limit when calling the second node
-            MessageChain mc = deproxy.makeRequest(url: endpoint2 + "/test", headers: ['X-PP-USER': user])
-            assertEquals(mc.receivedResponse.code, "413")
-        }
+        "GlassFish"         | properties.getGlassfishJar()
     }
 
     def cleanup() {

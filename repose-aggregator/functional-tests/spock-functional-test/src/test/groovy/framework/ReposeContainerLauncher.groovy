@@ -7,7 +7,7 @@ import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeContainerLauncher extends AbstractReposeLauncher {
+class ReposeContainerLauncher extends ReposeLauncher {
 
     int reposePort
 
@@ -18,11 +18,15 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
+    def classPaths =[]
 
-    def boolean debugEnabled = true
+    def boolean debugEnabled
+    def boolean doSuspend
 
     def clock = new SystemClock()
     def Process process
+
+    def ReposeConfigurationProvider configurationProvider
 
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId, String nodeId,
@@ -50,11 +54,18 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         }
 
         if (debugEnabled) {
-
+            println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nNOTE: All output (i.e. out & err) from the forked\n      container process is sent to /dev/null")
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            webXmlOverrides = webXmlOverrides + " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+            webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
+            if(doSuspend) {
+                webXmlOverrides += "y"
+                println("\nConnect debugger to repose on port: ${debugPort}")
+            } else {
+                webXmlOverrides += "n"
+            }
+            println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
         }
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
@@ -66,7 +77,11 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         }
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({
+            this.process = cmd.execute()
+            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            this.process.consumeProcessOutput()
+        });
 
         th.run()
         th.join()
@@ -135,4 +150,19 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
+    @Override
+    void enableDebug() {
+        this.debugEnabled = true
+    }
+
+    @Override
+    void enableSuspend() {
+        this.debugEnabled = true
+        this.doSuspend = true
+    }
+
+    @Override
+    void addToClassPath(String path){
+        classPaths.add(path)
+    }
 }

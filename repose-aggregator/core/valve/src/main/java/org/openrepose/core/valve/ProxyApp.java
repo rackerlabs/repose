@@ -1,5 +1,6 @@
 package org.openrepose.core.valve;
 
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -79,9 +80,14 @@ public final class ProxyApp {
       }
       // IF there is a usable Log4J Properties file in the configuration directory,
       // THEN add it to the System properties.
-      File log4jProps = new File(commandLineArgs.getConfigDirectory() + "/log4j.properties");
+      File log4jProps = new File(commandLineArgs.getConfigDirectory() + "/log4j2-test.xml");
       if(log4jProps.exists() && log4jProps.isFile() && log4jProps.canRead()){
-         System.getProperties().setProperty("log4j.configuration", log4jProps.toURI().toASCIIString());
+         System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, log4jProps.toURI().toASCIIString());
+      } else {
+         log4jProps = new File(commandLineArgs.getConfigDirectory() + "/log4j2.xml");
+         if(log4jProps.exists() && log4jProps.isFile() && log4jProps.canRead()){
+            System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, log4jProps.toURI().toASCIIString());
+         }
       }
    }
    

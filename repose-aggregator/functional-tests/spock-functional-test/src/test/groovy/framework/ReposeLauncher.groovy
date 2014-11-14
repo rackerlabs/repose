@@ -17,6 +17,13 @@ abstract class ReposeLauncher {
 
     abstract void enableDebug()
 
+    /**
+     * This enables easier debugging from the actual code under test.
+     * This should call or fullfill all of the contracts performed by enableDebug().
+     * This will print the port number to connect the debugger to and suspend the VM until it is connected.
+     */
+    abstract void enableSuspend()
+
     abstract void addToClassPath(String path)
 
     def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {

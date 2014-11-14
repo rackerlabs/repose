@@ -67,7 +67,7 @@ class InvalidServiceNameTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
 
 
         when: "starting Repose with an invalid service name"
@@ -108,7 +108,7 @@ class InvalidServiceNameTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)

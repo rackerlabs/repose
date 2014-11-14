@@ -1,10 +1,10 @@
 package org.openrepose.core.services.logging;
 
-import java.util.Properties;
+import org.springframework.core.io.Resource;
 
 /**
  * @author fran
  */
 public interface LoggingService {
-    void updateLoggingConfiguration(Properties loggingConfigFile);
+    void updateLoggingConfiguration(Resource configLocation);
 }

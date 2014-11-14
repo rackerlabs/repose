@@ -54,7 +54,6 @@ class StartWithGoodConfigsTest extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
 

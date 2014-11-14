@@ -46,7 +46,6 @@ class StartWithBadConfigsTest extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = true
@@ -93,7 +92,6 @@ class StartWithBadConfigsTest extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = false

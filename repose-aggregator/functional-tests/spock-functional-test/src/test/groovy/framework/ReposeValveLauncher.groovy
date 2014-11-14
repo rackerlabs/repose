@@ -11,6 +11,7 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 class ReposeValveLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
+    def boolean doSuspend
     def String reposeJar
     def String configDir
 
@@ -81,7 +82,6 @@ class ReposeValveLauncher extends ReposeLauncher {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
-
         if (killOthersBeforeStarting) {
             waitForCondition(clock, '5s', '1s', {
                 killIfUp()
@@ -95,11 +95,18 @@ class ReposeValveLauncher extends ReposeLauncher {
         def classPath = ""
 
         if (debugEnabled) {
-
+            println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nNOTE: All output (i.e. out & err) from the forked\n      container process is sent to /dev/null")
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+            debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
+            if(doSuspend) {
+                debugProps += "y"
+                println("\nConnect debugger to repose on port: ${debugPort}")
+            } else {
+                debugProps += "n"
+            }
+            println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
         }
 
         if (!jmxPort) {
@@ -109,7 +116,6 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
-
         }
 
         if (System.getProperty('jacocoArguements')) {
@@ -119,7 +125,11 @@ class ReposeValveLauncher extends ReposeLauncher {
         def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({
+            this.process = cmd.execute()
+            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            this.process.consumeProcessOutput()
+        });
 
         th.run()
         th.join()
@@ -197,6 +207,12 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     @Override
+    void enableSuspend() {
+        this.debugEnabled = true
+        this.doSuspend = true
+    }
+
+    @Override
     void addToClassPath(String path) {
         classPaths.add(path)
     }
@@ -233,7 +249,6 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         return initialized
-
     }
 
     @Override
@@ -242,7 +257,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }
 
-    private void killIfUp() {
+    private static void killIfUp() {
         String processes = TestUtils.getJvmProcesses()
         def regex = /(\d*) repose-valve.jar .*spocktest .*/
         def matcher = (processes =~ regex)

@@ -1,13 +1,15 @@
 package org.openrepose.common.auth.openstack
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.openrepose.common.auth.AuthServiceException
 import org.openrepose.common.auth.ResponseUnmarshaller
-import org.openrepose.common.auth.openstack.AuthenticationServiceClient
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 import org.openstack.docs.identity.api.v2.AuthenticationRequest
 import org.openstack.docs.identity.api.v2.ObjectFactory
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername
@@ -19,6 +21,7 @@ import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AuthenticationServiceClientTest extends Specification {
@@ -28,10 +31,12 @@ class AuthenticationServiceClientTest extends Specification {
                 com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class)
     @Shared def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
     @Shared def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
-    @Shared def appender = new AppenderForTesting()
+
+    ListAppender app;
 
     def setup() {
-        appender.clear()
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
     }
 
     def 'can make a call to an auth service to validate a token'() {
@@ -67,7 +72,7 @@ class AuthenticationServiceClientTest extends Specification {
         then:
         def e = thrown(AuthServiceException)
         e.getMessage() =~ "Unable to retrieve admin token"
-        AppenderForTesting.getMessages().find { it =~ "Unable to get admin token.  Verify admin credentials. 401" }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token.  Verify admin credentials. 401" }
     }
 
     def 'reuses the admin token if it is still valid'() {
@@ -111,9 +116,7 @@ class AuthenticationServiceClientTest extends Specification {
         def response = client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        AppenderForTesting.getMessages().find {
-            it =~ "Unable to validate token: 401 :admin token expired. Retrieving new admin token and retrying token validation..."
-        }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token: 401 :admin token expired. Retrieving new admin token and retrying token validation..." }
         response.token.id == userToValidate.token
     }
 
@@ -141,7 +144,7 @@ class AuthenticationServiceClientTest extends Specification {
         client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        AppenderForTesting.getMessages().find { it =~ "Unable to validate token.  Invalid token. ${userAuthCalls.last()}" }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token.  Invalid token. ${userAuthCalls.last()}" }
 
         where:
         desc                                | adminTokenCalls | userAuthCalls
@@ -176,7 +179,7 @@ class AuthenticationServiceClientTest extends Specification {
         then:
         def e = thrown(AuthServiceException)
         e.getMessage() =~ statusMap.errorMessage
-        AppenderForTesting.getMessages().find { it =~ statusMap.logMessage }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == statusMap.logMessage }
 
         where:
         statusMap << getStatusList().collect { code ->
@@ -234,9 +237,7 @@ class AuthenticationServiceClientTest extends Specification {
         def response = client.getEndpointsForToken(userToValidate.token)
 
         then:
-        AppenderForTesting.getMessages().find {
-            it =~ "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..."
-        }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..." }
         response[0].id == 12345
         response[0].publicURL == "http://foo.com"
     }

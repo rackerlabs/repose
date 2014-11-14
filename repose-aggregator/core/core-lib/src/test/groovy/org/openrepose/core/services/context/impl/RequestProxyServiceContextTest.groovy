@@ -1,20 +1,21 @@
 package org.openrepose.core.services.context.impl
 
 import com.google.common.base.Optional
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LogEvent
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
+import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.proxy.RequestProxyService
 import org.openrepose.core.filter.SystemModelInterrogator
-import org.openrepose.core.systemmodel.ReposeCluster
-import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.core.services.ServiceRegistry
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.systemmodel.ReposeCluster
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.Severity
-import org.apache.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
-import org.mockito.ArgumentCaptor
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -38,14 +39,11 @@ class RequestProxyServiceContextTest extends Specification {
     @Shared
     def HealthCheckServiceProxy healthCheckServiceProxy
 
-    @Shared
-    def ByteArrayOutputStream log = new ByteArrayOutputStream()
+    ListAppender app;
 
     def setup() {
-        def logger = Logger.getLogger(RequestProxyServiceContext.class)
-
-        logger.addAppender(new WriterAppender(new SimpleLayout(), log))
-
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         def requestProxyService = mock(RequestProxyService.class)
         def serviceRegistry = mock(ServiceRegistry.class)
         systemModelInterrogator = mock(SystemModelInterrogator.class)
@@ -73,10 +71,8 @@ class RequestProxyServiceContextTest extends Specification {
 
         listenerObject = listenerCaptor.getValue()
 
-
         when:
         listenerObject.configurationUpdated(null)
-
 
         then:
         listenerObject.isInitialized()
@@ -95,14 +91,12 @@ class RequestProxyServiceContextTest extends Specification {
 
         listenerObject = listenerCaptor.getValue()
 
-
         when:
         listenerObject.configurationUpdated(null)
 
-
         then:
         !listenerObject.isInitialized()
-        new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
+        app.getEvents().find { it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model") }
         verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity))
     }

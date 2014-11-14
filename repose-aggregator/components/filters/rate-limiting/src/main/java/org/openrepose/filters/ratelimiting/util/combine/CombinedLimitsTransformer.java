@@ -61,7 +61,8 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
         } catch (XsltTransformationException e) {
             throw e;
         } catch (Exception e) {
-            LOG.error("Failed to obtain a Transformer", e);
+            LOG.error("Failed to obtain a Transformer. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
         }
     }
 }

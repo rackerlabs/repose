@@ -5,10 +5,11 @@
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.filters.extensions</groupId>
+    <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM. -->
     <artifactId>repose-extensions-filter-bundle</artifactId>
 
     <name>Repose - Installation Extension Filters RPM</name>
@@ -57,8 +58,6 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM. -->
                             <name>${project.artifactId}</name>
 
                             <mappings>
@@ -149,6 +148,10 @@
                                 <require>java &gt;= 1.7.0</require>
                                 <require>repose-${project.version}</require>
                             </requires>
+
+                            <obsoletes>
+                                <obsolete>repose-extension-filters</obsolete>
+                            </obsoletes>
                             
                             <group>Applications/Internet</group>
                         </configuration>

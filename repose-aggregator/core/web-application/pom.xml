@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>6.2.1.0-SNAPSHOT</version>
+        <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
@@ -75,25 +75,6 @@
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>rate-limiting-service</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
-            <scope>package</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>package</scope>
         </dependency>
     </dependencies>
 

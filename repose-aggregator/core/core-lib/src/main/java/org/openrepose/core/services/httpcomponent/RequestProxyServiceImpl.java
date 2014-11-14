@@ -57,8 +57,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             HttpClientResponse httpClientResponse = httpClientService.getClient(null);
             return httpClientResponse;
         } catch (HttpClientNotFoundException e) {
-            LOG.error("Failed to obtain an HTTP default client connection");
-            throw new ProxyRequestException("Failed to obtain an HTTP default client connection", e);
+            LOG.error("Failed to obtain an HTTP default client connection.");
+            throw new ProxyRequestException("Failed to obtain an HTTP default client connection.", e);
         }
     }
 

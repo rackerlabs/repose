@@ -49,7 +49,7 @@ class CheckRemoveDeprecatedWarningTest extends Specification{
     def "Start repose with basic config, re-apply new config check for DEPRECATED msg"() {
         given:
         // set the common and good configs
-        reposeLogSearch.deleteLog()
+        reposeLogSearch.cleanLog()
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/container-common", params)

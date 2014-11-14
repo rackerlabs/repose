@@ -1,35 +1,45 @@
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
-import org.junit.After;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.test.appender.ListAppender;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SaxAuthFeedReaderTest {
-
     private ServiceClient client;
     private AkkaServiceClient akkaClient;
     private ServiceClientResponse resp1, resp2, resp3;
     private SaxAuthFeedReader reader;
 
+    private ListAppender app;
+
     @Before
     public void setUp() throws FileNotFoundException {
-
-        AppenderForTesting.clear();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
 
         client = mock(ServiceClient.class);
         akkaClient = mock(AkkaServiceClient.class);
@@ -41,11 +51,6 @@ public class SaxAuthFeedReaderTest {
         resp2 = new ServiceClientResponse(200, fileReader2);
         when(client.getPoolSize()).thenReturn(100);
 
-    }
-
-    @After
-    public void tearDown() {
-        AppenderForTesting.clear();
     }
 
     @Test
@@ -72,10 +77,8 @@ public class SaxAuthFeedReaderTest {
         reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
         CacheKeys keys = reader.getCacheKeys();
 
-        assertEquals("Should log 401 with atom feed configured without auth", "Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please "
-                + "reconfigure Feed atomId with valid credentials and/or configure isAuthed to true", AppenderForTesting.getMessages()[0]);
-
-
+        assertThat("Should log 401 with atom feed configured without auth",
+                app.getEvents(), contains("Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please reconfigure Feed atomId with valid credentials and/or configure isAuthed to true"));
     }
 
     @Test
@@ -87,7 +90,26 @@ public class SaxAuthFeedReaderTest {
 
         CacheKeys keys = reader.getCacheKeys();
 
-        assertEquals("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n"
-                + " Response Code: 503", AppenderForTesting.getMessages()[0]);
+        assertThat(app.getEvents(), contains("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503"));
+    }
+
+    private Matcher<List<LogEvent>> contains(final String msg) {
+        return new TypeSafeMatcher<List<LogEvent>>() {
+            @Override
+            protected boolean matchesSafely(final List<LogEvent> events) {
+                boolean rtn = false;
+                LogEvent event;
+                for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+                    event = iterator.next();
+                    rtn = event.getMessage().getFormattedMessage().contains(msg);
+                }
+                return rtn;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
+            }
+        };
     }
 }
