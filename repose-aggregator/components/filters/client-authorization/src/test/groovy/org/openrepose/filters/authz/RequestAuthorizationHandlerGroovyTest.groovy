@@ -13,13 +13,10 @@ import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.authz.cache.CachedEndpoint
 import org.openrepose.filters.authz.cache.EndpointListCache
-import org.openstack.docs.identity.api.v2.AuthenticateResponse
 import org.openstack.docs.identity.api.v2.Endpoint
 import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
 import spock.lang.Unroll
-
-import javax.servlet.http.HttpServletRequest
 
 import static org.junit.Assert.assertEquals
 import static org.mockito.Matchers.any
@@ -29,29 +26,24 @@ import static org.mockito.Mockito.*
 class RequestAuthorizationHandlerGroovyTest extends Specification {
 
     AuthenticationService authenticationService
-    AuthenticateResponse authenticateResponse
     EndpointListCache endpointListCache
     ServiceEndpoint serviceEndpoint
     IgnoreTenantRoles ignoreTenantRoles
-    HttpServletRequest httpServletRequest
     RequestAuthorizationHandler requestAuthorizationHandler
 
     private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
     private static final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
 
-    protected AuthenticationService mockedAuthService;
-    protected RequestAuthorizationHandler handler;
-    protected EndpointListCache mockedCache;
-    protected MockHttpServletRequest mockedRequest;
+    protected AuthenticationService mockedAuthService
+    protected RequestAuthorizationHandler handler
+    protected EndpointListCache mockedCache
+    MockHttpServletRequest mockedRequest
 
     def setup() {
         mockedRequest = new MockHttpServletRequest();
         authenticationService = Mock()
-        authenticateResponse = Mock()
         endpointListCache = Mock()
-        serviceEndpoint = Mock()
         ignoreTenantRoles = new IgnoreTenantRoles()
-        requestAuthorizationHandler = Mock()
 
         // Caching mocks
         mockedCache = mock(EndpointListCache.class);
@@ -82,13 +74,15 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
         when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);
 
-        final ServiceEndpoint myServiceEndpoint = new ServiceEndpoint();
-        myServiceEndpoint.setHref(PUBLIC_URL);
-        myServiceEndpoint.setRegion(REGION);
-        myServiceEndpoint.setName(NAME);
-        myServiceEndpoint.setType(TYPE);
+        serviceEndpoint = new ServiceEndpoint().with {
+            href = PUBLIC_URL
+            region = REGION
+            name = NAME
+            type = TYPE
+            it
+        }
 
-        handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null, null);
+        handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, null);
     }
 
     @Unroll
@@ -99,7 +93,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
-        requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
+        requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, endpointListCache,
                 serviceEndpoint, ignoreTenantRoles, delegable)
 
         when:
@@ -119,26 +113,26 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     @Unroll
     def "#desc bypassed if the x-roles header role does not match within a configured list of service admin roles"() {
         given:
-        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), "abc")
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
         mockedRequest.addHeader(OpenStackServiceHeader.ROLES.toString(), ["role0", "role2"])
         ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
-        requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, ignoreTenantRoles, delegable)
+        requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, endpointListCache,
+                new ServiceEndpoint().with { it.href = "http://foo.com/moo"; it}, ignoreTenantRoles, delegable)
 
         when:
         def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
         filterDirector.getFilterAction() == filterAction
-        filterDirector.getResponseStatus() == responseStatus
+        filterDirector.getResponseStatus() == HttpStatusCode.FORBIDDEN
         isDelegableHeaderAccurateFor delegable, filterDirector, serviceCatalogFailureMessage()
 
         where:
-        desc                                         | filterAction        | responseStatus           | delegable
-        "with delegable on, auth failures should be" | FilterAction.PASS   | HttpStatusCode.FORBIDDEN | new DelegatingType().with { it.quality = 0.3; it }
-        "with delegable off, auth should not be"     | FilterAction.RETURN | HttpStatusCode.FORBIDDEN | null
+        desc                                         | filterAction        | delegable
+        "with delegable on, auth failures should be" | FilterAction.PASS   | new DelegatingType().with { it.quality = 0.3; it }
+        "with delegable off, auth should not be"     | FilterAction.RETURN | null
     }
 
     @Unroll
@@ -151,28 +145,36 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
 
         then:
         director.getFilterAction() == filterAction
-        director.getResponseStatus() == responseStatus
+        director.getResponseStatus() == HttpStatusCode.UNAUTHORIZED
         isDelegableHeaderAccurateFor delegable, director, authTokenNotFoundMessage()
 
         where:
-        desc                                    | filterAction        | responseStatus              | delegable
-        "When delegating is not set, it should" | FilterAction.RETURN | HttpStatusCode.UNAUTHORIZED | null
-        "When delegating is set, it should not" | FilterAction.PASS   | HttpStatusCode.UNAUTHORIZED | new DelegatingType()
+        desc                                    | filterAction        | delegable
+        "When delegating is not set, it should" | FilterAction.RETURN | null
+        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
     }
 
-    def "should Reject Unauthorized Requests"() {
+    @Unroll
+    def "#desc reject unauthorized requests"() {
         given:
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), UNAUTHORIZED_TOKEN)
 
         when:
-        final FilterDirector director = handler.handleRequest(mockedRequest, null);
+        final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        assertEquals("Authorization component must return unauthorized requests", FilterAction.RETURN, director.getFilterAction());
-        assertEquals("Authorization component must reject unauthorized requests with a 403", HttpStatusCode.FORBIDDEN, director.getResponseStatus());
+        director.getFilterAction() == filterAction
+        director.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        isDelegableHeaderAccurateFor delegable, director, authTokenNotAuthorized()
+
+        where:
+        desc                                    | filterAction        | delegable
+        "When delegating is not set, it should" | FilterAction.RETURN | null
+        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
     }
 
-    def "should Pass Authorized Requests"() {
+    def "should pass authorized requests"() {
         given:
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
 
@@ -227,12 +229,17 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                         "client-authorization", message, delegable.getQuality()).get(HttpDelegationHeaders.Delegated()).get(0) : null)
     }
 
-    def String serviceCatalogFailureMessage() {
-        "User token: abc: The user's service catalog does not contain an endpoint that matches the endpoint configured " +
-                "in openstack-authorization.cfg.xml: \"null\".  User not authorized to access service."
+    String serviceCatalogFailureMessage() {
+        "User token: authorized: The user's service catalog does not contain an endpoint that matches the endpoint configured " +
+                "in openstack-authorization.cfg.xml: \"http://foo.com/moo\".  User not authorized to access service."
     }
 
-    def String authTokenNotFoundMessage() {
+    String authTokenNotFoundMessage() {
         "Authentication token not found in X-Auth-Token header. Rejecting request."
+    }
+
+    String authTokenNotAuthorized() {
+        "User token: abcdef-abcdef-abcdef-abcdef: The user's service catalog does not contain an endpoint that matches the endpoint configured in " +
+                "openstack-authorization.cfg.xml: \"http://service.api.f.com/v1.1\".  User not authorized to access service."
     }
 }
