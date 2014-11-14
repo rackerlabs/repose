@@ -39,14 +39,6 @@
         <dependency>
             <groupId>com.mockrunner</groupId>
             <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
