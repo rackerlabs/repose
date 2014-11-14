@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
+import com.rackspace.httpdelegation.HttpDelegationManager
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
@@ -18,14 +19,16 @@ import scala.io.Source
 import scala.xml._
 
 class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicAuthConfig, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
-  extends AbstractFilterLogicHandler {
+  extends AbstractFilterLogicHandler with HttpDelegationManager with BasicAuthUtils {
 
   private final val LOG = LoggerFactory.getLogger(classOf[RackspaceIdentityBasicAuthHandler])
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
   private val identityServiceUri = basicAuthConfig.getRackspaceIdentityServiceUri
   private val tokenCacheTtlMillis = basicAuthConfig.getTokenCacheTimeoutMillis
+  private val delegationMode = Option(basicAuthConfig.getDelegating)
   private val datastore = datastoreService.getDefaultDatastore
+  private val storedUserName = new ThreadLocal[String]
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
     LOG.debug("Handling HTTP Request")
@@ -51,15 +54,27 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
               }
               case (code, _) => {
                 if (code == HttpServletResponse.SC_UNAUTHORIZED) {
-                  filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
-                  filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-                  datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+                  delegationMode match {
+                    case (None) => {
+                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+                      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+                      datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+                    }
+                    case (Some(delegating)) => {
+                      buildDelegationHeaders(HttpServletResponse.SC_UNAUTHORIZED, "Rackspace Identity Basic Auth", s"Failed to authenticate user: ${storedUserName.get}", delegating.getQuality) foreach {
+                        case (headerName, headerValues) => headerValues foreach {
+                          case (value) => filterDirector.requestHeaderManager.appendHeader(headerName, value)
+                        }
+                      }
+                    }
+                  }
                 } else {
                   filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
                 }
                 filterDirector.setFilterAction(FilterAction.RETURN)
               }
             }
+            storedUserName.remove()
           }
         }
       }
@@ -83,7 +98,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
 
   private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
     Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).map { authHeader =>
-      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(authHeader, "Basic")
+      val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
       if (authMethodBasicHeaders.nonEmpty) {
         val firstHeader = authMethodBasicHeaders.next()
         f(firstHeader.replace("Basic ", ""))
@@ -94,7 +109,8 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   private def getUserToken(authValue: String): (Int, Option[String]) = {
     def createAuthRequest(encoded: String) = {
       // Base64 Decode and split the userName/apiKey
-      val (userName, apiKey) = BasicAuthUtils.extractCredentials(authValue)
+      val (userName, apiKey) = extractCredentials(authValue)
+      storedUserName.set(userName)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
       //<?xml version="1.0" encoding="UTF-8"?>
       <auth xmlns="http://docs.openstack.org/identity/api/v2.0">

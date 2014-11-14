@@ -34,6 +34,11 @@
             <artifactId>scalatest_2.10</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>http-delegation</artifactId>
+        </dependency>
+
         <!-- Mockrunner for mock HttpServletRequest -->
         <dependency>
             <groupId>com.mockrunner</groupId>

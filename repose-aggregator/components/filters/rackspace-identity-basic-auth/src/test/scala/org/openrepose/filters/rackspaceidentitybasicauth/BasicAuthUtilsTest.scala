@@ -1,10 +1,9 @@
 package org.openrepose.filters.rackspaceidentitybasicauth
 
-import org.openrepose.filters.rackspaceidentitybasicauth.BasicAuthUtils._
 import org.apache.commons.codec.binary.Base64
 import org.scalatest.{FunSpec, Matchers}
 
-class BasicAuthUtilsTest extends FunSpec with Matchers {
+class BasicAuthUtilsTest extends FunSpec with Matchers with BasicAuthUtils {
 
   describe("decoding username and API key credentials") {
     val cases = List(
