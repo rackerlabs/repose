@@ -74,7 +74,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
     @Unroll ("#method with #caseDesc")
     def "No HTTP Basic authentication header sent and no token with delegating."() {
         when: "the request does not have an HTTP Basic authentication or invalid key/username"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
