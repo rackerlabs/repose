@@ -79,15 +79,17 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.contains("x-delegated")
+        mc.handlings[0].request.headers.contains("x-delegated")
+        mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
 
         where:
         caseDesc                        | method      | delegatedMsg
-        "No HTTP Basic authentication"  | "GET"       | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "PUT"       | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "POST"      | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "DELETE"    | "401 Unauthorized"
-        "No HTTP Basic authentication"  | "PATCH"     | "401 Unauthorized"
+        "No HTTP Basic authentication"  | "GET"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "No HTTP Basic authentication"  | "PUT"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "No HTTP Basic authentication"  | "POST"      | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "No HTTP Basic authentication"  | "DELETE"    | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "No HTTP Basic authentication"  | "PATCH"     | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
     }
 
     @Unroll ("#method with #caseDesc")
@@ -105,14 +107,15 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
 
         where:
         caseDesc                        | method      | delegatedMsg
-        "Invalid key or username"       | "GET"       | "401 Unauthorized"
-        "Invalid key or username"       | "PUT"       | "401 Unauthorized"
-        "Invalid key or username"       | "POST"      | "401 Unauthorized"
-        "Invalid key or username"       | "DELETE"    | "401 Unauthorized"
-        "Invalid key or username"       | "PATCH"     | "401 Unauthorized"
+        "Invalid key or username"       | "GET"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "Invalid key or username"       | "PUT"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "Invalid key or username"       | "POST"      | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "Invalid key or username"       | "DELETE"    | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "Invalid key or username"       | "PATCH"     | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
     }
 
     @Unroll("Sending request with auth admin response set to HTTP #identityStatusCode")
@@ -137,17 +140,18 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
 
         where:
         reqTenant | identityStatusCode                           | delegatedMsg //(these msgs need to be update when done with impl
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | "500 Server Error"
-        9401      | HttpServletResponse.SC_UNAUTHORIZED          | "401 Unauthorized"
-        9403      | HttpServletResponse.SC_FORBIDDEN             | "500 Server Error"
-        9404      | HttpServletResponse.SC_NOT_FOUND             | "500 Server Error"
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | "500 Server Error"
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | "500 Server Error"
-        9502      | HttpServletResponse.SC_BAD_GATEWAY           | "500 Server Error"
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | "500 Server Error"
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | "500 Server Error"
+        9400      | HttpServletResponse.SC_BAD_REQUEST           | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9401      | HttpServletResponse.SC_UNAUTHORIZED          | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        9403      | HttpServletResponse.SC_FORBIDDEN             | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9404      | HttpServletResponse.SC_NOT_FOUND             | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9502      | HttpServletResponse.SC_BAD_GATEWAY           | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
     }
 }
