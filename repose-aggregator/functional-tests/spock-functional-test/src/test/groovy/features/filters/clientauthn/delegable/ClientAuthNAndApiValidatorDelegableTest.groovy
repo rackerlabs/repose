@@ -47,7 +47,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
     /*
         This test to verify the forward fail reason and default quality for authn
     */
-    @Unroll("req method: #method, #path, #authMsg and #apiMsg")
+    @Unroll("req method: #method, #path, #apiDelegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
         fakeIdentityService.with {
@@ -58,6 +58,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles" : roles,
                                        "Content-Type" : "application/xml",
                                        "X-Auth-Token": fakeIdentityService.client_token]
+        def authDelegatedMsg = 'status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3'
 
         when: "User passes a request through repose with authN and apiValidator delegable"
         MessageChain mc = deproxy.makeRequest(
@@ -75,16 +76,27 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.findAll("x-delegated").size() == 2
-        request2.headers.findAll("x-delegated").get(0).contains(authMsg)
-        request2.headers.findAll("x-delegated").get(1).contains(apiMsg)
+        //request2.headers.findAll("x-delegated").get(0)=~ apiDelegatedMsg
+        //request2.headers.findAll("x-delegated").get(1)=~ authDelegatedMsg
+        msgCheckingHelper(request2.headers.findAll("x-delegated"),authDelegatedMsg, apiDelegatedMsg)
 
         where:
-        method  | path           | roles                 | identityStatus  | authMsg |apiMsg
-        "GET"   | "servers/"     |"raxRole"              | "Indeterminate" | "q=.3"  | "q=.6"
-        "POST"  | "servers/1235" |"raxRole, a:observer"  | "Indeterminate" | "q=.3"  | "q=.6"
-        "PUT"   | "servers/"     |"raxRole, a:admin"     | "Indeterminate" | "q=.3"  | "q=.6"
-        "DELETE"| "servers/test" |"raxRole, a:observer"  | "Indeterminate" | "q=.3"  | "q=.6"
-        "GET"   | "get/"         |"raxRole"              | "Indeterminate" | "q=.3"  | "q=.6"
+        method  | path           | roles                 | identityStatus  |apiDelegatedMsg
+        "GET"   | "servers/"     |"raxRole"              | "Indeterminate" | "status_code=403.component=api-checker.message=You are forbidden to perform the operation;q=0.6"
+        "POST"  | "servers/1235" |"raxRole, a:observer"  | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
+        "PUT"   | "servers/"     |"raxRole, a:admin"     | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
+        "DELETE"| "servers/test" |"raxRole, a:observer"  | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
+        "GET"   | "get/"         |"raxRole"              | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/.*;q=0.6"
 
+    }
+
+    def void msgCheckingHelper(List delegatingmsgs, String authmsg, String apimsg) {
+        for (int i=0; i <delegatingmsgs.size(); i++) {
+            if (delegatingmsgs.get(i).toString().contains("api-checker")){
+                assert delegatingmsgs.get(i) =~ apimsg
+            } else {
+                assert delegatingmsgs.get(i) =~ authmsg
+            }
+        }
     }
 }
