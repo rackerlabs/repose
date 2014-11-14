@@ -10,11 +10,15 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.{Await, Future}
+import scala.util.{Success, Failure}
 
 @RunWith(classOf[JUnitRunner])
 class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
+
+  val LOG = LoggerFactory.getLogger(this.getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
@@ -80,12 +84,14 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                   containerConfigResource: String = "/valveTesting/without-keystore.xml")(testFunc: (String, File) => Unit) = {
     val configRoot = autoCleanTempDir("valve").toString
     val systemModelContent = resourceContent(systemModelResource)
-    val containerConfigContent = resourceContent(containerConfigResource)
+    //I have to parse the Container Config Content to make sure it knows about the path to the log4j file
+    val containerConfigContent = resourceContent(containerConfigResource).replaceAll("\\$\\{configRootPath\\}", configRoot)
+
     val log4jContent = resourceContent("/valveTesting/log4j2.xml")
 
     writeSystemModel(configRoot, systemModelContent)
     writeContainerConfig(configRoot, containerConfigContent)
-    writeFileContent(new File(configRoot, "log4j.properties"), log4jContent)
+    writeFileContent(new File(configRoot, "log4j2.xml"), log4jContent)
 
     val tmpOutput = tempFile("fakeRepose", ".out")
 
@@ -106,6 +112,13 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           valve.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, defaultConfig)
         }
 
+        exitValue onComplete {
+          case Failure(cause) =>
+            throw cause
+          case Success(exitCode) =>
+            LOG.info(s"Valve exited with code: $exitCode")
+        }
+
         //Verify that the thing is listening on the configured port!
         //TODO: something on 8080
         val httpClient = new DefaultHttpClient()
@@ -113,12 +126,13 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         val get = new HttpGet("http://localhost:8080")
 
         var response: HttpResponse = null
-        while (response == null) {
+        while (response == null && !exitValue.isCompleted) {
           try {
+            LOG.info(s"Trying an httpRequest: $get")
             response = httpClient.execute(get)
           } catch {
             case e: Exception => {
-              Thread.sleep(100)
+              Thread.sleep(500)
             }
           }
         }
