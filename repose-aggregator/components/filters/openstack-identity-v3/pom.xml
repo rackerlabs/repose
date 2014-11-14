@@ -61,6 +61,12 @@
             <version>1.7</version>
         </dependency>
 
+        <!-- Http Delegation Library for delegating requests -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>http-delegation</artifactId>
+        </dependency>
+
         <!-- These three are required because of our coupling between filters and core -->
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
