@@ -14,6 +14,7 @@
         <Logger name="org.apache.commons.httpclient" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>
         <Logger name="org.openrepose" level="debug"/>
+        <Logger name="org.apache.http" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
     </Loggers>
