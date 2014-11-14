@@ -26,13 +26,26 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   private final val X_AUTH_TOKEN = "X-Auth-Token"
   private val identityServiceUri = basicAuthConfig.getRackspaceIdentityServiceUri
   private val tokenCacheTtlMillis = basicAuthConfig.getTokenCacheTimeoutMillis
-  private val delegationMode = Option(basicAuthConfig.getDelegating)
+  private val delegationWithQuality = Option(basicAuthConfig.getDelegating).map(_.getQuality)
   private val datastore = datastoreService.getDefaultDatastore
   private val storedUserName = new ThreadLocal[String]
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
     LOG.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
+
+    def delegateOrElse(responseCode: Int, message: String)(f: => Any) = {
+      delegationWithQuality match {
+        case Some(quality) =>
+          buildDelegationHeaders(responseCode, "Rackspace Identity Basic Auth", message, quality) foreach { case (key, values) =>
+            filterDirector.requestHeaderManager.appendHeader(key, values: _*)
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+          }
+        case None =>
+          f
+      }
+    }
+
     // We need to process the Response unless a couple of specific conditions occur.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     if (!httpServletRequest.getHeaderNames.asScala.toList.contains(X_AUTH_TOKEN)) {
@@ -54,24 +67,17 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
               }
               case (code, _) => {
                 if (code == HttpServletResponse.SC_UNAUTHORIZED) {
-                  delegationMode match {
-                    case (None) => {
-                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
-                      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-                      datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
-                    }
-                    case (Some(delegating)) => {
-                      buildDelegationHeaders(HttpServletResponse.SC_UNAUTHORIZED, "Rackspace Identity Basic Auth", s"Failed to authenticate user: ${storedUserName.get}", delegating.getQuality) foreach {
-                        case (headerName, headerValues) => headerValues foreach {
-                          case (value) => filterDirector.requestHeaderManager.appendHeader(headerName, value)
-                        }
-                      }
-                    }
+                  delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: ${storedUserName.get}") {
+                    filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+                    filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+                    datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
                   }
                 } else {
-                  filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+                  delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
+                    filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+                  }
                 }
-                filterDirector.setFilterAction(FilterAction.RETURN)
+                if(delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
               }
             }
             storedUserName.remove()
