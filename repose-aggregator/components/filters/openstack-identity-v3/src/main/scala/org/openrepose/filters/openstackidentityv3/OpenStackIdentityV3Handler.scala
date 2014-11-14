@@ -43,7 +43,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
 
-    def delegateOrElse(responseCode: Int, message: String)(f: => Any) = {
+    def delegateOrElse(responseCode: Int, message: String)(f: => Unit) {
       delegatingWithQuality match {
         case Some(quality) =>
           buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
