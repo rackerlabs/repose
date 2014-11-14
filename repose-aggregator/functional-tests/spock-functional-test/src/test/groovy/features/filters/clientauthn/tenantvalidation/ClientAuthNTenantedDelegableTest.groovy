@@ -44,7 +44,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
 
     @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode) response tenant: #responseTenant, token: #clientToken")
-    def "when authenticating user in tenanted and delegable mode and client-mapping not matching - fail"() {
+    def "when authenticating user in tenanted and delegable mode any failures will be forward to origin service with desc msg"() {
         given:
         fakeIdentityService.with {
             client_token = clientToken
@@ -70,14 +70,18 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
+        mc.handlings.size() == 1
+        def request2 = mc.handlings[0].request
+        request2.headers.contains("x-delegated")
+        request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
+
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | clientToken
-        300           | 301             | 500              | "500"        | UUID.randomUUID()
-        302           | 303             | 404              | "401"        | UUID.randomUUID()
-        304           | 305             | 200              | "401"        | UUID.randomUUID()
-        306           | 306             | 200              | "401"        | ""
+        requestTenant | responseTenant  | authResponseCode | responseCode | clientToken       | delegatedMsg
+        300           | 301             | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=client-auth-n.message=.*;q=0.7"
+        302           | 303             | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        304           | 305             | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        306           | 306             | 200              | "200"        | ""                | "status_code=401.component=client-auth-n.message=.*;q=0.7"
 
     }
 
@@ -159,12 +163,12 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization").startsWith("Proxy")
         request2.headers.contains("x-delegated")
-        request2.headers.getFirstValue("x-delegated").contains(delegatedMsg)
+        request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
-        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "q=.7"
-        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "q=.7"
+        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=Unable to validate token for tenant. Invalid token:\\s.*;q=0.7"
+        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=client-auth-n.message=.*;q=0.7"
     }
 
 
