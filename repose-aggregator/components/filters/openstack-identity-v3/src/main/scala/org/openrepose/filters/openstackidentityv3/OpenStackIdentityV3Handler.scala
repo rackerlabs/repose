@@ -75,7 +75,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
           failureInValidation = true
-          delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {
+          delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), e.getMessage) {
             filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
           }
@@ -83,22 +83,27 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         case Failure(e) =>
           failureInValidation = true
           LOG.error(e.getMessage)
+          delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
           None
       }
 
       // Attempt to check the project ID if configured to do so
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
-        filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-        filterDirector.setFilterAction(FilterAction.RETURN)
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), "Invalid project ID for token: " + token.get) {
+          filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+          filterDirector.setFilterAction(FilterAction.RETURN)
+          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        }
       }
 
       // Attempt to authorize the token against a configured endpoint
       if (!failureInValidation && !isAuthorized(token.get)) {
         failureInValidation = true
-        filterDirector.setFilterAction(FilterAction.RETURN)
-        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+        delegateOrElse(HttpStatusCode.FORBIDDEN.intValue(), "Invalid endpoints for token: " + token.get) {
+          filterDirector.setFilterAction(FilterAction.RETURN)
+          filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+        }
       }
 
       // Attempt to fetch groups if configured to do so
@@ -110,11 +115,14 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             case Failure(e) =>
               failureInValidation = true
               LOG.error(e.getMessage)
+              delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
               List[String]()
           }
         } getOrElse {
           failureInValidation = true
           LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
+          delegateOrElse(filterDirector.getResponseStatusCode,
+            "The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.") {}
           List[String]()
         }
       } else {
