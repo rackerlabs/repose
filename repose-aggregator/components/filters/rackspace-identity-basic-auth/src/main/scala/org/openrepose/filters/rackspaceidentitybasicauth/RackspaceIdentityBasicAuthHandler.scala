@@ -126,7 +126,6 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
 
     def createAuthRequest(encoded: String) = {
       // Base64 Decode and split the userName/apiKey
-      //storedUserName.set(userName)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
       //<?xml version="1.0" encoding="UTF-8"?>
       <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
@@ -140,7 +139,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
     val authTokenResponse = Option(akkaServiceClient.post(authValue,
       identityServiceUri,
       Map[String, String]().asJava,
-      createAuthRequest(authValue).toString,
+      createAuthRequest(authValue).toString(),
       MediaType.APPLICATION_XML_TYPE))
 
     authTokenResponse.map { tokenResponse =>
