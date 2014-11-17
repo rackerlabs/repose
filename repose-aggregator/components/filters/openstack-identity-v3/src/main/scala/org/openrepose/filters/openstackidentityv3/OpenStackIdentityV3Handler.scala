@@ -48,6 +48,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
             filterDirector.requestHeaderManager.appendHeader(key, values: _*)
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+            filterDirector.setResponseStatusCode(200) // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
           }
         case None =>
           f
