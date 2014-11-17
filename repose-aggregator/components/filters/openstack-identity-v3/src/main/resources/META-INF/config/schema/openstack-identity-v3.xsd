@@ -231,17 +231,16 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    If present, the API Validator filter will not send a failing response when an invalid state
-                    is reached.
-                    Instead, a validator will add the data relating to the failure to a header and forward the
+                    If present, the OpenStack Identity v3 filter will not send a failing response when authentication
+                    fails.
+                    Instead, it will add the data relating to the failure to a header and forward the
                     request to be handled by a different filter or service.
-                    If not present, a validator will send a failing response when an invalid state is
-                    reached.
+                    If not present, a validator will send a failing response when authentication fails.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="quality" type="QualityType" use="optional" default="0.3">
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
