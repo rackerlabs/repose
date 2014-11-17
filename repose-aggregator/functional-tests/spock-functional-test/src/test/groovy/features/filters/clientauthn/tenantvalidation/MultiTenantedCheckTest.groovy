@@ -1,13 +1,10 @@
 package features.filters.clientauthn.tenantvalidation
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 8/19/14.
  */
@@ -24,8 +21,8 @@ class MultiTenantedCheckTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant/tenanteddelegable", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantheader", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
