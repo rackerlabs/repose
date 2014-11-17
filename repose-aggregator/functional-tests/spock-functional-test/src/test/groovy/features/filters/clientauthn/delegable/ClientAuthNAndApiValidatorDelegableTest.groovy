@@ -63,7 +63,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         when: "User passes a request through repose with authN and apiValidator delegable"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/$path",
-                method: 'GET',
+                method: method,
                 headers: headers)
 
         then: "Request body sent from repose to the origin service should contain"
