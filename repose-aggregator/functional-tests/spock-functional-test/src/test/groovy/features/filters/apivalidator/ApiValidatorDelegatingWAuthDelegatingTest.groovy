@@ -133,7 +133,6 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
 
         where:
