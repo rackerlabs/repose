@@ -40,7 +40,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         repose.stop()
     }
 
-    @Unroll
+    @Unroll ("When user role #roles not in ignore-tenant-role list")
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
         given:
         fakeIdentityService.with {
@@ -77,6 +77,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         'admin%20'          |'200'
     }
 
+    @Unroll("When #method request with URL is not in the user's service list")
     def "When user requests a URL that is not in the user's service list repose should forward 403 FORBIDDEN to origin service"(){
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
@@ -86,7 +87,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         def strregex = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:method, headers:['X-Auth-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 
@@ -96,6 +97,9 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.getFirstValue("x-delegated") =~ strregex
+
+        where:
+        method << ["GET","POST","PUT","PATCH","DELETE"]
     }
 }
 
