@@ -24,6 +24,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   private final val LOG = LoggerFactory.getLogger(classOf[RackspaceIdentityBasicAuthHandler])
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
+  private final val SC_TOO_MANY_REQUESTS = 429
   private val identityServiceUri = basicAuthConfig.getRackspaceIdentityServiceUri
   private val tokenCacheTtlMillis = basicAuthConfig.getTokenCacheTimeoutMillis
   private val delegationWithQuality = Option(basicAuthConfig.getDelegating).map(_.getQuality)
@@ -66,15 +67,23 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
                 filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
               }
               case (code, _) => {
-                if (code == HttpServletResponse.SC_UNAUTHORIZED) {
-                  delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: ${storedUserName.get}") {
-                    filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
-                    filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-                    datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+                code match {
+                  case (HttpServletResponse.SC_UNAUTHORIZED) => {
+                    delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: ${storedUserName.get}") {
+                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+                      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+                      datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+                    }
                   }
-                } else {
-                  delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
-                    filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) => {
+                    delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
+                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
+                    }
+                  }
+                  case (_) => {
+                    delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
+                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+                    }
                   }
                 }
                 if(delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
