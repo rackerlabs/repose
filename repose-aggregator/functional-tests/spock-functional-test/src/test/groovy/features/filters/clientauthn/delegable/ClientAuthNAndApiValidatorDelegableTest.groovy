@@ -82,7 +82,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         method  | path           | roles                 | identityStatus  |apiDelegatedMsg
         "GET"   | "servers/"     |"raxRole"              | "Indeterminate" | "status_code=403.component=api-checker.message=You are forbidden to perform the operation;q=0.6"
         "POST"  | "servers/1235" |"raxRole, a:observer"  | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
-        "PUT"   | "servers/"     |"raxRole, a:admin"     | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
+        "PUT"   | "servers/"     |"raxRole, a:admin"     | "Indeterminate" | "status_code=404.component=api-checker.message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.6"
         "DELETE"| "servers/test" |"raxRole, a:observer"  | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/servers/.*;q=0.6"
         "GET"   | "get/"         |"raxRole"              | "Indeterminate" | "status_code=404.component=api-checker.message=Resource not found:\\s/.*;q=0.6"
 
