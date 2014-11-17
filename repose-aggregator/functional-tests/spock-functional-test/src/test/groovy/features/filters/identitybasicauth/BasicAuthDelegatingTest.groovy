@@ -9,6 +9,18 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
+import static javax.servlet.http.HttpServletResponse.SC_GATEWAY_TIMEOUT
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
+import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
+
 /**
  * Created by jennyvo on 11/12/14.
  * Delegating with identity basic auth test
@@ -17,6 +29,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityService fakeIdentityService
+    def static final SC_TOO_MANY_REQUESTS = 429
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -24,7 +37,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
-        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth", params);
+        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth/delegating", params);
 
         repose.start()
 
@@ -73,23 +86,21 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
 
     @Unroll ("#method with #caseDesc")
     def "No HTTP Basic authentication header sent and no token with delegating."() {
-        when: "the request does not have an HTTP Basic authentication or invalid key/username"
+        when: "the request does not have an HTTP Basic authentication"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.contains("x-delegated")
-        mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
-        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
+        !mc.handlings[0].request.headers.contains("x-delegated")
 
         where:
-        caseDesc                        | method      | delegatedMsg
-        "No HTTP Basic authentication"  | "GET"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "No HTTP Basic authentication"  | "PUT"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "No HTTP Basic authentication"  | "POST"      | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "No HTTP Basic authentication"  | "DELETE"    | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "No HTTP Basic authentication"  | "PATCH"     | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        caseDesc                        | method
+        "No HTTP Basic authentication"  | "GET"
+        "No HTTP Basic authentication"  | "PUT"
+        "No HTTP Basic authentication"  | "POST"
+        "No HTTP Basic authentication"  | "DELETE"
+        "No HTTP Basic authentication"  | "PATCH"
     }
 
     @Unroll ("#method with #caseDesc")
@@ -99,23 +110,23 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
                     (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
             ]
 
-        when: "the request does not have an HTTP Basic authentication or invalid key/username"
+        when: "the request has invalid key/username"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
-        mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
-        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.2")
 
         where:
         caseDesc                        | method      | delegatedMsg
-        "Invalid key or username"       | "GET"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "Invalid key or username"       | "PUT"       | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "Invalid key or username"       | "POST"      | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "Invalid key or username"       | "DELETE"    | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        "Invalid key or username"       | "PATCH"     | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
+        "Invalid key or username"       | "GET"       | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username"       | "PUT"       | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username"       | "POST"      | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username"       | "DELETE"    | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username"       | "PATCH"     | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
     }
 
     @Unroll("Sending request with auth admin response set to HTTP #identityStatusCode")
@@ -139,19 +150,21 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
-        mc.handlings[0].request.headers.findAll("x-delegated").contains(delegatedMsg)
-        mc.handlings[0].request.headers.findAll("x-delegated").contains("q=0.2")
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.2")
 
         where:
-        reqTenant | identityStatusCode                           | delegatedMsg //(these msgs need to be update when done with impl
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9401      | HttpServletResponse.SC_UNAUTHORIZED          | "status_code=401 component=rackspace-identity-basic-auth message=Unauthorized"
-        9403      | HttpServletResponse.SC_FORBIDDEN             | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9404      | HttpServletResponse.SC_NOT_FOUND             | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9502      | HttpServletResponse.SC_BAD_GATEWAY           | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | "status_code=500 component=rackspace-identity-basic-auth message=Server Error"
+        reqTenant | identityStatusCode                              | delegatedMsg //(these msgs need to be update when done with impl
+        9400      | SC_BAD_REQUEST              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9401      | SC_UNAUTHORIZED             | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        9403      | SC_FORBIDDEN                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9404      | SC_NOT_FOUND                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9500      | SC_INTERNAL_SERVER_ERROR    | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9501      | SC_NOT_IMPLEMENTED          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9502      | SC_BAD_GATEWAY              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9503      | SC_SERVICE_UNAVAILABLE      | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9504      | SC_GATEWAY_TIMEOUT          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9505      | SC_REQUEST_ENTITY_TOO_LARGE | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
+        9506      | SC_TOO_MANY_REQUESTS        | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
     }
 }
