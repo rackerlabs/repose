@@ -17,7 +17,7 @@ set -e
 
 CONFIG_DIRECTORY=/etc/repose
 
-JAVA=/usr/bin/java
+JAVA=$(readlink -f /usr/bin/java)
 
 NAME=repose-valve
 DAEMON_HOME=/usr/share/repose
