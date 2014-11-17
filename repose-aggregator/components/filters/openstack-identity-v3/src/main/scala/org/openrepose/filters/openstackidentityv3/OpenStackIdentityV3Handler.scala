@@ -28,7 +28,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val identityServiceUri = identityConfig.getOpenstackIdentityService.getUri
   private val forwardGroups = identityConfig.isForwardGroups
   private val forwardCatalog = identityConfig.isForwardCatalog
-  private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
   private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
@@ -173,7 +172,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
-      if (forwardUnauthorizedRequests) {
+      if (delegatingWithQuality.isDefined) {
         if (!failureInValidation) {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
         } else {

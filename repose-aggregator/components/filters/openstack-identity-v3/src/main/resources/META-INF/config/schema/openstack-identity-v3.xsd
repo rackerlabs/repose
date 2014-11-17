@@ -27,18 +27,6 @@
                         maxOccurs="1"/>
         </xs:all>
 
-        <xs:attribute name="forward-unauthorized-requests" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        If set to false, the OpenStack Identity v3 filter will not forward unauthorized requests.
-                        If set to true, the OpenStack Identity v3 filter will forward unauthorized requests and set the
-                        X-Authorization and X-Identity-Status headers to the appropriate values.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
         <xs:attribute name="send-all-project-ids" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
