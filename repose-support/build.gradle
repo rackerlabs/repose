@@ -61,6 +61,13 @@ project(':loader-test-filter') {
     }
 }
 
+project(':loader-test-filter-one') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
 project(':core-test-filter-bundle') {
     apply plugin: 'ear'
     apply plugin: 'maven'
@@ -94,6 +101,7 @@ project(':core-test-filter-bundle-class-loader') {
 
     dependencies {
         deploy project(':loader-test-filter')
+        deploy project(':loader-test-filter-one')
     }
 
     publishing {

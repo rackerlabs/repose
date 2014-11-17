@@ -1,1 +1,1 @@
-include 'core-test-filter', 'core-test-filter-bundle', 'loader-test-filter', 'core-test-filter-bundle-class-loader'
+include 'core-test-filter', 'core-test-filter-bundle', 'loader-test-filter', 'core-test-filter-bundle-class-loader', 'loader-test-filter-one'
