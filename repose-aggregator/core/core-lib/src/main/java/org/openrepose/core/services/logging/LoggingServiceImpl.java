@@ -1,31 +1,21 @@
 package org.openrepose.core.services.logging;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.config.ConfigurationSource;
-import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
 
-import java.io.IOException;
+import java.io.File;
 
 /**
  * @author fran
  */
 public class LoggingServiceImpl implements LoggingService {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoggingServiceImpl.class);
-
     public LoggingServiceImpl() {
     }
 
     @Override
-    public void updateLoggingConfiguration(Resource configLocation) {
-        try {
-            ConfigurationSource configurationSource = new ConfigurationSource(configLocation.getInputStream());
-            XmlConfiguration xmlConfiguration = new XmlConfiguration(configurationSource);
-            ((Logger) LogManager.getRootLogger()).getContext().start(xmlConfiguration);
-        } catch (IOException e) {
-            LOG.info("Failed to load the new Logging configuration from " + configLocation, e);
-        }
+    public void updateLoggingConfiguration(File configLocation) {
+            System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, configLocation.getAbsolutePath());
+            ((LoggerContext) LogManager.getContext(false)).reconfigure();
     }
 }
