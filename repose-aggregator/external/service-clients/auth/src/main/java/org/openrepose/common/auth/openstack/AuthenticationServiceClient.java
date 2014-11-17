@@ -345,4 +345,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
     public static String getDelegationMessage() {
         return delegationMessage.get();
     }
+
+    public static void removeDelegationMessage() {
+        delegationMessage.remove();
+    }
 }

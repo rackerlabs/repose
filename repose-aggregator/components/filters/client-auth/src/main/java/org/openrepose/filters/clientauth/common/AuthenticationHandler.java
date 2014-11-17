@@ -164,6 +164,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
                 account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
+        delegationMessage.remove();
+
         return filterDirector;
     }
 

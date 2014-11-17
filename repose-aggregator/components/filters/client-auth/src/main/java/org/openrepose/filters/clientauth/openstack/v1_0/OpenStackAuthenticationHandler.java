@@ -5,6 +5,7 @@ import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
+import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -91,7 +92,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
         if (account != null) {
             AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token);
-            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
+            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
             authToken = validateTenant(authResponse, account.getResult());
         } else {
             AuthenticateResponse authResp = authenticationService.validateToken(null, token);
@@ -100,6 +101,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                 authToken = new OpenStackToken(authResp);
             }
         }
+        AuthenticationServiceClient.removeDelegationMessage();
 
         /**
          * If any role in that token is in the BypassTenantRoles list, bypass the tenant check
