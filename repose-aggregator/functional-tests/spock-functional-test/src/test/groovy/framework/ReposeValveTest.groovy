@@ -5,6 +5,8 @@ import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -86,8 +88,8 @@ abstract class ReposeValveTest extends Specification {
         try{
             waitForCondition(clock, '35s', '1s', {
                 if(checkLogMessage &&
-                        logSearch.searchByString(
-                                "org.openrepose.core.filter.PowerFilter  - Repose ready").size() > 0){
+                        logSearch.awaitByString(
+                                "org.openrepose.core.filter.PowerFilter  - Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0){
                     return true
                 }
                 try {

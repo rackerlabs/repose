@@ -3,14 +3,17 @@ package features.filters.experimental.helpers
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.junit.Assume
+import org.linkedin.util.clock.Timespan
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
+import java.util.concurrent.TimeUnit
+
 class ExceptionFilterTest extends ReposeValveTest {
     def logSearch = new ReposeLogSearch(properties.logFile)
 
-    def "Proving that the test filter throws an exception" () {
+    def "Proving that the test filter throws an exception"() {
         given:
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -26,8 +29,8 @@ class ExceptionFilterTest extends ReposeValveTest {
         MessageChain mc = null
         mc = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:reposeEndpoint + "/get",
+                        method        : 'GET',
+                        url           : reposeEndpoint + "/get",
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }
@@ -36,12 +39,16 @@ class ExceptionFilterTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '500'
-        logSearch.searchByString("java.lang.RuntimeException: This is just a test filter!  Don't use it in real life!").size() > 0
+
+        logSearch.awaitByString(
+                "java.lang.RuntimeException: This is just a test filter!  Don't use it in real life!",
+                1,
+                3, TimeUnit.SECONDS).size() > 0
 
         cleanup:
-        if(started)
+        if (started)
             repose.stop()
-        if(deproxy != null)
+        if (deproxy != null)
             deproxy.shutdown()
 
     }
