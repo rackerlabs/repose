@@ -116,4 +116,11 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest{
         "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "405"          | 10        | 9
     }
 
+    def "finish test"(){
+        when:
+        String s1 = 1
+        then:
+        println "test"
+    }
+
 }
