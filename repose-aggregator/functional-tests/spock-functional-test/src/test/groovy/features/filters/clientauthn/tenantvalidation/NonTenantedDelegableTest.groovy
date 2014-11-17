@@ -181,8 +181,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
-        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=.*;q=0.7"
-        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
+        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
     }
 
 }
