@@ -3,6 +3,7 @@ package org.openrepose.core.filter;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.powerfilter.FilterInitializationException;
 
 import static org.junit.Assert.assertEquals;
 

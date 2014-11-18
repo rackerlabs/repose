@@ -24,7 +24,7 @@ class DecommissionHttpLoggingTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString("org.openrepose.core.filter.PowerFilterChain  - Filter is not available for processing requests: http-logging").size() > 0
+        reposeLogSearch.searchByString("org.openrepose.powerfilter.PowerFilterChain  - Filter is not available for processing requests: http-logging").size() > 0
     }
     def cleanup() {
         if (deproxy)

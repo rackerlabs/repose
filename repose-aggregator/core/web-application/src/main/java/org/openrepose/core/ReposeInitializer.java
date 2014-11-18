@@ -1,6 +1,9 @@
 package org.openrepose.core;
 
-import org.openrepose.core.filter.PowerFilter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.openrepose.powerfilter.EmptyServlet;
+import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -22,7 +25,9 @@ public class ReposeInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.setParent(CoreSpringProvider.getInstance().getCoreContext());
         rootContext.setDisplayName("ReposeWARFileContext");
-        rootContext.register(PowerFilter.class);
+
+        Config config = ConfigFactory.load("springConfiguration.conf");
+        rootContext.scan(config.getString("powerFilterSpringContextPath"));
 
         servletContext.addListener(new ContextLoaderListener(rootContext));
         servletContext.addServlet("emptyServlet", EmptyServlet.class).addMapping("/*");

@@ -3,7 +3,7 @@ package org.openrepose.filters.compression;
 import org.openrepose.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.core.filter.PowerFilterChain;
+import org.openrepose.powerfilter.PowerFilterChain;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;

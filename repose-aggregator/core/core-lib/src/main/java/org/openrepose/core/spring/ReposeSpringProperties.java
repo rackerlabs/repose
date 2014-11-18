@@ -8,5 +8,6 @@ public class ReposeSpringProperties {
     public static final String NODE_ID = "repose-node-id";
     public static final String CLUSTER_ID = "repose-cluster-id";
     public static final String CONFIG_ROOT = "powerapi-config-directory";
+    public static final String INSECURE = "repose-insecurity";
 
 }

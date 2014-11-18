@@ -1,6 +1,6 @@
 package org.openrepose.filters.versioning;
 
-import org.openrepose.core.filter.PowerFilter;
+import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.commons.utils.jetty.JettyException;
 import org.openrepose.commons.utils.jetty.JettyServerBuilder;
 import org.openrepose.commons.utils.jetty.JettyTestingContext;
