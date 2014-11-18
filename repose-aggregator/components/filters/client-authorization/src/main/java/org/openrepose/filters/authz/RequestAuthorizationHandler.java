@@ -1,18 +1,19 @@
 package org.openrepose.filters.authz;
 
-import org.openrepose.common.auth.AuthServiceException;
+import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.components.authz.rackspace.config.DelegatingType;
+import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
+import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
-import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openstack.docs.identity.api.v2.Endpoint;
@@ -21,24 +22,24 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);
+    private static final String CLIENT_AUTHORIZATION = "client-authorization";
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
+    private final DelegatingType delegating;
     private final List<String> ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles) {
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles, DelegatingType delegating) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
+        this.delegating = delegating;
         this.ignoreTenantRoles = getListOfRoles(ignoreTenantRoles);
     }
 
@@ -56,138 +57,91 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.RETURN);
         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        String message = "Failure in authorization component";
 
-        if (authenticationWasDelegated(request)) {
-            // We do not support delegation
-            myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            LOG.debug("Authentication delegation is not supported by the Rackspace authorization filter. Rejecting request.");
-        } else {
-            authorizeRequest(myDirector, request);
+        final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
+
+        try {
+            if (StringUtilities.isBlank(authenticationToken)) {
+                // Reject if no token
+                message = "Authentication token not found in X-Auth-Token header. Rejecting request.";
+                LOG.debug(message);
+                myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+            } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
+                            isEndpointAuthorizedForToken(authenticationToken)) {
+                myDirector.setFilterAction(FilterAction.PASS);
+            } else {
+                message = "User token: " + authenticationToken +
+                        ": The user's service catalog does not contain an endpoint that matches " +
+                        "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                        myEndpoint.getHref() + "\".  User not authorized to access service.";
+                LOG.info(message);
+                myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+            }
+        } catch (Exception ex) {
+            LOG.error(message, ex);
+            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
 
+        if(delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {
+            myDirector.setFilterAction(FilterAction.PASS);
+            for(Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), CLIENT_AUTHORIZATION, message, delegating.getQuality()).entrySet()) {
+                List<String> value = mapHeaders.getValue();
+                myDirector.requestHeaderManager().appendHeader(mapHeaders.getKey(), value.toArray(new String[value.size()]));
+            }
+        }
         return myDirector;
     }
 
-    public void authorizeRequest(FilterDirector director, HttpServletRequest request) {
-        final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
-
-        if (StringUtilities.isBlank(authenticationToken)) {
-            // Reject if no token
-            LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
-            director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (!ignoreTenantRoles.isEmpty()) {
-            //if service admin roles from cfg populated then compare to x-roles header
-            final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
-
-            if (checkForAdminRoles(xRolesHeaderValueList)) {
-                director.setFilterAction(FilterAction.PASS);
-            } else {
-                checkTenantEndpoints(director, authenticationToken);
+    private boolean adminRoleMatchIgnoringCase(Enumeration<String> roleStringList) {
+        List<String> roles = Collections.list(roleStringList);
+        if(!roles.isEmpty()) {
+            for (String ignoreTenantRole : ignoreTenantRoles) {
+                for (String role : roles) {
+                    if (ignoreTenantRole.equalsIgnoreCase(role)) {
+                        return true;
+                    }
+                }
             }
-        } else {
-            checkTenantEndpoints(director, authenticationToken);
         }
-    }
-
-    private boolean checkForAdminRoles(List<String> xRolesHeaderValueStringList) {
-
-        if (xRolesHeaderValueStringList.size() > 0) {
-            return adminRoleMatchIgnoringCase(xRolesHeaderValueStringList);
-        }
-
         return false;
     }
 
-    private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
-
-        for (String ignoreTenantRole : ignoreTenantRoles) {
-            for (String role : roleStringList) {
-                if (ignoreTenantRole.equalsIgnoreCase(role)) {
+    private boolean isEndpointAuthorizedForToken(String userToken) {
+        List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
+        if(cachedEndpoints != null) {
+            for (CachedEndpoint authorizedEndpoint : cachedEndpoints) {
+                if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
+                    LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
+                    LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
-    public void checkTenantEndpoints(FilterDirector director, String userToken) {
-
-        try {
-            final List<CachedEndpoint> authorizedEndpoints = getEndpointsForToken(userToken);
-
-            if (isEndpointAuthorized(authorizedEndpoints)) {
-                director.setFilterAction(FilterAction.PASS);
-            } else {
-                LOG.info("User token: " + userToken +
-                         ": The user's service catalog does not contain an endpoint that matches " +
-                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                         myEndpoint.getHref() + "\".  User not authorized to access service.");
-                director.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            }
-        } catch (AuthServiceException ex) {
-            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        } catch (Exception ex) {
-            LOG.error("Failure in authorization component: " + ex.getMessage(), ex);
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private boolean isEndpointAuthorized(final List<CachedEndpoint> authorizedEndpoints) {
-        boolean authorized = false;
-
-        for (CachedEndpoint authorizedEndpoint : authorizedEndpoints) {
-
-            if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
-                LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
-            }
-
-            if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
-                LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
-            }
-
-            if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
-                authorized = true;
-                break;
-            }
-        }
-
-        return authorized;
-    }
-
-    private List<CachedEndpoint> getEndpointsForToken(String userToken) {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
-            cachedEndpoints = requestEndpointsForTokenFromAuthService(userToken);
-
-            try {
-                endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
-            } catch (IOException ioe) {
-                LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
+            List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
+            if(authorizedEndpoints != null) {
+                cachedEndpoints = new LinkedList<>();
+                for (Endpoint ep : authorizedEndpoints) {
+                    cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
+                }
+                try {
+                    endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
+                } catch (IOException ioe) {
+                    LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
+                }
             }
         }
-
         return cachedEndpoints;
-    }
-
-    private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
-        final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
-        final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
-
-        for (Endpoint ep : authorizedEndpoints) {
-            serializable.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
-        }
-
-        return serializable;
-    }
-
-    // The X-Identity-Status header gets set if client authentication is in delegated mode.  If the token is valid, the
-    // value of the X-Identity-Status header is "Confirmed".  If the token is not valid, then the X-Identity-Status
-    // header is set to "Indeterminate".  In the future, we may want to allow authorization for delegated requests
-    // that have a "Confirmed" status since we know the token is valid in that case.
-    public boolean authenticationWasDelegated(HttpServletRequest request) {
-        return StringUtilities.isNotBlank(request.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString()));
     }
 }
