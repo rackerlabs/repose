@@ -1,7 +1,6 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
-import com.rackspace.httpdelegation.impl.HttpDelegationManagerImpl;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.commons.utils.StringUtilities;
@@ -9,8 +8,6 @@ import org.openrepose.commons.utils.http.*;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.slf4j.Logger;
-import scala.collection.JavaConverters;
-import scala.collection.immutable.Set;
 
 import java.util.Date;
 import java.util.List;
