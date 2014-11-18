@@ -30,11 +30,9 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating/apivalidator", params)
         repose.start()
-        waitUntilReadyToServiceRequests('200')
     }
 
     def cleanupSpec() {
@@ -55,7 +53,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
         def delegatingmsg = "status_code=401.component=openstack-identity-v3.message=A subject token was not provided to validate;q=0.7"
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/123456",
+                url: "$reposeEndpoint/$path",
                 method: method,
                 headers: ['content-type': 'application/json', 'x-roles': roles])
 
@@ -65,19 +63,19 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-authorization")
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
         mc.handlings[0].request.headers.contains("X-Delegated")
+        mc.handlings[0].request.headers.findAll("X-Delegated").size() == 2
         msgCheckingHelper(mc.handlings[0].request.headers.findAll("X-Delegated"),delegatingmsg,apiDelegatingMsg)
 
         where:
-        method  | path          |roles                       | apiDelegatingMsg
-        "GET"   |"/servers/"    |"raxrole-test1"             | "status_code=404.component=api-checker.message=.*;q=0.3"
-        "POST"  |"/servers/1234"|"raxrole-test1, a:observer" | "status_code=404.component=api-checker.message=.*;q=0.3"
-        "PUT"   |"/servers/"    |"raxrole-test1, a:admin"    | "status_code=404.component=api-checker.message=.*;q=0.3"
-        "DELETE"|"/servers/"    |"raxrole-test1"             | "status_code=404.component=api-checker.message=.*;q=0.3"
-        "GET"   |"/servers/"    |null                        | "status_code=404.component=api-checker.message=.*;q=0.3"
-        "GET"   |"/get"         |"raxrole-test1, a:observer" | "status_code=404.component=api-checker.message=.*;q=0.3"
+        method  | path         |roles                       | apiDelegatingMsg
+        "GET"   |"servers/"    |"raxrole-test1"             | "status_code=403.component=api-checker.message=.*;q=0.5"
+        "POST"  |"servers/1234"|"raxrole-test1, a:admin"    | "status_code=404.component=api-checker.message=.*;q=0.5"
+        "PUT"   |"servers/"    |"raxrole-test1, a:admin"    | "status_code=405.component=api-checker.message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
+        "DELETE"|"servers/"    |"raxrole-test1"             | "status_code=403.component=api-checker.message=.*;q=0.5"
+        "GET"   |"get/"        |"raxrole-test1, a:observer" | "status_code=404.component=api-checker.message=.*;q=0.5"
     }
 
-    @Unroll("#authResponseCode, #responseCode, #roles")
+    @Unroll("#authResponseCode, #responseCode")
     def "when send req with unauthorized user with forward-unauthorized-request true"() {
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID()
@@ -92,13 +90,14 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
                     new Response(authResponseCode, null, null, responseBody)
             }
         }
-        def apidelegatingmsg = "status_code=403.component=api-checker.message=.*;q=0.3"
+        def apidelegatingmsg = "status_code=404.component=api-checker.message=.*;q=0.5"
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
                 method: 'GET',
                 headers: ['content-type': 'application/json',
-                          'X-Subject-Token': fakeIdentityV3Service.client_token])
+                          'X-Subject-Token': fakeIdentityV3Service.client_token,
+                          'X-Roles': "raxrole-test1"])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -106,6 +105,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-authorization") == "Proxy"
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
         mc.handlings[0].request.headers.contains("X-Delegated")
+        mc.handlings[0].request.headers.findAll("X-Delegated").size() == 2
         msgCheckingHelper(mc.handlings[0].request.headers.findAll("X-Delegated"),delegatingMsg,apidelegatingmsg)
 
         where:
