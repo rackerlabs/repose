@@ -87,6 +87,7 @@ public class OpenStackAuthenticationHeaderManager {
             setDelegationHeader();
         } else if (isDelagable) {
             filterDirector.setFilterAction(FilterAction.PASS);
+            filterDirector.setResponseStatusCode(200); // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
             setExtendedAuthorization();
             setIdentityStatus();
             setDelegationHeader();
