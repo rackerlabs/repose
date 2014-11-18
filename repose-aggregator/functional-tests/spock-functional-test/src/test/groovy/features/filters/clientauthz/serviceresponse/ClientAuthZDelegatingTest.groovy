@@ -5,6 +5,7 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -100,6 +101,56 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
 
         where:
         method << ["GET","POST","PUT","PATCH","DELETE"]
+    }
+
+    @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Endpoints Call: #endpointsBroken Error Code: #errorCode")
+    def "When Auxiliary service is broken for Service Endpoints call"(){
+
+        given: "When Calls to Auth Return bad responses"
+
+        def clientToken = UUID.randomUUID().toString()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+        }
+        if (adminBroken) {
+            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+        }
+        if (endpointsBroken) {
+            fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
+        }
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "User should receive a " + expectedCode + "response"
+        mc.receivedResponse.code == expectedCode
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
+
+        where:
+        adminBroken | endpointsBroken| errorCode | expectedCode | delegatingMsg
+        true        | false          | 400       | "200"        | "status_code=400.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 401       | "200"        | "status_code=401.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 402       | "200"        | "status_code=402.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 403       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 404       | "200"        | "status_code=404.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 413       | "200"        | "status_code=413.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 429       | "200"        | "status_code=429.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 500       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 501       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 502       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        true        | false          | 503       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 400       | "200"        | "status_code=400.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 401       | "200"        | "status_code=401.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 402       | "200"        | "status_code=402.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 403       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 404       | "200"        | "status_code=404.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 413       | "200"        | "status_code=413.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 429       | "200"        | "status_code=429.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 500       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 501       | "200"        | "status_code=501.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 502       | "200"        | "status_code=502.component=client-authorization.message=.*;q=0.3"
+        false       | true           | 503       | "200"        | "status_code=503.component=client-authorization.message=.*;q=0.3"
+
     }
 }
 
