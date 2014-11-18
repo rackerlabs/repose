@@ -6,4 +6,3 @@
         <identity-service username="admin_username" password="admin_password" uri="http://auth.openrepose.org/v2.0/" />
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
-</client-auth>
