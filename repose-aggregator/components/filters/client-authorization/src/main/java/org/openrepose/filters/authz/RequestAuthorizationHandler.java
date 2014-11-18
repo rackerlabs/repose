@@ -79,7 +79,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
         } catch (Exception ex) {
-            LOG.error(message + ex.getMessage(), ex);
+            LOG.error(message, ex);
             myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
 
