@@ -51,7 +51,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
     @Unroll ("When #method req without credential")
     def "when send req without credential with delegating option repose forward req and failure msg to origin service"() {
         given:
-        def delegatingmsg = "status_code=401`component=openstack-identity-v3`message=A subject token was not provided to validate;q=0.7"
+        def delegatingmsg = "status_code=401.component=openstack-identity-v3.message=A subject token was not provided to validate;q=0.7"
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/123456/",
@@ -61,7 +61,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        //mc.handlings[0].request.headers.getFirstValue("X-authorization")
+        mc.handlings[0].request.headers.getFirstValue("X-authorization")
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
         mc.handlings[0].request.headers.contains("X-Delegated")
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingmsg
@@ -96,16 +96,16 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
-        //mc.handlings[0].request.headers.getFirstValue("X-authorization") == "Proxy"
+        mc.handlings[0].request.headers.getFirstValue("X-authorization") == "Proxy"
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
         mc.handlings[0].request.headers.contains("X-Delegated")
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
         reqProject  | authResponseCode | responseCode   |responseBody                                           | delegatingMsg
-        "p500"      | 401              | "200"          |"Unauthorized"                                         | "status_code=401`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
-        "p501"      | 403              | "200"          |"Unauthorized"                                         | "status_code=403`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
-        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate  | "status_code=404`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
+        "p500"      | 401              | "200"          |"Unauthorized"                                         | "status_code=500.component=openstack-identity-v3.message=Valid admin token could not be fetched;q=0.7"
+        "p501"      | 403              | "200"          |"Unauthorized"                                         | "status_code=500.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
+        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate  | "status_code=401.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
     }
 
     def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected" () {
