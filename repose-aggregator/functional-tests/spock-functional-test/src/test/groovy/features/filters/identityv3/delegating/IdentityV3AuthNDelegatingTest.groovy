@@ -51,7 +51,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
     @Unroll ("When #method req without credential")
     def "when send req without credential with delegating option repose forward req and failure msg to origin service"() {
         given:
-        def delegatingmsg = "status_code=401.components=openstack-identity-v3.message=A subject token was not provided to validate;q=0.7"
+        def delegatingmsg = "status_code=401`component=openstack-identity-v3`message=A subject token was not provided to validate;q=0.7"
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/123456/",
@@ -103,9 +103,9 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
 
         where:
         reqProject  | authResponseCode | responseCode   |responseBody                                           | delegatingMsg
-        "p500"      | 401              | "200"          |"Unauthorized"                                         | "status_code=401.components=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
-        "p501"      | 403              | "200"          |"Unauthorized"                                         | "status_code=403.components=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
-        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate  | "status_code=404.components=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
+        "p500"      | 401              | "200"          |"Unauthorized"                                         | "status_code=401`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
+        "p501"      | 403              | "200"          |"Unauthorized"                                         | "status_code=403`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
+        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate  | "status_code=404`component=openstack-identity-v3`message=Failed to validate subject token;q=0.7"
     }
 
     def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected" () {
