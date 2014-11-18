@@ -25,6 +25,8 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
     def clock = new SystemClock()
     def Process process
+    StreamGobbler outGobbler
+    StreamGobbler errGobbler
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -79,8 +81,10 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
         def th = new Thread({
             this.process = cmd.execute()
-            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
-            this.process.consumeProcessOutput()
+            outGobbler = new StreamGobbler((InputStream)this.process.getInputStream(), "ForkedOUT => ", System.out);
+            errGobbler = new StreamGobbler(this.process.getErrorStream(), "ForkedERR => ", System.err);
+            outGobbler.run();
+            errGobbler.run();
         });
 
         th.run()
@@ -106,6 +110,8 @@ class ReposeContainerLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
+            outGobbler.shutdown()
+            errGobbler.shutdown()
             this.process.destroy()
 
             print("Waiting for Repose Container to shutdown")

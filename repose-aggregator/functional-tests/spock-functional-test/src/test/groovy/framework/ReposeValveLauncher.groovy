@@ -26,6 +26,8 @@ class ReposeValveLauncher extends ReposeLauncher {
     def classPaths = []
 
     Process process
+    StreamGobbler outGobbler
+    StreamGobbler errGobbler
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -127,8 +129,10 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         def th = new Thread({
             this.process = cmd.execute()
-            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
-            this.process.consumeProcessOutput()
+            outGobbler = new StreamGobbler((InputStream)this.process.getInputStream(), "ForkedOUT => ", System.out);
+            errGobbler = new StreamGobbler(this.process.getErrorStream(), "ForkedERR => ", System.err);
+            outGobbler.run();
+            errGobbler.run();
         });
 
         th.run()
@@ -181,6 +185,8 @@ class ReposeValveLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
+            outGobbler.shutdown()
+            errGobbler.shutdown()
             this.process.destroy()
 
             print("Waiting for Repose to shutdown")
