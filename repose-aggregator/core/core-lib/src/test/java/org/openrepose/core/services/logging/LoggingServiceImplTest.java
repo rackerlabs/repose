@@ -19,9 +19,7 @@ import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
 
@@ -36,8 +34,8 @@ public class LoggingServiceImplTest {
         LoggerContext context = (LoggerContext) LogManager.getContext(false);
         File file = File.createTempFile("log4j2-", ".xml");
         file.deleteOnExit();
-        writeConfigOne(file);
-        loggingServiceImpl.updateLoggingConfiguration(file);
+        LoggingServiceImplTest.writeConfigOne(file);
+        loggingServiceImpl.updateLoggingConfiguration(file.toURI().toURL().toString());
         final Configuration config1 = context.getConfiguration();
         ListAppender app1 = ((ListAppender) (config1.getAppender("List1")));
         assertThat("No list appender", app1, is(not(nullValue())));
@@ -50,7 +48,7 @@ public class LoggingServiceImplTest {
         }
         System.out.println(".");
 
-        writeConfigTwo(file);
+        LoggingServiceImplTest.writeConfigTwo(file);
 
         // This loop and sleep provides the tickling of the logging infrastructure to wake up and reload.
         // The original Log4J 2.x tests use 17 log writes, we get by with only 15.
@@ -90,6 +88,31 @@ public class LoggingServiceImplTest {
         assertThat("Second appender did not contain the Warn 2", events2, contains("WARN  LEVEL LOG STATEMENT 2"));
         assertThat("Second appender did not contain the Info 2", events2, contains("INFO  LEVEL LOG STATEMENT 2"));
         assertThat("Second appender did not contain the Debug 2", events2, contains("DEBUG LEVEL LOG STATEMENT 2"));
+        assertThat("Second appender did contain the Trace 2", events2, not(contains("TRACE LEVEL LOG STATEMENT 2")));
+    }
+
+    @Test
+    public void shouldLoadJsonConfiguration() throws IOException, InterruptedException {
+        LoggingServiceImpl loggingServiceImpl = new LoggingServiceImpl();
+        File file = File.createTempFile("log4j2-", ".json");
+        file.deleteOnExit();
+        LoggingServiceImplTest.writeConfigJson(file);
+        loggingServiceImpl.updateLoggingConfiguration(file.toURI().toURL().toString());
+
+        LOG.error("ERROR LEVEL LOG STATEMENT 2");
+        LOG.warn("WARN  LEVEL LOG STATEMENT 2");
+        LOG.info("INFO  LEVEL LOG STATEMENT 2");
+        LOG.debug("DEBUG LEVEL LOG STATEMENT 2");
+        LOG.trace("TRACE LEVEL LOG STATEMENT 2");
+
+        final Configuration config2 = ((LoggerContext) LogManager.getContext(false)).getConfiguration();
+        ListAppender app2 = ((ListAppender) (config2.getAppender("List2")));
+        assertThat("No new list appender", app2, is(not(nullValue())));
+        List<LogEvent> events2 = app2.getEvents();
+        assertThat("Second appender did not contain the Error 2", events2, contains("ERROR LEVEL LOG STATEMENT 2"));
+        assertThat("Second appender did not contain the Warn 2", events2, contains("WARN  LEVEL LOG STATEMENT 2"));
+        assertThat("Second appender did not contain the Info 2", events2, contains("INFO  LEVEL LOG STATEMENT 2"));
+        assertThat("Second appender did contain the Debug 2", events2, not(contains("DEBUG LEVEL LOG STATEMENT 2")));
         assertThat("Second appender did contain the Trace 2", events2, not(contains("TRACE LEVEL LOG STATEMENT 2")));
     }
 
@@ -152,6 +175,40 @@ public class LoggingServiceImplTest {
         ps.println("        <Logger name=\"" + LOG_NAME + "\" level=\"debug\"/>");
         ps.println("    </Loggers>");
         ps.println("</Configuration>");
+        ps.close();
+    }
+
+    private static void writeConfigJson(File file) throws FileNotFoundException {
+        PrintStream ps = new PrintStream(file);
+        ps.println("{");
+        ps.println("    \"configuration\": {");
+        ps.println("        \"name\": \"LoggingServiceImplTestJson\",");
+        ps.println("        \"appenders\": {");
+        ps.println("            \"Console\": {");
+        ps.println("                \"name\": \"STDOUT\",");
+        ps.println("                \"PatternLayout\": {");
+        ps.println("                    \"pattern\": \"%-4r [%t] %-5p %c - %m%n\"");
+        ps.println("                }");
+        ps.println("            },");
+        ps.println("            \"List\": {");
+        ps.println("                \"name\": \"List2\"");
+        ps.println("            }");
+        ps.println("        },");
+        ps.println("        \"loggers\": {");
+        ps.println("            \"root\": {");
+        ps.println("                \"level\": \"debug\",");
+        ps.println("                \"appender-ref\": {");
+        ps.println("                    \"ref\": \"STDOUT\",");
+        ps.println("                    \"ref\": \"List2\"");
+        ps.println("                }");
+        ps.println("            },");
+        ps.println("            \"logger\": {");
+        ps.println("                \"name\": \"" + LOG_NAME + "\",");
+        ps.println("                \"level\": \"info\"");
+        ps.println("            }");
+        ps.println("        }");
+        ps.println("    }");
+        ps.println("}");
         ps.close();
     }
 }
