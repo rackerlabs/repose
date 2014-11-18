@@ -64,7 +64,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest{
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-authorization")
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
-        mc.handlings[0].request.headers.contains("X-Delegated") 
+        mc.handlings[0].request.headers.contains("X-Delegated")
         msgCheckingHelper(mc.handlings[0].request.headers.findAll("X-Delegated"),delegatingmsg,apiDelegatingMsg)
 
         where:
