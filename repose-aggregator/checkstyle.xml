@@ -139,14 +139,14 @@
         </module>
 
         <module name="Regexp">
-            <property name="format" value="^(?!import).*[^\s-].*\nimport"/>
+            <property name="format" value="^(?!import ).*[^\s-].*\nimport "/>
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Missing blank line before import"/>
         </module>
 
         <module name="Regexp">
-            <property name="format" value="import.*\n(?!import)[^\n]*[^\s-]"/>
+            <property name="format" value="import .*\n(?!import )[^\n]*[^\s-]"/>
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Missing blank line after import"/>
