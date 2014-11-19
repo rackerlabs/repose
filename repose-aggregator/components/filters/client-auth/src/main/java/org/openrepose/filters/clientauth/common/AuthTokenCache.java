@@ -36,7 +36,7 @@ public class AuthTokenCache implements DeleteableCache{
    }
 
    public AuthToken getUserToken(String tokenId) {
-      AuthToken candidate = (AuthToken)store.get(cachePrefix + "." + tokenId);//Looking into the datastore for this token.
+      AuthToken candidate = (AuthToken)store.get(cachePrefix + "." + tokenId); //Looking into the datastore for this token.
       return validateToken(candidate)? candidate: null;
    }
    
