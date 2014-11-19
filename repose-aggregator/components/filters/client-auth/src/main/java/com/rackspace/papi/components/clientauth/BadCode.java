@@ -1,9 +1,10 @@
-import java.io.FileWriter;
-import java.util.ArrayList;
-
 /**
  * Created by eric7500 on 9/2/14.
  */
+
+package com.rackspace.papi.components.clientauth;
+import java.io.FileWriter;
+import java.util.ArrayList;
 public class BadCode {
     int x;
     String s;
@@ -15,10 +16,10 @@ public class BadCode {
     public int getX2() {
         if (true) {
             return x;
-        }
+        } else x = x;
 
         synchronized (this) {
-            int number = 5;
+            int number = (int) 5.0;
         }
 
         return x;
@@ -26,6 +27,7 @@ public class BadCode {
 
     public int getXPlus() {
         x += 1;
+        x = (true)?x:x - 1;
         return x;
     }
 
@@ -36,6 +38,7 @@ public class BadCode {
         }
         return (s.toString());
     }
+
 
     public ArrayList getList() {
         return new ArrayList<Integer>();
