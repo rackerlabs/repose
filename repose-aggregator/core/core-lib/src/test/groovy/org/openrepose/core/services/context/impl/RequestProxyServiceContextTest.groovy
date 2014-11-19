@@ -2,7 +2,6 @@ package org.openrepose.core.services.context.impl
 
 import com.google.common.base.Optional
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.ArgumentCaptor
