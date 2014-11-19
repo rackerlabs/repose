@@ -53,7 +53,7 @@ project(':core-test-filter') {
     }
 }
 
-project(':loader-test-filter') {
+project(':loader-test-filter-one') {
     dependencies {
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
@@ -61,8 +61,31 @@ project(':loader-test-filter') {
     }
 }
 
-project(':loader-test-filter-one') {
+project(':loader-test-filter-two') {
     dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-three') {
+    dependencies {
+        runtime project(':loader-test-filter-one')
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-four') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-five') {
+    dependencies {
+        compile project(':loader-test-filter-two')
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
     }
@@ -93,15 +116,118 @@ project(':core-test-filter-bundle') {
     }
 }
 
-project(':core-test-filter-bundle-class-loader') {
+project(':core-test-filter-bundle-class-loader-one') {
     apply plugin: 'ear'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'maven-publish-auth'
 
     dependencies {
-        deploy project(':loader-test-filter')
         deploy project(':loader-test-filter-one')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-two') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-two')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-three') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        //earlib project(':core-test-bundle-class-loader-one')
+        deploy project(':loader-test-filter-three')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-four') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-one')
+        deploy project(':loader-test-filter-four')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-five') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        //earlib project(':core-test-bundle-class-loader-one')
+        deploy project(':loader-test-filter-two')
+        deploy project(':loader-test-filter-five')
     }
 
     publishing {
