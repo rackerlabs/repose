@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="false" xmlns='http://openrepose.org/repose/validator/v1.0'>
+    <delegating quality=".5"/>
     <validator role="raxrole-test1"
                default="false"
-               enable-rax-roles="true"
-               delegable="true" delegable-quality=".5">
+               enable-rax-roles="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/servers/">
