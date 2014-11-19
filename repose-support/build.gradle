@@ -78,6 +78,7 @@ project(':loader-test-filter-three') {
 
 project(':loader-test-filter-four') {
     dependencies {
+        compile project(':loader-test-filter-one')
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
     }
@@ -199,7 +200,6 @@ project(':core-test-filter-bundle-class-loader-four') {
     apply plugin: 'maven-publish-auth'
 
     dependencies {
-        deploy project(':loader-test-filter-one')
         deploy project(':loader-test-filter-four')
     }
 
@@ -225,8 +225,6 @@ project(':core-test-filter-bundle-class-loader-five') {
     apply plugin: 'maven-publish-auth'
 
     dependencies {
-        //earlib project(':core-test-bundle-class-loader-one')
-        deploy project(':loader-test-filter-two')
         deploy project(':loader-test-filter-five')
     }
 

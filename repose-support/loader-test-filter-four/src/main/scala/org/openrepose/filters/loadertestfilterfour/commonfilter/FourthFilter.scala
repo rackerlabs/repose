@@ -7,7 +7,6 @@ import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse
 
 import org.openrepose.filters.loadertestfilterone.commonfilter.SimpleClass
 
-
 /**
  * Created by dimi5963 on 11/6/14.
  */

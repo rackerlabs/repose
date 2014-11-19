@@ -4,7 +4,7 @@ import java.util.logging.{Level, Logger}
 import javax.inject.Named
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse, Filter}
-
+import org.openrepose.filters.loadertestfiltertwo.commonfilter.SecondSimpleClass
 
 /**
  * Created by dimi5963 on 11/6/14.
