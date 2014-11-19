@@ -36,9 +36,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted, boolean sendAllTenantIds);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
+                                                    double delegableQuality, String delegationMessage,
+                                                    FilterDirector filterDirector, String extractedResult,
+                                                    List<AuthGroup> groups, String endpointsBase64, boolean tenanted,
+                                                    boolean sendAllTenantIds);
 
     private final boolean delegable;
+    private final double delegableQuality;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final AuthTokenCache cache;
     private final AuthGroupCache grpCache;
@@ -57,8 +62,16 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
     private final boolean sendAllTenantIds;
 
+    protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
+        @Override
+        protected String initialValue() {
+            return "Failure in AuthN filter.";
+        }
+    };
+
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
+        this.delegableQuality = configurables.getDelegableQuality();
         this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
         this.cache = cache;
         this.grpCache = grpCache;
@@ -122,14 +135,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 try {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
-                } catch (AuthServiceException ex) {
-                    LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                } catch (IllegalArgumentException ex) {
-                    LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } catch (Exception ex) {
-                    LOG.error("Failure in auth: " + ex.getMessage(), ex);
+                    LOG.error(FAILURE_AUTH_N, ex);
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 }
             }
@@ -147,22 +154,17 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
 
-            } catch (AuthServiceException ex) {
-                LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (IllegalArgumentException ex) {
-                LOG.error(FAILURE_AUTH_N + ex.getMessage(), ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (Exception ex) {
-                LOG.error("Failure in auth: " + ex.getMessage(), ex);
+                LOG.error(FAILURE_AUTH_N, ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
             }
         }
 
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
+                account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
-
-        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                groups, endpointsInBase64, tenanted, sendAllTenantIds);
+        delegationMessage.remove();
 
         return filterDirector;
     }
@@ -282,7 +284,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             LOG.debug("Caching token for " + user.getTenantId() + " with a TTL of " + ttl);
             cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
         } catch (IOException ex) {
-            LOG.warn("Unable to cache user token information: " + user.getUserId() + REASON + ex.getMessage(), ex);
+            LOG.warn("Unable to cache user token information: " + user.getUserId() + REASON, ex);
         }
 
         Set<String> userTokenList = getUserTokenList(userKey);
@@ -293,7 +295,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             long ttl = userCacheTtl;
             usrCache.storeUserTokenList(userKey, userTokenList, Long.valueOf(ttl).intValue());
         } catch (IOException ex) {
-            LOG.warn("Unable to cache user token information: " + user.getUserId() + REASON + ex.getMessage(), ex);
+            LOG.warn("Unable to cache user token information: " + user.getUserId() + REASON, ex);
         }
         //TODO: Search cache for user object.
         // Present: Add token to user token list
@@ -332,7 +334,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         try {
             grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl(offset));
         } catch (IOException ex) {
-            LOG.warn("Unable to cache user group information: " + token + REASON + ex.getMessage(), ex);
+            LOG.warn("Unable to cache user group information: " + token + REASON, ex);
         }
     }
 
@@ -345,7 +347,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         try {
             endpointsCache.storeEndpoints(token, endpoints, safeEndpointsTtl());
         } catch (IOException ex) {
-            LOG.warn("Unable to cache endpoints information: " + token + REASON + ex.getMessage(), ex);
+            LOG.warn("Unable to cache endpoints information: " + token + REASON, ex);
         }
     }
 

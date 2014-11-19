@@ -45,7 +45,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
 
 
     @Unroll("tenant: #requestTenant, with return from identity with status code #authResponseCode and response tenant: #responseTenant")
-    def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - fail"() {
+    def "when authenticating user in non tenanted with delegable mode whatever failure for auth response will be forwarded to origin service"() {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = (new DateTime()).plusDays(1);
@@ -68,13 +68,14 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode
-        400           | 401             | "not-admin"           | 500              | "500"
-        402           | 403             | "not-admin"           | 404              | "401"
+        requestTenant | responseTenant  | serviceAdminRole | authResponseCode | delegatingMsg
+        400           | 401             | "not-admin"      | 500              | "status_code=500"
+        402           | 403             | "not-admin"      | 404              | "status_code=401"
 
     }
 
@@ -117,6 +118,5 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         ""            | 412             | "not-admin"           | "200"        | "Indeterminate" | ""                 | null
 
     }
-
 
 }

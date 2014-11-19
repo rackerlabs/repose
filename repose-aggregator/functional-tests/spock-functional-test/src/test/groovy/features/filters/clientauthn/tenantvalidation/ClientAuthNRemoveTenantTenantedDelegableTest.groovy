@@ -84,13 +84,13 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
+        mc.handlings.size() == 1
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode
-        200           | 201             | 500              | "500"
-        202           | 203             | 404              | "401"
-        204           | 205             | 200              | "401"
+        requestTenant | responseTenant  | authResponseCode | responseCode | delegatingMsg
+        200           | 201             | 500              | "200"        | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
+        202           | 203             | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
+        204           | 205             | 200              | "200"        | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
     }
 
     @Unroll("tenant: #requestTenant with identity returning HTTP 200 response with tenant id (#responseTenant), role (#serviceAdminRole)")

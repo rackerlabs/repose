@@ -4,6 +4,8 @@ import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
+import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -76,7 +78,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                 }
             }
 
-            LOG.error("Unable to validate token for tenant.  Invalid token.");
+            delegationMessage.set("Unable to validate token for tenant. Invalid token: " + authToken.getTokenId() + ".");
+            LOG.error("Unable to validate token for tenant. Invalid token: " + authToken.getTokenId() + ".");
             return null;
         } else {
             return authToken;
@@ -88,13 +91,17 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         AuthToken authToken = null;
 
         if (account != null) {
-            authToken = validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult());
+            AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token);
+            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
+            authToken = validateTenant(authResponse, account.getResult());
         } else {
             AuthenticateResponse authResp = authenticationService.validateToken(null, token);
+            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
             if(authResp != null) {
                 authToken = new OpenStackToken(authResp);
             }
         }
+        AuthenticationServiceClient.removeDelegationMessage();
 
         /**
          * If any role in that token is in the BypassTenantRoles list, bypass the tenant check
@@ -110,7 +117,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             if (!ignoreTenantRequirement) {
                 if (authToken.getTenantId() == null || authToken.getTenantName() == null) {
                     //Moved this check from within the OpenStackToken into here
-                    throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
+                    delegationMessage.set("Invalid Response from Auth for token: " + authToken.getTokenId() + ". Token object must have a tenant");
+                    throw new IllegalArgumentException("Invalid Response from Auth for token: " + authToken.getTokenId() + ". Token object must have a tenant");
                 }
             }
         }
@@ -137,13 +145,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             String authToken,
             AuthToken cachableToken,
             Boolean delegatable,
+            double delegableQuality,
+            String delegationMessage,
             FilterDirector filterDirector,
             String extractedResult,
             List<AuthGroup> groups,
             String endpointsInBase64, boolean tenanted, boolean sendAllTenantIds) {
 
-        new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult,
-                groups, wwwAuthHeaderContents, endpointsInBase64, tenanted, sendAllTenantIds)
+        new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, delegableQuality, delegationMessage,
+                filterDirector, extractedResult, groups, wwwAuthHeaderContents, endpointsInBase64, tenanted, sendAllTenantIds)
                 .setFilterDirectorValues();
     }
 }

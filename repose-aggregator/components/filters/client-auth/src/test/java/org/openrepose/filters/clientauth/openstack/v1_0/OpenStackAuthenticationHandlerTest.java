@@ -79,7 +79,6 @@ public class OpenStackAuthenticationHandlerTest {
             response = mock(ReadableHttpServletResponse.class);
 
             osauthConfig = new OpenstackAuth();
-            osauthConfig.setDelegable(delegable());
             osauthConfig.setTenanted(isTenanted());
 
             keyedRegexExtractor = new KeyedRegexExtractor();
@@ -110,6 +109,7 @@ public class OpenStackAuthenticationHandlerTest {
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(
                     delegable(),
+                    0.7,
                     "http://some.auth.endpoint",
                     keyedRegexExtractor,
                     isTenanted(),
@@ -453,6 +453,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             Configurables configurables = new Configurables(
                     delegable(),
+                    0.7,
                     "http://some.auth.endpoint",
                     keyedRegexExtractor,
                     isTenanted(),
@@ -778,10 +779,10 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldRejectInvalidCredentials() {
+        public void shouldNotRejectInvalidCredentials() {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
+            assertEquals("Auth component must not reject requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
         }
         
      }
