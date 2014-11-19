@@ -71,15 +71,6 @@
         <property name='priority' value='1'/>
     </rule>
 
-    <!-- This might have to stay gone -->
-    <!-- reformat isn't removing extra blank lines in groovy -->
-
-    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Maximum two blank lines in a row"/>
-        <property name='regex' value='\n\n\n\n'/>
-        <property name='priority' value='1'/>
-    </rule-->
-
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before else"/>
         <property name='regex' value='[^\s-]else'/>
@@ -98,17 +89,11 @@
         <property name='priority' value='1'/>
     </rule>
 
-    <!-- this needs to exclude ({ situations
-    but we also have to avoid strings and comments :(-->
-
-    <!-- this one is working luckily -->
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before { unless in a string"/>
         <property name='regex' value='(^("[^"]*")+[^"]*[^\s-\(]\{)|^[^"]*[^\s-\(]\{'/>
         <property name='priority' value='1'/>
     </rule>
-
-    <!-- these suck because {} is 2 violations...and reformatting { } changes it back to {} -->
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before } unless in a string"/>
