@@ -36,8 +36,6 @@ class ConfigurationInformationTest extends Specification {
     @Shared
     ServicePorts ports = new ServicePorts()
 
-    ListAppender app;
-
     def setupSpec() {
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
@@ -49,15 +47,12 @@ class ConfigurationInformationTest extends Specification {
 
     }
 
-    def setup() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
-    }
-
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
         given:
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
@@ -81,6 +76,8 @@ class ConfigurationInformationTest extends Specification {
         given:
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
