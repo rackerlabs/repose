@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
-    private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContext.xml";
+    private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContextTest.xml";
 
     private final ServicePorts ports = new ServicePorts();
 

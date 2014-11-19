@@ -13,20 +13,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 
 import javax.servlet.ServletContextEvent;
-import java.io.File;
 import java.net.URL;
 
 /**
  * @author fran
  */
-public class LoggingServiceContext implements ServiceContext<LoggingService> {
+public class LoggingServiceContext implements ServiceContext<LoggingService>, ApplicationContextAware {
+
+   private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceContext.class);
    public static final String SERVICE_NAME = "powerapi:/services/logging";
    private final LoggingService loggingService;
    private ConfigurationService configurationManager;
    private final ContainerConfigurationListener configurationListener;
+   private Resource loggingConfigurationConfig = null;
    private final ServiceRegistry registry;
+   private ApplicationContext applicationContext;
 
    public LoggingServiceContext(LoggingService loggingService, ServiceRegistry registry, ConfigurationService configurationManager) {
       this.loggingService = loggingService;
@@ -51,6 +55,11 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
       return loggingService;
    }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+       this.applicationContext = applicationContext;
+    }
+
     /**
     * Listens for updates to the container.cfg.xml file which holds the location of the log properties file.
     */
@@ -60,8 +69,23 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
 
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
+
          if (configurationObject.getDeploymentConfig() != null) {
-            loggingService.updateLoggingConfiguration(configurationObject.getDeploymentConfig().getLoggingConfiguration().getHref());
+            final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
+
+            if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
+                final Resource newLoggingConfig = applicationContext.getResource(loggingConfig.getHref());
+                if(!newLoggingConfig.equals(loggingConfigurationConfig)) {
+                    loggingConfigurationConfig = newLoggingConfig;
+                    loggingService.updateLoggingConfiguration(loggingConfigurationConfig);
+
+                    LOG.error("ERROR LEVEL LOG STATEMENT");
+                    LOG.warn("WARN  LEVEL LOG STATEMENT");
+                    LOG.info("INFO  LEVEL LOG STATEMENT");
+                    LOG.debug("DEBUG LEVEL LOG STATEMENT");
+                    LOG.trace("TRACE LEVEL LOG STATEMENT");
+                }
+            }
          }
          isInitialized = true;
       }
@@ -75,6 +99,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {
       URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+
       configurationManager.subscribeTo("container.cfg.xml",containerXsdURL, configurationListener, ContainerConfiguration.class);
       register();
    }
