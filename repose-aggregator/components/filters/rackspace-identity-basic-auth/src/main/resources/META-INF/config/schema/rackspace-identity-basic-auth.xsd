@@ -18,6 +18,9 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:sequence>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
         <xs:attribute name="rackspace-identity-service-uri" type="xs:anyURI" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -33,6 +36,32 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.9">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.
+                        Default is 0.9
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="ZeroOrPositiveInteger">
         <xs:restriction base="xs:int">
