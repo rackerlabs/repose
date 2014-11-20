@@ -2,7 +2,7 @@ package org.openrepose.filters.openstackidentityv3
 
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
-import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
+import org.openrepose.filters.openstackidentityv3.config.{DelegatingType, OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.scalatest.junit.JUnitRunner
@@ -29,11 +29,13 @@ class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter 
       identityService.setUri("")
 
       val config = new OpenstackIdentityV3Config()
+      val delegating = new DelegatingType()
+      delegating.setQuality(0.5)
       config.setOpenstackIdentityService(identityService)
       config.setTokenCacheTimeout(0)
       config.setGroupsCacheTimeout(0)
       config.setCacheOffset(0)
-      config.setForwardUnauthorizedRequests(false)
+      config.setDelegating(delegating)
 
       handlerFactory.configurationUpdated(config)
       handlerFactory.buildHandler shouldBe a[OpenStackIdentityV3Handler]

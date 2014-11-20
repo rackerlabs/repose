@@ -2,12 +2,13 @@ package org.openrepose.filters.openstackidentityv3
 
 import javax.servlet.http.HttpServletRequest
 
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
+import com.rackspace.httpdelegation.HttpDelegationManager
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -20,14 +21,14 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, identityAPI: OpenStackIdentityV3API)
-  extends AbstractFilterLogicHandler {
+  extends AbstractFilterLogicHandler with HttpDelegationManager {
 
   private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3Handler])
 
   private val identityServiceUri = identityConfig.getOpenstackIdentityService.getUri
   private val forwardGroups = identityConfig.isForwardGroups
   private val forwardCatalog = identityConfig.isForwardCatalog
-  private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
+  private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
@@ -40,6 +41,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
+
+    def delegateOrElse(responseCode: Int, message: String)(f: => Unit) {
+      delegatingWithQuality match {
+        case Some(quality) =>
+          buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
+            filterDirector.requestHeaderManager.appendHeader(key, values: _*)
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+            filterDirector.setResponseStatusCode(200) // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
+          }
+        case None =>
+          f
+      }
+    }
 
     // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
@@ -61,28 +75,35 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
           failureInValidation = true
-          filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), e.getMessage) {
+            filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          }
           None
         case Failure(e) =>
           failureInValidation = true
           LOG.error(e.getMessage)
+          delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
           None
       }
 
       // Attempt to check the project ID if configured to do so
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
-        filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-        filterDirector.setFilterAction(FilterAction.RETURN)
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), "Invalid project ID for token: " + token.get) {
+          filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+          filterDirector.setFilterAction(FilterAction.RETURN)
+          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        }
       }
 
       // Attempt to authorize the token against a configured endpoint
       if (!failureInValidation && !isAuthorized(token.get)) {
         failureInValidation = true
-        filterDirector.setFilterAction(FilterAction.RETURN)
-        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+        delegateOrElse(HttpStatusCode.FORBIDDEN.intValue(), "Invalid endpoints for token: " + token.get) {
+          filterDirector.setFilterAction(FilterAction.RETURN)
+          filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+        }
       }
 
       // Attempt to fetch groups if configured to do so
@@ -94,11 +115,14 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             case Failure(e) =>
               failureInValidation = true
               LOG.error(e.getMessage)
+              delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
               List[String]()
           }
         } getOrElse {
           failureInValidation = true
           LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
+          delegateOrElse(filterDirector.getResponseStatusCode,
+            "The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.") {}
           List[String]()
         }
       } else {
@@ -120,14 +144,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
-        token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
-        if(identityConfig.isSendAllProjectIds) {
+        token.get.user.rax_default_region.map {
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
+        }
+        if (identityConfig.isSendAllProjectIds) {
           writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
         } else {
           projectIdUriRegex match {
             case Some(regex) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).orNull, token.flatMap(_.roles).get, writeAll = false, filterDirector)
             case None if token.flatMap(_.project).flatMap(_.id).isDefined =>
-              token flatMap(_.project) map { project =>
+              token flatMap (_.project) map { project =>
                 project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
                 project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
               }
@@ -135,8 +161,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           }
         }
         token.get.rax_impersonator.map { impersonator =>
-          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
-          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString,_))
+          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         }
         if (forwardCatalog) {
           token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
@@ -147,7 +173,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
-      if (forwardUnauthorizedRequests) {
+      if (delegatingWithQuality.isDefined) {
         if (!failureInValidation) {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
         } else {
@@ -228,15 +254,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles:Set[String] = {
+    val projectsFromRoles: Set[String] = {
       if (writeAll && roles != null) {
-        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
-          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
+        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId} :::
+          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId}).toSet
       } else {
         Set.empty
       }
     }
-    def projects: Set[String] = if(projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
+    def projects: Set[String] = if (projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
     filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
