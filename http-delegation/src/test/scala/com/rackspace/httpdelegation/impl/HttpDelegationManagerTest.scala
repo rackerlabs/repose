@@ -1,12 +1,12 @@
 package com.rackspace.httpdelegation.impl
 
-import com.rackspace.httpdelegation.HttpDelegationHeaders
+import com.rackspace.httpdelegation.{HttpDelegationHeaders, HttpDelegationManager}
 import org.scalatest.{FunSuite, Matchers}
 
-class HttpDelegationManagerImplTest extends FunSuite with Matchers {
+class HttpDelegationManagerTest extends FunSuite with Matchers with HttpDelegationManager {
 
   test("buildDelegationHeaders should return a header map with the appropriate values") {
-    val headerMap = HttpDelegationManagerImpl.buildDelegationHeaders(404, "test", "not found", .8)
+    val headerMap = buildDelegationHeaders(404, "test", "not found", .8)
 
     headerMap.keySet should have size 1
     headerMap.keySet should contain(HttpDelegationHeaders.Delegated)
