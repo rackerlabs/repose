@@ -1,5 +1,9 @@
 package com.rackspace.httpdelegation
 
+import java.text.ParseException
+
+import scala.util.{Failure, Try}
+
 /** The API for the HTTP delegation library. */
 trait HttpDelegationManager {
 
@@ -20,5 +24,30 @@ trait HttpDelegationManager {
         "status_code=" + statusCode + "`component=" + component + "`message=" + message + ";q=" + quality
       )
     )
+  }
+
+  /** Constructs a case class object which holds each component of the value of a delegation header.
+    *
+    * @param delegationHeaderValue the value of the delegation header to be parsed
+    * @return a [[HttpDelegationHeaderBean]] containing each parsed component
+    */
+  def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeaderBean] = {
+    // TODO: Improve the portion of this regex which matches the quality to not match multiple periods
+    // TODO: Allow for the quality segment to be optional
+    val parsingRegex = """^status_code=(\d\d\d)`component=(.*)`message=(.*);q=(\.?\d+\.?\d*)$""".r("statusCode", "component", "message", "quality")
+
+    parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
+      case Some(regexMatch) =>
+        Try(
+          new HttpDelegationHeaderBean(
+            regexMatch.group("statusCode").toInt,
+            regexMatch.group("component"),
+            regexMatch.group("message"),
+            regexMatch.group("quality").toDouble
+          )
+        )
+      case None =>
+        Failure(new ParseException("The delegation header value could not be parsed", -1))
+    }
   }
 }

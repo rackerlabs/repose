@@ -1,6 +1,8 @@
 package com.rackspace.httpdelegation.impl
 
-import com.rackspace.httpdelegation.{HttpDelegationHeaders, JavaDelegationManagerProxy}
+import java.text.ParseException
+
+import com.rackspace.httpdelegation.{HttpDelegationHeaderBean, HttpDelegationHeaders, JavaDelegationManagerProxy}
 import org.scalatest.{FunSuite, Matchers}
 
 class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
@@ -12,5 +14,27 @@ class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
     headerMap.keySet should have size 1
     headerMap.keySet should contain(HttpDelegationHeaders.Delegated)
     headerMap.get(HttpDelegationHeaders.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
+  }
+
+  test("JavaDelegationManagerProxy.parseDelegationHeader should return a bean with the data parsed from the input") {
+    val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found;q=1")
+    res shouldBe a[HttpDelegationHeaderBean]
+    res.statusCode should equal(404)
+    res.component should equal("foo")
+    res.message should equal("not found")
+    res.quality should equal(1)
+  }
+
+  test("JavaDelegationManagerProxy.parseDelegationHeader should default quality value to 1") {
+    val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found")
+    res shouldBe a[HttpDelegationHeaderBean]
+    res.statusCode should equal(404)
+    res.component should equal("foo")
+    res.message should equal("not found")
+    res.quality should equal(1)
+  }
+
+  test("JavaDelegationManagerProxy.parseDelegationHeader should throw an exception if parsing fails") {
+    a[ParseException] should be thrownBy JavaDelegationManagerProxy.parseDelegationHeader("status_code=foo&component=bar&message=baz;q=a.b")
   }
 }

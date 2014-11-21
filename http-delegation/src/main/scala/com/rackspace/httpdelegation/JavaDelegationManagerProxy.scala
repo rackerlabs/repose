@@ -1,8 +1,10 @@
 package com.rackspace.httpdelegation
 
+import java.text.ParseException
 import java.util
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success}
 
 /** A Java interface into the [[HttpDelegationManager]].
   *
@@ -10,7 +12,7 @@ import scala.collection.JavaConverters._
   */
 object JavaDelegationManagerProxy {
 
-  private object HttpDelegationManagerProxy extends HttpDelegationManager {}
+  private object HttpDelegationManagerProxy extends HttpDelegationManager
 
   /** Generates the appropriate headers to add to a HTTP request to support delegation.
     *
@@ -28,5 +30,20 @@ object JavaDelegationManagerProxy {
     }
 
     javaMap
+  }
+
+  /** Constructs a case class object which holds each component of the value of a delegation header.
+    *
+    * @param delegationHeaderValue the value of the delegation header to be parsed
+    * @return a [[HttpDelegationHeaderBean]] containing each parsed component
+    */
+  @throws(classOf[ParseException])
+  def parseDelegationHeader(delegationHeaderValue: String): HttpDelegationHeaderBean = {
+    HttpDelegationManagerProxy.parseDelegationHeader(delegationHeaderValue) match {
+      case Success(delegationHeaderBean) =>
+        delegationHeaderBean
+      case Failure(e) =>
+        throw new ParseException(e.getMessage, -1)
+    }
   }
 }
