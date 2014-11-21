@@ -39,6 +39,7 @@
         <module>openstack-identity-v3</module>
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
+        <module>derp</module>
     </modules>
 
     <properties>
@@ -248,6 +249,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>rackspace-identity-basic-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>derp</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

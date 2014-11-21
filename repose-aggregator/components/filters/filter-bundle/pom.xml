@@ -148,6 +148,11 @@
             <artifactId>content-type-stripper</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>derp</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -268,6 +273,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>content-type-stripper</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>derp</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
