@@ -1,7 +1,7 @@
 package org.openrepose.filters.derp
 
 import java.util
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletResponse}
 
 import org.mockito.Matchers._
@@ -45,7 +45,41 @@ class DerpFilterTest extends FunSpec {
       verify(resp).sendError(500, "bar")
     }
 
+    it("should forward the request if no delegation value could be parsed") {
+      val derpFilter = new DerpFilter()
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found`q=1.0")))
+      val fc = mock(classOf[FilterChain])
+
+      derpFilter.doFilter(req, null, fc)
+
+      verify(fc).doFilter(same(req), any(classOf[ServletResponse]))
+    }
+
     it("should treat a delegation value without an explicit quality as having a quality of 1")(pending)
+  }
+
+  describe("parseDelegationValues") {
+    it("should return a sequence of delegation value beans") {
+      val derpFilter = new DerpFilter()
+      val parsedValues = derpFilter.parseDelegationValues(Seq(
+        "status_code=400`component=foo`message=bar;q=0.9",
+        "status_code=500`component=foo2`message=baz;q=0.7"
+      ))
+
+      assert(parsedValues.size == 2)
+      assert(parsedValues.exists(_.statusCode == 400))
+      assert(parsedValues.exists(_.statusCode == 500))
+    }
+
+    it("should return an empty sequence if not value could be parsed") {
+      val derpFilter = new DerpFilter()
+      val parsedValues = derpFilter.parseDelegationValues(Seq(
+        "status_code=400&component=foo`message=bar;q=0.9",
+        "status_code=500`component=foo2`message=baz`q=0.7"
+      ))
+
+      assert(parsedValues.size == 0)
+    }
   }
 
   def mockRequest(headers: Map[String, Iterable[String]]) = {
