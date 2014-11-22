@@ -1,7 +1,7 @@
 package org.openrepose.filters.derp
 
 import java.util
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import javax.servlet.{FilterChain, ServletResponse}
 
 import org.mockito.Matchers._
@@ -25,9 +25,25 @@ class DerpFilterTest extends FunSpec {
       verify(fc).doFilter(same(req), any(classOf[ServletResponse]))
     }
 
-    it("should send an error response populated with the data from the delegation header if present")(pending)
+    it("should send an error response populated with the data from the delegation header if present") {
+      val derpFilter = new DerpFilter()
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=1.0")))
+      val resp = mock(classOf[HttpServletResponse])
 
-    it("should send an error response corresponding to the delegation value with the highest quality")(pending)
+      derpFilter.doFilter(req, resp, null)
+
+      verify(resp).sendError(404, "not found")
+    }
+
+    it("should send an error response corresponding to the delegation value with the highest quality") {
+      val derpFilter = new DerpFilter()
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar;q=0.9")))
+      val resp = mock(classOf[HttpServletResponse])
+
+      derpFilter.doFilter(req, resp, null)
+
+      verify(resp).sendError(500, "bar")
+    }
 
     it("should treat a delegation value without an explicit quality as having a quality of 1")(pending)
   }
