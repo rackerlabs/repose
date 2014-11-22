@@ -43,7 +43,7 @@
     </modules>
 
     <properties>
-        <http.delegation.version>3.0.0</http.delegation.version>
+        <http.delegation.version>4.0.0</http.delegation.version>
     </properties>
 
     <dependencyManagement>
