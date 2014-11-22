@@ -55,7 +55,15 @@ class DerpFilterTest extends FunSpec {
       verify(fc).doFilter(same(req), any(classOf[ServletResponse]))
     }
 
-    it("should treat a delegation value without an explicit quality as having a quality of 1")(pending)
+    it("should treat a delegation value without an explicit quality as having a quality of 1") {
+      val derpFilter = new DerpFilter()
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar")))
+      val resp = mock(classOf[HttpServletResponse])
+
+      derpFilter.doFilter(req, resp, null)
+
+      verify(resp).sendError(500, "bar")
+    }
   }
 
   describe("parseDelegationValues") {
