@@ -10,7 +10,10 @@
         <package name="org.openrepose.filters.slf4jlogging.slf4jlogging.config"/>
     </schemaBindings>
 
-    <!-- rename the format element to formatElement for jaxb -->
+    <!--
+    rename the format element to formatElement for jaxb
+    http://stackoverflow.com/a/4394185/423218
+    -->
     <bindings node="//xs:complexType[@name='slf4j-http-log']">
         <bindings node=".//xs:element[@name='format']">
             <property name="formatElement" />
