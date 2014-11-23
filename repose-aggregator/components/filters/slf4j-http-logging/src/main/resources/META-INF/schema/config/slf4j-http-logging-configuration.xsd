@@ -33,7 +33,8 @@
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>This is a replacement for the format attribute. You can use this if your format
-                            string does not fit well inside of an attribute. You cannot use both.
+                            string does not fit well inside of an attribute. You cannot use both. Leading and trailing
+                            whitespace will be stripped, but not whitespace within the log message.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>

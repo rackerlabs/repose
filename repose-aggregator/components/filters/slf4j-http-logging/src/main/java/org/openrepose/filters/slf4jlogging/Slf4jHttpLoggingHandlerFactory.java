@@ -49,7 +49,7 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
                 //Format string might come from two places, the attribute, or the element
                 String formatString = logConfig.getFormat();
                 if(StringUtilities.isEmpty(formatString)) {
-                    formatString = logConfig.getFormatElement();
+                    formatString = logConfig.getFormatElement().trim();
                 }
 
                 Slf4jLoggerWrapper existingWrapper = updateExisting(loggerWrappers, loggerName, formatString);

@@ -33,7 +33,10 @@ class Slf4jLoggingFilterTestUtil {
                         "slf4j-http-log"(
                                 id: le.getId(),
                         ) {
-                            "format"(le.getFormatElement())
+                            //Using yieldUnescaped always wraps it in a CDATA tag, which matters for proving it works
+                            "format"{
+                                mkp.yieldUnescaped le.getFormatElement()
+                            }
                         }
                     }
                 }
