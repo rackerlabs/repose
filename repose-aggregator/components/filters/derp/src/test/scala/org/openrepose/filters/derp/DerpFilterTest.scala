@@ -47,7 +47,7 @@ class DerpFilterTest extends FunSpec {
 
     it("should forward the request if no delegation value could be parsed") {
       val derpFilter = new DerpFilter()
-      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found`q=1.0")))
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=4a4`component=foo`message=not found`q=1.0")))
       val fc = mock(classOf[FilterChain])
 
       derpFilter.doFilter(req, null, fc)
@@ -83,7 +83,7 @@ class DerpFilterTest extends FunSpec {
       val derpFilter = new DerpFilter()
       val parsedValues = derpFilter.parseDelegationValues(Seq(
         "status_code=400&component=foo`message=bar;q=0.9",
-        "status_code=500`component=foo2`message=baz`q=0.7"
+        "status_code=5a0`component=foo2`message=baz`q=0.7"
       ))
 
       assert(parsedValues.size == 0)
