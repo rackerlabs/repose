@@ -32,6 +32,7 @@ trait HttpDelegationManager {
     * @return a [[HttpDelegationHeaderBean]] containing each parsed component
     */
   def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeaderBean] = {
+    // TODO: Performance concern due to negative lookahead in the message
     val parsingRegex = """status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?""".r("statusCode", "component", "message", "quality")
 
     parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
