@@ -24,10 +24,18 @@ class Slf4jLoggingFilterTestUtil {
                     "xmlns": "http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
             ) {
                 logEntries.each { le ->
-                    "slf4j-http-log"(
-                            id: le.getId(),
-                            format: le.getFormat()
-                    )
+                    if (le.getFormat() != null) {
+                        "slf4j-http-log"(
+                                id: le.getId(),
+                                format: le.getFormat()
+                        )
+                    } else {
+                        "slf4j-http-log"(
+                                id: le.getId(),
+                        ) {
+                            "format"(le.getFormatElement())
+                        }
+                    }
                 }
             }
 
@@ -35,9 +43,13 @@ class Slf4jLoggingFilterTestUtil {
         return xml.toString()
     }
 
-    static Slf4JHttpLog logConfig(String id, String format) {
+    static Slf4JHttpLog logConfig(String id, String format, boolean useElement = false) {
         def hl = new Slf4JHttpLog()
-        hl.setFormat(format)
+        if (useElement) {
+            hl.setFormatElement(format)
+        } else {
+            hl.setFormat(format)
+        }
         hl.setId(id)
 
         hl
