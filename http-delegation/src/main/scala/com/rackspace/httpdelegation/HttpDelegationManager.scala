@@ -32,9 +32,7 @@ trait HttpDelegationManager {
     * @return a [[HttpDelegationHeaderBean]] containing each parsed component
     */
   def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeaderBean] = {
-    // TODO: Improve the portion of this regex which matches the quality to not match multiple periods
-    // TODO: Allow for the quality segment to be optional
-    val parsingRegex = """^status_code=(\d\d\d)`component=(.*)`message=(.*);q=(\.?\d+\.?\d*)$""".r("statusCode", "component", "message", "quality")
+    val parsingRegex = """status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?""".r("statusCode", "component", "message", "quality")
 
     parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
       case Some(regexMatch) =>
@@ -43,7 +41,7 @@ trait HttpDelegationManager {
             regexMatch.group("statusCode").toInt,
             regexMatch.group("component"),
             regexMatch.group("message"),
-            regexMatch.group("quality").toDouble
+            Option(regexMatch.group("quality")).map(_.toDouble).getOrElse(1.0)
           )
         )
       case None =>
