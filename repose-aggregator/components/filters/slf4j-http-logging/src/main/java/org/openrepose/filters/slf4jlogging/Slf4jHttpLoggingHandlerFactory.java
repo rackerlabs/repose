@@ -1,9 +1,11 @@
 package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog;
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -44,7 +46,11 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
 
             for (Slf4JHttpLog logConfig : modifiedConfig.getSlf4JHttpLog()) {
                 String loggerName = logConfig.getId();
+                //Format string might come from two places, the attribute, or the element
                 String formatString = logConfig.getFormat();
+                if(StringUtilities.isEmpty(formatString)) {
+                    formatString = logConfig.getFormatElement();
+                }
 
                 Slf4jLoggerWrapper existingWrapper = updateExisting(loggerWrappers, loggerName, formatString);
                 if (existingWrapper == null) {
