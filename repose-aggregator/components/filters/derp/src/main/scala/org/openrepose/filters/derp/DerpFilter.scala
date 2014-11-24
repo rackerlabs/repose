@@ -44,13 +44,13 @@ class DerpFilter extends Filter with HttpDelegationManager {
   override def destroy(): Unit = {}
 
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeaderBean] = {
-    // TODO: Performance concerns
-    delegationValues.map(parseDelegationHeader).filter {
-      case Success(_) =>
-        true
-      case Failure(e) =>
-        LOG.warn("Failed to parse a delegation header: " + e.getMessage)
-        false
-    }.map(_.get)
+    delegationValues.flatMap { value =>
+      parseDelegationHeader(value) match {
+        case Success(bean) => Some(bean)
+        case Failure(e) =>
+          LOG.warn("Failed to parse a delegation header: " + e.getMessage)
+          None
+      }
+    }
   }
 }
