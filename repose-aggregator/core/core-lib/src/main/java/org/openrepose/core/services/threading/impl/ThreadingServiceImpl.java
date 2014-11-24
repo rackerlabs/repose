@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 //TODO:Refactor SRP Violation - Remove ThreadingService logic to external class
-@Named("threadingService")
+@Named
 public class ThreadingServiceImpl implements ThreadingService {
 
     private final Set<WeakReference<Thread>> liveThreadReferences;
