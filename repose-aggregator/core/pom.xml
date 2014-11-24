@@ -16,6 +16,8 @@
     <description>
         core-lib: Repose Core
 
+        core-service-api: Service APIs provided in Repose Core
+
         valve: Standalone Repose java servlet
 
         web-application: Wraps Repose up in a WAR
@@ -24,6 +26,7 @@
    <packaging>pom</packaging>
 
    <modules>
+       <module>core-service-api</module>
       <module>core-lib</module>
       <module>web-application</module>
       <module>valve</module>

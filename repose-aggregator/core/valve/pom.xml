@@ -63,12 +63,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- TODO: this should probably be at a higher level, because spring uses JCL -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.6</version>
-        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

@@ -23,6 +23,13 @@
     <packaging>jar</packaging>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>classloader</artifactId>
@@ -338,11 +345,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- The plugin that gets Scala running -->
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
             </plugin>
         </plugins>
         <testResources>
