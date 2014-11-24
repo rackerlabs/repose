@@ -1,5 +1,7 @@
 package org.openrepose.services.httpclient.impl;
 
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.services.httpclient.HttpClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
@@ -10,6 +12,8 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +21,7 @@ import java.util.Set;
 import static org.openrepose.services.httpclient.impl.HttpConnectionPoolProvider.CLIENT_INSTANCE_ID;
 
 
+@Named
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
 
     private static PoolType DEFAULT_POOL = new PoolType();
@@ -27,7 +32,11 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
 
-    public HttpConnectionPoolServiceImpl() {
+    @Inject
+    public HttpConnectionPoolServiceImpl(
+            ConfigurationService configurationService,
+            HealthCheckService healthCheckService
+    ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
         poolMap = new HashMap<>();
         httpClientUserManager = new HttpClientUserManager();

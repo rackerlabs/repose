@@ -7,19 +7,8 @@
 
     <import resource="repose-core-context.xml"/>
 
-    <bean name="httpConnectionPoolService" scope="singleton"
-          class="org.openrepose.services.httpclient.impl.HttpConnectionPoolServiceImpl"/>
-
     <bean name="requestProxyService" class="org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl">
         <property name="httpClientService" ref="httpConnectionPoolService"/>
     </bean>
 
-    <bean name="httpConnectionPoolServiceContext"
-          class="org.openrepose.core.services.context.impl.HttpConnectionPoolServiceContext">
-      
-        <constructor-arg index="0" ref="serviceRegistry"/>
-        <constructor-arg index="1" ref="configurationManager"/>
-        <constructor-arg index="2" ref="httpConnectionPoolService"/>
-        <constructor-arg index="3" ref="healthCheckService"/>
-    </bean>
 </beans>

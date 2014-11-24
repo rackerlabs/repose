@@ -5,8 +5,6 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.core.domain.Port
-import org.openrepose.core.domain.ServicePorts
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.*
 import org.openrepose.services.healthcheck.HealthCheckService

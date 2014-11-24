@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.digest.impl.SHA1MessageDigester;
-import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.Filter;
