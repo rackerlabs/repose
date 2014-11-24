@@ -1,11 +1,16 @@
 package org.openrepose.core.services.event;
 
 import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.core.services.event.common.EventDispatcher;
 import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.threading.ThreadingService;
+import org.openrepose.core.services.threading.impl.ThreadingServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -15,11 +20,22 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
     private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventKernel.class);
 
     private final EventService eventManager;
+    private final ThreadingService threadingService;
     private volatile boolean shouldContinue;
 
+    private DestroyableThreadWrapper eventKernelThread;
+
     @Inject
-    public PowerProxyEventKernel(EventService eventManager) {
+    public PowerProxyEventKernel(EventService eventManager,
+                                 ThreadingServiceImpl threadingService) {
         this.eventManager = eventManager;
+        this.threadingService = threadingService;
+    }
+
+    @PostConstruct
+    public void init() {
+        eventKernelThread = new DestroyableThreadWrapper(threadingService.newThread(this, "Event Kernel Thread"), this);
+        eventKernelThread.start();
     }
 
     @Override
@@ -52,8 +68,9 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
         }
     }
 
-    @Override
+    @PreDestroy
     public void destroy() {
         shouldContinue = false;
+        eventKernelThread.destroy();
     }
 }
