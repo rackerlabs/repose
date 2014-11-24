@@ -9,25 +9,26 @@ import org.openrepose.core.services.event.common.impl.EventListenerDescriptor;
 import org.openrepose.core.services.event.impl.SimpleEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
+import javax.inject.Named;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component("eventManager")
-public class PowerProxyEventManager implements EventService {
+@Named
+public class EventServiceImpl implements EventService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EventServiceImpl.class);
+
     private final Map<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>> listenerMap;
     private final Queue<Event> eventQueue;
     private final Lock eventQueueLock;
     private final Condition queueNotEmpty;
 
-    public PowerProxyEventManager() {
-        listenerMap = new TreeMap<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>>();
-        eventQueue = new LinkedList<Event>();
+    public EventServiceImpl() {
+        listenerMap = new TreeMap<>();
+        eventQueue = new LinkedList<>();
 
         eventQueueLock = new ReentrantLock();
         queueNotEmpty = eventQueueLock.newCondition();

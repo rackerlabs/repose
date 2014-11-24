@@ -1,6 +1,6 @@
 package org.openrepose.core.servlet.boot.event;
 
-import org.openrepose.core.services.event.PowerProxyEventManager;
+import org.openrepose.core.services.event.EventServiceImpl;
 import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventDispatcher;
 import org.openrepose.core.services.event.common.EventListener;
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
-public class PowerProxyEventManagerTest {
+public class EventServiceImplTest {
 
     public static class WhenAddingEventListeners {
 
@@ -27,7 +27,7 @@ public class PowerProxyEventManagerTest {
         @Before
         public void standUp() {
             eventFiredTracker = false;
-            manager = new PowerProxyEventManager();
+            manager = new EventServiceImpl();
         }
 
         @Test
@@ -175,7 +175,7 @@ public class PowerProxyEventManagerTest {
 
         @Before
         public void standUp() {
-            manager = new PowerProxyEventManager();
+            manager = new EventServiceImpl();
         }
 
         @Test
