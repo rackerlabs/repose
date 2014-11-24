@@ -56,7 +56,8 @@ public final class OpenStackAuthenticationHandlerFactory {
             endpointsConfiguration = null;
         }
 
-        final Configurables configurables = new Configurables(authConfig.isDelegable(),
+        final Configurables configurables = new Configurables(config.getDelegating() != null,
+                config.getDelegating() != null ? config.getDelegating().getQuality() : 0.0,
                 ids.getUri(),
                 accountRegexExtractor,
                 authConfig.isTenanted(), 

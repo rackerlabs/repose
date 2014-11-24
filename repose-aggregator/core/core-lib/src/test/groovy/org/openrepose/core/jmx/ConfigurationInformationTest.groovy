@@ -1,7 +1,6 @@
 package org.openrepose.core.jmx
 
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.ArgumentCaptor
@@ -31,8 +30,6 @@ class ConfigurationInformationTest extends Specification {
     HealthCheckServiceProxy healthCheckServiceProxy
 
 
-    ListAppender app;
-
     def setupSpec() {
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
@@ -40,12 +37,6 @@ class ConfigurationInformationTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-
-    }
-
-    def setup() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -76,6 +67,8 @@ class ConfigurationInformationTest extends Specification {
 
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 

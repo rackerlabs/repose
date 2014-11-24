@@ -2,7 +2,6 @@ package org.openrepose.core.services.context.impl
 
 import com.google.common.base.Optional
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.ArgumentCaptor
@@ -39,11 +38,7 @@ class RequestProxyServiceContextTest extends Specification {
     @Shared
     def HealthCheckServiceProxy healthCheckServiceProxy
 
-    ListAppender app;
-
     def setup() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
         def requestProxyService = mock(RequestProxyService.class)
         def serviceRegistry = mock(ServiceRegistry.class)
         systemModelInterrogator = mock(SystemModelInterrogator.class)
@@ -83,6 +78,8 @@ class RequestProxyServiceContextTest extends Specification {
         given:
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
+        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
 
         when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.absent())
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))

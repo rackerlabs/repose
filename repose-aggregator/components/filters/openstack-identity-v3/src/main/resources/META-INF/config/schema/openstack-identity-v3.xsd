@@ -18,6 +18,7 @@
         </xs:annotation>
 
         <xs:all>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
             <xs:element name="openstack-identity-service" type="OpenstackIdentityService" minOccurs="1" maxOccurs="1"/>
             <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
@@ -25,18 +26,6 @@
             <xs:element name="roles-which-bypass-project-id-check" type="IgnoreProjectIDRoles" minOccurs="0"
                         maxOccurs="1"/>
         </xs:all>
-
-        <xs:attribute name="forward-unauthorized-requests" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        If set to false, the OpenStack Identity v3 filter will not forward unauthorized requests.
-                        If set to true, the OpenStack Identity v3 filter will forward unauthorized requests and set the
-                        X-Authorization and X-Identity-Status headers to the appropriate values.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
 
         <xs:attribute name="send-all-project-ids" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
@@ -237,4 +226,36 @@
             <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, the OpenStack Identity v3 filter will not send a failing response when authentication
+                    fails.
+                    Instead, it will add the data relating to the failure to a header and forward the
+                    request to be handled by a different filter or service.
+                    If not present, a validator will send a failing response when authentication fails.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                        value will be used to order delegation based on priority when multiple delegations are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

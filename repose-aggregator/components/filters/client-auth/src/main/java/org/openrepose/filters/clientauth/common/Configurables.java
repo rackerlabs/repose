@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Configurables {
     private final boolean delegable;
+    private final double delegableQuality;
     private final String authServiceUri;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final boolean tenanted;
@@ -25,29 +26,12 @@ public class Configurables {
     private final List<String> ignoreTenantRoles;
     private final boolean sendAllTenantIds;
 
-    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
-                         boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
-                         EndpointsConfiguration endpointsConfiguration, boolean sendAllTenantIds) {
-        this.delegable = delegable;
-        this.authServiceUri = authServiceUri;
-        this.keyedRegexExtractor = keyedRegexExtractor;
-        this.tenanted = tenanted;
-        this.groupCacheTtl = groupCacheTtl;
-        this.userCacheTtl = usrCacheTtl;
-        this.tokenCacheTtl = tokenCacheTtl;
-        this.requestGroups = requestGroups;
-        this.endpointsConfiguration = endpointsConfiguration;
-        this.serviceAdminRoles = new ArrayList<String>();
-        this.ignoreTenantRoles = new ArrayList<String>();
-        this.cacheOffset = 0;
-        this.sendAllTenantIds = sendAllTenantIds;
-    }
-
-    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
+    public Configurables(boolean delegable, double delegableQuality, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
                          EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles,
                          boolean sendAllTenantIds) {
         this.delegable = delegable;
+        this.delegableQuality = delegableQuality;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
         this.tenanted = tenanted;
@@ -64,6 +48,10 @@ public class Configurables {
 
     public boolean isDelegable() {
         return delegable;
+    }
+
+    public double getDelegableQuality() {
+        return delegableQuality;
     }
 
     public String getAuthServiceUri() {

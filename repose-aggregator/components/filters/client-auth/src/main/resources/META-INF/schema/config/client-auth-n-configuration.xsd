@@ -157,6 +157,37 @@
       <!-- TODO: add check that if auth-url is configured then user and password must be configured -->
    </xs:complexType>
 
+   <xs:complexType name="DelegatingType">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               If present, the AuthN filter will not send a failing response when authentication fails.
+               Instead, it will add the data relating to the failure to a header and forward the
+               request to be handled by a different filter or service.
+               If not present, the AuthN filter will send a failing response when authentication fails.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="quality" type="auth:QualityType" use="optional" default="0.7">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                  value will be used to order delegation based on priority when multiple delegations are present.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+
+   <xs:simpleType name="QualityType">
+      <xs:restriction base="xs:double">
+         <xs:minInclusive value="0"/>
+         <xs:maxInclusive value="1.0"/>
+      </xs:restriction>
+   </xs:simpleType>
+
    <xs:complexType name="clientAuthConfig">
       <xs:annotation>
          <xs:documentation>
@@ -165,13 +196,15 @@
       </xs:annotation>
                 
       <xs:sequence>
+         <xs:element name="delegating" type="auth:DelegatingType" minOccurs="0" maxOccurs="1"/>
+
          <xs:choice>
             <xs:element ref="os-ids-auth:openstack-auth" />
             <xs:element ref="auth-http-basic:http-basic-auth" />
          </xs:choice>
 
          <xs:element name="white-list" type="auth:WhiteList" minOccurs="0" maxOccurs="1"/>
-         
+
          <xs:element name="atom-feeds" type="auth:AtomFeeds" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       

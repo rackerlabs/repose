@@ -2,11 +2,11 @@ package org.openrepose.filters.rackspaceidentitybasicauth
 
 import org.apache.commons.codec.binary.Base64
 
-object BasicAuthUtils {
+trait BasicAuthUtils {
   /**
    * Returns a tuple of the (username, API Key) retrieved from an HTTP Basic authentication header (Authorization) that
    * has already been stripped of the "Basic " auth method identifier.
-   * @param decoded the cleaned header value to be decoded and split
+   * @param authValue the cleaned header value to be decoded and split
    * @return a tuple of the (username, API Key)
    */
   def extractCredentials(authValue: String): (String, String) = {
@@ -18,7 +18,7 @@ object BasicAuthUtils {
 
   /**
    * Returns an Iterator of the Authentication header values that match the desired auth method.
-   * @param optionHeaders the Authentication header values to search
+   * @param headers the Authentication header values to search
    * @param method the auth method to search for
    * @return an Iterator of the Authentication header values that match the desired auth method
    */

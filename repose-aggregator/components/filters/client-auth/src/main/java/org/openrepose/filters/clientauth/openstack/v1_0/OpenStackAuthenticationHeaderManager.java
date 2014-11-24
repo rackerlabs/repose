@@ -1,5 +1,6 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
+import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.commons.utils.StringUtilities;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for adding Authentication headers from validating token response
@@ -23,6 +25,8 @@ public class OpenStackAuthenticationHeaderManager {
     private final String authToken;
     private final AuthToken cachableToken;
     private final Boolean isDelagable;
+    private final double delegableQuality;
+    private final String delegationMessage;
     private final Boolean isTenanted;
     private final FilterDirector filterDirector;
     private final String tenantId;
@@ -37,11 +41,15 @@ public class OpenStackAuthenticationHeaderManager {
 
     //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
-            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
-            boolean sendAllTenantIds) {
+                                                double delegableQuality, String delegationMessage,
+                                                FilterDirector filterDirector, String tenantId, List<AuthGroup> groups,
+                                                String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
+                                                boolean sendAllTenantIds) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
+        this.delegableQuality = delegableQuality;
+        this.delegationMessage = delegationMessage;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
         this.validToken = token != null && token.getTokenId() != null;
@@ -73,6 +81,13 @@ public class OpenStackAuthenticationHeaderManager {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
+            setDelegationHeader();
+        } else if (isDelagable) {
+            filterDirector.setFilterAction(FilterAction.PASS);
+            setExtendedAuthorization();
+            setIdentityStatus();
+            setDelegationHeader();
+            filterDirector.setResponseStatusCode(200); // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
         } else if (filterDirector.getResponseStatusCode() == HttpStatusCode.UNAUTHORIZED.intValue()) {
             filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
         }
@@ -103,6 +118,14 @@ public class OpenStackAuthenticationHeaderManager {
         }
 
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
+    }
+
+    private void setDelegationHeader() {
+        for (Map.Entry<String, List<String>> headerEntry : JavaDelegationManagerProxy.buildDelegationHeaders(
+                filterDirector.getResponseStatusCode(), "client-auth-n", delegationMessage, delegableQuality).entrySet()) {
+            List<String> headerValues = headerEntry.getValue();
+            filterDirector.requestHeaderManager().appendHeader(headerEntry.getKey(), headerValues.toArray(new String[headerValues.size()]));
+        }
     }
 
     private void setImpersonator() {

@@ -2,7 +2,7 @@
 <Configuration>
     <Appenders>
         <RollingFile name="RollingFile" fileName="${repose.log.name}"
-                     filePattern="${repose.log.pattern}">
+                     filePattern="${repose.log.pattern}" immediateFlush="true">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c  - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>

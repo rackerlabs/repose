@@ -132,11 +132,12 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
+        mc.handlings.size() == 1
+
 
         where:
-        roles                       | method     | authresp     | responseCode
-        "raxrole-test1"             | "GET"      | 401          |"500"
-        "raxrole-test1,a:observer"  | "POST"     | 404          |"401"
+        roles                       | method     | authresp     | responseCode | delegatingMsg
+        "raxrole-test1"             | "GET"      | 401          |"200"         | "status_code=401"
+        "raxrole-test1,a:observer"  | "POST"     | 404          |"200"         | "status_code=404"
     }
 }

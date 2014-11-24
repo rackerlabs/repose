@@ -116,7 +116,7 @@ class AuthenticationServiceClientTest extends Specification {
         def response = client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token: 401 :admin token expired. Retrieving new admin token and retrying token validation..." }
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token: normalToken due to status code: 401 :admin token expired. Retrieving new admin token and retrying token validation..." }
         response.token.id == userToValidate.token
     }
 
