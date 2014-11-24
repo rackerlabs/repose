@@ -22,17 +22,4 @@
         <constructor-arg index="2" ref="httpConnectionPoolService"/>
         <constructor-arg index="3" ref="healthCheckService"/>
     </bean>
-
-    <bean name="akkaServiceClientService"
-          class="org.openrepose.services.serviceclient.akka.impl.AkkaServiceClientImpl">
-        <constructor-arg index="0" ref="httpConnectionPoolService"/>
-    </bean>
-
-    <bean name="akkaServiceClientContext"
-          class="org.openrepose.core.services.context.impl.AkkaServiceClientContext">
-
-        <constructor-arg index="0" ref="serviceRegistry"/>
-        <constructor-arg index="1" ref="akkaServiceClientService"/>
-    </bean>
-
 </beans>
