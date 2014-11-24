@@ -43,19 +43,10 @@
         <constructor-arg index="5" ref="threadingServiceContext"/>
     </bean>
 
-    <bean name="loggingServiceContext" class="org.openrepose.core.services.context.impl.LoggingServiceContext">
-        <constructor-arg index="0" ref="loggingService"/>
-        <constructor-arg index="1" ref="serviceRegistry"/>
-        <constructor-arg index="2" ref="configurationManager"/>
-    </bean>
-
     <!-- Services -->
     <bean name="artifactManager" class="org.openrepose.core.services.deploy.ArtifactManager">
         <constructor-arg index="0" ref="containerConfigurationListener"/>
     </bean>
-
-    <bean name="loggingService"
-          class="org.openrepose.core.services.logging.LoggingServiceImpl"/>
 
     <bean name="healthCheckServiceContext"
           class="org.openrepose.core.services.context.impl.HealthServiceContext"/>

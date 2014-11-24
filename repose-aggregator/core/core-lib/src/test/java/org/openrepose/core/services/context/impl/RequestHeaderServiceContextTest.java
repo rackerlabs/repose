@@ -16,8 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.domain.Port;
-import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
