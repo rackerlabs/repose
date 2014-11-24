@@ -5,7 +5,7 @@ import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.context.ServiceContext;
 import org.openrepose.core.services.event.PowerProxyEventKernel;
 import org.openrepose.core.services.event.common.EventService;
-import org.openrepose.core.services.threading.impl.ThreadingServiceContext;
+import org.openrepose.core.services.threading.impl.ThreadingServiceImpl;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,18 +19,18 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     private final EventService eventManager;
     private DestroyableThreadWrapper eventKernelThread;
     private final ServiceRegistry registry;
-    private final ThreadingServiceContext threadingContext;
+    private final ThreadingServiceImpl threadingService;
     private final PowerProxyEventKernel eventKernel;
 
     @Autowired
     public EventManagerServiceContext(
             @Qualifier("eventManager") EventService eventManager,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("threadingServiceContext") ThreadingServiceContext threadingContext,
+            @Qualifier("threadingService") ThreadingServiceImpl threadingService,
             @Qualifier("powerProxyEventKernel") PowerProxyEventKernel eventKernel) {
        this.eventManager = eventManager;
        this.registry = registry;
-       this.threadingContext = threadingContext;
+       this.threadingService = threadingService;
        this.eventKernel = eventKernel;
     }
 
@@ -52,7 +52,7 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        eventKernelThread = new DestroyableThreadWrapper(threadingContext.getService().newThread(eventKernel, "Event Kernel Thread"), eventKernel);
+        eventKernelThread = new DestroyableThreadWrapper(threadingService.newThread(eventKernel, "Event Kernel Thread"), eventKernel);
         eventKernelThread.start();
         register();
     }

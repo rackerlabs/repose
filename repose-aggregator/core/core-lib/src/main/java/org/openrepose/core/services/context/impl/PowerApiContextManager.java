@@ -6,7 +6,6 @@ import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.context.banner.PapiBanner;
 import org.openrepose.core.services.deploy.ArtifactManagerServiceContext;
-import org.openrepose.core.services.threading.impl.ThreadingServiceContext;
 import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ public class PowerApiContextManager implements ServletContextListener {
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
       ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
       ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
       ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
