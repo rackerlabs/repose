@@ -33,7 +33,7 @@ trait HttpDelegationManager {
     */
   def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeader] = {
     // TODO: Performance concern due to negative lookahead in the message
-    val parsingRegex = """status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?""".r("statusCode", "component", "message", "quality")
+    val parsingRegex = """^\s*status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?\s*$""".r("statusCode", "component", "message", "quality")
 
     parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
       case Some(regexMatch) =>
