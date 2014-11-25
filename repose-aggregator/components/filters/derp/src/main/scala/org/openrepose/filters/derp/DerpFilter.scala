@@ -20,7 +20,9 @@ class DerpFilter extends Filter with HttpDelegationManager {
 
   private final val LOG = LoggerFactory.getLogger(classOf[DerpFilter])
 
-  override def init(filterConfig: FilterConfig): Unit = {}
+  override def init(filterConfig: FilterConfig): Unit = {
+    LOG.trace("DeRP filter initialized")
+  }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
@@ -41,7 +43,9 @@ class DerpFilter extends Filter with HttpDelegationManager {
     }
   }
 
-  override def destroy(): Unit = {}
+  override def destroy(): Unit = {
+    LOG.trace("DeRP filter destroyed")
+  }
 
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeaderBean] = {
     delegationValues.flatMap { value =>
