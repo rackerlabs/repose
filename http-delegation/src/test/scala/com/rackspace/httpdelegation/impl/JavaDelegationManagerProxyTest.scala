@@ -2,7 +2,7 @@ package com.rackspace.httpdelegation.impl
 
 import java.text.ParseException
 
-import com.rackspace.httpdelegation.{HttpDelegationHeaderBean, HttpDelegationHeaders, JavaDelegationManagerProxy}
+import com.rackspace.httpdelegation.{HttpDelegationHeader, HttpDelegationHeaderNames, JavaDelegationManagerProxy}
 import org.scalatest.{FunSuite, Matchers}
 
 class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
@@ -12,13 +12,13 @@ class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
 
     headerMap.isInstanceOf[java.util.Map[_, _]]
     headerMap.keySet should have size 1
-    headerMap.keySet should contain(HttpDelegationHeaders.Delegated)
-    headerMap.get(HttpDelegationHeaders.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
+    headerMap.keySet should contain(HttpDelegationHeaderNames.Delegated)
+    headerMap.get(HttpDelegationHeaderNames.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
   }
 
   test("JavaDelegationManagerProxy.parseDelegationHeader should return a bean with the data parsed from the input") {
     val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found;q=1")
-    res shouldBe a[HttpDelegationHeaderBean]
+    res shouldBe a[HttpDelegationHeader]
     res.statusCode should equal(404)
     res.component should equal("foo")
     res.message should equal("not found")
@@ -27,7 +27,7 @@ class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
 
   test("JavaDelegationManagerProxy.parseDelegationHeader should default quality value to 1") {
     val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found")
-    res shouldBe a[HttpDelegationHeaderBean]
+    res shouldBe a[HttpDelegationHeader]
     res.statusCode should equal(404)
     res.component should equal("foo")
     res.message should equal("not found")

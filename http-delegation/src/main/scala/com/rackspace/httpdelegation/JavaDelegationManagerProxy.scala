@@ -35,10 +35,10 @@ object JavaDelegationManagerProxy {
   /** Constructs a case class object which holds each component of the value of a delegation header.
     *
     * @param delegationHeaderValue the value of the delegation header to be parsed
-    * @return a [[HttpDelegationHeaderBean]] containing each parsed component
+    * @return a [[HttpDelegationHeader]] containing each parsed component
     */
   @throws(classOf[ParseException])
-  def parseDelegationHeader(delegationHeaderValue: String): HttpDelegationHeaderBean = {
+  def parseDelegationHeader(delegationHeaderValue: String): HttpDelegationHeader = {
     HttpDelegationManagerProxy.parseDelegationHeader(delegationHeaderValue) match {
       case Success(delegationHeaderBean) =>
         delegationHeaderBean

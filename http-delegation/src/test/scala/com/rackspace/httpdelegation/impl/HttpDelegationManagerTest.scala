@@ -1,6 +1,6 @@
 package com.rackspace.httpdelegation.impl
 
-import com.rackspace.httpdelegation.{HttpDelegationHeaders, HttpDelegationManager}
+import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.util.{Failure, Success}
@@ -11,8 +11,8 @@ class HttpDelegationManagerTest extends FunSuite with Matchers with HttpDelegati
     val headerMap = buildDelegationHeaders(404, "test", "not found", .8)
 
     headerMap.keySet should have size 1
-    headerMap.keySet should contain(HttpDelegationHeaders.Delegated)
-    headerMap(HttpDelegationHeaders.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
+    headerMap.keySet should contain(HttpDelegationHeaderNames.Delegated)
+    headerMap(HttpDelegationHeaderNames.Delegated) should contain("status_code=404`component=test`message=not found;q=0.8")
   }
 
   test("parseDelegationHeader should return a bean with the data parsed from the input") {

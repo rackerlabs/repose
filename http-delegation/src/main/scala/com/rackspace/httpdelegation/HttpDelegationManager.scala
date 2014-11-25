@@ -20,7 +20,7 @@ trait HttpDelegationManager {
     assume(message != null, "Message cannot be null")
 
     Map[String, List[String]](
-      HttpDelegationHeaders.Delegated -> List(
+      HttpDelegationHeaderNames.Delegated -> List(
         "status_code=" + statusCode + "`component=" + component + "`message=" + message + ";q=" + quality
       )
     )
@@ -29,16 +29,16 @@ trait HttpDelegationManager {
   /** Constructs a case class object which holds each component of the value of a delegation header.
     *
     * @param delegationHeaderValue the value of the delegation header to be parsed
-    * @return a [[HttpDelegationHeaderBean]] containing each parsed component
+    * @return a [[HttpDelegationHeader]] containing each parsed component
     */
-  def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeaderBean] = {
+  def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeader] = {
     // TODO: Performance concern due to negative lookahead in the message
     val parsingRegex = """status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?""".r("statusCode", "component", "message", "quality")
 
     parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
       case Some(regexMatch) =>
         Try(
-          new HttpDelegationHeaderBean(
+          new HttpDelegationHeader(
             regexMatch.group("statusCode").toInt,
             regexMatch.group("component"),
             regexMatch.group("message"),
