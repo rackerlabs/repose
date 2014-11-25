@@ -32,13 +32,14 @@ class DerpFilter extends Filter with HttpDelegationManager {
       filterChain.doFilter(servletRequest, servletResponse)
     } else {
       val sortedErrors = parseDelegationValues(delegationValues).sortWith(_.quality > _.quality)
+      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
 
       sortedErrors match {
         case Seq() =>
-          LOG.warn("No delegation header could be parsed so the request will be forwarded")
-          filterChain.doFilter(servletRequest, servletResponse)
+          LOG.warn("No delegation header could be parsed, returning a 500 response")
+          httpServletResponse.sendError(500, "Delegation header found but could not be parsed")
         case Seq(preferredValue, _*) =>
-          servletResponse.asInstanceOf[HttpServletResponse].sendError(preferredValue.statusCode, preferredValue.message)
+          httpServletResponse.sendError(preferredValue.statusCode, preferredValue.message)
       }
     }
   }

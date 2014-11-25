@@ -2,7 +2,7 @@ package org.openrepose.filters.derp
 
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, ServletResponse}
+import javax.servlet.{ServletRequest, FilterChain, ServletResponse}
 
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -45,14 +45,26 @@ class DerpFilterTest extends FunSpec {
       verify(resp).sendError(500, "bar")
     }
 
-    it("should forward the request if no delegation value could be parsed") {
+    it("should send an error response corresponding to the delegation value with the highest quality, reverse order") {
+      val derpFilter = new DerpFilter()
+      val req = mockRequest(Map("X-Delegated" -> Seq("status_code=500`component=foo`message=bar;q=0.9", "status_code=404`component=foo`message=not found;q=0.8")))
+      val resp = mock(classOf[HttpServletResponse])
+
+      derpFilter.doFilter(req, resp, null)
+
+      verify(resp).sendError(500, "bar")
+    }
+
+    it("should reject the request if no delegation value could be parsed") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=4a4`component=foo`message=not found`q=1.0")))
+      val resp = mock(classOf[HttpServletResponse])
       val fc = mock(classOf[FilterChain])
 
-      derpFilter.doFilter(req, null, fc)
+      derpFilter.doFilter(req, resp, fc)
 
-      verify(fc).doFilter(same(req), any(classOf[ServletResponse]))
+      verify(fc, never()).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
+      verify(resp).sendError(500, anyString())
     }
 
     it("should treat a delegation value without an explicit quality as having a quality of 1") {
