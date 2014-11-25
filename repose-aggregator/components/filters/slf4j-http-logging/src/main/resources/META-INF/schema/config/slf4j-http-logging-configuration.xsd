@@ -45,9 +45,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>This ID will be the SLF4j logger target, it can be used in the backend logger configuration
-                        (Current log4j 1.2) to direct it's output to an appender. See the log4j documentation as for how
-                        to
-                        do this.
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
