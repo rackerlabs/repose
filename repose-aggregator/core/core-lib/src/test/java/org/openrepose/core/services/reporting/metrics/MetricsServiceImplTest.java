@@ -1,6 +1,7 @@
 package org.openrepose.core.services.reporting.metrics;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.services.healthcheck.HealthCheckService;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 
 import javax.management.*;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
@@ -35,68 +38,68 @@ public class MetricsServiceImplTest {
         public void setUp() {
 
             ReposeInstanceInfo reposeInstanceInfo = new ReposeInstanceInfo();
-            reposeInstanceInfo.setNodeId( "node1" );
-            reposeInstanceInfo.setClusterId( "cluster1" );
+            reposeInstanceInfo.setNodeId("node1");
+            reposeInstanceInfo.setClusterId("cluster1");
 
-            reposeStrat = new ReposeJmxNamingStrategy( new AnnotationJmxAttributeSource(),
-                                                       reposeInstanceInfo );
+            reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(),
+                    reposeInstanceInfo);
 
-            metricsService = new MetricsServiceImpl( reposeStrat );
+            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), reposeStrat);
 
         }
 
-        protected Object getAttribute( Class klass, String name, String scope, String att )
-              throws
-              MalformedObjectNameException,
-              AttributeNotFoundException,
-              MBeanException,
-              ReflectionException,
-              InstanceNotFoundException {
+        protected Object getAttribute(Class klass, String name, String scope, String att)
+                throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
 
             Hashtable<String, String> hash = new Hashtable<String, String>();
-            hash.put( "name", "\"" + name + "\"" );
-            hash.put( "scope", "\"" + scope + "\"" );
-            hash.put( "type", "\"" + klass.getSimpleName() + "\"" );
+            hash.put("name", "\"" + name + "\"");
+            hash.put("scope", "\"" + scope + "\"");
+            hash.put("type", "\"" + klass.getSimpleName() + "\"");
 
             // Lets you see all registered MBean ObjectNames
             //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
             ObjectName on =
-                  new ObjectName( "\"" + reposeStrat.getDomainPrefix() + klass.getPackage().getName() + "\"", hash );
+                    new ObjectName("\"" + reposeStrat.getDomainPrefix() + klass.getPackage().getName() + "\"", hash);
 
-            return ManagementFactory.getPlatformMBeanServer().getAttribute( on, att );
+            return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
         }
 
         @Test
         public void testServiceMeter()
-              throws
-              MalformedObjectNameException,
-              AttributeNotFoundException,
-              MBeanException,
-              ReflectionException,
-              InstanceNotFoundException {
+                throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
 
-            Meter m = metricsService.newMeter( this.getClass(), "meter1", "scope1", "hits", TimeUnit.SECONDS );
+            Meter m = metricsService.newMeter(this.getClass(), "meter1", "scope1", "hits", TimeUnit.SECONDS);
 
             m.mark();
             m.mark();
             m.mark();
 
-            long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
+            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
 
-            assertEquals( (long) 3, l );
+            assertEquals((long) 3, l);
         }
 
         @Test
         public void testServiceCounter()
-              throws
-              MalformedObjectNameException,
-              AttributeNotFoundException,
-              MBeanException,
-              ReflectionException,
-              InstanceNotFoundException {
+                throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
 
-            Counter c = metricsService.newCounter( this.getClass(), "counter1", "scope1" );
+            Counter c = metricsService.newCounter(this.getClass(), "counter1", "scope1");
 
             c.inc();
             c.inc();
@@ -104,9 +107,9 @@ public class MetricsServiceImplTest {
             c.inc();
             c.dec();
 
-            long l = (Long) getAttribute( this.getClass(), "counter1", "scope1", "Count" );
+            long l = (Long) getAttribute(this.getClass(), "counter1", "scope1", "Count");
 
-            assertEquals( (long) 3, l );
+            assertEquals((long) 3, l);
         }
 
         @Test
@@ -117,12 +120,13 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            Timer t = metricsService.newTimer( this.getClass(), "name1", "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS );
+            Timer t = metricsService.newTimer(this.getClass(), "name1", "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
 
             TimerContext tc = t.time();
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie) {
+            }
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
@@ -136,47 +140,47 @@ public class MetricsServiceImplTest {
 
         @Test
         public void testMeterByCategory() throws
-              MalformedObjectNameException,
-              AttributeNotFoundException,
-              MBeanException,
-              ReflectionException,
-              InstanceNotFoundException {
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
 
-            MeterByCategory m = metricsService.newMeterByCategory( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
+            MeterByCategory m = metricsService.newMeterByCategory(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
 
-            m.mark( "meter1" );
-            m.mark( "meter2", (long)4 );
-            m.mark( "meter1" );
+            m.mark("meter1");
+            m.mark("meter2", (long) 4);
+            m.mark("meter1");
 
-            long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
+            assertEquals((long) 2, l);
 
-            l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            l = (Long) getAttribute(this.getClass(), "meter2", "scope1", "Count");
+            assertEquals((long) 4, l);
         }
 
         @Test
         public void testMeterByCategorySum() throws
-              MalformedObjectNameException,
-              AttributeNotFoundException,
-              MBeanException,
-              ReflectionException,
-              InstanceNotFoundException {
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
 
-            MeterByCategory m = metricsService.newMeterByCategorySum( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
+            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
 
-            m.mark( "meter1" );
-            m.mark( "meter2", (long)4 );
-            m.mark( "meter1" );
+            m.mark("meter1");
+            m.mark("meter2", (long) 4);
+            m.mark("meter1");
 
-            long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
+            assertEquals((long) 2, l);
 
-            l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            l = (Long) getAttribute(this.getClass(), "meter2", "scope1", "Count");
+            assertEquals((long) 4, l);
 
-            l = (Long) getAttribute( this.getClass(), MeterByCategorySum.ALL, "scope1", "Count" );
-            assertEquals( (long) 6, l );
+            l = (Long) getAttribute(this.getClass(), MeterByCategorySum.ALL, "scope1", "Count");
+            assertEquals((long) 6, l);
         }
 
         @Test
@@ -187,12 +191,13 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            TimerByCategory t = metricsService.newTimerByCategory( this.getClass(), "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS );
+            TimerByCategory t = metricsService.newTimerByCategory(this.getClass(), "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
 
             TimerContext tc = t.time("key1");
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie) {
+            }
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
@@ -201,7 +206,8 @@ public class MetricsServiceImplTest {
             tc = t.time("key2");
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie) {
+            }
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
@@ -218,20 +224,20 @@ public class MetricsServiceImplTest {
             assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
         }
 
-        @Test( expected = IllegalArgumentException.class )
+        @Test(expected = IllegalArgumentException.class)
         public void testNoAllowALL() {
 
-            MeterByCategory m = metricsService.newMeterByCategorySum( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
+            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
 
-            m.mark( MeterByCategorySum.ALL );
+            m.mark(MeterByCategorySum.ALL);
         }
 
-        @Test( expected = IllegalArgumentException.class )
+        @Test(expected = IllegalArgumentException.class)
         public void testNoAllowALL2() {
 
-            MeterByCategory m = metricsService.newMeterByCategorySum( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
+            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
 
-            m.mark( MeterByCategorySum.ALL, 2 );
+            m.mark(MeterByCategorySum.ALL, 2);
         }
 
         @Test

@@ -5,7 +5,7 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.domain.ReposeInstanceInfo
 import org.openrepose.core.services.ServiceRegistry
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.context.impl.MetricsServiceContext
+import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl
 import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.Severity
@@ -59,7 +59,7 @@ class DistributedDatastoreServiceClusterContextTest {
         ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
         ConfigurationResource configurationResource = mock(ConfigurationResource.class);
         when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
-        when(resourceResolver.resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(resourceResolver.resolve(MetricsServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource); //TODO: WAT
         when(configurationService.getResourceResolver().resolve(DistributedDatastoreServiceClusterContext.DEFAULT_CONFIG)).thenReturn(configurationResource);
         when(configurationResource.exists()).thenReturn(false);
 
