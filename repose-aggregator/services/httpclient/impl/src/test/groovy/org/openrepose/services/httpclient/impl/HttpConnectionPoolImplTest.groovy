@@ -1,4 +1,4 @@
-package org.openrepose.core.services.context.impl
+package org.openrepose.services.httpclient.impl
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.config.resource.ConfigurationResource
@@ -20,7 +20,8 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.*
 
-class HttpConnectionPoolServiceContextTest {
+//TODO: convert this into ones on the service itself, in the services package....
+class HttpConnectionPoolImplTest {
 
     HttpConnectionPoolServiceContext httpConnectionPoolServiceContext
     HealthCheckService healthCheckService
