@@ -1,4 +1,4 @@
-package com.rackspace.httpdelegation.impl
+package com.rackspace.httpdelegation
 
 import com.rackspace.httpdelegation.{HttpDelegationHeader, HttpDelegationHeaderNames, HttpDelegationManager}
 import org.scalatest.{FunSuite, Matchers}

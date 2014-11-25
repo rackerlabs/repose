@@ -1,4 +1,4 @@
-package com.rackspace.httpdelegation.impl
+package com.rackspace.httpdelegation
 
 import java.text.ParseException
 
