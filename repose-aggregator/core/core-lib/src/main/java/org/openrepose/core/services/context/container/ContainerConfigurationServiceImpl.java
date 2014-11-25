@@ -1,34 +1,43 @@
 package org.openrepose.core.services.context.container;
 
-import org.openrepose.core.domain.ServicePorts;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.DeploymentConfiguration;
+import org.openrepose.core.services.config.ConfigurationService;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.net.URL;
 
-//TODO: this should probably die in a fire, and be handled in a properties or something
-@Component("containerConfigurationService")
+@Named
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
-    private final ServicePorts ports = new ServicePorts();
+    private final ConfigurationService configurationService;
+    private final ContainerConfigurationListener containerConfigurationListener;
+
     private String viaValue;
     private Long contentBodyReadLimit;
 
-    public ContainerConfigurationServiceImpl() {
+    @Inject
+    public ContainerConfigurationServiceImpl(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+        this.containerConfigurationListener = new ContainerConfigurationListener();
     }
 
-    @Autowired
-    public ContainerConfigurationServiceImpl(@Qualifier("servicePorts") ServicePorts ports) {
-        this.ports.addAll(ports);
+    @PostConstruct
+    public void init() {
+        URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+        configurationService.subscribeTo("container.cfg.xml", xsdURL, containerConfigurationListener, ContainerConfiguration.class);
     }
 
-    public ContainerConfigurationServiceImpl(String via, Long contentBodyReadLimit, ServicePorts ports) {
-
-        this.ports.addAll(ports);
-        this.viaValue = via;
-        this.contentBodyReadLimit = contentBodyReadLimit;
+    @PreDestroy
+    public void destroy() {
+        if (configurationService != null) {
+            configurationService.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
+        }
     }
-
 
     @Override
     public String getVia() {
@@ -36,26 +45,43 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     }
 
     @Override
-    public void setVia(String via) {
-        this.viaValue = via;
-    }
-
-    @Override
     public Long getContentBodyReadLimit() {
         if (contentBodyReadLimit == null) {
-            return Long.valueOf(0);
+            return (long) 0;
         } else {
             return contentBodyReadLimit;
         }
     }
 
-    @Override
-    public void setContentBodyReadLimit(Long value) {
-        this.contentBodyReadLimit = value;
+    private void setViaValue(String via) {
+        viaValue = via;
     }
 
-   @Override
-   public ServicePorts getServicePorts() {
-      return ports;
-   }
+    private void setContentBodyReadLimit(Long readLimit) {
+        contentBodyReadLimit = readLimit;
+    }
+
+    /**
+     * Listens for updates to the container.cfg.xml file which holds the
+     * location of the log properties file.
+     */
+    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration configurationObject) {
+            DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
+
+            setViaValue(deployConfig.getVia());
+            setContentBodyReadLimit(deployConfig.getContentBodyReadLimit());
+
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 }
