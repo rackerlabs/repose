@@ -37,7 +37,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
-    private final EventService eventService;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
     private final ConfigurationInformation configurationInformation;
@@ -46,12 +45,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     //TODO: Need to add ConfigRoot to the coreSpringContext properties or something, not per-node properties
     @Inject
     public ConfigurationServiceImpl(
-            EventService eventService,
             @Qualifier("reposeConfigurationInformation") ConfigurationInformation configurationInformation,
             ConfigurationUpdateManager configurationUpdateManager,
             @Value(ReposeSpringProperties.CONFIG_ROOT) String configRoot
     ) {
-        this.eventService = eventService;
         this.configurationInformation = configurationInformation;
         setUpdateManager(configurationUpdateManager);
         this.configRoot = configRoot;
