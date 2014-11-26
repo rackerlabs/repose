@@ -5,6 +5,7 @@ package org.openrepose.core.spring;
  */
 public class ReposeSpringProperties {
 
+    public static final String REPOSE_VERSION = "repose-version";
     public static final String NODE_ID = "repose-node-id";
     public static final String CLUSTER_ID = "repose-cluster-id";
     public static final String CONFIG_ROOT = "powerapi-config-directory";
