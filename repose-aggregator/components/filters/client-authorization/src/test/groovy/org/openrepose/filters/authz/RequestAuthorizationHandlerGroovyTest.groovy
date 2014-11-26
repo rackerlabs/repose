@@ -1,5 +1,5 @@
 package org.openrepose.filters.authz
-import com.rackspace.httpdelegation.HttpDelegationHeaders
+import com.rackspace.httpdelegation.HttpDelegationHeaderNames
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy
 import org.openrepose.common.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -100,7 +100,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
 
         then:
         filterDirector.getFilterAction() == FilterAction.PASS
-        filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated())) == null
+        filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())) == null
 
         where:
         desc                   | delegable
@@ -184,7 +184,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
 
         then:
         director.getFilterAction() == FilterAction.PASS
-        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated())) == null
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())) == null
 
         where:
         desc                                    | delegable
@@ -240,9 +240,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     }
 
     void isDelegableHeaderAccurateFor(DelegatingType delegable, FilterDirector filterDirector, String message) {
-        assert filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaders.Delegated()))?.getAt(0) ==
+        assert filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaderNames.Delegated()))?.getAt(0) ==
                 (delegable ? JavaDelegationManagerProxy.buildDelegationHeaders(filterDirector.getResponseStatusCode(),
-                        "client-authorization", message, delegable.getQuality()).get(HttpDelegationHeaders.Delegated()).get(0) : null)
+                        "client-authorization", message, delegable.getQuality()).get(HttpDelegationHeaderNames.Delegated()).get(0) : null)
     }
 
     String serviceCatalogFailureMessage() {
