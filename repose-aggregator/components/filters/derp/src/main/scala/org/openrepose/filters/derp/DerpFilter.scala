@@ -3,7 +3,7 @@ package org.openrepose.filters.derp
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.rackspace.httpdelegation.{HttpDelegationHeaderBean, HttpDelegationHeaders, HttpDelegationManager}
+import com.rackspace.httpdelegation._
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -26,7 +26,7 @@ class DerpFilter extends Filter with HttpDelegationManager {
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
-    val delegationValues = httpServletRequest.getHeaders(HttpDelegationHeaders.Delegated).asScala.toSeq
+    val delegationValues = httpServletRequest.getHeaders(HttpDelegationHeaderNames.Delegated).asScala.toSeq
 
     if (delegationValues.isEmpty) {
       LOG.debug("No delegation header present, forwarding the request")
@@ -50,7 +50,7 @@ class DerpFilter extends Filter with HttpDelegationManager {
     LOG.trace("DeRP filter destroyed")
   }
 
-  def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeaderBean] = {
+  def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
     delegationValues.flatMap { value =>
       parseDelegationHeader(value) match {
         case Success(bean) => Some(bean)
