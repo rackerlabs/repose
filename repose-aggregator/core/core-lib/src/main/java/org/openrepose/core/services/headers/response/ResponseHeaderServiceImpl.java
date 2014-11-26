@@ -25,19 +25,19 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
 
+    private final String reposeVersion;
     private final ConfigurationService configurationService;
     private final ContainerConfigurationListener configurationListener;
 
     private ViaHeaderBuilder viaHeaderBuilder;
     private LocationHeaderBuilder locationHeaderBuilder;
 
-    @Value(ReposeSpringProperties.REPOSE_VERSION)
-    private String reposeVersion;
-
     @Inject
-    public ResponseHeaderServiceImpl(ConfigurationService configurationService) {
+    public ResponseHeaderServiceImpl(ConfigurationService configurationService,
+                                     @Value(ReposeSpringProperties.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
         this.configurationListener = new ContainerConfigurationListener();
+        this.reposeVersion = reposeVersion;
     }
 
     @PostConstruct
