@@ -14,7 +14,7 @@ public class ViaRequestHeaderBuilder extends ViaHeaderBuilder {
     public ViaRequestHeaderBuilder(String reposeVersion, String configuredViaReceivedBy, String hostname) {
         this.reposeVersion = reposeVersion;
         this.configuredViaReceivedBy = configuredViaReceivedBy;
-        this.hostname = hostname;
+        this.hostname = hostname == null ? "Repose" : hostname;
     }
 
     @Override

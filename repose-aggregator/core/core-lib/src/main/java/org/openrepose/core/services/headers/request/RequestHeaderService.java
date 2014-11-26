@@ -8,5 +8,6 @@ public interface RequestHeaderService {
     void updateConfig(ViaHeaderBuilder viaHeaderBuilder);
 
     void setXForwardedFor(MutableHttpServletRequest request);
+
     void setVia(MutableHttpServletRequest request);
 }
