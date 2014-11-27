@@ -15,9 +15,13 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ClusterMemberDeterminator {
+/**
+ * This class is like the system-model-interrogator (and will probably be renamed)
+ * it finds stuff for the dist datastore based on the system model and the DistDatastore config for a clusterId
+ */
+public class DistDatastoreClusterInterrogator {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ClusterMemberDeterminator.class);
+   private static final Logger LOG = LoggerFactory.getLogger(DistDatastoreClusterInterrogator.class);
 
    public static List<InetSocketAddress> getClusterMembers(SystemModel config, DistributedDatastoreConfiguration ddConfig, String clusterId) {
 
