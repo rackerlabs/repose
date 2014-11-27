@@ -3,6 +3,7 @@ package org.openrepose.core.services.context.impl;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.domain.ServicePorts;
+import org.openrepose.core.services.datastore.distributed.impl.distributed.jetty.DistributedDatastoreLauncherServiceImpl;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.Service;
 import org.openrepose.core.systemmodel.SystemModel;
@@ -25,8 +26,8 @@ import java.net.URL;
  */
 @Deprecated
 @Component("distributedDatastoreServiceContext")
-public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
-    DistributedDatastoreLauncherService distDatastoreServiceLauncher;
+public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherServiceImpl> {
+    DistributedDatastoreLauncherServiceImpl distDatastoreServiceLauncher;
     private boolean initialized = false;
     private SystemModel systemModel;
     private ReposeInstanceInfo instanceInfo;
@@ -39,7 +40,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
     private String configDirectory;
 
     @Autowired
-    public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherService service,
+    public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherServiceImpl service,
                                               @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
                                               @Qualifier("configurationManager") ConfigurationService configurationManager,
                                               @Qualifier("datastoreService") DatastoreService datastoreService,
@@ -69,7 +70,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
     }
 
     @Override
-    public DistributedDatastoreLauncherService getService() {
+    public DistributedDatastoreLauncherServiceImpl getService() {
         return distDatastoreServiceLauncher;
     }
 

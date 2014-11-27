@@ -1,6 +1,7 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.jetty;
 
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -55,7 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * So that means this guy will potentially be multiples of, but only within the external service (spring) context realm
  */
 @Named
-public class DistributedDatastoreLauncherServiceImpl implements DistributedDatastoreLauncherService {
+public class DistributedDatastoreLauncherServiceImpl implements Destroyable {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherServiceImpl.class);
 
     public static final String SYSTEM_MODEL_XSD = "/META-INF/schema/system-model/system-model.xsd";

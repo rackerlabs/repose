@@ -39,7 +39,6 @@ public interface ContextAdapter {
     AkkaServiceClient akkaServiceClientService();
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
-    DistributedDatastoreLauncherService distributedDatastoreService();
     HealthCheckService healthCheckService();
     <T> T filterChainBuilder();
     <T> T  reposeConfigurationInformation();
