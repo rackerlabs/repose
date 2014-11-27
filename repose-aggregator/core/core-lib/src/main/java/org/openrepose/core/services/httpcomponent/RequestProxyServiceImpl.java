@@ -21,6 +21,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -31,13 +33,19 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
+@Named
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private boolean rewriteHostHeader = false;
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
-    private HttpClientService httpClientService;
+    private final HttpClientService httpClientService;
+
+    @Inject
+    public RequestProxyServiceImpl(HttpClientService httpClientService) {
+        this.httpClientService = httpClientService;
+    }
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
         try {
@@ -47,9 +55,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
 
         throw new HttpException("Invalid target host");
-    }
-
-    public RequestProxyServiceImpl() {
     }
 
     private HttpClientResponse getClient() {
@@ -209,7 +214,4 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         this.rewriteHostHeader = value;
     }
 
-    public void setHttpClientService(HttpClientService httpClientService) {
-        this.httpClientService = httpClientService;
-    }
 }

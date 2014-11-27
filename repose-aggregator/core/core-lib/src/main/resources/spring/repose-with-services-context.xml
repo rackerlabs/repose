@@ -7,8 +7,5 @@
 
     <import resource="repose-core-context.xml"/>
 
-    <bean name="requestProxyService" class="org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl">
-        <property name="httpClientService" ref="httpConnectionPoolService"/>
-    </bean>
 
 </beans>
