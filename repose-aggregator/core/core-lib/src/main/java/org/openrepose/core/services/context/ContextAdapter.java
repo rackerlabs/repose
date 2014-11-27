@@ -6,7 +6,6 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.DistributedDatastoreLauncherService;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.headers.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
@@ -41,7 +40,6 @@ public interface ContextAdapter {
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
     DistributedDatastoreLauncherService distributedDatastoreService();
-    DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService();
     HealthCheckService healthCheckService();
     <T> T filterChainBuilder();
     <T> T  reposeConfigurationInformation();
