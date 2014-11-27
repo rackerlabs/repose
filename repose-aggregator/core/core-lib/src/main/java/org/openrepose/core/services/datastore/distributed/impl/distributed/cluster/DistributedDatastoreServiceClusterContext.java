@@ -11,7 +11,7 @@ import org.openrepose.core.services.context.ServiceContext;
 import org.openrepose.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
+import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils.DistDatastoreClusterInterrogator;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
@@ -31,6 +31,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * TODO: where does this fit in, it's triggered after the other thing is turned on
+ * TODO: ah, all this does is keep the clusterView up to date. This will be consumed into the launcher
+ * This guy is super weird.
+ * ....
+ */
+@Deprecated
 @Component("distributedDatastoreServiceClusterContext")
 public class DistributedDatastoreServiceClusterContext implements ServiceContext<DistributedDatastoreServiceClusterViewService> {
 
@@ -148,7 +155,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
     protected void updateClusterMembers() {
 
 
-        List<InetSocketAddress> cacheSiblings = ClusterMemberDeterminator.getClusterMembers(curSystemModel, curDistributedDatastoreConfiguration, reposeInstanceInfo.getClusterId());
+        List<InetSocketAddress> cacheSiblings = DistDatastoreClusterInterrogator.getClusterMembers(curSystemModel, curDistributedDatastoreConfiguration, reposeInstanceInfo.getClusterId());
         service.updateClusterView(cacheSiblings);
     }
 
@@ -169,6 +176,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+//TODO: still have to get this over there somehow...
 
         //Setting Initial Broken state.
         healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
