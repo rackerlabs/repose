@@ -109,7 +109,7 @@ public class ClusterMemberDeterminatorTest {
       @Test
       public void whenDeterminingCurrentCluster() {
 
-         ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "reposeCluster");
+         ReposeCluster getCluster = DistDatastoreClusterInterrogator.getCurrentCluster(sysConfig.getReposeCluster(), "reposeCluster");
 
          assertTrue("should retrieve cluster", getCluster.getId().equals("reposeCluster"));
 
@@ -118,7 +118,7 @@ public class ClusterMemberDeterminatorTest {
       @Test
       public void whenRetrievingNonExistantCluster() {
 
-         ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "nonExistantCluster");
+         ReposeCluster getCluster = DistDatastoreClusterInterrogator.getCurrentCluster(sysConfig.getReposeCluster(), "nonExistantCluster");
 
          assertNull("No cluster retrieved", getCluster);
       }
@@ -126,8 +126,8 @@ public class ClusterMemberDeterminatorTest {
       @Test
       public void whenRetrievingDDPort() {
 
-         int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node1");
-         int ddPort2 = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node2");
+         int ddPort = DistDatastoreClusterInterrogator.getNodeDDPort(ddConfig, "reposeCluster", "node1");
+         int ddPort2 = DistDatastoreClusterInterrogator.getNodeDDPort(ddConfig, "reposeCluster", "node2");
 
          assertTrue("Should determine proper dd port 1", ddPort == 9999);
          assertTrue("Should determine proper dd port 2", ddPort2 == 3333);
@@ -137,7 +137,7 @@ public class ClusterMemberDeterminatorTest {
       @Test
       public void whenRetrievingClusterMembers(){
          
-         List<InetSocketAddress> clusterView = ClusterMemberDeterminator.getClusterMembers(sysConfig, ddConfig, "reposeCluster");
+         List<InetSocketAddress> clusterView = DistDatastoreClusterInterrogator.getClusterMembers(sysConfig, ddConfig, "reposeCluster");
          
          assertTrue("Cluster has 2 repose nodes", clusterView.size() == 2);
       }
