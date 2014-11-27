@@ -11,7 +11,10 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.services.datastore.DatastoreService;
 
-
+/**
+ * TODO: I don't think this even needs to exist. I don't want to give anyone the ability to turn off this service, as
+ * it's handled itself
+ */
 public interface DistributedDatastoreLauncherService extends Destroyable{
    
    void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo, DatastoreService datastoreService,
