@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 
+@Deprecated
 public interface DistributedDatastoreServiceClusterViewService {
    
    void updateClusterView(List<InetSocketAddress> cacheSiblings);
