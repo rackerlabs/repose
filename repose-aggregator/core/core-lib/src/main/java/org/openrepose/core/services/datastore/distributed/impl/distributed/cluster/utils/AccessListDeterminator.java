@@ -63,7 +63,7 @@ public class AccessListDeterminator {
 
    public static List<InetAddress> getClusterMembers(SystemModel config, String clusterId) {
 
-      ReposeCluster cluster = ClusterMemberDeterminator.getCurrentCluster(config.getReposeCluster(), clusterId);
+      ReposeCluster cluster = DistDatastoreClusterInterrogator.getCurrentCluster(config.getReposeCluster(), clusterId);
       final List<InetAddress> reposeClusterMembers = new LinkedList<InetAddress>();
 
       for (Node node : cluster.getNodes().getNode()) {
