@@ -121,7 +121,6 @@ public class DistributedDatastoreLauncherServiceImpl implements Destroyable {
 
     }
 
-    @Override
     public void startDistributedDatastoreServlet() {
         if (jettyServer.get() == null && datastorePort.get() != null) { //Have to also have a datastorePort
             //TODO: need to assume that we've got a datastorePort now
@@ -152,7 +151,6 @@ public class DistributedDatastoreLauncherServiceImpl implements Destroyable {
         }
     }
 
-    @Override
     public void stopDistributedDatastoreServlet() {
         if (jettyServer.get() != null && jettyServer.get().isStarted()) {
             LOG.info("Stopping Distributed Datastore Jetty Instance at port " + datastorePort.get());
