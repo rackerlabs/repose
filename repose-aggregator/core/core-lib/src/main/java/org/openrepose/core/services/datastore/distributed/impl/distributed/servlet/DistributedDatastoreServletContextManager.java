@@ -18,7 +18,9 @@ import javax.servlet.ServletContextListener;
 
 /*
  * Builds servlet context for the distributed datastore servlet
+ * //TODO: I don't think I want this to exist *at all* Yep, this dies in a fire. All it does is start up stuff.
  */
+@Deprecated
 @Component("distributedDatastoreServletContextManager")
 public class DistributedDatastoreServletContextManager implements ServletContextListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServletContextManager.class);
