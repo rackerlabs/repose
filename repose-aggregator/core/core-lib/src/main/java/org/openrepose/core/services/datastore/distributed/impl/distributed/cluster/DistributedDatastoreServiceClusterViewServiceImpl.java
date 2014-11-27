@@ -7,6 +7,11 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+/**
+ * this should *NOT* be a spring bean, it's literally a worthless container with a convienience method
+ * that has since been replaced.
+ */
+@Deprecated
 @Component("clusterViewService")
 public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService {
    
