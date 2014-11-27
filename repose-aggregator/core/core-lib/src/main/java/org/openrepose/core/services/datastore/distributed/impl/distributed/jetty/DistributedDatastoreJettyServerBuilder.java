@@ -1,67 +1,67 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.jetty;
 
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServlet;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
-import org.openrepose.core.servlet.InitParameter;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServlet;
+import org.openrepose.services.datastore.DatastoreAccessControl;
+import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.services.datastore.distributed.ClusterView;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * TODO: this could almost be a single function in the DDLauncherService class
+ */
 public class DistributedDatastoreJettyServerBuilder {
 
     private int port;
-    private ReposeInstanceInfo reposeInstanceInfo;
-    private DatastoreService datastoreService;
-    private String configDirectory;
-    private DistributedDatastoreServletContextManager manager;
+    private final ClusterView clusterView;
+    private final DatastoreAccessControl datastoreAccessControl;
+    private final RequestProxyService requestProxyService;
+    private final String clusterId;
+    private final DatastoreService datastoreService;
 
-    public DistributedDatastoreJettyServerBuilder(int port, ReposeInstanceInfo reposeInstanceInfo, String configDirectory, DistributedDatastoreServletContextManager manager) {
+    public DistributedDatastoreJettyServerBuilder(int port,
+                                                  String clusterId,
+                                                  DatastoreService datastoreService,
+                                                  ClusterView clusterView,
+                                                  DatastoreAccessControl datastoreAccessControl,
+                                                  RequestProxyService requestProxyService) {
         this.port = port;
-        this.reposeInstanceInfo = reposeInstanceInfo;
-        this.configDirectory = configDirectory;
-        this.manager = manager;
+        this.clusterId = clusterId;
+        this.datastoreService = datastoreService;
+        this.clusterView = clusterView;
+        this.datastoreAccessControl = datastoreAccessControl;
+        this.requestProxyService = requestProxyService;
     }
 
-    public Server newServer(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
-
-        this.datastoreService = datastore;
-        this.reposeInstanceInfo = instanceInfo;
+    /**
+     * create a server with the elements provided from the constructor, as all elements are required
+     *
+     * @return a jetty server ready to be started
+     */
+    public Server newServer() {
         Server server = new Server();
-
-        List<Connector> connectors = new ArrayList<Connector>();
 
         ServerConnector conn = new ServerConnector(server);
         conn.setPort(port);
-        connectors.add(conn);
 
-        server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
+        server.addConnector(conn);
 
-        final ServletContextHandler rootContext = buildRootContext(server);
-        final ServletHolder distributedDatastoreServletHolder = new ServletHolder(new DistributedDatastoreServlet(datastore));
+        final ServletContextHandler rootContext = new ServletContextHandler(server, "/");
+        final DistributedDatastoreServlet ddServlet = new DistributedDatastoreServlet(
+                datastoreService,
+                clusterView,
+                datastoreAccessControl,
+                requestProxyService
+        );
+
+        final ServletHolder distributedDatastoreServletHolder = new ServletHolder(ddServlet);
+        distributedDatastoreServletHolder.setName("DistDatastoreServlet-" + clusterId);
         rootContext.addServlet(distributedDatastoreServletHolder, "/*");
         server.setHandler(rootContext);
 
-
         return server;
-    }
-
-    private ServletContextHandler buildRootContext(Server serverReference) {
-        final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
-        servletContext.getInitParams().put(InitParameter.REPOSE_CLUSTER_ID.getParameterName(), reposeInstanceInfo.getClusterId());
-        servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), reposeInstanceInfo.getNodeId());
-        servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configDirectory);
-        servletContext.getInitParams().put("datastoreServicePort", String.valueOf(port));
-
-        manager.setDatastoreSystemProperties(datastoreService, reposeInstanceInfo);
-        servletContext.addEventListener(manager);
-
-        return servletContext;
     }
 }
