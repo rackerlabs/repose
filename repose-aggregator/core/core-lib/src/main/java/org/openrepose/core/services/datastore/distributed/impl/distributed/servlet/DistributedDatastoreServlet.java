@@ -3,21 +3,15 @@ package org.openrepose.core.services.datastore.distributed.impl.distributed.serv
 import org.openrepose.commons.utils.encoding.EncodingProvider;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.services.datastore.DatastoreOperationException;
-import org.openrepose.services.datastore.Patch;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.services.datastore.*;
 import org.openrepose.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.services.datastore.impl.distributed.MalformedCacheRequestException;
-import org.openrepose.core.services.context.ContextAdapter;
-import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.services.datastore.DatastoreAccessControl;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,30 +27,38 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
     private DatastoreAccessControl hostAcl;
     private Datastore localDatastore;
-    private EncodingProvider encodingProvider;
     private DatastoreService datastoreService;
-    private DistributedDatastoreServiceClusterViewService clusterView;
     private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
 
-    public DistributedDatastoreServlet(DatastoreService datastore) {
-        hostAcl = new DatastoreAccessControl(null, false);
+    /**
+     * Current assumptions:
+     * TODO: WIPE THIS AWAY WHEN DONE
+     * The clusterViewService is started and provided. I assume this guy should be specific to a single repose cluster
+     * so it porbably shouldn't be a spring bean.
+     * DatastoreService is started and is just the local datastore.
+     * RequestProxyService started and is handed in. Wow, this is like 5 classes just to replace httpGet.... madness
+     *
+     * @param datastore
+     * @param requestProxyService
+     */
+    public DistributedDatastoreServlet(
+            DatastoreService datastore,
+            ClusterView clusterView, //TODO: this has to be updated externally, to keep the cluster members up to date
+            DatastoreAccessControl accessControl,
+            RequestProxyService requestProxyService
+    ) {
+        //Set up everything on instantiation.
+
         this.datastoreService = datastore;
         localDatastore = datastore.getDefaultDatastore();
-        encodingProvider = UUIDEncodingProvider.getInstance();
-    }
+        EncodingProvider encodingProvider = UUIDEncodingProvider.getInstance();
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-
-        super.init(config);
-
-        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
-        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
-                clusterView.getClusterView());
+        ClusterConfiguration configuration = new ClusterConfiguration(requestProxyService,
+                encodingProvider,
+                clusterView);
 
         datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
-        hostAcl = clusterView.getAccessControl();
+        hostAcl = accessControl; //THis ACL isn't thread safe!
     }
 
     @Override
@@ -176,7 +178,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } catch (MalformedCacheRequestException mcre) {
                 LOG.trace("Handling Malformed Cache Request", mcre);
                 handleputMalformedCacheRequestException(mcre, response);
-            } catch (ClassCastException e){
+            } catch (ClassCastException e) {
                 LOG.trace("Sending ERROR response", e);
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             }
