@@ -9,7 +9,6 @@ import org.openrepose.core.services.context.ServiceContextName;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.DistributedDatastoreLauncherService;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.headers.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
@@ -158,11 +157,6 @@ public class SpringContextAdapter implements ContextAdapter {
    @Override
    public DistributedDatastoreLauncherService distributedDatastoreService() {
       return getService(ServiceContextName.DISTRIBUTED_DATASTORE_SERVICE_CONTEXT);
-   }
-
-   @Override
-   public DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService() {
-      return getService(ServiceContextName.DISTRIBUTED_DATASTORE_SERVICE_CLUSTER_CONTEXT);
    }
 
     @Override
