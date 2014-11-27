@@ -82,6 +82,11 @@ public class ThreadSafeClusterView implements ClusterView {
    }
 
    @Override
+   public void updateMembers(List<InetSocketAddress> members) {
+      updateMembers(members.toArray(new InetSocketAddress[members.size()]));
+   }
+
+   @Override
    public synchronized InetSocketAddress[] members() {
       final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<InetSocketAddress>();
 
