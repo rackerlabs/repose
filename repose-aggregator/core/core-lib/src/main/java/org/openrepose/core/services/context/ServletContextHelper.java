@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import javax.servlet.ServletContext;
 import java.io.Serializable;
 
+@Deprecated
 public final class ServletContextHelper implements Serializable {
 
     public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
