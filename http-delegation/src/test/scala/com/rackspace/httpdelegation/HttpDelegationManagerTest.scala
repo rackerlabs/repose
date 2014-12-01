@@ -1,6 +1,5 @@
 package com.rackspace.httpdelegation
 
-import com.rackspace.httpdelegation.{HttpDelegationHeader, HttpDelegationHeaderNames, HttpDelegationManager}
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.util.{Failure, Success}

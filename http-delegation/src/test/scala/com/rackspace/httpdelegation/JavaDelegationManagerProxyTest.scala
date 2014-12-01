@@ -2,7 +2,6 @@ package com.rackspace.httpdelegation
 
 import java.text.ParseException
 
-import com.rackspace.httpdelegation.{HttpDelegationHeader, HttpDelegationHeaderNames, JavaDelegationManagerProxy}
 import org.scalatest.{FunSuite, Matchers}
 
 class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
