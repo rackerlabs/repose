@@ -23,7 +23,6 @@ public class FilterContext implements Destroyable {
       this.filterClassLoader = filterClassLoader;
       this.filterConfig = filterConfig;
       if (filterConfig != null && filterConfig.getUriRegex() != null) {
-         filterConfig.getName();
          this.name = filterConfig.getName();
          this.regex = filterConfig.getUriRegex();
          this.pattern = Pattern.compile(regex);
