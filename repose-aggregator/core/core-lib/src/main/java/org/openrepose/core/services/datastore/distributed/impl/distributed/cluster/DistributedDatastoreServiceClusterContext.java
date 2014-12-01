@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+@Deprecated
 @Component("distributedDatastoreServiceClusterContext")
 public class DistributedDatastoreServiceClusterContext implements ServiceContext<DistributedDatastoreServiceClusterViewService> {
 

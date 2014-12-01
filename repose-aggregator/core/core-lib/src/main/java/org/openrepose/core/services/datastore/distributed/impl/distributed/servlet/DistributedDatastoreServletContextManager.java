@@ -19,6 +19,7 @@ import javax.servlet.ServletContextListener;
 /*
  * Builds servlet context for the distributed datastore servlet
  */
+@Deprecated
 @Component("distributedDatastoreServletContextManager")
 public class DistributedDatastoreServletContextManager implements ServletContextListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServletContextManager.class);

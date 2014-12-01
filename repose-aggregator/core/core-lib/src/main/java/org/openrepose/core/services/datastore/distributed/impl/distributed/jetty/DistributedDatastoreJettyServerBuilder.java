@@ -14,6 +14,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TODO: replace this with a much cleaner way of doing it.
+ * Perhaps encapsulate the monitoring bits better
+ */
 public class DistributedDatastoreJettyServerBuilder {
 
     private int port;

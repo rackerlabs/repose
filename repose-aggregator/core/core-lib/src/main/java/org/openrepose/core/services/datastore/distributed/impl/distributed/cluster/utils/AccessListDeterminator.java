@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
+//TODO: rename or something
 public class AccessListDeterminator {
 
    private static final Logger LOG = LoggerFactory.getLogger(AccessListDeterminator.class);

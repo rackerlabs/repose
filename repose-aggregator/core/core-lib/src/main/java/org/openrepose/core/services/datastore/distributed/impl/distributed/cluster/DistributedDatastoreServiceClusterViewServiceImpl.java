@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+/**
+ * Replace this with the individual items
+ */
+@Deprecated()
 @Component("clusterViewService")
 public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService {
    
@@ -23,7 +27,8 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
       this.accessControl = accessControl;
    }
    
-   
+
+   //TODO: Move this to the clusterView updateMembers method
    @Override
    public void updateClusterView(List<InetSocketAddress> cacheSiblings) {
       clusterView.updateMembers(cacheSiblings.toArray(new InetSocketAddress[cacheSiblings.size()]));
