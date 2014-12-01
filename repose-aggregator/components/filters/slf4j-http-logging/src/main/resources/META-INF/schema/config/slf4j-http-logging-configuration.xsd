@@ -29,7 +29,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="format" type="xs:string" minOccurs="0" maxOccurs="1">
+            <xs:element name="format" type="slf4jlog:format-element" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>This is a replacement for the format attribute. You can use this if your format
@@ -75,5 +75,26 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="format-element">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Format configuration element for SLF4j HTTP logging</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="crush" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not to replace a newline sequence (i.e. \r, \n, \r\n) plus any
+                                following whitespace with a single space.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 </xs:schema>
