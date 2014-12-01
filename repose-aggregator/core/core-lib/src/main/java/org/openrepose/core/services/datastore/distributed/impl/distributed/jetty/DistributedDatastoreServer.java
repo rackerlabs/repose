@@ -18,7 +18,7 @@ import java.util.List;
  * TODO: replace this with a much cleaner way of doing it.
  * Perhaps encapsulate the monitoring bits better
  */
-public class DistributedDatastoreJettyServerBuilder {
+public class DistributedDatastoreServer {
 
     private int port;
     private ReposeInstanceInfo reposeInstanceInfo;
@@ -26,7 +26,7 @@ public class DistributedDatastoreJettyServerBuilder {
     private String configDirectory;
     private DistributedDatastoreServletContextManager manager;
 
-    public DistributedDatastoreJettyServerBuilder(int port, ReposeInstanceInfo reposeInstanceInfo, String configDirectory, DistributedDatastoreServletContextManager manager) {
+    public DistributedDatastoreServer(int port, ReposeInstanceInfo reposeInstanceInfo, String configDirectory, DistributedDatastoreServletContextManager manager) {
         this.port = port;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.configDirectory = configDirectory;

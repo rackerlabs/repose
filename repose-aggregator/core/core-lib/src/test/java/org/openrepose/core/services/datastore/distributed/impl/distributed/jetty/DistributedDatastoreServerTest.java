@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
-public class DistributedDatastoreJettyServerBuilderTest {
+public class DistributedDatastoreServerTest {
 
    public static class WhenCreatingDistributedDatastoreBuilder {
 
@@ -30,7 +30,7 @@ public class DistributedDatastoreJettyServerBuilderTest {
       @Test
       public void shouldCreateNewServer() throws IllegalAccessException, InstantiationException {
          
-         DistributedDatastoreJettyServerBuilder builder = new DistributedDatastoreJettyServerBuilder(8888, instanceInfo, "/etc/repose",
+         DistributedDatastoreServer builder = new DistributedDatastoreServer(8888, instanceInfo, "/etc/repose",
                  DistributedDatastoreServletContextManager.class.newInstance());
          final Server server = builder.newServer(datastoreService, instanceInfo);
          
