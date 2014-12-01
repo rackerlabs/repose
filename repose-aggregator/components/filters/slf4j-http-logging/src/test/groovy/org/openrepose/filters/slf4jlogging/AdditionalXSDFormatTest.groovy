@@ -142,4 +142,27 @@ class AdditionalXSDFormatTest extends Specification {
         obj != null
 
     }
+
+    def "new multi-line format element validates"() {
+        given: "I have an http log with a format element (and no format attribute)"
+        @Language("XML")
+        def configXml = """<?xml version="1.0" encoding="UTF-8"?>
+<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+    <slf4j-http-log id="my-special-log" >
+            <format crush="true">
+            [<![CDATA[
+            Some Output format
+            with multiple lines!
+            ]]>
+            </format>
+    </slf4j-http-log>
+</slf4j-http-logging>
+"""
+
+        when: "I get the jaxb config for this"
+        def obj = marshalConfig(configXml)
+
+        then: "it should be a validated config"
+        obj != null
+    }
 }
