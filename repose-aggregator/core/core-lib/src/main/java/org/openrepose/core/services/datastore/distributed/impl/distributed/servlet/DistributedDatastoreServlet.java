@@ -1,11 +1,8 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.servlet;
 
-import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
 import org.openrepose.services.datastore.*;
 import org.openrepose.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.services.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
@@ -28,26 +25,24 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
     private final AtomicReference<DatastoreAccessControl> hostAcl;
     private Datastore localDatastore;
-    private final RequestProxyService requestProxyService;
     private final DatastoreService datastoreService;
-    private final ClusterView clusterView;
+    private final ClusterConfiguration clusterConfiguration;
     private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
 
     public DistributedDatastoreServlet(
-            RequestProxyService requestProxyService,
             DatastoreService datastore,
-            ClusterView clusterView,
+            ClusterConfiguration clusterConfiguration,
             DatastoreAccessControl acl
     ) {
-        this.requestProxyService = requestProxyService;
         this.datastoreService = datastore;
-        this.clusterView = clusterView; //NOTE: this is a mutable object that gets updated
+        this.clusterConfiguration = clusterConfiguration;
         this.hostAcl = new AtomicReference<>(acl); //TODO: this should be converted to a mutable object that gets updated for consistency
         localDatastore = datastore.getDefaultDatastore();
     }
 
     /**
      * hit from other threads to update the ACL for this servlet.
+     *
      * @param acl
      */
     public void updateAcl(DatastoreAccessControl acl) {
@@ -59,11 +54,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         super.init(config);
         LOG.info("Registering datastore: {}", DISTRIBUTED_HASH_RING);
 
-        ClusterConfiguration configuration = new ClusterConfiguration(requestProxyService,
-                UUIDEncodingProvider.getInstance(),
-                clusterView);
 
-        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
+        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration);
     }
 
     @Override
