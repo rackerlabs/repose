@@ -21,6 +21,7 @@ import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.threading.ThreadingService;
 
 
+@Deprecated
 public interface ContextAdapter {
 
     ClassLoaderManagerService classLoader();
