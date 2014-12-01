@@ -2,10 +2,10 @@ package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement;
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog;
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -49,7 +49,16 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
                 //Format string might come from two places, the attribute, or the element
                 String formatString = logConfig.getFormat();
                 if(StringUtilities.isEmpty(formatString)) {
-                    formatString = logConfig.getFormatElement().trim();
+                    FormatElement formatElement = logConfig.getFormatElement();
+                    formatString = formatElement.getValue().trim();
+                    if(formatElement.isCrush()) {
+                        // Regex breakdown:
+                        // (?m)         indicates multi-line processing
+                        // [ \t]*       zero or more space or tab characters
+                        // (\r\n|\r|\n) the three known newline combinations
+                        // [ \t]*       again, zero or more space or tab characters
+                        formatString = formatString.replaceAll("(?m)[ \\t]*(\\r\\n|\\r|\\n)[ \\t]*", " ");
+                    }
                 }
 
                 Slf4jLoggerWrapper existingWrapper = updateExisting(loggerWrappers, loggerName, formatString);
