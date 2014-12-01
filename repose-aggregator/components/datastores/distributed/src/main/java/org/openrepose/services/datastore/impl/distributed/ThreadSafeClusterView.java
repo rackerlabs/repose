@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ThreadSafeClusterView implements ClusterView {
 
