@@ -36,7 +36,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     ) {
         this.datastoreService = datastore;
         this.clusterConfiguration = clusterConfiguration;
-        this.hostAcl = new AtomicReference<>(acl); //TODO: this should be converted to a mutable object that gets updated for consistency
+        this.hostAcl = new AtomicReference<>(acl);
         localDatastore = datastore.getDefaultDatastore();
     }
 
