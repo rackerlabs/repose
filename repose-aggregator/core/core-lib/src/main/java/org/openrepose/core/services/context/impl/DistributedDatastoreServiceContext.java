@@ -22,7 +22,9 @@ import java.net.URL;
 
 /*
  * Class that will listen to system-model.cfg.xml and dist-datastore.cfg.xml file to launch the distributed-datastore servlet
+ * NOTE: I did all this already, BAM
  */
+@Deprecated
 @Component("distributedDatastoreServiceContext")
 public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
     DistributedDatastoreLauncherService distDatastoreServiceLauncher;
