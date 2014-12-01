@@ -22,6 +22,7 @@ class DerpResponseMessagingTest extends ReposeValveTest {
                 headers: ['X-Delegated': 'status_code=500`component=foo`message=bar;q=1.0'])
 
         then:
+        messageChain.getHandlings().size() + messageChain.getOrphanedHandlings().size() == 0
         messageChain.getReceivedResponse().getBody().equals('Response messaging caught a 5xx response')
     }
 }
