@@ -6,10 +6,9 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.proxy.RequestProxyService
 import org.openrepose.core.filter.SystemModelInterrogator
-import org.openrepose.core.services.ServiceRegistry
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl
 import org.openrepose.core.systemmodel.ReposeCluster
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService
@@ -24,7 +23,7 @@ import static org.mockito.Mockito.*
 
 class RequestProxyServiceContextTest extends Specification {
     @Shared
-    def RequestProxyServiceContext requestProxyServiceContext
+    def RequestProxyServiceImpl requestProxyService
 
     @Shared
     def SystemModelInterrogator systemModelInterrogator
@@ -39,8 +38,6 @@ class RequestProxyServiceContextTest extends Specification {
     def HealthCheckServiceProxy healthCheckServiceProxy
 
     def setup() {
-        def requestProxyService = mock(RequestProxyService.class)
-        def serviceRegistry = mock(ServiceRegistry.class)
         systemModelInterrogator = mock(SystemModelInterrogator.class)
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
@@ -48,8 +45,7 @@ class RequestProxyServiceContextTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        requestProxyServiceContext = new RequestProxyServiceContext(requestProxyService, serviceRegistry,
-                configurationService, systemModelInterrogator, healthCheckService)
+        this.requestProxyService = new RequestProxyServiceImpl(configurationService, healthCheckService, "cluster", "node")
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -62,7 +58,7 @@ class RequestProxyServiceContextTest extends Specification {
         when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.of(localCluster))
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
-        requestProxyServiceContext.contextInitialized(null)
+        requestProxyService.init()
 
         listenerObject = listenerCaptor.getValue()
 
@@ -71,7 +67,7 @@ class RequestProxyServiceContextTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckServiceProxy).resolveIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckServiceProxy).resolveIssue(eq(RequestProxyServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
@@ -84,7 +80,7 @@ class RequestProxyServiceContextTest extends Specification {
         when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.absent())
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
-        requestProxyServiceContext.contextInitialized(null)
+        requestProxyService.init()
 
         listenerObject = listenerCaptor.getValue()
 
@@ -94,7 +90,7 @@ class RequestProxyServiceContextTest extends Specification {
         then:
         !listenerObject.isInitialized()
         app.getEvents().find { it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model") }
-        verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
+        verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity))
     }
 }
