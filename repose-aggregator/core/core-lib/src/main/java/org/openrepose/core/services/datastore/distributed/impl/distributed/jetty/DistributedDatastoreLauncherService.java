@@ -34,8 +34,8 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Named
-public class DistributedDatastoreLauncherServiceImpl {
-    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherServiceImpl.class);
+public class DistributedDatastoreLauncherService {
+    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherService.class);
 
     private final String clusterId;
     private final String nodeId;
@@ -59,7 +59,7 @@ public class DistributedDatastoreLauncherServiceImpl {
 
 
     @Inject
-    public DistributedDatastoreLauncherServiceImpl(
+    public DistributedDatastoreLauncherService(
             @Value(ReposeSpringProperties.CLUSTER_ID) String clusterId,
             @Value(ReposeSpringProperties.NODE_ID) String nodeId,
             DatastoreService datastoreService,
