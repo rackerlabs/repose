@@ -9,7 +9,7 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import spock.lang.Shared
 import spock.lang.Specification
 
-class Slf4jLoggingIntegrationTest extends Specification {
+class NewFormatElementTest extends Specification {
     ListAppender app
 
     @Shared
@@ -18,10 +18,10 @@ class Slf4jLoggingIntegrationTest extends Specification {
     def setupSpec() {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
                 "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-        //NOTE This dies a horrible death if you try to stick it in an unroll. Possibly a side effect of how brittle it is
+        //I cannot combine this into an unroll on the other test, because it doesn't know how to reconfigure...
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M", true)
         ])
     }
 
@@ -30,7 +30,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
         app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
     }
 
-    def "The SLF4j logging filter logs to the named logger"(){
+    def "The SLF4j logging filter logs to the named logger using the format element, not the attribute"(){
         given:
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()

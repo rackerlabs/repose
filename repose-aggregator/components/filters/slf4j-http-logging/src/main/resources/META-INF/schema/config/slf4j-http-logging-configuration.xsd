@@ -4,9 +4,10 @@
            targetNamespace="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
            xmlns:slf4jlog="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:element name="slf4j-http-logging" type="slf4jlog:slf4j-http-logging-config" />
+    <xs:element name="slf4j-http-logging" type="slf4jlog:slf4j-http-logging-config"/>
 
     <xs:complexType name="slf4j-http-logging-config">
         <xs:annotation>
@@ -16,7 +17,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="slf4j-http-log" type="slf4jlog:slf4j-http-log" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="slf4j-http-log" type="slf4jlog:slf4j-http-log" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -27,23 +28,73 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:sequence>
+            <xs:element name="format" type="slf4jlog:format-element" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>This is a replacement for the format attribute. You can use this if your format
+                            string does not fit well inside of an attribute. You cannot use both. Leading and trailing
+                            whitespace will be stripped, but not whitespace within the log message.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>This ID will be the SLF4j logger target, it can be used in the backend logger configuration
-                    (Current log4j 1.2) to direct it's output to an appender. See the log4j documentation as for how to
-                    do this.</html:p>
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="format" type="xs:string" use="required">
+        <xs:attribute name="format" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The format includes what will be logged. The arguments with % are a subset of the apache
-                        mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats</html:p>
+                        mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <!-- http://stackoverflow.com/a/16674043/423218 -->
+        <xs:assert vc:minVersion="1.1" test="count((@format, ./slf4jlog:format)) = 1">
+            <xs:annotation>
+                <xs:appinfo>
+                    Exactly one of the format attribute or format element can be specified. Not both.
+                </xs:appinfo>
+                <xs:documentation>
+                    According to stuff I've read on the internet, the above error message should be used when the
+                    assertion fails.
+                    It's not used :(
+                    This stuff: http://www.ibm.com/developerworks/library/x-xml11pt2/
+                </xs:documentation>
+            </xs:annotation>
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="format-element">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Format configuration element for SLF4j HTTP logging</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="crush" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not to replace a newline sequence (i.e. \r, \n, \r\n) plus any
+                                following whitespace with a single space.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 </xs:schema>
