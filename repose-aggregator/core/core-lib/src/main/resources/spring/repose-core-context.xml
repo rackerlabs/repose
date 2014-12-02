@@ -33,11 +33,4 @@
         <constructor-arg type="java.lang.String" value="${reposeVersion}"/>
     </bean>
 
-    <!-- Services -->
-    <bean name="distributedDatastoreServiceContext"
-          class="org.openrepose.core.services.context.impl.DistributedDatastoreServiceContext"/>
-
-    <bean name="distributedDatastoreServiceClusterContext"
-          class="org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
-
 </beans>

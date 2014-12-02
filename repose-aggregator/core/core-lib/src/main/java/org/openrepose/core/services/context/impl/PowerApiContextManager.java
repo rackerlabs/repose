@@ -26,7 +26,6 @@ public class PowerApiContextManager implements ServletContextListener {
       ContextAdapter ca = helper.getPowerApiContext();
 
       PapiBanner.print(LOG);
-      ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
 
    }
 
