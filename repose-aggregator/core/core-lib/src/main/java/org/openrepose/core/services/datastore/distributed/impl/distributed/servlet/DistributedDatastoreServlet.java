@@ -3,6 +3,7 @@ package org.openrepose.core.services.datastore.distributed.impl.distributed.serv
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.services.datastore.*;
 import org.openrepose.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.services.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
@@ -20,6 +21,10 @@ import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Holds most of the work for running a distributed datastore.
+ * Exposes the ClusterView and the ACL for update.
+ */
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
@@ -41,6 +46,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
     }
 
     /**
+     * Called from other threads to be able to tickle the cluster view for this servlet
+     */
+    public ClusterView getClusterView() {
+        return clusterConfiguration.getClusterView();
+    }
+
+    /**
      * hit from other threads to update the ACL for this servlet.
      *
      * @param acl
@@ -53,7 +65,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         LOG.info("Registering datastore: {}", DISTRIBUTED_HASH_RING);
-
 
         datastoreService.createDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration);
     }
