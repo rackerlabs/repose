@@ -14,7 +14,9 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
-//TODO: rename or something
+/**
+ * A collection of convenience methods around determining the Access list for a cluster for a dist datastore.
+ */
 public class AccessListDeterminator {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessListDeterminator.class);
