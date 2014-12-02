@@ -1,5 +1,6 @@
 package org.openrepose.filters.derp
 
+import java.io.PrintWriter
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{ServletRequest, FilterChain, ServletResponse}
@@ -29,30 +30,39 @@ class DerpFilterTest extends FunSpec {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=1.0")))
       val resp = mock(classOf[HttpServletResponse])
+      val respWriter = mock(classOf[PrintWriter])
+      when(resp.getWriter).thenReturn(respWriter)
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(404, "not found")
+      verify(resp).sendError(404)
+      verify(respWriter).write("not found")
     }
 
     it("should send an error response corresponding to the delegation value with the highest quality") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar;q=0.9")))
       val resp = mock(classOf[HttpServletResponse])
+      val respWriter = mock(classOf[PrintWriter])
+      when(resp.getWriter).thenReturn(respWriter)
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500, "bar")
+      verify(resp).sendError(500)
+      verify(respWriter).write("bar")
     }
 
     it("should send an error response corresponding to the delegation value with the highest quality, reverse order") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=500`component=foo`message=bar;q=0.9", "status_code=404`component=foo`message=not found;q=0.8")))
       val resp = mock(classOf[HttpServletResponse])
+      val respWriter = mock(classOf[PrintWriter])
+      when(resp.getWriter).thenReturn(respWriter)
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500, "bar")
+      verify(resp).sendError(500)
+      verify(respWriter).write("bar")
     }
 
     it("should reject the request if no delegation value could be parsed") {
@@ -60,21 +70,27 @@ class DerpFilterTest extends FunSpec {
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=4a4`component=foo`message=not found`q=1.0")))
       val resp = mock(classOf[HttpServletResponse])
       val fc = mock(classOf[FilterChain])
+      val respWriter = mock(classOf[PrintWriter])
+      when(resp.getWriter).thenReturn(respWriter)
 
       derpFilter.doFilter(req, resp, fc)
 
       verify(fc, never()).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
-      verify(resp).sendError(500, anyString())
+      verify(resp).sendError(500)
+      verify(respWriter).write(anyString())
     }
 
     it("should treat a delegation value without an explicit quality as having a quality of 1") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar")))
       val resp = mock(classOf[HttpServletResponse])
+      val respWriter = mock(classOf[PrintWriter])
+      when(resp.getWriter).thenReturn(respWriter)
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500, "bar")
+      verify(resp).sendError(500)
+      verify(respWriter).write("bar")
     }
   }
 

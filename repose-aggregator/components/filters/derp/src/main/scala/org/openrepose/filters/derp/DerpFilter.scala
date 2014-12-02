@@ -2,6 +2,7 @@ package org.openrepose.filters.derp
 
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation._
 import org.slf4j.LoggerFactory
@@ -38,10 +39,17 @@ class DerpFilter extends Filter with HttpDelegationManager {
       sortedErrors match {
         case Seq() =>
           LOG.warn("No delegation header could be parsed, returning a 500 response")
-          httpServletResponse.sendError(500, "Delegation header found but could not be parsed")
+          val errorMessage = "Delegation header found but could not be parsed"
+          httpServletResponse.setContentLength(errorMessage.length)
+          httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
+          httpServletResponse.getWriter.write(errorMessage)
+          httpServletResponse.sendError(500)
         case Seq(preferredValue, _*) =>
           LOG.debug(s"Delegation header(s) present, returning a ${preferredValue.statusCode} response")
-          httpServletResponse.sendError(preferredValue.statusCode, preferredValue.message)
+          httpServletResponse.setContentLength(preferredValue.message.length)
+          httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
+          httpServletResponse.getWriter.write(preferredValue.message)
+          httpServletResponse.sendError(preferredValue.statusCode)
       }
     }
   }
