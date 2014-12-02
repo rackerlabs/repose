@@ -1,15 +1,6 @@
 package org.openrepose.core.services.httpcomponent;
 
-import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.proxy.ProxyRequestException;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
-import org.openrepose.core.proxy.HttpException;
-import org.openrepose.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.services.httpclient.HttpClientResponse;
-import org.openrepose.services.httpclient.HttpClientService;
+import com.google.common.base.Optional;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -18,9 +9,34 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.proxy.ProxyRequestException;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.proxy.HttpException;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.services.healthcheck.HealthCheckService;
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.services.healthcheck.Severity;
+import org.openrepose.services.httpclient.HttpClientNotFoundException;
+import org.openrepose.services.httpclient.HttpClientResponse;
+import org.openrepose.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -31,13 +47,49 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
+@Named
+@Lazy
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private boolean rewriteHostHeader = false;
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
+    private final ConfigurationService configurationManager;
+    private final SystemModelListener systemModelListener;
+    private final HealthCheckService healthCheckService;
+    private final String clusterId;
+    private final String nodeId;
+
+    private boolean rewriteHostHeader = false;
     private HttpClientService httpClientService;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
+
+    @Inject
+    public RequestProxyServiceImpl(ConfigurationService configurationManager,
+                                   HealthCheckService healthCheckService,
+                                   @Value(ReposeSpringProperties.CLUSTER_ID) String clusterId,
+                                   @Value(ReposeSpringProperties.NODE_ID) String nodeId) {
+
+        this.configurationManager = configurationManager;
+        this.healthCheckService = healthCheckService;
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
+
+        this.systemModelListener = new SystemModelListener();
+    }
+
+    @PostConstruct
+    public void init() {
+        healthCheckServiceProxy = healthCheckService.register();
+
+        configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+    }
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
         try {
@@ -47,9 +99,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
 
         throw new HttpException("Invalid target host");
-    }
-
-    public RequestProxyServiceImpl() {
     }
 
     private HttpClientResponse getClient() {
@@ -70,7 +119,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             final boolean isChunkedConfigured = httpClientResponse.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
-            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader,isChunkedConfigured);
+            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, isChunkedConfigured);
             final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
 
             if (method != null) {
@@ -211,5 +260,32 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     public void setHttpClientService(HttpClientService httpClientService) {
         this.httpClientService = httpClientService;
+    }
+
+    private class SystemModelListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(SystemModel config) {
+            SystemModelInterrogator systemModelInterrogator = new SystemModelInterrogator(clusterId, nodeId);
+            Optional<ReposeCluster> localCluster = systemModelInterrogator.getLocalCluster(config);
+
+            if (localCluster.isPresent()) {
+                setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
+                isInitialized = true;
+
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+            } else {
+                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+            }
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
     }
 }
