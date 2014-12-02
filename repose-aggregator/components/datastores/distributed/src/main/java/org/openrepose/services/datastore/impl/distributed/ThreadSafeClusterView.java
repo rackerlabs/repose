@@ -130,4 +130,16 @@ public class ThreadSafeClusterView implements ClusterView {
       return false;
    }
 
+   /**
+    * It was really annoying to create a clusterview for only one port all the time, so this wraps that
+    * Returns a threadSafeClusterView that has been built with a list of only one port
+    * @param port
+    * @return
+    */
+   public static ThreadSafeClusterView singlePortClusterView(int port) {
+      List<Integer> portList = new ArrayList<>();
+      portList.add(port);
+      return new ThreadSafeClusterView(portList);
+   }
+
 }
