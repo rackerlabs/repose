@@ -6,7 +6,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
-import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;
@@ -28,16 +27,13 @@ public class MetricsServiceContextTest {
     public static class EnabledDisabled {
         protected MetricsServiceImpl metricsService;
 
-        protected ServiceRegistry serviceRegistry;
         protected ConfigurationService configurationService;
         protected HealthCheckService healthCheckService;
         protected HealthCheckServiceProxy healthCheckServiceProxy;
         protected ServletContextEvent sce;
 
-
         @Before
         public void setUp() {
-            serviceRegistry = mock(ServiceRegistry.class);
             configurationService = mock(ConfigurationService.class);
             healthCheckService = mock(HealthCheckService.class);
             healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
