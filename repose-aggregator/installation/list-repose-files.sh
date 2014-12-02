@@ -10,7 +10,7 @@ FILES=(\
 /etc/repose/client-auth-n.cfg.xml \
 /etc/repose/container.cfg.xml \
 /etc/repose/destination-router.cfg.xml \
-/etc/repose/dist-datastore.cfg.xml \
+#/etc/repose/dist-datastore.cfg.xml \
 /etc/repose/fail-404.wadl \
 /etc/repose/header-identity.cfg.xml \
 /etc/repose/header-id-mapping.cfg.xml \
