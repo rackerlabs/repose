@@ -26,6 +26,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/derp/responsemessaging/clientauthn", params)
         repose.start()
+        waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
@@ -36,9 +37,10 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
+        if(deproxy)
+            deproxy.shutdown()
+        if(repose)
+            repose.stop()
     }
 
     def setup(){
@@ -46,9 +48,9 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
     }
 
     /*
-    This test to verify the forward fail reason and default quality for authn
- */
-
+        These tests are to verify the delegation of authn failures to the derp filter, which then forwards
+        that information back to the client.  The origin service, thus, never gets invoked.
+    */
 
     @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
@@ -69,7 +71,11 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"
+        mc.receivedResponse.headers.contains("Content-Type")
+        mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
+
+
         /*
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
@@ -79,12 +85,15 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated")=~ delegatedMsg
+
+        2:16:29 PM dmnjohns: So that's weird because it seems to be breaking one of Java's servlet contracts. The sendError method should set the body, and in addition, should set the Content-Type of the response to text/html.
+
         */
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
-        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
-        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        requestTenant | responseTenant  | serviceAdminRole  | reponseCode   | msgBody                     |  delegatedMsg
+        506           | 506             | "not-admin"       | "401"         | "Failure in AuthN filter"   | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        ""            | 512             | "not-admin"       | "401"         | "Failure in AuthN filter"   | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
     }
 
 
@@ -109,6 +118,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
+        mc.receivedResponse.headers.contains("Content-Type")
+        mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
         mc.getOrphanedHandlings().size() == 2
         /*
@@ -121,9 +132,9 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         */
 
         where:
-        authRespCode | responseCode | delegatedMsg
-        404          | "401"          | "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
-        401          | "500"          | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        authRespCode | responseCode   | msgBody                     | delegatedMsg
+        404          | "401"          | "Unable to validate token"  | "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
+        401          | "500"          | "Failure in AuthN filter"   | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
     }
 
 
