@@ -143,7 +143,7 @@ public class TranslationHandlerTest {
         @Test
         public void shouldTranslateNonEmptyResponseBody() throws IOException, SAXException {
 
-            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.txt");
+            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
             when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
@@ -181,7 +181,7 @@ public class TranslationHandlerTest {
         @Test
         public void shouldNotTranslateResponseBodyForUnconfiguredAccept() throws IOException, SAXException {
 
-            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.txt");
+            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/json");
             when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/json"));
@@ -195,7 +195,7 @@ public class TranslationHandlerTest {
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpResponse.getInputStream()));
             //String actual = director.getResponseMessageBody();
-            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.txt")));
+            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
             
             Diff diff1 = new Diff(expected, actual);
 
@@ -297,7 +297,7 @@ public class TranslationHandlerTest {
         @Test
         public void shouldTranslateNonEmptyRequestBody() throws IOException, SAXException {
 
-            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.txt"));
+            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.xml"));
             when(mockedRequest.getInputStream()).thenReturn(response);
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
@@ -317,7 +317,7 @@ public class TranslationHandlerTest {
         @Test
         public void shouldNotTranslateRequestBodyForUnconfiguredAccept() throws IOException, SAXException {
 
-            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.txt"));
+            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.xml"));
             when(mockedRequest.getInputStream()).thenReturn(response);
             when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/other");
             when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/other"));
@@ -330,7 +330,7 @@ public class TranslationHandlerTest {
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
             //String actual = director.getResponseMessageBody();
-            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.txt")));
+            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
             
             Diff diff1 = new Diff(expected, actual);
 
