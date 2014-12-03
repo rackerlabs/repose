@@ -18,7 +18,6 @@
         <module>header-identity</module>
         <module>header-id-mapping</module>
         <module>uri-identity</module>
-        <module>content-identity-auth-2.0</module>
         <module>rackspace-auth-user</module>
         <module>content-normalization</module>
         <module>service-authentication</module>
@@ -177,12 +176,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>content-identity-auth-2.0</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
