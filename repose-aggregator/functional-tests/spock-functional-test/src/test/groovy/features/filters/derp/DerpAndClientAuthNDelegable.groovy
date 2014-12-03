@@ -25,8 +25,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/derp/responsemessaging/clientauthn", params)
-        repose.start()
-        waitUntilReadyToServiceRequests('401')
+        repose.start(waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)

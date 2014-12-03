@@ -13,7 +13,8 @@ class DerpResponseMessagingTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs('common', params)
         repose.configurationProvider.applyConfigs('features/filters/derp/responsemessaging', params)
-        repose.start()
+        repose.start(waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def "when a request is delegated, then the derp filter response should be processed by the response messaging service"() {
