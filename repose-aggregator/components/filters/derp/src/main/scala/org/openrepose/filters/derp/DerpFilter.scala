@@ -54,7 +54,7 @@ class DerpFilter extends Filter with HttpDelegationManager {
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
     delegationValues.flatMap { value =>
       parseDelegationHeader(value) match {
-        case Success(value) => Some(value)
+        case Success(delegationHeader) => Some(delegationHeader)
         case Failure(e) =>
           LOG.warn("Failed to parse a delegation header: " + e.getMessage)
           None
