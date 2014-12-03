@@ -202,7 +202,7 @@ class MaskRaxRoles403Test extends ReposeValveTest{
         "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin, b:observer"] | "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, b:creator"]          | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer, a:admin"] | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer, a:admin"]| "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer"]         | "405"
         "PUT"    | "/a/b" | ["x-roles": "test_user4"]                     | "404"
         "PUT"    | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
@@ -216,8 +216,8 @@ class MaskRaxRoles403Test extends ReposeValveTest{
         "DELETE" | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "200"
         "DELETE" | "/a/b" | null                                          | "403"
         "DELETE" | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
-        "GET"    | "/header"   | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "404"
-        "GET"    | "/header2"   | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "405"
+        "GET"    | "/header"   | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "403"
+        "GET"    | "/header2"   | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "403"
     }
     /*
         When enable-rax-role is set to true, and wadl has roles with #all will open to access by
