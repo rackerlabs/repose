@@ -70,7 +70,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "401"
+        mc.receivedResponse.code == responseCode
         mc.receivedResponse.headers.contains("Content-Type")
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
@@ -80,7 +80,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         */
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | reponseCode   | msgBody
+        requestTenant | responseTenant  | serviceAdminRole  | responseCode   | msgBody
         506           | 506             | "not-admin"       | "401"         | "Failure in AuthN filter"
         ""            | 512             | "not-admin"       | "401"         | "Failure in AuthN filter"
     }
