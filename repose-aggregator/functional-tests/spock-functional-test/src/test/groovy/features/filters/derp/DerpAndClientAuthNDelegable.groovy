@@ -75,25 +75,14 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
 
-
-        /*
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
-        request2.headers.contains("x-delegated")
-        request2.headers.getFirstValue("x-delegated")=~ delegatedMsg
-
-        2:16:29 PM dmnjohns: So that's weird because it seems to be breaking one of Java's servlet contracts. The sendError method should set the body, and in addition, should set the Content-Type of the response to text/html.
-
+        /* expected internal delegated message to derp from authn:
+            "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
         */
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | reponseCode   | msgBody                     |  delegatedMsg
-        506           | 506             | "not-admin"       | "401"         | "Failure in AuthN filter"   | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
-        ""            | 512             | "not-admin"       | "401"         | "Failure in AuthN filter"   | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        requestTenant | responseTenant  | serviceAdminRole  | reponseCode   | msgBody
+        506           | 506             | "not-admin"       | "401"         | "Failure in AuthN filter"
+        ""            | 512             | "not-admin"       | "401"         | "Failure in AuthN filter"
     }
 
 
@@ -122,22 +111,15 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
         mc.getOrphanedHandlings().size() == 2
-        /*
-        request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == "Indeterminate"
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
-        request2.headers.contains("x-delegated")
-        request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
+
+        /* expected internal delegated messages to derp from authn:
+            "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
+            "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
         */
-
         where:
-        authRespCode | responseCode   | msgBody                     | delegatedMsg
-        404          | "401"          | "Unable to validate token"  | "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
-        401          | "500"          | "Failure in AuthN filter"   | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        authRespCode | responseCode   | msgBody
+        404          | "401"          | "Unable to validate token"
+        401          | "500"          | "Failure in AuthN filter"
     }
-
-
-
 }
 
