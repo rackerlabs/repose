@@ -242,13 +242,8 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         def initialized = true
 
-        /*
-         * Check if loading a filter's configuration failed. The "successfully initialized" field should not be used
-         * since it defaults to false which causes filters without configuration to appear uninitialized erroneously.
-         * Instead, check if any value is set for "loading failed configurations".
-         */
         filterchain.each { data ->
-            if (!data."loading failed configurations".equals("")) {
+            if (data."successfully initialized" == false) {
                 initialized = false
             }
         }
