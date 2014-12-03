@@ -39,17 +39,10 @@ class DerpFilter extends Filter with HttpDelegationManager {
       sortedErrors match {
         case Seq() =>
           LOG.warn("No delegation header could be parsed, returning a 500 response")
-          val errorMessage = "Delegation header found but could not be parsed"
-          httpServletResponse.setContentLength(errorMessage.length)
-          httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
-          httpServletResponse.getWriter.write(errorMessage)
-          httpServletResponse.sendError(500)
+          sendError(httpServletResponse, 500, "Delegation header found but could not be parsed", MediaType.TEXT_PLAIN)
         case Seq(preferredValue, _*) =>
           LOG.debug(s"Delegation header(s) present, returning a ${preferredValue.statusCode} response")
-          httpServletResponse.setContentLength(preferredValue.message.length)
-          httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
-          httpServletResponse.getWriter.write(preferredValue.message)
-          httpServletResponse.sendError(preferredValue.statusCode)
+          sendError(httpServletResponse, preferredValue.statusCode, preferredValue.message, MediaType.TEXT_PLAIN)
       }
     }
   }
@@ -61,11 +54,18 @@ class DerpFilter extends Filter with HttpDelegationManager {
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
     delegationValues.flatMap { value =>
       parseDelegationHeader(value) match {
-        case Success(bean) => Some(bean)
+        case Success(value) => Some(value)
         case Failure(e) =>
           LOG.warn("Failed to parse a delegation header: " + e.getMessage)
           None
       }
     }
+  }
+
+  def sendError(httpServletResponse: HttpServletResponse, statusCode: Int, responseBody: String, responseContentType: String): Unit = {
+    httpServletResponse.setContentLength(responseBody.length)
+    httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
+    httpServletResponse.getWriter.write(responseBody)
+    httpServletResponse.sendError(statusCode)
   }
 }
