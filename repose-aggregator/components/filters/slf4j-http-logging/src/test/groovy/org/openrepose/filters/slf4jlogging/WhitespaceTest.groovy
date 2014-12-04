@@ -9,7 +9,7 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import spock.lang.Shared
 import spock.lang.Specification
 
-class Slf4jLoggingIntegrationTest extends Specification {
+class WhitespaceTest extends Specification {
     ListAppender app
 
     @Shared
@@ -21,16 +21,22 @@ class Slf4jLoggingIntegrationTest extends Specification {
         //NOTE This dies a horrible death if you try to stick it in an unroll. Possibly a side effect of how brittle it is
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                Slf4jLoggingFilterTestUtil.logConfig("Logger0", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                Slf4jLoggingFilterTestUtil.logConfig(
+                        "Logger0",
+                        """more
+than
+one
+line""",
+                        true)
         ])
     }
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
+        app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear()
     }
 
-    def "The SLF4j logging filter logs to the named logger"(){
+    def "When using a multi-line format string, you'll get multiple lines in your log output"() {
         given:
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()
@@ -51,7 +57,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
         def responseBody = "HEY A BODY"
         response.setContentLength(10)// size of responseBody .. but no
-        response.setStatus(200,"OK")
+        response.setStatus(200, "OK")
         response.addHeader("X-Derp-header", "lolwut")
         response.getWriter().print(responseBody)
         response.getWriter().flush()
@@ -65,27 +71,8 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
         app.getEvents().size() == 1
 
-        def splitLog = app.getEvents().first().getMessage().getFormattedMessage().split("\t").toList()
+        def logMessage = app.getEvents().first().getMessage().getFormattedMessage().split("\n")
 
-        //splitLog.size() == 19
-
-        splitLog[0] == "127.0.0.1" //REMOTE_ADDRESS
-        splitLog[1] == "10.10.220.220" //LOCAL_ADDRESS
-        splitLog[2] == "-" //REPSONSE_CLF_BYTES -- Should be contentLength, but it's not, maybe because mocking
-        splitLog[3] == "0" //Should be response Bytes, 10, but it's not
-        splitLog[4] == "10.10.220.221" //configured remote host
-        splitLog[5] == "GET" //making a get
-        splitLog[6] == "12345" //CANONICAL port
-        splitLog[7] == "?herp=derp" //QueryString
-        //splitLog[8] == //Should be within a certain amount of time from nowish say a minute?
-        splitLog[9] == "200" //Status code
-        splitLog[10] == "leUser" //Remote user
-        splitLog[11] == "http://www.example.com/derp/derp?herp=derp" //URL Requested
-        splitLog[12] == "application/xml" //Request accept header
-        splitLog[13] == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1" //Request line
-        splitLog[14] == "HTTP/1.1" //Request Protocol
-        splitLog[15] == "lolwut"
-
-        //The rest seem to be somewhat magical, or it's my argument parsing insanity
+        logMessage.size() == 4
     }
 }
