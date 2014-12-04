@@ -20,7 +20,7 @@ public class UriStripperFilter implements Filter {
     private static final String DEFAULT_CONFIG = "uri-stripper.cfg.xml";
     private String config;
     private UriStripperHandlerFactory handlerFactory;
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
     @Inject
     public UriStripperFilter(ConfigurationService configurationService) {
