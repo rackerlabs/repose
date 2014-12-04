@@ -69,11 +69,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>service-authentication</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>destination-router</artifactId>
         </dependency>
 
@@ -208,11 +203,6 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>rate-limiting</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>service-authentication</artifactId>
                         </jarModule>
 
                         <jarModule>

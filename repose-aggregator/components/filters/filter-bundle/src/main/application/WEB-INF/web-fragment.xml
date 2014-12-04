@@ -58,11 +58,6 @@
     </filter>
 
     <filter>
-        <filter-name>service-authentication</filter-name>
-        <filter-class>org.openrepose.filters.serviceauthentication.ServiceAuthFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>versioning</filter-name>
         <filter-class>org.openrepose.filters.versioning.VersioningFilter</filter-class>
     </filter>

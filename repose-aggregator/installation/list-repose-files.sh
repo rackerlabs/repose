@@ -23,7 +23,6 @@ FILES=(\
 /etc/repose/rate-limiting.cfg.xml \
 /etc/repose/repose-valve.conf \
 /etc/repose/response-messaging.cfg.xml \
-/etc/repose/service-authentication.cfg.xml \
 /etc/repose/system-model.cfg.xml \
 /etc/repose/uri-identity.cfg.xml \
 /etc/repose/uri-normalization.cfg.xml \
