@@ -4,25 +4,49 @@ import org.openrepose.filters.translation.config.TranslationConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
+import org.springframework.web.context.ServletContextAware;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
-public class TranslationFilter implements Filter {
+@Named
+public class TranslationFilter implements Filter, ServletContextAware {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
     private static final String DEFAULT_CONFIG = "translation.cfg.xml";
     private String config;
     private TranslationHandlerFactory handlerFactory;
-    private ConfigurationService configurationManager;
+    private final ConfigurationService configurationService;
+    private ServletContext servletContext;
+    private String configurationRoot;
+
+    @Inject
+    public TranslationFilter(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        configurationRoot = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
+        if (configurationRoot == null) {
+            configurationRoot = System.getProperty("powerapi-config-directory");
+        }
+    }
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom(config, handlerFactory);
+        configurationService.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
@@ -34,16 +58,8 @@ public class TranslationFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        final ServletContext servletContext = filterConfig.getServletContext();
-        final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
-        final ServletContext ctx = filterConfig.getServletContext();
-        final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
-        final ConfigurationService configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
-
-
         handlerFactory = new TranslationHandlerFactory(configurationService, configurationRoot, config);
-        configurationManager = ServletContextHelper.getInstance(servletContext).getPowerApiContext().configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/translation-configuration.xsd");
-        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, TranslationConfig.class);
+        this.configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, TranslationConfig.class);
     }
 }
