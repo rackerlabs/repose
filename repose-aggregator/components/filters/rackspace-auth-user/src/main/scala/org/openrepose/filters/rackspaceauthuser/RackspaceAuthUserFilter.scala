@@ -29,8 +29,8 @@ class RackspaceAuthUserFilter @Inject() (configurationService: ConfigurationServ
       classOf[RackspaceAuthUserConfig])
   }
 
-  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler)
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(handlerFactory.newHandler)
   }
 
   override def destroy(): Unit = {
