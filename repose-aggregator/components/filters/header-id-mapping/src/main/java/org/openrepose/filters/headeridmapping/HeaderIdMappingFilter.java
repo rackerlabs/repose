@@ -20,7 +20,7 @@ public class HeaderIdMappingFilter implements Filter {
     private static final String DEFAULT_CONFIG = "header-id-mapping.cfg.xml";
     private String config;
     private HeaderIdMappingHandlerFactory handlerFactory;
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
     @Inject
     public HeaderIdMappingFilter(ConfigurationService configurationService) {

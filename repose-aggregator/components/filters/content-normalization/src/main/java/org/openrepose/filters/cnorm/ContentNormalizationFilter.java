@@ -20,7 +20,7 @@ public class ContentNormalizationFilter implements Filter {
     private static final String DEFAULT_CONFIG = "content-normalization.cfg.xml";
     private String config;
     private ContentNormalizationHandlerFactory handlerFactory;
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
     @Inject
     public ContentNormalizationFilter(ConfigurationService configurationService) {
