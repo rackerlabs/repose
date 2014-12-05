@@ -31,7 +31,9 @@ class OpenStackIdentityV3Filter @Inject() (configurationService: ConfigurationSe
     handlerFactory = new OpenStackIdentityV3HandlerFactory(akkaServiceClient, datastoreService)
     val xsdURL: URL = getClass.getResource("/META-INF/config/schema/openstack-identity-v3.xsd")
     // TODO: Clean up the asInstanceOf below, if possible?
-    configurationService.subscribeTo(filterConfig.getFilterName, config, xsdURL,
+    configurationService.subscribeTo(filterConfig.getFilterName,
+      config,
+      xsdURL,
       handlerFactory.asInstanceOf[UpdateListener[OpenstackIdentityV3Config]],
       classOf[OpenstackIdentityV3Config])
   }
