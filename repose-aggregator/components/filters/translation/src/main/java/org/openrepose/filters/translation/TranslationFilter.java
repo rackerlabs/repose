@@ -32,6 +32,11 @@ public class TranslationFilter implements Filter, ServletContextAware {
     }
 
     @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
+    }
+
+    @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
@@ -47,11 +52,6 @@ public class TranslationFilter implements Filter, ServletContextAware {
     @Override
     public void destroy() {
         configurationService.unsubscribeFrom(config, handlerFactory);
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
     }
 
     @Override
