@@ -10,7 +10,6 @@
         <filters>
             <filter name="client-auth"/>
             <filter name="client-authorization"/>
-            <filter name="service-authentication"/>
         </filters>
 
         <destinations>
