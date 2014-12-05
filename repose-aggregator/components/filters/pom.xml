@@ -40,6 +40,7 @@
         <module>add-header</module>
         <module>forwarded-proto</module>
         <module>iri-validator</module>
+        <module>herp</module>
     </modules>
 
     <properties>

@@ -16,7 +16,7 @@ import scala.util.{Failure, Success}
 
 class HerpFilter extends Filter with HttpDelegationManager {
 
-
+  private final val LOG = LoggerFactory.getLogger(classOf[HerpFilter])
 
   override def init(filterConfig: FilterConfig): Unit = {
     LOG.trace("HeRP filter initialized")
