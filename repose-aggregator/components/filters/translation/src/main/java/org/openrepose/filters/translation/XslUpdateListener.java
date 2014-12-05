@@ -13,14 +13,14 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(XslUpdateListener.class);
     private final TranslationHandlerFactory factory;
-    private final ConfigurationService configService;
+    private final ConfigurationService configurationService;
     private final Set<String> watchList;
     private final String configRoot;
     private boolean isInitialized = false;
 
     public XslUpdateListener(TranslationHandlerFactory factory, ConfigurationService configService, String configRoot) {
         this.factory = factory;
-        this.configService = configService;
+        this.configurationService = configService;
         this.watchList = new HashSet<String>();
         this.configRoot = configRoot;
     }
@@ -36,13 +36,13 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     public void listen() {
         for (String xsl : watchList) {
             LOG.info("Watching XSL: " + xsl);
-            configService.subscribeTo("translation",xsl, this, new GenericResourceConfigurationParser(), false);
+            configurationService.subscribeTo("translation", xsl, this, new GenericResourceConfigurationParser(), false);
         }
     }
 
     public void unsubscribe() {
         for (String xsl : watchList) {
-            configService.unsubscribeFrom(xsl, this);
+            configurationService.unsubscribeFrom(xsl, this);
         }
 
         watchList.clear();

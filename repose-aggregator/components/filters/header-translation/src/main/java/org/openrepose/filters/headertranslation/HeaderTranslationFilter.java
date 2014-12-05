@@ -19,7 +19,7 @@ public class HeaderTranslationFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderTranslationFilter.class);
     private static final String DEFAULT_CONFIG = "header-translation.cfg.xml";
     private String config;
-    private HeaderTranslationHandlerFactory headerTranslationHandlerFactory;
+    private HeaderTranslationHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
 
     @Inject
@@ -31,20 +31,20 @@ public class HeaderTranslationFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        headerTranslationHandlerFactory = new HeaderTranslationHandlerFactory();
+        handlerFactory = new HeaderTranslationHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/header-translation.xsd");
-        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, headerTranslationHandlerFactory, HeaderTranslationType.class);
+        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, HeaderTranslationType.class);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(
-                headerTranslationHandlerFactory.newHandler());
+                handlerFactory.newHandler());
     }
 
     @Override
     public void destroy() {
-        configurationService.unsubscribeFrom(config, headerTranslationHandlerFactory);
+        configurationService.unsubscribeFrom(config, handlerFactory);
     }
 }
