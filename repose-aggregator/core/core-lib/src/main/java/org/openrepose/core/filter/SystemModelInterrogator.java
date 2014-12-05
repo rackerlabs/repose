@@ -1,6 +1,7 @@
 package org.openrepose.core.filter;
 
 import com.google.common.base.Optional;
+import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.systemmodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,10 @@ public class SystemModelInterrogator {
 
     private final String clusterId;
     private final String nodeId;
+
+    public SystemModelInterrogator(ReposeInstanceInfo reposeInstanceInfo) {
+        this(reposeInstanceInfo.getClusterId(), reposeInstanceInfo.getNodeId());
+    }
 
     public SystemModelInterrogator(String clusterId, String nodeId) {
         this.clusterId = clusterId;

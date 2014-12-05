@@ -1,12 +1,12 @@
 package org.openrepose.filters.versioning;
 
 import com.google.common.base.Optional;
+import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
@@ -31,18 +31,19 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
-    private final ContentTransformer transformer;
+    private final ReposeInstanceInfo reposeInstanceInfo;
     private final MetricsService metricsService;
+    private final HealthCheckServiceProxy healthCheckServiceProxy;
+    private final ContentTransformer contentTransformer;
 
-    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ReposeCluster localDomain;
     private Node localHost;
 
-    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService, HealthCheckService healthCheckService) {
+    public VersioningHandlerFactory(ReposeInstanceInfo reposeInstanceInfo, MetricsService metricsService, HealthCheckService healthCheckService) {
+        this.reposeInstanceInfo = reposeInstanceInfo;
         this.metricsService = metricsService;
-
         this.healthCheckServiceProxy = healthCheckService.register();
-        this.transformer = new ContentTransformer();
+        this.contentTransformer = new ContentTransformer();
     }
 
     @Override
@@ -61,8 +62,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            //TODO: fix this to use a clusterID, and nodeId when doing actual spring stuff
-            SystemModelInterrogator interrogator = new SystemModelInterrogator("","");
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(reposeInstanceInfo);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(configurationObject);
             Optional<Node> node = interrogator.getLocalNode(configurationObject);
 
@@ -126,6 +126,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
 
-        return new VersioningHandler(configData, transformer, metricsService);
+        return new VersioningHandler(configData, contentTransformer, metricsService);
     }
 }
