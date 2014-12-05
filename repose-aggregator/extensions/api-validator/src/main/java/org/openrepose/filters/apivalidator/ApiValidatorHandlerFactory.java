@@ -31,7 +31,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private ValidatorInfo defaultValidator;
     private List<ValidatorInfo> validators;
     private boolean initialized = false;
-    private final ConfigurationService manager;
+    private final ConfigurationService configurationService;
     private final ApiValidatorWadlListener wadlListener;
     private final Object lock;
     private final String configRoot;
@@ -39,9 +39,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final String config;
     private final MetricsService metricsService;
 
-    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config,
+    public ApiValidatorHandlerFactory(ConfigurationService configurationService, String configurationRoot, String config,
                                       MetricsService metricsService) {
-        this.manager = manager;
+        this.configurationService = configurationService;
         this.wadlListener = new ApiValidatorWadlListener();
         this.lock = new Object();
         this.configRoot = configurationRoot;
@@ -58,7 +58,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             for (ValidatorInfo info : validators) {
                 if (StringUtilities.isNotBlank(info.getUri())) {
-                    manager.unsubscribeFrom(info.getUri(), wadlListener);
+                    configurationService.unsubscribeFrom(info.getUri(), wadlListener);
                 }
                 if (info.getValidator() != null) {
                     info.getValidator().destroy();
@@ -81,7 +81,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
 
         LOG.info("Watching WADL: " + wadl);
-        manager.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
+        configurationService.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
     }
 
     String getWadlPath(String uri) {
