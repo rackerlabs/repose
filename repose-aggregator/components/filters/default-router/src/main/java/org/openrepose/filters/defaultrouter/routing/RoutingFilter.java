@@ -1,19 +1,29 @@
 package org.openrepose.filters.defaultrouter.routing;
 
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.config.ConfigurationService;
-import java.io.IOException;
-import javax.servlet.*;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.*;
+import java.io.IOException;
 
 @Deprecated
-public class RoutingFilter implements Filter, ApplicationContextAware {
+@Named
+public class RoutingFilter implements Filter {
 
-    private RoutingHandlerFactory handlerFactory;
+    private final ConfigurationService configurationService;
+    private final RoutingHandlerFactory handlerFactory;
     private ApplicationContext applicationContext;
+
+    @Inject
+    public RoutingFilter(ConfigurationService configurationService,
+                         RoutingHandlerFactory handlerFactory) {
+        this.configurationService = configurationService;
+        this.handlerFactory = handlerFactory;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -26,14 +36,6 @@ public class RoutingFilter implements Filter, ApplicationContextAware {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handlerFactory = applicationContext.getBean("routingHandlerFactory", RoutingHandlerFactory.class);
-        applicationContext
-                .getBean(ConfigurationService.class)
-                .subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext ac) {
-        applicationContext = new ClassPathXmlApplicationContext(new String[]{"default-router-context.xml"}, ac);
+        configurationService.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
     }
 }
