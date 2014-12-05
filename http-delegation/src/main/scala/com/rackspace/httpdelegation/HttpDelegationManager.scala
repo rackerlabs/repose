@@ -1,5 +1,9 @@
 package com.rackspace.httpdelegation
 
+import java.text.ParseException
+
+import scala.util.{Failure, Try}
+
 /** The API for the HTTP delegation library. */
 trait HttpDelegationManager {
 
@@ -16,9 +20,33 @@ trait HttpDelegationManager {
     assume(message != null, "Message cannot be null")
 
     Map[String, List[String]](
-      HttpDelegationHeaders.Delegated -> List(
+      HttpDelegationHeaderNames.Delegated -> List(
         "status_code=" + statusCode + "`component=" + component + "`message=" + message + ";q=" + quality
       )
     )
+  }
+
+  /** Constructs a case class object which holds each component of the value of a delegation header.
+    *
+    * @param delegationHeaderValue the value of the delegation header to be parsed
+    * @return a [[HttpDelegationHeader]] containing each parsed component
+    */
+  def parseDelegationHeader(delegationHeaderValue: String): Try[HttpDelegationHeader] = {
+    // TODO: Performance concern due to negative lookahead in the message
+    val parsingRegex = """^\s*status_code=(\d\d\d)`component=(.*)`message=((?:(?!;q=).)*)(?:;q=((?:\d+(?:\.\d*)?)|(?:\.\d+)))?\s*$""".r("statusCode", "component", "message", "quality")
+
+    parsingRegex.findFirstMatchIn(delegationHeaderValue) match {
+      case Some(regexMatch) =>
+        Try(
+          new HttpDelegationHeader(
+            regexMatch.group("statusCode").toInt,
+            regexMatch.group("component"),
+            regexMatch.group("message"),
+            Option(regexMatch.group("quality")).map(_.toDouble).getOrElse(1.0)
+          )
+        )
+      case None =>
+        Failure(new ParseException("The delegation header value could not be parsed", -1))
+    }
   }
 }

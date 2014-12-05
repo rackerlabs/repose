@@ -7,6 +7,7 @@ import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.context.ServletContextHelper
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
 import spock.lang.Ignore
 
@@ -25,10 +26,29 @@ class Slf4jLoggingFilterTestUtil {
                     "xmlns": "http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
             ) {
                 logEntries.each { le ->
-                    "slf4j-http-log"(
-                            id: le.getId(),
-                            format: le.getFormat()
-                    )
+                    if (le.getFormat() != null) {
+                        "slf4j-http-log"(
+                                id: le.getId(),
+                                format: le.getFormat()
+                        )
+                    } else {
+                        "slf4j-http-log"(
+                                id: le.getId()
+                        ) {
+                            //Using yieldUnescaped always wraps it in a CDATA tag, which matters for proving it works
+                            if(le.formatElement.isCrush()) {
+                                "format"(
+                                        crush: le.formatElement.isCrush()
+                                ) {
+                                    mkp.yieldUnescaped le.getFormatElement().getValue()
+                                }
+                            } else {
+                                "format" {
+                                    mkp.yieldUnescaped le.getFormatElement().getValue()
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -36,9 +56,18 @@ class Slf4jLoggingFilterTestUtil {
         return xml.toString()
     }
 
-    static Slf4JHttpLog logConfig(String id, String format) {
+    static Slf4JHttpLog logConfig(String id, String format, boolean useElement = false, boolean replaceNewline = false) {
         def hl = new Slf4JHttpLog()
-        hl.setFormat(format)
+        if (useElement) {
+            def formatElement = new FormatElement()
+            formatElement.value = format
+            if(replaceNewline) {
+                formatElement.setCrush(replaceNewline)
+            }
+            hl.setFormatElement(formatElement)
+        } else {
+            hl.setFormat(format)
+        }
         hl.setId(id)
 
         hl

@@ -15,7 +15,7 @@ class FilterChainUnstableTest extends ReposeValveTest{
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/badconfigs", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/badconfigs", params)
         try {
             repose.start()
         } catch(TimeoutException e){

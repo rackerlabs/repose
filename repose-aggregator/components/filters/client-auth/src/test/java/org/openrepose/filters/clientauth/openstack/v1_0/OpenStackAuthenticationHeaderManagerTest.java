@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.openstack.v1_0;
 
-import com.rackspace.httpdelegation.HttpDelegationHeaders;
+import com.rackspace.httpdelegation.HttpDelegationHeaderNames;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.OpenStackGroup;
@@ -169,7 +169,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false);
             headerManager.setFilterDirectorValues();
 
-            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaders.Delegated())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())));
         }
     }
 }
