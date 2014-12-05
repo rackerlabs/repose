@@ -30,11 +30,4 @@ class HerpFilter extends Filter with HttpDelegationManager {
     LOG.trace("HeRP filter destroyed")
   }
 
-  def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
-
-  }
-
-  def sendError(httpServletResponse: HttpServletResponse, statusCode: Int, responseBody: String, responseContentType: String): Unit = {
-
-  }
 }
