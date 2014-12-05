@@ -16,7 +16,6 @@
         <filter name="header-translation"/>
         <filter name="client-authorization"/>
         <filter name="rate-limiting"/>
-        <filter name="service-authentication"/>
         <filter name="uri-identity"/>
         <filter name="uri-normalization"/>
         <filter name="uri-stripper"/>

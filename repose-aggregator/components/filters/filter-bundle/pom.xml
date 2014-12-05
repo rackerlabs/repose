@@ -64,17 +64,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-identity-auth-2.0</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-auth</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>service-authentication</artifactId>
         </dependency>
 
         <dependency>
@@ -213,11 +203,6 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>rate-limiting</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>service-authentication</artifactId>
                         </jarModule>
 
                         <jarModule>
