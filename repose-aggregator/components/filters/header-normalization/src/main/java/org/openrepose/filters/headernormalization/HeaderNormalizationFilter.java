@@ -5,14 +5,14 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.filters.headernormalization.config.HeaderNormalizationConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Named
 public class HeaderNormalizationFilter implements Filter {
@@ -24,9 +24,8 @@ public class HeaderNormalizationFilter implements Filter {
     private final MetricsService metricsService;
 
     @Inject
-    public HeaderNormalizationFilter(
-            ConfigurationService configurationService,
-            MetricsService metricsService) {
+    public HeaderNormalizationFilter(ConfigurationService configurationService,
+                                     MetricsService metricsService) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
     }
