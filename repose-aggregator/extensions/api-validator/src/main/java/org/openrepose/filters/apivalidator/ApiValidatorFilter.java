@@ -5,12 +5,11 @@ import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.servlet.InitParameter;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.ServletContextAware;
+import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
@@ -18,21 +17,22 @@ import java.io.IOException;
 import java.net.URL;
 
 @Named
-public class ApiValidatorFilter implements Filter, ServletContextAware {
+public class ApiValidatorFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorFilter.class);
     private static final String DEFAULT_CONFIG = "validator.cfg.xml";
     private String config;
     private ApiValidatorHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
-    private ServletContext servletContext;
     private String configurationRoot;
 
     @Inject
     public ApiValidatorFilter(ConfigurationService configurationService,
-                              MetricsService metricsService) {
+                              MetricsService metricsService,
+                              @Value(ReposeSpringProperties.CONFIG_ROOT)String configurationRoot) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
+        this.configurationRoot = configurationRoot;
     }
 
     @Override
@@ -45,19 +45,6 @@ public class ApiValidatorFilter implements Filter, ServletContextAware {
             LOG.error("Unable to build API validator handler");
         }
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
-    @PostConstruct
-    public void afterPropertiesSet() {
-        configurationRoot = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
-        if (configurationRoot == null) {
-            configurationRoot = System.getProperty(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
-        }
     }
 
     @Override
