@@ -4,11 +4,10 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.nodeservice.routing.RoutingService;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +18,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 
-import static org.openrepose.core.spring.ReposeSpringProperties.CLUSTER_ID;
-import static org.openrepose.core.spring.ReposeSpringProperties.NODE_ID;
+import static org.openrepose.core.spring.ReposeSpringProperties.NODE.CLUSTER_ID;
+import static org.openrepose.core.spring.ReposeSpringProperties.NODE.NODE_ID;
 
 @Named
 public class RoundRobinRoutingService implements RoutingService {
