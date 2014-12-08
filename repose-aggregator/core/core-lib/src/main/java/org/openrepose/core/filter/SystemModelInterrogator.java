@@ -62,6 +62,25 @@ public class SystemModelInterrogator {
     }
 
     /**
+     * Returns an Optional<Service> if the service name requested is in the system model for your cluster
+     * @param systemModel The system model we're going to look at
+     * @param serviceName The name of the service we want
+     * @return Optional<Service>
+     */
+    public Optional<Service> getServiceForCluster(SystemModel systemModel, String serviceName) {
+        Optional<ReposeCluster> cluster = getLocalCluster(systemModel);
+        Optional<Service> found = Optional.absent();
+        if (cluster.isPresent()) {
+            for (Service service : cluster.get().getServices().getService()) {
+                if (service.getName().equalsIgnoreCase(serviceName)) {
+                    found = Optional.of(service);
+                }
+            }
+        }
+        return found;
+    }
+
+    /**
      * Returns the default Destination for the cluster that the localhost belongs to.
      */
     public Optional<Destination> getDefaultDestination(SystemModel systemModel) {
@@ -73,6 +92,7 @@ public class SystemModelInterrogator {
 
         return getDefaultDestination(cluster);
     }
+
 
     private Optional<Destination> getDefaultDestination(Optional<ReposeCluster> cluster) {
         Optional<Destination> dest = Optional.absent();

@@ -1,19 +1,11 @@
 package org.openrepose.core.services.datastore.distributed.impl.distributed.servlet;
 
-import org.openrepose.commons.utils.encoding.EncodingProvider;
-import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.services.datastore.DatastoreOperationException;
-import org.openrepose.services.datastore.Patch;
+import org.openrepose.services.datastore.*;
 import org.openrepose.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.services.datastore.impl.distributed.MalformedCacheRequestException;
-import org.openrepose.core.services.context.ContextAdapter;
-import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.services.datastore.DatastoreAccessControl;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,36 +19,54 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Holds most of the work for running a distributed datastore.
+ * Exposes the ClusterView and the ACL for update.
+ */
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
-    private DatastoreAccessControl hostAcl;
+    private final AtomicReference<DatastoreAccessControl> hostAcl;
     private Datastore localDatastore;
-    private EncodingProvider encodingProvider;
-    private DatastoreService datastoreService;
-    private DistributedDatastoreServiceClusterViewService clusterView;
+    private final DatastoreService datastoreService;
+    private final ClusterConfiguration clusterConfiguration;
     private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
 
-    public DistributedDatastoreServlet(DatastoreService datastore) {
-        hostAcl = new DatastoreAccessControl(null, false);
+    public DistributedDatastoreServlet(
+            DatastoreService datastore,
+            ClusterConfiguration clusterConfiguration,
+            DatastoreAccessControl acl
+    ) {
         this.datastoreService = datastore;
+        this.clusterConfiguration = clusterConfiguration;
+        this.hostAcl = new AtomicReference<>(acl);
         localDatastore = datastore.getDefaultDatastore();
-        encodingProvider = UUIDEncodingProvider.getInstance();
+    }
+
+    /**
+     * Called from other threads to be able to tickle the cluster view for this servlet
+     */
+    public ClusterView getClusterView() {
+        return clusterConfiguration.getClusterView();
+    }
+
+    /**
+     * hit from other threads to update the ACL for this servlet.
+     *
+     * @param acl
+     */
+    public void updateAcl(DatastoreAccessControl acl) {
+        this.hostAcl.set(acl);
     }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-
         super.init(config);
+        LOG.info("Registering datastore: {}", DISTRIBUTED_HASH_RING);
 
-        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
-        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
-                clusterView.getClusterView());
-
-        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
-        hostAcl = clusterView.getAccessControl();
+        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration);
     }
 
     @Override
@@ -176,7 +186,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } catch (MalformedCacheRequestException mcre) {
                 LOG.trace("Handling Malformed Cache Request", mcre);
                 handleputMalformedCacheRequestException(mcre, response);
-            } catch (ClassCastException e){
+            } catch (ClassCastException e) {
                 LOG.trace("Sending ERROR response", e);
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             }
@@ -186,13 +196,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
     }
 
     public boolean isAllowed(HttpServletRequest request) {
-        boolean allowed = hostAcl.shouldAllowAll();
+        boolean allowed = hostAcl.get().shouldAllowAll();
 
         if (!allowed) {
             try {
                 final InetAddress remoteClient = InetAddress.getByName(request.getRemoteHost());
 
-                for (InetAddress allowedAddress : hostAcl.getAllowedHosts()) {
+                for (InetAddress allowedAddress : hostAcl.get().getAllowedHosts()) {
                     if (remoteClient.equals(allowedAddress)) {
                         allowed = true;
                         break;
@@ -222,7 +232,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     @Override
     public void destroy() {
         super.destroy();
-        LOG.info("Unregistering Datastore: " + DISTRIBUTED_HASH_RING);
+        LOG.info("Unregistering Datastore: {}", DISTRIBUTED_HASH_RING);
         datastoreService.destroyDatastore(DISTRIBUTED_HASH_RING);
     }
 

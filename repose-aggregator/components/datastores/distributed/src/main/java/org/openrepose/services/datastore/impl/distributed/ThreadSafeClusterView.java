@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ThreadSafeClusterView implements ClusterView {
 
@@ -82,6 +79,11 @@ public class ThreadSafeClusterView implements ClusterView {
    }
 
    @Override
+   public void updateMembers(List<InetSocketAddress> view) {
+      updateMembers(view.toArray(new InetSocketAddress[view.size()]));
+   }
+
+   @Override
    public synchronized InetSocketAddress[] members() {
       final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<InetSocketAddress>();
 
@@ -126,6 +128,18 @@ public class ThreadSafeClusterView implements ClusterView {
       }
 
       return false;
+   }
+
+   /**
+    * It was really annoying to create a clusterview for only one port all the time, so this wraps that
+    * Returns a threadSafeClusterView that has been built with a list of only one port
+    * @param port
+    * @return
+    */
+   public static ThreadSafeClusterView singlePortClusterView(int port) {
+      List<Integer> portList = new ArrayList<>();
+      portList.add(port);
+      return new ThreadSafeClusterView(portList);
    }
 
 }

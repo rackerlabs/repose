@@ -2,6 +2,7 @@ package org.openrepose.services.datastore.distributed;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.List;
 
 /**
  * A manager of the members of a distributed cluster.  The ClusterView manages members
@@ -39,6 +40,12 @@ public interface ClusterView {
      * @param newMembers
      */
     void updateMembers(InetSocketAddress[] newMembers);
+
+    /**
+     * Should delegate up to the updateMembers method that takes an array
+     * @param newMembers
+     */
+    void updateMembers(List<InetSocketAddress> newMembers);
 
     /**
      * Return a copy of this ClusterView
