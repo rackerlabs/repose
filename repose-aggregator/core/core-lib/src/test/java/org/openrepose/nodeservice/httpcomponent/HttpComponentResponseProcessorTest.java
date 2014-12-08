@@ -1,4 +1,4 @@
-package org.openrepose.core.services.httpcomponent;
+package org.openrepose.nodeservice.httpcomponent;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.openrepose.core.services.httpcomponent;
+package org.openrepose.nodeservice.httpcomponent;
 
 import com.google.common.base.Optional;
 import org.apache.http.HttpEntity;
@@ -15,7 +15,7 @@ import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.proxy.HttpException;
 import org.openrepose.core.services.config.ConfigurationService;

@@ -1,4 +1,4 @@
-package org.openrepose.commons.utils.proxy;
+package org.openrepose.core.services;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 

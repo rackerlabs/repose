@@ -1,4 +1,4 @@
-package org.openrepose.core.services.httpcomponent;
+package org.openrepose.nodeservice.httpcomponent;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;

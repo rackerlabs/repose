@@ -1,4 +1,4 @@
-package org.openrepose.core.services.httpcomponent
+package org.openrepose.nodeservice.httpcomponent
 import org.openrepose.services.httpclient.HttpClientResponse
 import org.openrepose.services.httpclient.HttpClientService
 import org.apache.http.HttpEntity

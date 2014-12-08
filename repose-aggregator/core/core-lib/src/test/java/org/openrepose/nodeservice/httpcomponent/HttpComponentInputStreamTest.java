@@ -1,4 +1,4 @@
-package org.openrepose.core.services.httpcomponent;
+package org.openrepose.nodeservice.httpcomponent;
 
 import java.io.IOException;
 import java.io.InputStream;
