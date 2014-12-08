@@ -13,7 +13,7 @@ import org.openrepose.core.services.datastore.distributed.impl.distributed.servl
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

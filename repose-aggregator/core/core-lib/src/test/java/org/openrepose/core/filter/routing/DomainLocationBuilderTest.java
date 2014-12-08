@@ -1,7 +1,7 @@
 package org.openrepose.core.filter.routing;
 
 import org.openrepose.core.systemmodel.*;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

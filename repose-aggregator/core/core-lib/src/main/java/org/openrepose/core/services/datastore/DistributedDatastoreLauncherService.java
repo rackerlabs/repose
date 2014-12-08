@@ -8,7 +8,7 @@ import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.openrepose.services.datastore.DatastoreService;
 
 

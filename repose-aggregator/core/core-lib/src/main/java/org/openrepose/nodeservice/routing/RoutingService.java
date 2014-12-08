@@ -1,4 +1,4 @@
-package org.openrepose.core.services.routing;
+package org.openrepose.nodeservice.routing;
 
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.SystemModel;

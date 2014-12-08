@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openrepose.core.services.routing.robin
+package org.openrepose.nodeservice.routing.robin
 
+import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.*
 import spock.lang.Specification
 
@@ -18,7 +19,7 @@ public class RoundRobinRoutingServiceTest extends Specification {
     RoundRobinRoutingService robinRoutingService
 
     def setup() {
-        robinRoutingService = new RoundRobinRoutingService()
+        robinRoutingService = new RoundRobinRoutingService(mock(ConfigurationService.class), "nodeid", "cluster")
         systemModel = new SystemModel()
 
         def domainRepose = new ReposeCluster()

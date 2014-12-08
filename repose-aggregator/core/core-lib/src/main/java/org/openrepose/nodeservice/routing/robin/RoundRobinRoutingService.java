@@ -1,10 +1,11 @@
-package org.openrepose.core.services.routing.robin;
+package org.openrepose.nodeservice.routing.robin;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;

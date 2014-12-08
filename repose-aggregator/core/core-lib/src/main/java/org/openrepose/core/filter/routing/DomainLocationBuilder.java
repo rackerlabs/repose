@@ -3,7 +3,7 @@ package org.openrepose.core.filter.routing;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.DestinationCluster;
 import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

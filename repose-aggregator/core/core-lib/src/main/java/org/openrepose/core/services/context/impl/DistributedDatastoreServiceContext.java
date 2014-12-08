@@ -11,7 +11,7 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServiceContext;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.DistributedDatastoreLauncherService;
-import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.nodeservice.routing.RoutingService;
 import org.openrepose.core.servlet.InitParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
