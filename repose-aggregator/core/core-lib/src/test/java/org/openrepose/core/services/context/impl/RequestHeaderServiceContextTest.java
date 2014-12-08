@@ -19,7 +19,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.core.services.headers.request.RequestHeaderServiceImpl;
+import org.openrepose.nodeservice.request.RequestHeaderServiceImpl;
 import org.openrepose.core.systemmodel.*;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;

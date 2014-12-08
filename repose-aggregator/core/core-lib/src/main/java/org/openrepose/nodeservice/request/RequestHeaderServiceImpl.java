@@ -1,4 +1,4 @@
-package org.openrepose.core.services.headers.request;
+package org.openrepose.nodeservice.request;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;

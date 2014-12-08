@@ -8,7 +8,7 @@ import org.openrepose.core.services.context.ServiceContext;
 import org.openrepose.core.services.context.ServiceContextName;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.event.common.EventService;
-import org.openrepose.core.services.headers.request.RequestHeaderService;
+import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.logging.LoggingService;
 import org.openrepose.core.services.reporting.ReportingService;

@@ -1,7 +1,6 @@
-package org.openrepose.core.services.headers.request;
+package org.openrepose.nodeservice.request;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 
 public interface RequestHeaderService {
 

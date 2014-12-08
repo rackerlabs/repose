@@ -1,4 +1,4 @@
-package org.openrepose.core.services.headers.request;
+package org.openrepose.nodeservice.request;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;

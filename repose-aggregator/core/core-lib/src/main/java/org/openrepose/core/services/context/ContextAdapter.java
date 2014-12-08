@@ -5,7 +5,7 @@ import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.event.common.EventService;
-import org.openrepose.core.services.headers.request.RequestHeaderService;
+import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.logging.LoggingService;
 import org.openrepose.core.services.reporting.ReportingService;
