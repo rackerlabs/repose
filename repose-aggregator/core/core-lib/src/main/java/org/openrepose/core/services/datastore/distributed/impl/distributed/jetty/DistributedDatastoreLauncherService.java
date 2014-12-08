@@ -60,8 +60,8 @@ public class DistributedDatastoreLauncherService {
 
     @Inject
     public DistributedDatastoreLauncherService(
-            @Value(ReposeSpringProperties.CLUSTER_ID) String clusterId,
-            @Value(ReposeSpringProperties.NODE_ID) String nodeId,
+            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
             DatastoreService datastoreService,
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
