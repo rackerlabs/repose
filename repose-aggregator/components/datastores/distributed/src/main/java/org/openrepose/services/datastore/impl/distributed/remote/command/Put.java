@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.services.datastore.DatastoreOperationException;
 import org.openrepose.services.datastore.distributed.RemoteBehavior;
 

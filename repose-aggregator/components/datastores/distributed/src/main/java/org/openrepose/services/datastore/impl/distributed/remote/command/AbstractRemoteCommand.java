@@ -1,7 +1,7 @@
 package org.openrepose.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.services.datastore.impl.distributed.DatastoreHeader;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.services.datastore.distributed.RemoteBehavior;

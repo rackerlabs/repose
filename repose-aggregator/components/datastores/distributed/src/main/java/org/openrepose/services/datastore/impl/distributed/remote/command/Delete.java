@@ -2,8 +2,8 @@ package org.openrepose.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.services.datastore.distributed.RemoteBehavior;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
