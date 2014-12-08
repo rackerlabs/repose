@@ -73,7 +73,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 
-    @Override
     public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder) {
         this.viaHeaderBuilder = viaHeaderBuilder;
     }

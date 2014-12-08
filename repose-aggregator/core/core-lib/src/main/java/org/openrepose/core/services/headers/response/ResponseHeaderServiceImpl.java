@@ -50,7 +50,6 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
         configurationService.unsubscribeFrom("container.cfg.xml", configurationListener);
     }
 
-    @Override
     public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder, LocationHeaderBuilder locationHeaderBuilder) {
         this.viaHeaderBuilder = viaHeaderBuilder;
         this.locationHeaderBuilder = locationHeaderBuilder;
