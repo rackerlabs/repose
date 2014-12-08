@@ -52,6 +52,9 @@ public class CoreSpringProvider {
             LOG.debug("Creating Core spring provider!");
             LOG.debug("Core service annotation scanning package {}", coreScanPackage);
 
+            //Go ahead and print the narwhal banner at this point -- this is where startup happens
+            ReposeBanner.print(LOG);
+
             coreContext = new AnnotationConfigApplicationContext();
             coreContext.setDisplayName("ReposeCoreContext");
 

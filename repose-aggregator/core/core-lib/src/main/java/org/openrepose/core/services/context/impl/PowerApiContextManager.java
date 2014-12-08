@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpsURLConnectionSslInitializer;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.core.services.context.banner.PapiBanner;
+import org.openrepose.core.spring.ReposeBanner;
 import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class PowerApiContextManager implements ServletContextListener {
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      PapiBanner.print(LOG);
+      ReposeBanner.print(LOG);
 
    }
 
