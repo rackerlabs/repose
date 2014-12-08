@@ -18,6 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 
+import static org.openrepose.core.spring.ReposeSpringProperties.CLUSTER_ID;
+import static org.openrepose.core.spring.ReposeSpringProperties.NODE_ID;
+
 @Named
 public class RoundRobinRoutingService implements RoutingService {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
@@ -29,8 +32,8 @@ public class RoundRobinRoutingService implements RoutingService {
 
     @Inject
     public RoundRobinRoutingService(ConfigurationService configurationService,
-                                    @Value("node.id") String nodeId,
-                                    @Value("cluster.id") String clusterId) {
+                                    @Value(NODE_ID) String nodeId,
+                                    @Value(CLUSTER_ID) String clusterId) {
         configListener = new PowerApiConfigListener();
         this.configurationService = configurationService;
         this.servicePorts = servicePorts;
