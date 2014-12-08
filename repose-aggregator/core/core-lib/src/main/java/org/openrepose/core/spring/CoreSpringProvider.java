@@ -43,7 +43,7 @@ public class CoreSpringProvider {
     public void initializeCoreContext(String configRoot,
                                       boolean insecure) {
         if(!configured) {
-            //TODO: repose version should come from a properties file in core-lib, not anywhere else.
+            //NOTE: the repose version should only come from here. This should be the source of truth
             String reposeVersion = conf.getString("reposeVersion");
 
             String coreScanPackage = conf.getString(
