@@ -46,9 +46,9 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
                                     HealthCheckService healthCheckService,
-                                    @Value(ReposeSpringProperties.CLUSTER_ID) String clusterId,
-                                    @Value(ReposeSpringProperties.NODE_ID) String nodeId,
-                                    @Value(ReposeSpringProperties.REPOSE_VERSION) String reposeVersion) {
+                                    @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+                                    @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+                                    @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
         this.healthCheckService = healthCheckService;
         this.clusterId = clusterId;

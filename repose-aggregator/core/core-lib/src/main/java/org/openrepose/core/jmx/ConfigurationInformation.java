@@ -155,8 +155,8 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
     @Inject
     public ConfigurationInformation(
             ConfigurationService configurationService,
-            @Value(ReposeSpringProperties.CLUSTER_ID)String clusterId,
-            @Value(ReposeSpringProperties.NODE_ID)String nodeId,
+            @Value(ReposeSpringProperties.NODE.CLUSTER_ID)String clusterId,
+            @Value(ReposeSpringProperties.NODE.NODE_ID)String nodeId,
             HealthCheckService healthCheckService) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;

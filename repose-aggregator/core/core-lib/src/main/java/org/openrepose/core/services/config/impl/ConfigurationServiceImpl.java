@@ -47,7 +47,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public ConfigurationServiceImpl(
             @Qualifier("reposeConfigurationInformation") ConfigurationInformation configurationInformation,
             ConfigurationUpdateManager configurationUpdateManager,
-            @Value(ReposeSpringProperties.CONFIG_ROOT) String configRoot
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
         this.configurationInformation = configurationInformation;
         setUpdateManager(configurationUpdateManager);
@@ -62,7 +62,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         //TODO: this should be validated somewhere else, so we can fail at startup sooner
         if (StringUtilities.isBlank(configRoot)) {
             throw new PowerApiContextException("Power API requires a configuration directory in a spring property named " +
-                    ReposeSpringProperties.CONFIG_ROOT);
+                    ReposeSpringProperties.CORE.CONFIG_ROOT);
         }
 
         setResourceResolver(new FileDirectoryResourceResolver(configRoot));

@@ -34,7 +34,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @Inject
     public ResponseHeaderServiceImpl(ConfigurationService configurationService,
-                                     @Value(ReposeSpringProperties.REPOSE_VERSION) String reposeVersion) {
+                                     @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
         this.configurationListener = new ContainerConfigurationListener();
         this.reposeVersion = reposeVersion;
