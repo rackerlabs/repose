@@ -3,7 +3,7 @@ package org.openrepose.core.filter.routing;
 import org.openrepose.core.systemmodel.DestinationCluster;
 import org.openrepose.core.systemmodel.DestinationEndpoint;
 import org.openrepose.core.systemmodel.Node;
-import org.openrepose.nodeservice.routing.RoutingService;
+import org.openrepose.core.services.routing.RoutingService;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package org.openrepose.nodeservice.routing.robin;
+package org.openrepose.core.services.routing.robin;
 
 import org.openrepose.core.systemmodel.Cluster;
 import org.openrepose.core.systemmodel.SystemModel;

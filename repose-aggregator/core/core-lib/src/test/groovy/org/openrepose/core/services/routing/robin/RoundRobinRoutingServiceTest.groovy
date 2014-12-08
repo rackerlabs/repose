@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openrepose.nodeservice.routing.robin
+package org.openrepose.core.services.routing.robin
 
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.*

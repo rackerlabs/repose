@@ -20,7 +20,6 @@ import org.openrepose.services.datastore.impl.distributed.ThreadSafeClusterView;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.openrepose.nodeservice.routing.RoutingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

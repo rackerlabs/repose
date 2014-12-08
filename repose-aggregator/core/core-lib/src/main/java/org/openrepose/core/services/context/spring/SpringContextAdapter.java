@@ -14,7 +14,7 @@ import org.openrepose.core.services.logging.LoggingService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
-import org.openrepose.nodeservice.routing.RoutingService;
+import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.services.threading.ThreadingService;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.healthcheck.HealthCheckService;
