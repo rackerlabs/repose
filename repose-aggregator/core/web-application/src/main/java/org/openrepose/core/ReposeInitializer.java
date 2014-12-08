@@ -2,6 +2,7 @@ package org.openrepose.core;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.powerfilter.EmptyServlet;
 import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.core.spring.CoreSpringProvider;
@@ -23,7 +24,20 @@ public class ReposeInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.setParent(CoreSpringProvider.getInstance().getCoreContext());
+
+        //Get the values out of the system properties that we'll need
+        String configRoot = System.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT);
+        boolean insecure = Boolean.parseBoolean(System.getProperty(ReposeSpringProperties.CORE.INSECURE, "false"));
+
+        String clusterId = System.getProperty(ReposeSpringProperties.NODE.CLUSTER_ID);
+        String nodeId = System.getProperty(ReposeSpringProperties.NODE.NODE_ID);
+
+        CoreSpringProvider csp = CoreSpringProvider.getInstance();
+        csp.initializeCoreContext(configRoot, insecure);
+
+        //The parent context is not the core spring context, but an instance of a node context
+        //A war file is only ever one local node.
+        rootContext.setParent(csp.getNodeContext(clusterId, nodeId));
         rootContext.setDisplayName("ReposeWARFileContext");
 
         Config config = ConfigFactory.load("springConfiguration.conf");

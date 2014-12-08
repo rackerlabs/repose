@@ -135,7 +135,7 @@ class ValveRunner @Autowired()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.map { n =>
-              val node = new ReposeJettyServer(configRoot, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), insecure)
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig))
               node.start()
               node
             }
@@ -189,6 +189,7 @@ class ValveRunner @Autowired()(
     configService.subscribeTo[SystemModel]("system-model.cfg.xml", systemModelXsdURL, systemModelConfigListener, classOf[SystemModel])
 
     //Stay running, so that the thing doesn't exit or something
+    //TODO: have to set up the core spring stuff first, before we can create per-node contexts
 
     //Await this latch forever!, better than a runloop
     runLatch.await() //This blocks this guy, so that the run thread keeps wedged here

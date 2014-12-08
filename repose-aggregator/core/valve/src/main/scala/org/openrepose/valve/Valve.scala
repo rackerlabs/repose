@@ -74,7 +74,11 @@ class Valve {
         1
       } else {
         //Set up the core spring services, and get a ValveRunner
-        val coreContext = CoreSpringProvider.getInstance().getCoreContext
+        val coreSpringProvider = CoreSpringProvider.getInstance()
+        //Fire up the core spring context, configuring repose and such
+        coreSpringProvider.initializeCoreContext(valveConfig.configDirectory.getAbsolutePath, valveConfig.insecure)
+
+        val coreContext = coreSpringProvider.getCoreContext
 
         //TODO: in theory, the logging spring bean will have been activated, and I can probably get a logger
 
