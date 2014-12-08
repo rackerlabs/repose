@@ -8,7 +8,7 @@ import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl
+import org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl
 import org.openrepose.core.systemmodel.ReposeCluster
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService

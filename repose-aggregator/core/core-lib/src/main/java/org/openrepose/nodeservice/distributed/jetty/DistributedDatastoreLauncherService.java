@@ -3,7 +3,7 @@ package org.openrepose.nodeservice.distributed.jetty;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;

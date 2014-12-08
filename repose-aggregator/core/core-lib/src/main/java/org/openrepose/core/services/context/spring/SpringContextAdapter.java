@@ -1,6 +1,6 @@
 package org.openrepose.core.services.context.spring;
 
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;

@@ -1,7 +1,7 @@
 package org.openrepose.core.proxy;
 
 import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
