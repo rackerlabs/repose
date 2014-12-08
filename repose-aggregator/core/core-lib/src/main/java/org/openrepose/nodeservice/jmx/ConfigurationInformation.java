@@ -1,4 +1,4 @@
-package org.openrepose.core.jmx;
+package org.openrepose.nodeservice.jmx;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -10,18 +10,14 @@ import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.context.ServletContextAware;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,14 +25,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
-import javax.servlet.ServletContextEvent;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.util.*;
 
 @Named("reposeConfigurationInformation")
-@ManagedResource(objectName = "org.openrepose.core.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
+@ManagedResource(objectName = "org.openrepose.nodeservice.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
 public class ConfigurationInformation implements ConfigurationInformationMBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";

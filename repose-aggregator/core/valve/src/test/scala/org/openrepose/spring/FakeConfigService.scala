@@ -6,7 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import org.openrepose.commons.config.manager.{ConfigurationUpdateManager, UpdateListener}
 import org.openrepose.commons.config.parser.common.ConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.core.jmx.ConfigurationInformation
+import org.openrepose.nodeservice.jmx.ConfigurationInformation
 import org.openrepose.core.services.config.ConfigurationService
 import org.slf4j.LoggerFactory
 

@@ -1,4 +1,4 @@
-package org.openrepose.core.jmx;
+package org.openrepose.nodeservice.jmx;
 
 import org.openrepose.core.services.reporting.jmx.CompositeDataBuilder;
 
