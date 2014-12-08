@@ -2,12 +2,14 @@ package org.openrepose.valve
 
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
-import org.openrepose.core.spring.ReposeSpringProperties
+import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class ReposeJettyServerTest extends FunSpec with Matchers {
+
+  CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false);
 
   val sslConfig = {
     val s = new SslConfiguration()
@@ -20,13 +22,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
 
   it("can create a jetty server listening on an HTTP port") {
     val repose = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       Some(8080),
       None,
-      None,
-      false
+      None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -34,13 +34,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
   }
   it("can create a jetty server listening on an HTTPS port") {
     val repose = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       None,
       Some(8080),
-      Some(sslConfig),
-      false
+      Some(sslConfig)
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -48,13 +46,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
   }
   it("can create a jetty server listening on both an HTTP port and an HTTPS port") {
     val repose = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       Some(8081),
       Some(8080),
-      Some(sslConfig),
-      false
+      Some(sslConfig)
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -65,39 +61,33 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
   it("raises an exception when an HTTPS port is specified, but no ssl config is provided") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
-        "/etc/repose",
         "cluster",
         "node",
         None,
         Some(8080),
-        None,
-        false
+        None
       )
     }
   }
   it("raises an exception when neither HTTP nor HTTPS port are specified") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
-        "/etc/repose",
         "cluster",
         "node",
         None,
         None,
-        None,
-        false
+        None
       )
     }
   }
 
   it("Can terminate a server, shutting down it's spring context") {
     val server = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       Some(8080),
       None,
-      None,
-      false
+      None
     )
 
     server.start()
@@ -111,13 +101,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
   }
   it("can be restarted, terminating and restarting everything") {
     val server = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       Some(8080),
       None,
-      None,
-      false
+      None
     )
 
     server.start()
@@ -143,13 +131,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
 
   it("Fails when attempting to start a shutdown server") {
     val server = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "node",
       Some(8080),
       None,
-      None,
-      false
+      None
     )
     println(s"app context active: ${server.appContext.isActive}")
 
@@ -164,22 +150,22 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     }
   }
 
-  it("Properly configures the spring properties we need") {
+  it("has the spring properties we need at this stage") {
     val server = new ReposeJettyServer(
-      "/etc/repose",
       "cluster",
       "le_node_id",
       Some(8080),
       None,
-      None,
-      false
+      None
     )
-    import ReposeSpringProperties._
+    import ReposeSpringProperties.NODE._
+    import ReposeSpringProperties.CORE._
+
 
     val expectedProperties = Map(
       CLUSTER_ID -> "cluster",
       NODE_ID -> "le_node_id",
-      CONFIG_ROOT -> "/etc/repose",
+      CONFIG_ROOT -> "/config/root",
       INSECURE -> "false" //Spring puts this into a string for us
     )
 

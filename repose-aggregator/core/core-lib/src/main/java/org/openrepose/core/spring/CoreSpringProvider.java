@@ -46,7 +46,8 @@ public class CoreSpringProvider {
             //TODO: repose version should come from a properties file in core-lib, not anywhere else.
             String reposeVersion = conf.getString("reposeVersion");
 
-            String coreScanPackage = conf.getString("coreSpringContextPath"); //TODO: could get this from a param now...
+            String coreScanPackage = conf.getString(
+                    "coreSpringContextPath"); //TODO: could get this from a param now...
 
             LOG.debug("Creating Core spring provider!");
             LOG.debug("Core service annotation scanning package {}", coreScanPackage);
@@ -65,6 +66,7 @@ public class CoreSpringProvider {
 
             coreContext.scan(coreScanPackage);
             coreContext.refresh();
+            configured = true;
         } else {
             //TODO: should this throw some kind of exception, or just log failures silently?
             //It's a programming error that multiple calls to initialize get called, and so having to catch an exception is annoying
