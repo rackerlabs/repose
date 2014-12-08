@@ -1,11 +1,8 @@
 package org.openrepose.nodeservice.routing.robin;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.domain.Port;
-import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.nodeservice.routing.RoutingService;
 import org.slf4j.Logger;
@@ -26,7 +23,6 @@ public class RoundRobinRoutingService implements RoutingService {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
     private ConfigurationService configurationService;
     private PowerApiConfigListener configListener;
-    private ServicePorts servicePorts;
     private String clusterId, nodeId;
     private Clusters domains;
 
@@ -36,7 +32,6 @@ public class RoundRobinRoutingService implements RoutingService {
                                     @Value(CLUSTER_ID) String clusterId) {
         configListener = new PowerApiConfigListener();
         this.configurationService = configurationService;
-        this.servicePorts = servicePorts;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
 
@@ -75,54 +70,11 @@ public class RoundRobinRoutingService implements RoutingService {
         private SystemModel config;
         private boolean isInitialized = false;
 
-        private ServicePorts determinePorts(Node reposeNode) {
-            ServicePorts ports = new ServicePorts();
-
-            if (reposeNode != null) {
-                if (reposeNode.getHttpPort() != 0) {
-                    ports.add(new Port("http", reposeNode.getHttpPort()));
-                } else {
-                    LOG.error("Http service port not specified for Repose Node " + reposeNode.getId());
-                }
-
-                if (reposeNode.getHttpsPort() != 0) {
-                    ports.add(new Port("https", reposeNode.getHttpsPort()));
-                } else {
-                    LOG.info("Https service port not specified for Repose Node " + reposeNode.getId());
-                }
-            }
-
-            return ports;
-        }
-
-        private Node determineReposeNode(String clusterId, String nodeId) {
-
-            for (ReposeCluster cluster : config.getReposeCluster()) {
-
-                if (cluster.getId().equals(clusterId)) {
-                    for (Node node : cluster.getNodes().getNode()) {
-                        if (node.getId().equals(nodeId)) {
-                            return node;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
             config = configurationObject;
             setSystemModel(config);
 
-
-            if (!isInitialized()) {
-                LOG.info("Determining ports for repose under cluster: " + clusterId);
-                ServicePorts ports = determinePorts(determineReposeNode(clusterId, nodeId));
-                servicePorts.clear();
-                servicePorts.addAll(ports);
-            }
             isInitialized = true;
         }
 
