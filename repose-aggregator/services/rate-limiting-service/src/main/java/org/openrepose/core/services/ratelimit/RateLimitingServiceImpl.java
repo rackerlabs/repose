@@ -120,9 +120,10 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         for (ConfiguredRatelimit globalLimit : globalLimitGroup.getLimit()) {
             Matcher uriMatcher = ((ConfiguredRateLimitWrapper) globalLimit).getRegexPattern().matcher(uri);
 
-            if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
+            List<Matcher> queryParamMatchers = getQueryParamMatchers(globalLimit.getQueryParam(), parameterMap);
+            if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParamMatchers != null) {
                 matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(GLOBAL_LIMIT_GROUP,
-                        globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
+                        globalLimit.getId(), uriMatcher, queryParamMatchers, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
 
                 if (globalLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = globalLimit.getUnit();
