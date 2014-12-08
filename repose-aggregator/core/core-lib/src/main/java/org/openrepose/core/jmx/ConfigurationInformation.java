@@ -23,6 +23,10 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import javax.servlet.ServletContextEvent;
@@ -31,9 +35,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.util.*;
 
-@Component("reposeConfigurationInformation")
+@Named("reposeConfigurationInformation")
 @ManagedResource(objectName = "org.openrepose.core.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
-public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
+public class ConfigurationInformation implements ConfigurationInformationMBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
@@ -148,9 +152,9 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         }
     }
 
-    @Autowired
+    @Inject
     public ConfigurationInformation(
-            @Qualifier("configurationManager") ConfigurationService configurationService,
+            ConfigurationService configurationService,
             @Value(ReposeSpringProperties.CLUSTER_ID)String clusterId,
             @Value(ReposeSpringProperties.NODE_ID)String nodeId,
             HealthCheckService healthCheckService) {
@@ -174,22 +178,19 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         return list;
     }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    @PostConstruct
+    public void init() {
         systemModelListener = new SystemModelListener();
-
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    @PreDestroy
+    public void destroy() {
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
         systemModelListener = null;
     }
 
     public void setFilterLoadingInformation(String filterName, boolean filterInitialized, ConfigurationResource configurationResource) {
-
-
         synchronized (filterChain) {
             for (FilterInformation filter : filterChain) {
                 if (filterName.equalsIgnoreCase(filter.getName())) {
