@@ -5,13 +5,12 @@ import java.util
 import javax.servlet.DispatcherType
 
 import com.typesafe.config.ConfigFactory
-import org.eclipse.jetty.server.{ServerConnector, Connector, Server}
+import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
-import org.openrepose.core.spring.{ReposeSpringProperties, CoreSpringProvider}
+import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.powerfilter.EmptyServlet
-import org.springframework.core.env.MapPropertySource
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
