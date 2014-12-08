@@ -135,9 +135,9 @@ public class PowerFilter extends DelegatingFilterProxy {
         healthCheckServiceProxy = healthCheckService.register();
         mbcResponseCodes = metricsService.newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
 
-        this.clusterId = springEnvironment.getProperty(ReposeSpringProperties.CLUSTER_ID);
-        this.nodeId = springEnvironment.getProperty(ReposeSpringProperties.NODE_ID);
-        this.configRoot = springEnvironment.getProperty(ReposeSpringProperties.CONFIG_ROOT);
+        this.clusterId = springEnvironment.getProperty(ReposeSpringProperties.NODE.CLUSTER_ID);
+        this.nodeId = springEnvironment.getProperty(ReposeSpringProperties.NODE.NODE_ID);
+        this.configRoot = springEnvironment.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT);
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
