@@ -1,4 +1,4 @@
-package org.openrepose.core.services.datastore.distributed.impl.distributed.servlet;
+package org.openrepose.nodeservice.distributed.servlet;
 
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.services.datastore.*;

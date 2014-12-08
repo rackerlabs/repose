@@ -1,10 +1,10 @@
-package org.openrepose.core.services.datastore.distributed.impl.distributed.jetty;
+package org.openrepose.nodeservice.distributed.jetty;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServlet;
+import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
 
 /**
  * Perhaps encapsulate the monitoring bits better

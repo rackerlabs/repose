@@ -1,4 +1,4 @@
-package org.openrepose.core.services.datastore.distributed.impl.distributed.jetty;
+package org.openrepose.nodeservice.distributed.jetty;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -7,9 +7,9 @@ import org.openrepose.commons.utils.proxy.RequestProxyService;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
-import org.openrepose.core.services.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServlet;
+import org.openrepose.nodeservice.distributed.cluster.utils.AccessListDeterminator;
+import org.openrepose.nodeservice.distributed.cluster.utils.ClusterMemberDeterminator;
+import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;

@@ -1,4 +1,4 @@
-package org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.utils;
+package org.openrepose.nodeservice.distributed.cluster.utils;
 
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
