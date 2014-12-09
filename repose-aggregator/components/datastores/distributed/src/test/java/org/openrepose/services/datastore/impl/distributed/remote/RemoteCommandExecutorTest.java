@@ -2,7 +2,7 @@ package org.openrepose.services.datastore.impl.distributed.remote;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.services.datastore.DatastoreOperationException;
 import org.openrepose.services.datastore.distributed.RemoteBehavior;
 import org.junit.Before;

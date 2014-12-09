@@ -7,6 +7,7 @@ import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
 import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.rms.config.Message;
 import org.openrepose.core.services.rms.config.OverwriteType;
 import org.openrepose.core.services.rms.config.ResponseMessagingConfiguration;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class ResponseMessageServiceImplTest {
 
    public static class WhenHandlingResponse {
-      private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl();
+      private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
       private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
       private Enumeration<String> headerValueEnumeration = null;
       private final Vector<String> acceptValues = new Vector<String>(1);

@@ -5,13 +5,12 @@ import java.util
 import javax.servlet.DispatcherType
 
 import com.typesafe.config.ConfigFactory
-import org.eclipse.jetty.server.{ServerConnector, Connector, Server}
+import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
-import org.openrepose.core.spring.{ReposeSpringProperties, CoreSpringProvider}
+import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.powerfilter.EmptyServlet
-import org.springframework.core.env.MapPropertySource
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
@@ -23,41 +22,27 @@ case class ServerInitializationException(message: String, cause: Throwable = nul
  * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
  * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
  * It will fail to build if there's no SSL configuration
- * @param configRoot
  * @param clusterId
  * @param nodeId
  * @param httpPort
  * @param httpsPort
  * @param sslConfig
- * @param insecure
  */
-class ReposeJettyServer(configRoot: String,
-                        val clusterId: String,
+class ReposeJettyServer(val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
                         val httpsPort: Option[Int],
-                        sslConfig: Option[SslConfiguration],
-                        insecure: Boolean) {
+                        sslConfig: Option[SslConfiguration]) {
 
   val config = ConfigFactory.load("springConfiguration.conf")
 
   val appContext = new AnnotationConfigWebApplicationContext()
-  appContext.setParent(CoreSpringProvider.getInstance().getCoreContext)
+
+  val coreSpringProvider = CoreSpringProvider.getInstance() //Safe to use here, it's been initialized earlier
+  val nodeContext = coreSpringProvider.getNodeContext(clusterId, nodeId)
+
+  appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))
-
-  //create properties for spring
-  val props: Map[String, AnyRef] = Map(
-    ReposeSpringProperties.NODE_ID -> nodeId,
-    ReposeSpringProperties.CLUSTER_ID -> clusterId,
-    ReposeSpringProperties.CONFIG_ROOT -> configRoot,
-    ReposeSpringProperties.INSECURE -> new java.lang.Boolean(insecure.booleanValue)
-  )
-  val myProps = {
-    import scala.collection.JavaConversions._
-    new MapPropertySource(s"node-$nodeId-props", props)
-  }
-
-  appContext.getEnvironment.getPropertySources.addFirst(myProps)
 
   private var isShutdown = false
 
@@ -79,6 +64,8 @@ class ReposeJettyServer(configRoot: String,
       val cf = new SslContextFactory()
 
       //TODO: do we make this a URL for realsies?
+      //Get the configuration root from the core spring context, because we haven't fired up the app Context yet.
+      val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT)
       sslConfig.map { ssl =>
         cf.setKeyStorePath(configRoot + File.separator + ssl.getKeystoreFilename)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
@@ -152,6 +139,6 @@ class ReposeJettyServer(configRoot: String,
    */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(configRoot, clusterId, nodeId, httpPort, httpsPort, sslConfig, insecure)
+    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig)
   }
 }

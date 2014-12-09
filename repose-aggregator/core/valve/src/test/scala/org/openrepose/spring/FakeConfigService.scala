@@ -6,7 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import org.openrepose.commons.config.manager.{ConfigurationUpdateManager, UpdateListener}
 import org.openrepose.commons.config.parser.common.ConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.core.jmx.ConfigurationInformation
+import org.openrepose.nodeservice.jmx.ConfigurationInformation
 import org.openrepose.core.services.config.ConfigurationService
 import org.slf4j.LoggerFactory
 
@@ -53,19 +53,11 @@ class FakeConfigService extends ConfigurationService {
 
   override def subscribeTo[T](filterName: String, configurationName: String, listener: UpdateListener[T], customParser: ConfigurationParser[T], sendNotificationNow: Boolean): Unit = ???
 
-  override def setConfigurationInformation(configurationInformation: ConfigurationInformation): Unit = ???
-
-  override def setResourceResolver(resourceResolver: ConfigurationResourceResolver): Unit = ???
-
   override def unsubscribeFrom(configurationName: String, plistener: UpdateListener[_]): Unit = {
     stupidListener.remove(configurationName) //Drop it from our stuff
   }
 
   override def getResourceResolver: ConfigurationResourceResolver = ???
-
-  override def getConfigurationInformation: ConfigurationInformation = ???
-
-  override def setUpdateManager(updateManager: ConfigurationUpdateManager): Unit = ???
 
   override def destroy(): Unit = ???
 }

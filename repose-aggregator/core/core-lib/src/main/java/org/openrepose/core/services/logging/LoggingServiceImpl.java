@@ -3,19 +3,48 @@ package org.openrepose.core.services.logging;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.container.config.ContainerConfiguration;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+@Named
 public class LoggingServiceImpl implements LoggingService {
-    private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceImpl.class.getName());
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceImpl.class);
+
+    private final ConfigurationService configurationService;
+    private final ContainerConfigurationListener configurationListener;
+
     private File currentConfigDir = new File(System.getProperty("user.dir"));
     private String currentConfigFileName = null;
 
-    public LoggingServiceImpl() {
+    @Inject
+    public LoggingServiceImpl(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+
+        this.configurationListener = new ContainerConfigurationListener();
+    }
+
+    @PostConstruct
+    public void init() {
+        URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+
+        configurationService.subscribeTo("container.cfg.xml", containerXsdURL, configurationListener, ContainerConfiguration.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        configurationService.unsubscribeFrom("container.cfg.xml", configurationListener);
     }
 
     @Override
@@ -62,6 +91,27 @@ public class LoggingServiceImpl implements LoggingService {
             } else {
                 LOG.warn("An attempt was made to switch to an invalid Logging Configuration file: {}", configFileName);
             }
+        }
+    }
+
+    /**
+     * Listens for updates to the container.cfg.xml file which holds the location of the log properties file.
+     */
+    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration configurationObject) {
+            if (configurationObject.getDeploymentConfig() != null) {
+                updateLoggingConfiguration(configurationObject.getDeploymentConfig().getLoggingConfiguration().getHref());
+            }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 }

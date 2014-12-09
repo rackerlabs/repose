@@ -22,10 +22,6 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    private EarUnpacker unpacker;
    private boolean autoClean = false;
    private boolean isInitialized = false;
-  
-
-   public ContainerConfigurationListener() {
-   }
 
    public ContainerConfigurationListener(EventService eventManagerReference) {
       dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);

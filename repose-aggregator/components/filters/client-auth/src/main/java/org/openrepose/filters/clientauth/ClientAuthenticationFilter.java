@@ -3,7 +3,7 @@ package org.openrepose.filters.clientauth;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.openrepose.core.jmx.ConfigurationInformation;
+import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;

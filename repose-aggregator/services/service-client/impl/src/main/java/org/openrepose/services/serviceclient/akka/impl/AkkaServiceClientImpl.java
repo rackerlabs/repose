@@ -6,18 +6,20 @@ import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -27,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static akka.pattern.Patterns.ask;
 import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
+@Named
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private final ServiceClient serviceClient;
@@ -39,7 +42,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private static final long FUTURE_CACHE_TTL = 500;
 
-    @Autowired
+    @Inject
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
         this.serviceClient = getServiceClient(httpClientService);
         numberOfActors = serviceClient.getPoolSize();
@@ -59,6 +62,12 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         }).withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
     }
 
+
+    @PreDestroy
+    public void destroy() {
+        //Tie this actor system to our bean lifecycle
+        actorSystem.shutdown();
+    }
 
     @Override
     public ServiceClientResponse get(String key, String uri, Map<String, String> headers) {
@@ -87,11 +96,6 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         return scr;
     }
 
-
-    @Override
-    public void shutdown() {
-        actorSystem.shutdown();
-    }
 
     private Future getFuture(final ConsistentHashable hashableRequest) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();

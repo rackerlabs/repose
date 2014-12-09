@@ -1,16 +1,18 @@
 package org.openrepose.core.services.reporting;
 
-import org.openrepose.core.services.reporting.destinations.DestinationInfo;
-import org.openrepose.core.services.reporting.impl.ReportingServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.reporting.destinations.DestinationInfo;
+import org.openrepose.core.services.reporting.impl.ReportingServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class ReportingServiceImplTest {
@@ -27,7 +29,7 @@ public class ReportingServiceImplTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl();
+            reportingService = new ReportingServiceImpl(mock(ConfigurationService.class));
             reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
         }
 

@@ -7,13 +7,16 @@ import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Named
 public class HealthCheckServiceImpl implements HealthCheckService {
+
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
     private Map<HealthCheckServiceProxy, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();

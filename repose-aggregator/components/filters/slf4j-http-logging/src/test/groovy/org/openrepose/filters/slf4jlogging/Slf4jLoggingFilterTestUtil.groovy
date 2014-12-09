@@ -9,7 +9,6 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
-import spock.lang.Ignore
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -36,7 +35,7 @@ class Slf4jLoggingFilterTestUtil {
                                 id: le.getId()
                         ) {
                             //Using yieldUnescaped always wraps it in a CDATA tag, which matters for proving it works
-                            if(le.formatElement.isCrush()) {
+                            if (le.formatElement.isCrush()) {
                                 "format"(
                                         crush: le.formatElement.isCrush()
                                 ) {
@@ -61,7 +60,7 @@ class Slf4jLoggingFilterTestUtil {
         if (useElement) {
             def formatElement = new FormatElement()
             formatElement.value = format
-            if(replaceNewline) {
+            if (replaceNewline) {
                 formatElement.setCrush(replaceNewline)
             }
             hl.setFormatElement(formatElement)

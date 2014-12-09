@@ -5,9 +5,21 @@ package org.openrepose.core.spring;
  */
 public class ReposeSpringProperties {
 
-    public static final String NODE_ID = "repose-node-id";
-    public static final String CLUSTER_ID = "repose-cluster-id";
-    public static final String CONFIG_ROOT = "powerapi-config-directory";
-    public static final String INSECURE = "repose-insecurity";
+    /**
+     * Properties available in the core context, and to all child contexts
+     */
+    public static class CORE {
+        public static final String REPOSE_VERSION = "repose-version";
+        public static final String CONFIG_ROOT = "powerapi-config-directory";
+        public static final String INSECURE = "repose-insecurity";
+    }
+
+    /**
+     * Properties available in the per-node contexts, and all child contexts
+     */
+    public static class NODE {
+        public static final String NODE_ID = "repose-node-id";
+        public static final String CLUSTER_ID = "repose-cluster-id";
+    }
 
 }

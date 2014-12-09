@@ -2,28 +2,35 @@ package org.openrepose.services.datastore.impl;
 
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.DatastoreManager;
+import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.services.datastore.impl.distributed.HashRingDatastoreManager;
-import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component("datastoreService")
+@Named
 public class DatastoreServiceImpl implements DatastoreService {
+
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
 
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
-
     public DatastoreServiceImpl() {
         localDatastoreManager = new EHCacheDatastoreManager();
-        distributedManagers = new HashMap<String, DatastoreManager>();
+        distributedManagers = new HashMap<>();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOG.info("Destroying datastore service context");
+        shutdown();
     }
 
     @Override
@@ -57,7 +64,7 @@ public class DatastoreServiceImpl implements DatastoreService {
             try {
                 managerToUnregister.destroy();
             } catch (Exception e) {
-                LOG.warn("Failed to shutdown datastore "+ datastoreName +" with exception " + e.getMessage(), e);
+                LOG.warn("Failed to shutdown datastore " + datastoreName + " with exception " + e.getMessage(), e);
             }
         }
     }

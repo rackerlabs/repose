@@ -21,6 +21,7 @@ package org.openrepose.core.servlet;
  *
  * @author jhopper
  */
+@Deprecated
 public enum InitParameter {
     POWER_API_CONFIG_DIR("powerapi-config-directory"),
     PORT("repose-bound-port"),

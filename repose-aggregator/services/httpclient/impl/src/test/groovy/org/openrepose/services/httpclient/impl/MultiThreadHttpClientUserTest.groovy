@@ -1,5 +1,7 @@
 package org.openrepose.services.httpclient.impl
 
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.httpclient.HttpClientResponse
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
@@ -10,6 +12,7 @@ import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
+import static org.mockito.Mockito.mock
 
 class MultiThreadHttpClientUserTest {
 
@@ -23,7 +26,7 @@ class MultiThreadHttpClientUserTest {
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
 
-        httpClientService = new HttpConnectionPoolServiceImpl();
+        httpClientService = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
         httpClientService.configure(poolCfg);
     }
 
