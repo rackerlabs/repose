@@ -17,13 +17,13 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DestinationLocationBuilderImpl {
-    private static final Logger LOG = LoggerFactory.getLogger(DestinationLocationBuilderImpl.class);
+public class DestinationLocationBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(DestinationLocationBuilder.class);
     private static final String HTTPS_PROTOCOL = "https";
     private final RoutingService routingService;
     private final Node localhost;
 
-    public DestinationLocationBuilderImpl(RoutingService routingService, Node localhost) {
+    public DestinationLocationBuilder(RoutingService routingService, Node localhost) {
         this.routingService = routingService;
         this.localhost = localhost;
     }
