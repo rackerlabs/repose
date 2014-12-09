@@ -9,6 +9,7 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
+import spock.lang.Ignore
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
