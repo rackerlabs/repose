@@ -2,7 +2,7 @@ package org.openrepose.filters.headeridmapping.extractor;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.regex.ExtractorResult;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.config.HttpHeader;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

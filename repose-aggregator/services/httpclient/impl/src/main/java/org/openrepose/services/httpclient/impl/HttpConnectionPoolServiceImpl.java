@@ -29,7 +29,7 @@ import static org.openrepose.services.httpclient.impl.HttpConnectionPoolProvider
 
 
 @Named
-public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
+public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
     private static PoolType DEFAULT_POOL = new PoolType();
     private Map<String, HttpClient> poolMap;
@@ -125,14 +125,13 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     }
 
     @Override
-    public void releaseClient(HttpClientResponseImpl httpClientResponse) {
+    public void releaseClient(HttpClientResponse httpClientResponse) {
         String clientInstanceId = httpClientResponse.getClientInstanceId();
         String userId = httpClientResponse.getUserId();
 
         httpClientUserManager.removeUser(clientInstanceId, userId);
     }
 
-    @Override
     public void configure(HttpConnectionPoolConfig config) {
 
         HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();

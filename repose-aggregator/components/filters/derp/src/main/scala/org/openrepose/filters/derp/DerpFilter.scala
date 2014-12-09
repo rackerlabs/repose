@@ -1,5 +1,6 @@
 package org.openrepose.filters.derp
 
+import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
@@ -17,6 +18,7 @@ import scala.util.{Failure, Success}
  * This filter is header quality aware; the delegation header with the highest quality will be used to formulate a
  * response.
  */
+@Named
 class DerpFilter extends Filter with HttpDelegationManager {
 
   private final val LOG = LoggerFactory.getLogger(classOf[DerpFilter])
