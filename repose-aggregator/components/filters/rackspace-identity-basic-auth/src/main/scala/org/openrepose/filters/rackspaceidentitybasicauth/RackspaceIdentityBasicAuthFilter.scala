@@ -9,10 +9,14 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
+import org.openrepose.services.datastore.DatastoreService
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.slf4j.LoggerFactory
 
 @Named
-class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: ConfigurationService) extends Filter {
+class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: ConfigurationService,
+                                                  akkaServiceClient : AkkaServiceClient,
+                                                  datastoreService : DatastoreService) extends Filter {
   private final val LOG = LoggerFactory.getLogger(classOf[RackspaceIdentityBasicAuthFilter])
   private final val DEFAULT_CONFIG = "rackspace-identity-basic-auth.cfg.xml"
 
@@ -22,7 +26,7 @@ class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: Configur
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     LOG.info("Initializing filter using config " + config)
-    handlerFactory = new RackspaceIdentityBasicAuthHandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
+    handlerFactory = new RackspaceIdentityBasicAuthHandlerFactory(akkaServiceClient, datastoreService)
     val xsdURL: URL = getClass.getResource("/META-INF/config/schema/rackspace-identity-basic-auth.xsd")
     // TODO: Clean up the asInstanceOf below, if possible?
     configurationService.subscribeTo(
