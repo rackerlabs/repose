@@ -1,10 +1,7 @@
 package org.openrepose.core.filter;
 
 import com.google.common.base.Optional;
-import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.systemmodel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
