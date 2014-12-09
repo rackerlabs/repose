@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * HttpClientService - service that manages the lifecycle and configuration of HttpClients
  */
-public interface HttpClientService<CFG, RSP extends HttpClientResponse> {
+public interface HttpClientService {
 
     /**
      * Given an identifier, will return a corresponding HttpClient.  Implementations should return a
@@ -31,17 +31,7 @@ public interface HttpClientService<CFG, RSP extends HttpClientResponse> {
      * release a client immediately after retrieving it in case the client has been decommissioned.
      * @param httpClientResponse Response received by the user from the getClient() call
      */
-    void releaseClient(RSP httpClientResponse);
-
-    /**
-     * Configure the available clients that can be used via getClient()
-     * <p/>
-     * Implementations should support dynamic reconfiguration of existing available clients and
-     * ensure that a configure() call while
-     *
-     * @param config
-     */
-    void configure(CFG config);
+    void releaseClient(HttpClientResponse httpClientResponse);
 
     /**
      * Returns true if the given clientId is available to be retrieved via getClient()
