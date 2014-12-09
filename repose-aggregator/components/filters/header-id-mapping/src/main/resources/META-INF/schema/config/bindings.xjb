@@ -6,6 +6,6 @@
         schemaLocation="header-id-mapping-configuration.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.filters.headeridmapping.header_mapping.config" />
+        <package name="org.openrepose.filters.headeridmapping.config" />
     </schemaBindings>
 </bindings>

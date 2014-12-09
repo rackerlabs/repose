@@ -1,7 +1,7 @@
 package org.openrepose.filters.headeridmapping.extractor;
 
 import org.openrepose.commons.utils.regex.ExtractorResult;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.config.HttpHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

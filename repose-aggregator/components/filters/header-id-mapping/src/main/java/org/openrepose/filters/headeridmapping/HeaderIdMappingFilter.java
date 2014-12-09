@@ -3,7 +3,7 @@ package org.openrepose.filters.headeridmapping;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HeaderIdMappingConfig;
+import org.openrepose.filters.headeridmapping.config.HeaderIdMappingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
