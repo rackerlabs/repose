@@ -4,13 +4,14 @@
  */
 package org.openrepose.core.services.routing.robin
 
+import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.parser.common.ConfigurationParser
+import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.*
 import spock.lang.Specification
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNotSame
-import static org.junit.Assert.assertNull
+import static org.junit.Assert.*
 import static org.mockito.Mockito.mock
 
 public class RoundRobinRoutingServiceTest extends Specification {
@@ -18,8 +19,61 @@ public class RoundRobinRoutingServiceTest extends Specification {
     SystemModel systemModel
     RoundRobinRoutingService robinRoutingService
 
+    MockConfigService<SystemModel> mockConfig = new MockConfigService<>()
+
+    class MockConfigService<T> implements ConfigurationService {
+
+        UpdateListener<T> listener = null
+
+        @Override
+        ConfigurationResourceResolver getResourceResolver() {
+            return null
+        }
+
+        @Override
+        def <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
+        }
+
+        @Override
+        def <T> void subscribeTo(String filterName, String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
+
+        }
+
+        @Override
+        def <T> void subscribeTo(String configurationName, URL xsdStreamSource, UpdateListener<T> listener, Class<T> configurationClass) {
+            //This one
+            this.listener = listener
+        }
+
+        @Override
+        def <T> void subscribeTo(String filterName, String configurationName, URL xsdStreamSource, UpdateListener<T> listener, Class<T> configurationClass) {
+
+        }
+
+        @Override
+        def <T> void subscribeTo(String filterName, String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
+
+        }
+
+        @Override
+        def <T> void subscribeTo(String filterName, String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
+
+        }
+
+        @Override
+        void unsubscribeFrom(String configurationName, UpdateListener plistener) {
+
+        }
+
+        @Override
+        void destroy() {
+
+        }
+    }
+
+
     def setup() {
-        robinRoutingService = new RoundRobinRoutingService(mock(ConfigurationService.class), "nodeid", "cluster")
+        robinRoutingService = new RoundRobinRoutingService(mockConfig)
         systemModel = new SystemModel()
 
         def domainRepose = new ReposeCluster()
@@ -66,8 +120,10 @@ public class RoundRobinRoutingServiceTest extends Specification {
         domainService.setNodes(nodeListService)
 
         systemModel.getServiceCluster().add(domainService)
+        robinRoutingService.afterPropertiesSet()
 
-        robinRoutingService.setSystemModel(systemModel)
+        mockConfig.listener.configurationUpdated(systemModel)
+        //robinRoutingService.setSystemModel(systemModel)
     }
 
     def "Should Switch Between Two Routable Nodes"() {
@@ -95,7 +151,8 @@ public class RoundRobinRoutingServiceTest extends Specification {
         systemModel.getReposeCluster().add(null)
 
         when:
-        robinRoutingService.setSystemModel(systemModel)
+        mockConfig.listener.configurationUpdated(systemModel)
+        //robinRoutingService.setSystemModel(systemModel)
 
         then:
         def caught = thrown(NullPointerException)
