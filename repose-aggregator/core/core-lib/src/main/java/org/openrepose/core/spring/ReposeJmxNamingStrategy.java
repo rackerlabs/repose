@@ -3,6 +3,8 @@ package org.openrepose.core.spring;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import java.util.UUID;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import org.slf4j.Logger;
@@ -10,44 +12,46 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.naming.MetadataNamingStrategy;
 import org.springframework.jmx.export.naming.ObjectNamingStrategy;
 import org.springframework.stereotype.Component;
 
-@Component("reposeJmxNamingStrategy")
+@Named
 @Lazy(true)
 public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements ObjectNamingStrategy, InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
     private static final String SEPARATOR = "-";
-    private final ReposeInstanceInfo reposeId;
     private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    private final String clusterId;
+    private final String nodeId;
 
-    @Autowired
-    public ReposeJmxNamingStrategy(@Qualifier("jmxAttributeSource") AnnotationJmxAttributeSource attributeSource, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeId) {
+    @Inject
+    public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource,
+                                   @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+                                   @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
         super(attributeSource);
-        this.reposeId = reposeId;
-        
-        LOG.info("Configuring JMX naming strategy for " + reposeId);
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
+
+        LOG.info("Configuring JMX naming strategy for {} - {} ", clusterId, nodeId);
     }
 
     public String getDomainPrefix() {
-        if (reposeId == null) {
-            return defaultDomainPrefix;
-        }
-
+        //TODO: none of this is needed
         StringBuilder sb = new StringBuilder();
-        if (StringUtilities.isNotBlank(reposeId.getClusterId())) {
-            sb.append(reposeId.getClusterId());
+        if (StringUtilities.isNotBlank(clusterId)) {
+            sb.append(clusterId);
         }
 
-        if (StringUtilities.isNotBlank(reposeId.getNodeId())) {
+        if (StringUtilities.isNotBlank(nodeId)) {
             if (sb.length() > 0) {
                 sb.append(SEPARATOR);
             }
-            sb.append(reposeId.getNodeId());
+            sb.append(nodeId);
         }
 
         return sb.length() > 0? sb.append(SEPARATOR).toString(): defaultDomainPrefix;
