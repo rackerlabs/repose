@@ -2,6 +2,7 @@ package org.openrepose.core.services.context;
 
 import javax.servlet.ServletContextListener;
 
+@Deprecated
 public interface ServiceContext<T> extends ServletContextListener {
 
     /**

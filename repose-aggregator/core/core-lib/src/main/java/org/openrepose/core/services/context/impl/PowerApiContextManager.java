@@ -13,6 +13,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+@Deprecated
 public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);

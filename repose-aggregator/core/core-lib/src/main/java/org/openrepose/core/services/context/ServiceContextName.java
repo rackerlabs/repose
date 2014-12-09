@@ -1,5 +1,6 @@
 package org.openrepose.core.services.context;
 
+@Deprecated
 public enum ServiceContextName {
 
     CLASS_LOADER_SERVICE_CONTEXT("classLoaderServiceContext"),

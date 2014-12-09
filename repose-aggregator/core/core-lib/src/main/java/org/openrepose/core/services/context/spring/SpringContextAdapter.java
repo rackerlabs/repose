@@ -22,6 +22,7 @@ import org.openrepose.services.httpclient.HttpClientService;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.springframework.context.ApplicationContext;
 
+@Deprecated
 public class SpringContextAdapter implements ContextAdapter {
 
    private final ApplicationContext applicationContext;
