@@ -29,7 +29,7 @@ public class ApiValidatorFilter implements Filter {
     @Inject
     public ApiValidatorFilter(ConfigurationService configurationService,
                               MetricsService metricsService,
-                              @Value(ReposeSpringProperties.CONFIG_ROOT)String configurationRoot) {
+                              @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configurationRoot) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.configurationRoot = configurationRoot;

@@ -1,6 +1,5 @@
 package org.openrepose.filters.versioning;
 
-import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.filter.FilterConfigHelper;
@@ -34,8 +33,8 @@ public class VersioningFilter implements Filter {
     public VersioningFilter(ConfigurationService configurationService,
                             MetricsService metricsService,
                             HealthCheckService healthCheckService,
-                            @Value(ReposeSpringProperties.CLUSTER_ID)String clusterId,
-                            @Value(ReposeSpringProperties.NODE_ID)String nodeId) {
+                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID)String clusterId,
+                            @Value(ReposeSpringProperties.NODE.NODE_ID)String nodeId) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.healthCheckService = healthCheckService;

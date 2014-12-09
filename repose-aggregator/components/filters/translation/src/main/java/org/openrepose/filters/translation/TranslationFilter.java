@@ -26,7 +26,7 @@ public class TranslationFilter implements Filter {
 
     @Inject
     public TranslationFilter(ConfigurationService configurationService,
-                             @Value(ReposeSpringProperties.CONFIG_ROOT)String configurationRoot) {
+                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configurationRoot) {
         this.configurationService = configurationService;
         this.configurationRoot = configurationRoot;
     }
