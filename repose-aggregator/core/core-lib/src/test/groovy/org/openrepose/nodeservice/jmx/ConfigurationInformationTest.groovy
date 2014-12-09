@@ -47,7 +47,7 @@ class ConfigurationInformationTest extends Specification {
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
-        configurationInformation.contextInitialized(null)
+        configurationInformation.init()
 
         listenerObject = listenerCaptor.getValue()
 
@@ -72,7 +72,7 @@ class ConfigurationInformationTest extends Specification {
 
         SystemModel systemModel = getValidSystemModel()
 
-        configurationInformation.contextInitialized(null)
+        configurationInformation.init()
 
         listenerObject = listenerCaptor.getValue()
 
