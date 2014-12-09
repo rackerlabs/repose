@@ -31,7 +31,8 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
-    private final ReposeInstanceInfo reposeInstanceInfo;
+    private final String clusterId;
+    private final String nodeId;
     private final MetricsService metricsService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final ContentTransformer contentTransformer;
@@ -39,8 +40,9 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
     private ReposeCluster localDomain;
     private Node localHost;
 
-    public VersioningHandlerFactory(ReposeInstanceInfo reposeInstanceInfo, MetricsService metricsService, HealthCheckService healthCheckService) {
-        this.reposeInstanceInfo = reposeInstanceInfo;
+    public VersioningHandlerFactory(String clusterId, String nodeId, MetricsService metricsService, HealthCheckService healthCheckService) {
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
         this.metricsService = metricsService;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.contentTransformer = new ContentTransformer();
@@ -62,7 +64,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(reposeInstanceInfo);
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(configurationObject);
             Optional<Node> node = interrogator.getLocalNode(configurationObject);
 

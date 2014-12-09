@@ -13,19 +13,13 @@ import java.util.List;
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the given
  * ClusterID and NodeID and the system model.
  * <p/>
- * This used to work based on the localh host and which port it was running on. Given the new spring stuff, we can
+ * This used to work based on the local host and which port it was running on. Given the new spring stuff, we can
  * give each individual node running (in valve or in war) the clusterID and nodeID, so this is really just convenience
  * methods about getting information about the current node from the system model.
  */
 public class SystemModelInterrogator {
-    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
-
     private final String clusterId;
     private final String nodeId;
-
-    public SystemModelInterrogator(ReposeInstanceInfo reposeInstanceInfo) {
-        this(reposeInstanceInfo.getClusterId(), reposeInstanceInfo.getNodeId());
-    }
 
     public SystemModelInterrogator(String clusterId, String nodeId) {
         this.clusterId = clusterId;
