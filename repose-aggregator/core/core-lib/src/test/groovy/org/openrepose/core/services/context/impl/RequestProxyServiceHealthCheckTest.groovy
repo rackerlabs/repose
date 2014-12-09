@@ -8,6 +8,8 @@ import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.systemmodel.Node
+import org.openrepose.core.systemmodel.NodeList
 import org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl
 import org.openrepose.core.systemmodel.ReposeCluster
 import org.openrepose.core.systemmodel.SystemModel
@@ -16,12 +18,13 @@ import org.openrepose.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.Severity
 import spock.lang.Shared
 import spock.lang.Specification
+import sun.corba.SharedSecrets
 
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
-class RequestProxyServiceContextTest extends Specification {
+class RequestProxyServiceHealthCheckTest extends Specification {
     @Shared
     def RequestProxyServiceImpl requestProxyService
 
@@ -46,6 +49,7 @@ class RequestProxyServiceContextTest extends Specification {
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         this.requestProxyService = new RequestProxyServiceImpl(configurationService, healthCheckService, "cluster", "node")
+
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -62,8 +66,18 @@ class RequestProxyServiceContextTest extends Specification {
 
         listenerObject = listenerCaptor.getValue()
 
+        def config = new SystemModel()
+        config.reposeCluster = new LinkedList<ReposeCluster>()
+        config.reposeCluster.add(new ReposeCluster())
+        config.reposeCluster.first().id = "cluster"
+        config.reposeCluster.first().nodes = new NodeList()
+        config.reposeCluster.first().nodes.node = new LinkedList<Node>()
+        config.reposeCluster.first().nodes.node.add(new Node())
+        config.reposeCluster.first().nodes.node.first().id = "node"
+
+
         when:
-        listenerObject.configurationUpdated(null)
+        listenerObject.configurationUpdated(config)
 
         then:
         listenerObject.isInitialized()
@@ -83,9 +97,18 @@ class RequestProxyServiceContextTest extends Specification {
         requestProxyService.init()
 
         listenerObject = listenerCaptor.getValue()
+        def config = new SystemModel()
+        config.reposeCluster = new LinkedList<ReposeCluster>()
+        config.reposeCluster.add(new ReposeCluster())
+        config.reposeCluster.first().id = "cluster"
+        config.reposeCluster.first().nodes = new NodeList()
+        config.reposeCluster.first().nodes.node = new LinkedList<Node>()
+        config.reposeCluster.first().nodes.node.add(new Node())
+        config.reposeCluster.first().nodes.node.first().id = "nope"
+
 
         when:
-        listenerObject.configurationUpdated(null)
+        listenerObject.configurationUpdated(config)
 
         then:
         !listenerObject.isInitialized()
