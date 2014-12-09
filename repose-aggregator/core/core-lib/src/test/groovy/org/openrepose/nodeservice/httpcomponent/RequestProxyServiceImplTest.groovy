@@ -1,4 +1,7 @@
 package org.openrepose.nodeservice.httpcomponent
+
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.httpclient.HttpClientResponse
 import org.openrepose.services.httpclient.HttpClientService
 import org.apache.http.HttpEntity
@@ -28,7 +31,7 @@ class RequestProxyServiceImplTest extends Specification {
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
         when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)
-        requestProxyService = new RequestProxyServiceImpl()
+        requestProxyService = new RequestProxyServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), "cluster", "node")
         requestProxyService.setHttpClientService(httpClientService)
     }
 
