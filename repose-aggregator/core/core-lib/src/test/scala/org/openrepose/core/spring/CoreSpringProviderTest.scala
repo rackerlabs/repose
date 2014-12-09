@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext
 class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundlerHelper {
 
   val coreSpringProvider = CoreSpringProvider.getInstance()
+  coreSpringProvider.initializeCoreContext("/etc/repose", false)
 
   describe("The Core Spring Provider") {
     it("is a singleton as the primary interface") {
