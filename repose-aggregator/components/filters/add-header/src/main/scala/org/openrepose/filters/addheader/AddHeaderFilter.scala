@@ -8,7 +8,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
-import org.openrepose.filters.addheader.config.AddHeadersType
+import org.openrepose.filters.addheader.config.AddHeadersConfig
 
 class AddHeaderFilter extends Filter with LazyLogging {
 
@@ -31,8 +31,8 @@ class AddHeaderFilter extends Filter with LazyLogging {
     configurationService.subscribeTo(filterConfig.getFilterName,
       config,
       xsdURL,
-      handlerFactory.asInstanceOf[UpdateListener[AddHeadersType]],
-      classOf[AddHeadersType])
+      handlerFactory.asInstanceOf[UpdateListener[AddHeadersConfig]],
+      classOf[AddHeadersConfig])
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
