@@ -6,10 +6,8 @@ import groovy.xml.StreamingMarkupBuilder
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
-import spock.lang.Ignore
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -76,16 +74,9 @@ class Slf4jLoggingFilterTestUtil {
     static Slf4jHttpLoggingFilter configureFilter(List<Slf4JHttpLog> logEntries) {
         Slf4jHttpLoggingFilter filter = new Slf4jHttpLoggingFilter()
 
-        def mockServletContext = new MockServletContext()
         def mockFilterConfig = new MockFilterConfig()
-        mockFilterConfig.setupServletContext(mockServletContext)
 
-        ServletContextHelper.configureInstance(
-                mockServletContext,
-                null
-        )
-
-        def configService = ServletContextHelper.getInstance(mockFilterConfig.getServletContext()).getPowerApiContext().configurationService()
+        def configService = null //TODO: this needs to be a mock configService
 
         //Decouple the coupled configs, since I can't replace it
         def mockResourceResolver = mock(ConfigurationResourceResolver.class)

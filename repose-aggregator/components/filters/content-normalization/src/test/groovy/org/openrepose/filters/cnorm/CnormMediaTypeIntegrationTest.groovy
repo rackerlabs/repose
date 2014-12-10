@@ -6,7 +6,6 @@ import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.cnorm.config.MediaType
 import spock.lang.Ignore
 import spock.lang.Shared
@@ -71,13 +70,8 @@ class CnormMediaTypeIntegrationTest extends Specification {
         def mockFilterConfig = new MockFilterConfig()
         mockFilterConfig.setupServletContext(mockServletContext)
 
-        ServletContextHelper.configureInstance(
-                mockServletContext,
-                null //TODO MEH
-        )
-
         //Get ahold of the configuration service, and inject a couple things.
-        def configService = ServletContextHelper.getInstance(mockFilterConfig.getServletContext()).getPowerApiContext().configurationService()
+        def configService = null //TODO: this needs to be a mock config service
 
         //Decouple the coupled configs, since I can't replace it
         def mockResourceResolver = mock(ConfigurationResourceResolver.class)

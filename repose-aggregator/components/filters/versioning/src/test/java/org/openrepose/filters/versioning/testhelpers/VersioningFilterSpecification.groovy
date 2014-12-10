@@ -8,7 +8,6 @@ import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
-import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.systemmodel.DestinationEndpoint
 import org.openrepose.filters.versioning.VersioningFilter
 import org.openrepose.filters.versioning.config.MediaTypeList
@@ -99,23 +98,7 @@ class VersioningFilterSpecification extends Specification {
     VersioningFilter configureFilter(List<ServiceVersionMapping> mappingList, List<DestinationEndpoint> endpoints) {
         VersioningFilter filter = new VersioningFilter()
 
-        def mockServletContext = new MockServletContext()
-        def mockFilterConfig = new MockFilterConfig()
-        mockFilterConfig.setupServletContext(mockServletContext)
-
-        def servicePorts = new ServicePorts()
-        servicePorts << [new Port("https", 8080)]
-        def appContext = null
-        when(appContext.getBean("servicePorts", ServicePorts.class)).thenReturn(servicePorts)
-
-
-        def servletContextHelper = ServletContextHelper.configureInstance(
-                mockServletContext,
-                null
-        )
-
-
-        def configService = ServletContextHelper.getInstance(mockFilterConfig.getServletContext()).getPowerApiContext().configurationService()
+        def configService = null //TODO: need to make a mock configService
 
         //Decouple the coupled configs, since I can't replace it
         def mockResourceResolver = mock(ConfigurationResourceResolver.class)
