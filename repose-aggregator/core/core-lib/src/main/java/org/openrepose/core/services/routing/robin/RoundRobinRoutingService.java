@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 
+//TODO: pass the systemModel to this guy instead of having it be its own thing
 @Named
 public class RoundRobinRoutingService implements RoutingService {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
