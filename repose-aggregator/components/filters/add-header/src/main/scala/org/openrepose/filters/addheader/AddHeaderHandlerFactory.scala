@@ -4,7 +4,7 @@ import java.util
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
-import org.openrepose.filters.addheader.config.AddHeadersType
+import org.openrepose.filters.addheader.config.AddHeadersConfig
 
 import scala.collection.JavaConverters._
 
@@ -20,15 +20,15 @@ class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[Add
   override protected def getListeners: util.Map[Class[_], UpdateListener[_]] = {
     val listenerMap = new util.HashMap[Class[_], UpdateListener[_]]()
 
-    listenerMap.put(classOf[AddHeadersType], new AddHeaderConfigurationListener())
+    listenerMap.put(classOf[AddHeadersConfig], new AddHeaderConfigurationListener())
 
     listenerMap
   }
 
-  private class AddHeaderConfigurationListener extends UpdateListener[AddHeadersType] {
+  private class AddHeaderConfigurationListener extends UpdateListener[AddHeadersConfig] {
     private var initialized = false
 
-    def configurationUpdated(addHeaderTypeConfigObject: AddHeadersType) {
+    def configurationUpdated(addHeaderTypeConfigObject: AddHeadersConfig) {
       addHeaderHandler = new AddHeaderHandler(addHeaderTypeConfigObject.getHeader.asScala.toList)
       initialized = true
     }
