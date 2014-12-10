@@ -37,5 +37,4 @@ class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[Add
       initialized
     }
   }
-
 }
