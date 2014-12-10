@@ -1,10 +1,5 @@
 package org.openrepose.core.services.reporting.metrics;
 
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
-import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
-import org.openrepose.core.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
@@ -13,38 +8,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
-import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
+import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
 
 import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+//TODO: this test is probably super broke!
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
 
     public static class Register {
 
         protected MetricsService metricsService;
-        protected ReposeJmxNamingStrategy reposeStrat;
-
         @Before
         public void setUp() {
-
-            ReposeInstanceInfo reposeInstanceInfo = new ReposeInstanceInfo();
-            reposeInstanceInfo.setNodeId("node1");
-            reposeInstanceInfo.setClusterId("cluster1");
-
-            reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource());
-
-            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), reposeStrat);
-
+            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
         }
 
         protected Object getAttribute(Class klass, String name, String scope, String att)
@@ -63,8 +49,9 @@ public class MetricsServiceImplTest {
             // Lets you see all registered MBean ObjectNames
             //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
+            //TODO: this probably isn't going to work, because UUID
             ObjectName on =
-                    new ObjectName("\"" + reposeStrat.getDomainPrefix() + klass.getPackage().getName() + "\"", hash);
+                    new ObjectName("\"" + "blerg-" + klass.getPackage().getName() + "\"", hash);
 
             return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
         }

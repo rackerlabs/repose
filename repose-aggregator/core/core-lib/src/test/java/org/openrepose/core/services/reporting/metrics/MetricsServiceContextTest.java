@@ -38,7 +38,7 @@ public class MetricsServiceContextTest {
             healthCheckService = mock(HealthCheckService.class);
             healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
             when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
-            metricsService = new MetricsServiceImpl(configurationService, healthCheckService, mock(ReposeJmxNamingStrategy.class));
+            metricsService = new MetricsServiceImpl(configurationService, healthCheckService);
             sce = mock(ServletContextEvent.class);
         }
 

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,18 +68,24 @@ public class MetricsServiceImpl implements MetricsService {
     private MetricsRegistry metrics;
     private JmxReporter jmx;
     private List<GraphiteReporter> listGraphite = new ArrayList<>();
-    private ReposeJmxNamingStrategy reposeStrat;
+    //TODO: can't use the JMX stuff until we fix it
+    //private ReposeJmxNamingStrategy reposeStrat;
+
+    //TODO: this is the band-aid to avoid the JMX naming strategy for now
+    private static final String SEPARATOR = "-";
+    private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    //TODO: end of band-aid
 
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final MetricsCfgListener metricsCfgListener = new MetricsCfgListener();
 
     private boolean enabled;
 
+    //TODO: re-add the JMX strategy when we can fix it
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
-            HealthCheckService healthCheckService,
-            ReposeJmxNamingStrategy reposeStratP
+            HealthCheckService healthCheckService
     ) {
         this.configurationService = configurationService;
         this.healthCheckServiceProxy = healthCheckService.register();
@@ -88,7 +95,6 @@ public class MetricsServiceImpl implements MetricsService {
         this.jmx = new JmxReporter(metrics);
         jmx.start();
 
-        this.reposeStrat = reposeStratP;
         this.enabled = true;
     }
 
@@ -220,7 +226,7 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     private MetricName makeMetricName(Class klass, String name, String scope) {
-        return new MetricName(reposeStrat.getDomainPrefix() + klass.getPackage().getName(),
+        return new MetricName(defaultDomainPrefix + klass.getPackage().getName(),
                 klass.getSimpleName(),
                 name, scope);
     }
