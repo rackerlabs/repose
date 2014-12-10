@@ -8,9 +8,9 @@
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:html="http://www.w3.org/1999/xhtml">
 
-    <xs:element name="add-headers" type="AddHeadersType"/>
+    <xs:element name="add-headers" type="AddHeadersConfig"/>
 
-    <xs:complexType name="AddHeadersType">
+    <xs:complexType name="AddHeadersConfig">
         <xs:sequence>
             <xs:element name="header" type="HeaderType" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
