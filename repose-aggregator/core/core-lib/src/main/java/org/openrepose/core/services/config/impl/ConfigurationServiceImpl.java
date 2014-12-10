@@ -9,13 +9,11 @@ import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.servlet.PowerApiContextException;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
@@ -38,17 +36,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
-    private final ConfigurationInformation configurationInformation;
     private final String configRoot;
 
     //TODO: Need to add ConfigRoot to the coreSpringContext properties or something, not per-node properties
     @Inject
     public ConfigurationServiceImpl(
-            @Qualifier("reposeConfigurationInformation") ConfigurationInformation configurationInformation,
             ConfigurationUpdateManager configurationUpdateManager,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
-        this.configurationInformation = configurationInformation;
         setUpdateManager(configurationUpdateManager);
         this.configRoot = configRoot;
         parserLookaside = new HashMap<>();
@@ -129,16 +124,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
                 listener.configurationUpdated(customParser.read(resource));
 
-                if (filterName != null && !filterName.isEmpty() && listener.isInitialized()) {
-                    configurationInformation.setFilterLoadingInformation(filterName, listener.isInitialized(), resource);
-                } else {
-                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, "Failed loading File");
-                }
+                //TODO: this cannot be here, we cannot reliably report that a node has loaded a filter or not
+                //TODO: need to fix this somewhere else!
+                //TODO: this should probably go in the PowerFilter instance
+//                if (filterName != null && !filterName.isEmpty() && listener.isInitialized()) {
+//                    configurationInformation.setFilterLoadingInformation(filterName, listener.isInitialized(), resource);
+//                } else {
+//                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, "Failed loading File");
+//                }
 
             } catch (Exception ex) {
-                if (filterName != null && !filterName.isEmpty()) {
-                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, ex.getMessage());
-                }
+                //TODO: this needs to go somewhere else where the filters are being constructed (PowerFilter)
+//                if (filterName != null && !filterName.isEmpty()) {
+//                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, ex.getMessage());
+//                }
                 // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
                     LOG.error("An I/O error has occurred while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
