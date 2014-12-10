@@ -10,6 +10,7 @@ import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.threading.ThreadingService;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,6 +39,7 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
         powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
     }
 
+    @PostConstruct
     public void initialize() {
         // Initialize the resource watcher
         resourceWatcher = new ConfigurationResourceWatcher(eventManager);
