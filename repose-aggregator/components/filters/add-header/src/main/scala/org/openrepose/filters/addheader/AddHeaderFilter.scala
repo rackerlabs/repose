@@ -27,7 +27,7 @@ class AddHeaderFilter extends Filter with LazyLogging {
     configurationService = powerApiContext.configurationService()
     handlerFactory = new AddHeaderHandlerFactory()
 
-    val xsdURL = getClass.getResource("/META-INF/config/schema/add-header-configuration.xsd")
+    val xsdURL = getClass.getResource("/META-INF/schema/config/add-header.xsd")
     configurationService.subscribeTo(filterConfig.getFilterName,
       config,
       xsdURL,
