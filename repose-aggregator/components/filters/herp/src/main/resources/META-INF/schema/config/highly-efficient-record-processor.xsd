@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
+           xmlns:herp="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Elements -->
+    <xs:element name="highly-efficient-record-processor" type="herp:herp-config"/>
+
+    <!-- Types -->
+    <xs:complexType name="herp-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Highly Efficient Record Processor (HERP) filter configuration
+                    file.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>
