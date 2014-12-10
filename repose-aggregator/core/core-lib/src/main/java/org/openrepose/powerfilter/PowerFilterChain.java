@@ -55,11 +55,13 @@ public class PowerFilterChain implements FilterChain {
     private boolean filterChainAvailable;
     private TimerByCategory filterTimer;
 
-    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
-            PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
+    public PowerFilterChain(List<FilterContext> filterChainCopy,
+                            FilterChain containerFilterChain,
+                            PowerFilterRouter router,
+                            MetricsService metricsService)
             throws PowerFilterChainException {
 
-        this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
+        this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.router = router;
@@ -67,23 +69,22 @@ public class PowerFilterChain implements FilterChain {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
         }
-        Thread.currentThread().setName(instanceInfo.toString());
     }
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
 
-            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+        final HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-            boolean addTraceHeader = traceRequest(request);
-            boolean useTrace = addTraceHeader || (filterTimer != null);
+        boolean addTraceHeader = traceRequest(request);
+        boolean useTrace = addTraceHeader || (filterTimer != null);
 
-            tracer = new RequestTracer(useTrace, addTraceHeader);
-            currentFilters = getFilterChainForRequest(request.getRequestURI());
-            filterChainAvailable = isCurrentFilterChainAvailable();
-            servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
+        tracer = new RequestTracer(useTrace, addTraceHeader);
+        currentFilters = getFilterChainForRequest(request.getRequestURI());
+        filterChainAvailable = isCurrentFilterChainAvailable();
+        servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
 
-            doFilter(servletRequest, servletResponse);
+        doFilter(servletRequest, servletResponse);
     }
 
     /**
@@ -130,12 +131,13 @@ public class PowerFilterChain implements FilterChain {
     /**
      * This feels like a really bad thing to do, and might be the cause of our classloading problems.
      * It has been removed from all the filter stuff, and shouldn't be used at all :(
+     *
      * @param loader What classloader to set
      * @return The previous classloader
      */
     @Deprecated
     private ClassLoader setClassLoader(ClassLoader loader) {
-        final Thread currentThread = Thread.currentThread();
+        final Thread currentThread = Thread.currentThread(); // GAH
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
 
         currentThread.setContextClassLoader(loader);
@@ -144,7 +146,7 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse,
-            FilterContext filterContext) throws IOException, ServletException {
+                                FilterContext filterContext) throws IOException, ServletException {
         final MutableHttpServletResponse mutableHttpResponse =
                 MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
 
@@ -160,7 +162,7 @@ public class PowerFilterChain implements FilterChain {
 
             if (INTRAFILTER_LOG.isTraceEnabled()) {
                 INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
-                                                             mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
+                        mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
@@ -252,7 +254,7 @@ public class PowerFilterChain implements FilterChain {
             setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
             long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName());
-            if(filterTimer != null) {
+            if (filterTimer != null) {
                 filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             }
         } else {

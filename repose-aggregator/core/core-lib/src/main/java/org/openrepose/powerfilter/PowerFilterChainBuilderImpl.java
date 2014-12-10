@@ -1,17 +1,11 @@
 package org.openrepose.powerfilter;
 
-import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.services.context.ServletContextHelper;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,16 +20,13 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private final PowerFilterRouter router;
     private final MetricsService metricsService;
     private List<FilterContext> currentFilterChain;
-    private ReposeInstanceInfo instanceInfo;
 
     @Inject
     public PowerFilterChainBuilderImpl(PowerFilterRouter router,
-                                       MetricsService metricsService,
-                                       @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+                                       MetricsService metricsService) {
         this.metricsService = metricsService;
         LOG.info("Creating filter chain builder");
         this.router = router;
-        this.instanceInfo = instanceInfo;
     }
 
     @Override
@@ -51,7 +42,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         return new PowerFilterChain(currentFilterChain,
                 containerFilterChain,
                 router,
-                instanceInfo,
                 metricsService);
     }
 

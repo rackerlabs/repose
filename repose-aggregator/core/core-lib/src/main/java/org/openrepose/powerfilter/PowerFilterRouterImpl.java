@@ -21,7 +21,6 @@ import org.openrepose.core.systemmodel.*;
 import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
 
 import javax.inject.Inject;
 import javax.inject.Named;
