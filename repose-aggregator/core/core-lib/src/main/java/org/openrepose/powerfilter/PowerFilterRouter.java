@@ -14,6 +14,5 @@ import javax.servlet.ServletException;
 public interface PowerFilterRouter {
 
     void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException;
-    void initialize(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException;
-    
+
 }

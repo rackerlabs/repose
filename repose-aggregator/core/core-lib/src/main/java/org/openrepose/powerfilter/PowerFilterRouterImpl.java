@@ -16,14 +16,14 @@ import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
-import org.openrepose.core.services.routing.RoutingService;
-import org.openrepose.core.systemmodel.*;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.DestinationCluster;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
+import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -31,110 +31,77 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
 
 /**
- * This class routes a request to the appropriate endpoint specified in system-model.cfg.xml and receives
- * a response.
- * <p/>
- * The final URI is constructed from the following information:
- * - TODO
- * <p/>
- * This class also instruments the response codes coming from the endpoint.
- * <p/>
+ * This class is kind of gross, but we need to rewrite the whole thing.
+ * The factory has to pass in too many things.
  */
-@Named
 public class PowerFilterRouterImpl implements PowerFilterRouter {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+    public static Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+    private final DestinationLocationBuilder locationBuilder;
     private final Map<String, Destination> destinations;
-    private final ReportingService reportingService;
+    private final ReposeCluster domain;
+    private final String defaultDestination;
+    private final ServletContext servletContext;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
-    private final RoutingService routingService;
-    private ServletContext context;
-    private ReposeCluster domain;
-    private String defaultDst;
-    private DestinationLocationBuilder locationBuilder;
-    private Map<String, MeterByCategory> mapResponseCodes = new HashMap<>();
-    private Map<String, MeterByCategory> mapRequestTimeouts = new HashMap<>();
-    private MeterByCategory mbcAllResponse;
-    private MeterByCategory mbcAllTimeouts;
+    private final MetricsService metricsService;
+    private final ConcurrentHashMap<String, MeterByCategory> mapResponseCodes;
+    private final ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts;
+    private final ReportingService reportingService;
+    private final MeterByCategory mbcAllResponse;
+    private final MeterByCategory mbcAllTimeouts;
 
-    private MetricsService metricsService;
 
-    //TODO: maybe use spring to inject the servlet context into here
-    @Inject
-    public PowerFilterRouterImpl(
-            MetricsService metricsService,
-            ReportingService reportingService,
-            RequestHeaderService requestHeaderService,
-            ResponseHeaderService responseHeaderService,
-            RoutingService routingService) {
-        LOG.info("Creating Repose Router");
+    public PowerFilterRouterImpl(DestinationLocationBuilder locationBuilder,
+                                 Map<String, Destination> destinations,
+                                 ReposeCluster domain,
+                                 String defaultDestination,
+                                 ServletContext servletContext,
+                                 RequestHeaderService requestHeaderService,
+                                 ResponseHeaderService responseHeaderService,
+                                 MetricsService metricsService,
+                                 ConcurrentHashMap<String, MeterByCategory> mapResponseCodes,
+                                 ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts,
+                                 ReportingService reportingService
+    ) {
 
-        this.routingService = routingService;
-        this.destinations = new HashMap<>();
-        this.reportingService = reportingService;
-        this.responseHeaderService = responseHeaderService;
-        this.requestHeaderService = requestHeaderService;
-
-        if (metricsService != null && metricsService.isEnabled()) {
-            this.metricsService = metricsService;
-        }
-    }
-
-    @Override
-    public void initialize(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException {
-        if (localhost == null || domain == null) {
-            throw new PowerFilterChainException("Domain and localhost cannot be null");
-        }
-
-        LOG.info("Initializing Repose Router");
+        this.locationBuilder = locationBuilder;
+        this.destinations = destinations;
         this.domain = domain;
-        this.context = context;
-        this.defaultDst = defaultDst;
-        this.destinations.clear();
+        this.defaultDestination = defaultDestination;
+        this.servletContext = servletContext;
+        this.requestHeaderService = requestHeaderService;
+        this.responseHeaderService = responseHeaderService;
+        this.metricsService = metricsService;
+        this.mapResponseCodes = mapResponseCodes;
+        this.mapRequestTimeouts = mapRequestTimeouts;
+        this.reportingService = reportingService;
 
-        //Set up location builder
-        locationBuilder = new DestinationLocationBuilder(routingService, localhost);
+        mbcAllResponse = metricsService.newMeterByCategory(ResponseCode.class,
+                "All Endpoints",
+                "Response Codes",
+                TimeUnit.SECONDS);
 
-        if (domain.getDestinations() != null) {
-            addDestinations(domain.getDestinations().getEndpoint());
-            addDestinations(domain.getDestinations().getTarget());
-        }
-
-        if (metricsService != null) {
-            mbcAllResponse = metricsService.newMeterByCategory(ResponseCode.class,
-                    "All Endpoints",
-                    "Response Codes",
-                    TimeUnit.SECONDS);
-            mbcAllTimeouts = metricsService.newMeterByCategory(RequestTimeout.class,
-                    "TimeoutToOrigin",
-                    "Request Timeout",
-                    TimeUnit.SECONDS);
-        }
-    }
-
-    private void addDestinations(List<? extends Destination> destList) {
-        for (Destination dest : destList) {
-            destinations.put(dest.getId(), dest);
-        }
+        mbcAllTimeouts = metricsService.newMeterByCategory(RequestTimeout.class,
+                "TimeoutToOrigin",
+                "Request Timeout",
+                TimeUnit.SECONDS);
     }
 
     @Override
     public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
 
-        if (!StringUtilities.isBlank(defaultDst)) {
-            servletRequest.addDestination(defaultDst, servletRequest.getRequestURI(), -1);
-
+        if (!StringUtilities.isBlank(defaultDestination)) {
+            servletRequest.addDestination(defaultDestination, servletRequest.getRequestURI(), -1);
         }
+
         RouteDestination routingDestination = servletRequest.getDestination();
         String rootPath = "";
 
@@ -143,12 +110,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         if (routingDestination != null) {
             configDestinationElement = destinations.get(routingDestination.getDestinationId());
             if (configDestinationElement == null) {
+                //TODO: do we really need domain? rename to cluster?
                 LOG.warn("Invalid routing destination specified: " + routingDestination.getDestinationId() + " for domain: " + domain.getId());
                 ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
             } else {
                 location = locationBuilder.build(configDestinationElement, routingDestination.getUri(), servletRequest);
-
                 rootPath = configDestinationElement.getRootPath();
+
             }
         }
 
@@ -156,7 +124,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             // According to the Java 6 javadocs the routeDestination passed into getContext:
             // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
             // and is matched against the context roots of other web applications hosted on this container."
-            final ServletContext targetContext = context.getContext(location.getUri().toString());
+            final ServletContext targetContext = servletContext.getContext(location.getUri().toString());
 
             if (targetContext != null) {
                 // Capture this for Location header processing
@@ -209,17 +177,16 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private String getEndpoint(Destination dest, DestinationLocation location) {
-
         StringBuilder sb = new StringBuilder();
 
-        sb.append(location.getUri().getHost() + ":" + location.getUri().getPort());
+        sb.append(location.getUri().getHost()).
+                append(":").
+                append(location.getUri().getPort());
 
         if (dest instanceof DestinationEndpoint) {
-
-            sb.append(((DestinationEndpoint) dest).getRootPath());
+            sb.append(dest.getRootPath());
         } else if (dest instanceof DestinationCluster) {
-
-            sb.append(((DestinationCluster) dest).getRootPath());
+            sb.append(dest.getRootPath());
         } else {
             throw new IllegalArgumentException("Unknown destination type: " + dest.getClass().getName());
         }
@@ -228,42 +195,19 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private MeterByCategory verifyGet(String endpoint) {
-        if (metricsService == null) {
-            return null;
-        }
-
-        if (!mapResponseCodes.containsKey(endpoint)) {
-            synchronized (mapResponseCodes) {
-
-
-                if (!mapResponseCodes.containsKey(endpoint)) {
-
-                    mapResponseCodes.put(endpoint, metricsService.newMeterByCategory(ResponseCode.class,
-                            endpoint,
-                            "Response Codes",
-                            TimeUnit.SECONDS));
-                }
-            }
-        }
+        mapResponseCodes.putIfAbsent(endpoint, metricsService.newMeterByCategory(ResponseCode.class,
+                endpoint,
+                "Response Codes",
+                TimeUnit.SECONDS));
 
         return mapResponseCodes.get(endpoint);
     }
 
     private MeterByCategory getTimeoutMeter(String endpoint) {
-        if (metricsService == null) {
-            return null;
-        }
-
-        if (!mapRequestTimeouts.containsKey(endpoint)) {
-            synchronized (mapRequestTimeouts) {
-                if (!mapRequestTimeouts.containsKey(endpoint)) {
-                    mapRequestTimeouts.put(endpoint, metricsService.newMeterByCategory(RequestTimeout.class,
-                            "TimeoutToOrigin",
-                            "Request Timeout",
-                            TimeUnit.SECONDS));
-                }
-            }
-        }
+        mapRequestTimeouts.putIfAbsent(endpoint, metricsService.newMeterByCategory(RequestTimeout.class,
+                "TimeoutToOrigin",
+                "Request Timeout",
+                TimeUnit.SECONDS));
 
         return mapRequestTimeouts.get(endpoint);
     }
@@ -277,4 +221,5 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             mbc.mark(endpoint);
         }
     }
+
 }

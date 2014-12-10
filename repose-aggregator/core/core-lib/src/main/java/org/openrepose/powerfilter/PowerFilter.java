@@ -33,8 +33,6 @@ import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.inject.Inject;
@@ -49,7 +47,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,8 +79,10 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final EventService eventService;
     private final FilterContextFactory filterContextFactory;
 
-    private PowerFilterChainBuilder powerFilterChainBuilder;
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
+
+    private final AtomicReference<PowerFilterRouter> powerFilterRouter = new AtomicReference<>();
+    private final AtomicReference<List<FilterContext>> currentFilterChain = new AtomicReference<>();
 
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
@@ -92,16 +91,15 @@ public class PowerFilter extends DelegatingFilterProxy {
 
     private final String nodeId;
     private final String clusterId;
-    private final String configRoot;
+    private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
 
     @Inject
     public PowerFilter(
-            @Value(ReposeSpringProperties.NODE.CLUSTER_ID)String clusterId,
-            @Value(ReposeSpringProperties.NODE.NODE_ID)String nodeId,
-            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configRoot,
-            PowerFilterChainBuilder powerFilterChainBuilder,
+            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+            PowerFilterRouterFactory powerFilterRouterFactory,
             ReportingService reportingService,
             HealthCheckService healthCheckService,
             ResponseHeaderService responseHeaderService,
@@ -114,7 +112,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
-        this.configRoot = configRoot;
+        this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
 
@@ -122,7 +120,6 @@ public class PowerFilter extends DelegatingFilterProxy {
         systemModelConfigurationListener = new SystemModelConfigListener();
         applicationDeploymentListener = new ApplicationDeploymentEventListener();
 
-        this.powerFilterChainBuilder = powerFilterChainBuilder;
         this.responseHeaderService = responseHeaderService;
         this.reportingService = reportingService;
         this.containerConfigurationService = containerConfigurationService;
@@ -201,10 +198,12 @@ public class PowerFilter extends DelegatingFilterProxy {
                     healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     try {
                         //Use the FilterContextFactory to get us a new filter chain
-                        final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter());
+                        List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter()));
+
+                        powerFilterRouter.set(powerFilterRouterFactory.
+                                getPowerFilterRouter(serviceDomain, localNode.get(), getFilterConfig().getServletContext(), defaultDst.getId()));
 
                         //Reinitialize the power filter chain builder with new settings.
-                        powerFilterChainBuilder.initialize(serviceDomain, localNode.get(), newFilterChain, getFilterConfig().getServletContext(), defaultDst.getId());
                     } catch (FilterInitializationException fie) {
                         LOG.error("Unable to create new filter chain", fie);
                     } catch (PowerFilterChainException e) {
@@ -235,10 +234,10 @@ public class PowerFilter extends DelegatingFilterProxy {
         eventService.squelch(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
 
-        //TODO: wat
-        synchronized (configurationLock) {
-            if (powerFilterChainBuilder != null) {
-                powerFilterChainBuilder.destroy();
+        //TODO: do we need to synchronize on the configuration lock?
+        if (currentFilterChain.get() != null) {
+            for (FilterContext context : currentFilterChain.get()) {
+                context.destroy();
             }
         }
     }
@@ -246,13 +245,21 @@ public class PowerFilter extends DelegatingFilterProxy {
     private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
         PowerFilterChain requestFilterChain = null;
         try {
-            synchronized (configurationLock) {
-                if (!healthCheckService.isHealthy()) {
-                    LOG.warn("Repose is not healthy enough to serve requests!");
-                    mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
-                } else {
-                    requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
-                }
+            boolean healthy = healthCheckService.isHealthy();
+            List<FilterContext> filterChain = currentFilterChain.get();
+            PowerFilterRouter router = powerFilterRouter.get();
+
+            if (!healthy ||
+                    filterChain == null ||
+                    router == null) {
+                LOG.warn("Repose is not ready!");
+                LOG.debug("Health status: {}", healthy);
+                LOG.debug("Current filter chain: {}", filterChain);
+                LOG.debug("Power Filter Router: {}", router);
+
+                mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
+            } else {
+                requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService);
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("Error creating filter chain", ex);
