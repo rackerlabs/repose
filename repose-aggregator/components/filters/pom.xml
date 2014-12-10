@@ -39,6 +39,7 @@
         <module>openstack-identity-v3</module>
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
+        <module>add-header</module>
     </modules>
 
     <properties>
