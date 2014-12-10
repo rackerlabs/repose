@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Deprecated
-@Component("serviceRegistry")
 public class ServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
     private final List<ServiceContext> boundServiceContexts;
