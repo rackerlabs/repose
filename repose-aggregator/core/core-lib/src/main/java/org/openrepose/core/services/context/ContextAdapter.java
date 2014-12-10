@@ -13,7 +13,7 @@ import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.services.threading.ThreadingService;
-import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.httpclient.HttpClientService;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;

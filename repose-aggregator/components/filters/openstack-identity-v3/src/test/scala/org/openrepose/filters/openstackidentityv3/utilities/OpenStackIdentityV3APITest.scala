@@ -10,9 +10,9 @@ import org.joda.time.format.ISODateTimeFormat
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{HttpStatusCode, ServiceClientResponse}
+import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
 import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
-import org.openrepose.services.datastore.Datastore
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}

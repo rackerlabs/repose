@@ -1,7 +1,7 @@
 package org.openrepose.services.ratelimit.cache;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openrepose.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter;
 import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.services.ratelimit.config.TimeUnit;

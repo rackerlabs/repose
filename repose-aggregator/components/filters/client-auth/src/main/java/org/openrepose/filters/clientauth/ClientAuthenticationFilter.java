@@ -2,10 +2,9 @@ package org.openrepose.filters.clientauth;
 
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
-import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.services.httpclient.HttpClientService;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;

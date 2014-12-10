@@ -13,10 +13,10 @@ import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServle
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.services.datastore.DatastoreAccessControl;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.services.datastore.impl.distributed.ThreadSafeClusterView;
+import org.openrepose.core.services.datastore.DatastoreAccessControl;
+import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.core.services.datastore.impl.distributed.ThreadSafeClusterView;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;

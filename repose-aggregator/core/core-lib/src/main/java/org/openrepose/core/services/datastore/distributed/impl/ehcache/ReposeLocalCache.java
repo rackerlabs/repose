@@ -3,15 +3,12 @@ package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
-import org.openrepose.services.datastore.hash.MD5MessageDigestFactory;
-import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
+import org.openrepose.core.services.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.inject.Named;

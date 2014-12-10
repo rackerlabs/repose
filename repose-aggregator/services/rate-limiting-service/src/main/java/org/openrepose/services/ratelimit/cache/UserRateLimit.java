@@ -1,8 +1,8 @@
 package org.openrepose.services.ratelimit.cache;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openrepose.services.datastore.Patchable;
-import org.openrepose.services.datastore.distributed.SerializablePatch;
+import org.openrepose.core.services.datastore.Patchable;
+import org.openrepose.core.services.datastore.distributed.SerializablePatch;
 import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
 
 import java.io.Serializable;

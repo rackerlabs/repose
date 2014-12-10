@@ -6,7 +6,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.services.ratelimit.config.HttpMethod;
 

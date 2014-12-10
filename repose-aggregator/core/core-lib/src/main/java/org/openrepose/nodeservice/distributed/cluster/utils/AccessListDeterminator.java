@@ -3,7 +3,7 @@ package org.openrepose.nodeservice.distributed.cluster.utils;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.services.datastore.DatastoreAccessControl;
+import org.openrepose.core.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;
 import org.slf4j.Logger;

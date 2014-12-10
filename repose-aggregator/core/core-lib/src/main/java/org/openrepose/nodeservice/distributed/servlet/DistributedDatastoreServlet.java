@@ -1,11 +1,12 @@
 package org.openrepose.nodeservice.distributed.servlet;
 
 import org.openrepose.commons.utils.io.ObjectSerializer;
+import org.openrepose.core.services.datastore.*;
 import org.openrepose.services.datastore.*;
-import org.openrepose.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.services.datastore.distributed.ClusterView;
-import org.openrepose.services.datastore.impl.distributed.CacheRequest;
-import org.openrepose.services.datastore.impl.distributed.MalformedCacheRequestException;
+import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.core.services.datastore.distributed.ClusterView;
+import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
+import org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

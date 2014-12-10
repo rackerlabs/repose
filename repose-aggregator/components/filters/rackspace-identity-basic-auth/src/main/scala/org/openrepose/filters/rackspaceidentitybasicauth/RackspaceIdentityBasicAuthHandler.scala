@@ -6,11 +6,11 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
-import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.slf4j.LoggerFactory
 

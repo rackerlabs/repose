@@ -1,6 +1,6 @@
 package org.openrepose.filters.authz.cache;
 
-import org.openrepose.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.Datastore;
 
 import java.io.IOException;
 import java.io.Serializable;

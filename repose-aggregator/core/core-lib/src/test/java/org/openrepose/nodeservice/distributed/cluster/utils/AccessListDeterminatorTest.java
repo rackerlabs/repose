@@ -1,7 +1,7 @@
 package org.openrepose.nodeservice.distributed.cluster.utils;
 
 import org.openrepose.core.systemmodel.*;
-import org.openrepose.services.datastore.DatastoreAccessControl;
+import org.openrepose.core.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.*;
 import org.junit.Before;
 import org.junit.Test;

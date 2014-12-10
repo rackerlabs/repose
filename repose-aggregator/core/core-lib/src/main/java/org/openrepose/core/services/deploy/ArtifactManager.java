@@ -30,7 +30,6 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactManager.class);
 
-    private final ArtifactManager artifactManager;
     private final EventService eventService;
     private final ContainerConfigurationListener containerConfigurationListener;
     private final ConfigurationService configurationService;
@@ -40,12 +39,10 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private DestroyableThreadWrapper watcherThread;
 
     @Inject
-    public ArtifactManager(ArtifactManager artifactManager,
-                           EventService eventService,
+    public ArtifactManager(EventService eventService,
                            ConfigurationService configurationService,
                            ThreadingService threadingService,
                            ContainerConfigurationListener containerConfigurationListener) {
-        this.artifactManager = artifactManager;
         this.eventService = eventService;
         this.configurationService = configurationService;
         this.threadingService = threadingService;
@@ -58,7 +55,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     public void init() {
         watcherThread = new DestroyableThreadWrapper(threadingService.newThread(containerConfigurationListener.getDirWatcher(), "Artifact Watcher Thread"), containerConfigurationListener.getDirWatcher());
         configurationService.subscribeTo("container.cfg.xml", containerConfigurationListener, ContainerConfiguration.class);
-        eventService.listen(artifactManager, ApplicationArtifactEvent.class);
+        eventService.listen(this, ApplicationArtifactEvent.class);
         eventService.listen(new SingleFireEventListener<PowerFilterEvent, Long>(PowerFilterEvent.class) {
 
             @Override
@@ -71,7 +68,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     @PreDestroy
     public void destroy() {
         try {
-            eventService.squelch(artifactManager, ApplicationArtifactEvent.class);
+            eventService.squelch(this, ApplicationArtifactEvent.class);
 
             if (containerConfigurationListener.isAutoClean()) {
                 delete(containerConfigurationListener.getUnpacker().getDeploymentDirectory());

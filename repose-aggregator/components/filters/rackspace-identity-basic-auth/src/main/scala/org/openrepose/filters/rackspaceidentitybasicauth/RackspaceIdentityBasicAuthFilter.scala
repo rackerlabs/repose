@@ -8,8 +8,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
-import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.slf4j.LoggerFactory
 

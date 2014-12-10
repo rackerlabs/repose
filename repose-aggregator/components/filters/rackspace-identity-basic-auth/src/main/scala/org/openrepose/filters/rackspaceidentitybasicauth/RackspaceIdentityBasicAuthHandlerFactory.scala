@@ -4,8 +4,8 @@ import java.util
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
+import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
-import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 
 class RackspaceIdentityBasicAuthHandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
