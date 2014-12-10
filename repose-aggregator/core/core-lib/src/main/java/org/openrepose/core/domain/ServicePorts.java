@@ -1,11 +1,8 @@
 package org.openrepose.core.domain;
 
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Component("servicePorts")
 public class ServicePorts extends ArrayList<Port> {
     
     public ServicePorts() {
