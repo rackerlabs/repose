@@ -3,17 +3,16 @@ package org.openrepose.filters.openstackidentityv3
 import java.net.URL
 import javax.servlet._
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
-import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
-import org.slf4j.LoggerFactory
 
-class OpenStackIdentityV3Filter extends Filter {
+class OpenStackIdentityV3Filter extends Filter with LazyLogging {
 
-  private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3Filter])
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
 
   private var config: String = _
@@ -22,7 +21,7 @@ class OpenStackIdentityV3Filter extends Filter {
 
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
-    LOG.info("Initializing filter using config " + config)
+    logger.info("Initializing filter using config " + config)
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     handlerFactory = new OpenStackIdentityV3HandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
