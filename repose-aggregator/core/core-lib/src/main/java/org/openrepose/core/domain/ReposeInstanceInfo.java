@@ -1,9 +1,6 @@
 package org.openrepose.core.domain;
 
-import org.springframework.stereotype.Component;
-
 @Deprecated
-@Component("reposeInstanceInfo")
 public class ReposeInstanceInfo {
    
    private String clusterId;
