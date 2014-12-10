@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientauth.openstack.v1_0;
+package org.openrepose.filters.clientauth.openstack;
 
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.junit.Before;

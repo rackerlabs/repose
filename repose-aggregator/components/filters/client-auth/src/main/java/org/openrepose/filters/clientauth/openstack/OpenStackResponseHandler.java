@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientauth.openstack.v1_0;
+package org.openrepose.filters.clientauth.openstack;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
