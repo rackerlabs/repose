@@ -1,6 +1,7 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
@@ -12,27 +13,26 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import java.util.List;
 
-/**
- *
- * @author zinic
- */
-@Component("powerFilterChainBuilder")
-@Scope("prototype")
+@Named
 public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChainBuilderImpl.class);
     private final PowerFilterRouter router;
+    private final MetricsService metricsService;
     private List<FilterContext> currentFilterChain;
     private ReposeInstanceInfo instanceInfo;
-    private ServletContext servletContext;
 
-    @Autowired
-    public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
-        Thread.currentThread().setName(instanceInfo.toString());
+    @Inject
+    public PowerFilterChainBuilderImpl(PowerFilterRouter router,
+                                       MetricsService metricsService,
+                                       @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+        this.metricsService = metricsService;
         LOG.info("Creating filter chain builder");
         this.router = router;
         this.instanceInfo = instanceInfo;
@@ -42,18 +42,17 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     public void initialize(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain, ServletContext servletContext, String defaultDst) throws PowerFilterChainException {
         LOG.info("Initializing filter chain builder");
         this.currentFilterChain = currentFilterChain;
-        this.servletContext = servletContext;
         this.router.initialize(domain, localhost, servletContext, defaultDst);
     }
 
 
     @Override
     public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain) throws PowerFilterChainException {
-        if (router == null) {
-            throw new PowerFilterChainException("Power Filter Router has not been initialized yet.");
-        }
-        return new PowerFilterChain(currentFilterChain, containerFilterChain, router, instanceInfo,
-                                    ServletContextHelper.getInstance(servletContext).getPowerApiContext().metricsService());
+        return new PowerFilterChain(currentFilterChain,
+                containerFilterChain,
+                router,
+                instanceInfo,
+                metricsService);
     }
 
     @Override

@@ -1,30 +1,30 @@
 package org.openrepose.powerfilter;
 
-import org.openrepose.core.RequestTimeout;
-import org.openrepose.core.ResponseCode;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
+import org.openrepose.core.RequestTimeout;
+import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.logic.DispatchPathBuilder;
 import org.openrepose.core.filter.routing.DestinationLocation;
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.core.systemmodel.*;
-import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.routing.RoutingService;
+import org.openrepose.core.systemmodel.*;
+import org.openrepose.nodeservice.request.RequestHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -42,16 +42,14 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
 /**
  * This class routes a request to the appropriate endpoint specified in system-model.cfg.xml and receives
  * a response.
- * <p>
+ * <p/>
  * The final URI is constructed from the following information:
- *   - TODO
- * <p>
+ * - TODO
+ * <p/>
  * This class also instruments the response codes coming from the endpoint.
- *
- * TODO: is this really supposed to be a prototype?!?!?
+ * <p/>
  */
-@Component("powerFilterRouter")
-@Scope("prototype")
+@Named
 public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
@@ -59,31 +57,33 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final ReportingService reportingService;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
+    private final RoutingService routingService;
     private ServletContext context;
     private ReposeCluster domain;
     private String defaultDst;
-    private final DestinationLocationBuilder locationBuilder;
-    private Map<String, MeterByCategory> mapResponseCodes = new HashMap<String, MeterByCategory>();
-    private Map<String, MeterByCategory> mapRequestTimeouts = new HashMap<String, MeterByCategory>();
+    private DestinationLocationBuilder locationBuilder;
+    private Map<String, MeterByCategory> mapResponseCodes = new HashMap<>();
+    private Map<String, MeterByCategory> mapRequestTimeouts = new HashMap<>();
     private MeterByCategory mbcAllResponse;
     private MeterByCategory mbcAllTimeouts;
 
     private MetricsService metricsService;
 
     //TODO: maybe use spring to inject the servlet context into here
-    @Autowired
+    @Inject
     public PowerFilterRouterImpl(
-          @Qualifier("metricsService") MetricsService metricsService,
-          @Qualifier("reportingService") ReportingService reportingService,
-          @Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
-          @Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
-          @Qualifier("destinationLocationBuilder") DestinationLocationBuilder locationBuilder) {
+            MetricsService metricsService,
+            ReportingService reportingService,
+            RequestHeaderService requestHeaderService,
+            ResponseHeaderService responseHeaderService,
+            RoutingService routingService) {
         LOG.info("Creating Repose Router");
-        this.destinations = new HashMap<String, Destination>();
+
+        this.routingService = routingService;
+        this.destinations = new HashMap<>();
         this.reportingService = reportingService;
         this.responseHeaderService = responseHeaderService;
         this.requestHeaderService = requestHeaderService;
-        this.locationBuilder = locationBuilder;
 
         if (metricsService != null && metricsService.isEnabled()) {
             this.metricsService = metricsService;
@@ -101,7 +101,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.context = context;
         this.defaultDst = defaultDst;
         this.destinations.clear();
-        this.locationBuilder.init(localhost);
+
+        //Set up location builder
+        locationBuilder = new DestinationLocationBuilder(routingService, localhost);
 
         if (domain.getDestinations() != null) {
             addDestinations(domain.getDestinations().getEndpoint());
@@ -109,14 +111,14 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
 
         if (metricsService != null) {
-            mbcAllResponse = metricsService.newMeterByCategory( ResponseCode.class,
-                                                            "All Endpoints",
-                                                            "Response Codes",
-                                                            TimeUnit.SECONDS );
-            mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
-                                                             "TimeoutToOrigin",
-                                                             "Request Timeout",
-                                                             TimeUnit.SECONDS );
+            mbcAllResponse = metricsService.newMeterByCategory(ResponseCode.class,
+                    "All Endpoints",
+                    "Response Codes",
+                    TimeUnit.SECONDS);
+            mbcAllTimeouts = metricsService.newMeterByCategory(RequestTimeout.class,
+                    "TimeoutToOrigin",
+                    "Request Timeout",
+                    TimeUnit.SECONDS);
         }
     }
 
@@ -180,14 +182,14 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         dispatcher.forward(servletRequest, servletResponse);
 
                         // track response code for endpoint & across all endpoints
-                        String endpoint = getEndpoint( configDestinationElement, location );
-                        MeterByCategory mbc = verifyGet( endpoint );
-                        MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
+                        String endpoint = getEndpoint(configDestinationElement, location);
+                        MeterByCategory mbc = verifyGet(endpoint);
+                        MeterByCategory mbcTimeout = getTimeoutMeter(endpoint);
 
                         PowerFilter.markResponseCodeHelper(mbc, servletResponse.getStatus(), LOG, endpoint);
-                        PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
-                        markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), endpoint );
-                        markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );
+                        PowerFilter.markResponseCodeHelper(mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL);
+                        markRequestTimeoutHelper(mbcTimeout, servletResponse.getStatus(), endpoint);
+                        markRequestTimeoutHelper(mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints");
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), stopTime - startTime);
@@ -207,73 +209,73 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
     }
 
-    private String getEndpoint( Destination dest, DestinationLocation location ) {
+    private String getEndpoint(Destination dest, DestinationLocation location) {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append( location.getUri().getHost() + ":" + location.getUri().getPort() );
+        sb.append(location.getUri().getHost() + ":" + location.getUri().getPort());
 
-        if (dest instanceof DestinationEndpoint ) {
+        if (dest instanceof DestinationEndpoint) {
 
-            sb.append( ((DestinationEndpoint)dest).getRootPath() );
-        } else if (dest instanceof DestinationCluster ) {
+            sb.append(((DestinationEndpoint) dest).getRootPath());
+        } else if (dest instanceof DestinationCluster) {
 
-            sb.append( ((DestinationCluster)dest).getRootPath() );
+            sb.append(((DestinationCluster) dest).getRootPath());
         } else {
-            throw new IllegalArgumentException( "Unknown destination type: " + dest.getClass().getName() );
+            throw new IllegalArgumentException("Unknown destination type: " + dest.getClass().getName());
         }
 
         return sb.toString();
     }
 
-    private MeterByCategory verifyGet( String endpoint ) {
+    private MeterByCategory verifyGet(String endpoint) {
         if (metricsService == null) {
             return null;
         }
 
-        if( !mapResponseCodes.containsKey( endpoint ) ) {
-            synchronized ( mapResponseCodes ) {
+        if (!mapResponseCodes.containsKey(endpoint)) {
+            synchronized (mapResponseCodes) {
 
 
-                if( !mapResponseCodes.containsKey( endpoint ) ) {
+                if (!mapResponseCodes.containsKey(endpoint)) {
 
-                    mapResponseCodes.put( endpoint, metricsService.newMeterByCategory( ResponseCode.class,
-                                                                                       endpoint,
-                                                                                       "Response Codes",
-                                                                                       TimeUnit.SECONDS ) );
+                    mapResponseCodes.put(endpoint, metricsService.newMeterByCategory(ResponseCode.class,
+                            endpoint,
+                            "Response Codes",
+                            TimeUnit.SECONDS));
                 }
             }
         }
 
-        return mapResponseCodes.get( endpoint );
+        return mapResponseCodes.get(endpoint);
     }
 
-    private MeterByCategory getTimeoutMeter( String endpoint ) {
+    private MeterByCategory getTimeoutMeter(String endpoint) {
         if (metricsService == null) {
             return null;
         }
 
-        if( !mapRequestTimeouts.containsKey( endpoint ) ) {
-            synchronized ( mapRequestTimeouts ) {
-                if( !mapRequestTimeouts.containsKey( endpoint ) ) {
-                    mapRequestTimeouts.put( endpoint, metricsService.newMeterByCategory( RequestTimeout.class,
+        if (!mapRequestTimeouts.containsKey(endpoint)) {
+            synchronized (mapRequestTimeouts) {
+                if (!mapRequestTimeouts.containsKey(endpoint)) {
+                    mapRequestTimeouts.put(endpoint, metricsService.newMeterByCategory(RequestTimeout.class,
                             "TimeoutToOrigin",
                             "Request Timeout",
-                            TimeUnit.SECONDS ) );
+                            TimeUnit.SECONDS));
                 }
             }
         }
 
-        return mapRequestTimeouts.get( endpoint );
+        return mapRequestTimeouts.get(endpoint);
     }
 
-    public void markRequestTimeoutHelper( MeterByCategory mbc, int responseCode, String endpoint ) {
+    public void markRequestTimeoutHelper(MeterByCategory mbc, int responseCode, String endpoint) {
         if (mbc == null) {
             return;
         }
 
-        if ( responseCode == HTTP_CLIENT_TIMEOUT) {
-            mbc.mark( endpoint );
+        if (responseCode == HTTP_CLIENT_TIMEOUT) {
+            mbc.mark(endpoint);
         }
     }
 }

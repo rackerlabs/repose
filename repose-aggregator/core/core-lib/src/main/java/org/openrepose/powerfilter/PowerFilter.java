@@ -32,6 +32,7 @@ import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -49,8 +50,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads
@@ -61,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * TODO: this must have the application context wired into it....
  * THen the application context must be handed down into things that need it to build filters.
  * TODO: this also needs to check the properties to make sure they exist before we start up like the empty servlet used
- *          to do.
+ * to do.
  */
 @Named("powerFilter")
 public class PowerFilter extends DelegatingFilterProxy {
@@ -69,36 +73,34 @@ public class PowerFilter extends DelegatingFilterProxy {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
 
-    private final Object internalLock = new Object();
+    private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
-    private final ApplicationContext applicationContext;
     private final HealthCheckService healthCheckService;
     private final ContainerConfigurationService containerConfigurationService;
     private final ResponseMessageService responseMessageService;
     private final EventService eventService;
     private final FilterContextFactory filterContextFactory;
 
-    private boolean firstInitialization; //TODO I think this is real bad
-    //Ports will come from a property in spring
-    //Node ID and cluster ID will come from properties in spring
     private PowerFilterChainBuilder powerFilterChainBuilder;
-    private SystemModel currentSystemModel;
-    private ReposeCluster serviceDomain; //TODO: should not need this... services will be started and ready to go
+    private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
+
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
-    private Destination defaultDst;
 
     private final String nodeId;
     private final String clusterId;
     private final String configRoot;
+    private final ConfigurationService configurationService;
+    private final MetricsService metricsService;
 
     @Inject
     public PowerFilter(
-            Environment springEnvironment,
-            ApplicationContext applicationContext,
+            @Value(ReposeSpringProperties.NODE.CLUSTER_ID)String clusterId,
+            @Value(ReposeSpringProperties.NODE.NODE_ID)String nodeId,
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configRoot,
             PowerFilterChainBuilder powerFilterChainBuilder,
             ReportingService reportingService,
             HealthCheckService healthCheckService,
@@ -110,14 +112,17 @@ public class PowerFilter extends DelegatingFilterProxy {
             ResponseMessageService responseMessageService,
             FilterContextFactory filterContextFactory
     ) {
-        firstInitialization = true; //I think this is really really super bad very much not good
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
+        this.configRoot = configRoot;
+        this.configurationService = configurationService;
+        this.metricsService = metricsService;
 
         // Set up the configuration listeners
         systemModelConfigurationListener = new SystemModelConfigListener();
         applicationDeploymentListener = new ApplicationDeploymentEventListener();
 
         this.powerFilterChainBuilder = powerFilterChainBuilder;
-        this.applicationContext = applicationContext;
         this.responseHeaderService = responseHeaderService;
         this.reportingService = reportingService;
         this.containerConfigurationService = containerConfigurationService;
@@ -127,17 +132,9 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         this.healthCheckService = healthCheckService;
 
-        eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-
-        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        configurationService.subscribeTo("", "system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
-
         healthCheckServiceProxy = healthCheckService.register();
         mbcResponseCodes = metricsService.newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
 
-        this.clusterId = springEnvironment.getProperty(ReposeSpringProperties.NODE.CLUSTER_ID);
-        this.nodeId = springEnvironment.getProperty(ReposeSpringProperties.NODE.NODE_ID);
-        this.configRoot = springEnvironment.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT);
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
@@ -146,44 +143,20 @@ public class PowerFilter extends DelegatingFilterProxy {
         public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-            List<String> uniqueArtifactList = new ArrayList<String>();
-
-            for (String artifactName : e.payload()) {
-                if (!uniqueArtifactList.contains(artifactName)) {
-                    uniqueArtifactList.add(artifactName);
-                } else {
-                    LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
+            // Using a set instead of a list to have a deployment health report if there are multiple artifacts with the same name
+            Set<String> uniqueArtifacts = new HashSet<>();
+            try {
+                for (String artifactName : e.payload()) {
+                    uniqueArtifacts.add(artifactName);
                 }
+                healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
+            } catch (IllegalArgumentException exception) {
+                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
+                        "versions of the same artifact exist!", Severity.BROKEN);
+                LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
             }
 
-            if (currentSystemModel != null) {
-                //TODO: this is copy/pasta code for the system model event as well. Needs to be refactored to a method to
-                // not have duplicated code!
-                SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
-
-                Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
-                Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
-                Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
-
-                if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
-                    serviceDomain = lc.get();
-                    defaultDst = dd.get();
-                    healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
-                    try {
-                        final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), lc.get().getFilters().getFilter());
-                        updateFilterChainBuilder(newFilterChain);
-                    } catch (FilterInitializationException fie) {
-                        LOG.error("Unable to create new filter chain", fie);
-                    }
-                } else {
-                    // Note: This should never occur! If it does, the currentSystemModel is being set to something
-                    // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
-                    // this issue will only occur when the config is fixed and the application is redeployed.
-                    LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                    healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
-                            "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-                }
-            }
+            configurationHeartbeat();
         }
     }
 
@@ -191,46 +164,14 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         private boolean isInitialized = false;
 
-        // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            currentSystemModel = configurationObject;
-
-            // This event must be fired only after we have finished configuring the system.
-            // This prevents a race condition illustrated below where the application
-            // deployment event is caught but does nothing due to a null configuration
-            synchronized (internalLock) {
-                if (firstInitialization) {
-                    firstInitialization = false;
-
-                    eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
-                } else {
-                    SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
-
-                    Optional<Node> localNode = interrogator.getLocalNode(currentSystemModel);
-                    Optional<ReposeCluster> localCluster = interrogator.getLocalCluster(currentSystemModel);
-                    Optional<Destination> defaultDestination = interrogator.getDefaultDestination(currentSystemModel);
-
-                    if (localNode.isPresent() && localCluster.isPresent() && defaultDestination.isPresent()) {
-                        serviceDomain = localCluster.get();
-                        defaultDst = defaultDestination.get();
-
-                        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
-
-                        try {
-                            final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter());
-                            updateFilterChainBuilder(newFilterChain);
-                        } catch (FilterInitializationException fie) {
-                            LOG.error("Unable to create new filter chain", fie);
-                        }
-                    } else {
-                        LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                        healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                                "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-                    }
-
-                }
+            SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
+            if (previousSystemModel == null) {
+                eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             }
+
+            configurationHeartbeat();
             isInitialized = true;
         }
 
@@ -240,33 +181,62 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
     }
 
-    private void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
-        synchronized (internalLock) {
-            try {
-                String dftDst = "";
+    /**
+     * Triggered each time the event service triggers an app deploy and when the system model is updated.
+     */
+    private void configurationHeartbeat() {
+        if (currentSystemModel.get() != null) {
+            synchronized (configurationLock) {
+                SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
+                SystemModel systemModel = currentSystemModel.get();
 
-                if (defaultDst != null) {
-                    dftDst = defaultDst.getId();
+                Optional<Node> localNode = interrogator.getLocalNode(systemModel);
+                Optional<ReposeCluster> localCluster = interrogator.getLocalCluster(systemModel);
+                Optional<Destination> defaultDestination = interrogator.getDefaultDestination(systemModel);
+
+                if (localNode.isPresent() && localCluster.isPresent() && defaultDestination.isPresent()) {
+                    ReposeCluster serviceDomain = localCluster.get();
+                    Destination defaultDst = defaultDestination.get();
+
+                    healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                    try {
+                        //Use the FilterContextFactory to get us a new filter chain
+                        final List<FilterContext> newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter());
+
+                        //Reinitialize the power filter chain builder with new settings.
+                        powerFilterChainBuilder.initialize(serviceDomain, localNode.get(), newFilterChain, getFilterConfig().getServletContext(), defaultDst.getId());
+                    } catch (FilterInitializationException fie) {
+                        LOG.error("Unable to create new filter chain", fie);
+                    } catch (PowerFilterChainException e) {
+                        LOG.error("Unable to initialize filter chain builder", e);
+                    }
+
+                    LOG.info("Repose ready");
+                } else {
+                    LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                    healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                            "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
-                SystemModelInterrogator smi = new SystemModelInterrogator(clusterId, nodeId);
-                Node localHost = smi.getLocalNode(currentSystemModel).get();
-
-                powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, getFilterConfig().getServletContext(), dftDst);
-            } catch (PowerFilterChainException ex) {
-                LOG.error("Unable to initialize filter chain builder", ex);
             }
         }
-        LOG.info("Repose ready");
     }
 
     @Override
     public void initFilterBean() {
-        //TODO: maybe create power filter chain builder thingy
+        eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
+
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        configurationService.subscribeTo("", "system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
     }
 
     @Override
     public void destroy() {
-        synchronized (internalLock) {
+
+        eventService.squelch(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
+
+        //TODO: wat
+        synchronized (configurationLock) {
             if (powerFilterChainBuilder != null) {
                 powerFilterChainBuilder.destroy();
             }
@@ -276,11 +246,9 @@ public class PowerFilter extends DelegatingFilterProxy {
     private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
         PowerFilterChain requestFilterChain = null;
         try {
-            synchronized (internalLock) {
-                //TODO: this should be done differently
-                if (powerFilterChainBuilder == null) {
-                    mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
-                } else if (!healthCheckService.isHealthy()) {
+            synchronized (configurationLock) {
+                if (!healthCheckService.isHealthy()) {
+                    LOG.warn("Repose is not healthy enough to serve requests!");
                     mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
                 } else {
                     requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
