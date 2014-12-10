@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 
 import java.io.File;
 import java.io.FileNotFoundException;

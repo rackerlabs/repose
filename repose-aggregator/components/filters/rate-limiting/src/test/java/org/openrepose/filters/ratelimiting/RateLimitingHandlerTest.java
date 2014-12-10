@@ -17,10 +17,10 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.cache.UserRateLimit;
-import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
-import org.openrepose.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
+import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.core.services.ratelimit.config.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -70,7 +70,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         defaultConfig.setUriRegex(".*");
         defaultConfig.getHttpMethods().add(HttpMethod.GET);
         defaultConfig.setValue(10);
-        defaultConfig.setUnit(org.openrepose.services.ratelimit.config.TimeUnit.MINUTE);
+        defaultConfig.setUnit(org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE);
 
       when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
 

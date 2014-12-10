@@ -4,7 +4,7 @@ import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;

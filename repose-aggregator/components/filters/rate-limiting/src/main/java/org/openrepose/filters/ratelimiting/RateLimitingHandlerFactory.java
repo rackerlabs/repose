@@ -8,12 +8,12 @@ import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.services.ratelimit.RateLimitingService;
-import org.openrepose.services.ratelimit.RateLimitingServiceFactory;
-import org.openrepose.services.ratelimit.cache.ManagedRateLimitCache;
-import org.openrepose.services.ratelimit.cache.RateLimitCache;
-import org.openrepose.services.ratelimit.config.DatastoreType;
-import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.core.services.ratelimit.RateLimitingService;
+import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
+import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
+import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
+import org.openrepose.core.services.ratelimit.config.DatastoreType;
+import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import java.util.HashMap;

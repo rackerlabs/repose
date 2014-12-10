@@ -17,9 +17,9 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.services.httpclient.HttpClientResponse;
-import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
+import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

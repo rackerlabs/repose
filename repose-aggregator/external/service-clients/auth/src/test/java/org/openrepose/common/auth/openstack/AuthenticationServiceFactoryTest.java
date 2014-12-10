@@ -1,10 +1,8 @@
 package org.openrepose.common.auth.openstack;
 
 
-import org.openrepose.common.auth.openstack.AuthenticationService;
-import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
-import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.httpclient.HttpClientService;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

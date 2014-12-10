@@ -14,9 +14,9 @@ import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.services.threading.ThreadingService;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 
 
 @Deprecated

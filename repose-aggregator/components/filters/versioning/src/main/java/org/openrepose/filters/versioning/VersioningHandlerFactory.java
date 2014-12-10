@@ -13,9 +13,9 @@ import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.openrepose.filters.versioning.domain.ConfigurationData;
 import org.openrepose.filters.versioning.util.ContentTransformer;
-import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.Severity;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

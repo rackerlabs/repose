@@ -7,7 +7,7 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
-import org.openrepose.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 

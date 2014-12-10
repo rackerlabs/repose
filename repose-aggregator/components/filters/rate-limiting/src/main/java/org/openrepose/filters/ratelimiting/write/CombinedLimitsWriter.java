@@ -3,7 +3,7 @@ package org.openrepose.filters.ratelimiting.write;
 import org.openrepose.filters.ratelimiting.exception.RateLimitingSerializationException;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.openrepose.filters.ratelimiting.util.combine.LimitsTransformPair;
-import org.openrepose.services.ratelimit.config.RateLimitList;
+import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;

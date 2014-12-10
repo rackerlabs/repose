@@ -1,7 +1,7 @@
 package org.openrepose.filters.ratelimiting
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import org.openrepose.services.ratelimit.RateLimitingService
+import org.openrepose.core.services.ratelimit.RateLimitingService
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import spock.lang.Shared

@@ -1,9 +1,9 @@
 package org.openrepose.nodeservice.httpcomponent
 
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.services.healthcheck.HealthCheckService
-import org.openrepose.services.httpclient.HttpClientResponse
-import org.openrepose.services.httpclient.HttpClientService
+import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine

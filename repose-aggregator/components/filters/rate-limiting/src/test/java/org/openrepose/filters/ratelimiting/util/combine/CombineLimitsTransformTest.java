@@ -5,11 +5,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.openrepose.filters.ratelimiting.util.TransformHelper;
-import org.openrepose.services.ratelimit.RateLimitListBuilder;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.config.*;
+import org.openrepose.core.services.ratelimit.RateLimitListBuilder;
+import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 
 import javax.xml.bind.JAXBContext;
 import java.io.ByteArrayOutputStream;

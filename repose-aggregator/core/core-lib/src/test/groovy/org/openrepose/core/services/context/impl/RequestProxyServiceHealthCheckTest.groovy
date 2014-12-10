@@ -13,12 +13,11 @@ import org.openrepose.core.systemmodel.NodeList
 import org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl
 import org.openrepose.core.systemmodel.ReposeCluster
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.services.healthcheck.HealthCheckService
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy
-import org.openrepose.services.healthcheck.Severity
+import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
+import org.openrepose.core.services.healthcheck.Severity
 import spock.lang.Shared
 import spock.lang.Specification
-import sun.corba.SharedSecrets
 
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq

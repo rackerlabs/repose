@@ -11,9 +11,9 @@ import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.openrepose.core.services.reporting.metrics.config.GraphiteServer;
 import org.openrepose.core.services.reporting.metrics.config.MetricsConfiguration;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;
-import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.Severity;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

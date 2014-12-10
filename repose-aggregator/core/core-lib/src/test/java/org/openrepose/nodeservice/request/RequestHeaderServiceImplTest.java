@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
 
 import static org.mockito.Mockito.*;
 

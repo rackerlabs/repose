@@ -1,6 +1,6 @@
 package org.openrepose.filters.ratelimiting;
 
-import org.openrepose.services.ratelimit.config.*;
+import org.openrepose.core.services.ratelimit.config.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

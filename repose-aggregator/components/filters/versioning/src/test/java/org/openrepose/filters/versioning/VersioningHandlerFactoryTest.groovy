@@ -6,7 +6,7 @@ import org.openrepose.core.domain.ServicePorts
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList
-import org.openrepose.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import spock.lang.Specification
 
 /**
