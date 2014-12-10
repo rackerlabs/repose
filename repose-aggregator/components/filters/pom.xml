@@ -246,6 +246,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>add-header</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.openrepose</groupId>
                 <artifactId>http-delegation</artifactId>
                 <version>${http.delegation.version}</version>

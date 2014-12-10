@@ -130,13 +130,16 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rackspace-auth-user</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-type-stripper</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>add-header</artifactId>
         </dependency>
 
         <dependency>
@@ -263,6 +266,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>derp</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>add-header</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
