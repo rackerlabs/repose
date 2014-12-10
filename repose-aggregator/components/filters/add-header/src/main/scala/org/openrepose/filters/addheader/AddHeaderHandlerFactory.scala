@@ -13,6 +13,7 @@ class AddHeaderHandlerFactory(sourceHeaders: List[HeaderType] = List[HeaderType]
     if (!this.isInitialized) {
       return null
     }
+    // todo: does a new handler need to be created for every request?
     return new AddHeaderHandler(sourceHeaders)
   }
 
