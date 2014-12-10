@@ -4,13 +4,15 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This should be instantiated once during startup of repose.
@@ -62,13 +64,27 @@ public class CoreSpringProvider {
             coreContext.setDisplayName("ReposeCoreContext");
 
             //Set up properties for core
-            Map<String, Object> props = new HashMap<>();
-            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT), configRoot);
-            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), insecure);
-            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION), reposeVersion);
+            //http://forum.spring.io/forum/spring-projects/container/49923-how-to-set-properties-programmatically?p=394903#post394903
+            // You have to actually create a PropertyPlaceholderConfigurer to use the @value stuff!
+            Properties props = new Properties();
+            props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT), configRoot);
+            props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), insecure);
+            props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION), reposeVersion);
 
-            MapPropertySource mps = new MapPropertySource("core-properties", props);
+            PropertiesPropertySource mps = new PropertiesPropertySource("core-properties", props);
             coreContext.getEnvironment().getPropertySources().addFirst(mps);
+
+            PropertyPlaceholderConfigurer propConfig = new PropertyPlaceholderConfigurer();
+            propConfig.setProperties(props);
+
+            coreContext.addBeanFactoryPostProcessor(propConfig);
+
+            if (LOG.isDebugEnabled()) {
+                for (PropertySource source : coreContext.getEnvironment().getPropertySources()) {
+                    EnumerablePropertySource eps = (EnumerablePropertySource) source;
+                    LOG.debug("Property names for {}: {}", eps.getName(), eps.getPropertyNames());
+                }
+            }
 
             coreContext.scan(coreScanPackage);
             coreContext.refresh();
@@ -121,11 +137,15 @@ public class CoreSpringProvider {
 
         nodeContext.setDisplayName(clusterId + "-" + nodeId + "-context");
 
-        Map<String, Object> props = new HashMap<>();
-        props.put(stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID), nodeId);
-        props.put(stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID), clusterId);
-        MapPropertySource mps = new MapPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
+        Properties props = new Properties();
+        props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID), nodeId);
+        props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID), clusterId);
+        PropertiesPropertySource mps = new PropertiesPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
         nodeContext.getEnvironment().getPropertySources().addFirst(mps);
+
+        PropertyPlaceholderConfigurer propConfig = new PropertyPlaceholderConfigurer();
+        propConfig.setProperties(props);
+        nodeContext.addBeanFactoryPostProcessor(propConfig);
 
         String nodeServicePackage = conf.getString("nodeSpringContextPath");
         LOG.debug("Creating node service context for {}-{}", clusterId, nodeId);
@@ -163,7 +183,4 @@ public class CoreSpringProvider {
         return filterContext;
     }
 
-    private String stripSpringValueStupidity(String atValue) {
-        return atValue.substring(2, atValue.length() - 1);
-    }
 }

@@ -17,8 +17,7 @@ import javax.servlet.ServletException;
 import java.util.EnumSet;
 
 /**
- *  Programmatic initialization for the WAR deployment.
- *
+ * Programmatic initialization for the WAR deployment.
  */
 public class ReposeInitializer implements WebApplicationInitializer {
     @Override
@@ -26,11 +25,13 @@ public class ReposeInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
 
         //Get the values out of the system properties that we'll need
-        String configRoot = System.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT);
-        boolean insecure = Boolean.parseBoolean(System.getProperty(ReposeSpringProperties.CORE.INSECURE, "false"));
+        String configRoot = System.getProperty(
+                ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT));
+        boolean insecure = Boolean.parseBoolean(
+                System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), "false"));
 
-        String clusterId = System.getProperty(ReposeSpringProperties.NODE.CLUSTER_ID);
-        String nodeId = System.getProperty(ReposeSpringProperties.NODE.NODE_ID);
+        String clusterId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID));
+        String nodeId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID));
 
         CoreSpringProvider csp = CoreSpringProvider.getInstance();
         csp.initializeCoreContext(configRoot, insecure);
@@ -46,6 +47,6 @@ public class ReposeInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(rootContext));
         servletContext.addServlet("emptyServlet", EmptyServlet.class).addMapping("/*");
         servletContext.addFilter("springDelegatingFilterProxy", new DelegatingFilterProxy("powerFilter"))
-                      .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
     }
 }

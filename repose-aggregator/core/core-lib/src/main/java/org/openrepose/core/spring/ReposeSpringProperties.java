@@ -23,4 +23,8 @@ public class ReposeSpringProperties {
         public static final String CLUSTER_ID = "${repose-cluster-id}";
     }
 
+    public static String stripSpringValueStupidity(String atValue) {
+        return atValue.substring(2, atValue.length() - 1);
+    }
+
 }
