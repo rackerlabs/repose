@@ -4,7 +4,7 @@ import com.mockrunner.mock.web._
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.core.filter.logic.FilterDirector
-import org.openrepose.filters.addheader.config.{AddHeadersType, HeaderType}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, HeaderType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
@@ -16,7 +16,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   var myDirector: FilterDirector = _
 
   def addHeaderConfig(): List[HeaderType] = {
-    val conf = new AddHeadersType
+    val conf = new AddHeadersConfig
 
     val header = new HeaderType()
     header.setName("x-new-header")
@@ -29,7 +29,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   }
 
   def addHeaderConfigRemoveOriginal(): List[HeaderType] = {
-    val conf = new AddHeadersType
+    val conf = new AddHeadersConfig
 
     val header = new HeaderType()
     header.setName("x-new-header")
@@ -43,7 +43,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   }
 
   def addHeaderWithMultipleValuesConfig(): List[HeaderType] = {
-    val conf = new AddHeadersType
+    val conf = new AddHeadersConfig
 
     val header = new HeaderType()
     header.setName("x-new-header")
@@ -58,7 +58,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   }
 
   def addMultipleHeadersWithMultipleValuesConfig() = {
-    val conf = new AddHeadersType
+    val conf = new AddHeadersConfig
 
     val headerOne = new HeaderType()
     headerOne.setName("x-new-header")
