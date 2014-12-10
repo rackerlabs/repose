@@ -7,7 +7,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.{HttpServletHelper, MutableHttpServletRequest, MutableHttpServletResponse}
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
@@ -42,7 +42,6 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) = {
-    HttpServletHelper.verifyRequestAndResponse(logger, servletRequest, servletResponse)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val mutableHttpRequest: MutableHttpServletRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse: MutableHttpServletResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
