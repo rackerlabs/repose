@@ -4,7 +4,7 @@ import com.mockrunner.mock.web._
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.core.filter.logic.FilterDirector
-import org.openrepose.filters.addheader.config.{AddHeadersConfig, HeaderType}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
@@ -15,10 +15,10 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   var handler: AddHeaderHandler = _
   var myDirector: FilterDirector = _
 
-  def addHeaderConfig(): List[HeaderType] = {
+  def addHeaderConfig(): List[Header] = {
     val conf = new AddHeadersConfig
 
-    val header = new HeaderType()
+    val header = new Header()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
@@ -28,10 +28,10 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     conf.getHeader.asScala.toList
   }
 
-  def addHeaderConfigRemoveOriginal(): List[HeaderType] = {
+  def addHeaderConfigRemoveOriginal(): List[Header] = {
     val conf = new AddHeadersConfig
 
-    val header = new HeaderType()
+    val header = new Header()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
@@ -42,10 +42,10 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     conf.getHeader.asScala.toList
   }
 
-  def addHeaderWithMultipleValuesConfig(): List[HeaderType] = {
+  def addHeaderWithMultipleValuesConfig(): List[Header] = {
     val conf = new AddHeadersConfig
 
-    val header = new HeaderType()
+    val header = new Header()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.getValue.add("newer-value")
@@ -60,7 +60,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   def addMultipleHeadersWithMultipleValuesConfig() = {
     val conf = new AddHeadersConfig
 
-    val headerOne = new HeaderType()
+    val headerOne = new Header()
     headerOne.setName("x-new-header")
     headerOne.getValue.add("new-value")
     headerOne.getValue.add("newer-value")
@@ -69,7 +69,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     conf.getHeader.add(headerOne)
 
-    val headerTwo = new HeaderType()
+    val headerTwo = new Header()
     headerTwo.setName("x-newer-header")
     headerTwo.getValue.add("newish-value")
     headerTwo.getValue.add("newerish-value")
