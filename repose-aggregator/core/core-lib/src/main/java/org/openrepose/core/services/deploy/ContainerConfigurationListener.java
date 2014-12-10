@@ -11,10 +11,13 @@ import org.openrepose.core.container.config.DeploymentDirectory;
 import org.openrepose.core.services.event.common.EventService;
 import java.io.File;
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
-@Component("containerConfigurationListener")
+@Named
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
    private ArtifactDirectoryWatcher dirWatcher;
@@ -23,16 +26,9 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    private boolean autoClean = false;
    private boolean isInitialized = false;
 
-   public ContainerConfigurationListener(EventService eventManagerReference) {
-      dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
-      dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
-      unpacker = null;
-   }
-
-   @Required
-   @Resource(name = "eventManager")
-   public synchronized void setEventService(EventService eventManagerReference) {
-      dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
+   @Inject
+   public ContainerConfigurationListener(EventService eventService) {
+      dirWatcher = new ArtifactDirectoryWatcher(eventService);
       dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
       unpacker = null;
    }
