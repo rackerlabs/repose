@@ -41,16 +41,17 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
-                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
-                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
-                   }else{
-                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File"); 
-                   }
+                    //TODO: cannot do this here!
+//                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
+//                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
+//                   }else{
+//                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File");
+//                   }
                 }catch(Exception ex){
-                    
-                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
-                    parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage()); 
-                   }
+                    //TODO: cannot do this here!
+//                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
+//                    parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage());
+//                   }
                    LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
                    LOG.trace("", ex);
                 } finally {

@@ -24,17 +24,14 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
     private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
     private ConfigurationResourceWatcher resourceWatcher;
     private DestroyableThreadWrapper resourceWatcherThread;
-    private final ConfigurationInformation configurationInformation;
     private final ThreadingService threadingService;
 
     @Inject
     public ConfigurationUpdateManagerImpl(
             EventService eventManager,
-            ConfigurationInformation configurationInformation,
             ThreadingService threadingService
     ) {
         this.eventManager = eventManager;
-        this.configurationInformation = configurationInformation;
         this.threadingService = threadingService;
 
         listenerMap = new HashMap<>();
@@ -74,7 +71,7 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
             resourceWatcher.watch(resource);
         }
 
-        resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser, this.configurationInformation, filterName));
+        resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser, filterName));
     }
 
     @Override
