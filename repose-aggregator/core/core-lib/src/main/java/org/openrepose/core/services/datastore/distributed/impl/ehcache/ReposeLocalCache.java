@@ -13,9 +13,11 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.security.NoSuchAlgorithmException;
 
-@Component("reposeLocalDatastore")
+@Named("reposeLocalDatastore")
 @ManagedResource(objectName = "org.openrepose.core.services.datastore.impl.ehcache:type=ReposeLocalCache",
                  description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
@@ -25,8 +27,8 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
     private final DatastoreService datastoreService;
 
-    @Autowired
-    public ReposeLocalCache(@Qualifier("datastoreService") DatastoreService datastoreService) {
+    @Inject
+    public ReposeLocalCache(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
     }
 
