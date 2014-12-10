@@ -7,11 +7,11 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
-import org.openrepose.filters.addheader.config.HeaderType
+import org.openrepose.filters.addheader.config.Header
 
 import scala.collection.JavaConverters._
 
-class AddHeaderHandler(sourceHeaders: List[HeaderType]) extends AbstractFilterLogicHandler with LazyLogging {
+class AddHeaderHandler(sourceHeaders: List[Header]) extends AbstractFilterLogicHandler with LazyLogging {
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val director = new FilterDirectorImpl()
