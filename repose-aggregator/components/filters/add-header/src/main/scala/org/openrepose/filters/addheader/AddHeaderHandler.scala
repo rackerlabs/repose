@@ -3,19 +3,15 @@ package org.openrepose.filters.addheader
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import org.openrepose.core.filter.logic.{HeaderManager, FilterAction, FilterDirector}
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.filters.addheader.config.{Header}
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
+import org.openrepose.filters.addheader.config.HeaderType
 
 import scala.collection.JavaConverters._
 
-/**
- * Created by dimi5963 on 12/4/14.
- */
-class AddHeaderHandler(sourceHeaders: List[Header])  extends AbstractFilterLogicHandler with LazyLogging {
+class AddHeaderHandler(sourceHeaders: List[HeaderType]) extends AbstractFilterLogicHandler with LazyLogging {
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val director = new FilterDirectorImpl()
@@ -35,5 +31,4 @@ class AddHeaderHandler(sourceHeaders: List[Header])  extends AbstractFilterLogic
       }
     director
   }
-
 }
