@@ -3,22 +3,15 @@ package org.openrepose.core.services.ratelimit
 import org.apache.commons.lang3.tuple.Pair
 import org.junit.Before
 import org.junit.Test
-import org.openrepose.core.services.ratelimit.config.ConfiguredLimitGroup
-import org.openrepose.core.services.ratelimit.config.ConfiguredRateLimitWrapper
-import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit
-import org.openrepose.core.services.ratelimit.config.GlobalLimitGroup
-import org.openrepose.core.services.ratelimit.config.HttpMethod
-import org.openrepose.core.services.ratelimit.config.RateLimitList
-import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration
-import org.openrepose.core.services.ratelimit.config.TimeUnit
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit
 import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache
 import org.openrepose.core.services.ratelimit.cache.NextAvailableResponse
 import org.openrepose.core.services.ratelimit.cache.RateLimitCache
-import org.openrepose.services.ratelimit.config.*
+import org.openrepose.core.services.ratelimit.config.*
 import org.openrepose.core.services.ratelimit.exception.OverLimitException
 
 import static org.junit.Assert.*
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
