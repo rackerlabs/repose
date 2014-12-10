@@ -3,11 +3,10 @@ package org.openrepose.filters.slf4jlogging
 import org.intellij.lang.annotations.Language
 import org.openrepose.commons.config.parser.ConfigurationParserFactory
 import org.openrepose.commons.config.resource.impl.ByteArrayConfigurationResource
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig
 import spock.lang.Specification
 
 import java.nio.charset.StandardCharsets
-
 
 class AdditionalXSDFormatTest extends Specification {
     /**
