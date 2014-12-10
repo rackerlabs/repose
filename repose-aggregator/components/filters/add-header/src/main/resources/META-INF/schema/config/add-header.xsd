@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/repose/add-header/v1.0"
+           xmlns:add-header="http://docs.api.rackspacecloud.com/repose/add-header/v1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:html="http://www.w3.org/1999/xhtml">
+
+    <xs:element name="add-header" type="add-header:add-headerType"/>
+
+    <xs:complexType name="add-headerType">
+
+        <xs:sequence>
+            <xs:element type="add-header:header" name="header" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(tokenize(lower-case(string-join(
+                   (add-header:header/@name),',')),',')))
+                   = count(distinct-values(add-header:header/@name))"
+                   xerces:message="Names must be unique. Evaluation is case insensitive."
+                   saxon:message="Names must be unique. Evaluation is case insensitive."/>
+
+    </xs:complexType>
+
+    <xs:complexType name="header">
+
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Add Header can be used to add a new header with specific value to a request chain.
+                </html:p>
+                <html:p>Optionally you can remove the old header, which is left in by default.</html:p>
+                <html:p>Values are limited to 4096 characters.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="add-header:StringList" name="value" use="required"/>
+        <xs:attribute name="quality" type="add-header:doubleBetweenZeroandOne" use="optional" default="0.1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Quality assigned to users found in the request headers.
+                        If no quality is set, Repose will default this value to 0.1
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC - Section-3.9</html:a>
+                        (for usage examples, see <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section 14.1</html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:boolean" name="remove-original" use="optional" default="false"/>
+
+    </xs:complexType>
+
+    <xs:simpleType name="header-string">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This limits header value to 4096 characters.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="4096"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringList">
+        <xs:list itemType="add-header:header-string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
