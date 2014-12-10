@@ -5,6 +5,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation._
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.{HttpServletHelper, MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
@@ -15,9 +16,7 @@ import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
 
-class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] {
-
-  private final val LOG = LoggerFactory.getLogger(classOf[HerpFilter])
+class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
 
   private var configurationService: ConfigurationService = _
@@ -26,9 +25,9 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var herpLogger: Option[Logger] = None
 
   override def init(filterConfig: FilterConfig) = {
-    LOG.trace("HERP filter initializing ...")
+    logger.trace("HERP filter initializing ...")
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
-    LOG.info("Initializing filter using config " + config)
+    logger.info("Initializing filter using config " + config)
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/highly-efficient-record-processor.xsd")
@@ -39,11 +38,11 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       this,
       classOf[HerpConfig]
     )
-    LOG.trace("HERP filter initialized.")
+    logger.trace("HERP filter initialized.")
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) = {
-    HttpServletHelper.verifyRequestAndResponse(LOG, servletRequest, servletResponse)
+    HttpServletHelper.verifyRequestAndResponse(logger, servletRequest, servletResponse)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val mutableHttpRequest: MutableHttpServletRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse: MutableHttpServletResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
@@ -67,25 +66,25 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private def handleRequest(httpServletRequest: HttpServletRequest,
                             httpServletResponse: HttpServletResponse,
                             filterDirector: FilterDirector) = {
-    LOG.trace("HERP filter handling Request ...")
+    logger.trace("HERP filter handling Request ...")
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-    if (initialized) {
-      herpLogger.get.error("This is a message from the HERP filter.")
-    }
-    LOG.trace("HERP filter handled Request.")
+    logger.trace("HERP filter handled Request.")
   }
 
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse,
                              filterDirector: FilterDirector) = {
-    LOG.trace("HERP filter handling Response ...")
-    LOG.trace("HERP filter handled Response.")
+    logger.trace("HERP filter handling Response ...")
+    if (initialized) {
+      herpLogger.get.error("This is a message from the HERP filter.")
+    }
+    logger.trace("HERP filter handled Response.")
   }
 
   override def destroy() = {
-    LOG.trace("HERP filter destroying ...")
+    logger.trace("HERP filter destroying ...")
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
-    LOG.trace("HERP filter destroyed.")
+    logger.trace("HERP filter destroyed.")
   }
 
   override def configurationUpdated(config: HerpConfig) = {
