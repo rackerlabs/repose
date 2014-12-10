@@ -4,7 +4,7 @@ import java.util
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.filters.addheader.config.{AddHeadersType, HeaderType}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, HeaderType}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -15,12 +15,12 @@ class AddHeaderHandlerFactoryTest extends FunSpec with BeforeAndAfter with Priva
   var handlerFactory: AddHeaderHandlerFactory = _
 
   before {
-    handlerFactory = new AddHeaderHandlerFactory(List[HeaderType]())
+    handlerFactory = new AddHeaderHandlerFactory()
   }
 
   describe("buildHandler") {
     ignore("should return an Add Header handler") {
-      val config: AddHeadersType = new AddHeadersType()
+      val config: AddHeadersConfig = new AddHeadersConfig()
       val header = new HeaderType()
       header.setName("x-new-header")
       header.getValue.add("new-value")
@@ -42,7 +42,7 @@ class AddHeaderHandlerFactoryTest extends FunSpec with BeforeAndAfter with Priva
       val listeners = handlerFactory invokePrivate getListeners()
 
       listeners should have size 1
-      listeners should contain key classOf[AddHeadersType]
+      listeners should contain key classOf[AddHeadersConfig]
     }
   }
 }
