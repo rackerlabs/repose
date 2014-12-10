@@ -5,14 +5,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
-import org.openrepose.filters.addheader.config.AddHeaderType
-import org.openrepose.filters.addheader.config.Header
+import org.openrepose.filters.addheader.config.{AddHeadersType, HeaderType}
 
-
-/**
- * Created by dimi5963 on 12/4/14.
- */
-class AddHeaderHandlerFactory(sourceHeaders: List[Header] = List[Header]()) extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler]{
+class AddHeaderHandlerFactory(sourceHeaders: List[HeaderType] = List[HeaderType]()) extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler] {
 
   override protected def buildHandler: AddHeaderHandler = {
     if (!this.isInitialized) {
@@ -24,13 +19,13 @@ class AddHeaderHandlerFactory(sourceHeaders: List[Header] = List[Header]()) exte
   override protected def getListeners: util.Map[Class[_], UpdateListener[_]] = {
     val listenerMap = new util.HashMap[Class[_], UpdateListener[_]]()
 
-    listenerMap.put(classOf[AddHeaderType], new AddHeaderConfigurationListener())
+    listenerMap.put(classOf[AddHeadersType], new AddHeaderConfigurationListener())
 
     listenerMap
   }
 
-  private class AddHeaderConfigurationListener extends UpdateListener[AddHeaderType] {
-    def configurationUpdated(addHeaderTypeConfigObject: AddHeaderType) {
+  private class AddHeaderConfigurationListener extends UpdateListener[AddHeadersType] {
+    def configurationUpdated(addHeaderTypeConfigObject: AddHeadersType) {
       sourceHeaders :+ addHeaderTypeConfigObject.getHeader
       initialized.set(true)
     }
