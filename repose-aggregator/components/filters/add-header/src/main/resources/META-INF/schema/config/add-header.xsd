@@ -36,7 +36,7 @@
 
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="remove-original" type="xs:boolean" use="optional" default="false"/>
-        <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional" default="0.1">
+        <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional" default="1.0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
