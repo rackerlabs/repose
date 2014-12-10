@@ -69,6 +69,26 @@ public class CoreSpringProvider {
 
             coreContext.scan(coreScanPackage);
             coreContext.refresh();
+
+            //TODO: set up the JMX mbean stuff
+            /**
+             *
+             <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter" lazy-init="true">
+             <property name="namingStrategy" ref="reposeJmxNamingStrategy"/>
+             </bean>
+
+             <!--
+             <bean id="namingStrategy" class="org.openrepose.core.spring.ReposeJmxNamingStrategy">
+             <property name="attributeSource" ref="attributeSource"/>
+             </bean>
+
+             <bean id="jmxAttributeSource"
+             class="org.springframework.jmx.export.metadata.JmxAttributeSource"/>
+             -->
+             <bean id="jmxAttributeSource"
+             class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+             */
+
             configured = true;
         } else {
             //TODO: should this throw some kind of exception, or just log failures silently?
