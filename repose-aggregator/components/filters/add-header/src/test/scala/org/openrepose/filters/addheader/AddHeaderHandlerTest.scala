@@ -3,27 +3,22 @@ package org.openrepose.filters.addheader
 import com.mockrunner.mock.web._
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterDirector
-import org.openrepose.filters.addheader.config.{AddHeaderType, Header}
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
+import org.openrepose.filters.addheader.config.{AddHeadersType, HeaderType}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
 import scala.collection.JavaConverters._
 
-/**
- * Created by dimi5963 on 12/4/14.
- */
 @RunWith(classOf[JUnitRunner])
 class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTester with BeforeAndAfter {
   var handler: AddHeaderHandler = _
   var myDirector: FilterDirector = _
 
-  def addHeaderConfig(): List[Header] = {
-    val conf = new AddHeaderType
+  def addHeaderConfig(): List[HeaderType] = {
+    val conf = new AddHeadersType
 
-    val header = new Header()
+    val header = new HeaderType()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
@@ -33,10 +28,10 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     conf.getHeader.asScala.toList
   }
 
-  def addHeaderConfigRemoveOriginal(): List[Header] = {
-    val conf = new AddHeaderType
+  def addHeaderConfigRemoveOriginal(): List[HeaderType] = {
+    val conf = new AddHeadersType
 
-    val header = new Header()
+    val header = new HeaderType()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
@@ -47,10 +42,10 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     conf.getHeader.asScala.toList
   }
 
-  def addHeaderWithMultipleValuesConfig(): List[Header] = {
-    val conf = new AddHeaderType
+  def addHeaderWithMultipleValuesConfig(): List[HeaderType] = {
+    val conf = new AddHeadersType
 
-    val header = new Header()
+    val header = new HeaderType()
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.getValue.add("newer-value")
@@ -63,9 +58,9 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   }
 
   def addMultipleHeadersWithMultipleValuesConfig() = {
-    val conf = new AddHeaderType
+    val conf = new AddHeadersType
 
-    val headerOne = new Header()
+    val headerOne = new HeaderType()
     headerOne.setName("x-new-header")
     headerOne.getValue.add("new-value")
     headerOne.getValue.add("newer-value")
@@ -74,7 +69,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     conf.getHeader.add(headerOne)
 
-    val headerTwo = new Header()
+    val headerTwo = new HeaderType()
     headerTwo.setName("x-newer-header")
     headerTwo.getValue.add("newish-value")
     headerTwo.getValue.add("newerish-value")
