@@ -13,7 +13,7 @@
 
     <artifactId>herp</artifactId>
 
-    <name>Repose Components - HeRP</name>
+    <name>Repose Components - HERP</name>
 
     <description>
         This filter rejects delegated requests with the appropriate response.
@@ -42,6 +42,22 @@
             <groupId>org.openrepose</groupId>
             <artifactId>http-delegation</artifactId>
         </dependency>
+
+        <!-- These three are required because of our coupling between filters and core -->
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -50,6 +66,41 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- The plugin that cleans up our XSD to conform to XML 1.0 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/config</dir>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
+
+            <!-- The plugin that compiles and binds our clean XSD to a Java object -->
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <configuration>
+                    <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+                </configuration>
             </plugin>
         </plugins>
     </build>
