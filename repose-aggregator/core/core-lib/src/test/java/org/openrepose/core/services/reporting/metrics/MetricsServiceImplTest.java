@@ -41,8 +41,7 @@ public class MetricsServiceImplTest {
             reposeInstanceInfo.setNodeId("node1");
             reposeInstanceInfo.setClusterId("cluster1");
 
-            reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(),
-                    reposeInstanceInfo);
+            reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource());
 
             metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), reposeStrat);
 
