@@ -38,6 +38,7 @@
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
         <module>derp</module>
+        <module>add-header</module>
     </modules>
 
     <properties>
