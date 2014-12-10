@@ -29,13 +29,15 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private final String clusterId;
     private final String nodeId;
 
+    //TODO: this is super broke, need to figure out how we're going to handle JMX strategy when core needs it
+    //Metrics service needs this guy
     @Inject
-    public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource,
-                                   @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
-                                   @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
+    public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
+//                                   @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+//                                   @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
         super(attributeSource);
-        this.clusterId = clusterId;
-        this.nodeId = nodeId;
+        this.clusterId = "";
+        this.nodeId = "";
 
         LOG.info("Configuring JMX naming strategy for {} - {} ", clusterId, nodeId);
     }
