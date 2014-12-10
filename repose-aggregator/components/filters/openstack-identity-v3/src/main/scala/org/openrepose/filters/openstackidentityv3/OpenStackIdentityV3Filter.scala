@@ -26,7 +26,7 @@ class OpenStackIdentityV3Filter extends Filter {
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     handlerFactory = new OpenStackIdentityV3HandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
-    val xsdURL: URL = getClass.getResource("/META-INF/config/schema/openstack-identity-v3.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/openstack-identity-v3.xsd")
     // TODO: Clean up the asInstanceOf below, if possible?
     configurationService.subscribeTo(filterConfig.getFilterName, config, xsdURL, handlerFactory.asInstanceOf[UpdateListener[OpenstackIdentityV3Config]], classOf[OpenstackIdentityV3Config])
   }

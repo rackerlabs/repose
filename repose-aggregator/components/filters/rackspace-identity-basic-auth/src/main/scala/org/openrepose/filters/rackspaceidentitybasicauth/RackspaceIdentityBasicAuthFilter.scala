@@ -25,7 +25,7 @@ class RackspaceIdentityBasicAuthFilter extends Filter {
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     handlerFactory = new RackspaceIdentityBasicAuthHandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
-    val xsdURL: URL = getClass.getResource("/META-INF/config/schema/rackspace-identity-basic-auth.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/rackspace-identity-basic-auth.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,
       config,
