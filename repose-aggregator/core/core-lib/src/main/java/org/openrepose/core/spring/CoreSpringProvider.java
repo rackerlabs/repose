@@ -37,20 +37,23 @@ public class CoreSpringProvider {
      * Create a core spring provider with the core properties available to all of the spring contexts.
      * The params to this constructor are the things that need to be in the core spring context for all anything to access
      *
-     * @param configRoot    Configuration root directory
-     * @param insecure      whether or not to check SSL certs
+     * @param configRoot Configuration root directory
+     * @param insecure   whether or not to check SSL certs
      */
     public void initializeCoreContext(String configRoot,
                                       boolean insecure) {
-        if(!configured) {
+        if (!configured) {
             //NOTE: the repose version should only come from here. This should be the source of truth
             String reposeVersion = conf.getString("reposeVersion");
 
-            String coreScanPackage = conf.getString(
-                    "coreSpringContextPath"); //TODO: could get this from a param now...
+            String coreScanPackage = conf.getString("coreSpringContextPath");
 
+            //TODO: logger won't exist yet.... Need to ship a config for early logging
             LOG.debug("Creating Core spring provider!");
             LOG.debug("Core service annotation scanning package {}", coreScanPackage);
+
+            LOG.debug("Config Root: {}", configRoot);
+            LOG.debug(" Insecurity: {}", insecure);
 
             //Go ahead and print the narwhal banner at this point -- this is where startup happens
             ReposeBanner.print(LOG);
@@ -60,9 +63,9 @@ public class CoreSpringProvider {
 
             //Set up properties for core
             Map<String, Object> props = new HashMap<>();
-            props.put(ReposeSpringProperties.CORE.CONFIG_ROOT, configRoot);
-            props.put(ReposeSpringProperties.CORE.INSECURE, insecure);
-            props.put(ReposeSpringProperties.CORE.REPOSE_VERSION, reposeVersion);
+            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT), configRoot);
+            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), insecure);
+            props.put(stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION), reposeVersion);
 
             MapPropertySource mps = new MapPropertySource("core-properties", props);
             coreContext.getEnvironment().getPropertySources().addFirst(mps);
@@ -98,7 +101,7 @@ public class CoreSpringProvider {
     }
 
     public ApplicationContext getCoreContext() {
-        if(!configured){
+        if (!configured) {
             LOG.error("Core Context requested before configured!");
         }
         return coreContext;
@@ -119,8 +122,8 @@ public class CoreSpringProvider {
         nodeContext.setDisplayName(clusterId + "-" + nodeId + "-context");
 
         Map<String, Object> props = new HashMap<>();
-        props.put(ReposeSpringProperties.NODE.NODE_ID, nodeId);
-        props.put(ReposeSpringProperties.NODE.CLUSTER_ID, clusterId);
+        props.put(stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID), nodeId);
+        props.put(stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID), clusterId);
         MapPropertySource mps = new MapPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
         nodeContext.getEnvironment().getPropertySources().addFirst(mps);
 
@@ -160,4 +163,7 @@ public class CoreSpringProvider {
         return filterContext;
     }
 
+    private String stripSpringValueStupidity(String atValue) {
+        return atValue.substring(2, atValue.length() - 1);
+    }
 }
