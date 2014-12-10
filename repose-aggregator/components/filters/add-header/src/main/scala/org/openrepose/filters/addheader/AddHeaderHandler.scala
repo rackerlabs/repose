@@ -11,24 +11,25 @@ import org.openrepose.filters.addheader.config.Header
 
 import scala.collection.JavaConverters._
 
-class AddHeaderHandler(sourceHeaders: List[Header]) extends AbstractFilterLogicHandler with LazyLogging {
+class AddHeaderHandler(configuredHeaders: List[Header]) extends AbstractFilterLogicHandler with LazyLogging {
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    val director = new FilterDirectorImpl()
-    //By default, if nothing happens we're going to pass
-    director.setFilterAction(FilterAction.PASS)
-    val headerManager = director.requestHeaderManager()
+    val filterDirector = new FilterDirectorImpl()
+    val headerManager = filterDirector.requestHeaderManager()
+    filterDirector.setFilterAction(FilterAction.PASS)
 
-    for (sourceHeader <- sourceHeaders) yield
-      for (value <- sourceHeader.getValue.asScala.toList) yield {
-        if (sourceHeader.isRemoveOriginal) {
-          headerManager.removeHeader(sourceHeader.getName)
-          logger.trace(
-            s"Header removed: ${sourceHeader.getName} with value $value and quality ${sourceHeader.getQuality}")
-        }
-        headerManager.appendHeader(sourceHeader.getName, value, sourceHeader.getQuality)
-        logger.trace(s"Added header ${sourceHeader.getName} with value $value and quality ${sourceHeader.getQuality}")
+    configuredHeaders foreach { configuredHeader =>
+      if (configuredHeader.isRemoveOriginal) {
+        headerManager.removeHeader(configuredHeader.getName)
+        logger.trace(s"Header removed: ${configuredHeader.getName}")
       }
-    director
+
+      configuredHeader.getValue.asScala foreach { configuredHeaderValue =>
+        headerManager.appendHeader(configuredHeader.getName, configuredHeaderValue, configuredHeader.getQuality)
+        logger.trace(s"Added header ${configuredHeader.getName} with value $configuredHeaderValue and quality ${configuredHeader.getQuality}")
+      }
+    }
+
+    filterDirector
   }
 }
