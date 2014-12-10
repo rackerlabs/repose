@@ -1,20 +1,20 @@
 package org.openrepose.filters.addheader
 
 import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
-import org.openrepose.filters.addheader.config.{AddHeadersType, HeaderType}
+import org.openrepose.filters.addheader.config.AddHeadersType
 
-class AddHeaderHandlerFactory(sourceHeaders: List[HeaderType] = List[HeaderType]()) extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler] {
+import scala.collection.JavaConverters._
+
+class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler] {
+
+  private var addHeaderHandler: AddHeaderHandler = _
 
   override protected def buildHandler: AddHeaderHandler = {
-    if (!this.isInitialized) {
-      return null
-    }
-    // todo: does a new handler need to be created for every request?
-    return new AddHeaderHandler(sourceHeaders)
+    if (isInitialized) addHeaderHandler
+    else null
   }
 
   override protected def getListeners: util.Map[Class[_], UpdateListener[_]] = {
@@ -26,15 +26,16 @@ class AddHeaderHandlerFactory(sourceHeaders: List[HeaderType] = List[HeaderType]
   }
 
   private class AddHeaderConfigurationListener extends UpdateListener[AddHeadersType] {
+    private var initialized = false
+
     def configurationUpdated(addHeaderTypeConfigObject: AddHeadersType) {
-      sourceHeaders :+ addHeaderTypeConfigObject.getHeader
-      initialized.set(true)
+      addHeaderHandler = new AddHeaderHandler(addHeaderTypeConfigObject.getHeader.asScala.toList)
+      initialized = true
     }
 
     override def isInitialized: Boolean = {
-      initialized.get()
+      initialized
     }
-
-    private val initialized = new AtomicBoolean()
   }
+
 }
