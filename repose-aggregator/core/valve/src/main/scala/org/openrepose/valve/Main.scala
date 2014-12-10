@@ -3,7 +3,7 @@ package org.openrepose.valve
 import com.typesafe.config.ConfigFactory
 
 object Main extends App {
-  val config = ConfigFactory.load()
+  val config = ConfigFactory.load("valve-config")
   val valve = new Valve()
   sys.ShutdownHookThread {
     valve.shutdown()
