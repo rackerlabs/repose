@@ -19,8 +19,8 @@ class AddHeaderHandler(sourceHeaders: List[HeaderType]) extends AbstractFilterLo
     director.setFilterAction(FilterAction.PASS)
     val headerManager = director.requestHeaderManager()
 
-    for(sourceHeader <- sourceHeaders) yield
-      for(value <- sourceHeader.getValue.asScala.toList) yield {
+    for (sourceHeader <- sourceHeaders) yield
+      for (value <- sourceHeader.getValue.asScala.toList) yield {
         if (sourceHeader.isRemoveOriginal) {
           headerManager.removeHeader(sourceHeader.getName)
           logger.trace(
