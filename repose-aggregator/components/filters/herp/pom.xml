@@ -16,7 +16,7 @@
     <name>Repose Components - HERP</name>
 
     <description>
-        This filter rejects delegated requests with the appropriate response.
+        This filter records API access events.
     </description>
 
     <packaging>jar</packaging>

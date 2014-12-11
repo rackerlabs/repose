@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+<xs:schema elementFormDefault="qualified"
            targetNamespace="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
-           xmlns:herp="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
+           xmlns="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Elements -->
-    <xs:element name="highly-efficient-record-processor" type="herp:herp-config"/>
+    <xs:element name="highly-efficient-record-processor" type="herp-config"/>
 
     <!-- Types -->
     <xs:complexType name="herp-config">
@@ -29,5 +29,4 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-
 </xs:schema>
