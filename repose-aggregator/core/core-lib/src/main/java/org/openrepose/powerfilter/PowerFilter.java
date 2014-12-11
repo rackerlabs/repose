@@ -164,6 +164,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
             SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
+            //TODO: is this wrong?
             if (previousSystemModel == null) {
                 eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             }
@@ -202,6 +203,11 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                         powerFilterRouter.set(powerFilterRouterFactory.
                                 getPowerFilterRouter(serviceDomain, localNode.get(), getFilterConfig().getServletContext(), defaultDst.getId()));
+
+                        //Destroy all the old filters
+                        for(FilterContext ctx : oldFilterChain) {
+                            ctx.destroy();
+                        }
 
                         //Reinitialize the power filter chain builder with new settings.
                     } catch (FilterInitializationException fie) {
