@@ -4,15 +4,14 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.*;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -181,12 +180,29 @@ public class CoreSpringProvider {
         filterContext.setParent(parentContext);
         filterContext.setDisplayName(contextName);
 
+        //Spring is annoying
+        //DefaultResourceLoader resourceLoader = new DefaultResourceLoader(loader);
+        //filterContext.setResourceLoader(resourceLoader);
+
+        LOG.debug("Creating Filter Context using parent context: {}", parentContext.getDisplayName());
+
         Class tehFilter = loader.loadClass(className);
 
         String packageToScan = tehFilter.getPackage().getName();
-        LOG.debug("Filter scan package: {}", packageToScan);
+        LOG.debug("Filter Context scan package: {}", packageToScan);
+
+        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+        propConfig.setEnvironment(filterContext.getEnvironment());
+        filterContext.addBeanFactoryPostProcessor(propConfig);
+
         filterContext.scan(packageToScan);
         filterContext.refresh();
+
+        if(LOG.isDebugEnabled()) {
+            for(String s: filterContext.getBeanDefinitionNames()) {
+                LOG.debug("FilterContext bean: {}", s);
+            }
+        }
 
         return filterContext;
     }
