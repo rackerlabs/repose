@@ -80,10 +80,12 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
                 ? DeploymentAction.UNPACK_ENTRY
                 : DeploymentAction.DO_NOT_UNPACK_ENTRY;
 
-        EntryAction entryAction = EntryAction.SKIP;
-        
+        //EntryAction entryAction = EntryAction.SKIP;
+        //TODO: default entry action needs to be a RESOURCE
+        EntryAction entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, deploymentAction);
+
         final String extension = descriptor.getExtension();
-        
+
         if (!StringUtilities.isBlank(extension)) {
             if ("class".equals(extension)) {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_CLASS, deploymentAction);
@@ -92,6 +94,8 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
             } else {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, deploymentAction);
             }
+        } else {
+            entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, DeploymentAction.DO_NOT_UNPACK_ENTRY);
         }
 
         return entryAction;
