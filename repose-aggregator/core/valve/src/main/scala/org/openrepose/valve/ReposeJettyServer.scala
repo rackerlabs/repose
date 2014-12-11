@@ -11,6 +11,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.powerfilter.EmptyServlet
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
@@ -40,6 +41,11 @@ class ReposeJettyServer(val clusterId: String,
 
   val coreSpringProvider = CoreSpringProvider.getInstance() //Safe to use here, it's been initialized earlier
   val nodeContext = coreSpringProvider.getNodeContext(clusterId, nodeId)
+
+  //NOTE: have to add this manually each time we fire up a spring context so that we can ensure that @Value works
+  val propConfig = new PropertySourcesPlaceholderConfigurer()
+  propConfig.setEnvironment(appContext.getEnvironment)
+  appContext.addBeanFactoryPostProcessor(propConfig)
 
   appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))

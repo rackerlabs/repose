@@ -6,6 +6,7 @@ import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.powerfilter.EmptyServlet;
 import org.openrepose.powerfilter.PowerFilter;
 import org.openrepose.core.spring.CoreSpringProvider;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -40,6 +41,10 @@ public class ReposeInitializer implements WebApplicationInitializer {
         //A war file is only ever one local node.
         rootContext.setParent(csp.getNodeContext(clusterId, nodeId));
         rootContext.setDisplayName("ReposeWARFileContext");
+
+        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+        propConfig.setEnvironment(rootContext.getEnvironment());
+        rootContext.addBeanFactoryPostProcessor(propConfig);
 
         Config config = ConfigFactory.load("springConfiguration.conf");
         rootContext.scan(config.getString("powerFilterSpringContextPath"));
