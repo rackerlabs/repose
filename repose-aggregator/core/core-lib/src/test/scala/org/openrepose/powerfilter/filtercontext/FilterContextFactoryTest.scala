@@ -70,7 +70,8 @@ import scala.collection.JavaConverters._
 
     filterContexts.size() should be(1)
 
-    val clazz = testFilterBundleClassLoader.loadClass("org.openrepose.filters.core.test.TestFilter")
+    val thingy = clms.getLoadedApplications.asScala.head.getClassLoader
+    val clazz = thingy.loadClass("org.openrepose.filters.core.test.TestFilter")
     filterContexts.get(0).getFilter.getClass.isAssignableFrom(clazz) shouldBe true
   }
   it("loads a filter context when there's many filters") {
