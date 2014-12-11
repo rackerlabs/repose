@@ -1,15 +1,12 @@
 package org.openrepose.filters.herp
 
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.junit.runner.RunWith
 import org.openrepose.filters.herp.config.HerpConfig
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
-@RunWith(classOf[JUnitRunner])
 class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with Matchers with PrivateMethodTester {
 
   var herpFilter: HerpFilter = _
