@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.*;
 
 import java.util.HashMap;
@@ -74,15 +75,15 @@ public class CoreSpringProvider {
             PropertiesPropertySource mps = new PropertiesPropertySource("core-properties", props);
             coreContext.getEnvironment().getPropertySources().addFirst(mps);
 
-            PropertyPlaceholderConfigurer propConfig = new PropertyPlaceholderConfigurer();
-            propConfig.setProperties(props);
+            PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+            propConfig.setEnvironment(coreContext.getEnvironment());
 
             coreContext.addBeanFactoryPostProcessor(propConfig);
 
             if (LOG.isDebugEnabled()) {
                 for (PropertySource source : coreContext.getEnvironment().getPropertySources()) {
                     EnumerablePropertySource eps = (EnumerablePropertySource) source;
-                    LOG.debug("Property names for {}: {}", eps.getName(), eps.getPropertyNames());
+                    LOG.debug("COREContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
                 }
             }
 
@@ -143,8 +144,15 @@ public class CoreSpringProvider {
         PropertiesPropertySource mps = new PropertiesPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
         nodeContext.getEnvironment().getPropertySources().addFirst(mps);
 
-        PropertyPlaceholderConfigurer propConfig = new PropertyPlaceholderConfigurer();
-        propConfig.setProperties(props);
+        if (LOG.isDebugEnabled()) {
+            for (PropertySource source : nodeContext.getEnvironment().getPropertySources()) {
+                EnumerablePropertySource eps = (EnumerablePropertySource) source;
+                LOG.debug("NODEContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
+            }
+        }
+
+        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+        propConfig.setEnvironment(nodeContext.getEnvironment());
         nodeContext.addBeanFactoryPostProcessor(propConfig);
 
         String nodeServicePackage = conf.getString("nodeSpringContextPath");
