@@ -6,8 +6,6 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.filters.addheader.config.AddHeadersConfig
 
-import scala.collection.JavaConverters._
-
 class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler] {
 
   private var addHeaderHandler: AddHeaderHandler = _
@@ -29,7 +27,7 @@ class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[Add
     private var initialized = false
 
     def configurationUpdated(addHeaderTypeConfigObject: AddHeadersConfig) {
-      addHeaderHandler = new AddHeaderHandler(addHeaderTypeConfigObject.getHeader.asScala.toList)
+      addHeaderHandler = new AddHeaderHandler(addHeaderTypeConfigObject)
       initialized = true
     }
 
@@ -37,4 +35,5 @@ class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[Add
       initialized
     }
   }
+
 }
