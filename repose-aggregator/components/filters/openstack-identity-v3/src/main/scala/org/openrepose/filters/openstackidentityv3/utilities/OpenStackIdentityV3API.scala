@@ -3,6 +3,8 @@ package org.openrepose.filters.openstackidentityv3.utilities
 import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.{HttpHeaders, MediaType}
+
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
@@ -11,7 +13,6 @@ import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtoco
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.services.datastore.Datastore
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
-import org.slf4j.LoggerFactory
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -19,8 +20,8 @@ import scala.collection.mutable
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
-class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient) {
-  private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3API])
+class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient)
+  extends LazyLogging {
 
   private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
   private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
@@ -80,7 +81,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
 
             newAdminToken match {
               case Some(token) =>
-                LOG.debug("Caching admin token")
+                logger.debug("Caching admin token")
 
                 val adminTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(authTokenResponse.get.getData)).token
                 val adminTokenTtl = safeLongToInt(new DateTime(adminTokenObject.expires_at).getMillis - DateTime.now.getMillis)
@@ -88,14 +89,14 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
               case None =>
-                LOG.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
+                logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
                 Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
             }
           case Some(statusCode) =>
-            LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + statusCode)
+            logger.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + statusCode)
             Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
           case None =>
-            LOG.error("Unable to get admin token. Request to OpenStack Identity service timed out.")
+            logger.error("Unable to get admin token. Request to OpenStack Identity service timed out.")
             Failure(new IdentityServiceException("OpenStack Identity service could not be reached to obtain admin token"))
         }
     }
@@ -130,24 +131,24 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
-                LOG.debug("Caching token '" + subjectToken + "' with TTL set to: " + ttl + "ms")
+                logger.debug("Caching token '" + subjectToken + "' with TTL set to: " + ttl + "ms")
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
               case Some(statusCode) if statusCode == HttpStatusCode.NOT_FOUND =>
-                LOG.error("Subject token validation failed. Response Code: 404")
+                logger.error("Subject token validation failed. Response Code: 404")
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
               case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED && checkCache =>
-                LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
+                logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                 validateToken(subjectToken, checkCache = false)
               case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED && !checkCache =>
-                LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
+                logger.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
               case Some(_) =>
-                LOG.error("OpenStack Identity service returned an unexpected response status code. Response Code: " + validateTokenResponse.get.getStatusCode)
+                logger.error("OpenStack Identity service returned an unexpected response status code. Response Code: " + validateTokenResponse.get.getStatusCode)
                 Failure(new IdentityServiceException("Failed to validate subject token"))
               case None =>
-                LOG.error("Unable to validate subject token. Request to OpenStack Identity service timed out.")
+                logger.error("Unable to validate subject token. Request to OpenStack Identity service timed out.")
                 Failure(new IdentityServiceException("OpenStack Identity service could not be reached to validate subject token"))
             }
           case Failure(e) => Failure(e)
@@ -180,30 +181,30 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
 
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
-                  LOG.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")
+                  logger.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")
                   600000
                 } else {
                   offsetConfiguredTtl
                 }
-                LOG.debug("Caching groups for user '" + userId + "' with TTL set to: " + ttl + "ms")
+                logger.debug("Caching groups for user '" + userId + "' with TTL set to: " + ttl + "ms")
                 // TODO: Maybe handle all this conversion jank?
                 datastore.put(GROUPS_KEY_PREFIX + userId, groups.toBuffer.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
               case Some(statusCode) if statusCode == HttpStatusCode.NOT_FOUND =>
-                LOG.error("Groups for '" + userId + "' not found. Response Code: 404")
+                logger.error("Groups for '" + userId + "' not found. Response Code: 404")
                 Failure(new InvalidUserForGroupsException("Failed to fetch groups"))
               case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED && checkCache =>
-                LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
+                logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
                 getGroups(userId, checkCache = false)
               case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED && !checkCache =>
-                LOG.error("Retry after fetching a new admin token failed. Aborting groups retrieval for: '" + userId + "'")
+                logger.error("Retry after fetching a new admin token failed. Aborting groups retrieval for: '" + userId + "'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
               case Some(statusCode) =>
-                LOG.error("OpenStack Identity service returned an unexpected response status code. Response Code: " + statusCode)
+                logger.error("OpenStack Identity service returned an unexpected response status code. Response Code: " + statusCode)
                 Failure(new IdentityServiceException("Failed to fetch groups"))
               case None =>
-                LOG.error("Unable to get groups. Request to OpenStack Identity service timed out.")
+                logger.error("Unable to get groups. Request to OpenStack Identity service timed out.")
                 Failure(new IdentityServiceException("OpenStack Identity service could not be reached to obtain groups"))
             }
           case Failure(e) => Failure(e)

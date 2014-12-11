@@ -5,6 +5,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
@@ -19,9 +20,8 @@ import scala.io.Source
 import scala.xml._
 
 class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicAuthConfig, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
-  extends AbstractFilterLogicHandler with HttpDelegationManager with BasicAuthUtils {
+  extends AbstractFilterLogicHandler with HttpDelegationManager with BasicAuthUtils with LazyLogging {
 
-  private final val LOG = LoggerFactory.getLogger(classOf[RackspaceIdentityBasicAuthHandler])
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
   private final val SC_TOO_MANY_REQUESTS = 429
@@ -33,7 +33,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String)
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.debug("Handling HTTP Request")
+    logger.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
 
     def delegateOrElse(responseCode: Int, message: String)(f: => Any) = {
@@ -98,7 +98,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   }
 
   override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
+    logger.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
       httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
@@ -107,7 +107,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
         datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
       }
     }
-    LOG.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    logger.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
   }
 
