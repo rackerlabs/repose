@@ -1,6 +1,6 @@
 package org.openrepose.filters.herp
 
-import com.mockrunner.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -39,9 +39,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val filterChain = new MockFilterChain()
       herpConfig.setId("highly-efficient-record-processor-Logger")
       servletRequest.setRequestURI("http://www.example.com/derp/derp?herp=derp")
-      servletRequest.setRequestURL("http://www.example.com/derp/derp?herp=derp")
       servletRequest.addHeader("Accept", "application/xml")
-      servletRequest.setQueryString("?herp=derp")
       servletRequest.setMethod("GET")
       servletRequest.setRemoteHost("10.10.220.221")
       servletRequest.setLocalAddr("10.10.220.220")
@@ -62,8 +60,6 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       //then:
-      filterChain.getRequestList.size shouldBe 1
-
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage shouldBe "This is a message from the HERP filter."

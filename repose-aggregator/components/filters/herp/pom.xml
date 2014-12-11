@@ -25,6 +25,14 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Let's use Scala -->
         <dependency>
@@ -59,6 +67,13 @@
             <artifactId>utilities</artifactId>
         </dependency>
 
+        <!-- JSON support -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_2.10</artifactId>
+            <version>2.3.4</version>
+        </dependency>
+
         <!-- Lazy logging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
@@ -66,11 +81,9 @@
             <version>2.1.2</version>
         </dependency>
 
-        <!-- Mockrunner for mock HttpServletRequest -->
         <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
