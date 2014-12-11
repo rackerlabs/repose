@@ -1,44 +1,39 @@
 package org.openrepose.filters.addheader
 
 import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
-import org.openrepose.filters.addheader.config.AddHeaderType
-import org.openrepose.filters.addheader.config.Header
+import org.openrepose.filters.addheader.config.AddHeadersConfig
 
+class AddHeaderHandlerFactory extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler] {
 
-/**
- * Created by dimi5963 on 12/4/14.
- */
-class AddHeaderHandlerFactory(sourceHeaders: List[Header] = List[Header]()) extends AbstractConfiguredFilterHandlerFactory[AddHeaderHandler]{
+  private var addHeaderHandler: AddHeaderHandler = _
 
   override protected def buildHandler: AddHeaderHandler = {
-    if (!this.isInitialized) {
-      return null
-    }
-    return new AddHeaderHandler(sourceHeaders)
+    if (isInitialized) addHeaderHandler
+    else null
   }
 
   override protected def getListeners: util.Map[Class[_], UpdateListener[_]] = {
     val listenerMap = new util.HashMap[Class[_], UpdateListener[_]]()
 
-    listenerMap.put(classOf[AddHeaderType], new AddHeaderConfigurationListener())
+    listenerMap.put(classOf[AddHeadersConfig], new AddHeaderConfigurationListener())
 
     listenerMap
   }
 
-  private class AddHeaderConfigurationListener extends UpdateListener[AddHeaderType] {
-    def configurationUpdated(addHeaderTypeConfigObject: AddHeaderType) {
-      sourceHeaders :+ addHeaderTypeConfigObject.getHeader
-      initialized.set(true)
+  private class AddHeaderConfigurationListener extends UpdateListener[AddHeadersConfig] {
+    private var initialized = false
+
+    def configurationUpdated(addHeaderTypeConfigObject: AddHeadersConfig) {
+      addHeaderHandler = new AddHeaderHandler(addHeaderTypeConfigObject)
+      initialized = true
     }
 
     override def isInitialized: Boolean = {
-      initialized.get()
+      initialized
     }
-
-    private val initialized = new AtomicBoolean()
   }
+
 }

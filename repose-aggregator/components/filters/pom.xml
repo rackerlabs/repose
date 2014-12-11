@@ -39,6 +39,7 @@
         <module>openstack-identity-v3</module>
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
+        <module>add-header</module>
     </modules>
 
     <properties>
@@ -248,6 +249,24 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>rackspace-identity-basic-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>rackspace-auth-user</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>content-type-stripper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>add-header</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

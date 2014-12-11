@@ -3,37 +3,47 @@ package org.openrepose.filters.addheader
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import org.openrepose.core.filter.logic.{HeaderManager, FilterAction, FilterDirector}
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.filters.addheader.config.{Header}
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header}
 
 import scala.collection.JavaConverters._
 
-/**
- * Created by dimi5963 on 12/4/14.
- */
-class AddHeaderHandler(sourceHeaders: List[Header])  extends AbstractFilterLogicHandler with LazyLogging {
+class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHandler with LazyLogging {
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    val director = new FilterDirectorImpl()
-    //By default, if nothing happens we're going to pass
-    director.setFilterAction(FilterAction.PASS)
-    val headerManager = director.requestHeaderManager()
+    val filterDirector = new FilterDirectorImpl()
+    val headerManager = filterDirector.requestHeaderManager()
+    filterDirector.setFilterAction(FilterAction.PASS)
 
-    for(sourceHeader <- sourceHeaders) yield
-      for(value <- sourceHeader.getValue.asScala.toList) yield {
-        if (sourceHeader.isRemoveOriginal) {
-          headerManager.removeHeader(sourceHeader.getName)
-          logger.trace(
-            s"Header removed: ${sourceHeader.getName} with value $value and quality ${sourceHeader.getQuality}")
-        }
-        headerManager.appendHeader(sourceHeader.getName, value, sourceHeader.getQuality)
-        logger.trace(s"Added header ${sourceHeader.getName} with value $value and quality ${sourceHeader.getQuality}")
-      }
-    director
+    modifyHeaders(config.getRequest.getHeader.asScala, headerManager)
+
+    filterDirector
   }
 
+  override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    val filterDirector = new FilterDirectorImpl()
+    val headerManager = filterDirector.responseHeaderManager()
+    filterDirector.setFilterAction(FilterAction.PASS)
+
+    modifyHeaders(config.getResponse.getHeader.asScala, headerManager)
+
+    filterDirector
+  }
+
+  def modifyHeaders(configuredHeaders: Seq[Header], headerManager: HeaderManager): Unit = {
+    configuredHeaders foreach { configuredHeader =>
+      if (configuredHeader.isOverwrite) {
+        headerManager.removeHeader(configuredHeader.getName)
+        logger.debug(s"Header removed: ${configuredHeader.getName}")
+      }
+
+      configuredHeader.getValue.asScala foreach { configuredHeaderValue =>
+        headerManager.appendHeader(configuredHeader.getName, configuredHeaderValue, configuredHeader.getQuality)
+        logger.debug(s"Added header ${configuredHeader.getName} with value $configuredHeaderValue and quality ${configuredHeader.getQuality}")
+      }
+    }
+  }
 }
