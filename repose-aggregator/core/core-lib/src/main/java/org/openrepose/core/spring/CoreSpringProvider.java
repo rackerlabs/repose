@@ -180,10 +180,6 @@ public class CoreSpringProvider {
         filterContext.setParent(parentContext);
         filterContext.setDisplayName(contextName);
 
-        //Spring is annoying
-        //DefaultResourceLoader resourceLoader = new DefaultResourceLoader(loader);
-        //filterContext.setResourceLoader(resourceLoader);
-
         LOG.debug("Creating Filter Context using parent context: {}", parentContext.getDisplayName());
 
         Class tehFilter = loader.loadClass(className);
