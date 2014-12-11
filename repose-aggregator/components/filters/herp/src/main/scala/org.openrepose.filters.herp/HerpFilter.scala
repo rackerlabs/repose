@@ -15,6 +15,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
+import play.api.libs.json.Json
 
 class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
@@ -75,9 +76,53 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
                              filterDirector: FilterDirector) = {
     logger.trace("HERP filter handling Response ...")
     if (initialized) {
-      herpLogger.get.error("This is a message from the HERP filter.")
+      val headers =
+      val userName = "A - User Name"
+      val impersonatorName = "B - Impersonator Name"
+      val tenantID = "C - Tenant ID"
+      val rbacRoles = "D - RBAC Roles"
+      val userAgent = "E - User Agent"
+      val requestMethod = "POST"
+      val requestURL = "http://www.example.com/derp/derp?herp=derp"
+      val eventName = "H - Event Name"
+      val serviceCode = "I - Service Code"
+      val region = "J - Region"
+      val dataCenter = "K - Data Center"
+      val parameters = paramsToMapStringString(httpServletRequest.getParameterMap)
+      val timestamp = System.currentTimeMillis()
+      val responseCode = httpServletResponse.getStatus
+      val responseMessage = "O - Response Message"
+      val guid = java.util.UUID.randomUUID
+
+      val jsonObject = Json.toJson(
+        Map(
+          "UserName" -> Json.toJson(userName),
+          "ImpersonatorName" -> Json.toJson(impersonatorName),
+          "TenantID" -> Json.toJson(tenantID),
+          "RbacRoles" -> Json.toJson(rbacRoles),
+          "Useragent" -> Json.toJson(userAgent),
+          "RequestMethod" -> Json.toJson(requestMethod),
+          "RequestURL" -> Json.toJson(requestURL),
+          "EventName" -> Json.toJson(eventName),
+          "ServiceCode" -> Json.toJson(serviceCode),
+          "Region" -> Json.toJson(region),
+          "DataCenter" -> Json.toJson(dataCenter),
+          "Parameters" -> Json.toJson(parameters),
+          "Timestamp" -> Json.toJson(timestamp),
+          "Response" -> Map(
+            "Code" -> Json.toJson(responseCode),
+            "Message" -> Json.toJson(responseMessage)
+          ),
+          "GUID" -> Json.toJson(guid)
+        )
+      )
+      herpLogger.get.info(Json.stringify(jsonObject))
     }
     logger.trace("HERP filter handled Response.")
+  }
+
+  private def paramsToMapStringString(params: Map[String, Array[String]]): Map[String, String] = {
+    params.toList flatMap {x => x._2 map { y => x._1 -> y }}
   }
 
   override def destroy() = {
