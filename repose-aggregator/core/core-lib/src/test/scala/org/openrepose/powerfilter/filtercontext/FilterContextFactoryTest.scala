@@ -6,7 +6,7 @@ import com.oracle.javaee6.{FilterType, FullyQualifiedClassType}
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.classloader.ear.{EarClassLoader, EarClassLoaderContext, EarDescriptor, SimpleEarClassLoaderContext}
+import org.openrepose.commons.utils.classloader.ear._
 import org.openrepose.core.services.classloader.ClassLoaderManagerService
 import org.openrepose.core.spring.{CoreSpringProvider, TestFilterBundlerHelper}
 import org.openrepose.core.systemmodel.Filter
@@ -28,32 +28,18 @@ import scala.collection.JavaConverters._
 
   val mockFilterConfig = mock[FilterConfig]
 
-  def mockEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
-    val earContext = mock[SimpleEarClassLoaderContext]
-    val earDescriptor = new EarDescriptor()
-
-    classMapping.foreach { case (filterName, filterClass) =>
-      val filterType = new FilterType()
-      val fullyQualifiedClassType = new FullyQualifiedClassType
-      fullyQualifiedClassType.setValue(filterClass)
-      filterType.setFilterClass(fullyQualifiedClassType)
-
-      earDescriptor.getRegisteredFiltersMap.put(filterName, filterType)
-    }
-
-    when(earContext.getEarDescriptor()).thenReturn(earDescriptor)
-
-    val earClassLoader = new EarClassLoader(testFilterBundleClassLoader, testFilterBundleRoot)
-    when(earContext.getClassLoader).thenReturn(earClassLoader)
-
-    earContext
+  def reposeEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
+    //val earContext = mock[SimpleEarClassLoaderContext]
+    val unPacker = new EarUnpacker(testFilterBundleRoot)
+    val listener = new DefaultEarArchiveEntryHelper(this.getClass.getClassLoader, unPacker.getDeploymentDirectory)
+    unPacker.read(listener, testFilterBundleFile)
   }
 
   def mockClassloaderManagerService(classMapping: Map[String, String]): ClassLoaderManagerService = {
     import org.mockito.Matchers.anyString
 
     val clms = mock[ClassLoaderManagerService]
-    val mockList = List(mockEarClassLoader(classMapping)).asJava
+    val mockList = List(reposeEarClassLoader(classMapping)).asJava
     when(clms.getLoadedApplications()).thenReturn(mockList)
     when(clms.hasFilter(anyString())).thenAnswer(new Answer[Boolean]() {
       override def answer(invocation: InvocationOnMock): Boolean = {
