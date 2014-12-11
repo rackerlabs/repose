@@ -11,6 +11,13 @@
     <xs:element name="add-headers" type="AddHeadersConfig"/>
 
     <xs:complexType name="AddHeadersConfig">
+        <xs:all>
+            <xs:element name="request" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="HttpMessage">
         <xs:sequence>
             <xs:element name="header" type="Header" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
