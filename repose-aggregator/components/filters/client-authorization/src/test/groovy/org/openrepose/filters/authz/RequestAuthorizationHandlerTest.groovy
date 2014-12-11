@@ -22,7 +22,7 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
-class RequestAuthorizationHandlerGroovyTest extends Specification {
+class RequestAuthorizationHandlerTest extends Specification {
 
     AuthenticationService authenticationService
     EndpointListCache endpointListCache
