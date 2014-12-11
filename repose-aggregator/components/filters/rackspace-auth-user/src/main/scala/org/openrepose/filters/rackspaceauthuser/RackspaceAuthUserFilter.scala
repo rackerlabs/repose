@@ -27,7 +27,7 @@ class RackspaceAuthUserFilter extends Filter with LazyLogging {
     configurationService = powerApiContext.configurationService()
     handlerFactory = new RackspaceAuthUserHandlerFactory()
 
-    val xsdURL = getClass.getResource("/META-INF/config/schema/rackspace-auth-user-configuration.xsd")
+    val xsdURL = getClass.getResource("/META-INF/schema/config/rackspace-auth-user-configuration.xsd")
     configurationService.subscribeTo(filterConfig.getFilterName,
       config,
       xsdURL,
