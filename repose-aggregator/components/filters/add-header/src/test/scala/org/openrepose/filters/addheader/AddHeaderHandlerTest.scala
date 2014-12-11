@@ -52,7 +52,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
-    header.setRemoveOriginal(true)
+    header.setOverwrite(true)
 
     conf.setRequest(new HttpMessage)
     conf.getRequest.getHeader.add(header)
@@ -67,7 +67,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     header.setName("x-new-header")
     header.getValue.add("new-value")
     header.setQuality(0.2)
-    header.setRemoveOriginal(true)
+    header.setOverwrite(true)
 
     conf.setResponse(new HttpMessage)
     conf.getResponse.getHeader.add(header)
