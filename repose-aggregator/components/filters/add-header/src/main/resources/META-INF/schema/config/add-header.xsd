@@ -6,14 +6,15 @@
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:html="http://www.w3.org/1999/xhtml">
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
 
     <xs:element name="add-headers" type="AddHeadersConfig"/>
 
     <xs:complexType name="AddHeadersConfig">
         <xs:all>
-            <xs:element name="request" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="response" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="request" type="HttpMessage"/>
+            <xs:element name="response" type="HttpMessage"/>
         </xs:all>
     </xs:complexType>
 
@@ -42,7 +43,7 @@
         </xs:sequence>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="remove-original" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false"/>
         <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional" default="1.0">
             <xs:annotation>
                 <xs:documentation>
