@@ -310,7 +310,7 @@
                         <id>copy-core-test-bundle</id>
                         <phase>test-compile</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
                             <artifactItems>
