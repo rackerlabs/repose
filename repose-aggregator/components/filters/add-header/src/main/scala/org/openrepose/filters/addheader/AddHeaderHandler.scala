@@ -35,7 +35,7 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
 
   def modifyHeaders(configuredHeaders: Seq[Header], headerManager: HeaderManager): Unit = {
     configuredHeaders foreach { configuredHeader =>
-      if (configuredHeader.isRemoveOriginal) {
+      if (configuredHeader.isOverwrite) {
         headerManager.removeHeader(configuredHeader.getName)
         logger.debug(s"Header removed: ${configuredHeader.getName}")
       }
