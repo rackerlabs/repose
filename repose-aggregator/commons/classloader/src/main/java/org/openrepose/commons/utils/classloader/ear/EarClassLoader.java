@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.*;
 
 public class EarClassLoader extends ClassLoader {
 
@@ -95,7 +96,11 @@ public class EarClassLoader extends ClassLoader {
       return null;
    }
 
-   //findResource("/META-INF/stuff")
+   /**
+    * only supports finding a specific resource, should support more things, I think
+    * @param resourcePath
+    * @return
+    */
    @Override
    protected URL findResource(String resourcePath) {
       URL resourceUrl = super.findResource(resourcePath);
@@ -111,6 +116,20 @@ public class EarClassLoader extends ClassLoader {
       }
 
       return resourceUrl;
+   }
+
+   @Override
+   public Enumeration<URL> getResources(String name) throws IOException {
+      //TODO: need to check our resources!
+      URL url = findResource(name);
+      List<URL> tehList = new LinkedList<>();
+//      Enumeration<URL> superResources = super.getResources(name);
+//      while(superResources.hasMoreElements()) {
+//         tehList.add(superResources.nextElement());
+//      }
+      tehList.add(url);
+
+      return Collections.enumeration(tehList);
    }
 
    final Class<?> defineClass(ResourceDescriptor descriptor) throws IOException {
