@@ -6,30 +6,44 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
-import org.openrepose.filters.addheader.config.Header
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header}
 
 import scala.collection.JavaConverters._
 
-class AddHeaderHandler(configuredHeaders: List[Header]) extends AbstractFilterLogicHandler with LazyLogging {
+class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHandler with LazyLogging {
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.PASS)
 
+    modifyHeaders(config.getRequest.getHeader.asScala, headerManager)
+
+    filterDirector
+  }
+
+  override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    val filterDirector = new FilterDirectorImpl()
+    val headerManager = filterDirector.responseHeaderManager()
+    filterDirector.setFilterAction(FilterAction.PASS)
+
+    modifyHeaders(config.getResponse.getHeader.asScala, headerManager)
+
+    filterDirector
+  }
+
+  def modifyHeaders(configuredHeaders: Seq[Header], headerManager: HeaderManager): Unit = {
     configuredHeaders foreach { configuredHeader =>
       if (configuredHeader.isRemoveOriginal) {
         headerManager.removeHeader(configuredHeader.getName)
-        logger.trace(s"Header removed: ${configuredHeader.getName}")
+        logger.debug(s"Header removed: ${configuredHeader.getName}")
       }
 
       configuredHeader.getValue.asScala foreach { configuredHeaderValue =>
         headerManager.appendHeader(configuredHeader.getName, configuredHeaderValue, configuredHeader.getQuality)
-        logger.trace(s"Added header ${configuredHeader.getName} with value $configuredHeaderValue and quality ${configuredHeader.getQuality}")
+        logger.debug(s"Added header ${configuredHeader.getName} with value $configuredHeaderValue and quality ${configuredHeader.getQuality}")
       }
     }
-
-    filterDirector
   }
 }
