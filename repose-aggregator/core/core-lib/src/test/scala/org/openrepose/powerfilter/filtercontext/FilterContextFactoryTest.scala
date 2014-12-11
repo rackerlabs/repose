@@ -22,7 +22,10 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
 
 import scala.collection.JavaConverters._
 
+  CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false);
+
   val appContext = CoreSpringProvider.getInstance().getCoreContext
+
   val mockFilterConfig = mock[FilterConfig]
 
   def mockEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
