@@ -22,9 +22,9 @@ public final class ArchiveEntryDescriptorBuilder {
          final String simpleName = resourceName.substring(0, extensionIndex);
          final String extension = resourceName.substring(extensionIndex + 1, resourceName.length());
 
-         archiveEntryDescriptor = new ArchiveEntryDescriptor(archiveName, StringUtilities.trim(sanitizedEntryName, "/"), resourcePath, simpleName, extension);
+         archiveEntryDescriptor = new ArchiveEntryDescriptor(archiveName, sanitizedEntryName, resourcePath, simpleName, extension);
       } else {
-         archiveEntryDescriptor = new ArchiveEntryDescriptor(archiveName, StringUtilities.trim(sanitizedEntryName, "/"), resourcePath, resourceName, "");
+         archiveEntryDescriptor = new ArchiveEntryDescriptor(archiveName, sanitizedEntryName, resourcePath, resourceName, "");
       }
 
       return archiveEntryDescriptor;
