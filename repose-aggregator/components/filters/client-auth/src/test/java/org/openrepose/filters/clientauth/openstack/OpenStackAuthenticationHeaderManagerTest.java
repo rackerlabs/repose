@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientauth.openstack.v1_0;
+package org.openrepose.filters.clientauth.openstack;
 
 import com.rackspace.httpdelegation.HttpDelegationHeaderNames;
 import org.openrepose.common.auth.AuthGroup;
@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHeaderManager;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.xml.datatype.DatatypeFactory;

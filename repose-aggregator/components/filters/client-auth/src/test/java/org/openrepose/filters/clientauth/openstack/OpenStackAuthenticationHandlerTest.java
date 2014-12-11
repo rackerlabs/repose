@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientauth.openstack.v1_0;
+package org.openrepose.filters.clientauth.openstack;
 
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
@@ -22,6 +22,7 @@ import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.clientauth.common.*;
+import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandler;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;

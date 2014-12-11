@@ -1,6 +1,6 @@
 package org.openrepose.filters.slf4jlogging;
 
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -12,10 +12,6 @@ import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
-/**
- *
- * @author jhopper
- */
 public class Slf4jHttpLoggingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(Slf4jHttpLoggingFilter.class);
