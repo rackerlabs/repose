@@ -18,10 +18,6 @@ public class FilterConfigWrapper implements FilterConfig {
     private final String config;
 
     public FilterConfigWrapper(FilterConfig parent, FilterType filterType, String config) {
-        if (parent == null) {
-            throw new IllegalArgumentException("filter config cannot be null");
-        }
-
         if (filterType == null) {
             throw new IllegalArgumentException("filter type cannot be null");
         }
