@@ -105,7 +105,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (!jmxPort) {
             jmxPort = PortFinder.Singleton.getNextOpenPort()
         }
-        jmxprops = "-javaagent:/Users/dimi5963/projects/apicoverage/lib/extras/jolokia-jvm-1.2.3-agent.jar -Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
