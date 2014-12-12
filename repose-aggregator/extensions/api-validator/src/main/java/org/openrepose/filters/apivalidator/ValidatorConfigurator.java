@@ -113,7 +113,7 @@ public class ValidatorConfigurator {
             File out = new File(dotPath);
             try {
                 if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
-                    handlers.add(new SaveDotHandler(out, !validatorItem.isEnableApiCoverage(), false));
+                    handlers.add(new SaveDotHandler(out, !validatorItem.isEnableApiCoverage(), true));
                 } else {
                     LOG.warn("Cannot write to DOT file: " + dotPath);
                 }
