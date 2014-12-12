@@ -142,6 +142,11 @@
             <artifactId>rackspace-auth-user</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>content-type-stripper</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -257,6 +262,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>rackspace-identity-basic-auth</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>content-type-stripper</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
