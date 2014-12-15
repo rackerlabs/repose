@@ -9,6 +9,9 @@ import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.servlet.PowerApiContextException;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -34,6 +38,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
+    private final ClassLoaderManagerService classLoaderManagerService;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
     private final String configRoot;
@@ -42,8 +47,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Inject
     public ConfigurationServiceImpl(
             ConfigurationUpdateManager configurationUpdateManager,
+            ClassLoaderManagerService classLoaderManagerService,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
+        this.classLoaderManagerService = classLoaderManagerService;
         setUpdateManager(configurationUpdateManager);
         this.configRoot = configRoot;
         parserLookaside = new HashMap<>();
@@ -155,15 +162,46 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
     }
 
-    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource) {
+    /**
+     * This goes through all the earclassloader contexts and tries to find a classloader that can marshal the jaxb stuff
+     * Unfortunately it is not aware of changes to the artifacts and such, and so this will be a source of bugs in the future.
+     * NOTE: when artifacts are replaced or reloaded or changed, this guy won't update stuff, it will be a source of bugs
+     * @param configurationClass
+     * @param xsdStreamSource
+     * @param <T>
+     * @return
+     */
+    private <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource) {
         final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
         ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
 
         if (parser == null) {
-            try {
-                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass, xsdStreamSource);
-            } catch (ConfigurationResourceException cre) {
-                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
+            boolean foundParser = false;
+            LOG.debug("number of loaded applications: {}", classLoaderManagerService.getLoadedApplications().size());
+
+            for(EarClassLoaderContext loaderContext : classLoaderManagerService.getLoadedApplications()) {
+                ClassLoader loader = loaderContext.getClassLoader();
+                try {
+                    LOG.debug("Trying to find parser for {} on classloader {}", configurationClass, loader);
+                    parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass, xsdStreamSource, loader);
+                    foundParser = true;
+                } catch (JAXBException e) {
+                    LOG.warn("Unable to create JAXB Marshaller for classloader {} on classloader {}", configurationClass, loader);
+                }
+            }
+            if(parser == null) {
+                //still haven't found one, trying the current classloader
+                try {
+                    LOG.debug("Trying to find parser for {} on the default classloader", configurationClass);
+                    parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass, xsdStreamSource);
+                    foundParser = true;
+                } catch (JAXBException e) {
+                    LOG.warn("Unable to create JAXB Marshaller for classloader {} on the default classloader", configurationClass);
+                }
+            }
+
+            if(!foundParser) {
+                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser!");
             }
 
             parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
