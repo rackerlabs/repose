@@ -16,7 +16,11 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
-    filterDirector.setFilterAction(FilterAction.PASS)
+    if (config.getResponse != null) {
+      filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+    } else {
+      filterDirector.setFilterAction(FilterAction.PASS)
+    }
 
     modifyHeaders(config.getRequest.getHeader.asScala, headerManager)
 
