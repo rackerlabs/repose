@@ -43,8 +43,8 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         reposehandling.request.headers.getFirstValue("repose-test") == "no-overwrite"
         reposehandling.request.headers.contains("overwrite-test")
         reposehandling.request.headers.getFirstValue("overwrite-test") == "this-is-overwrite-value;q=0.5"
-        reposehandling.response.headers.contains("response-header")
-        reposehandling.response.headers.getFirstValue("response-header") == "foooo"
+        mc.receivedResponse.headers.contains("response-header")
+        mc.receivedResponse.headers.getFirstValue("response-header") == "foooo;q=0.9"
     }
 
     def "Add-header filter test with overwrite and quality" () {
@@ -78,7 +78,7 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.headers.contains("response-header")
-        mc.receivedResponse.headers.getFirstValue("response-header") == "foooo"
+        mc.receivedResponse.headers.getFirstValue("response-header") == "foooo;q=0.9"
 
     }
 
