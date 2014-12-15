@@ -12,6 +12,9 @@ import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser;
 import org.openrepose.commons.config.parser.properties.PropertiesFileConfigurationParser;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
+
+import javax.xml.bind.JAXBException;
+
 import static org.junit.Assert.*;
 
 
@@ -40,13 +43,13 @@ public class ConfigurationParserFactoryTest {
     }
 
     @Test
-    public void testNewConfigurationParserWithRawType() {
+    public void testNewConfigurationParserWithRawType() throws JAXBException {
         ConfigurationParser result = ConfigurationParserFactory.newConfigurationParser(ConfigurationParserType.RAW, null);
         assertThat(result, IsInstanceOf.instanceOf(InputStreamConfigurationParser.class));
     }
 
     @Test
-    public void testNewConfigurationParserWithPropertiesType() {
+    public void testNewConfigurationParserWithPropertiesType() throws JAXBException {
         ConfigurationParser result = ConfigurationParserFactory.newConfigurationParser(ConfigurationParserType.PROPERTIES, null);
         assertThat(result, IsInstanceOf.instanceOf(PropertiesFileConfigurationParser.class));
     }

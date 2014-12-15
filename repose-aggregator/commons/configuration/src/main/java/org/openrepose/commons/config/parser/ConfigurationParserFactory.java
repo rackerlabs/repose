@@ -17,7 +17,8 @@ public final class ConfigurationParserFactory {
     private ConfigurationParserFactory() {
     }
 
-    public static <T> ConfigurationParser<T> newConfigurationParser(ConfigurationParserType type, Class<T> configurationClass) {
+    //TODO: this is only exposed for testing methods!
+    public static <T> ConfigurationParser<T> newConfigurationParser(ConfigurationParserType type, Class<T> configurationClass) throws JAXBException {
         switch (type) {
             case XML:
                 return getXmlConfigurationParser(configurationClass, null);
@@ -38,13 +39,32 @@ public final class ConfigurationParserFactory {
         return new PropertiesFileConfigurationParser();
     }
 
-    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass,URL xsdStreamSource) {
-        try {
-            final JAXBContext jaxbCtx = JAXBContext.newInstance(configurationClass.getPackage().getName());
-            return new JaxbConfigurationParser<T>(configurationClass, jaxbCtx ,xsdStreamSource);
-        } catch (JAXBException jaxbe) {
-            throw new ConfigurationResourceException("Failed to create a JAXB context for a configuration parser. Reason: " + jaxbe.getMessage(), jaxbe);
-        }
+    /**
+     * uses the current classloader to create a jaxb context. Used to not throw a jaxbexception but added that because it makes much more sense
+     * @param configurationClass
+     * @param xsdStreamSource
+     * @param <T>
+     * @return
+     * @throws JAXBException
+     */
+    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass, URL xsdStreamSource) throws JAXBException {
+        final JAXBContext jaxbCtx = JAXBContext.newInstance(configurationClass.getPackage().getName());
+        return new JaxbConfigurationParser<T>(configurationClass, jaxbCtx, xsdStreamSource);
     }
-    
+
+    /**
+     * Creates a jaxb parser for a specific classloader.
+     * Throws up the JAXB exception so that things know they have to handle it.
+     *
+     * @param configurationClass
+     * @param xsdStreamSource
+     * @param loader
+     * @param <T>
+     * @return
+     * @throws JAXBException
+     */
+    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass, URL xsdStreamSource, ClassLoader loader) throws JAXBException {
+        final JAXBContext context = JAXBContext.newInstance(configurationClass.getPackage().getName(), loader);
+        return new JaxbConfigurationParser<>(configurationClass, context, xsdStreamSource);
+    }
 }
