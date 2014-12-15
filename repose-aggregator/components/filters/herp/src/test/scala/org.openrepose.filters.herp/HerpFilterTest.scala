@@ -48,7 +48,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       servletResponse.setContentLength(responseBody.length)
       servletResponse.setStatus(200, "OK")
       servletResponse.addHeader("X-Derp-header", "lolwut")
-      servletResponse.getWriter().print(responseBody)
+      servletResponse.getWriter().write(responseBody)
       servletResponse.getWriter().flush()
       servletResponse.getWriter().close()
 
