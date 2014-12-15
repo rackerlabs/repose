@@ -8,7 +8,7 @@
     </request>
 
     <response>
-        <header name="response-header" quality="0.9" overwrite="true">
+        <header name="response-header" quality="0.9">
             <value>foooo</value>
         </header>
     </response>

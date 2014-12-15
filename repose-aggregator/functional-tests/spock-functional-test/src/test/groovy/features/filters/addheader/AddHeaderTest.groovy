@@ -16,7 +16,6 @@ class AddHeaderTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/addheader", params)
-        repose.configurationProvider.applyConfigs("features/filters/addheader/common", params)
         repose.start()
     }
 
