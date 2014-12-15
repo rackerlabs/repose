@@ -7,10 +7,10 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Elements -->
-    <xs:element name="highly-efficient-record-processor" type="herp-config"/>
+    <xs:element name="highly-efficient-record-processor" type="HerpConfig"/>
 
     <!-- Types -->
-    <xs:complexType name="herp-config">
+    <xs:complexType name="HerpConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
