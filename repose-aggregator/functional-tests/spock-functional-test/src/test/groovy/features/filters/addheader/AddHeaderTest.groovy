@@ -40,6 +40,6 @@ class AddHeaderTest extends ReposeValveTest {
         sentRequest.request.headers.contains("repose-test")
         sentRequest.request.headers.getFirstValue("repose-test") == "this-is-a-test"
         mc.getReceivedResponse().headers.contains("response-header")
-        mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo"
+        mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
     }
 }
