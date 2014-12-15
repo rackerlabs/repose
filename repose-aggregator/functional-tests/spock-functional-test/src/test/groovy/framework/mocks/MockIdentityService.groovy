@@ -119,6 +119,7 @@ class MockIdentityService {
     def admin_username = 'admin_username';
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
+    def region = "ORD"
     def admin_userid = 67890;
     Validator validator;
 
@@ -488,7 +489,7 @@ class MockIdentityService {
             template = this.identityEndpointXmlTemplate
         } else {
             headers.put('Content-type', 'application/json')
-            template = this.identityEndpointJsonTemplate
+            template = this.identityEndpointsJsonTemplate
         }
 
         def params = [
@@ -499,7 +500,8 @@ class MockIdentityService {
                 'username'         : this.client_username,
                 'tenant'           : this.client_tenant,
                 'originServicePort': this.originServicePort,
-                'endpointUrl'      : this.endpointUrl
+                'endpointUrl'      : this.endpointUrl,
+                'region'           : this.region
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
@@ -513,7 +515,7 @@ class MockIdentityService {
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            template = this.getUserGlobalRolesXmlTemplate;
+            template = this.getUserGlobalRolesXmlTemplate
         } else {
             headers.put('Content-type', 'application/json')
             template = this.getUserGlobalRolesJsonTemplate;
@@ -753,24 +755,34 @@ class MockIdentityService {
     ],
     "endpoints": [
         {
-            "internalURL": "http://localhost:\${originServicePort}/v1/AUTH_1",
+            "internalURL": "http://\${endPointUrl}:\${originServicePort}/v1/AUTH_1",
             "name": "swift",
-            "adminURL": "http://localhost:\${originServicePort}/",
-            "region": "RegionOne",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "region": "\${region}",
             "tenantId": 1,
             "type": "object-store",
             "id": 1,
-            "publicURL": "http://localhost:\${originServicePort}/"
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
         },
         {
-            "internalURL": "http://localhost:\${originServicePort}/",
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/",
             "name": "nova_compat",
-            "adminURL": "http://localhost:\${originServicePort}/",
-            "region": "RegionOne",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "region": "\${region}",
             "tenantId": 1,
             "type": "compute",
             "id": 2,
-            "publicURL": "http://localhost:\${originServicePort}/"
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
+        }
+        {
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "name": "OpenStackService",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "region": "\${region}",
+            "tenantId": 1,
+            "type": "service",
+            "id": 3,
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
         }
     ]
 }"""
@@ -788,7 +800,7 @@ class MockIdentityService {
   <endpoint id="1"
             type="object-store"
             name="swift"
-            region="RegionOne"
+            region="\${region}"
             publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
@@ -796,7 +808,15 @@ class MockIdentityService {
   <endpoint id="2"
             type="compute"
             name="nova_compat"
-            region="RegionOne"
+            region="\${region}"
+            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            tenantId="\${tenant}"/>
+    <endpoint id="3"
+            type="service"
+            name="OpenStackService"
+            region="\${region}"
             publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
