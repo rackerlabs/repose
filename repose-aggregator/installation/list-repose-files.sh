@@ -34,19 +34,20 @@ FILES=(\
 /usr/bin/clean-repose-deploy \
 #/usr/share \
 #/usr/share/doc \
-#/usr/share/doc/repose-extension-filters \
-/usr/share/doc/repose-extension-filters/LICENSE.txt \
-#/usr/share/doc/repose-filters \
-/usr/share/doc/repose-filters/LICENSE.txt \
+#/usr/share/doc/repose-extensions-filter-bundle \
+/usr/share/doc/repose-extensions-filter-bundle/LICENSE.txt \
+#/usr/share/doc/repose-filter-bundle \
+/usr/share/doc/repose-filter-bundle/LICENSE.txt \
 #/usr/share/doc/repose-valve \
 /usr/share/doc/repose-valve/LICENSE.txt \
 #/usr/share/doc/repose-war \
 /usr/share/doc/repose-war/LICENSE.txt \
 /usr/share/repose \
 /usr/share/repose/filters \
-/usr/share/repose/filters/extensions-filter-bundle-7.0.0-SNAPSHOT.ear \
-/usr/share/repose/filters/filter-bundle-7.0.0-SNAPSHOT.ear \
-/usr/share/repose/repose-7.0.0-SNAPSHOT.war \
+/usr/share/repose/filters/extensions-filter-bundle-7.0.0.0-SNAPSHOT.ear \
+/usr/share/repose/filters/filter-bundle-7.0.0.0-SNAPSHOT.ear \
+/usr/share/repose/repose-7.0.0.0-SNAPSHOT.war \
+/usr/share/repose/repose-valve.jar \
 #/var \
 #/var/log \
 /var/log/repose \
@@ -61,4 +62,7 @@ for file in ${FILES[*]} ; do
    else
       echo "----------  MISSING MISSING     $file"
    fi
-done | cut -d' ' -f1,3,4,9 | sed 's/root root/  root \/   root/g' #> /vagrant/Files.out
+done \
+| cut -d' ' -f1,3,4,9 \
+| sed 's/root root/  root \/   root/g' \
+| sed 's/repose repose/repose \/ repose/g' #> /vagrant/Files.out
