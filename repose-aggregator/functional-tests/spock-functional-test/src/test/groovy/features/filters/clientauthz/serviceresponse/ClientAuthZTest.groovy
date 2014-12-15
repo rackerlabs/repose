@@ -39,8 +39,8 @@ class ClientAuthZTest extends ReposeValveTest {
         repose.stop()
     }
 
-
-    def "When user is authorized should forward request to origin service"(){
+    @Unroll("when service endpoint: #endpointResponse, response code: #statusCode ")
+    def "User's service endpoint test"(){
         given:
         fakeIdentityService.with {
             endpointUrl = endpointResponse
@@ -50,8 +50,8 @@ class ClientAuthZTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
+        mc.receivedResponse.code == statusCode
+        //mc.handlings.size() == 1
 
         where:
         endpointResponse | statusCode
@@ -182,5 +182,4 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.handlings.size() == 0
         mc.receivedResponse.code == "403"
     }
-
 }
