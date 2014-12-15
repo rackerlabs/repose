@@ -16,10 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Named
@@ -66,9 +63,12 @@ public class FilterContextFactory {
     private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, FilterConfig filterConfig) throws FilterInitializationException {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
-        for (EarClassLoaderContext classLoaderContext : loadedApplications) {
+
+        Iterator<EarClassLoaderContext> classLoaderContextIterator  = loadedApplications.iterator();
+        while(classLoaderContextIterator.hasNext() && filterType == null) {
+            EarClassLoaderContext classLoaderContext = classLoaderContextIterator.next();
             filterType = classLoaderContext.getEarDescriptor().getRegisteredFilters().get(filter.getName());
-            if (filterType != null) {
+            if(filterType != null) {
                 filterClassLoader = classLoaderContext.getClassLoader();
             }
         }
