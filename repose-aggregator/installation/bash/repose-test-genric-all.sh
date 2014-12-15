@@ -8,21 +8,32 @@ sudo rm -f /var/log/repose/*.log
 sudo service repose-valve start
 echo -en "\\nWaiting for Repose to be ready ..."
 READY=0
+COUNT=0
+TIMEOUT=30
 while [ $READY -eq 0 ]; do
    sudo grep "Repose ready" /var/log/repose/current.log >> /dev/null 2>&1
-   if [ "$?" -eq 0 ]
-   then
+   if [ "$?" -eq 0 ]; then
       READY=1
    else
+      let "COUNT +=1"
+      if [ "$COUNT" -ge "$TIMEOUT" ]; then
+         echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START ~~~~~\n\n"
+         break
+      fi
       echo -n " ."
       sleep 1
    fi
 done
-echo -e "\\n\\nRepose is ready."
-rm -f /vagrant/repose-curl.out
-for i in {1..11} ; do
-  echo -e "\\n\\n~~~~~ Attempt #$i ~~~~~\\n\\n" >> /vagrant/repose-curl.out
-  curl -H "x-pp-user: abc123" -H "Content-Type: Test" -H "Content-Length: 0" localhost:8080/get -v >> /vagrant/repose-curl.out 2>&1
-done
-sudo cp -f /var/log/repose/current.log /vagrant/
-sudo shutdown -h now
+if [ $READY -eq 0 ]; then
+    sudo shutdown -h now
+    exit 5
+else
+    echo -e "\\n\\nRepose is ready."
+    rm -f /vagrant/repose-curl.out
+    for i in {1..11} ; do
+      echo -e "\\n\\n~~~~~ Attempt #$i ~~~~~\\n\\n" >> /vagrant/repose-curl.out
+      curl -H "x-pp-user: abc123" -H "Content-Type: Test" -H "Content-Length: 0" localhost:8080/get -v >> /vagrant/repose-curl.out 2>&1
+    done
+    sudo cp -f /var/log/repose/current.log /vagrant/
+    sudo shutdown -h now
+fi
