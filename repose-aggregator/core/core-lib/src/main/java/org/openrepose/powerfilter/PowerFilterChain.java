@@ -1,19 +1,18 @@
 package org.openrepose.powerfilter;
 
-import org.openrepose.core.FilterProcessingTime;
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
-import org.openrepose.powerfilter.intrafilterLogging.RequestLog;
-import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.FilterProcessingTime;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.TimerByCategory;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.intrafilterLogging.RequestLog;
+import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

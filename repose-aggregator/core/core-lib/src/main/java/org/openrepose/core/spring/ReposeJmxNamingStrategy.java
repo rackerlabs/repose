@@ -1,23 +1,19 @@
 package org.openrepose.core.spring;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import java.util.UUID;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.naming.MetadataNamingStrategy;
 import org.springframework.jmx.export.naming.ObjectNamingStrategy;
-import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.UUID;
 
 @Named
 @Lazy(true)
@@ -30,6 +26,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private final String nodeId;
 
     //TODO: this is super broke, need to figure out how we're going to handle JMX strategy when core needs it
+    //TODO: we're going to use the local machine's hostname as the naming strategy, like a Baws: http://i.imgur.com/1iyYqfv.gif
     //Metrics service needs this guy
     @Inject
     public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
