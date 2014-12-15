@@ -199,14 +199,17 @@ public class PowerFilter extends DelegatingFilterProxy {
                     healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     try {
                         //Use the FilterContextFactory to get us a new filter chain
+                        //TODO: There won't always be a filter config.
                         List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter()));
 
                         powerFilterRouter.set(powerFilterRouterFactory.
-                                getPowerFilterRouter(serviceDomain, localNode.get(), getFilterConfig().getServletContext(), defaultDst.getId()));
+                                getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
 
                         //Destroy all the old filters
-                        for(FilterContext ctx : oldFilterChain) {
-                            ctx.destroy();
+                        if (oldFilterChain != null) {
+                            for (FilterContext ctx : oldFilterChain) {
+                                ctx.destroy();
+                            }
                         }
 
                         //Reinitialize the power filter chain builder with new settings.
