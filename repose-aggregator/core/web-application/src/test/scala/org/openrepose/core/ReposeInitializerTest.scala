@@ -5,6 +5,7 @@ import javax.servlet.{DispatcherType, FilterRegistration, ServletContext, Servle
 
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.powerfilter.EmptyServlet
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -14,6 +15,16 @@ import org.springframework.web.filter.DelegatingFilterProxy
 
 @RunWith(classOf[JUnitRunner])
 class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar{
+
+  {
+    //NOTE: have to set up these things since the initializer needs this stuff
+    import ReposeSpringProperties._
+    System.setProperty(stripSpringValueStupidity(CORE.CONFIG_ROOT), "/config/root")
+    System.setProperty(stripSpringValueStupidity(CORE.INSECURE), "false")
+    System.setProperty(stripSpringValueStupidity(NODE.CLUSTER_ID), "cluster")
+    System.setProperty(stripSpringValueStupidity(NODE.NODE_ID), "node")
+  }
+
   describe("The repose initializer") {
     it("should add the core context to the servlet context") {
       //TODO: I dont know how to get to the context to see whats in it yet....
