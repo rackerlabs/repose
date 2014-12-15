@@ -1,10 +1,9 @@
 package org.openrepose.core.filter
+
 import com.google.common.base.Optional
-import org.openrepose.core.domain.Port
-import org.openrepose.core.domain.ServicePorts
-import org.openrepose.core.systemmodel.*
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.systemmodel.*
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.instanceOf

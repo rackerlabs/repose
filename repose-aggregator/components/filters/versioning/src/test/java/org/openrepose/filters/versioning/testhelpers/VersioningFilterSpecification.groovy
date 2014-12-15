@@ -1,13 +1,9 @@
 package org.openrepose.filters.versioning.testhelpers
 
-import com.mockrunner.mock.web.MockFilterConfig
-import com.mockrunner.mock.web.MockServletContext
 import groovy.xml.StreamingMarkupBuilder
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.core.domain.Port
-import org.openrepose.core.domain.ServicePorts
 import org.openrepose.core.systemmodel.DestinationEndpoint
 import org.openrepose.filters.versioning.VersioningFilter
 import org.openrepose.filters.versioning.config.MediaTypeList
