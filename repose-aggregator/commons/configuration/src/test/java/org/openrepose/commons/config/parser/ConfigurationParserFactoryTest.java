@@ -90,7 +90,7 @@ public class ConfigurationParserFactoryTest {
             caught = t;
          }
          assertNotNull(caught);
-         assertSame(ConfigurationResourceException.class, caught.getClass());
+         assertSame(JAXBException.class, caught.getClass());
         
     }
 }
