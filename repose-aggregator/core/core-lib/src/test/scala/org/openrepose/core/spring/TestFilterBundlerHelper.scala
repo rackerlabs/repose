@@ -13,10 +13,4 @@ trait TestFilterBundlerHelper {
 
   lazy val testFilterBundleFile = new File(testFilterBundleRoot, "core-test-filter-bundle-" + testProps.getString("coreTestFilterBundleVersion") + ".ear")
 
-  lazy val testFilterBundleClassLoader: ClassLoader = {
-    val fileFilter: FileFilter = new WildcardFileFilter("core-test-filter-*.jar")
-    val files: Array[File] = testFilterBundleRoot.listFiles(fileFilter)
-    new URLClassLoader(Array(files(0).toURI.toURL), getClass.getClassLoader)
-  }
-
 }
