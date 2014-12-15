@@ -32,7 +32,7 @@ CLEAN=/usr/bin/clean-repose-deploy
 start_repose()
 {
   $CLEAN $CONFIG_DIRECTORY
-  start-stop-daemon $START_ARGS --exec --chuid repose:repose $JAVA -- -jar $REPOSE_JAR -c $CONFIG_DIRECTORY
+  start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR -c $CONFIG_DIRECTORY --chuid repose:repose 
   log_progress_msg "started"
 }
 
