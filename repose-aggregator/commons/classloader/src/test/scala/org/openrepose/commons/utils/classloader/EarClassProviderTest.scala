@@ -3,6 +3,7 @@ package org.openrepose.commons.utils.classloader
 import java.io.{FileOutputStream, IOException, File}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{SimpleFileVisitor, Path, FileVisitResult, Files}
+import javax.servlet.Filter
 
 import com.typesafe.config.ConfigFactory
 import org.apache.logging.log4j.{Level, LogManager}
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import scala.util.Random
 
@@ -194,7 +196,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
   }
 
   it("throws a ClassNotFoundException when you ask for a class that isn't in the ear (or in the parent Classloader)") {
-    unpackedArtifact{ provider =>
+    unpackedArtifact { provider =>
       intercept[ClassNotFoundException] {
         provider.getClassLoader.loadClass("derp.derpclass.derp.derp.derp")
       }
@@ -202,7 +204,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
   }
 
   it("multiple ear files don't share classes") {
-    withTempDir{ root =>
+    withTempDir { root =>
       val p1 = new EarClassProvider(earFile, root)
 
       //Second ear file
@@ -216,7 +218,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       intercept[ClassNotFoundException] {
         Class.forName(ear1Class)
       }
-      intercept[ClassNotFoundException]{
+      intercept[ClassNotFoundException] {
         Class.forName(ear2Class)
       }
 
@@ -244,13 +246,29 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val resourcePath = "WEB-INF/web-fragment.xml"
 
       val webFragment = p1.getClassLoader.getResource(resourcePath)
-      webFragment should not be(null)
+      webFragment should not be (null)
     }
   }
 
   describe("in the context of spring") {
     it("when given to a AppContext beans are provided") {
-      pending
+      withTempDir { root =>
+        val p1 = new EarClassProvider(earFile, root)
+
+        val context = new AnnotationConfigApplicationContext()
+        context.setClassLoader(p1.getClassLoader)
+
+        context.scan("org.openrepose.filters.core.test")
+        context.refresh()
+
+        val beanClass:Class[Filter] = p1.getClassLoader.loadClass("org.openrepose.filters.core.test.TestFilter").asInstanceOf[Class[Filter]]
+
+        beanClass shouldNot be(null)
+
+        val bean = context.getBean[Filter](beanClass)
+
+        bean shouldNot be(null)
+      }
     }
   }
 }
