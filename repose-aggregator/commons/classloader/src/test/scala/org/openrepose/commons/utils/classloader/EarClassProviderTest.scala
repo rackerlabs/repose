@@ -70,6 +70,13 @@ class EarClassProviderTest extends FunSpec with Matchers {
     }
   }
 
+  def unpackedArtifact(f: EarClassProvider => Unit) = {
+    withTempDir { root =>
+      val p = new EarClassProvider(earFile, root)
+      f(p)
+    }
+  }
+
 
   it("unpacks an ear to a directory successfully") {
     import scala.collection.JavaConversions._
@@ -165,7 +172,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
   }
 
   it("provides a class that is not in the current classloader") {
-    withTempDir{ root =>
+    withTempDir { root =>
 
       val p = new EarClassProvider(earFile, root)
       val earClass = "org.openrepose.filters.core.test.TestFilter"
@@ -177,7 +184,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val tehClass = p.getClassLoader.loadClass(earClass)
 
       tehClass shouldNot be(null)
-      tehClass.getName should be("org.openrepose.filters.core.test.TestFilter")
+      tehClass.getName should be(earClass)
 
       intercept[ClassNotFoundException] {
         Class.forName(earClass)
@@ -186,16 +193,48 @@ class EarClassProviderTest extends FunSpec with Matchers {
     }
   }
 
-  it("cleans up it's unpacked artifacts") {
-    pending
-  }
-
-  it("throws a ClassNotFoundException when you ask for a class that isn't in the ear") {
-    pending
+  it("throws a ClassNotFoundException when you ask for a class that isn't in the ear (or in the parent Classloader)") {
+    unpackedArtifact{ provider =>
+      intercept[ClassNotFoundException] {
+        provider.getClassLoader.loadClass("derp.derpclass.derp.derp.derp")
+      }
+    }
   }
 
   it("multiple ear files don't share classes") {
-    pending
+    withTempDir{ root =>
+      val p1 = new EarClassProvider(earFile, root)
+
+      //Second ear file
+      val ear2 = new File(testProps.getString("coreTestFilterBundleLocation"), s"second-filter-bundle-${version}.ear")
+
+      val p2 = new EarClassProvider(ear2, root)
+
+      val ear1Class = "org.openrepose.filters.core.test.TestFilter"
+      val ear2Class = "org.openrepose.filters.second.SecondFilter"
+
+      intercept[ClassNotFoundException] {
+        Class.forName(ear1Class)
+      }
+      intercept[ClassNotFoundException]{
+        Class.forName(ear2Class)
+      }
+
+      val class1 = p1.getClassLoader.loadClass(ear1Class)
+      class1.getName should be(ear1Class)
+
+      intercept[ClassNotFoundException] {
+        p2.getClassLoader.loadClass(ear1Class)
+      }
+
+      val class2 = p2.getClassLoader.loadClass(ear2Class)
+      class2.getName should be(ear2Class)
+
+      intercept[ClassNotFoundException] {
+        p1.getClassLoader.loadClass(ear2Class)
+      }
+
+    }
   }
 
   it("can get the web-fragment.xml") {

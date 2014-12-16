@@ -22,6 +22,7 @@
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <test.artifact.version>2.0</test.artifact.version>
     </properties>
 
     <dependencies>
@@ -88,11 +89,31 @@
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>core-test-filter-bundle</artifactId>
-                                    <version>${core.test.version}</version>
+                                    <version>${test.artifact.version}</version>
                                     <type>ear</type>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/core-test-filter-bundle/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/earFiles/</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-second-ear</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>second-filter-bundle</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/earFiles/</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
