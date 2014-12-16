@@ -138,6 +138,7 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
         return new ResourceDescriptor(name, new Sha1Digester(resourceBytes).getDigest());
     }
 
+    //TODO: will also need to do this further up
     private void readApplicationXml(final String archivePath, byte[] resourceBytes) throws EarProcessingException {
         try {
             final ApplicationType type = APPLICATION_XML_PARSER.read(new ByteArrayConfigurationResource(archivePath, resourceBytes));
@@ -152,6 +153,7 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
         }
     }
 
+    //TODO: need to do this somewhere further up to parse the web-fragment into something to store
     private void readWebFragmentXml(final String archivePath, byte[] resourceBytes) throws EarProcessingException {
         try {
             final WebFragmentType webFragment = WEB_FRAGMENT_XML_PARSER.read(new ByteArrayConfigurationResource(archivePath, resourceBytes));
