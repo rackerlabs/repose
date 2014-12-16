@@ -40,5 +40,25 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="region" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This string will be used in logging to note the region of the service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="data-center" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This string will be used in logging to note the data center of the service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>
