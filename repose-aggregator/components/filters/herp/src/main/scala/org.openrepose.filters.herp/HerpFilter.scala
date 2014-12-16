@@ -66,7 +66,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
                              httpServletResponse: HttpServletResponse) = {
     val userName = httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)
     val impersonatorName = httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)
-    val tenantID = "C - Tenant ID"
+    val tenantID = httpServletRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)
     val rbacRoles = httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray
     val userAgent = httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)
     val requestMethod = httpServletRequest.getMethod
@@ -98,6 +98,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
         "Message" -> Json.toJson(responseMessage)
       )
     )
+
     herpLogger.info(Json.stringify(jsonObject))
   }
 
