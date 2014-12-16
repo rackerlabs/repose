@@ -11,6 +11,4 @@ public interface ClassLoaderManagerService extends Destroyable {
     EarClassLoader getApplication(String contextName);
     boolean hasFilter(String contextName);
     Collection<EarClassLoaderContext> getLoadedApplications();
-    void removeApplication(String contextName);
-    void putApplication(String contextName, EarClassLoaderContext context);
 }
