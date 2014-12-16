@@ -20,131 +20,157 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>default-router</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rate-limiting</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>versioning</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-normalization</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-normalization</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-normalization</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-identity</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-id-mapping</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-identity</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-auth</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>destination-router</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>slf4j-http-logging</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>translation</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>echo</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-authorization</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-ip-identity</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>flush-output</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>compression</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-translation</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-stripper</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>openstack-identity-v3</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rackspace-identity-basic-auth</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rackspace-auth-user</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-type-stripper</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>add-header</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>derp</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
