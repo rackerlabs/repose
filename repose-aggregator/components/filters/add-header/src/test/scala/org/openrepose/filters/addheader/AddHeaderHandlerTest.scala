@@ -81,11 +81,11 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added headers") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addHeaderRequestConfig())
+      handler = new AddHeaderHandler(addHeaderRequestConfig(false))
 
       myDirector = handler.handleRequest(mockRequest, null)
-      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header"))
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1"))
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
       myDirector.requestHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.requestHeaderManager().headersToRemove().size() shouldEqual 0
     }
@@ -93,11 +93,11 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added headers with removing original") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addHeaderRequestConfigRemoveOriginal())
+      handler = new AddHeaderHandler(addHeaderRequestConfig(true))
 
       myDirector = handler.handleRequest(mockRequest, null)
-      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header"))
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1"))
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
       myDirector.requestHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.requestHeaderManager().headersToRemove().size() shouldEqual 1
     }
@@ -105,14 +105,15 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added header with multiple values") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addHeaderRequestWithMultipleValuesConfig())
+      handler = new AddHeaderHandler(addHeaderRequestConfig(false,3))
 
       myDirector = handler.handleRequest(mockRequest, null)
       myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-other-header")) shouldBe false
-      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header")) shouldBe true
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("newer-value;q=0.2")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).size() shouldEqual 3
+      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1")) shouldBe true
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-2;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-3;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).size() shouldEqual 3
       myDirector.requestHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.requestHeaderManager().headersToRemove().size() shouldEqual 0
     }
@@ -120,17 +121,19 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added headers with multiple values") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addMultipleHeadersRequestWithMultipleValuesConfig())
+      handler = new AddHeaderHandler(addHeaderRequestConfig(false,3,2))
 
       myDirector = handler.handleRequest(mockRequest, null)
-      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-newer-header")) shouldBe true
-      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header")) shouldBe true
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("newer-value;q=0.2")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).size() shouldEqual 3
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).contains("newish-value;q=0.5")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).contains("newerish-value;q=0.5")
-      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).size() shouldEqual 3
+      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-2")) shouldBe true
+      myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1")) shouldBe true
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-2;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-3;q=0.2")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).size() shouldEqual 3
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-4;q=0.5")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-5;q=0.5")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-6;q=0.5")
+      myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).size() shouldEqual 3
       myDirector.requestHeaderManager().headersToAdd().size() shouldEqual 2
       myDirector.requestHeaderManager().headersToRemove().size() shouldEqual 0
     }
@@ -149,53 +152,56 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     it("should contain added headers") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addHeaderResponseConfig())
+      handler = new AddHeaderHandler(addHeaderResponseConfig(false))
 
       myDirector = handler.handleResponse(null, mockResponse)
-      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header"))
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1"))
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
       myDirector.responseHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.responseHeaderManager().headersToRemove().size() shouldEqual 0
     }
 
     it("should contain added headers with removing original") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addHeaderResponseConfigRemoveOriginal())
+      handler = new AddHeaderHandler(addHeaderResponseConfig(true))
 
       myDirector = handler.handleResponse(null, mockResponse)
-      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header"))
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1"))
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
       myDirector.responseHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.responseHeaderManager().headersToRemove().size() shouldEqual 1
     }
 
     it("should contain added header with multiple values") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addHeaderResponseWithMultipleValuesConfig())
+      handler = new AddHeaderHandler(addHeaderResponseConfig(false,3))
 
       myDirector = handler.handleResponse(null, mockResponse)
       myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-other-header")) shouldBe false
-      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header")) shouldBe true
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("newer-value;q=0.2")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).size() shouldEqual 3
+      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1")) shouldBe true
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-2;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-3;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).size() shouldEqual 3
       myDirector.responseHeaderManager().headersToAdd().size() shouldEqual 1
       myDirector.responseHeaderManager().headersToRemove().size() shouldEqual 0
     }
 
     it("should contain added headers with multiple values") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addMultipleHeadersResponseWithMultipleValuesConfig())
+      handler = new AddHeaderHandler(addHeaderResponseConfig(false,3,2))
 
       myDirector = handler.handleResponse(null, mockResponse)
-      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-newer-header")) shouldBe true
-      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header")) shouldBe true
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("new-value;q=0.2")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).contains("newer-value;q=0.2")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header")).size() shouldEqual 3
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).contains("newish-value;q=0.5")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).contains("newerish-value;q=0.5")
-      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-newer-header")).size() shouldEqual 3
+      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-2")) shouldBe true
+      myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-1")) shouldBe true
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-1;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-2;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).contains("new-value-3;q=0.2")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-1")).size() shouldEqual 3
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-4;q=0.5")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-5;q=0.5")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).contains("new-value-6;q=0.5")
+      myDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap("x-new-header-2")).size() shouldEqual 3
       myDirector.responseHeaderManager().headersToAdd().size() shouldEqual 2
       myDirector.responseHeaderManager().headersToRemove().size() shouldEqual 0
     }
