@@ -238,7 +238,14 @@ class EarClassProviderTest extends FunSpec with Matchers {
   }
 
   it("can get the web-fragment.xml") {
-    pending
+    withTempDir { root =>
+      val p1 = new EarClassProvider(earFile, root)
+
+      val resourcePath = "WEB-INF/web-fragment.xml"
+
+      val webFragment = p1.getClassLoader.getResource(resourcePath)
+      webFragment should not be(null)
+    }
   }
 
   describe("in the context of spring") {

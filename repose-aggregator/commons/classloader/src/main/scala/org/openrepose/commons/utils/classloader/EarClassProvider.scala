@@ -6,6 +6,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, SimpleFileVisitor, Files, Path}
 import java.util.UUID
 import java.util.zip.{ZipFile, ZipInputStream}
+import scala.collection.mutable
 
 import org.slf4j.LoggerFactory
 
@@ -49,48 +50,29 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
   /**
    * Calls unpack, and gets you a new classloader for all the items in this ear file
    */
-  lazy val getClassLoader:ClassLoader = {
+  lazy val getClassLoader: ClassLoader = {
     unpack()
 
-    val fileUrls:Array[URL] = outputDir.listFiles().toList.map { f =>
-      f.toURI.toURL
-    }.toArray
+    val mutableList = mutable.MutableList[Path]()
 
-    new URLClassLoader(fileUrls)
-  }
-
-
-  /**
-   * A scalaish adaptation of http://stackoverflow.com/questions/779519/delete-files-recursively-in-java/8685959#8685959
-   * This is Java7 Dependent
-   * As specified in the notes, it's a fail fast, rather than a try hardest.
-   * That's okay, we shouldn't be using this outside of test directories
-   * @param path
-   * @return
-   */
-  def deleteRecursive(path: Path) = {
-    Files.walkFileTree(path, new SimpleFileVisitor[Path]() {
+    Files.walkFileTree(outputDir.toPath(), new SimpleFileVisitor[Path] {
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        Files.delete(file)
-        FileVisitResult.CONTINUE
-      }
-
-      override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = {
-        Files.delete(file)
-        FileVisitResult.CONTINUE
+        if (file.toString.endsWith(".jar")) {
+          mutableList += file
+        }
+        super.visitFile(file, attrs)
       }
 
       override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-        Option(exc) match {
-          case None =>
-            Files.delete(dir)
-            FileVisitResult.CONTINUE
-          case Some(x) =>
-            throw x
-        }
+        mutableList += dir
+        super.postVisitDirectory(dir, exc)
       }
     })
+
+    val fileUrls: Array[URL] = mutableList.map { path =>
+      path.toUri.toURL
+    }.toArray
+
+    URLClassLoader.newInstance(fileUrls)
   }
-
-
 }
