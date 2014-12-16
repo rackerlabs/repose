@@ -17,192 +17,62 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
   var handler: AddHeaderHandler = _
   var myDirector: FilterDirector = _
 
-  def addHeaderRequestConfig(): AddHeadersConfig = {
+  def addHeaderRequestConfig(removeOriginal:Boolean, numValues:Int = 1, numHeaders:Int = 1): AddHeadersConfig = {
     val conf = new AddHeadersConfig
-
     val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
+    var headers= List[Header]()
 
+    for( a <- 1 to numHeaders){
+      for (b <- 1 to numValues) {
+
+        val bVal : Int = b + ((a-1)*numValues)
+
+        val header = new Header()
+        header.setName("x-new-header-" + a.toString )
+        header.setValue("new-value-" + bVal.toString )
+        header.setQuality(0.2)
+
+        if(removeOriginal) {
+          header.setOverwrite(true)
+        }
+
+        headers = header :: headers
+
+      }
+
+    }
     conf.setRequest(new HttpMessage)
-    conf.getRequest.getHeader.add(header)
+    headers.foreach(conf.getRequest.getHeader.add(_))
 
     conf
   }
 
-  def addHeaderResponseConfig(): AddHeadersConfig = {
+  def addHeaderResponseConfig(removeOriginal:Boolean, numValues:Int = 1, numHeaders:Int = 1): AddHeadersConfig = {
     val conf = new AddHeadersConfig
-
     val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
+    var headers= List[Header]()
 
+    for( a <- 1 to numHeaders){
+      for (b <- 1 to numValues) {
+
+        val bVal : Int = b + ((a-1)*numValues)
+
+        val header = new Header()
+        header.setName("x-new-header-" + a.toString )
+        header.setValue("new-value-" + bVal.toString )
+        header.setQuality(0.2)
+
+        if(removeOriginal) {
+          header.setOverwrite(true)
+        }
+
+        headers = header :: headers
+
+      }
+
+    }
     conf.setResponse(new HttpMessage)
-    conf.getResponse.getHeader.add(header)
-
-    conf
-  }
-
-  def addHeaderRequestConfigRemoveOriginal(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
-    header.setOverwrite(true)
-
-    conf.setRequest(new HttpMessage)
-    conf.getRequest.getHeader.add(header)
-
-    conf
-  }
-
-  def addHeaderResponseConfigRemoveOriginal(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
-    header.setOverwrite(true)
-
-    conf.setResponse(new HttpMessage)
-    conf.getResponse.getHeader.add(header)
-
-    conf
-  }
-
-  def addHeaderRequestWithMultipleValuesConfig(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
-
-    val headerTwo = new Header()
-    headerTwo.setName("x-new-header")
-    headerTwo.setValue("newer-value")
-    headerTwo.setQuality(0.2)
-
-    val headerThree = new Header()
-    headerThree.setName("x-new-header")
-    headerThree.setValue("newest-value")
-    headerThree.setQuality(0.2)
-
-    conf.setRequest(new HttpMessage)
-    conf.getRequest.getHeader.add(header)
-    conf.getRequest.getHeader.add(headerTwo)
-    conf.getRequest.getHeader.add(headerThree)
-
-    conf
-  }
-
-  def addHeaderResponseWithMultipleValuesConfig(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val header = new Header()
-    header.setName("x-new-header")
-    header.setValue("new-value")
-    header.setQuality(0.2)
-
-    val headerTwo = new Header()
-    headerTwo.setName("x-new-header")
-    headerTwo.setValue("newer-value")
-    headerTwo.setQuality(0.2)
-
-    val headerThree = new Header()
-    headerThree.setName("x-new-header")
-    headerThree.setValue("newest-value")
-    headerThree.setQuality(0.2)
-
-    conf.setResponse(new HttpMessage)
-    conf.getResponse.getHeader.add(header)
-    conf.getResponse.getHeader.add(headerTwo)
-    conf.getResponse.getHeader.add(headerThree)
-
-    conf
-  }
-
-  def addMultipleHeadersRequestWithMultipleValuesConfig(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val headerOne = new Header()
-    headerOne.setName("x-new-header")
-    headerOne.setValue("new-value")
-    headerOne.setQuality(0.2)
-    val headerTwo = new Header()
-    headerTwo.setName("x-new-header")
-    headerTwo.setValue("newer-value")
-    headerTwo.setQuality(0.2)
-    val headerThree = new Header()
-    headerThree.setName("x-new-header")
-    headerOne.setValue("newest-value")
-    headerThree.setQuality(0.2)
-
-    val headerFour = new Header()
-    headerFour.setName("x-newer-header")
-    headerFour.setValue("newish-value")
-    headerFour.setQuality(0.5)
-    val headerFive = new Header()
-    headerFive.setName("x-newer-header")
-    headerFive.setValue("newerish-value")
-    headerFive.setQuality(0.5)
-    val headerSix = new Header()
-    headerSix.setName("x-newer-header")
-    headerSix.setValue("newestish-value")
-    headerSix.setQuality(0.5)
-
-    conf.setRequest(new HttpMessage)
-    conf.getRequest.getHeader.add(headerOne)
-    conf.getRequest.getHeader.add(headerTwo)
-    conf.getRequest.getHeader.add(headerThree)
-    conf.getRequest.getHeader.add(headerFour)
-    conf.getRequest.getHeader.add(headerFive)
-    conf.getRequest.getHeader.add(headerSix)
-
-    conf
-  }
-
-  def addMultipleHeadersResponseWithMultipleValuesConfig(): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-
-    val headerOne = new Header()
-    headerOne.setName("x-new-header")
-    headerOne.setValue("new-value")
-    headerOne.setQuality(0.2)
-    val headerTwo = new Header()
-    headerTwo.setName("x-new-header")
-    headerTwo.setValue("newer-value")
-    headerTwo.setQuality(0.2)
-    val headerThree = new Header()
-    headerThree.setName("x-new-header")
-    headerOne.setValue("newest-value")
-    headerThree.setQuality(0.2)
-
-    val headerFour = new Header()
-    headerFour.setName("x-newer-header")
-    headerFour.setValue("newish-value")
-    headerFour.setQuality(0.5)
-    val headerFive = new Header()
-    headerFive.setName("x-newer-header")
-    headerFive.setValue("newerish-value")
-    headerFive.setQuality(0.5)
-    val headerSix = new Header()
-    headerSix.setName("x-newer-header")
-    headerSix.setValue("newestish-value")
-    headerSix.setQuality(0.5)
-
-    conf.setResponse(new HttpMessage)
-    conf.getResponse.getHeader.add(headerOne)
-    conf.getResponse.getHeader.add(headerTwo)
-    conf.getResponse.getHeader.add(headerThree)
-    conf.getResponse.getHeader.add(headerFour)
-    conf.getResponse.getHeader.add(headerFive)
-    conf.getResponse.getHeader.add(headerSix)
+    headers.foreach(conf.getResponse.getHeader.add(_))
 
     conf
   }
