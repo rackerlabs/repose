@@ -1,5 +1,7 @@
 package org.openrepose.filters.authz;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
@@ -30,15 +32,15 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private static final String CLIENT_AUTHORIZATION = "client-authorization";
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
-    private final ServiceEndpoint myEndpoint;
+    private final ServiceEndpoint configuredEndpoint;
     private final DelegatingType delegating;
     private final List<String> ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles ignoreTenantRoles, DelegatingType delegating) {
+                                       ServiceEndpoint configuredEndpoint, IgnoreTenantRoles ignoreTenantRoles, DelegatingType delegating) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
-        this.myEndpoint = myEndpoint;
+        this.configuredEndpoint = configuredEndpoint;
         this.delegating = delegating;
         this.ignoreTenantRoles = getListOfRoles(ignoreTenantRoles);
     }
@@ -74,7 +76,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 message = "User token: " + authenticationToken +
                         ": The user's service catalog does not contain an endpoint that matches " +
                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                        myEndpoint.getHref() + "\".  User not authorized to access service.";
+                        configuredEndpoint.getHref() + "\".  User not authorized to access service.";
                 LOG.info(message);
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
@@ -110,19 +112,41 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private boolean isEndpointAuthorizedForToken(String userToken) {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
         if(cachedEndpoints != null) {
-            for (CachedEndpoint authorizedEndpoint : cachedEndpoints) {
-                if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
-                    LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
-                }
-                if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
-                    LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
-                }
-                if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {
-                    return true;
-                }
-            }
+            return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
         }
         return false;
+    }
+
+    Predicate<CachedEndpoint> forMatchingEndpoint() {
+        return new Predicate<CachedEndpoint>() {
+            @Override
+            public boolean apply(CachedEndpoint input) {
+                return matchesUrl(input.getPublicUrl()) && matchesRegion(input.getRegion()) &&
+                       matchesName(input.getName()) && matchesType(input.getType());
+            }
+
+            private boolean matchesUrl(String publicUrl) {
+                if (StringUtilities.isBlank(publicUrl)) {
+                    LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                return StringUtilities.nullSafeStartsWith(publicUrl, configuredEndpoint.getHref());
+            }
+
+            private boolean matchesRegion(String region) {
+                return (configuredEndpoint.getRegion() == null) || configuredEndpoint.getRegion().equals(region);
+            }
+
+            private boolean matchesName(String name) {
+                return (configuredEndpoint.getName() == null) || configuredEndpoint.getName().equals(name);
+            }
+
+            private boolean matchesType(String type) {
+                if (StringUtilities.isBlank(type)) {
+                    LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract.");
+                }
+                return (configuredEndpoint.getType() == null) || configuredEndpoint.getType().equals(type);
+            }
+        };
     }
 
     private List<CachedEndpoint> requestEndpointsForToken(String userToken) {
