@@ -67,14 +67,14 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     val userName = httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)
     val impersonatorName = httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)
     val tenantID = httpServletRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)
-    val rbacRoles = httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray
+    val roles = httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray
     val userAgent = httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)
     val requestMethod = httpServletRequest.getMethod
     val requestURL = Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.asInstanceOf[String]).orNull
     val parameters = Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")).map(_.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap).getOrElse(Map[String, Array[String]]())
     val timestamp = System.currentTimeMillis()
     val responseCode = httpServletResponse.getStatus
-    val responseMessage = "response message"
+    val responseMessage = "response message" //todo: wrap the request in mutable request to get body, or return message corresponding to status code
     val guid = java.util.UUID.randomUUID.toString
 
     val jsonObject = Json.obj(
@@ -90,7 +90,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
         "UserName" -> Json.toJson(userName),
         "ImpersonatorName" -> Json.toJson(impersonatorName),
         "TenantID" -> Json.toJson(tenantID),
-        "RbacRoles" -> Json.toJson(rbacRoles),
+        "Roles" -> Json.toJson(roles),
         "UserAgent" -> Json.toJson(userAgent)
       ),
       "Response" -> Json.obj(
