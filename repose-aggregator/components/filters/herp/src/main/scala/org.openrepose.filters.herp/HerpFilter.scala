@@ -74,7 +74,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     val parameters = Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")).map(_.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap).getOrElse(Map[String, Array[String]]())
     val timestamp = System.currentTimeMillis()
     val responseCode = httpServletResponse.getStatus
-    val responseMessage = httpServletRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)
+    val responseMessage = "response message"
     val guid = java.util.UUID.randomUUID.toString
 
     val jsonObject = Json.obj(
