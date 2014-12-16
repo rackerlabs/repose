@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The id attribute is the named target of the log output,
+ it can then be used in log4j backend to determine which appender to go to -->
+<highly-efficient-record-processor xmlns="http://docs.rackspacecloud.com/repose/highly-efficient-record-processor/v1.0"
+                                   id="highly-efficient-record-processor"/>
