@@ -16,13 +16,16 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
+
     if (config.getResponse != null) {
       filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     } else {
       filterDirector.setFilterAction(FilterAction.PASS)
     }
 
-    modifyHeaders(config.getRequest.getHeader.asScala, headerManager)
+    Option(config.getRequest) foreach { httpMessage =>
+      modifyHeaders(httpMessage.getHeader.asScala, headerManager)
+    }
 
     filterDirector
   }
@@ -32,7 +35,9 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
     val headerManager = filterDirector.responseHeaderManager()
     filterDirector.setFilterAction(FilterAction.PASS)
 
-    modifyHeaders(config.getResponse.getHeader.asScala, headerManager)
+    Option(config.getResponse) foreach { httpMessage =>
+      modifyHeaders(httpMessage.getHeader.asScala, headerManager)
+    }
 
     filterDirector
   }
@@ -44,10 +49,8 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
         logger.debug(s"Header removed: ${configuredHeader.getName}")
       }
 
-      configuredHeader.getValue.asScala foreach { configuredHeaderValue =>
-        headerManager.appendHeader(configuredHeader.getName, configuredHeaderValue, configuredHeader.getQuality)
-        logger.debug(s"Added header ${configuredHeader.getName} with value $configuredHeaderValue and quality ${configuredHeader.getQuality}")
-      }
+      headerManager.appendHeader(configuredHeader.getName, configuredHeader.getValue, configuredHeader.getQuality)
+      logger.debug(s"Added header ${configuredHeader.getName} with value ${configuredHeader.getValue} and quality ${configuredHeader.getQuality}")
     }
   }
 }

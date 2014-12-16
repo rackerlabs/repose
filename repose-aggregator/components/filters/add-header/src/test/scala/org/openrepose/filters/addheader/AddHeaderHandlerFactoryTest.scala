@@ -23,7 +23,7 @@ class AddHeaderHandlerFactoryTest extends FunSpec with BeforeAndAfter with Priva
       val config: AddHeadersConfig = new AddHeadersConfig()
       val header = new Header()
       header.setName("x-new-header")
-      header.getValue.add("new-value")
+      header.setValue("new-value")
       header.setQuality(0.2)
 
       config.getRequest.getHeader.add(header)

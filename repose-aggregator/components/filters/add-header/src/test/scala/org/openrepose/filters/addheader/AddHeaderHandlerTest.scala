@@ -22,7 +22,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
 
     conf.setRequest(new HttpMessage)
@@ -36,7 +36,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
 
     conf.setResponse(new HttpMessage)
@@ -50,7 +50,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
     header.setOverwrite(true)
 
@@ -65,7 +65,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
     header.setOverwrite(true)
 
@@ -80,13 +80,23 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
-    header.getValue.add("newer-value")
-    header.getValue.add("newest-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
+
+    val headerTwo = new Header()
+    headerTwo.setName("x-new-header")
+    headerTwo.setValue("newer-value")
+    headerTwo.setQuality(0.2)
+
+    val headerThree = new Header()
+    headerThree.setName("x-new-header")
+    headerThree.setValue("newest-value")
+    headerThree.setQuality(0.2)
 
     conf.setRequest(new HttpMessage)
     conf.getRequest.getHeader.add(header)
+    conf.getRequest.getHeader.add(headerTwo)
+    conf.getRequest.getHeader.add(headerThree)
 
     conf
   }
@@ -96,13 +106,23 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val header = new Header()
     header.setName("x-new-header")
-    header.getValue.add("new-value")
-    header.getValue.add("newer-value")
-    header.getValue.add("newest-value")
+    header.setValue("new-value")
     header.setQuality(0.2)
+
+    val headerTwo = new Header()
+    headerTwo.setName("x-new-header")
+    headerTwo.setValue("newer-value")
+    headerTwo.setQuality(0.2)
+
+    val headerThree = new Header()
+    headerThree.setName("x-new-header")
+    headerThree.setValue("newest-value")
+    headerThree.setQuality(0.2)
 
     conf.setResponse(new HttpMessage)
     conf.getResponse.getHeader.add(header)
+    conf.getResponse.getHeader.add(headerTwo)
+    conf.getResponse.getHeader.add(headerThree)
 
     conf
   }
@@ -112,22 +132,37 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val headerOne = new Header()
     headerOne.setName("x-new-header")
-    headerOne.getValue.add("new-value")
-    headerOne.getValue.add("newer-value")
-    headerOne.getValue.add("newest-value")
+    headerOne.setValue("new-value")
     headerOne.setQuality(0.2)
+    val headerTwo = new Header()
+    headerTwo.setName("x-new-header")
+    headerTwo.setValue("newer-value")
+    headerTwo.setQuality(0.2)
+    val headerThree = new Header()
+    headerThree.setName("x-new-header")
+    headerOne.setValue("newest-value")
+    headerThree.setQuality(0.2)
+
+    val headerFour = new Header()
+    headerFour.setName("x-newer-header")
+    headerFour.setValue("newish-value")
+    headerFour.setQuality(0.5)
+    val headerFive = new Header()
+    headerFive.setName("x-newer-header")
+    headerFive.setValue("newerish-value")
+    headerFive.setQuality(0.5)
+    val headerSix = new Header()
+    headerSix.setName("x-newer-header")
+    headerSix.setValue("newestish-value")
+    headerSix.setQuality(0.5)
 
     conf.setRequest(new HttpMessage)
     conf.getRequest.getHeader.add(headerOne)
-
-    val headerTwo = new Header()
-    headerTwo.setName("x-newer-header")
-    headerTwo.getValue.add("newish-value")
-    headerTwo.getValue.add("newerish-value")
-    headerTwo.getValue.add("newestish-value")
-    headerTwo.setQuality(0.5)
-
     conf.getRequest.getHeader.add(headerTwo)
+    conf.getRequest.getHeader.add(headerThree)
+    conf.getRequest.getHeader.add(headerFour)
+    conf.getRequest.getHeader.add(headerFive)
+    conf.getRequest.getHeader.add(headerSix)
 
     conf
   }
@@ -137,22 +172,37 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     val headerOne = new Header()
     headerOne.setName("x-new-header")
-    headerOne.getValue.add("new-value")
-    headerOne.getValue.add("newer-value")
-    headerOne.getValue.add("newest-value")
+    headerOne.setValue("new-value")
     headerOne.setQuality(0.2)
+    val headerTwo = new Header()
+    headerTwo.setName("x-new-header")
+    headerTwo.setValue("newer-value")
+    headerTwo.setQuality(0.2)
+    val headerThree = new Header()
+    headerThree.setName("x-new-header")
+    headerOne.setValue("newest-value")
+    headerThree.setQuality(0.2)
+
+    val headerFour = new Header()
+    headerFour.setName("x-newer-header")
+    headerFour.setValue("newish-value")
+    headerFour.setQuality(0.5)
+    val headerFive = new Header()
+    headerFive.setName("x-newer-header")
+    headerFive.setValue("newerish-value")
+    headerFive.setQuality(0.5)
+    val headerSix = new Header()
+    headerSix.setName("x-newer-header")
+    headerSix.setValue("newestish-value")
+    headerSix.setQuality(0.5)
 
     conf.setResponse(new HttpMessage)
     conf.getResponse.getHeader.add(headerOne)
-
-    val headerTwo = new Header()
-    headerTwo.setName("x-newer-header")
-    headerTwo.getValue.add("newish-value")
-    headerTwo.getValue.add("newerish-value")
-    headerTwo.getValue.add("newestish-value")
-    headerTwo.setQuality(0.5)
-
     conf.getResponse.getHeader.add(headerTwo)
+    conf.getResponse.getHeader.add(headerThree)
+    conf.getResponse.getHeader.add(headerFour)
+    conf.getResponse.getHeader.add(headerFive)
+    conf.getResponse.getHeader.add(headerSix)
 
     conf
   }

@@ -2,14 +2,10 @@
 
 <add-headers xmlns="http://docs.api.rackspacecloud.com/repose/add-header/v1.0">
     <request>
-        <header name="repose-test">
-            <value>this-is-a-test</value>
-        </header>
+        <header name="repose-test">this-is-a-test</header>
     </request>
 
     <response>
-        <header name="response-header" quality="0.9">
-            <value>foooo</value>
-        </header>
+        <header name="response-header" quality="0.9">foooo</header>
     </response>
 </add-headers>
