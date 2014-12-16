@@ -17,6 +17,10 @@ import javax.inject.Named;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
+/**
+ * TODO: put this into the artifact manager, because it just pays attention to values.
+ * TODO: doesn't need to be a spring bean
+ */
 @Named
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
@@ -82,6 +86,7 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    public synchronized EarArchiveEntryHelper newEarArchiveEntryListener() {
       validateDeploymentDirectory();
 
+      //TODO: YIKES
       final ClassLoader localClassLoaderCtx = Thread.currentThread().getContextClassLoader();
 
       return new DefaultEarArchiveEntryHelper(localClassLoaderCtx, getUnpacker().getDeploymentDirectory());
