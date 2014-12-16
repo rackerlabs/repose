@@ -1,8 +1,18 @@
 package org.openrepose.core.services.deploy;
 
-import org.openrepose.commons.utils.classloader.ear.EarArchiveEntryHelper;
-import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
+import com.oracle.javaee6.ApplicationType;
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.ObjectFactory;
+import com.oracle.javaee6.WebFragmentType;
+import org.openrepose.commons.config.parser.common.ConfigurationParser;
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser;
+import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.classloader.EarClassProvider;
+import org.openrepose.commons.utils.classloader.EarProcessingException;
+import org.openrepose.commons.utils.classloader.ReallySimpleEarClassLoaderContext;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarDescriptor;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
@@ -20,9 +30,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,7 +51,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactManager.class);
 
     private final EventService eventService;
-    private final ContainerConfigurationListener containerConfigurationListener;
+    private ContainerConfigurationListener containerConfigurationListener;
     private final ConfigurationService configurationService;
     private final ThreadingService threadingService;
 
@@ -48,16 +64,16 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     @Inject
     public ArtifactManager(EventService eventService,
                            ConfigurationService configurationService,
-                           ThreadingService threadingService,
-                           ContainerConfigurationListener containerConfigurationListener) {
+                           ThreadingService threadingService) {
         this.eventService = eventService;
         this.configurationService = configurationService;
         this.threadingService = threadingService;
-        this.containerConfigurationListener = containerConfigurationListener;
     }
 
     @PostConstruct
     public void init() {
+        this.containerConfigurationListener = new ContainerConfigurationListener(eventService);
+
         //TODO: maybe we can replace the directory watcher with less insanity
         watcherThread = new DestroyableThreadWrapper(threadingService.newThread(containerConfigurationListener.getDirWatcher(), "Artifact Watcher Thread"),
                 containerConfigurationListener.getDirWatcher());
@@ -164,30 +180,69 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     private EarClassLoaderContext loadArtifact(String archivePath) {
         final File archive = new File(archivePath);
+        EarClassLoaderContext context = null;
 
-        //TODO: use the new classloaderstuff, and package it into a earClassLoaderContext
+
+
         try {
-            final EarArchiveEntryHelper listener = containerConfigurationListener.newEarArchiveEntryListener();
-            final EarClassLoaderContext classLoaderContext = containerConfigurationListener.getUnpacker().read(listener, archive);
+            //TODO : i hate this unpacker
+            //Make sure we have a location to deploy to
+            File unpackRoot = containerConfigurationListener.getUnpacker().getDeploymentDirectory();
+
+            unpackRoot.mkdirs(); //TODO: do I care
+
+            EarClassProvider provider = new EarClassProvider(archive, unpackRoot);
+            ClassLoader earClassLoader = provider.getClassLoader();
+
+            EarDescriptor descriptor = buildEarDescriptor(earClassLoader);
+
+            context = new ReallySimpleEarClassLoaderContext(descriptor, earClassLoader);
 
             // Associates this artifact with the application name for unlinking later
-            artifactApplicationNames.put(archive.getAbsolutePath(), classLoaderContext.getEarDescriptor().getApplicationName());
+            artifactApplicationNames.put(archive.getAbsolutePath(), context.getEarDescriptor().getApplicationName());
 
-            return classLoaderContext;
-        } catch (IOException ioe) {
-            LOG.error("Failure in loading artifact, \"" + archive.getAbsolutePath() + "\" - Reason: " + ioe.getMessage(), ioe);
+        } catch (EarProcessingException e) {
+            LOG.error("Failure in loading artifact, \"{}\"", archive.getAbsolutePath(), e);
         }
-        return null;
+        return context;
     }
 
-    @Override
-    public EarClassLoader getApplication(String contextName) {
-        EarClassLoaderContext ctx = classLoaderContextMap.get(contextName);
-        if (ctx == null) {
-            return null;
-        } else {
-            return ctx.getClassLoader();
+    private EarDescriptor buildEarDescriptor(ClassLoader earClassLoader) throws EarProcessingException {
+        EarDescriptor descriptor = new EarDescriptor();
+        try {
+            final JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+            //Load the application xml out of the earClassLoader
+            //TODO only going to use META-INF/application.xml right now
+            URL applicationXmlUrl = earClassLoader.getResource("META-INF/application.xml");
+            ConfigurationParser<ApplicationType> applicationXmlParser = new JaxbConfigurationParser<>(ApplicationType.class, jaxbContext, null);
+            ApplicationType appXml = applicationXmlParser.read(new BufferedURLConfigurationResource(applicationXmlUrl));
+            if (appXml != null && appXml.getApplicationName() != null && !StringUtilities.isBlank(appXml.getApplicationName().getValue())) {
+                descriptor.setApplicationName(appXml.getApplicationName().getValue());
+            } else {
+                LOG.error("Unable to acquire Application Name from ear file");
+                throw new EarProcessingException("Unable to find Application Name from ear file!");
+            }
+
+            //Load the webFragment out of the ear class loader
+            URL webFragmentUrl = earClassLoader.getResource("WEB-INF/web-fragment.xml");
+            ConfigurationParser<WebFragmentType> webFragmentParser = new JaxbConfigurationParser<>(WebFragmentType.class, jaxbContext, null);
+            WebFragmentType webFragment = webFragmentParser.read(new BufferedURLConfigurationResource(webFragmentUrl));
+            for (JAXBElement<?> element : webFragment.getNameOrDescriptionAndDisplayName()) {
+                if (element.getDeclaredType().equals(FilterType.class)) {
+                    FilterType filterType = (FilterType) element.getValue();
+                    if (filterType.getFilterName() != null && filterType.getFilterClass() != null) {
+                        descriptor.getRegisteredFiltersMap().put(
+                                filterType.getFilterName().getValue(),
+                                filterType
+                        );
+                    }
+                }
+            }
+        } catch (JAXBException e) {
+            LOG.error("JAXB Exception during gathering information from the ApplicationXML or WebFragment!", e);
+            throw new EarProcessingException("JAXB problem when parsing Ear File", e);
         }
+        return descriptor;
     }
 
     //TODO: what if there are multiple filters with the same name?
