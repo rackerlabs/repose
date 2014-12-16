@@ -23,6 +23,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var config: String = _
   private var initialized = false
   private var herpLogger: Logger = _
+  private var serviceCode: String = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
@@ -67,7 +68,6 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     val userAgent = httpServletRequest.getHeader("User-Agent")
     val requestMethod = httpServletRequest.getMethod
     val requestURL = Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.asInstanceOf[String]).orNull
-    val serviceCode = "I - Service Code"
     val region = "J - Region"
     val dataCenter = "K - Data Center"
     val parameters = Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")).map(_.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap).getOrElse(Map[String, Array[String]]())
@@ -109,6 +109,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 
   override def configurationUpdated(config: HerpConfig): Unit = {
     herpLogger = LoggerFactory.getLogger(config.getId)
+    serviceCode = config.getServiceCode
     initialized = true
   }
 
