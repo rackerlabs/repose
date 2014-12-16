@@ -316,32 +316,19 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting against ALL HTTP methods, should"() {
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/all", method: "PUT",
-                headers: ["X-PP-Groups" : "test", "X-PP-User" : "123ALL"])
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/all", method: "POST",
+                headers: ["X-PP-Groups" : "all-limits", "X-PP-User" : "123ALL"])
 
         then:
         messageChain.receivedResponse.code.equals("200")
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PUT",
-                headers: ["X-PP-Groups" : "test", "X-PP-User" : "user"])
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "DELETE",
+                headers: ["X-PP-Groups" : "all-limits", "X-PP-User" : "user"])
 
         then:
         messageChain.receivedResponse.code.equals("200")
 
-        when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PUT",
-                headers: ["X-PP-Groups" : "test", "X-PP-User" : "user"])
-
-        then:
-        messageChain.receivedResponse.code.equals("200")
-
-        when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PUT",
-                headers: ["X-PP-Groups" : "test", "X-PP-User" : "user"])
-
-        then:
-        messageChain.receivedResponse.code.equals("200")
     }
 
     def "When making request against a limit with DAY units after a request against a limit with SECOND units, limits don't get overwritten on expire"(){
