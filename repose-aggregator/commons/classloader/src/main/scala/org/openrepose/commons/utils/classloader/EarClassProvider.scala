@@ -1,6 +1,7 @@
 package org.openrepose.commons.utils.classloader
 
 import java.io.{IOException, File, FileInputStream, FileOutputStream}
+import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, SimpleFileVisitor, Files, Path}
 import java.util.UUID
@@ -13,7 +14,7 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
 
   val outputDir = new File(unpackRoot, UUID.randomUUID().toString)
 
-  def unpack(): Unit = {
+  private def unpack(): Unit = {
     try {
       if (!outputDir.exists()) {
         outputDir.mkdir()
@@ -43,6 +44,19 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
         log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
         throw e
     }
+  }
+
+  /**
+   * Calls unpack, and gets you a new classloader for all the items in this ear file
+   */
+  lazy val getClassLoader:ClassLoader = {
+    unpack()
+
+    val fileUrls:Array[URL] = outputDir.listFiles().toList.map { f =>
+      f.toURI.toURL
+    }.toArray
+
+    new URLClassLoader(fileUrls)
   }
 
 

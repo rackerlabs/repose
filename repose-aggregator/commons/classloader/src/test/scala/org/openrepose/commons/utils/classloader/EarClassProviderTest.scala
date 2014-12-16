@@ -77,7 +77,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
     withTempDir { root =>
       val p = new EarClassProvider(earFile, root)
 
-      p.unpack()
+      p.getClassLoader
 
       root.listFiles.toList shouldNot be(empty)
 
@@ -109,7 +109,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(tempFile, root)
       intercept[IOException] {
-        p.unpack()
+        p.getClassLoader
       }
 
       //Verify that a warning was logged
@@ -138,7 +138,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(tempFile, root)
       intercept[IOException] {
-        p.unpack()
+        p.getClassLoader
       }
     }
   }
@@ -149,7 +149,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(notAFile, root)
       intercept[IOException] {
-        p.unpack()
+        p.getClassLoader
       }
     }
   }
@@ -160,12 +160,30 @@ class EarClassProviderTest extends FunSpec with Matchers {
     val p = new EarClassProvider(earFile, root)
 
     intercept[IOException] {
-      p.unpack()
+      p.getClassLoader
     }
   }
 
   it("provides a class that is not in the current classloader") {
-    pending
+    withTempDir{ root =>
+
+      val p = new EarClassProvider(earFile, root)
+      val earClass = "org.openrepose.filters.core.test.TestFilter"
+
+      intercept[ClassNotFoundException] {
+        Class.forName(earClass)
+      }
+
+      val tehClass = p.getClassLoader.loadClass(earClass)
+
+      tehClass shouldNot be(null)
+      tehClass.getName should be("org.openrepose.filters.core.test.TestFilter")
+
+      intercept[ClassNotFoundException] {
+        Class.forName(earClass)
+      }
+
+    }
   }
 
   it("cleans up it's unpacked artifacts") {
