@@ -7,6 +7,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
@@ -63,17 +64,17 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse) = {
-    val userName = httpServletRequest.getHeader("X-User-Name")
-    val impersonatorName = httpServletRequest.getHeader("X-Impersonator-Name")
+    val userName = httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)
+    val impersonatorName = httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)
     val tenantID = "C - Tenant ID"
-    val rbacRoles = httpServletRequest.getHeaders("X-Roles").asScala.toArray
-    val userAgent = httpServletRequest.getHeader("User-Agent")
+    val rbacRoles = httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray
+    val userAgent = httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)
     val requestMethod = httpServletRequest.getMethod
     val requestURL = Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.asInstanceOf[String]).orNull
     val parameters = Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")).map(_.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap).getOrElse(Map[String, Array[String]]())
     val timestamp = System.currentTimeMillis()
     val responseCode = httpServletResponse.getStatus
-    val responseMessage = httpServletRequest.getHeader("X-Tenant-Id")
+    val responseMessage = httpServletRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)
     val guid = java.util.UUID.randomUUID.toString
 
     val jsonObject = Json.obj(
