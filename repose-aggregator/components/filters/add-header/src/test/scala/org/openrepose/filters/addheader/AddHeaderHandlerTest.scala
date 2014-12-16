@@ -25,7 +25,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     for( a <- 1 to numHeaders){
       for (b <- 1 to numValues) {
 
-        val bVal : Int = b + ((a-1)*numValues)
+        val bVal : Int = b + ((a - 1) * numValues)
 
         val header = new Header()
         header.setName("x-new-header-" + a.toString )
@@ -55,7 +55,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     for( a <- 1 to numHeaders){
       for (b <- 1 to numValues) {
 
-        val bVal : Int = b + ((a-1)*numValues)
+        val bVal : Int = b + ((a - 1) * numValues)
 
         val header = new Header()
         header.setName("x-new-header-" + a.toString )
