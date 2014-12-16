@@ -4,78 +4,15 @@ import java.io.InputStream
 import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper}
 
 import com.mockrunner.mock.web._
-import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header, HttpMessage}
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
-@RunWith(classOf[JUnitRunner])
 class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTester with BeforeAndAfter {
   var handler: AddHeaderHandler = _
   var myDirector: FilterDirector = _
-
-  def addHeaderRequestConfig(removeOriginal:Boolean, numValues:Int = 1, numHeaders:Int = 1): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-    val header = new Header()
-    var headers= List[Header]()
-
-    for( a <- 1 to numHeaders){
-      for (b <- 1 to numValues) {
-
-        val bVal : Int = b + ((a - 1) * numValues)
-
-        val header = new Header()
-        header.setName("x-new-header-" + a.toString )
-        header.setValue("new-value-" + bVal.toString )
-        header.setQuality(0.2)
-
-        if(removeOriginal) {
-          header.setOverwrite(true)
-        }
-
-        headers = header :: headers
-
-      }
-
-    }
-    conf.setRequest(new HttpMessage)
-    headers.foreach(conf.getRequest.getHeader.add(_))
-
-    conf
-  }
-
-  def addHeaderResponseConfig(removeOriginal:Boolean, numValues:Int = 1, numHeaders:Int = 1): AddHeadersConfig = {
-    val conf = new AddHeadersConfig
-    val header = new Header()
-    var headers= List[Header]()
-
-    for( a <- 1 to numHeaders){
-      for (b <- 1 to numValues) {
-
-        val bVal : Int = b + ((a - 1) * numValues)
-
-        val header = new Header()
-        header.setName("x-new-header-" + a.toString )
-        header.setValue("new-value-" + bVal.toString )
-        header.setQuality(0.2)
-
-        if(removeOriginal) {
-          header.setOverwrite(true)
-        }
-
-        headers = header :: headers
-
-      }
-
-    }
-    conf.setResponse(new HttpMessage)
-    headers.foreach(conf.getResponse.getHeader.add(_))
-
-    conf
-  }
 
   describe("Handle request by adding headers") {
     it("should contain added headers") {
@@ -105,7 +42,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added header with multiple values") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addHeaderRequestConfig(false,3))
+      handler = new AddHeaderHandler(addHeaderRequestConfig(false, 3))
 
       myDirector = handler.handleRequest(mockRequest, null)
       myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-other-header")) shouldBe false
@@ -121,7 +58,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
     it("should contain added headers with multiple values") {
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
-      handler = new AddHeaderHandler(addHeaderRequestConfig(false,3,2))
+      handler = new AddHeaderHandler(addHeaderRequestConfig(false, 3, 2))
 
       myDirector = handler.handleRequest(mockRequest, null)
       myDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-2")) shouldBe true
@@ -174,7 +111,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     it("should contain added header with multiple values") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addHeaderResponseConfig(false,3))
+      handler = new AddHeaderHandler(addHeaderResponseConfig(false, 3))
 
       myDirector = handler.handleResponse(null, mockResponse)
       myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-other-header")) shouldBe false
@@ -189,7 +126,7 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
 
     it("should contain added headers with multiple values") {
       val mockResponse = new ReadableResponseWrapper(new MockHttpServletResponse())
-      handler = new AddHeaderHandler(addHeaderResponseConfig(false,3,2))
+      handler = new AddHeaderHandler(addHeaderResponseConfig(false, 3, 2))
 
       myDirector = handler.handleResponse(null, mockResponse)
       myDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-new-header-2")) shouldBe true
@@ -205,5 +142,61 @@ class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTeste
       myDirector.responseHeaderManager().headersToAdd().size() shouldEqual 2
       myDirector.responseHeaderManager().headersToRemove().size() shouldEqual 0
     }
+  }
+
+  def addHeaderRequestConfig(removeOriginal: Boolean, numValues: Int = 1, numHeaders: Int = 1): AddHeadersConfig = {
+    val conf = new AddHeadersConfig
+    val header = new Header()
+    var headers = List[Header]()
+
+    for (a <- 1 to numHeaders) {
+      for (b <- 1 to numValues) {
+        val bVal = b + ((a - 1) * numValues)
+
+        val header = new Header()
+        header.setName("x-new-header-" + a.toString)
+        header.setValue("new-value-" + bVal.toString)
+        header.setQuality(0.2)
+
+        if (removeOriginal) {
+          header.setOverwrite(true)
+        }
+
+        headers = header :: headers
+      }
+    }
+
+    conf.setRequest(new HttpMessage)
+    headers.foreach(conf.getRequest.getHeader.add)
+
+    conf
+  }
+
+  def addHeaderResponseConfig(removeOriginal: Boolean, numValues: Int = 1, numHeaders: Int = 1): AddHeadersConfig = {
+    val conf = new AddHeadersConfig
+    val header = new Header()
+    var headers = List[Header]()
+
+    for (a <- 1 to numHeaders) {
+      for (b <- 1 to numValues) {
+        val bVal = b + ((a - 1) * numValues)
+
+        val header = new Header()
+        header.setName("x-new-header-" + a.toString)
+        header.setValue("new-value-" + bVal.toString)
+        header.setQuality(0.2)
+
+        if (removeOriginal) {
+          header.setOverwrite(true)
+        }
+
+        headers = header :: headers
+      }
+    }
+
+    conf.setResponse(new HttpMessage)
+    headers.foreach(conf.getResponse.getHeader.add)
+
+    conf
   }
 }
