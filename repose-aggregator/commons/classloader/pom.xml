@@ -28,12 +28,6 @@
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -42,12 +36,6 @@
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!--Apache Pool Support-->
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
         </dependency>
 
         <dependency>
