@@ -3,7 +3,7 @@
 pushd `pwd`
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 #export REPOSE_DIR=${SCRIPT_DIR}/../../../
-export VAGRANT_DIR=${SCRIPT_DIR}/Vagrant
+export VAGRANT_DIR=${SCRIPT_DIR}/target/Vagrant
 export PATCH_DIR=${SCRIPT_DIR}/../bash
 #cd ${REPOSE_DIR}/
 #mvn clean install -DskipTests=true
@@ -20,7 +20,13 @@ vagrant init centos-65-x64-virtualbox-puppet http://puppet-vagrant-boxes.puppetl
 vagrant up
 
 vagrant ssh -c "/vagrant/repose-test-genric-rpm.sh && /vagrant/repose-test-genric-all.sh"
-vagrant destroy -f
-echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
-echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
+if [ "$?" -eq 0 ]; then
+    vagrant destroy -f
+    echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
+    echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
+else
+    echo -e "\n\nDid not destroy the VM since there was an error.\n"
+    echo -e "After reviewing the state of the VM at: ${VAGRANT_DIR}\n"
+    echo -e "Destroy it and remove the directory:    vagrant destroy -f\n\n"
+fi
 popd
