@@ -99,7 +99,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             eventService.squelch(this, ApplicationArtifactEvent.class);
 
             if (containerConfigurationListener.isAutoClean()) {
-                delete(containerConfigurationListener.getUnpacker().getDeploymentDirectory());
+                delete(containerConfigurationListener.getDeploymentDirectory());
             }
         } finally {
             watcherThread.destroy();
@@ -182,14 +182,14 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         final File archive = new File(archivePath);
         EarClassLoaderContext context = null;
 
-
-
         try {
-            //TODO : i hate this unpacker
             //Make sure we have a location to deploy to
-            File unpackRoot = containerConfigurationListener.getUnpacker().getDeploymentDirectory();
+            File unpackRoot = containerConfigurationListener.getDeploymentDirectory();
 
-            unpackRoot.mkdirs(); //TODO: do I care
+            //NOTE: this guy throws all sorts of runtime exceptions :(
+            containerConfigurationListener.validateDeploymentDirectory();
+
+            unpackRoot.mkdirs(); //TODO: do I care, Yes, we need to validate things
 
             EarClassProvider provider = new EarClassProvider(archive, unpackRoot);
             ClassLoader earClassLoader = provider.getClassLoader();

@@ -2,39 +2,27 @@ package org.openrepose.core.services.deploy;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.classloader.ear.DefaultEarArchiveEntryHelper;
-import org.openrepose.commons.utils.classloader.ear.EarArchiveEntryHelper;
-import org.openrepose.commons.utils.classloader.ear.EarUnpacker;
 import org.openrepose.core.container.config.ArtifactDirectory;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.container.config.DeploymentDirectory;
 import org.openrepose.core.services.event.common.EventService;
-import java.io.File;
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.inject.Named;
 
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.stereotype.Component;
+import java.io.File;
 
 /**
- * TODO: put this into the artifact manager, because it just pays attention to values.
- * TODO: doesn't need to be a spring bean
+ * This is a listener that the ArtifactManager uses to keep track of items from the ContainerConfiguration
+ * TODO: It's possible there's thread safety in the interactions between this and the Artifact Manager
  */
-@Named
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
    private ArtifactDirectoryWatcher dirWatcher;
    private File deploymentDirectory = null;
-   private EarUnpacker unpacker;
    private boolean autoClean = false;
    private boolean isInitialized = false;
 
-   @Inject
    public ContainerConfigurationListener(EventService eventService) {
       dirWatcher = new ArtifactDirectoryWatcher(eventService);
       dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
-      unpacker = null;
    }
 
    @Override
@@ -53,19 +41,21 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
             dirWatcher.updateArtifactDirectoryLocation(new File(ad.getValue()));
 
             deploymentDirectory = new File(dd.getValue());
-            unpacker = new EarUnpacker(deploymentDirectory);
          }
       }
        isInitialized=true;
 
    }
 
-   
+
      @Override
       public boolean isInitialized(){
           return isInitialized;
       }
-  
+
+   /**
+    * TODO: Convert this to not throw runtime exceptions so that they can be properly handled.
+    */
    public synchronized void validateDeploymentDirectory() {
       if (deploymentDirectory == null) {
          throw new IllegalStateException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");
@@ -83,24 +73,15 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
       }
    }
 
-   public synchronized EarArchiveEntryHelper newEarArchiveEntryListener() {
-      validateDeploymentDirectory();
-
-      //TODO: YIKES
-      final ClassLoader localClassLoaderCtx = Thread.currentThread().getContextClassLoader();
-
-      return new DefaultEarArchiveEntryHelper(localClassLoaderCtx, getUnpacker().getDeploymentDirectory());
-   }
-
    public synchronized ArtifactDirectoryWatcher getDirWatcher() {
       return dirWatcher;
    }
 
-   public synchronized EarUnpacker getUnpacker() {
-      return unpacker;
-   }
-
    public synchronized boolean isAutoClean() {
       return autoClean;
+   }
+
+   public File getDeploymentDirectory() {
+      return deploymentDirectory;
    }
 }
