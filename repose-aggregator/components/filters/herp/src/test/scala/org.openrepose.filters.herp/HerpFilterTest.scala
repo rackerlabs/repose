@@ -6,6 +6,7 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import org.openrepose.filters.herp.config.HerpConfig
 import org.scalatest._
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+
 import scala.collection.JavaConverters._
 
 class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with Matchers {
@@ -82,7 +83,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"ServiceCode\":\"some-service\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ServiceCode\":\"some-service\"")
     }
     it("should log the configured region") {
       // given:
@@ -101,7 +102,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Region\":\"some-region\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Region\":\"some-region\"")
     }
     it("should log the configured data center") {
       // given:
@@ -120,7 +121,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"DataCenter\":\"some-data-center\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"DataCenter\":\"some-data-center\"")
     }
     it("should extract and log the request method") {
       // given:
@@ -139,7 +140,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Method\":\"POST\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Method\":\"POST\"")
     }
     it("should extract and log the request url") {
       // given:
@@ -158,7 +159,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"URL\":\"http://foo.com\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"URL\":\"http://foo.com\"")
     }
     it("should extract and log the request parameters") {
       // given:
@@ -177,7 +178,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Parameters\":{\"foo\":[\"bar\",\"baz\"]}")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\":{\"foo\":[\"bar\",\"baz\"]}")
     }
     it("should extract and log the request user name header") {
       // given:
@@ -196,7 +197,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"UserName\":\"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\":\"foo\"")
     }
     it("should extract and log the request impersonator name header") {
       // given:
@@ -215,7 +216,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"ImpersonatorName\":\"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ImpersonatorName\":\"foo\"")
     }
     it("should extract and log the request tenant id header") {
       // given:
@@ -234,7 +235,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"TenantID\":\"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"TenantID\":\"foo\"")
     }
     it("should extract and log the request roles header") {
       // given:
@@ -254,7 +255,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Roles\":[\"foo\",\"bar\"]")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\":[\"foo\",\"bar\"]")
     }
     it("should extract and log the request user agent") {
       // given:
@@ -273,7 +274,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"UserAgent\":\"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserAgent\":\"foo\"")
     }
     it("should extract and log the response code") {
       // given:
@@ -292,7 +293,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Code\":418")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Code\":418")
     }
     it("should extract and log the response message") {
       // given:
@@ -311,7 +312,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("\"Message\":\"I\'m a teapot\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\":\"IM_A_TEAPOT\"")
     }
     ignore("should extract and log the response body") {
       //given:
@@ -335,7 +336,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       //then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include ("HEY A BODY")
+      logEvents.get(0).getMessage.getFormattedMessage should include("HEY A BODY")
     }
   }
 }

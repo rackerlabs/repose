@@ -7,7 +7,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
@@ -74,7 +74,8 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     val parameters = Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")).map(_.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap).getOrElse(Map[String, Array[String]]())
     val timestamp = System.currentTimeMillis()
     val responseCode = httpServletResponse.getStatus
-    val responseMessage = "response message" //todo: wrap the request in mutable request to get body, or return message corresponding to status code
+    val responseMessage = HttpStatusCode.fromInt(httpServletResponse.getStatus).name()
+    // todo: val responseBody = ??? // wrap the request in mutable request to get the body
     val guid = java.util.UUID.randomUUID.toString
 
     val jsonObject = Json.obj(
