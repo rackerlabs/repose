@@ -2,9 +2,9 @@ package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement;
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog;
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
+import org.openrepose.filters.slf4jlogging.config.FormatElement;
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLog;
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<Slf4jHttpLoggingHandler> {
 

@@ -323,11 +323,83 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("200")
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "DELETE",
-                headers: ["X-PP-Groups" : "all-limit", "X-PP-User" : "user"])
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "DELETE",
+                headers: ["X-PP-Groups" : "all-limits", "X-PP-User" : "user"])
 
         then:
         messageChain.receivedResponse.code.equals("200")
+
+    }
+
+    def "When making request against a limit with DAY units after a request against a limit with SECOND units, limits don't get overwritten on expire"(){
+        when: "make a request with DAY units"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/makeput", method: "PUT",
+                headers: ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"])
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(getSpecificUserLimits(
+                ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"]
+        ))
+
+        then:
+        result.limits.rate.each {
+            t ->
+                if(t.regex == "/service2/makeput"){
+                    assert t.limit[0].verb == "PUT"
+                    assert t.limit[0].value == 5
+                    assert t.limit[0].remaining == 4
+                    assert t.limit[0].unit == "DAY"
+                }
+        }
+
+        when: "make a request with SECOND units"
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
+                headers: ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"])
+        slurper = new JsonSlurper()
+        result = slurper.parseText(getSpecificUserLimits(
+                ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"]
+        ))
+
+        then:
+        result.limits.rate.each {
+            t ->
+                if(t.regex == "/service2/doget"){
+                    assert t.limit[0].verb == "GET"
+                    assert t.limit[0].value == 5
+                    assert t.limit[0].remaining == 4
+                    assert t.limit[0].unit == "SECOND"
+                } else if(t.regex == "/service2/makeput"){
+                    assert t.limit[0].verb == "PUT"
+                    assert t.limit[0].value == 5
+                    assert t.limit[0].remaining == 4
+                    assert t.limit[0].unit == "DAY"
+                }
+
+        }
+
+        when: "wait and make a request with SECOND units again"
+        sleep(3000)
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
+                headers: ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"])
+        slurper = new JsonSlurper()
+        result = slurper.parseText(getSpecificUserLimits(
+                ["X-PP-Groups" : "reset-limits", "X-PP-User" : "123"]
+        ))
+
+        then:
+        result.limits.rate.each {
+            t ->
+                if(t.regex == "/service2/doget"){
+                    assert t.limit[0].verb == "GET"
+                    assert t.limit[0].value == 5
+                    assert t.limit[0].remaining == 4
+                    assert t.limit[0].unit == "SECOND"
+                } else if(t.regex == "/service2/makeput"){
+                    assert t.limit[0].verb == "PUT"
+                    assert t.limit[0].value == 5
+                    assert t.limit[0].remaining == 4
+                    assert t.limit[0].unit == "DAY"
+                }
+        }
     }
 
     def "When rate limiting against multiple http methods in single rate limit line"() {
@@ -575,6 +647,13 @@ class RateLimitingTest extends ReposeValveTest {
         def groupHeader = (group != null) ? group : groupHeaderDefault
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + groupHeader + acceptHeaderJson);
+
+        return messageChain.receivedResponse.body
+    }
+
+    private String getSpecificUserLimits(Map headers) {
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+                headers: headers + acceptHeaderJson);
 
         return messageChain.receivedResponse.body
     }

@@ -9,7 +9,6 @@ import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.components.authz.rackspace.config.DelegatingType
 import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint
-import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.authz.cache.CachedEndpoint
 import org.openrepose.filters.authz.cache.EndpointListCache
@@ -21,8 +20,10 @@ import spock.lang.Unroll
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
+import static org.openrepose.core.filter.logic.FilterAction.PASS
+import static org.openrepose.core.filter.logic.FilterAction.RETURN
 
-class RequestAuthorizationHandlerGroovyTest extends Specification {
+class RequestAuthorizationHandlerTest extends Specification {
 
     AuthenticationService authenticationService
     EndpointListCache endpointListCache
@@ -99,7 +100,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
 
         then:
-        filterDirector.getFilterAction() == FilterAction.PASS
+        filterDirector.getFilterAction() == PASS
         filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())) == null
 
         where:
@@ -129,9 +130,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         isDelegableHeaderAccurateFor delegable, filterDirector, serviceCatalogFailureMessage()
 
         where:
-        desc                                         | filterAction        | delegable
-        "with delegable on, auth failures should be" | FilterAction.PASS   | new DelegatingType().with { it.quality = 0.3; it }
-        "with delegable off, auth should not be"     | FilterAction.RETURN | null
+        desc                                         | filterAction | delegable
+        "with delegable on, auth failures should be" | PASS         | new DelegatingType().with { it.quality = 0.3; it }
+        "with delegable off, auth should not be"     | RETURN       | null
     }
 
     @Unroll
@@ -148,9 +149,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         isDelegableHeaderAccurateFor delegable, director, authTokenNotFoundMessage()
 
         where:
-        desc                                    | filterAction        | delegable
-        "When delegating is not set, it should" | FilterAction.RETURN | null
-        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
+        desc                                    | filterAction | delegable
+        "When delegating is not set, it should" | RETURN       | null
+        "When delegating is set, it should not" | PASS         | new DelegatingType()
     }
 
     @Unroll
@@ -168,9 +169,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         isDelegableHeaderAccurateFor delegable, director, authTokenNotAuthorized()
 
         where:
-        desc                                    | filterAction        | delegable
-        "When delegating is not set, it should" | FilterAction.RETURN | null
-        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
+        desc                                    | filterAction | delegable
+        "When delegating is not set, it should" | RETURN       | null
+        "When delegating is set, it should not" | PASS         | new DelegatingType()
     }
 
     @Unroll
@@ -183,7 +184,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        director.getFilterAction() == FilterAction.PASS
+        director.getFilterAction() == PASS
         director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())) == null
 
         where:
@@ -208,9 +209,9 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         isDelegableHeaderAccurateFor delegable, director, authServiceFailure()
 
         where:
-        desc                                    | filterAction        | delegable
-        "When delegating is not set, it should" | FilterAction.RETURN | null
-        "When delegating is set, it should not" | FilterAction.PASS   | new DelegatingType()
+        desc                                    | filterAction | delegable
+        "When delegating is not set, it should" | RETURN       | null
+        "When delegating is set, it should not" | PASS         | new DelegatingType()
     }
 
     def "should Cache Fresh Endpoint Lists"() {
@@ -237,6 +238,57 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN) == null
         verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN) == null
         verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
+    }
+
+    @Unroll
+    def "With #configuration configured and auth #endpoint should #outcome"() {
+        given:
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, createConfiguredEndpoint(configUri, configRegion, configName, configType), null, null);
+        List<Endpoint> endpointList = new LinkedList<Endpoint>();
+        endpointList.add(createAuthEndpoint(endpointUri, endpointRegion, endpointName, endpointType))
+        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
+
+        when:
+        FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
+
+        then:
+        director.filterAction == outcome
+
+        where:
+        configuration    | configUri        | configRegion | configName | configType  | endpoint               | endpointUri       | endpointRegion | endpointName | endpointType | outcome
+        "uri"            | PUBLIC_URL       | null         | null       | null        | "uri matches"          | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
+        "uri"            | "http://foo.com" | null         | null       | null        | "uri doesn't match"    | "http://bar.com"  | REGION         | NAME         | TYPE         | RETURN
+        "uri and region" | PUBLIC_URL       | REGION       | null       | null        | "uri and region match" | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
+        "uri and region" | PUBLIC_URL       | "here"       | null       | null        | "region doesn't match" | PUBLIC_URL        | "there"        | NAME         | TYPE         | RETURN
+        "uri and name"   | PUBLIC_URL       | null         | NAME       | null        | "uri and name match"   | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
+        "uri and name"   | PUBLIC_URL       | null         | "Bob"      | null        | "name doesn't match"   | PUBLIC_URL        | REGION         | "Billy"      | TYPE         | RETURN
+        "uri and type"   | PUBLIC_URL       | null         | null       | TYPE        | "uri and type match"   | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
+        "uri and type"   | PUBLIC_URL       | null         | null       | "dangerous" | "type doesn't match"   | PUBLIC_URL        | REGION         | NAME         | "confident"  | RETURN
+        "all"            | PUBLIC_URL       | REGION       | NAME       | TYPE        | "all match"            | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
+        "all"            | PUBLIC_URL       | "here"       | NAME       | TYPE        | "region doesn't match" | PUBLIC_URL        | "there"        | NAME         | TYPE         | RETURN
+        "all"            | PUBLIC_URL       | REGION       | "Bob"      | TYPE        | "name doesn't match"   | PUBLIC_URL        | REGION         | "Billy"      | TYPE         | RETURN
+        "all"            | PUBLIC_URL       | REGION       | NAME       | "dangerous" | "type doesn't match"   | PUBLIC_URL        | REGION         | NAME         | "confident"  | RETURN
+    }
+
+    ServiceEndpoint createConfiguredEndpoint(String configUri, String configRegion, String configName, String configType) {
+        new ServiceEndpoint().with {
+            href = configUri
+            region = configRegion
+            name = configName
+            type = configType
+            it
+        }
+    }
+
+    Endpoint createAuthEndpoint(String authUri, String authRegion, String authName, String authType) {
+        new Endpoint().with {
+            publicURL = authUri
+            region = authRegion
+            name = authName
+            type = authType
+            it
+        }
     }
 
     void isDelegableHeaderAccurateFor(DelegatingType delegable, FilterDirector filterDirector, String message) {

@@ -14,9 +14,9 @@ import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
-import org.openrepose.filters.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastore;
+import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.openstack.docs.identity.api.v2.*;
 
 import java.io.IOException;
@@ -39,7 +39,6 @@ public class AuthFeedListenerTest {
    private AuthTokenCache tkn;
    private AuthUserCache usr;
    private AuthGroupCache grp;
-   private static CacheManager cacheManager;
 
    @Before
    public void setUp() throws IOException {
@@ -49,7 +48,7 @@ public class AuthFeedListenerTest {
       defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
       defaultConfiguration.setUpdateCheck(false);
 
-      cacheManager = CacheManager.newInstance(defaultConfiguration);
+      CacheManager cacheManager = CacheManager.newInstance(defaultConfiguration);
       Cache cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
       cacheManager.addCache(cache);
 

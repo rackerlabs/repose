@@ -39,12 +39,9 @@ class ClientAuthZTest extends ReposeValveTest {
         repose.stop()
     }
 
-
-    def "When user is authorized should forward request to origin service"(){
+    def "User's service endpoint test"(){
         given:
-        fakeIdentityService.with {
-            endpointUrl = endpointResponse
-        }
+        fakeIdentityService.endpointUrl = "localhost"
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
@@ -52,12 +49,6 @@ class ClientAuthZTest extends ReposeValveTest {
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-
-        where:
-        endpointResponse | statusCode
-        "localhost"      | "200"
-        "invalid"        | "403"
-
     }
 
     def "Should not split request headers according to rfc"() {
@@ -183,4 +174,21 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.receivedResponse.code == "403"
     }
 
+    def "User's invalid service endpoint should receive a 403 FORBIDDEN response "(){
+        given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
+        def token = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = token
+        fakeIdentityService.originServicePort = properties.targetPort
+        fakeIdentityService.endpointUrl = "invalidurl"
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])
+        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
+                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+
+        then: "User should receive a 403 FORBIDDEN response"
+        foundLogs.size() == 1
+        mc.handlings.size() == 0
+        mc.receivedResponse.code == "403"
+    }
 }

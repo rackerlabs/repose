@@ -6,7 +6,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation._
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}
@@ -19,12 +19,10 @@ import scala.util.{Failure, Success}
  * response.
  */
 @Named
-class DerpFilter extends Filter with HttpDelegationManager {
-
-  private final val LOG = LoggerFactory.getLogger(classOf[DerpFilter])
+class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
 
   override def init(filterConfig: FilterConfig): Unit = {
-    LOG.trace("DeRP filter initialized")
+    logger.trace("DeRP filter initialized")
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
@@ -32,7 +30,7 @@ class DerpFilter extends Filter with HttpDelegationManager {
     val delegationValues = httpServletRequest.getHeaders(HttpDelegationHeaderNames.Delegated).asScala.toSeq
 
     if (delegationValues.isEmpty) {
-      LOG.debug("No delegation header present, forwarding the request")
+      logger.debug("No delegation header present, forwarding the request")
       filterChain.doFilter(servletRequest, servletResponse)
     } else {
       val sortedErrors = parseDelegationValues(delegationValues).sortWith(_.quality > _.quality)
@@ -40,17 +38,17 @@ class DerpFilter extends Filter with HttpDelegationManager {
 
       sortedErrors match {
         case Seq() =>
-          LOG.warn("No delegation header could be parsed, returning a 500 response")
+          logger.warn("No delegation header could be parsed, returning a 500 response")
           sendError(httpServletResponse, 500, "Delegation header found but could not be parsed", MediaType.TEXT_PLAIN)
         case Seq(preferredValue, _*) =>
-          LOG.debug(s"Delegation header(s) present, returning a ${preferredValue.statusCode} response")
+          logger.debug(s"Delegation header(s) present, returning a ${preferredValue.statusCode} response")
           sendError(httpServletResponse, preferredValue.statusCode, preferredValue.message, MediaType.TEXT_PLAIN)
       }
     }
   }
 
   override def destroy(): Unit = {
-    LOG.trace("DeRP filter destroyed")
+    logger.trace("DeRP filter destroyed")
   }
 
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
@@ -58,7 +56,7 @@ class DerpFilter extends Filter with HttpDelegationManager {
       parseDelegationHeader(value) match {
         case Success(delegationHeader) => Some(delegationHeader)
         case Failure(e) =>
-          LOG.warn("Failed to parse a delegation header: " + e.getMessage)
+          logger.warn("Failed to parse a delegation header: " + e.getMessage)
           None
       }
     }

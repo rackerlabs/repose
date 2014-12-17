@@ -18,7 +18,7 @@ import org.openrepose.filters.clientauth.config.RackspaceIdentityFeed;
 import org.openrepose.filters.clientauth.config.URIPattern;
 import org.openrepose.filters.clientauth.config.WhiteList;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
-import org.openrepose.filters.clientauth.openstack.v1_0.OpenStackAuthenticationHandlerFactory;
+import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandlerFactory;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

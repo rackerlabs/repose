@@ -1,20 +1,16 @@
 package org.openrepose.filters.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterConfig
-import com.mockrunner.mock.web.MockServletContext
-import groovy.xml.StreamingMarkupBuilder
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.FormatElement
-import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
+import org.openrepose.filters.slf4jlogging.config.FormatElement
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLog
+import groovy.xml.StreamingMarkupBuilder
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-/**
- * This class has to be completely redone for the new spring stuff
- */
 class Slf4jLoggingFilterTestUtil {
 
     def static buildFakeConfigXml(List<Slf4JHttpLog> logEntries) {

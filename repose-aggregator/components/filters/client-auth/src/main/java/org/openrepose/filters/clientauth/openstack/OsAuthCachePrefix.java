@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openrepose.filters.clientauth.openstack.v1_0;
+package org.openrepose.filters.clientauth.openstack;
 
 
 public enum OsAuthCachePrefix {

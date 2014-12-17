@@ -3,6 +3,7 @@ package org.openrepose.filters.openstackidentityv3
 import javax.servlet.http.HttpServletRequest
 
 import com.rackspace.httpdelegation.HttpDelegationManager
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
@@ -13,7 +14,6 @@ import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Con
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
-import org.slf4j.LoggerFactory
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -21,9 +21,7 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, identityAPI: OpenStackIdentityV3API)
-  extends AbstractFilterLogicHandler with HttpDelegationManager {
-
-  private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3Handler])
+  extends AbstractFilterLogicHandler with HttpDelegationManager with LazyLogging {
 
   private val identityServiceUri = identityConfig.getOpenstackIdentityService.getUri
   private val forwardGroups = identityConfig.isForwardGroups
@@ -57,7 +55,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
     // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
-      LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
+      logger.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       filterDirector.setFilterAction(FilterAction.PASS)
     } else {
       val requestHeaderManager = filterDirector.requestHeaderManager
@@ -82,7 +80,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           None
         case Failure(e) =>
           failureInValidation = true
-          LOG.error(e.getMessage)
+          logger.error(e.getMessage)
           delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
           None
       }
@@ -114,13 +112,13 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
               groupsList.map(_.name)
             case Failure(e) =>
               failureInValidation = true
-              LOG.error(e.getMessage)
+              logger.error(e.getMessage)
               delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
               List[String]()
           }
         } getOrElse {
           failureInValidation = true
-          LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
+          logger.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
           delegateOrElse(filterDirector.getResponseStatusCode,
             "The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.") {}
           List[String]()
@@ -177,7 +175,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         if (!failureInValidation) {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
         } else {
-          LOG.debug("Forwarding indeterminate request")
+          logger.debug("Forwarding indeterminate request")
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
           filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
@@ -189,7 +187,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   }
 
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    LOG.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + response.getStatus)
+    logger.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + response.getStatus)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val responseStatus = response.getStatus
     filterDirector.setResponseStatusCode(responseStatus)
@@ -215,21 +213,21 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           // a delegated WWW-Authenticate header, this means that our own authentication
           // with the origin service has failed and must then be communicated as
           // a 500 (internal server error) to the client
-          LOG.error("Authentication with the origin service has failed.")
+          logger.error("Authentication with the origin service has failed.")
           filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
         }
       case HttpStatusCode.NOT_IMPLEMENTED =>
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(OpenStackIdentityV3Headers.X_DELEGATED)) {
-          LOG.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
+          logger.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
           filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
         } else {
           filterDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED)
         }
       case _ =>
-        LOG.trace("Response from origin service requires no additional processing. Passing it along.")
+        logger.trace("Response from origin service requires no additional processing. Passing it along.")
     }
 
-    LOG.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
   }
 
