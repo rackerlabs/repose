@@ -20,14 +20,6 @@ public class EarDescriptor {
       this.registeredFilters = registeredFilters;
    }
 
-   public void setApplicationName(String applicationName) {
-      this.applicationName = applicationName;
-   }
-
-   public Map<String, FilterType> getRegisteredFiltersMap() {
-      return registeredFilters;
-   }
-
    public String getApplicationName() {
       return applicationName;
    }
