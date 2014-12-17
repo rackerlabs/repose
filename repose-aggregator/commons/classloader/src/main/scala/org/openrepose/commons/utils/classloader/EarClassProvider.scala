@@ -6,9 +6,20 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, SimpleFileVisitor, Files, Path}
 import java.util.UUID
 import java.util.zip.{ZipFile, ZipInputStream}
+import javax.xml.bind.{JAXBElement, JAXBContext}
+import com.oracle.javaee6.{FilterType, WebFragmentType, ApplicationType, ObjectFactory}
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
+import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
+import org.openrepose.commons.utils.classloader.ear.EarDescriptor
+
 import scala.collection.mutable
 
 import org.slf4j.LoggerFactory
+
+object EarClassProvider {
+  //Need a static singleton for the entire JVM for the JAXB Context
+  val jaxbContext = JAXBContext.newInstance(classOf[ObjectFactory])
+}
 
 class EarClassProvider(earFile: File, unpackRoot: File) {
   val log = LoggerFactory.getLogger(classOf[EarClassProvider])
@@ -74,5 +85,50 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     }.toArray
 
     URLClassLoader.newInstance(fileUrls)
+  }
+
+  lazy val getEarDescriptor: EarDescriptor = {
+    import EarClassProvider.jaxbContext
+
+    val applicationXmlUrl = getClassLoader.getResource("META-INF/application.xml")
+    val appXmlParser = new JaxbConfigurationParser[ApplicationType](classOf[ApplicationType], jaxbContext, null)
+    val appXml = appXmlParser.read(new BufferedURLConfigurationResource(applicationXmlUrl))
+
+    val optionName = for {
+      a <- Option(appXml)
+      name <- Option(a.getApplicationName)
+      value <- Option(name.getValue) if !value.trim.isEmpty
+    } yield {
+      value
+    }
+    val appName = optionName getOrElse (throw new EarProcessingException(s"Unable to parse Application Name from ear file ${earFile.getName}!"))
+
+    //Load the WebFragment data out of the ear file
+    val webFragmentUrl = getClassLoader.getResource("WEB-INF/web-fragment.xml")
+    val webFragmentParser = new JaxbConfigurationParser[WebFragmentType](classOf[WebFragmentType], jaxbContext, null)
+    val webFragment = webFragmentParser.read(new BufferedURLConfigurationResource(webFragmentUrl))
+
+    import scala.collection.JavaConversions._
+
+    //http://stackoverflow.com/a/4719732/423218
+    //The .toSeq in here is to be able to get the for comprehension to properly create map/flatmap calls
+    val filterMap:Map[String, FilterType] = (
+      for{
+        fragment <- Option(webFragment).toSeq
+        elementCollection <- Option(fragment.getNameOrDescriptionAndDisplayName).toSeq
+        element <- elementCollection if element.getDeclaredType.equals(classOf[FilterType])
+        filterType = element.getValue.asInstanceOf[FilterType]
+        filterNameType <- Option(filterType.getFilterName) if Option(filterType.getFilterClass).isDefined
+        filterName <- Option(filterNameType.getValue)
+      } yield {
+        filterName -> filterType
+      }
+      ).toMap
+
+    if(filterMap.isEmpty) {
+      throw new EarProcessingException(s"There aren't any usable filters in ${earFile.getName}! Check your web-fragment!")
+    }
+
+    new EarDescriptor(appName, filterMap)
   }
 }
