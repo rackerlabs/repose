@@ -37,7 +37,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -55,7 +55,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -73,7 +73,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       herpConfig.setServiceCode("some-service")
 
       // when:
@@ -92,7 +92,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       herpConfig.setRegion("some-region")
 
       // when:
@@ -111,7 +111,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       herpConfig.setDataCenter("some-data-center")
 
       // when:
@@ -130,7 +130,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.setMethod("POST")
 
       // when:
@@ -149,7 +149,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.setAttribute("http://openrepose.org/requestUrl", "http://foo.com")
 
       // when:
@@ -168,7 +168,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.setAttribute("http://openrepose.org/queryParams", Map("foo" -> Array("bar", "baz")).asJava)
 
       // when:
@@ -187,7 +187,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.addHeader("X-User-Name", "foo")
 
       // when:
@@ -206,7 +206,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.addHeader("X-Impersonator-Name", "foo")
 
       // when:
@@ -225,7 +225,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.addHeader("X-Tenant-Id", "foo")
 
       // when:
@@ -244,7 +244,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.addHeader("X-Roles", "foo")
       servletRequest.addHeader("X-Roles", "bar")
 
@@ -264,7 +264,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletRequest.addHeader("User-Agent", "foo")
 
       // when:
@@ -283,7 +283,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletResponse.setStatus(418)
 
       // when:
@@ -302,7 +302,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest
       val servletResponse = new MockHttpServletResponse
       val filterChain = new MockFilterChain
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
       servletResponse.setStatus(418, "I'm a teapot")
 
       // when:
@@ -321,7 +321,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       val servletRequest = new MockHttpServletRequest()
       val servletResponse = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
-      herpConfig.setId("highly-efficient-record-processor-Logger")
+      herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
 
       val responseBody = "HEY A BODY"
       servletResponse.setContentLength(responseBody.length)

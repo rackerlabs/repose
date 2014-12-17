@@ -111,7 +111,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   }
 
   override def configurationUpdated(config: HerpConfig): Unit = {
-    herpLogger = LoggerFactory.getLogger(config.getId)
+    herpLogger = LoggerFactory.getLogger(config.getLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
