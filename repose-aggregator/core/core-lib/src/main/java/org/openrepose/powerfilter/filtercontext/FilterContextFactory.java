@@ -1,11 +1,11 @@
 package org.openrepose.powerfilter.filtercontext;
 
 import com.oracle.javaee6.FilterType;
-import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
-import org.openrepose.powerfilter.FilterInitializationException;
+import org.openrepose.commons.utils.classloader.EarClassLoaderContext;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.spring.CoreSpringProvider;
 import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.powerfilter.FilterInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

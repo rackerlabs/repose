@@ -1,20 +1,19 @@
 package org.openrepose.commons.utils.classloader
 
-import java.io.{IOException, File, FileInputStream, FileOutputStream}
+import java.io.{File, FileInputStream, FileOutputStream, IOException}
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{FileVisitResult, SimpleFileVisitor, Files, Path}
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import java.util.UUID
 import java.util.zip.{ZipFile, ZipInputStream}
-import javax.xml.bind.{JAXBElement, JAXBContext}
-import com.oracle.javaee6.{FilterType, WebFragmentType, ApplicationType, ObjectFactory}
+import javax.xml.bind.JAXBContext
+
+import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
-import org.openrepose.commons.utils.classloader.ear.EarDescriptor
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
-
-import org.slf4j.LoggerFactory
 
 object EarClassProvider {
   //Need a static singleton for the entire JVM for the JAXB Context

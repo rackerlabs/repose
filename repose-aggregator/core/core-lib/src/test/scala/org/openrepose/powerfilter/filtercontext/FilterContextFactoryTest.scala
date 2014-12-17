@@ -2,19 +2,17 @@ package org.openrepose.powerfilter.filtercontext
 
 import javax.servlet.FilterConfig
 
-import com.oracle.javaee6.{FilterType, FullyQualifiedClassType}
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.classloader.{ReallySimpleEarClassLoaderContext, EarClassProvider}
-import org.openrepose.commons.utils.classloader.ear._
+import org.openrepose.commons.utils.classloader.{EarClassLoaderContext, EarClassProvider, ReallySimpleEarClassLoaderContext}
 import org.openrepose.core.services.classloader.ClassLoaderManagerService
 import org.openrepose.core.spring.{CoreSpringProvider, TestFilterBundlerHelper}
 import org.openrepose.core.systemmodel.Filter
 import org.openrepose.powerfilter.FilterInitializationException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Ignore, FunSpec, Matchers}
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar with TestFilterBundlerHelper {

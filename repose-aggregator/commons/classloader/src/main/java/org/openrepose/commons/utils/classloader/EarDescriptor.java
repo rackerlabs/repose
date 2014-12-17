@@ -1,4 +1,4 @@
-package org.openrepose.commons.utils.classloader.ear;
+package org.openrepose.commons.utils.classloader;
 
 import com.oracle.javaee6.FilterType;
 

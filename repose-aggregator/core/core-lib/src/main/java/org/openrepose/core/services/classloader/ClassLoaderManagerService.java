@@ -2,7 +2,7 @@ package org.openrepose.core.services.classloader;
 
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
-import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.EarClassLoaderContext;
 
 import java.util.Collection;
 
