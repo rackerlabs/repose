@@ -6,6 +6,7 @@ import com.oracle.javaee6.{FilterType, FullyQualifiedClassType}
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
+import org.openrepose.commons.utils.classloader.{ReallySimpleEarClassLoaderContext, EarClassProvider}
 import org.openrepose.commons.utils.classloader.ear._
 import org.openrepose.core.services.classloader.ClassLoaderManagerService
 import org.openrepose.core.spring.{CoreSpringProvider, TestFilterBundlerHelper}
@@ -29,10 +30,9 @@ import scala.collection.JavaConverters._
   val mockFilterConfig = mock[FilterConfig]
 
   def reposeEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
-    //val earContext = mock[SimpleEarClassLoaderContext]
-    val unPacker = new EarUnpacker(testFilterBundleRoot)
-    val listener = new DefaultEarArchiveEntryHelper(this.getClass.getClassLoader, unPacker.getDeploymentDirectory)
-    unPacker.read(listener, testFilterBundleFile)
+    //Use the new ear provider to get the classloader for the tests
+    val earProvider = new EarClassProvider(testFilterBundleFile, testFilterBundleRoot)
+    new ReallySimpleEarClassLoaderContext(earProvider.getEarDescriptor(), earProvider.getClassLoader())
   }
 
   def mockClassloaderManagerService(classMapping: Map[String, String]): ClassLoaderManagerService = {
@@ -159,7 +159,7 @@ import scala.collection.JavaConverters._
       "unannotated-filter" -> "org.openrepose.filters.core.unannotated.UnannotatedFilter",
       "broken-filter" -> "org.openrepose.filters.core.brokenfilter.BrokenFilter",
       "annotated-not-filter" -> "org.openrepose.filters.core.annotatednotfilter.AnnotatedNotFilter",
-      "nonexistent-filter" -> "org.openrepose.filters.core.nopes.NopesFilter"
+      "nonexistent-filter" -> "org.openrepose.filters.core.test.NopesFilter"
     )
     val clms = mockClassloaderManagerService(classMap)
 
@@ -186,8 +186,8 @@ import scala.collection.JavaConverters._
         exception.getMessage should be(s"Requested filter, ${className} is not of type javax.servlet.Filter")
       }
     }
-    //TODO: the classloader hax broke this. And that is really, really bad.
-    ignore("the requested filter does not even exist") {
+
+    it("the requested filter does not even exist") {
       failureTest("nonexistent-filter") { (className, exception) =>
         exception.getMessage should be(s"Requested filter, ${className} does not exist in any loaded artifacts")
       }
