@@ -54,9 +54,13 @@ class EarClassProviderTest extends FunSpec with Matchers {
     })
   }
 
+  def getEarFile(name:String):File = {
+    new File(testProps.getString("earFilesLocation"), s"$name-$version.ear")
+  }
+
   val testProps = ConfigFactory.load("test.properties")
-  val version = testProps.getString("coreTestFilterBundleVersion")
-  val earFile = new File(testProps.getString("coreTestFilterBundleLocation"), s"core-test-filter-bundle-${version}.ear")
+  val version = testProps.getString("earFilesVersion")
+  val earFile = getEarFile("core-test-filter-bundle")
 
   def withTempDir(f: (File) => Unit) = {
     def tempDir(): File = {
@@ -208,7 +212,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val p1 = new EarClassProvider(earFile, root)
 
       //Second ear file
-      val ear2 = new File(testProps.getString("coreTestFilterBundleLocation"), s"second-filter-bundle-${version}.ear")
+      val ear2 =getEarFile("second-filter-bundle")
 
       val p2 = new EarClassProvider(ear2, root)
 
@@ -247,6 +251,37 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val webFragment = p1.getClassLoader.getResource(resourcePath)
       webFragment should not be (null)
+    }
+  }
+
+  it("provides an EarDescriptor when an ear is properly formed") {
+    withTempDir{ root =>
+      val p1 = new EarClassProvider(earFile, root)
+
+      val descriptor = p1.getEarDescriptor
+
+      descriptor.getApplicationName should be("core-test-filter-bundle")
+
+      descriptor.getRegisteredFilters.keySet() should contain("test-filter")
+    }
+  }
+
+  it("throws an EarProcessingException when the application name cannot be found") {
+    withTempDir{ root =>
+      val p1 = new EarClassProvider(getEarFile("busted-application-name-ear"), root)
+
+      intercept[EarProcessingException] {
+        p1.getEarDescriptor
+      }
+    }
+  }
+  it("throws an EarProcessingException when the web-fragment contains no filter/class mappings") {
+    withTempDir{ root =>
+      val p1 = new EarClassProvider(getEarFile("busted-web-fragment-ear"), root)
+
+      intercept[EarProcessingException] {
+        p1.getEarDescriptor
+      }
     }
   }
 
