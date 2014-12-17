@@ -80,7 +80,9 @@ public class EHCacheDatastore implements Datastore {
         } else if (ttl > 0) {
             int convertedTtl = (int)TimeUnit.SECONDS.convert(ttl, timeUnit);
             int currentLifeSpan = (int)TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
-            currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
+            if((currentLifeSpan + convertedTtl) > currentElement.getTimeToLive()) {
+                currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
+            }
             if(convertedTtl > currentElement.getTimeToIdle()) {
                 currentElement.setTimeToIdle(convertedTtl);
             }
