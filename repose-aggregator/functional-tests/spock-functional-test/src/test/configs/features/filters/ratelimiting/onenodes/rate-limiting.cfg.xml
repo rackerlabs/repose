@@ -17,7 +17,6 @@
         <limit id="three" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="10"/>
         <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="5"/>
         <limit id="five" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="5"/>
-        <limit id="six" uri="/service/*" uri-regex="/service2/(.*)" http-methods="GET" unit="SECOND" value="5"/>
     </limit-group>
 
     <limit-group id="reset-limits" groups="reset-limits" default="false">
