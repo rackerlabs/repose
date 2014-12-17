@@ -1,6 +1,5 @@
 package org.openrepose.core.spring;
 
-import org.openrepose.commons.utils.StringUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -13,6 +12,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 @Named
@@ -21,44 +22,55 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
     private static final String SEPARATOR = "-";
-    private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
-    private final String clusterId;
-    private final String nodeId;
+    private static final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    private final String jmxPrefix;
 
-    //TODO: this is super broke, need to figure out how we're going to handle JMX strategy when core needs it
-    //TODO: we're going to use the local machine's hostname as the naming strategy, like a Baws: http://i.imgur.com/1iyYqfv.gif
     //Metrics service needs this guy
     @Inject
     public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
-//                                   @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
-//                                   @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
         super(attributeSource);
-        this.clusterId = "";
-        this.nodeId = "";
+        this.jmxPrefix = ReposeJmxNamingStrategy.bestGuessHostname() + SEPARATOR;
 
-        LOG.info("Configuring JMX naming strategy for {} - {} ", clusterId, nodeId);
+        LOG.info("Configuring JMX naming strategy for {}", jmxPrefix);
     }
 
-    public String getDomainPrefix() {
-        //TODO: none of this is needed
-        StringBuilder sb = new StringBuilder();
-        if (StringUtilities.isNotBlank(clusterId)) {
-            sb.append(clusterId);
-        }
-
-        if (StringUtilities.isNotBlank(nodeId)) {
-            if (sb.length() > 0) {
-                sb.append(SEPARATOR);
+    /**
+     * Do some logic to figure out what our local hostname is, or get as close as possible
+     * references: http://stackoverflow.com/a/7800008/423218 and http://stackoverflow.com/a/17958246/423218
+     *
+     * @return a string with either the hostname, or something to ID this host
+     */
+    private static String bestGuessHostname() {
+        String result;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            LOG.debug("Looking up a windows COMPUTERNAME environment var for the JMX name");
+            result = System.getenv("COMPUTERNAME");
+        } else {
+            LOG.debug("Looking up a linux HOSTNAME environment var for the JMX name");
+            //We're probably on linux at this point
+            String envHostname = System.getenv("HOSTNAME");
+            if (envHostname != null) {
+                result = envHostname;
+            } else {
+                LOG.debug("Unable to find a Linux HOSTNAME environment var, trying another tool");
+                //Now we've got to do even more work
+                try {
+                    result = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    //Weren't able to get the local host :(
+                    LOG.warn("Unable to resolve local hostname for JMX", e);
+                    result = defaultDomainPrefix;
+                }
             }
-            sb.append(nodeId);
         }
 
-        return sb.length() > 0? sb.append(SEPARATOR).toString(): defaultDomainPrefix;
+        LOG.info("Setting JMX prefix for this JVM to {}. http://i.imgur.com/1iyYqfv.gif", result);
+        return result;
     }
 
     @Override
     public ObjectName getObjectName(Object managedBean, String beanKey) throws MalformedObjectNameException {
         ObjectName name = super.getObjectName(managedBean, beanKey);
-        return new ObjectName(getDomainPrefix() +  name.getDomain(), name.getKeyPropertyList());
+        return new ObjectName(jmxPrefix + name.getDomain(), name.getKeyPropertyList());
     }
 }
