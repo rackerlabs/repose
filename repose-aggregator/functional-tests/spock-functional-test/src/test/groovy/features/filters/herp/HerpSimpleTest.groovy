@@ -3,10 +3,11 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 /**
  * Created by jennyvo on 12/16/14.
  */
-class HerpSimpleTest extends ReposeValveTest{
+class HerpSimpleTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -14,7 +15,7 @@ class HerpSimpleTest extends ReposeValveTest{
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp", params)
+        repose.configurationProvider.applyConfigs('features/filters/herp', params)
         repose.start(waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -29,15 +30,33 @@ class HerpSimpleTest extends ReposeValveTest{
         }
     }
 
+    def "test" () {
+        setup:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ['Accept':'application/xml'])
+
+        then:
+        messageChain.receivedResponse.code == "200"
+    }
+
+    @Unroll
     def "Happy path using herp with simple request" () {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain mc
         def Map<String, String> headers = [
                 'Accept': 'application/xml',
                 'Host'  : 'LocalHost',
-                'User-agent': 'gdeproxy'
+                'User-agent': 'gdeproxy',
+                'x-tenant-id' : '123456',
+                'x-roles' : 'default',
+                'x-user-name' : 'testuser',
+                'x-user-id' : 'testuser',
+                'x-impersionator-name' : 'impersonateuser',
+                'x-impersonator-id': '123456'
         ]
-        def customHandler = {return new Response(404, "Resource Not Fount", [], reqBody)}
+        def customHandler = {return new Response(responseCode, "Resource Not Fount", [], reqBody)}
 
         when: "When Requesting " + method + " " + request
         mc = deproxy.makeRequest(url: reposeEndpoint +
@@ -55,6 +74,5 @@ class HerpSimpleTest extends ReposeValveTest{
         "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""
         "405"        | "/resource1/id"                                        | "POST" | ""
         "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "PUT"  | "some data"
-
     }
 }
