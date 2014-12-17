@@ -58,10 +58,14 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     }
   }
 
+  def getClassLoader(): ClassLoader = {
+    computeClassLoader
+  }
+  
   /**
    * Calls unpack, and gets you a new classloader for all the items in this ear file
    */
-  lazy val getClassLoader: ClassLoader = {
+  private lazy val computeClassLoader: ClassLoader = {
     unpack()
 
     val mutableList = mutable.MutableList[Path]()
@@ -87,10 +91,15 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     URLClassLoader.newInstance(fileUrls)
   }
 
-  lazy val getEarDescriptor: EarDescriptor = {
+  @throws(classOf[EarProcessingException])
+  def getEarDescriptor():EarDescriptor = {
+    computeEarDescriptor
+  }
+
+  private lazy val computeEarDescriptor: EarDescriptor = {
     import EarClassProvider.jaxbContext
 
-    val applicationXmlUrl = getClassLoader.getResource("META-INF/application.xml")
+    val applicationXmlUrl = computeClassLoader.getResource("META-INF/application.xml")
     val appXmlParser = new JaxbConfigurationParser[ApplicationType](classOf[ApplicationType], jaxbContext, null)
     val appXml = appXmlParser.read(new BufferedURLConfigurationResource(applicationXmlUrl))
 
@@ -104,7 +113,7 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     val appName = optionName getOrElse (throw new EarProcessingException(s"Unable to parse Application Name from ear file ${earFile.getName}!"))
 
     //Load the WebFragment data out of the ear file
-    val webFragmentUrl = getClassLoader.getResource("WEB-INF/web-fragment.xml")
+    val webFragmentUrl = computeClassLoader.getResource("WEB-INF/web-fragment.xml")
     val webFragmentParser = new JaxbConfigurationParser[WebFragmentType](classOf[WebFragmentType], jaxbContext, null)
     val webFragment = webFragmentParser.read(new BufferedURLConfigurationResource(webFragmentUrl))
 

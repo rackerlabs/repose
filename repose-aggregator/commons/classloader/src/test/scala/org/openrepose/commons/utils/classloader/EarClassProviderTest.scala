@@ -90,7 +90,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
     withTempDir { root =>
       val p = new EarClassProvider(earFile, root)
 
-      p.getClassLoader
+      p.getClassLoader()
 
       root.listFiles.toList shouldNot be(empty)
 
@@ -122,7 +122,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(tempFile, root)
       intercept[IOException] {
-        p.getClassLoader
+        p.getClassLoader()
       }
 
       //Verify that a warning was logged
@@ -151,7 +151,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(tempFile, root)
       intercept[IOException] {
-        p.getClassLoader
+        p.getClassLoader()
       }
     }
   }
@@ -162,7 +162,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val p = new EarClassProvider(notAFile, root)
       intercept[IOException] {
-        p.getClassLoader
+        p.getClassLoader()
       }
     }
   }
@@ -173,7 +173,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
     val p = new EarClassProvider(earFile, root)
 
     intercept[IOException] {
-      p.getClassLoader
+      p.getClassLoader()
     }
   }
 
@@ -187,7 +187,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
         Class.forName(earClass)
       }
 
-      val tehClass = p.getClassLoader.loadClass(earClass)
+      val tehClass = p.getClassLoader().loadClass(earClass)
 
       tehClass shouldNot be(null)
       tehClass.getName should be(earClass)
@@ -202,7 +202,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
   it("throws a ClassNotFoundException when you ask for a class that isn't in the ear (or in the parent Classloader)") {
     unpackedArtifact { provider =>
       intercept[ClassNotFoundException] {
-        provider.getClassLoader.loadClass("derp.derpclass.derp.derp.derp")
+        provider.getClassLoader().loadClass("derp.derpclass.derp.derp.derp")
       }
     }
   }
@@ -226,18 +226,18 @@ class EarClassProviderTest extends FunSpec with Matchers {
         Class.forName(ear2Class)
       }
 
-      val class1 = p1.getClassLoader.loadClass(ear1Class)
+      val class1 = p1.getClassLoader().loadClass(ear1Class)
       class1.getName should be(ear1Class)
 
       intercept[ClassNotFoundException] {
-        p2.getClassLoader.loadClass(ear1Class)
+        p2.getClassLoader().loadClass(ear1Class)
       }
 
-      val class2 = p2.getClassLoader.loadClass(ear2Class)
+      val class2 = p2.getClassLoader().loadClass(ear2Class)
       class2.getName should be(ear2Class)
 
       intercept[ClassNotFoundException] {
-        p1.getClassLoader.loadClass(ear2Class)
+        p1.getClassLoader().loadClass(ear2Class)
       }
 
     }
@@ -249,7 +249,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val resourcePath = "WEB-INF/web-fragment.xml"
 
-      val webFragment = p1.getClassLoader.getResource(resourcePath)
+      val webFragment = p1.getClassLoader().getResource(resourcePath)
       webFragment should not be (null)
     }
   }
@@ -258,7 +258,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
     withTempDir{ root =>
       val p1 = new EarClassProvider(earFile, root)
 
-      val descriptor = p1.getEarDescriptor
+      val descriptor = p1.getEarDescriptor()
 
       descriptor.getApplicationName should be("core-test-filter-bundle")
 
@@ -271,7 +271,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val p1 = new EarClassProvider(getEarFile("busted-application-name-ear"), root)
 
       intercept[EarProcessingException] {
-        p1.getEarDescriptor
+        p1.getEarDescriptor()
       }
     }
   }
@@ -280,7 +280,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val p1 = new EarClassProvider(getEarFile("busted-web-fragment-ear"), root)
 
       intercept[EarProcessingException] {
-        p1.getEarDescriptor
+        p1.getEarDescriptor()
       }
     }
   }
@@ -291,12 +291,12 @@ class EarClassProviderTest extends FunSpec with Matchers {
         val p1 = new EarClassProvider(earFile, root)
 
         val context = new AnnotationConfigApplicationContext()
-        context.setClassLoader(p1.getClassLoader)
+        context.setClassLoader(p1.getClassLoader())
 
         context.scan("org.openrepose.filters.core.test")
         context.refresh()
 
-        val beanClass:Class[Filter] = p1.getClassLoader.loadClass("org.openrepose.filters.core.test.TestFilter").asInstanceOf[Class[Filter]]
+        val beanClass:Class[Filter] = p1.getClassLoader().loadClass("org.openrepose.filters.core.test.TestFilter").asInstanceOf[Class[Filter]]
 
         beanClass shouldNot be(null)
 
