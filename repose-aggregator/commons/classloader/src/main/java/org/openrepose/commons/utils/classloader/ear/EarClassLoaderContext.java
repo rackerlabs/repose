@@ -4,5 +4,5 @@ public interface EarClassLoaderContext {
 
     EarDescriptor getEarDescriptor();
 
-    EarClassLoader getClassLoader();
+    ClassLoader getClassLoader();
 }
