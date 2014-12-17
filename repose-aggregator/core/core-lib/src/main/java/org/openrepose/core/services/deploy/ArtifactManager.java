@@ -1,13 +1,5 @@
 package org.openrepose.core.services.deploy;
 
-import com.oracle.javaee6.ApplicationType;
-import com.oracle.javaee6.FilterType;
-import com.oracle.javaee6.ObjectFactory;
-import com.oracle.javaee6.WebFragmentType;
-import org.openrepose.commons.config.parser.common.ConfigurationParser;
-import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser;
-import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.classloader.EarClassProvider;
 import org.openrepose.commons.utils.classloader.EarProcessingException;
 import org.openrepose.commons.utils.classloader.ReallySimpleEarClassLoaderContext;
@@ -30,11 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -94,7 +82,9 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     @PreDestroy
     public void destroy() {
-        //TODO: clear the classloader map
+        //We can't do much else here, in theory if this is being destroyed the core context is going down, so it's probably all over anyway
+        classLoaderContextMap.clear();
+
         try {
             eventService.squelch(this, ApplicationArtifactEvent.class);
 
@@ -146,14 +136,14 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
                 case DELETED:
                     LOG.info("Artifact deleted: {}", item.getPath());
 
-                    //TODO: this won't trigger a restart of any powerFilter or anything, all the artifacts stuff is still available
                     //TODO: OPTIMIZATION Only send one event for many deleted items
                     List<String> notificationList = new ArrayList<>(1);
                     String removedApp = artifactApplicationNames.remove(item.getPath());
                     notificationList.add(removedApp);
 
                     //TODO: remove the app from teh classloader list
-
+                    //Every time the Application CollectionModified event is sent, the PowerFilter will reload it's entire
+                    //Filter chain.
                     e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, notificationList);
                     break;
 
@@ -186,15 +176,14 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             //Make sure we have a location to deploy to
             File unpackRoot = containerConfigurationListener.getDeploymentDirectory();
 
+            unpackRoot.mkdirs(); //Make the unpack root and then validate it
             //NOTE: this guy throws all sorts of runtime exceptions :(
             containerConfigurationListener.validateDeploymentDirectory();
-
-            unpackRoot.mkdirs(); //TODO: do I care, Yes, we need to validate things
 
             EarClassProvider provider = new EarClassProvider(archive, unpackRoot);
             ClassLoader earClassLoader = provider.getClassLoader();
 
-            EarDescriptor descriptor = buildEarDescriptor(earClassLoader);
+            EarDescriptor descriptor = provider.getEarDescriptor();
 
             context = new ReallySimpleEarClassLoaderContext(descriptor, earClassLoader);
 
@@ -205,44 +194,6 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             LOG.error("Failure in loading artifact, \"{}\"", archive.getAbsolutePath(), e);
         }
         return context;
-    }
-
-    private EarDescriptor buildEarDescriptor(ClassLoader earClassLoader) throws EarProcessingException {
-        EarDescriptor descriptor = new EarDescriptor();
-        try {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
-            //Load the application xml out of the earClassLoader
-            //TODO only going to use META-INF/application.xml right now
-            URL applicationXmlUrl = earClassLoader.getResource("META-INF/application.xml");
-            ConfigurationParser<ApplicationType> applicationXmlParser = new JaxbConfigurationParser<>(ApplicationType.class, jaxbContext, null);
-            ApplicationType appXml = applicationXmlParser.read(new BufferedURLConfigurationResource(applicationXmlUrl));
-            if (appXml != null && appXml.getApplicationName() != null && !StringUtilities.isBlank(appXml.getApplicationName().getValue())) {
-                descriptor.setApplicationName(appXml.getApplicationName().getValue());
-            } else {
-                LOG.error("Unable to acquire Application Name from ear file");
-                throw new EarProcessingException("Unable to find Application Name from ear file!");
-            }
-
-            //Load the webFragment out of the ear class loader
-            URL webFragmentUrl = earClassLoader.getResource("WEB-INF/web-fragment.xml");
-            ConfigurationParser<WebFragmentType> webFragmentParser = new JaxbConfigurationParser<>(WebFragmentType.class, jaxbContext, null);
-            WebFragmentType webFragment = webFragmentParser.read(new BufferedURLConfigurationResource(webFragmentUrl));
-            for (JAXBElement<?> element : webFragment.getNameOrDescriptionAndDisplayName()) {
-                if (element.getDeclaredType().equals(FilterType.class)) {
-                    FilterType filterType = (FilterType) element.getValue();
-                    if (filterType.getFilterName() != null && filterType.getFilterClass() != null) {
-                        descriptor.getRegisteredFiltersMap().put(
-                                filterType.getFilterName().getValue(),
-                                filterType
-                        );
-                    }
-                }
-            }
-        } catch (JAXBException e) {
-            LOG.error("JAXB Exception during gathering information from the ApplicationXML or WebFragment!", e);
-            throw new EarProcessingException("JAXB problem when parsing Ear File", e);
-        }
-        return descriptor;
     }
 
     //TODO: what if there are multiple filters with the same name?
