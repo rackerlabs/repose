@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -11,6 +12,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
 import java.util.Properties;
 
@@ -87,6 +90,18 @@ public class CoreSpringProvider {
             }
 
             coreContext.scan(coreScanPackage);
+
+            //Have to set up the JMX stuff by hand
+            GenericBeanDefinition mBeanExporter = new GenericBeanDefinition();
+            mBeanExporter.setBeanClass(AnnotationMBeanExporter.class);
+            mBeanExporter.setAutowireCandidate(true);
+            coreContext.registerBeanDefinition("exporter", mBeanExporter);
+
+            GenericBeanDefinition jmxAttributeSource = new GenericBeanDefinition();
+            jmxAttributeSource.setBeanClass(AnnotationJmxAttributeSource.class);
+            jmxAttributeSource.setAutowireCandidate(true);
+            coreContext.registerBeanDefinition("jmxAttributeSource", jmxAttributeSource);
+
             coreContext.refresh();
 
             //TODO: set up the JMX mbean stuff
@@ -194,8 +209,8 @@ public class CoreSpringProvider {
         filterContext.scan(packageToScan);
         filterContext.refresh();
 
-        if(LOG.isDebugEnabled()) {
-            for(String s: filterContext.getBeanDefinitionNames()) {
+        if (LOG.isDebugEnabled()) {
+            for (String s : filterContext.getBeanDefinitionNames()) {
                 LOG.debug("FilterContext bean: {}", s);
             }
         }

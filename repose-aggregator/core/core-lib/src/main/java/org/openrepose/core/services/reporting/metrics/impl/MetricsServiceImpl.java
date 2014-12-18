@@ -5,15 +5,15 @@ import com.yammer.metrics.reporting.GraphiteReporter;
 import com.yammer.metrics.reporting.JmxReporter;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.openrepose.core.services.reporting.metrics.config.GraphiteServer;
 import org.openrepose.core.services.reporting.metrics.config.MetricsConfiguration;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;
-import org.openrepose.core.services.healthcheck.HealthCheckService;
-import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,7 +57,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Named
 public class MetricsServiceImpl implements MetricsService {
-    public static final String SERVICE_NAME = "MetricsService";
     public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsServiceImpl.class);
@@ -68,13 +66,7 @@ public class MetricsServiceImpl implements MetricsService {
     private MetricsRegistry metrics;
     private JmxReporter jmx;
     private List<GraphiteReporter> listGraphite = new ArrayList<>();
-    //TODO: can't use the JMX stuff until we fix it
-    //private ReposeJmxNamingStrategy reposeStrat;
-
-    //TODO: this is the band-aid to avoid the JMX naming strategy for now
-    private static final String SEPARATOR = "-";
-    private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
-    //TODO: end of band-aid
+    private ReposeJmxNamingStrategy reposeStrat;
 
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final MetricsCfgListener metricsCfgListener = new MetricsCfgListener();
@@ -85,9 +77,11 @@ public class MetricsServiceImpl implements MetricsService {
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
-            HealthCheckService healthCheckService
+            HealthCheckService healthCheckService,
+            ReposeJmxNamingStrategy reposeStrat
     ) {
         this.configurationService = configurationService;
+        this.reposeStrat = reposeStrat;
         this.healthCheckServiceProxy = healthCheckService.register();
 
         this.metrics = new MetricsRegistry();
@@ -225,8 +219,17 @@ public class MetricsServiceImpl implements MetricsService {
         shutdownGraphite();
     }
 
+    /**
+     * This creates a metric name based off the local JVM JMX Naming strategy.
+     * TODO: This might not actually be what we want. We might want to make metrics based on the local node....
+     *
+     * @param klass
+     * @param name
+     * @param scope
+     * @return
+     */
     private MetricName makeMetricName(Class klass, String name, String scope) {
-        return new MetricName(defaultDomainPrefix + klass.getPackage().getName(),
+        return new MetricName(reposeStrat.getJmxPrefix() + klass.getPackage().getName(),
                 klass.getSimpleName(),
                 name, scope);
     }

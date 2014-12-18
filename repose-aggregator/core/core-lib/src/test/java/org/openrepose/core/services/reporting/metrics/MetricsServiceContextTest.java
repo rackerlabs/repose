@@ -30,6 +30,7 @@ public class MetricsServiceContextTest {
         protected ConfigurationService configurationService;
         protected HealthCheckService healthCheckService;
         protected HealthCheckServiceProxy healthCheckServiceProxy;
+        protected ReposeJmxNamingStrategy jmxNamingStrategy;
         protected ServletContextEvent sce;
 
         @Before
@@ -38,7 +39,9 @@ public class MetricsServiceContextTest {
             healthCheckService = mock(HealthCheckService.class);
             healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
             when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
-            metricsService = new MetricsServiceImpl(configurationService, healthCheckService);
+            jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
+            when(jmxNamingStrategy.getJmxPrefix()).thenReturn("MockJMX-");
+            metricsService = new MetricsServiceImpl(configurationService, healthCheckService, jmxNamingStrategy);
             sce = mock(ServletContextEvent.class);
         }
 

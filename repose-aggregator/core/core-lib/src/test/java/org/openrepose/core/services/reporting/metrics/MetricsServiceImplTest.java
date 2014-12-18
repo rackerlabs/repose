@@ -5,7 +5,6 @@ import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -13,6 +12,7 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
+import org.openrepose.core.spring.ReposeJmxNamingStrategy;
 
 import javax.management.*;
 import java.lang.management.ManagementFactory;
@@ -21,18 +21,22 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-//TODO: this test is probably super broke! All the JMX stuff is broke with this guy
-@Ignore
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
 
     public static class Register {
 
         protected MetricsService metricsService;
+        protected ReposeJmxNamingStrategy jmxNamingStrategy;
+        protected final String JMX_PREFIX = "MOCK-PREFIX-";
+
         @Before
         public void setUp() {
-            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
+            jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
+            when(jmxNamingStrategy.getJmxPrefix()).thenReturn(JMX_PREFIX);
+            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), jmxNamingStrategy);
         }
 
         protected Object getAttribute(Class klass, String name, String scope, String att)
@@ -51,9 +55,7 @@ public class MetricsServiceImplTest {
             // Lets you see all registered MBean ObjectNames
             //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
-            //TODO: this probably isn't going to work, because UUID
-            ObjectName on =
-                    new ObjectName("\"" + "blerg-" + klass.getPackage().getName() + "\"", hash);
+            ObjectName on = new ObjectName("\"" + JMX_PREFIX + klass.getPackage().getName() + "\"", hash);
 
             return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
         }
