@@ -24,7 +24,7 @@ allprojects {
 subprojects {
     apply plugin: 'scala'
     group = 'org.openrepose.filters.core.test'
-    version = '1.4'
+    version = '2.1'
 
     repositories {
         mavenCentral()
@@ -61,6 +61,80 @@ project(':core-test-filter-bundle') {
     dependencies {
         deploy project(':core-test-filter')
     }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':second-filter') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':second-filter-bundle') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':second-filter')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':busted-application-name-ear') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':busted-web-fragment-ear') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
 
     publishing {
         publications {

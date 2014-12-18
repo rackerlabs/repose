@@ -1,1 +1,6 @@
-include 'core-test-filter', 'core-test-filter-bundle'
+include 'core-test-filter',
+        'core-test-filter-bundle',
+        'second-filter',
+        'second-filter-bundle',
+        'busted-application-name-ear',
+        'busted-web-fragment-ear'
