@@ -9,8 +9,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter
 trait TestFilterBundlerHelper {
   val testProps = ConfigFactory.load("test.properties")
 
-  lazy val testFilterBundleRoot = new File(testProps.getString("coreTestFilterBundleLocation"))
+  lazy val testFilterBundleRoot = new File(testProps.getString("earFilesLocation"))
 
-  lazy val testFilterBundleFile = new File(testFilterBundleRoot, "core-test-filter-bundle-" + testProps.getString("coreTestFilterBundleVersion") + ".ear")
+  lazy val testFilterBundleFile = new File(testFilterBundleRoot, "core-test-filter-bundle-" + testProps.getString("earFilesVersion") + ".ear")
 
 }

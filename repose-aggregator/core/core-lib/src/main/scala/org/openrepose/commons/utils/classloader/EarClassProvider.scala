@@ -96,7 +96,7 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
   }
 
   private lazy val computeEarDescriptor: EarDescriptor = {
-    import EarClassProvider.jaxbContext
+    import org.openrepose.commons.utils.classloader.EarClassProvider.jaxbContext
 
     val applicationXmlUrl = computeClassLoader.getResource("META-INF/application.xml")
     val appXmlParser = new JaxbConfigurationParser[ApplicationType](classOf[ApplicationType], jaxbContext, null)

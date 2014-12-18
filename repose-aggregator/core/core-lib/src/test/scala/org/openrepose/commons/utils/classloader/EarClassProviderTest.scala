@@ -1,14 +1,14 @@
 package org.openrepose.commons.utils.classloader
 
-import java.io.{FileOutputStream, IOException, File}
+import java.io.{File, FileOutputStream, IOException}
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{SimpleFileVisitor, Path, FileVisitResult, Files}
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import javax.servlet.Filter
 
 import com.typesafe.config.ConfigFactory
-import org.apache.logging.log4j.{Level, LogManager}
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
+import org.apache.logging.log4j.{Level, LogManager}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
@@ -85,7 +85,6 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
 
   it("unpacks an ear to a directory successfully") {
-    import scala.collection.JavaConversions._
 
     withTempDir { root =>
       val p = new EarClassProvider(earFile, root)

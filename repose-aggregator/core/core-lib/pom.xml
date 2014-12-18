@@ -18,21 +18,23 @@
         <reposeVersion>${project.version}</reposeVersion>
         <reposeVersionName>CL4P-TP</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <test.artifact.version>2.1</test.artifact.version>
     </properties>
 
     <packaging>jar</packaging>
 
     <dependencies>
 
+        <!-- stuff pulled in from the classloader project -->
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-service-api</artifactId>
+            <groupId>com.rackspace.papi.external</groupId>
+            <artifactId>jee6-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>classloader</artifactId>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -226,7 +228,6 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -317,11 +318,29 @@
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>core-test-filter-bundle</artifactId>
-                                    <version>${core.test.version}</version>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>busted-application-name-ear</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>busted-web-fragment-ear</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>second-filter-bundle</artifactId>
+                                    <version>${test.artifact.version}</version>
                                     <type>ear</type>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/core-test-filter-bundle/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/earFiles/</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
