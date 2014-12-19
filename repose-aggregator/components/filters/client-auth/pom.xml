@@ -65,6 +65,14 @@
             <groupId>org.openrepose</groupId>
             <artifactId>http-delegation</artifactId>
         </dependency>
+
+        <!-- spock needs this to mock non-interface types -->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.2.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

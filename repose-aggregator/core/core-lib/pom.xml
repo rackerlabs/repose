@@ -19,6 +19,9 @@
         <reposeVersionName>CL4P-TP</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <test.artifact.version>2.1</test.artifact.version>
+
+        <!-- The fasterXML Jackson deps aren't in managed dependencies, because they're only in core right now -->
+        <fasterxml.jackson.version>2.2.2</fasterxml.jackson.version>
     </properties>
 
     <packaging>jar</packaging>
@@ -69,11 +72,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-lgpl</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -86,13 +84,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>async-http-client</artifactId>
-            <version>1.7.5</version>
-            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -113,24 +104,9 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon-ee</artifactId>
-            <version>9.4.0.9</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Required for @Configuration annotation -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.6</version>
         </dependency>
 
         <dependency>
@@ -184,21 +160,6 @@
            <version>${project.version}</version>
        </dependency>
 
-        <!--
-        CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator
-        see: https://github.com/rackerlabs/api-checker/issues/170
-         -->
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>json-schema-validator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-
         <!--For SLF4J/Log4J 2.x logging support-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -218,6 +179,32 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
+
+        <!-- for JSON support for log4j2 Configuration Files
+         NOTE: there were multiple versions of jackson in core thanks to transitive dependencies.
+         This was brought on in https://github.com/rackerlabs/repose/commit/ed84bc51ed8698ebc69b4228e7f23c6ec3420977
+         We're going to import into core the com.fasterxml.jackson stuff that LOG4j 2.x needs to support JSON log files
+         TODO: this enforces that kind of thing on all filters. One day we should OSGi this or something...
+        -->
+        <!-- also being used to marshal intrafilter logging output -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${fasterxml.jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${fasterxml.jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${fasterxml.jackson.version}</version>
+        </dependency>
+        <!-- END OF json Support for log4j2 configuration files -->
 
         <dependency>
             <groupId>com.typesafe</groupId>

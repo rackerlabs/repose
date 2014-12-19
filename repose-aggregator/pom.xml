@@ -32,7 +32,6 @@
         <jackson.version>1.9.13</jackson.version>
         <yammer.version>2.2.0</yammer.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
-        <core.test.version>1.4</core.test.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.itReportPath>
             ${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec
@@ -137,7 +136,10 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--For JSON support-->
+            <!--
+            For JSON support
+            TODO: codehaus.jackson is super old! We should be using com.fasterxml.jackson stuff. It's different though
+            -->
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-lgpl</artifactId>
