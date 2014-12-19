@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -17,6 +18,19 @@
     </properties>
 
     <dependencies>
+
+        <!-- need the servlet api for testing to ensure that we can actually mock and test things.... -->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -82,9 +96,9 @@
 
         <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
         <!--<dependency>-->
-            <!--<groupId>com.rackspace.papi.service</groupId>-->
-            <!--<artifactId>rate-limiting-service</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>com.rackspace.papi.service</groupId>-->
+        <!--<artifactId>rate-limiting-service</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
 
         <!--For SLF4J/Log4J 2.x logging support-->
@@ -168,7 +182,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openrepose.valve.Main</mainClass>
                                 </transformer>
                             </transformers>
