@@ -59,6 +59,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.rackspace.papi.core</groupId>
+                <artifactId>core-service-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>configuration</artifactId>
                 <version>${project.version}</version>
