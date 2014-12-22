@@ -38,7 +38,6 @@ import java.util.Set;
  */
 public class ServiceClient {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
-    private static final int TIMEOUT = 30000;
     private String targetHostUri;
     private String username;
     private String password;
