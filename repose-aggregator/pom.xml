@@ -659,7 +659,6 @@
                                     <useClassesFromLastBuild>true</useClassesFromLastBuild>
                                     <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
                                     <regexIgnoredClasses>
-                                        <regexIgnoredClass>javax\..+</regexIgnoredClass>
                                         <regexIgnoredClass>org\.apache\.http\..+</regexIgnoredClass>
                                     </regexIgnoredClasses>
                                 </illegalTransitiveDependencyCheck>
