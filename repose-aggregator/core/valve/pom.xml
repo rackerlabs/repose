@@ -128,13 +128,6 @@
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
 
-        <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
-        <!--<dependency>-->
-        <!--<groupId>com.rackspace.papi.service</groupId>-->
-        <!--<artifactId>rate-limiting-service</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-
         <!--For SLF4J/Log4J 2.x logging support-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
