@@ -147,6 +147,12 @@
             <artifactId>valve</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.8</version> <!-- same version as used elsewhere -->
+        </dependency>
     </dependencies>
 
     <profiles>
