@@ -112,6 +112,14 @@
                 <version>1.7</version>
             </dependency>
 
+            <!-- many filters are pulling in Guava, probably thanks to core using it -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>14.0.1</version> <!-- same version core is using -->
+            </dependency>
+
+
             <dependency>
                 <groupId>org.openrepose</groupId>
                 <artifactId>http-delegation</artifactId>
