@@ -27,6 +27,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>datastore-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
@@ -42,6 +48,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>datastore-ehcache</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
 
         <dependency>
