@@ -619,6 +619,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.3.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>de.is24.maven.enforcer.rules</groupId>
+                        <artifactId>illegal-transitive-dependency-check</artifactId>
+                        <version>1.7.2</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>enforce-banned-dependencies</id>
@@ -636,6 +643,27 @@
                             </rules>
                             <!-- fail fast makes it bomb after the first failure -->
                             <failFast>true</failFast>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>enforce-transitive-dependency-explicitness</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <illegalTransitiveDependencyCheck
+                                        implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
+                                    <reportOnly>false</reportOnly>
+                                    <useClassesFromLastBuild>true</useClassesFromLastBuild>
+                                    <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
+                                    <regexIgnoredClasses>
+                                        <regexIgnoredClass>javax\..+</regexIgnoredClass>
+                                        <regexIgnoredClass>org\.apache\.http\..+</regexIgnoredClass>
+                                    </regexIgnoredClasses>
+                                </illegalTransitiveDependencyCheck>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
