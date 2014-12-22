@@ -1,5 +1,6 @@
 package org.openrepose.services.httpclient.impl;
 
+import org.apache.http.params.CoreConnectionPNames;
 import org.openrepose.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.services.httpclient.HttpClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
@@ -124,6 +125,15 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
+        }
+    }
+
+    @Override
+    public int getConnectionTimeout(String clientId) {
+        if (poolMap.containsKey(clientId)) {
+            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        } else {
+            return DEFAULT_POOL.getHttpConnectionTimeout();
         }
     }
 
