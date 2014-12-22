@@ -306,12 +306,13 @@
                 <version>2.1</version>
             </dependency>
 
-            <!-- these two dependencies are needed if you want to TEST stuff in the TEST scope for grabbing logging output -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>2.1</version>
             </dependency>
+
+            <!-- Only need the test-jar for testing and making that work -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
@@ -637,6 +638,7 @@
                                     <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
                                     <regexIgnoredClasses>
                                         <regexIgnoredClass>org\.apache\.http\..+</regexIgnoredClass>
+                                        <regexIgnoredClass>com\.typesafe\.scalalogging\..+</regexIgnoredClass>
                                     </regexIgnoredClasses>
                                 </illegalTransitiveDependencyCheck>
                             </rules>
