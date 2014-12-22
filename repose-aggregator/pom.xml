@@ -293,12 +293,6 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -312,7 +306,6 @@
                 <version>2.1</version>
             </dependency>
 
-            <!-- Only need the test-jar for testing and making that work -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
@@ -415,6 +408,27 @@
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
         </dependency>
+
+        <!-- because we do test logging in many projects, all projects get the log4j test dependencies -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -646,7 +660,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- plugin to let us know about unused dependencies -->
+            <!--
+             plugin to let us know about unused dependencies
+             It's not very reliable, not like the enforcer plugin's abilities, so I disabled the fail on Warning,
+             because it was causing too many false positives. The report could still be useful during manual verficiation however.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
