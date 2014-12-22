@@ -32,11 +32,12 @@
             <artifactId>httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
-        <!--TODO: this uses services from core, and so requires a dependency on core-api when it exists-->
+
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-service-api</artifactId>
