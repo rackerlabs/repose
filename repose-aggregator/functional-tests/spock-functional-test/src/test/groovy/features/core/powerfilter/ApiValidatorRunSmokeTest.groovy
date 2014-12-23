@@ -16,8 +16,10 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/smoke", params)
-        repose.start()
-
+        //Waiting on responses, rather than the buggy JMX
+        repose.start(killOthersBeforeStarting: false,
+                waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
     def cleanup() {
