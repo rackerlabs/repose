@@ -74,6 +74,7 @@ public class LoggingServiceImpl implements LoggingService {
                 System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, file.getAbsolutePath());
                 LoggerContext context = (LoggerContext) LogManager.getContext(false);
                 context.reconfigure();
+                LOG.info("Logging Service reconfigured!");
                 LOG.error("ERROR LEVEL LOG STATEMENT");
                 LOG.warn("WARN  LEVEL LOG STATEMENT");
                 LOG.info("INFO  LEVEL LOG STATEMENT");
