@@ -3,8 +3,7 @@ package org.openrepose.core.filter;
 import com.google.common.base.Optional;
 import org.openrepose.core.systemmodel.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the given
@@ -21,6 +20,25 @@ public class SystemModelInterrogator {
     public SystemModelInterrogator(String clusterId, String nodeId) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
+    }
+
+    /**
+     * For a given system model, get back a map of clusterIds to their NodeIds
+     * @param systemModel Takes a marshalled SystemModel to do work on
+     * @return a Map of clusterIds to their NodeIds
+     */
+    public static Map<String, List<String>> allClusterNodes(SystemModel systemModel) {
+        HashMap<String, List<String>> clusterNodes = new HashMap<>();
+
+        for(ReposeCluster cluster : systemModel.getReposeCluster()) {
+            LinkedList<String> nodes = new LinkedList<>();
+            clusterNodes.put(cluster.getId(), nodes);
+            for(Node node: cluster.getNodes().getNode()) {
+                nodes.add(node.getId());
+            }
+        }
+
+        return clusterNodes;
     }
 
     /**

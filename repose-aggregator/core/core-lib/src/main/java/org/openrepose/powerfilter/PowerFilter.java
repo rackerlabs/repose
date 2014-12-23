@@ -8,6 +8,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.services.jmx.ConfigurationInformation;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -95,6 +96,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
+    private final ConfigurationInformation configurationInformation;
 
     @Inject
     public PowerFilter(
@@ -109,13 +111,15 @@ public class PowerFilter extends DelegatingFilterProxy {
             MetricsService metricsService,
             ContainerConfigurationService containerConfigurationService,
             ResponseMessageService responseMessageService,
-            FilterContextFactory filterContextFactory
+            FilterContextFactory filterContextFactory,
+            ConfigurationInformation configurationInformation
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
+        this.configurationInformation = configurationInformation;
 
         // Set up the configuration listeners
         systemModelConfigurationListener = new SystemModelConfigListener();
@@ -217,10 +221,16 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                         //Only log this repose ready if we're able to properly fire up a new filter chain
                         LOG.info("{}-{}: Repose ready", clusterId, nodeId);
+                        //Update the JMX bean with our status
+                        configurationInformation.updateNodeStatus(clusterId, nodeId, true);
                     } catch (FilterInitializationException fie) {
                         LOG.error("{}-{}: Unable to create new filter chain", clusterId, nodeId, fie);
+                        //Update the JMX bean with our status
+                        configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     } catch (PowerFilterChainException e) {
                         LOG.error("{}-{}: Unable to initialize filter chain builder", clusterId, nodeId, e);
+                        //Update the JMX bean with our status
+                        configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     }
                 } else {
                     LOG.error("{}-{}: Unable to identify the local host in the system model - please check your system-model.cfg.xml", clusterId, nodeId);
@@ -270,6 +280,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 LOG.debug("{}-{}: Power Filter Router: {}", clusterId, nodeId, router);
 
                 mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
+
+                //Update the JMX bean with our status
+                configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService);
             }
@@ -277,6 +290,9 @@ public class PowerFilter extends DelegatingFilterProxy {
             LOG.warn("{}-{}: Error creating filter chain", clusterId, nodeId, ex);
             mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
             mutableHttpResponse.setLastException(ex);
+
+            //Update the JMX bean with our status
+            configurationInformation.updateNodeStatus(clusterId, nodeId, false);
         }
 
         return requestFilterChain;

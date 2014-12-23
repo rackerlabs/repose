@@ -6,7 +6,6 @@ import org.openrepose.commons.config.parser.common.ConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.commons.utils.thread.Poller;
-import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.threading.ThreadingService;
 

@@ -2,7 +2,6 @@ package org.openrepose.core.services.config.impl;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.common.ConfigurationParser;
-import org.openrepose.nodeservice.jmx.ConfigurationInformation;
 
 
 import java.lang.ref.WeakReference;

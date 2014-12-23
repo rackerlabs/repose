@@ -1,4 +1,4 @@
-package org.openrepose.nodeservice.jmx
+package org.openrepose.core.services.jmx
 
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
