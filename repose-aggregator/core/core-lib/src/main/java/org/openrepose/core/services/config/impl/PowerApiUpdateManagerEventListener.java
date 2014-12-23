@@ -25,7 +25,6 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
     @Override
     public void onEvent(Event<ConfigurationEvent, ConfigurationResource> e) {
         final Thread currentThread = Thread.currentThread();
-        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
         final String payloadName = e.payload().name();
         Map<Integer, ParserListenerPair> listeners = getListenerMap(payloadName);
         
@@ -41,21 +40,9 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
-                    //TODO: cannot do this here!
-//                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
-//                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
-//                   }else{
-//                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File");
-//                   }
                 }catch(Exception ex){
-                    //TODO: cannot do this here!
-//                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
-//                    parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage());
-//                   }
                    LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
                    LOG.trace("", ex);
-                } finally {
-                    currentThread.setContextClassLoader(previousClassLoader);
                 }
             } else {
                 LOG.warn("Update listener is null for " + payloadName);
