@@ -125,23 +125,6 @@ public class PowerFilterChain implements FilterChain {
         return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
     }
 
-    /**
-     * This feels like a really bad thing to do, and might be the cause of our classloading problems.
-     * It has been removed from all the filter stuff, and shouldn't be used at all :(
-     *
-     * @param loader What classloader to set
-     * @return The previous classloader
-     */
-    @Deprecated
-    private ClassLoader setClassLoader(ClassLoader loader) {
-        final Thread currentThread = Thread.currentThread(); // GAH
-        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
-
-        currentThread.setContextClassLoader(loader);
-
-        return previousClassLoader;
-    }
-
     private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse,
                                 FilterContext filterContext) throws IOException, ServletException {
         final MutableHttpServletResponse mutableHttpResponse =
