@@ -76,6 +76,13 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
+    /**
+     * This needs to be the default way to determine if repose is ready to serve requests I think...
+     * @param responseCode
+     * @param throwException
+     * @param checkLogMessage
+     * @return
+     */
     def waitUntilReadyToServiceRequests(String responseCode = '200',
                                         boolean throwException = true,
                                         boolean checkLogMessage = false) {
@@ -88,8 +95,12 @@ abstract class ReposeValveTest extends Specification {
         try{
             waitForCondition(clock, '35s', '1s', {
                 if(checkLogMessage &&
+                        //TODO: this will not work, because of clusterID/NodeId awareness
+                        //This needs to do a bit more regexp
+                        // ClusterId and NodeID need to be known for what node we expect to be alive
+                        // .*PowerFilter.* clusterId-nodeId: Repose Ready
                         logSearch.awaitByString(
-                                "org.openrepose.powerfilter.PowerFilter  - Repose ready").size() > 0){
+                                "PowerFilter.*-.*Repose ready").size() > 0){
                     return true
                 }
                 try {

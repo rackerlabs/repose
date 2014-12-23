@@ -52,7 +52,7 @@ class ReposeLogSearch {
      * @param timeUnit
      * @return
      */
-    public List<String> awaitByString(String searchString, int atLeast, long duration, TimeUnit timeUnit) throws TimeoutException, ExecutionException {
+    public List<String> awaitByString(String searchString, int atLeast = 1, long duration = 3, TimeUnit timeUnit = TimeUnit.SECONDS) throws TimeoutException, ExecutionException {
 
         def ec = Executors.newFixedThreadPool(1)
         def logSearchFuture = ec.submit(new Callable<List<String>>() {

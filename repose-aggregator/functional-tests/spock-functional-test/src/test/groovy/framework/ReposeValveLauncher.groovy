@@ -2,8 +2,13 @@ package framework
 
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
+import org.openrepose.commons.config.parser.ConfigurationParserFactory
+import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
+import org.openrepose.core.filter.SystemModelInterrogator
+import org.openrepose.core.systemmodel.SystemModel
 import org.rackspace.deproxy.PortFinder
 
+import javax.management.ObjectName
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -70,6 +75,11 @@ class ReposeValveLauncher extends ReposeLauncher {
         start(killOthersBeforeStarting, waitOnJmxAfterStarting)
     }
 
+    /**
+     * TODO: need to know what node in the system model we care about. There might be many, for multiple local node testing...
+     * @param killOthersBeforeStarting
+     * @param waitOnJmxAfterStarting
+     */
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
         File jarFile = new File(reposeJar)
@@ -120,12 +130,13 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
+        //TODO: possibly add a -Dlog4j.configurationFile to the guy so that we can load a different log4j config for early logging
+
         def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({
             this.process = cmd.execute()
-            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
             this.process.consumeProcessOutput(System.out, System.err)
         });
 
@@ -144,10 +155,6 @@ class ReposeValveLauncher extends ReposeLauncher {
                 isFilterChainInitialized()
             })
         }
-
-        // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
-        // ready to receive requests without actually sending a request through (skews the metrics if we do)
-        //sleep(10000)
     }
 
     def connectViaJmxRemote(jmxUrl) {
@@ -223,30 +230,46 @@ class ReposeValveLauncher extends ReposeLauncher {
     private boolean isFilterChainInitialized() {
         print('.')
 
+        //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
+        def systemModelFile = configurationProvider.getSystemModel()
+        def systemModelXSDUrl = getClass().getResource("/META-INF/schema/system-model/system-model.xsd")
+        def parser = ConfigurationParserFactory.getXmlConfigurationParser(SystemModel.class, systemModelXSDUrl)
+        def systemModel = parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
+
+        //If the systemModel didn't validate, we're going to toss an exception here, which is fine
+
+        //Get the systemModel cluster/node, if there's only one we can guess. If there's many, bad things happen.
+        Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
+
+        def clusterId = ""
+        def nodeId = ""
+
+        if(clusterNodes.size() == 1) {
+            clusterId = clusterNodes.keySet().toList().first()
+            if(clusterNodes.get(clusterId).size() == 1) {
+                nodeId = clusterNodes.get(clusterId).first()
+            } else {
+                throw new Exception("Unable to guess what nodeID you want in cluster: " + clusterId)
+            }
+        } else {
+            throw new Exception("Unable to guess what clusterID you want!")
+        }
+
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = jmx.getMBeans("*org.openrepose.nodeservice.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
         def String beanName = cfgBean.iterator().next().name.toString()
 
-        def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
+        //Doing the JMX invocation here, because it's kinda ugly
+        Object[] opParams = [clusterId, nodeId]
+        String[] opSignature = [String.class.getName(), String.class.getName()]
 
-
-        if (filterchain == null || filterchain.size() == 0) {
-            return beanName.contains("nofilters")
-        }
-
-        def initialized = true
-
-        filterchain.each { data ->
-            if (data."successfully initialized" == false) {
-                initialized = false
-            }
-        }
-
-        return initialized
+        //Invoke the 'is repose ready' bit on it
+        def nodeIsReady = jmx.server.invoke(new ObjectName(beanName), "isNodeReady", opParams, opSignature)
+        return nodeIsReady
     }
 
     @Override
