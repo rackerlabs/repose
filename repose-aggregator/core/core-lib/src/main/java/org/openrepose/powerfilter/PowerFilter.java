@@ -212,14 +212,13 @@ public class PowerFilter extends DelegatingFilterProxy {
                             }
                         }
 
-                        //Reinitialize the power filter chain builder with new settings.
+                        //Only log repose ready if we're able to properly fire up a new filter chain
+                        LOG.info("Repose ready");
                     } catch (FilterInitializationException fie) {
                         LOG.error("Unable to create new filter chain", fie);
                     } catch (PowerFilterChainException e) {
                         LOG.error("Unable to initialize filter chain builder", e);
                     }
-
-                    LOG.info("Repose ready");
                 } else {
                     LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                     healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
