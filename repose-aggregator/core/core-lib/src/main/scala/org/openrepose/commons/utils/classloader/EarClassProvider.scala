@@ -53,10 +53,11 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     } catch {
       case e: Exception =>
         log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
-        throw e
+        throw new EarProcessingException("Unable to fully extract file", e);
     }
   }
 
+  @throws(classOf[EarProcessingException])
   def getClassLoader(): ClassLoader = {
     computeClassLoader
   }

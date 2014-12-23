@@ -120,7 +120,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       fos.close()
 
       val p = new EarClassProvider(tempFile, root)
-      intercept[IOException] {
+      intercept[EarProcessingException] {
         p.getClassLoader()
       }
 
@@ -135,7 +135,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
   }
 
-  it("throws an IO Exception if unable to unpack the ear to the specified directory") {
+  it("throws an EarProcessingException if unable to unpack the ear to the specified directory") {
     //create garbage file
     val tempFile = File.createTempFile("junk", ".ear")
     tempFile.deleteOnExit()
@@ -149,29 +149,29 @@ class EarClassProviderTest extends FunSpec with Matchers {
       fos.close()
 
       val p = new EarClassProvider(tempFile, root)
-      intercept[IOException] {
+      intercept[EarProcessingException] {
         p.getClassLoader()
       }
     }
   }
 
-  it("throws an IO Exception if the Ear file doesn't exist") {
+  it("throws an EarProcessingException if the Ear file doesn't exist") {
     withTempDir { root =>
       val notAFile = new File("this file doesn't exist.txt")
 
       val p = new EarClassProvider(notAFile, root)
-      intercept[IOException] {
+      intercept[EarProcessingException] {
         p.getClassLoader()
       }
     }
   }
 
-  it("if the unpack root doesn't exist we get an IOException") {
+  it("if the unpack root doesn't exist we get an EarProcessingException") {
     val root = new File("/derp/derp/derp")
 
     val p = new EarClassProvider(earFile, root)
 
-    intercept[IOException] {
+    intercept[EarProcessingException] {
       p.getClassLoader()
     }
   }
