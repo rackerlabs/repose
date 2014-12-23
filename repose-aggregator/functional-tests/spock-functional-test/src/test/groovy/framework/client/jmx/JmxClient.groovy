@@ -2,6 +2,7 @@ package framework.client.jmx
 
 import org.linkedin.util.clock.SystemClock
 
+import javax.management.MBeanServerConnection
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
@@ -15,7 +16,7 @@ class JmxClient {
 
     def String jmxUrl
     def clock = new SystemClock()
-    def server
+    MBeanServerConnection server
 
     JmxClient(String jmxUrl) {
         this.jmxUrl = jmxUrl
