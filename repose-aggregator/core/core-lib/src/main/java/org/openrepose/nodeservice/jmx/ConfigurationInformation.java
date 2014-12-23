@@ -175,6 +175,8 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
 
     @PostConstruct
     public void init() {
+        LOG.info("{}-{}: Created ConfigurationInformation MBean", clusterId, nodeId);
+
         systemModelListener = new SystemModelListener();
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
