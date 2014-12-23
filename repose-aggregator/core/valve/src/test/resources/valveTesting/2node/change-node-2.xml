@@ -4,8 +4,8 @@
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
     <repose-cluster id="repose">
         <nodes>
-            <node id="repose_node1" hostname="localhost" http-port="8080"/>
-            <node id="le_changed_node" hostname="localhost" http-port="8081"/>
+            <node id="repose_node1" hostname="localhost" http-port="10234"/>
+            <node id="le_changed_node" hostname="localhost" http-port="10235"/>
         </nodes>
         <filters>
             <filter name="ip-identity"/>

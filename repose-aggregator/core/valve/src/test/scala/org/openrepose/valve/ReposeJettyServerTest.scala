@@ -11,6 +11,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
 
   CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false);
 
+  val httpPort = 10234
+  val httpsPort = 10235
+
   val sslConfig = {
     val s = new SslConfiguration()
     s.setKeyPassword("password")
@@ -24,7 +27,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(8080),
+      Some(httpPort),
       None,
       None
     )
@@ -37,7 +40,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
       "cluster",
       "node",
       None,
-      Some(8080),
+      Some(httpPort),
       Some(sslConfig)
     )
 
@@ -48,8 +51,8 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(8081),
-      Some(8080),
+      Some(httpPort),
+      Some(httpsPort),
       Some(sslConfig)
     )
 
@@ -64,7 +67,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
         "cluster",
         "node",
         None,
-        Some(8080),
+        Some(httpPort),
         None
       )
     }
@@ -85,7 +88,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(8080),
+      Some(httpPort),
       None,
       None
     )
@@ -103,7 +106,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(8080),
+      Some(httpPort),
       None,
       None
     )
@@ -133,7 +136,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(8080),
+      Some(httpPort),
       None,
       None
     )
