@@ -46,7 +46,6 @@ public class PowerFilterChain implements FilterChain {
 
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
-    private final ClassLoader containerClassLoader;
     private List<FilterContext> currentFilters;
     private int position;
     private final PowerFilterRouter router;
@@ -62,7 +61,6 @@ public class PowerFilterChain implements FilterChain {
 
         this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
-        this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.router = router;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
@@ -211,7 +209,6 @@ public class PowerFilterChain implements FilterChain {
             throws IOException, ServletException {
         final MutableHttpServletResponse mutableHttpResponse =
                 MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
-        ClassLoader previousClassLoader = setClassLoader(containerClassLoader);
 
         try {
             if (isResponseOk(mutableHttpResponse)) {
@@ -225,8 +222,6 @@ public class PowerFilterChain implements FilterChain {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
             mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
             mutableHttpResponse.setLastException(ex);
-        } finally {
-            setClassLoader(previousClassLoader);
         }
     }
 
