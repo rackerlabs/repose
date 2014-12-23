@@ -5,6 +5,7 @@ import java.io.{File, InputStream, PrintStream}
 import com.typesafe.config.Config
 import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.valve.spring.ValveRunner
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 
@@ -73,6 +74,10 @@ class Valve {
         out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
       } else {
+        val logger = LoggerFactory.getLogger(this.getClass)
+        logger.info(banner)
+
+        logger.info("Starting up Repose Core...")
         //Set up the core spring services, and get a ValveRunner
         val coreSpringProvider = CoreSpringProvider.getInstance()
         //Fire up the core spring context, configuring repose and such
@@ -86,6 +91,7 @@ class Valve {
         valveContext.setParent(coreContext)
         valveContext.scan("org.openrepose.valve.spring") //TODO: config file?
         valveContext.refresh()
+
 
         //Get dat bean
         val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])

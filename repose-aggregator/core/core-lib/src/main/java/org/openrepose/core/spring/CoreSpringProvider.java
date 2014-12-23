@@ -63,6 +63,7 @@ public class CoreSpringProvider {
             //Go ahead and print the narwhal banner at this point -- this is where startup happens
             ReposeBanner.print(LOG);
 
+            LOG.info("Starting up Repose Core Spring Context (logging may be redirected as the logging service comes up)");
             coreContext = new AnnotationConfigApplicationContext();
             coreContext.setDisplayName("ReposeCoreContext");
 
@@ -103,25 +104,6 @@ public class CoreSpringProvider {
             coreContext.registerBeanDefinition("jmxAttributeSource", jmxAttributeSource);
 
             coreContext.refresh();
-
-            //TODO: set up the JMX mbean stuff
-            /**
-             *
-             <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter" lazy-init="true">
-             <property name="namingStrategy" ref="reposeJmxNamingStrategy"/>
-             </bean>
-
-             <!--
-             <bean id="namingStrategy" class="org.openrepose.core.spring.ReposeJmxNamingStrategy">
-             <property name="attributeSource" ref="attributeSource"/>
-             </bean>
-
-             <bean id="jmxAttributeSource"
-             class="org.springframework.jmx.export.metadata.JmxAttributeSource"/>
-             -->
-             <bean id="jmxAttributeSource"
-             class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
-             */
 
             configured = true;
         } else {

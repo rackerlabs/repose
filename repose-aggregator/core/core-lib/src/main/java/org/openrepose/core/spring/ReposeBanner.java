@@ -27,7 +27,7 @@ public final class ReposeBanner {
             Scanner s = new Scanner(bannerInputStream).useDelimiter("\\A");
 
             if(s.hasNext()) {
-                log.info("\n" + s);
+                log.info("\n" + s.next());
             } else {
                 log.warn("Unable to find the beautiful narwhal banner. This is a bad thing.");
             }
