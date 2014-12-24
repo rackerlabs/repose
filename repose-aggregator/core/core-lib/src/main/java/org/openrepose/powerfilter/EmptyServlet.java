@@ -25,6 +25,6 @@ public final class EmptyServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         LOG.debug("Hit the empty servlet at the end of the chain");
-        //TODO: don't actually want to call up anything, we want it to just fall through
+        //Don't actually call super.service, we don't want to do *anything* in here.
     }
 }
