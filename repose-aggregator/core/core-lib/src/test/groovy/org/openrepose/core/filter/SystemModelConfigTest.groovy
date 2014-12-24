@@ -80,6 +80,7 @@ class SystemModelConfigTest extends Specification {
         false              | null               | false
         false              | true               | true
         false              | false              | null
+        false              | false              | false
     }
 
     @Unroll("Validate System-Model with Endpoint Destinations default1=#endpointOneDefault, default2=#endpointTwoDefault, and default3=#endpointThreeDefault.")
@@ -121,7 +122,7 @@ class SystemModelConfigTest extends Specification {
                     }
                     'destinations'() {
                         int counter = 0;
-                        for (Boolean endpointDefault: endpointDefaults) {
+                        for (Boolean endpointDefault : endpointDefaults) {
                             if (endpointDefault == null) {
                                 'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080')
                             } else {
