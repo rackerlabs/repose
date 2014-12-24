@@ -60,7 +60,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p/>
  * This class current instruments the response codes coming from Repose.
  * <p/>
- * TODO: this must have the application context wired into it....
  * THen the application context must be handed down into things that need it to build filters.
  * TODO: this also needs to check the properties to make sure they exist before we start up like the empty servlet used
  * to do.
@@ -233,9 +232,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                         configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     }
                 } else {
-                    LOG.error("{}-{}: Unable to identify the local host in the system model - please check your system-model.cfg.xml", clusterId, nodeId);
+                    LOG.error("{}-{}: Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                            "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                            "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
             }
         }
