@@ -146,7 +146,7 @@ public class PowerFilterChain implements FilterChain {
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
-            LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
+            LOG.error("Failure in filter: {}", filterName, ex);
             mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
         } finally {
             mutableHttpResponse.popOutputStream();
