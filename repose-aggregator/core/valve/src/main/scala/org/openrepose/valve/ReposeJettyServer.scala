@@ -39,7 +39,8 @@ class ReposeJettyServer(val clusterId: String,
 
   val appContext = new AnnotationConfigWebApplicationContext()
 
-  val coreSpringProvider = CoreSpringProvider.getInstance() //Safe to use here, it's been initialized earlier
+  val coreSpringProvider = CoreSpringProvider.getInstance()
+  //Safe to use here, it's been initialized earlier
   val nodeContext = coreSpringProvider.getNodeContext(clusterId, nodeId)
 
   //NOTE: have to add this manually each time we fire up a spring context so that we can ensure that @Value works
@@ -112,7 +113,14 @@ class ReposeJettyServer(val clusterId: String,
     filterHolder.setFilter(delegatingProxy)
     filterHolder.setDisplayName("SpringDelegatingFilter")
 
-    contextHandler.addFilter(filterHolder, "/*", util.EnumSet.of(DispatcherType.REQUEST))
+    //All the dispatch types...
+    val dispatchTypes = util.EnumSet.of(DispatcherType.REQUEST,
+      DispatcherType.FORWARD,
+      DispatcherType.INCLUDE,
+      DispatcherType.ERROR,
+      DispatcherType.ASYNC)
+
+    contextHandler.addFilter(filterHolder, "/*", dispatchTypes)
 
     s.setHandler(contextHandler)
 
