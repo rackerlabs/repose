@@ -139,9 +139,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * This goes through all the earclassloader contexts and tries to find a classloader that can marshal the jaxb stuff
-     * Unfortunately it is not aware of changes to the artifacts and such, and so this will be a source of bugs in the future.
-     * NOTE: when artifacts are replaced or reloaded or changed, this guy won't update stuff, it will be a source of bugs
+     * Use the configuration class's classloader that was passed in. This should ensure that the JaxbContext knows how
+     * to find the class.
      *
      * @param configurationClass
      * @param xsdStreamSource
