@@ -1,10 +1,12 @@
 package org.openrepose.powerfilter.intrafilterLogging;
 
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -31,9 +33,15 @@ public class RequestLog {
         requestURI = mutableHttpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(mutableHttpServletRequest);
 
-        mutableHttpServletRequest.getInputStream().mark(Integer.MAX_VALUE);
-        requestBody = IOUtils.toString(mutableHttpServletRequest.getInputStream()); //http://stackoverflow.com/a/309448
-        mutableHttpServletRequest.getInputStream().reset();
+        //Have to wrap the input stream in somethign that can be buffered, as well as reset.
+        BufferedInputStream bin = new BufferedInputStream(mutableHttpServletRequest.getInputStream());
+        bin.mark(Integer.MAX_VALUE); //Something doesn't support mark reset
+        requestBody = IOUtils.toString(bin); //http://stackoverflow.com/a/309448
+        bin.reset();
+
+        //Now, once we've eaten the body, we have to wrap it back into something the rest of the system can use.
+        // This ServletInputStreamWrapper feels super gross....
+        mutableHttpServletRequest.setInputStream(new ServletInputStreamWrapper(bin)); //Have to copy everything
     }
 
     private HashMap<String, String> convertRequestHeadersToMap(
