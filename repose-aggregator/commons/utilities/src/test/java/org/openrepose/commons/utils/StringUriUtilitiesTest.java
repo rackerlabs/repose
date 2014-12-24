@@ -129,7 +129,7 @@ public class StringUriUtilitiesTest {
       public void shouldHandleSingle() {
          String uri1 = "/";
          String uri2 = "/";
-         String expected = "//";
+         String expected = "/";
          
          String actual = StringUriUtilities.concatUris(uri1, uri2);
          
