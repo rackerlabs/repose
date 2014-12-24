@@ -11,6 +11,9 @@ import org.scalatest.{Ignore, Matchers, FunSpec}
 import org.mockito.Mockito.when
 import org.mockito.Matchers.anyString
 
+/**
+ * TODO: something is missing in here!
+ */
 @RunWith(classOf[JUnitRunner])
 class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoSugar {
 
@@ -116,6 +119,17 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
 
     describe("when building local endpoint locations") {
 
+      it("returns a proper URI when no path is specified") {
+        val instance = new DestinationLocationBuilder(routingService, localhost)
+        val result = instance.build(destinationEndpoint(id="destId", port=8080, protocol="http", rootPath = "/", default= true), "/", request)
+        val expectedUri = "/"
+        val expectedUrl = "http://localhost:8080" + expectedUri
+
+        result.getUri.getPath should be(expectedUri)
+        result.getUri.toString should be(expectedUri)
+        result.getUrl.toExternalForm should be(expectedUrl)
+      }
+
       it("returns local URI when no hostname specified") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", port = 8080, protocol = "http", rootPath = "/root", default = true), uri, request)
@@ -180,6 +194,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
         result.getUri.toString should be(expectedUrl)
         result.getUrl.toExternalForm should be(expectedUrl)
       }
+
       it("returns full url in uri to string for local different port dispatch") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", port = 8081, protocol = "http", rootPath = "/root", default = true), uri, request)
