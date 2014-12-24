@@ -141,7 +141,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         @Override
         public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
-            LOG.info("{}-{}: Application collection has been modified. Application that changed: {}", clusterId, nodeId, e.payload());
+            LOG.info("{}:{} -- Application collection has been modified. Application that changed: {}", clusterId, nodeId, e.payload());
 
             // Using a set instead of a list to have a deployment health report if there are multiple artifacts with the same name
             Set<String> uniqueArtifacts = new HashSet<>();
@@ -169,6 +169,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
+            LOG.debug("{}:{} New system model configuration provided", clusterId, nodeId);
             SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
             //TODO: is this wrong?
             if (previousSystemModel == null) {
@@ -219,20 +220,20 @@ public class PowerFilter extends DelegatingFilterProxy {
                         }
 
                         //Only log this repose ready if we're able to properly fire up a new filter chain
-                        LOG.info("{}-{}: Repose ready", clusterId, nodeId);
+                        LOG.info("{}:{} -- Repose ready", clusterId, nodeId);
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, true);
                     } catch (FilterInitializationException fie) {
-                        LOG.error("{}-{}: Unable to create new filter chain", clusterId, nodeId, fie);
+                        LOG.error("{}:{} -- Unable to create new filter chain", clusterId, nodeId, fie);
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     } catch (PowerFilterChainException e) {
-                        LOG.error("{}-{}: Unable to initialize filter chain builder", clusterId, nodeId, e);
+                        LOG.error("{}:{} -- Unable to initialize filter chain builder", clusterId, nodeId, e);
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     }
                 } else {
-                    LOG.error("{}-{}: Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", clusterId, nodeId);
+                    LOG.error("{}:{} -- Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                             "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
@@ -242,7 +243,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
     @Override
     public void initFilterBean() {
-        LOG.info("{}-{}: Initializing PowerFilter bean", clusterId, nodeId);
+        LOG.info("{}:{} -- Initializing PowerFilter bean", clusterId, nodeId);
         eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
 
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
@@ -251,7 +252,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
     @Override
     public void destroy() {
-        LOG.info("{}-{}: Destroying PowerFilter bean", clusterId, nodeId);
+        LOG.info("{}:{} -- Destroying PowerFilter bean", clusterId, nodeId);
         eventService.squelch(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
 
@@ -273,10 +274,10 @@ public class PowerFilter extends DelegatingFilterProxy {
             if (!healthy ||
                     filterChain == null ||
                     router == null) {
-                LOG.warn("{}-{}: Repose is not ready!", clusterId, nodeId);
-                LOG.debug("{}-{}: Health status: {}", clusterId, nodeId, healthy);
-                LOG.debug("{}-{}: Current filter chain: {}", clusterId, nodeId, filterChain);
-                LOG.debug("{}-{}: Power Filter Router: {}", clusterId, nodeId, router);
+                LOG.warn("{}:{} -- Repose is not ready!", clusterId, nodeId);
+                LOG.debug("{}:{} -- Health status: {}", clusterId, nodeId, healthy);
+                LOG.debug("{}:{} -- Current filter chain: {}", clusterId, nodeId, filterChain);
+                LOG.debug("{}:{} -- Power Filter Router: {}", clusterId, nodeId, router);
 
                 mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
 
@@ -286,7 +287,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService);
             }
         } catch (PowerFilterChainException ex) {
-            LOG.warn("{}-{}: Error creating filter chain", clusterId, nodeId, ex);
+            LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
             mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
             mutableHttpResponse.setLastException(ex);
 
@@ -313,11 +314,11 @@ public class PowerFilter extends DelegatingFilterProxy {
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
         } catch (URISyntaxException use) {
-            LOG.debug("{}-{}: Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI());
+            LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI());
             mutableHttpResponse.sendError(HttpStatusCode.BAD_REQUEST.intValue(), "Error processing request");
             mutableHttpResponse.setLastException(use);
         } catch (Exception ex) {
-            LOG.error("{}-{}: Exception encountered while processing filter chain.", clusterId, nodeId, ex);
+            LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
             mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
             mutableHttpResponse.setLastException(ex);
         } finally {
@@ -332,7 +333,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 mutableHttpResponse.writeHeadersToResponse();
                 mutableHttpResponse.commitBufferToServletOutputStream();
             } catch (IOException ex) {
-                LOG.error("{}-{}: Error committing output stream", clusterId, nodeId, ex);
+                LOG.error("{}:{} -- Error committing output stream", clusterId, nodeId, ex);
             }
             final long stopTime = System.currentTimeMillis();
 
