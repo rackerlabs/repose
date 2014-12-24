@@ -52,7 +52,8 @@ class RequestSizeTest extends ReposeValveTest {
     @Unroll("request with header size of #headerSize should respond with 200")
     def "headers within jetty default size limit are allowed through"() {
 
-        given: "I have headers that are within the header size limit"
+        when: "I get a request to verify the header sizes coming through by default"
+        //Get the headers that go through normally, so we can do maths to figure out the size limit...
         int defaultHeadersSize = 0
         MessageChain fmc = deproxy.makeRequest(url: reposeEndpoint)
         for(Header hdr : fmc.sentRequest.headers._headers){
@@ -61,7 +62,11 @@ class RequestSizeTest extends ReposeValveTest {
         int largeHeaderSize = headerSize - defaultHeadersSize
         def header1 = RandomStringUtils.random(largeHeaderSize, charset)
 
-        when: "I send a request to REPOSE with my headers"
+        then: "The first request got a 200"
+        fmc.receivedResponse.code == "200"
+        fmc.handlings.size() == 1
+
+        when: "I send a second request to REPOSE with my headers"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [headerName: header1])
 
         then: "I get a response of 200"
