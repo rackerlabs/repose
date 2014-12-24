@@ -2,7 +2,7 @@ package framework
 
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
-import org.openrepose.commons.config.parser.ConfigurationParserFactory
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.systemmodel.SystemModel
@@ -233,7 +233,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
         def systemModelFile = configurationProvider.getSystemModel()
         def systemModelXSDUrl = getClass().getResource("/META-INF/schema/system-model/system-model.xsd")
-        def parser = ConfigurationParserFactory.getXmlConfigurationParser(SystemModel.class, systemModelXSDUrl)
+        def parser = JaxbConfigurationParser.getXmlConfigurationParser(SystemModel.class, systemModelXSDUrl, this.getClass().getClassLoader())
         def systemModel = parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
 
         //If the systemModel didn't validate, we're going to toss an exception here, which is fine

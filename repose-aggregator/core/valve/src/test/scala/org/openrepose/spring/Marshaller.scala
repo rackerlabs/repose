@@ -2,7 +2,7 @@ package org.openrepose.spring
 
 import java.net.URL
 
-import org.openrepose.commons.config.parser.ConfigurationParserFactory
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.systemmodel.SystemModel
@@ -23,12 +23,13 @@ object Marshaller {
     configResource[ContainerConfiguration](resource, containerConfigXSD)
   }
 
-  def configResource[T:ClassTag](resource: String, xsdURL: URL): T = {
+  def configResource[T: ClassTag](resource: String, xsdURL: URL): T = {
     import scala.reflect._
-    val ct:ClassTag[T] = classTag[T]
-    val parser = ConfigurationParserFactory.getXmlConfigurationParser(
+    val ct: ClassTag[T] = classTag[T]
+    val parser = JaxbConfigurationParser.getXmlConfigurationParser(
       ct.runtimeClass.asInstanceOf[Class[T]],
-      xsdURL)
+      xsdURL,
+      this.getClass.getClassLoader)
 
     val configResource = new BufferedURLConfigurationResource(this.getClass.getResource(resource))
 
