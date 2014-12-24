@@ -83,10 +83,10 @@ public class CoreSpringProvider {
 
             coreContext.addBeanFactoryPostProcessor(propConfig);
 
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isTraceEnabled()) {
                 for (PropertySource source : coreContext.getEnvironment().getPropertySources()) {
                     EnumerablePropertySource eps = (EnumerablePropertySource) source;
-                    LOG.debug("COREContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
+                    LOG.trace("COREContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
                 }
             }
 
@@ -140,10 +140,10 @@ public class CoreSpringProvider {
         PropertiesPropertySource mps = new PropertiesPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
         nodeContext.getEnvironment().getPropertySources().addFirst(mps);
 
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
             for (PropertySource source : nodeContext.getEnvironment().getPropertySources()) {
                 EnumerablePropertySource eps = (EnumerablePropertySource) source;
-                LOG.debug("NODEContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
+                LOG.trace("NODEContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
             }
         }
 
@@ -191,9 +191,9 @@ public class CoreSpringProvider {
         filterContext.scan(packageToScan);
         filterContext.refresh();
 
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
             for (String s : filterContext.getBeanDefinitionNames()) {
-                LOG.debug("FilterContext bean: {}", s);
+                LOG.trace("FilterContext bean: {}", s);
             }
         }
 
