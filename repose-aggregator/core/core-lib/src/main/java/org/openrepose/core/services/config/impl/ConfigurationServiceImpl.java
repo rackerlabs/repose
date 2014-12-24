@@ -38,7 +38,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ConfigurationResourceResolver resourceResolver;
     private final String configRoot;
 
-    //TODO: Need to add ConfigRoot to the coreSpringContext properties or something, not per-node properties
     @Inject
     public ConfigurationServiceImpl(
             ConfigurationUpdateManager configurationUpdateManager,
@@ -121,27 +120,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (sendNotificationNow) {
             // Initial load of the cfg object
             try {
-
                 listener.configurationUpdated(customParser.read(resource));
-
-                //TODO: this cannot be here, we cannot reliably report that a node has loaded a filter or not
-                //TODO: need to fix this somewhere else!
-                //TODO: this should probably go in the PowerFilter instance
-//                if (filterName != null && !filterName.isEmpty() && listener.isInitialized()) {
-//                    configurationInformation.setFilterLoadingInformation(filterName, listener.isInitialized(), resource);
-//                } else {
-//                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, "Failed loading File");
-//                }
-
             } catch (Exception ex) {
-                //TODO: this needs to go somewhere else where the filters are being constructed (PowerFilter)
-//                if (filterName != null && !filterName.isEmpty()) {
-//                    configurationInformation.setFilterLoadingFailedInformation(filterName, resource, ex.getMessage());
-//                }
                 // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
-                    LOG.error("An I/O error has occurred while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
-
+                    LOG.error("An I/O error has occurred while processing resource {} that is used by filter specified in system-model.cfg.xml - Reason: {}", configurationName, ex.getCause().getMessage());
                 } else {
                     LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
                     LOG.trace("", ex);
