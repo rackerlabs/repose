@@ -111,7 +111,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             configDestinationElement = destinations.get(routingDestination.getDestinationId());
             if (configDestinationElement == null) {
                 //TODO: do we really need domain? rename to cluster?
-                LOG.warn("Invalid routing destination specified: " + routingDestination.getDestinationId() + " for domain: " + domain.getId());
+                LOG.warn("Invalid routing destination specified: {} for domain: {} ", routingDestination.getDestinationId(), domain.getId());
                 ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
             } else {
                 location = locationBuilder.build(configDestinationElement, routingDestination.getUri(), servletRequest);
@@ -134,7 +134,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
                 servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
-                servletRequest.setRequestUri(location.getUri().getPath());
+                servletRequest.setRequestUri(location.getUri().getPath()); //TODO: destination location builder is giving back an invalid URI
                 requestHeaderService.setVia(servletRequest);
                 requestHeaderService.setXForwardedFor(servletRequest);
                 if (dispatcher != null) {
@@ -167,7 +167,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
                             servletResponse.setLastException(e);
                         } else {
-                            LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
+                            LOG.error("Connection Refused to {}", location.getUri(), e);
                             ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                         }
                     }
