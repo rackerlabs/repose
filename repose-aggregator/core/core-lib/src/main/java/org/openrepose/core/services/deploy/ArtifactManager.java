@@ -71,6 +71,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         eventService.listen(this, ApplicationArtifactEvent.class);
 
         //When the PowerFilter is configured, start the watcher thread
+        //TODO: this is possibly wrong, because there can be many PowerFilters...
         eventService.listen(new SingleFireEventListener<PowerFilterEvent, Long>(PowerFilterEvent.class) {
 
             @Override

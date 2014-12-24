@@ -169,6 +169,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
+            //TODO: how am I getting a non-valid SystemModel (no default destination)???
             LOG.debug("{}:{} New system model configuration provided", clusterId, nodeId);
             SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
             //TODO: is this wrong?
