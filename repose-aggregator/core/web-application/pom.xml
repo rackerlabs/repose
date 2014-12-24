@@ -39,10 +39,10 @@
             <artifactId>config</artifactId>
         </dependency>
 
+        <!-- core depends on scala, and if we scope this to test, it breaks everything -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
