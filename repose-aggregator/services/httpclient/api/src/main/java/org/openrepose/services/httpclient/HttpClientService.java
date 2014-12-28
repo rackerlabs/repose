@@ -69,7 +69,7 @@ public interface HttpClientService<CFG, RSP extends HttpClientResponse> {
     int getMaxConnections(String clientId);
 
     /**
-     * Returns the timeout of connections for the given clientId in milliseconds
+     * Returns the timeout of socket for the given clientId in milliseconds
      */
-    int getConnectionTimeout(String clientId);
+    int getSocketTimeout(String clientId);
 }

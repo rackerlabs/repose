@@ -129,11 +129,11 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     }
 
     @Override
-    public int getConnectionTimeout(String clientId) {
+    public int getSocketTimeout(String clientId) {
         if (poolMap.containsKey(clientId)) {
-            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
         } else {
-            return DEFAULT_POOL.getHttpConnectionTimeout();
+            return DEFAULT_POOL.getHttpSocketTimeout();
         }
     }
 
