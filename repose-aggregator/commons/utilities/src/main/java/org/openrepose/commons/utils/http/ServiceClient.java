@@ -193,8 +193,8 @@ public class ServiceClient {
         return httpClientService.getMaxConnections(connectionPoolId);
     }
 
-    public int getConnectionTimeout(){
-        return httpClientService.getConnectionTimeout(connectionPoolId);
+    public int getSocketTimeout(){
+        return httpClientService.getSocketTimeout(connectionPoolId);
     }
 
 }
