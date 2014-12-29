@@ -138,10 +138,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                 requestHeaderService.setVia(servletRequest);
                 requestHeaderService.setXForwardedFor(servletRequest);
                 if (dispatcher != null) {
-                    LOG.debug("Attempting to route to " + location.getUri());
-                    LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
-                    LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
-                    LOG.debug("Context path = " + targetContext.getContextPath());
+                    LOG.debug("Attempting to route to: {}", location.getUri());
+                    LOG.debug("  Using dispatcher for: {}", uri);
+                    LOG.debug("           Request URL: {}", ((HttpServletRequest) servletRequest).getRequestURL());
+                    LOG.debug("           Request URI: {}", ((HttpServletRequest) servletRequest).getRequestURI());
+                    LOG.debug("          Context path: {}", targetContext.getContextPath());
 
                     final long startTime = System.currentTimeMillis();
                     try {
