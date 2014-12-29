@@ -2,7 +2,7 @@
 <Configuration monitorInterval="5">
     <Appenders>
         <Console name="STDOUT">
-            <PatternLayout pattern="%d %-4r [%t] %-5p %c  - %m%n"/>
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
         <List name="List1"/>
     </Appenders>
