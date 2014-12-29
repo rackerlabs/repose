@@ -8,9 +8,6 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.services.jmx.ConfigurationInformation;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
-import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
@@ -19,18 +16,18 @@ import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventListener;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.services.jmx.ConfigurationInformation;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.Destination;
-import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.core.services.healthcheck.HealthCheckService;
-import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.systemmodel.*;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
+import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +45,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -207,8 +205,19 @@ public class PowerFilter extends DelegatingFilterProxy {
                     healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     try {
                         //Use the FilterContextFactory to get us a new filter chain
-                        //TODO: There won't always be a filter config.
-                        List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(filterContextFactory.buildFilterContexts(getFilterConfig(), localCluster.get().getFilters().getFilter()));
+                        //Sometimes we won't have any filters
+                        FilterList listOfFilters = localCluster.get().getFilters();
+
+                        //Only if we've been configured with some filters should we get a new list
+                        List<FilterContext> newFilterChain;
+                        if (listOfFilters != null) {
+                            newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), listOfFilters.getFilter());
+                        } else {
+                            //Running with no filters is a totally valid use case!
+                            newFilterChain = Collections.emptyList();
+                        }
+
+                        List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(newFilterChain);
 
                         powerFilterRouter.set(powerFilterRouterFactory.
                                 getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
