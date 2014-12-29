@@ -6,17 +6,16 @@ import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
@@ -34,10 +33,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private ActorRef tokenActorRef;
     private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
-    final Timeout t = new Timeout(50, TimeUnit.SECONDS);
     private final Cache<Object, Future> quickFutureCache;
 
     private static final long FUTURE_CACHE_TTL = 500;
+    private static final TimeUnit FUTURE_CACHE_UNIT = TimeUnit.MILLISECONDS;
+    private static final int CONNECTION_TIMEOUT_BUFFER_MILLIS = 5000;
 
     @Autowired
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
@@ -49,7 +49,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         Config conf = customConf.withFallback(baseConf);
         actorSystem = ActorSystem.create("AuthClientActors", conf);
         quickFutureCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(FUTURE_CACHE_TTL, TimeUnit.MILLISECONDS)
+                .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
 
         tokenActorRef = actorSystem.actorOf(new Props(new UntypedActorFactory() {
@@ -61,39 +61,39 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
 
     @Override
-    public ServiceClientResponse get(String key, String uri, Map<String, String> headers) {
-
-        ServiceClientResponse reusableServiceserviceClientResponse = null;
-        AuthGetRequest authGetRequest = new AuthGetRequest(key, uri, headers);
+    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) {
+        ServiceClientResponse serviceClientResponse = null;
+        AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
-            Future<ServiceClientResponse> future = getFuture(authGetRequest);
-            reusableServiceserviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
+            Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
+            Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout);
+            serviceClientResponse = Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (GET) or the cache", e);
         }
-        return reusableServiceserviceClientResponse;
+        return serviceClientResponse;
     }
 
     @Override
-    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
-        ServiceClientResponse scr = null;
-        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType);
+    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
+        ServiceClientResponse serviceClientResponse = null;
+        AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
-            Future<ServiceClientResponse> future = getFuture(apr);
-            scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
+            Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
+            Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout);
+            serviceClientResponse = Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache", e);
         }
-        return scr;
+        return serviceClientResponse;
     }
-
 
     @Override
     public void shutdown() {
         actorSystem.shutdown();
     }
 
-    private Future getFuture(final ConsistentHashable hashableRequest) throws ExecutionException {
+    private Future getFuture(final ConsistentHashable hashableRequest, final Timeout timeout) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();
 
         //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
@@ -102,10 +102,9 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
             @Override
             public Future<Object> call() throws Exception {
-                return ask(tokenActorRef, hashableRequest, t);
+                return ask(tokenActorRef, hashableRequest, timeout);
             }
         });
-
     }
 
     public ServiceClient getServiceClient(HttpClientService httpClientService) {
