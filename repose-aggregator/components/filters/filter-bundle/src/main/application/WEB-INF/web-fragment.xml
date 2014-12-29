@@ -136,4 +136,9 @@
         <filter-name>add-header</filter-name>
         <filter-class>org.openrepose.filters.addheader.AddHeaderFilter</filter-class>
     </filter>
+
+    <filter>
+        <filter-name>ForwardedProtoFilter</filter-name>
+        <filter-class>org.openrepose.filters.forwardedproto.FowardedProtoFilter</filter-class>
+    </filter>
 </web-fragment>
