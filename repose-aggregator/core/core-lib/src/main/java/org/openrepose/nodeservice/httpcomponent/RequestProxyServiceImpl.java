@@ -15,19 +15,19 @@ import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
-import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.proxy.HttpException;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.core.services.httpclient.HttpClientResponse;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,40 +55,40 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
-    private final ConfigurationService configurationManager;
+    private final ConfigurationService configurationService;
     private final SystemModelListener systemModelListener;
-    private final HealthCheckService healthCheckService;
     private final String clusterId;
     private final String nodeId;
 
     private boolean rewriteHostHeader = false;
-    private HttpClientService httpClientService;
-    private HealthCheckServiceProxy healthCheckServiceProxy;
+    private final HttpClientService httpClientService;
+    private final HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
-    public RequestProxyServiceImpl(ConfigurationService configurationManager,
+    public RequestProxyServiceImpl(ConfigurationService configurationService,
                                    HealthCheckService healthCheckService,
+                                   HttpClientService httpClientService,
                                    @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
                                    @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
 
-        this.configurationManager = configurationManager;
-        this.healthCheckService = healthCheckService;
+        this.configurationService = configurationService;
+        this.httpClientService = httpClientService;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
 
         this.systemModelListener = new SystemModelListener();
+        healthCheckServiceProxy = healthCheckService.register();
+
     }
 
     @PostConstruct
     public void init() {
-        healthCheckServiceProxy = healthCheckService.register();
-
-        configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 
     @PreDestroy
     public void destroy() {
-        configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
@@ -103,8 +103,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     private HttpClientResponse getClient() {
         try {
-            HttpClientResponse httpClientResponse = httpClientService.getClient(null);
-            return httpClientResponse;
+            return httpClientService.getClient(null);
         } catch (HttpClientNotFoundException e) {
             LOG.error("Failed to obtain an HTTP default client connection.");
             throw new ProxyRequestException("Failed to obtain an HTTP default client connection.", e);
@@ -127,9 +126,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
                 return executeProxyRequest(processedMethod, response);
             }
-        } catch (URISyntaxException ex) {
-            LOG.error("Error processing request", ex);
-        } catch (HttpException ex) {
+        } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
         } finally {
             httpClientService.releaseClient(httpClientResponse);
@@ -256,10 +253,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     @Override
     public void setRewriteHostHeader(boolean value) {
         this.rewriteHostHeader = value;
-    }
-
-    public void setHttpClientService(HttpClientService httpClientService) {
-        this.httpClientService = httpClientService;
     }
 
     private class SystemModelListener implements UpdateListener<SystemModel> {
