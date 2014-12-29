@@ -8,6 +8,8 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.proxy.ServletContextWrapper;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
@@ -94,7 +96,26 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
     private final ConfigurationInformation configurationInformation;
+    private final RequestProxyService requestProxyService;
 
+    /**
+     * OMG SO MANY INJECTED THINGIES
+     * TODO: make this less complex
+     * @param clusterId this PowerFilter's cluster ID
+     * @param nodeId this PowerFilter's node ID
+     * @param powerFilterRouterFactory Builds a powerfilter router for this power filter
+     * @param reportingService
+     * @param healthCheckService
+     * @param responseHeaderService
+     * @param configurationService For monitoring config files
+     * @param eventService
+     * @param metricsService
+     * @param containerConfigurationService
+     * @param responseMessageService the response message service
+     * @param filterContextFactory A factory that builds filter contexts
+     * @param configurationInformation allows JMX to see when this powerfilter is ready
+     * @param requestProxyService Only needed by the servletconfigwrapper thingy, no other way to get it in there
+     */
     @Inject
     public PowerFilter(
             @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
@@ -109,7 +130,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             ContainerConfigurationService containerConfigurationService,
             ResponseMessageService responseMessageService,
             FilterContextFactory filterContextFactory,
-            ConfigurationInformation configurationInformation
+            ConfigurationInformation configurationInformation,
+            RequestProxyService requestProxyService
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -117,6 +139,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.configurationInformation = configurationInformation;
+        this.requestProxyService = requestProxyService;
 
         // Set up the configuration listeners
         systemModelConfigurationListener = new SystemModelConfigListener();
@@ -254,6 +277,17 @@ public class PowerFilter extends DelegatingFilterProxy {
     @Override
     public void initFilterBean() {
         LOG.info("{}:{} -- Initializing PowerFilter bean", clusterId, nodeId);
+
+        /**
+         * http://docs.spring.io/spring-framework/docs/3.1.4.RELEASE/javadoc-api/org/springframework/web/filter/GenericFilterBean.html#setServletContext%28javax.servlet.ServletContext%29
+         * Configure the servlet Context wrapper insanity to get to the Request Dispatcher I think...
+         * NOTE: this thing alone provides the dispatcher for forwarding requests. It's really kind of gross.
+         * we should seriously consider doing it in a ProxyServlet or something. Far less complicated.
+         * getFilterConfig might be null sometimes, so just wrap it with existing servlet context
+         */
+        ServletContextWrapper wrappedServletContext = new ServletContextWrapper(getServletContext(), requestProxyService);
+        setServletContext(wrappedServletContext);
+
         eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
 
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
@@ -324,7 +358,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
         } catch (URISyntaxException use) {
-            LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI());
+            LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI(), use);
             mutableHttpResponse.sendError(HttpStatusCode.BAD_REQUEST.intValue(), "Error processing request");
             mutableHttpResponse.setLastException(use);
         } catch (Exception ex) {
