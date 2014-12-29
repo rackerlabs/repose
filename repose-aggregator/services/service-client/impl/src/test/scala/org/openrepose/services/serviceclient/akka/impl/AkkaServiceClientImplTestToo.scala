@@ -12,13 +12,12 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.eclipse.jetty.server.handler.AbstractHandler
-import org.eclipse.jetty.server.{Request, Server}
+import org.eclipse.jetty.server.{ServerConnector, Request, Server}
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.AdditionalMatchers.or
 import org.mockito.Mockito.when
 import org.openrepose.services.httpclient.{HttpClientResponse, HttpClientService}
-import org.rackspace.deproxy.PortFinder
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -35,16 +34,13 @@ class AkkaServiceClientImplTestToo extends FunSpec with BeforeAndAfter with Matc
   val httpClient = new DefaultHttpClient
   val params = httpClient.getParams
   var request: HttpGet = _
-  val port = PortFinder.Singleton.getNextOpenPort
-  val originServer = new Server(port)
+  val originServer = new Server(0)
   val hashKey = "hashKey"
-  val uri = s"http://localhost:$port"
   var app: ListAppender = _
   var httpResponse: HttpResponse = _
+  var uri: String = _
 
   before {
-    request = new HttpGet(uri)
-    request.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML)
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     val cfg = ctx.getConfiguration
     app = cfg.getAppender(LIST_APPENDER_REF).asInstanceOf[ListAppender]
@@ -71,6 +67,10 @@ class AkkaServiceClientImplTestToo extends FunSpec with BeforeAndAfter with Matc
       }
     })
     originServer.start()
+    val port = originServer.getConnectors.toList.get(0).asInstanceOf[ServerConnector].getLocalPort
+    uri = s"http://localhost:$port"
+    request = new HttpGet(uri)
+    request.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML)
   }
 
   after {

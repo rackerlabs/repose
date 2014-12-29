@@ -70,19 +70,6 @@
             <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.rackspace</groupId>
-            <artifactId>deproxy</artifactId>
-            <version>0.21</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.rackspace</groupId>
-                    <artifactId>gdeproxy</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>
