@@ -1,9 +1,5 @@
 package org.openrepose.nodeservice.httpcomponent
 
-import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientResponse
-import org.openrepose.core.services.httpclient.HttpClientService
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
@@ -11,16 +7,15 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPatch
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientService
 import spock.lang.Specification
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-/**
- * Created with IntelliJ IDEA.
- * User: adrian
- * Date: 1/22/14
- * Time: 2:46 PM
- */
+
 class RequestProxyServiceImplTest extends Specification {
     RequestProxyServiceImpl requestProxyService
     HttpClient httpClient
@@ -31,8 +26,12 @@ class RequestProxyServiceImplTest extends Specification {
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
         when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)
-        requestProxyService = new RequestProxyServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), "cluster", "node")
-        requestProxyService.setHttpClientService(httpClientService)
+        requestProxyService = new RequestProxyServiceImpl(
+                mock(ConfigurationService.class),
+                mock(HealthCheckService.class),
+                httpClientService,
+                "cluster",
+                "node")
     }
 
     def "Send a patch request with expected body and headers and return expected response"() {
@@ -51,7 +50,7 @@ class RequestProxyServiceImplTest extends Specification {
         byte[] sentBytes = [4, 5, 6] as byte[]
         def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
         def request = captor.getValue()
-        byte[] readBytes =  new byte[3]
+        byte[] readBytes = new byte[3]
         request.getEntity().getContent().read(readBytes)
         byte[] returnedBytes = new byte[3]
         response.data.read(returnedBytes)
