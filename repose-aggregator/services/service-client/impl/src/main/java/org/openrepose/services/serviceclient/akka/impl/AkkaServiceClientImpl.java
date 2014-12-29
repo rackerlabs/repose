@@ -36,7 +36,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private static final long FUTURE_CACHE_TTL = 500;
     private static final TimeUnit FUTURE_CACHE_UNIT = TimeUnit.MILLISECONDS;
-    private static final int CONNECTION_TIMEOUT_BUFFER_MILLIS = 5000;
+    private static final int CONNECTION_TIMEOUT_BUFFER_MILLIS = 1000;
 
     @Autowired
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
