@@ -1,7 +1,6 @@
 package org.openrepose.core.filter.logic.impl;
 
 import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterDirector;
@@ -35,8 +34,6 @@ public class FilterLogicHandlerDelegate {
    }
 
    public void doFilter(FilterLogicHandler handler) throws IOException, ServletException {
-      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
