@@ -60,8 +60,7 @@ public final class StringUriUtilities {
             }
         }
 
-        //Now this needs to normalize out any "//"
-        return builder.toString().replaceAll("//", "\\/");
+        return builder.toString();
     }
 
     /**
