@@ -31,7 +31,6 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private final ServiceClient serviceClient;
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
-    private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
     private final Cache<Object, Future> quickFutureCache;
 
@@ -42,7 +41,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     @Autowired
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
         this.serviceClient = getServiceClient(httpClientService);
-        numberOfActors = serviceClient.getPoolSize();
+        final int numberOfActors = serviceClient.getPoolSize();
 
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
