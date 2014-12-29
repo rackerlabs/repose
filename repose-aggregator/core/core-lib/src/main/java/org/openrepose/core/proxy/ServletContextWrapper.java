@@ -50,6 +50,8 @@ public class ServletContextWrapper extends DelegatingServletContext {
 
     @Override
     public ServletContext getContext(String uripath) {
+        LOG.debug("Getting a context for {}", uripath);
+
         final String uri = cleanPath(uripath);
         if (uri.matches("^https?://.*")) {
             return new ServletContextWrapper(this, uri, proxyService);
@@ -67,6 +69,7 @@ public class ServletContextWrapper extends DelegatingServletContext {
 
     private RequestDispatcher getDispatcher() {
         RequestDispatcher dispatcher = null;
+        LOG.debug("Getting request matcher for {}", target);
 
         if (target != null) {
             return new HttpRequestDispatcher(proxyService, targetContext);

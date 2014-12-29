@@ -52,6 +52,6 @@ public class ReposeInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(rootContext));
         servletContext.addServlet("emptyServlet", EmptyServlet.class).addMapping("/*");
         servletContext.addFilter("springDelegatingFilterProxy", new DelegatingFilterProxy("powerFilter"))
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+                .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     }
 }

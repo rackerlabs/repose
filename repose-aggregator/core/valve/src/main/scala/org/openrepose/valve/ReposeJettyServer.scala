@@ -111,8 +111,10 @@ class ReposeJettyServer(val clusterId: String,
     //Create a spring delegating proxy for a repose filter bean
     // THe name must match the Named bean name (powerFilter)
     val delegatingProxy = new DelegatingFilterProxy("powerFilter")
+    //delegatingProxy.setTargetFilterLifecycle(true) //TODO: why isn't this working?!?!?
     filterHolder.setFilter(delegatingProxy)
     filterHolder.setDisplayName("SpringDelegatingFilter")
+
 
     //All the dispatch types...
     val dispatchTypes = util.EnumSet.allOf(classOf[DispatcherType]) //Using what was in the old repose

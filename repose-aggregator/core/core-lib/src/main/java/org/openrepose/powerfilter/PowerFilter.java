@@ -234,6 +234,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                         //Only if we've been configured with some filters should we get a new list
                         List<FilterContext> newFilterChain;
                         if (listOfFilters != null) {
+                            //TODO: sometimes there isn't any FilterConfig available, and it'll be null...
                             newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), listOfFilters.getFilter());
                         } else {
                             //Running with no filters is a totally valid use case!
@@ -284,6 +285,8 @@ public class PowerFilter extends DelegatingFilterProxy {
          * NOTE: this thing alone provides the dispatcher for forwarding requests. It's really kind of gross.
          * we should seriously consider doing it in a ProxyServlet or something. Far less complicated.
          * getFilterConfig might be null sometimes, so just wrap it with existing servlet context
+         *
+         * TODO: this is broke if we set the container to create the FilterConfig, of course that doesn't give us a filterConfig either...
          */
         ServletContextWrapper wrappedServletContext = new ServletContextWrapper(getServletContext(), requestProxyService);
         setServletContext(wrappedServletContext);
