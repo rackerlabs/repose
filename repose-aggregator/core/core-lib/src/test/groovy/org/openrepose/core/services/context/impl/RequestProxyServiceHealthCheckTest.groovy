@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel.Node
 import org.openrepose.core.systemmodel.NodeList
 import org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl
@@ -47,7 +48,7 @@ class RequestProxyServiceHealthCheckTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        this.requestProxyService = new RequestProxyServiceImpl(configurationService, healthCheckService, "cluster", "node")
+        this.requestProxyService = new RequestProxyServiceImpl(configurationService, healthCheckService, mock(HttpClientService.class), "cluster", "node")
 
     }
 
@@ -88,7 +89,7 @@ class RequestProxyServiceHealthCheckTest extends Specification {
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        ListAppender app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
+        ListAppender app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear()
 
         when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.absent())
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
@@ -111,7 +112,9 @@ class RequestProxyServiceHealthCheckTest extends Specification {
 
         then:
         !listenerObject.isInitialized()
-        app.getEvents().find { it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model") }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model")
+        }
         verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity))
     }
