@@ -100,7 +100,7 @@ abstract class ReposeValveTest extends Specification {
                         // ClusterId and NodeID need to be known for what node we expect to be alive
                         // .*PowerFilter.* clusterId-nodeId: Repose Ready
                         logSearch.awaitByString(
-                                "PowerFilter.*-.*Repose ready").size() > 0){
+                                "Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0){
                     return true
                 }
                 try {
