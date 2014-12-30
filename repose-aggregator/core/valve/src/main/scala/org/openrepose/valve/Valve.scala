@@ -107,11 +107,20 @@ class Valve {
   }
 
   def shutdown() = {
-    val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])
-    //Tell the valve runner to unlatch
-    valveRunner.destroy()
+    try {
+      val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])
+      //Tell the valve runner to unlatch
+      valveRunner.destroy()
 
-    //Shutdown the spring context, which should kill everything
-    valveContext.stop()
+    } catch {
+      case e: Exception =>
+      //Unable to shut stuff down nicely, maybe because it's not been fired up yet...
+    }
+
+    if(valveContext.isActive && valveContext.isRunning) {
+      //Shutdown the spring context, which should kill everything
+      valveContext.stop()
+    }
+
   }
 }
