@@ -72,7 +72,10 @@ class ReposeValveLauncher extends ReposeLauncher {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting)
+        String clusterId = params.get('clusterId')
+        String nodeId = params.get('nodeId')
+
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
     }
 
     /**
@@ -80,7 +83,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -109,7 +112,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
-            if(doSuspend) {
+            if (doSuspend) {
                 debugProps += "y"
                 println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
             } else {
@@ -150,9 +153,14 @@ class ReposeValveLauncher extends ReposeLauncher {
                 connectViaJmxRemote(jmxUrl)
             }
 
-            print("Waiting for repose to start")
+            if(clusterId && nodeId){
+                print("Waiting for repose node: ${clusterId}:${nodeId} to start: ")
+            } else {
+                print("Waiting for repose auto-guessed node to start: ")
+            }
+
             waitForCondition(clock, '60s', '1s', {
-                isFilterChainInitialized()
+                isReposeNodeUp(clusterId, nodeId)
             })
         }
     }
@@ -227,7 +235,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * are all present and accounted for
      * @return
      */
-    private boolean isFilterChainInitialized() {
+    private boolean isReposeNodeUp(String clusterId = "", String nodeId = "") {
         print('.')
 
         //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
@@ -239,20 +247,20 @@ class ReposeValveLauncher extends ReposeLauncher {
         //If the systemModel didn't validate, we're going to toss an exception here, which is fine
 
         //Get the systemModel cluster/node, if there's only one we can guess. If there's many, bad things happen.
-        Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
+        if (clusterId == "" || nodeId == "") {
+            Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
 
-        def clusterId = ""
-        def nodeId = ""
 
-        if(clusterNodes.size() == 1) {
-            clusterId = clusterNodes.keySet().toList().first()
-            if(clusterNodes.get(clusterId).size() == 1) {
-                nodeId = clusterNodes.get(clusterId).first()
+            if (clusterNodes.size() == 1) {
+                clusterId = clusterNodes.keySet().toList().first()
+                if (clusterNodes.get(clusterId).size() == 1) {
+                    nodeId = clusterNodes.get(clusterId).first()
+                } else {
+                    throw new Exception("Unable to guess what nodeID you want in cluster: " + clusterId)
+                }
             } else {
-                throw new Exception("Unable to guess what nodeID you want in cluster: " + clusterId)
+                throw new Exception("Unable to guess what clusterID you want!")
             }
-        } else {
-            throw new Exception("Unable to guess what clusterID you want!")
         }
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
