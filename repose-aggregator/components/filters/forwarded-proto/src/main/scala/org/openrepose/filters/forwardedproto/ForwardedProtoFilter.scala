@@ -14,33 +14,28 @@ import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import scala.util.{Failure, Success}
 
 
 class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
 
+  private var handlerFactory: ForwardedProtoHandlerFactory = _
+
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("ForwardedProtoFilter filter initialized")
+    handlerFactory = new ForwardedProtoHandlerFactory();
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    logger.trace("X-Forwarded-Proto filter handling request...")
-
-    //stuff?
-    handleRequest(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
+    new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(handlerFactory.newHandler());
   }
 
   override def destroy(): Unit = {
     logger.trace("X-Forwarded-Proto filter destroyed")
   }
 
-  private def handleRequest(httpServletRequest: HttpServletRequest,
-                             httpServletResponse: HttpServletResponse) = {
-    val filterDirector = new FilterDirectorImpl()
-    val headerManager = filterDirector.requestHeaderManager()
 
-    headerManager.putHeader("X-Forwarded-Proto", httpServletRequest.getProtocol())
-
-    filterDirector
-  }
 }
+
+
