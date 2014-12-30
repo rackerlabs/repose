@@ -1,4 +1,5 @@
 package features.filters.apivalidator
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
@@ -6,10 +7,13 @@ import org.junit.experimental.categories.Category
 
 @Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
+
+    //Have to configure this with logic to get the hostname so that JMX works
+    static String hostname
+    static String PREFIX
+
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
-
-    String PREFIX = "\"repose-node-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
     String NAME_ROLE_1 = "\",name=\"role-1\""
     String NAME_ROLE_2 = "\",name=\"role-2\""
@@ -22,6 +26,10 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
 
     def setupSpec() {
+        //Configure the JMX stuff
+        hostname = InetAddress.getLocalHost().getHostName()
+        PREFIX = "\"${hostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
+
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
@@ -41,10 +49,10 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register Configuration MXBeans"() {
 
-        String ConfigurationBeanDomain = 'repose-node-org.openrepose.core.services.jmx:*'
+        String ConfigurationBeanDomain = "*org.openrepose.core.services.jmx:type=ConfigurationInformation"
         String ConfigurationClassName = "org.openrepose.core.services.jmx.ConfigurationInformation"
 
-        deproxy.makeRequest(url:reposeEndpoint + "/")
+        deproxy.makeRequest(url: reposeEndpoint + "/")
 
         when:
         def validatorBeans = repose.jmx.getMBeans(ConfigurationBeanDomain, ConfigurationClassName, 1)
@@ -56,7 +64,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register validator MXBeans"() {
 
-        deproxy.makeRequest(url:reposeEndpoint + "/")
+        deproxy.makeRequest(url: reposeEndpoint + "/")
 
         when:
         def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
@@ -67,7 +75,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
 
-        deproxy.makeRequest(url:reposeEndpoint + "/")
+        deproxy.makeRequest(url: reposeEndpoint + "/")
 
         given:
         def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
@@ -82,7 +90,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         afterUpdateBeans.size() == 2
         afterUpdateBeans.each { updatedBean ->
             beforeUpdateBeans.each {
-                assert(updatedBean.name != it.name)
+                assert (updatedBean.name != it.name)
             }
         }
     }
@@ -99,8 +107,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
@@ -121,8 +129,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-2']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
@@ -143,8 +151,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
@@ -165,8 +173,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
@@ -187,8 +195,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-1']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
@@ -209,8 +217,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1, role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-1, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-1, role-2']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
@@ -231,8 +239,8 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-2, role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-2, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
@@ -253,9 +261,9 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-3']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-3']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1']])
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
