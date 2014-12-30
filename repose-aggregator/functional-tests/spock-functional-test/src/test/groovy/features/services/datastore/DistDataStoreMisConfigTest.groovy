@@ -17,7 +17,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
 
 
-    @Unroll("When start data store config #configuration")
+    @Unroll("When start data store using config #configuration")
     def "Test data store with wrong config"() {
         given:
         def searchError = "Configuration update error. Reason: "
@@ -58,10 +58,10 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
     }
 
-    @Unroll("When start data store mismatch config #configuration")
+    @Unroll("When start data store mismatch for config #configuration")
     def "Test data store with mismatch config"() {
         given:
-        def searchError = "Configuration update error. Reason: port out of range:-1"
+        def searchError = "Unable to determine Distributed Datastore port for" //clusterId:nodeId
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
@@ -95,7 +95,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     @Unroll("When start data store with port out of range: #port")
     def "Test data store with port out of range"() {
         given:
-        def searchError = "port out of range:"+port
+        def searchError = "Unable to start Distributed Datastore Server instance on "+port
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
@@ -122,13 +122,13 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         }
 
         where:
-        port    << [65536,-1]
+        port    << [65536, -3] //-1 is used internally as "I can't find the port"
     }
 
     @Unroll("When start data store with reserved: #port")
     def "Test start data store with reserved ports"() {
         given:
-        def searchError = "Unable to start Distributed Datastore Jetty Instance: Permission denied"
+        def searchError = "Unable to start Distributed Datastore Server instance on ${port}"
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port

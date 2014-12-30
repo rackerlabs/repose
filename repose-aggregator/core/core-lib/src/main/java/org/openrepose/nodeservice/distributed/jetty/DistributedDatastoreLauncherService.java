@@ -121,7 +121,7 @@ public class DistributedDatastoreLauncherService {
                 //extract data and do things with it?
                 int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, clusterId, nodeId);
                 if (ddPort == -1) {
-                    LOG.error("Distributed datastore port is not defined, fell back to -1");
+                    LOG.error("Unable to determine Distributed Datastore port for {}:{}", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(DD_PORT_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
                     return;
                 }
@@ -155,9 +155,11 @@ public class DistributedDatastoreLauncherService {
                 //If we have a port that's different than the other port, restart it on the new port
                 if (ddServer.isPresent()) {
                     try {
+                        int existingPort = ddServer.get().getPort();
+                        LOG.info("Updating existing Distributed Datastore Server instance on {} to {}", existingPort, ddPort);
                         ddServer.get().runServer(ddPort);
                     } catch (Exception e) {
-                        LOG.error("Failure ensuring Distributed Datastore on port {}", ddPort, e);
+                        LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
                     }
 
                     //Update the Servlet ClusterView and ACL

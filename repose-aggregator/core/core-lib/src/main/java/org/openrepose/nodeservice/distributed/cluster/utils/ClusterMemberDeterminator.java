@@ -58,6 +58,7 @@ public class ClusterMemberDeterminator {
     * @return
     */
    public static int getNodeDDPort(DistributedDatastoreConfiguration config, String clusterId, String nodeId) {
+      LOG.debug("Finding DistDatastore Port for cluster: {} node: {}", clusterId, nodeId);
       int port = getDefaultDDPort(config, clusterId);
       for (Port curPort : config.getPortConfig().getPort()) {
          if (curPort.getCluster().equalsIgnoreCase(clusterId) && curPort.getNode().equalsIgnoreCase(nodeId)) {
