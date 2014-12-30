@@ -22,8 +22,8 @@ import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class uses configuration info to subscribe and unsubscribe from filters.
@@ -33,7 +33,7 @@ import java.util.Map;
 public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
-    private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
+    private final ConcurrentMap<ParserPoolKey, WeakReference<ConfigurationParser>> parserPoolCache;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
     private final String configRoot;
@@ -45,7 +45,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     ) {
         setUpdateManager(configurationUpdateManager);
         this.configRoot = configRoot;
-        parserLookaside = new HashMap<>();
+        parserPoolCache = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -63,7 +63,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public void destroy() {
-        parserLookaside.clear();
+        parserPoolCache.clear();
         updateManager.destroy();
     }
 
@@ -148,23 +148,62 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * @return
      */
     private <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource) {
-        final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
+        //The configuration class and the XSD stream source are the keys for finding a parser
+        ParserPoolKey pk = new ParserPoolKey(configurationClass, xsdStreamSource);
+
+        final WeakReference<ConfigurationParser> parserReference = parserPoolCache.get(pk);
         ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
+
+        LOG.debug("Parser found from the reference is {}", parser);
 
         //Use the classloader of the desired marshalling destination
         ClassLoader loader = configurationClass.getClassLoader();
 
         if (parser == null) {
+            LOG.debug("Creating new jaxbConfigurationParser for the given configuration class: {}", configurationClass);
             try {
                 parser = JaxbConfigurationParser.getXmlConfigurationParser(configurationClass, xsdStreamSource, loader);
             } catch (JAXBException e) {
                 throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser!", e);
             }
 
-            parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
+            parserPoolCache.put(pk, new WeakReference<ConfigurationParser>(parser));
         }
 
         return parser;
     }
 
+    /**
+     * Generated a class to contain Parser Pool Keys, because we've got a multi-object key
+     */
+    private class ParserPoolKey {
+        private final Class clazz;
+        private final URL xsdUrl;
+
+        public ParserPoolKey(Class clazz, URL xsdUrl){
+
+            this.clazz = clazz;
+            this.xsdUrl = xsdUrl;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ParserPoolKey that = (ParserPoolKey) o;
+
+            if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
+            if (xsdUrl != null ? !xsdUrl.equals(that.xsdUrl) : that.xsdUrl != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = clazz != null ? clazz.hashCode() : 0;
+            result = 31 * result + (xsdUrl != null ? xsdUrl.hashCode() : 0);
+            return result;
+        }
+    }
 }
