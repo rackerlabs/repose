@@ -14,7 +14,7 @@ import java.io.InputStream;
 
 public class TranslationPreProcessor {
 
-    private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+    private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", TranslationPreProcessor.class.getClassLoader());
     private final boolean jsonPreprocessing;
     private final MediaType contentType;
     private final InputStream input;

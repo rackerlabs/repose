@@ -36,7 +36,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
   public TranslationHandlerFactory(ConfigurationService configService, String configurationRoot, String config) {
 
-    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, null);
+    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, this.getClass().getClassLoader());
 
     requestProcessorPools = new ArrayList<XmlChainPool>();
     responseProcessorPools = new ArrayList<XmlChainPool>();
@@ -146,7 +146,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
   private void updateTransformerPool (String transFactoryClass) {
      if (!transformerFactory.getClass().getCanonicalName().equals(transFactoryClass)) {
-        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, null);
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, this.getClass().getClassLoader());
      }
   }
 

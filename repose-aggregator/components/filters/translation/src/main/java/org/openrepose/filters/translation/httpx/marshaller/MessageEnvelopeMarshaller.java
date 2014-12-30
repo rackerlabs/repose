@@ -20,7 +20,7 @@ public class MessageEnvelopeMarshaller extends ObjectFactoryUser implements org.
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.openrepose.core.httpx");
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.openrepose.core.httpx", this.getClass().getClassLoader());
 
             javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_SCHEMA_LOCATION, HTTPX_SCHEMA_LOCATION);
