@@ -72,8 +72,8 @@ class ReposeValveLauncher extends ReposeLauncher {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
 
-        String clusterId = params.get('clusterId')
-        String nodeId = params.get('nodeId')
+        String clusterId = params.get('clusterId', "")
+        String nodeId = params.get('nodeId', "")
 
         start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
     }
@@ -235,7 +235,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * are all present and accounted for
      * @return
      */
-    private boolean isReposeNodeUp(String clusterId = "", String nodeId = "") {
+    private boolean isReposeNodeUp(String clusterId, String nodeId) {
         print('.')
 
         //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
@@ -249,7 +249,6 @@ class ReposeValveLauncher extends ReposeLauncher {
         //Get the systemModel cluster/node, if there's only one we can guess. If there's many, bad things happen.
         if (clusterId == "" || nodeId == "") {
             Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
-
 
             if (clusterNodes.size() == 1) {
                 clusterId = clusterNodes.keySet().toList().first()
