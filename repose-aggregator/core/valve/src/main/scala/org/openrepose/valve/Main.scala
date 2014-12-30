@@ -10,6 +10,6 @@ object Main extends App {
   }
 
   val exitCode = valve.execute(args, System.in, System.out, System.err, config)
-  
+
   sys.exit(exitCode)
 }

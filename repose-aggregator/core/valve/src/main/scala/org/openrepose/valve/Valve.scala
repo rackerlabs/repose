@@ -107,7 +107,11 @@ class Valve {
   }
 
   def shutdown() = {
+    val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])
+    //Tell the valve runner to unlatch
+    valveRunner.destroy()
+
     //Shutdown the spring context, which should kill everything
-    valveContext.close()
+    valveContext.stop()
   }
 }

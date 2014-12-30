@@ -105,6 +105,9 @@ public class CoreSpringProvider {
 
             coreContext.refresh();
 
+            //Make sure that once it's configured, it's registered to be shut down
+            coreContext.registerShutdownHook();
+
             configured = true;
         } else {
             //TODO: should this throw some kind of exception, or just log failures silently?

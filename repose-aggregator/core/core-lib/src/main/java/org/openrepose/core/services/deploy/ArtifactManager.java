@@ -23,10 +23,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -46,6 +43,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private final ConcurrentHashMap<String, String> artifactApplicationNames = new ConcurrentHashMap<>();
 
     private DestroyableThreadWrapper watcherThread;
+    private final String unpackPrefix = UUID.randomUUID().toString();
 
     private final ConcurrentHashMap<String, EarClassLoaderContext> classLoaderContextMap = new ConcurrentHashMap<>();
 
@@ -83,6 +81,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     @PreDestroy
     public void destroy() {
+        LOG.debug("Artifact manager going down!");
         //We can't do much else here, in theory if this is being destroyed the core context is going down, so it's probably all over anyway
         classLoaderContextMap.clear();
 
@@ -90,7 +89,9 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             eventService.squelch(this, ApplicationArtifactEvent.class);
 
             if (containerConfigurationListener.isAutoClean()) {
-                delete(containerConfigurationListener.getDeploymentDirectory());
+                File deployDir = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
+                LOG.debug("CLEANING container deployment directory: {}", deployDir.getAbsolutePath());
+                delete(deployDir);
             }
         } finally {
             watcherThread.destroy();
@@ -174,8 +175,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         EarClassLoaderContext context = null;
 
         try {
-            //Make sure we have a location to deploy to
-            File unpackRoot = containerConfigurationListener.getDeploymentDirectory();
+            //Make sure we have a location to deploy to -- Within our deploy root, derp
+            File unpackRoot = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
 
             unpackRoot.mkdirs(); //Make the unpack root and then validate it
             //NOTE: this guy throws all sorts of runtime exceptions :(
