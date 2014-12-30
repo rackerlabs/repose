@@ -4,13 +4,14 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
+import spock.lang.Shared
 
 @Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
 
     //Have to configure this with logic to get the hostname so that JMX works
-    static String hostname
-    static String PREFIX
+    @Shared
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
@@ -26,10 +27,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
 
     def setupSpec() {
-        //Configure the JMX stuff
-        hostname = InetAddress.getLocalHost().getHostName()
-        PREFIX = "\"${hostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
-
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
