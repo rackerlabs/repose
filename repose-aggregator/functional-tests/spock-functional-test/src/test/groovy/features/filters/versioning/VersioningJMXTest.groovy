@@ -2,6 +2,7 @@ package features.filters.versioning
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
+import framework.ReposeValveTest
 import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -17,23 +18,17 @@ import spock.lang.Specification
  */
 
 @Category(Slow.class)
-class VersioningJMXTest extends Specification {
+class VersioningJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"Versioning\",scope=\"versioning\""
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"Versioning\",scope=\"versioning\""
 
     String VERSION_UNVERSIONED = "${PREFIX},name=\"Unversioned\""
     String VERSION_V1 = "${PREFIX},name=\"v1\""
     String VERSION_V2 = "${PREFIX},name=\"v2\""
 
-    Deproxy deproxy
-
-    TestProperties properties
     Map params
     ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
-
     def setup() {
-
         properties = new TestProperties()
 
         // start deproxy
@@ -43,7 +38,6 @@ class VersioningJMXTest extends Specification {
 
 
         // configure and start repose
-
         reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
         repose = new ReposeValveLauncher(
