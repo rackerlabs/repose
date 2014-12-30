@@ -2,6 +2,7 @@ package features.filters.headerNormalization
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
+import framework.ReposeValveTest
 import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -9,9 +10,9 @@ import org.rackspace.deproxy.Deproxy
 import spock.lang.Specification
 
 @Category(Slow.class)
-class HeaderNormalizationJMXTest extends Specification {
+class HeaderNormalizationJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
 
     String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
     String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""
@@ -28,13 +29,8 @@ class HeaderNormalizationJMXTest extends Specification {
     int reposePort
     int originServicePort
     String urlBase
-
-    Deproxy deproxy
-
-    TestProperties  properties
     Map params
     ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
 
     def setup() {
 
