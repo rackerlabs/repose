@@ -89,7 +89,7 @@ abstract class ReposeValveTest extends Specification {
             waitForCondition(clock, '35s', '1s', {
                 if(checkLogMessage &&
                         logSearch.awaitByString(
-                                "org.openrepose.core.filter.PowerFilter  - Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0){
+                                "Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0){
                     return true
                 }
                 try {
