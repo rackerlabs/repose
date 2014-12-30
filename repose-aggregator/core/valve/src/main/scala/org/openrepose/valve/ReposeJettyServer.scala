@@ -10,6 +10,7 @@ import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
+import org.openrepose.powerfilter.EmptyServlet
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
@@ -96,10 +97,8 @@ class ReposeJettyServer(val clusterId: String,
     s.setConnectors(connectors)
 
     val contextHandler = new ServletContextHandler()
-    //NOTE: not adding a servlet on purpose, repose logic currently short-circuits the servlet chain and has something
-    // else handle it during the filter chain.
-
-    //ALSO NOTE: it's probably much simpler to use a servlet proxy, instead of wrapping and delegating insanity.
+    contextHandler.setContextPath("/")
+    contextHandler.addServlet(classOf[EmptyServlet], "/*")
 
     val cll = new ContextLoaderListener(appContext)
     contextHandler.addEventListener(cll)
