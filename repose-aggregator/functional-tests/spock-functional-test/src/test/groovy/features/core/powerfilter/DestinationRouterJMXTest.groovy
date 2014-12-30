@@ -6,23 +6,16 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
 @Category(Slow.class)
-class DestinationRouterJMXTest extends ReposeValveTest{
+class DestinationRouterJMXTest extends ReposeValveTest {
 
-    String PREFIX
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
     String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""
 
-    String DESTINATION_ROUTER_TARGET
-    String DESTINATION_ROUTER_ALL
+    String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
+    String DESTINATION_ROUTER_ALL = PREFIX + "destination-router" + NAME_TARGET_ALL
 
     def setup() {
-
-        def hostname = InetAddress.getLocalHost().getHostName()
-        PREFIX = "\"${hostname}-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
-
-        DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
-        DESTINATION_ROUTER_ALL = PREFIX + "destination-router" + NAME_TARGET_ALL
-
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
