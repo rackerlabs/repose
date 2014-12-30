@@ -14,6 +14,12 @@ import org.rackspace.deproxy.MessageChain
 
 abstract class ReposeValveTest extends Specification {
 
+    /**
+     * Used to get the JMX hostname when needing to resolve JMX stuff
+     */
+    @Shared
+    String jmxHostname = InetAddress.getLocalHost().getHostName()
+
     @Shared
     def ReposeLauncher repose
 
