@@ -334,6 +334,14 @@
                 <scope>test</scope>
             </dependency>
 
+
+            <!-- Handy jetbrains annotations for use in the IDE, doesn't hurt anything else -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>13.0</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
