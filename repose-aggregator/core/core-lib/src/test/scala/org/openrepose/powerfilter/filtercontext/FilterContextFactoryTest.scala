@@ -1,6 +1,6 @@
 package org.openrepose.powerfilter.filtercontext
 
-import javax.servlet.FilterConfig
+import javax.servlet.{ServletContext, FilterConfig}
 
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 
   val appContext = CoreSpringProvider.getInstance().getCoreContext
 
-  val mockFilterConfig = mock[FilterConfig]
+  val mockServletContext = mock[ServletContext]
 
   def reposeEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
     //Use the new ear provider to get the classloader for the tests
@@ -61,7 +61,7 @@ import scala.collection.JavaConverters._
     val jaxbFilterConfig = new Filter()
     jaxbFilterConfig.setName("test-filter")
 
-    val filterContexts = fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+    val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
 
     filterContexts shouldNot be(null)
     filterContexts shouldNot be(empty)
@@ -83,7 +83,7 @@ import scala.collection.JavaConverters._
     val jaxbFilterConfig = new Filter()
     jaxbFilterConfig.setName("test-filter")
 
-    val filterContexts = fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+    val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
 
     filterContexts shouldNot be(null)
     filterContexts shouldNot be(empty)
@@ -108,7 +108,7 @@ import scala.collection.JavaConverters._
     jaxbFilterConfig2.setName("test-filter")
     jaxbFilterConfig2.setId("filter2")
 
-    val filterContexts = fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig, jaxbFilterConfig2).asJava)
+    val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig, jaxbFilterConfig2).asJava)
     filterContexts shouldNot be(null)
     filterContexts shouldNot be(empty)
     filterContexts.size() shouldBe 2
@@ -127,7 +127,7 @@ import scala.collection.JavaConverters._
       val jaxbFilterConfig = new Filter()
       jaxbFilterConfig.setName("test-filter")
 
-      val filterContexts = fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+      val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
 
       filterContexts.size shouldBe 1
       filterContexts.get(0).getFilterAppContext.getDisplayName should startWith("test-filter-")
@@ -143,7 +143,7 @@ import scala.collection.JavaConverters._
       jaxbFilterConfig.setName("test-filter")
       jaxbFilterConfig.setId("my-test-id")
 
-      val filterContexts = fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+      val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
 
       filterContexts.size shouldBe 1
       filterContexts.get(0).getFilterAppContext.getDisplayName should startWith("my-test-id-test-filter-")
@@ -168,7 +168,7 @@ import scala.collection.JavaConverters._
       jaxbFilterConfig.setName(filterName)
 
       val exception = intercept[FilterInitializationException] {
-        fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+        fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
       }
       val className = classMap(filterName)
       f(className, exception)
@@ -204,7 +204,7 @@ import scala.collection.JavaConverters._
       jaxbFilterConfig.setName("nopenopenope")
 
       val exception = intercept[FilterInitializationException] {
-        fcm.buildFilterContexts(mockFilterConfig, List(jaxbFilterConfig).asJava)
+        fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
       }
       exception.getMessage should be("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named nopenopenope")
     }

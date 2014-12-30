@@ -12,19 +12,19 @@ import java.util.Map;
 
 public class FilterConfigWrapper implements FilterConfig {
 
-    private final FilterConfig parent;
+    private final ServletContext servletContext;
     private final FilterType filterType;
     private final Map<String, String> initParams;
     private final String config;
 
-    public FilterConfigWrapper(FilterConfig parent, FilterType filterType, String config) {
+    public FilterConfigWrapper(ServletContext servletContext, FilterType filterType, String config) {
         if (filterType == null) {
             throw new IllegalArgumentException("filter type cannot be null");
         }
-        this.parent = parent;
+        this.servletContext = servletContext;
         this.filterType = filterType;
         this.config = config;
-        initParams = new HashMap<String, String>();
+        initParams = new HashMap<>();
 
         initParams.put("filter-config", config);
 
@@ -40,7 +40,7 @@ public class FilterConfigWrapper implements FilterConfig {
 
     @Override
     public ServletContext getServletContext() {
-        return parent.getServletContext();
+        return servletContext;
     }
 
     @Override

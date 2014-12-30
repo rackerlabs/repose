@@ -15,6 +15,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.util.*;
 
@@ -35,13 +36,13 @@ public class FilterContextFactory {
         this.classLoaderManagerService = classLoaderManagerService;
     }
 
-    public List<FilterContext> buildFilterContexts(FilterConfig filterConfig, List<Filter> filtersToCreate) throws FilterInitializationException {
+    public List<FilterContext> buildFilterContexts(ServletContext servletContext, List<Filter> filtersToCreate) throws FilterInitializationException {
         final List<FilterContext> filterContexts = new LinkedList<>();
 
         for (org.openrepose.core.systemmodel.Filter papiFilter : filtersToCreate) {
 
             if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
-                final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), filterConfig);
+                final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), servletContext);
                 filterContexts.add(context);
             } else {
                 LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " +
@@ -60,7 +61,7 @@ public class FilterContextFactory {
      * @return a FilterContext containing an instance of the filter and metatadata
      * @throws org.openrepose.powerfilter.FilterInitializationException
      */
-    private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, FilterConfig filterConfig) throws FilterInitializationException {
+    private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, ServletContext servletContext) throws FilterInitializationException {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
 
@@ -87,7 +88,7 @@ public class FilterContextFactory {
 
             final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
 
-            newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterType, filter.getConfiguration()));
+            newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration()));
 
             LOG.info("Filter Instance: {} successfully created", newFilterInstance);
 

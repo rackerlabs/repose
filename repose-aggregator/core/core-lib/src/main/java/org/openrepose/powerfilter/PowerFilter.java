@@ -235,7 +235,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                         List<FilterContext> newFilterChain;
                         if (listOfFilters != null) {
                             //TODO: sometimes there isn't any FilterConfig available, and it'll be null...
-                            newFilterChain = filterContextFactory.buildFilterContexts(getFilterConfig(), listOfFilters.getFilter());
+                            newFilterChain = filterContextFactory.buildFilterContexts(getServletContext(), listOfFilters.getFilter());
                         } else {
                             //Running with no filters is a totally valid use case!
                             newFilterChain = Collections.emptyList();
