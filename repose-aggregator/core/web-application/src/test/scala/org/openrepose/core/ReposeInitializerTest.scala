@@ -51,7 +51,7 @@ class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar{
       val filterRegistration: FilterRegistration.Dynamic = mock[FilterRegistration.Dynamic]
       when(context.addFilter(org.mockito.Matchers.eq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(filterRegistration)
       initializer.onStartup(context)
-      verify(filterRegistration).addMappingForUrlPatterns(util.EnumSet.of(DispatcherType.REQUEST), false, "/*")
+      verify(filterRegistration).addMappingForUrlPatterns(util.EnumSet.allOf(classOf[DispatcherType]), false, "/*")
     }
   }
 }
