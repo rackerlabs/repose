@@ -34,8 +34,8 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then:
-        logSearch.searchByString("my-test-log  - Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method").size() == 1
-        logSearch.searchByString("my-special-log  - Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method").size() == 1
+        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
 
         where:
         method << [
@@ -60,8 +60,8 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, defaultHandler: xmlResp)
 
         then:
-        logSearch.searchByString("my-test-log  - Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Response Code=$responseCode").size() == 1
-        logSearch.searchByString("my-special-log  - Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Response Code=$responseCode").size() == 1
+        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
 
         where:
         method   | responseCode
