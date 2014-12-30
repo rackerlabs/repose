@@ -4,17 +4,28 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 @RunWith(Enclosed.class)
 public class LogErrorListenerTest {
    public static class WhenTransformingXSLWithErrors {
+      private static final TransformerFactory XSLT_TRANSFORMER_FACTORY =
+              TransformerFactory.newInstance("javax.xml.transform.TransformerFactory", WhenTransformingXSLWithErrors.class.getClassLoader());
+
+      static {
+         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
+      }
+
+      private static Templates parseXslt(Source s) throws TransformerConfigurationException {
+         synchronized (XSLT_TRANSFORMER_FACTORY) {
+            return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
+         }
+      }
 
       public Templates getTestTemplate() throws Exception {
-         return TemplatesFactory.instance().parseXslt(WhenTransformingXSLWithErrors.class.getResource("/message.xsl"));
+         return WhenTransformingXSLWithErrors.parseXslt(new StreamSource(WhenTransformingXSLWithErrors.class.getResource("/message.xsl").openStream()));
       }
 
       @Test
