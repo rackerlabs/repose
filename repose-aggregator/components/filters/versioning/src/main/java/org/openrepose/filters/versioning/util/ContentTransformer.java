@@ -31,8 +31,9 @@ public class ContentTransformer {
     private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
     private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
+    //TODO: this needs to be a specific factory class...
     private static final TransformerFactory XSLT_TRANSFORMER_FACTORY =
-            TransformerFactory.newInstance("javax.xml.transform.TransformerFactory", ContentTransformer.class.getClassLoader());
+            TransformerFactory.newInstance("org.apache.xalan.xsltc.trax.TransformerFactoryImpl", ContentTransformer.class.getClassLoader());
 
     static {
         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
