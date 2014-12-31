@@ -21,8 +21,9 @@ import java.io.InputStream;
 public final class TransformHelper {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TransformHelper.class);
     private static final ExceptionLogger EXCEPTION_LOG = new ExceptionLogger(LOG);
+    //TODO: this should use a specific class name for the kind of factory we want... We could be providing saxon or xalan :|
     private static final TransformerFactory XSLT_TRANSFORMER_FACTORY =
-            TransformerFactory.newInstance("javax.xml.transform.TransformerFactory", TransformHelper.class.getClassLoader());
+            TransformerFactory.newInstance("org.apache.xalan.xsltc.trax.TransformerFactoryImpl", TransformHelper.class.getClassLoader());
 
     static {
         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
