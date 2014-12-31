@@ -27,18 +27,6 @@ class ForwardedProtoHandler extends AbstractFilterLogicHandler with LazyLogging{
     filterDirector
   }
 
-  override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    /*MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(request, response);
-    try {
-      mutableResponse.commitBufferToServletOutputStream();
-    } catch (IOException ex) {
-      LOG.error("Failed to flush output", ex);
-    }
-*/
-    new FilterDirectorImpl();
-  }
-
-
 }
 
 
