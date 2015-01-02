@@ -1,6 +1,7 @@
 #!/bin/bash
+START=$(date +"%s")
+echo -en "Starting at: $(date)\n"
 
-pushd `pwd`
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 #export REPOSE_DIR=${SCRIPT_DIR}/../../../
 export VAGRANT_DIR=${SCRIPT_DIR}/target/Vagrant
@@ -29,4 +30,8 @@ else
     echo -e "After reviewing the state of the VM at: ${VAGRANT_DIR}\n"
     echo -e "Destroy it and remove the directory:    vagrant destroy -f\n\n"
 fi
-popd
+
+STOP=$(date +"%s")
+DIFF=$(($STOP-$START))
+echo -en "\nTotal time: $(($DIFF / 60)) minutes and $(($DIFF % 60)) seconds\n"
+echo -en "Finished at: $(date)\n"
