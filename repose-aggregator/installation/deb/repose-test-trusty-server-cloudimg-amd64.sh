@@ -23,8 +23,7 @@ vagrant up
 vagrant ssh -c "/vagrant/repose-test-genric-deb.sh && /vagrant/repose-test-genric-all.sh"
 if [ "$?" -eq 0 ]; then
     vagrant destroy -f
-    echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
-    echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
+    echo -e "\n\nReview the test output at: ${VAGRANT_DIR}/repose-curl.out\n"
 else
     echo -e "\n\nDid not destroy the VM since there was an error.\n"
     echo -e "After reviewing the state of the VM at: ${VAGRANT_DIR}\n"
