@@ -138,7 +138,7 @@
     </filter>
 
     <filter>
-        <filter-name>ForwardedProtoFilter</filter-name>
-        <filter-class>org.openrepose.filters.forwardedproto.FowardedProtoFilter</filter-class>
+        <filter-name>forwarded-proto</filter-name>
+        <filter-class>org.openrepose.filters.forwardedproto.ForwardedProtoFilter</filter-class>
     </filter>
 </web-fragment>
