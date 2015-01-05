@@ -16,8 +16,9 @@ class HerpSimpleTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs('features/filters/herp', params)
-        repose.start(waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(reposeEndpoint)
+        repose.start()
+        //repose.start(waitOnJmxAfterStarting: false)
+        //repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {

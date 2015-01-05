@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <!--<filter name="herp"/>-->
+            <filter name="herp"/>
         </filters>
 
         <destinations>
