@@ -8,19 +8,20 @@ import org.rackspace.deproxy.Response
 
 class ServletContractFilterTest extends ReposeValveTest {
 
-    def splodeDate = new Date(2015 - 1900, Calendar.JANUARY, 1, 9, 0)
+    def splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1)
 
     /**
      * This test fails because repose does not properly support the servlet filter contract.
      * It should not fail.
      *
-     * This test is ignored until JULY of 2014. The same splosion date as other ones. It should probably be ignored
-     * until further than that, but I'm not sure what to do about that there.
-     * @return
+     * This test is currently ignored until the splodeDate.
+     *
+     * It should be corrected in REP-320:
+     * https://repose.atlassian.net/browse/REP-320
      */
     def "Proving that a custom filter (although tightly coupled) does in fact work" () {
         setup:
-        Assume.assumeTrue(new Date() > splodeDate)
+        Assume.assumeTrue(new Date() > splodeDate.getTime())
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
