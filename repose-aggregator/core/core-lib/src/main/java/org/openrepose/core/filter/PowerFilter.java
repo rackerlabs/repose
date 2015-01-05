@@ -1,18 +1,13 @@
 package org.openrepose.core.filter;
 
 import com.google.common.base.Optional;
-import org.openrepose.core.ResponseCode;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.filter.ApplicationContextAwareFilter;
-import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.ResponseCode;
 import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.systemmodel.Destination;
-import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.context.ContextAdapter;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
@@ -20,10 +15,14 @@ import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventListener;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.Severity;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +81,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-            List<String> uniqueArtifactList = new ArrayList<String>();
+            List<String> uniqueArtifactList = new ArrayList<>();
 
             for (String artifactName : e.payload()) {
                 if (!uniqueArtifactList.contains(artifactName)) {
@@ -190,10 +189,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         LOG.info("Repose ready");
     }
 
-    protected SystemModel getCurrentSystemModel() {
-        return currentSystemModel;
-    }
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
@@ -252,7 +247,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
         long streamLimit = papiContext.containerConfigurationService().getContentBodyReadLimit();
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
