@@ -25,6 +25,14 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Let's use Scala -->
         <dependency>
