@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
+    <filter>
+        <filter-name>test-filter-third</filter-name>
+        <filter-class>org.openrepose.filters.loadertestfilterthree.commonfilter.ThirdFilter</filter-class>
+    </filter>
+</web-fragment>

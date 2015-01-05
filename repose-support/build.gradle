@@ -1,0 +1,244 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "http://repository.jboss.org/nexus/content/groups/public/" }
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
+}
+
+configure(allprojects) {
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+}
+
+allprojects {
+    apply plugin: 'idea'
+}
+
+subprojects {
+    apply plugin: 'scala'
+    group = 'org.openrepose.filters.core.test'
+    version = '1.4'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile "org.scala-lang:scala-library:2.10.4"
+    }
+
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+
+    task 'create-dirs' << {
+        sourceSets.all { set ->
+            set.allSource.srcDirs.each {it.mkdirs()}
+        }
+    }
+}
+
+//by default project name and directory name match
+project(':core-test-filter') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-one') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+        compile  'org.apache.commons:commons-lang3:3.3.2'
+    }
+}
+
+project(':loader-test-filter-two') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-three') {
+    dependencies {
+        runtime project(':loader-test-filter-one')
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-four') {
+    dependencies {
+        compile project(':loader-test-filter-one')
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':loader-test-filter-five') {
+    dependencies {
+        compile project(':loader-test-filter-two')
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':core-test-filter-bundle') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':core-test-filter')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-one') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-one')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-two') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-two')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-three') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        //earlib project(':core-test-bundle-class-loader-one')
+        deploy project(':loader-test-filter-three')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-four') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-four')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':core-test-filter-bundle-class-loader-five') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':loader-test-filter-five')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}

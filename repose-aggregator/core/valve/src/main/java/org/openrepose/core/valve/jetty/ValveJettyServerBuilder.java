@@ -1,13 +1,5 @@
 package org.openrepose.core.valve.jetty;
 
-import org.openrepose.core.valve.jetty.servlet.ProxyServlet;
-import org.openrepose.core.container.config.SslConfiguration;
-import org.openrepose.core.domain.Port;
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.filter.ValvePowerFilter;
-import org.openrepose.core.services.context.impl.PowerApiContextManager;
-import org.openrepose.core.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -15,8 +7,16 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.openrepose.core.container.config.SslConfiguration;
+import org.openrepose.core.domain.Port;
+import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.domain.ServicePorts;
+import org.openrepose.core.services.context.impl.PowerApiContextManager;
+import org.openrepose.core.servlet.InitParameter;
+import org.openrepose.core.valve.jetty.servlet.ProxyServlet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -57,7 +57,8 @@ public class ValveJettyServerBuilder {
         server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
 
         final ServletContextHandler rootContext = buildRootContext(server);
-        final FilterHolder powerFilterHolder = new FilterHolder(ValvePowerFilter.class);
+        //TODO: this will all be replaced in the valve work story thingy
+        final FilterHolder powerFilterHolder = new FilterHolder(Filter.class);
         final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
         rootContext.addFilter(powerFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
@@ -97,7 +98,8 @@ public class ValveJettyServerBuilder {
         ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
         try {
             PowerApiContextManager contextManager = PowerApiContextManager.class.newInstance();
-            contextManager.setPorts(ports,instanceInfo);
+            //THis is a spring property thing instead
+            //contextManager.setPorts(ports,instanceInfo);
             servletContext.addEventListener(contextManager);
         } catch (InstantiationException e) {
             throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);

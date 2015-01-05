@@ -1,6 +1,7 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.filter.filtercontext.FilterContext;
 import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.context.impl.RoutingServiceContext;
@@ -37,14 +38,12 @@ public class RequestFilterChainStateTest {
             List<FilterContext> filterContextList = new ArrayList<FilterContext>();
             Filter mockedFilter = mock(Filter.class);
             FilterContext mockedFilterContext = mock(FilterContext.class);
-            ClassLoader mockedClassLoader = mock(ClassLoader.class);
             ServletContext context = mock(ServletContext.class);
             ApplicationContext appContext = mock(ApplicationContext.class);
             RoutingServiceContext routingContext = mock(RoutingServiceContext.class);
             ContainerConfigurationService containerConfigurationService = mock(ContainerConfigurationService.class);
             when(containerConfigurationService.getVia()).thenReturn("");
             when(mockedFilterContext.getFilter()).thenReturn(mockedFilter);
-            when(mockedFilterContext.getFilterClassLoader()).thenReturn(mockedClassLoader);
             when(appContext.getBean(anyString())).thenReturn(routingContext);
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);

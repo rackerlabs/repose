@@ -5,6 +5,7 @@ import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.domain.ReposeInstanceInfo;
+import org.openrepose.core.filter.filtercontext.FilterContext;
 import org.openrepose.core.filter.intrafilterLogging.RequestLog;
 import org.openrepose.core.filter.intrafilterLogging.ResponseLog;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
@@ -126,6 +127,13 @@ public class PowerFilterChain implements FilterChain {
         return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
     }
 
+    /**
+     * This feels like a really bad thing to do, and might be the cause of our classloading problems.
+     * It has been removed from all the filter stuff, and shouldn't be used at all :(
+     * @param loader What classloader to set
+     * @return The previous classloader
+     */
+    @Deprecated
     private ClassLoader setClassLoader(ClassLoader loader) {
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
@@ -139,7 +147,6 @@ public class PowerFilterChain implements FilterChain {
             FilterContext filterContext) throws IOException, ServletException {
         final MutableHttpServletResponse mutableHttpResponse =
                 MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
-        ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
 
         mutableHttpResponse.pushOutputStream();
 
@@ -161,7 +168,6 @@ public class PowerFilterChain implements FilterChain {
             mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
         } finally {
             mutableHttpResponse.popOutputStream();
-            setClassLoader(previousClassLoader);
         }
     }
 
