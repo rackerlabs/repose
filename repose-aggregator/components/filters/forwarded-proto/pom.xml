@@ -51,6 +51,20 @@
             <artifactId>http-delegation</artifactId>
         </dependency>
 
+        <!-- MutableHttpServletRequest -->
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+
+        <!-- Mockrunner for mock HttpServletRequest -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Lazy logging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>

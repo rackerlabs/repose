@@ -1,22 +1,11 @@
 package org.openrepose.filters.forwardedproto
 
 import javax.servlet._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.MediaType
+import javax.servlet.http.HttpServletRequest
 
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode, OpenStackServiceHeader}
-import org.openrepose.core.filter.logic.FilterAction
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.services.context.ServletContextHelper
-import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.json.Json
-
-import scala.collection.JavaConverters._
-import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
-import scala.util.{Failure, Success}
-
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 
 /**
  * The sole purpose of this filter is to add the X-Forwarded-Proto header to a request with a value which
@@ -24,22 +13,29 @@ import scala.util.{Failure, Success}
  */
 class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
 
-  private var handlerFactory: ForwardedProtoHandlerFactory = _
+  private final val X_FORWARDED_PROTO = "X-Forwarded-Proto"
 
   override def init(filterConfig: FilterConfig): Unit = {
-    logger.trace("ForwardedProtoFilter filter initialized")
-    handlerFactory = new ForwardedProtoHandlerFactory();
+    logger.trace("ForwardedProto filter initialized")
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(handlerFactory.newHandler());
+    val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
+
+    if (Option(httpServletRequest.getHeader(X_FORWARDED_PROTO)).isEmpty) {
+      logger.debug(s"Adding the $X_FORWARDED_PROTO header")
+
+      val mutableHttpServletRequest = MutableHttpServletRequest.wrap(httpServletRequest)
+      mutableHttpServletRequest.addHeader(X_FORWARDED_PROTO, servletRequest.getProtocol)
+
+      filterChain.doFilter(mutableHttpServletRequest, servletResponse)
+    } else {
+      logger.debug("Passing the request without modifying headers")
+      filterChain.doFilter(servletRequest, servletResponse)
+    }
   }
 
   override def destroy(): Unit = {
-    logger.trace("X-Forwarded-Proto filter destroyed")
+    logger.trace("ForwardedProto filter destroyed")
   }
-
-
 }
-
-
