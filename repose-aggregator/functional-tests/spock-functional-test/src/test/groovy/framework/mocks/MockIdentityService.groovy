@@ -120,6 +120,7 @@ class MockIdentityService {
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
     def admin_userid = 67890;
+    def sleeptime =0;
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -345,7 +346,9 @@ class MockIdentityService {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-
+        if(sleeptime > 0) {
+            sleep(sleeptime)
+        }
         return new Response(code, null, headers, body)
     }
 
