@@ -1,6 +1,7 @@
 #!/bin/bash
+START=$(date +"%s")
+echo -en "Starting at: $(date)\n"
 
-pushd `pwd`
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 #export REPOSE_DIR=${SCRIPT_DIR}/../../../
 export VAGRANT_DIR=${SCRIPT_DIR}/target/Vagrant
@@ -22,11 +23,14 @@ vagrant up
 vagrant ssh -c "/vagrant/repose-test-genric-rpm.sh && /vagrant/repose-test-genric-all.sh"
 if [ "$?" -eq 0 ]; then
     vagrant destroy -f
-    echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
-    echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
+    echo -e "\n\nReview the test output at: ${VAGRANT_DIR}/repose-curl.out\n"
 else
     echo -e "\n\nDid not destroy the VM since there was an error.\n"
     echo -e "After reviewing the state of the VM at: ${VAGRANT_DIR}\n"
     echo -e "Destroy it and remove the directory:    vagrant destroy -f\n\n"
 fi
-popd
+
+STOP=$(date +"%s")
+DIFF=$(($STOP-$START))
+echo -en "\nTotal time: $(($DIFF / 60)) minutes and $(($DIFF % 60)) seconds\n"
+echo -en "Finished at: $(date)\n"
