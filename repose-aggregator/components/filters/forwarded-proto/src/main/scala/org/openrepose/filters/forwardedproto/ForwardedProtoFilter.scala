@@ -18,6 +18,10 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import scala.util.{Failure, Success}
 
 
+/**
+ * The sole purpose of this filter is to add the X-Forwarded-Proto header to a request with a value which
+ * corresponds to the protocol of the request (e.g., http or https).
+ */
 class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
 
   private var handlerFactory: ForwardedProtoHandlerFactory = _

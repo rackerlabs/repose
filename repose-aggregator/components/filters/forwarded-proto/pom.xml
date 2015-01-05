@@ -13,10 +13,10 @@
 
     <artifactId>forwarded-proto</artifactId>
 
-    <name>Repose Components - forwarded-proto</name>
+    <name>Repose Components - Forwarded Protocol</name>
 
     <description>
-        This filter supports the x-forwarded-proto header.
+        This filter supports the X-Forwarded-Proto header.
     </description>
 
     <packaging>jar</packaging>
