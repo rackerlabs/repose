@@ -25,7 +25,6 @@
         <module>mocks-servlet</module>
         <module>spock-functional-test</module>
         <module>test-support</module>
-        <module>test-bundles</module>
     </modules>
 
 </project>
