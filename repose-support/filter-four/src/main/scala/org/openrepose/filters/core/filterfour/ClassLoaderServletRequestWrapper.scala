@@ -1,4 +1,4 @@
-package org.openrepose.filters.core.filterone
+package org.openrepose.filters.core.filterfour
 
 import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
 

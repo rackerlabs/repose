@@ -49,10 +49,19 @@
         <filter.bundle-two.ear>classloader-bundle-two-*.ear</filter.bundle-two.ear>
 
         <filter.bundle-three.dir>
-            ${project.support.dir}/core-test-filter-bundle-class-loader-three/build/libs
+            ${project.support.dir}/classloader-bundle-three/build/libs
         </filter.bundle-three.dir>
-        <filter.bundle-three.ear>core-test-filter-bundle-class-loader-three-*.ear</filter.bundle-three.ear>
+        <filter.bundle-three.ear>classloader-bundle-three-*.ear</filter.bundle-three.ear>
 
+        <filter.bundle-four.dir>
+            ${project.support.dir}/classloader-bundle-four/build/libs
+        </filter.bundle-four.dir>
+        <filter.bundle-four.ear>classloader-bundle-four-*.ear</filter.bundle-four.ear>
+
+        <filter.bundle-five.dir>
+            ${project.support.dir}/classloader-bundle-five/build/libs
+        </filter.bundle-five.dir>
+        <filter.bundle-five.ear>classloader-bundle-five-*.ear</filter.bundle-five.ear>
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
@@ -463,6 +472,22 @@
                 <directory>${filter.bundle-three.dir}</directory>
                 <includes>
                     <include>${filter.bundle-three.ear}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+            </testResource>
+
+            <testResource>
+                <directory>${filter.bundle-four.dir}</directory>
+                <includes>
+                    <include>${filter.bundle-four.ear}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+            </testResource>
+
+            <testResource>
+                <directory>${filter.bundle-five.dir}</directory>
+                <includes>
+                    <include>${filter.bundle-five.ear}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
