@@ -56,17 +56,16 @@ class ClassLoaderTest extends ReposeValveTest {
         //make a request with another header.  validate we get a failure back
         when: "make a request with the given header and value"
         def headers = [
-                'Content-Length': '0'
+                'FOO': '0'
         ]
         headers[headerName.toString()] = headerValue.toString()
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
 
 
-        then: "the request should keep headerName and headerValue case"
+        then: "the request should header BAR"
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.contains(headerName)
-        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+        mc.handlings[0].request.headers.contains("BAR")
     }
 
     def "test class loader two"(){
