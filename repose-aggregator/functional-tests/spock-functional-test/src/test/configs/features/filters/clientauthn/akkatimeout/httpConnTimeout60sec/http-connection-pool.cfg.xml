@@ -3,7 +3,7 @@
 <http-connection-pools xmlns="http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0">
 
     <pool id="default"
-          default="true"
+          default="false"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="30000"
@@ -16,7 +16,7 @@
           keepalive.timeout="0"/>
 
     <pool id="client-auth"
-          default="false"
+          default="true"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="60000"
