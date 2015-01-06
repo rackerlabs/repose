@@ -40,6 +40,7 @@
         <module>content-type-stripper</module>
         <module>add-header</module>
         <module>forwarded-proto</module>
+        <module>iri-validator</module>
     </modules>
 
     <dependencyManagement>
