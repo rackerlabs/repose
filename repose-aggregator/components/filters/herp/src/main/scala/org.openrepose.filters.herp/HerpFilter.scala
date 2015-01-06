@@ -88,7 +88,6 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       "timestamp" -> System.currentTimeMillis(),
       "responseCode" -> httpServletResponse.getStatus,
       "responseMessage" -> HttpStatusCode.fromInt(httpServletResponse.getStatus).name(),
-      // todo: "responseBody" -> ??? // wrap the request in mutable request to get the body
       "guid" -> java.util.UUID.randomUUID.toString,
       "serviceCode" -> serviceCode,
       "region" -> region,
@@ -109,8 +108,8 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   }
 
   override def configurationUpdated(config: HerpConfig): Unit = {
-    def template :StringReader = {
-      var  templateText = config.getTemplate.getValue.trim
+    def template: StringReader = {
+      var templateText = config.getTemplate.getValue.trim
       if(config.getTemplate.isCrush) {
         templateText = templateText.replaceAll("(?m)[ \\t]*(\\r\\n|\\r|\\n)[ \\t]*", " ")
       }
