@@ -151,11 +151,26 @@ project(':busted-web-fragment-ear') {
     }
 }
 
+project(':classloader-dependency-one') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':classloader-dependency-two') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+    }
+}
+
 project(':filter-one') {
     dependencies {
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
         provided 'org.apache.commons:commons-lang3:3.3.2'
+        compile project(':classloader-dependency-one')
     }
 }
 
@@ -163,6 +178,32 @@ project(':filter-two') {
     dependencies {
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
+    }
+}
+
+project(':filter-three') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+        compile project(':classloader-dependency-one')
+    }
+}
+
+project(':filter-four') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+        provided 'org.apache.commons:commons-lang3:3.3.2'
+        compile project(':classloader-dependency-one')
+    }
+}
+
+project(':filter-five') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api:3.1.0'
+        provided 'javax:javaee-api:6.0'
+        provided 'org.apache.commons:commons-lang3:3.3.2'
+        compile project(':classloader-dependency-two')
     }
 }
 
@@ -199,6 +240,81 @@ project(':classloader-bundle-two') {
 
     dependencies {
         deploy project(':filter-two')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':classloader-bundle-three') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':filter-three')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':classloader-bundle-four') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':filter-four')
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+
+project(':classloader-bundle-five') {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    dependencies {
+        deploy project(':filter-five')
     }
 
     publishing {

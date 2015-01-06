@@ -1,4 +1,4 @@
-package org.openrepose.filters.core.others
+package org.openrepose.others
 
 /**
  * Created by dimi5963 on 1/6/15.
