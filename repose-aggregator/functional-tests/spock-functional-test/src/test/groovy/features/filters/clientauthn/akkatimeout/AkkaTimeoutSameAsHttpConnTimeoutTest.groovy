@@ -1,11 +1,10 @@
 package features.filters.clientauthn.akkatimeout
 
-import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.junit.experimental.categories.Category
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
@@ -18,12 +17,10 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
     def static identityEndpoint
 
     def static MockIdentityService fakeIdentityService
-    def static ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
 
         deproxy = new Deproxy()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)

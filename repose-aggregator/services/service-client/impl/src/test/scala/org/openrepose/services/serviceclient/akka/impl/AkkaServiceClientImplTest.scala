@@ -133,7 +133,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
           }
         }
 
-        val timeouts = List(2000 /*, 30000, 45000, 55000, 90000*/)
+        val timeouts = List(55000, 45000 /*2000 , 30000, 45000, 55000, 90000*/)
         timeouts.foreach { timeout =>
           describe(s"with the Socket timeout set to $timeout millis") {
             val httpClientDefault = new DefaultHttpClient
