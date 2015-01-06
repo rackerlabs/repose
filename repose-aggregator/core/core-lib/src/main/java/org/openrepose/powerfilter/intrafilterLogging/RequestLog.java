@@ -28,7 +28,7 @@ public class RequestLog {
 
         preamble = "Intrafilter Request Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getName();
+        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
         httpMethod = mutableHttpServletRequest.getMethod();
         requestURI = mutableHttpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(mutableHttpServletRequest);

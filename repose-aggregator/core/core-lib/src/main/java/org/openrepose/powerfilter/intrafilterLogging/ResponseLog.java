@@ -25,7 +25,7 @@ public class ResponseLog {
 
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getName();
+        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
 
