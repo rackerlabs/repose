@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
+
+    <filter>
+        <filter-name>filter-one</filter-name>
+        <filter-class>org.openrepose.filters.one.FirstFilter</filter-class>
+    </filter>
+</web-fragment>
