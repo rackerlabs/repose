@@ -47,10 +47,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -251,6 +248,14 @@ public class PowerFilter extends DelegatingFilterProxy {
                             for (FilterContext ctx : oldFilterChain) {
                                 ctx.destroy();
                             }
+                        }
+
+                        if(LOG.isDebugEnabled()) {
+                            List<String> filterChainInfo = new LinkedList<>();
+                            for(FilterContext ctx :newFilterChain) {
+                                filterChainInfo.add(ctx.getName() + "-" + ctx.getFilter().getClass().getName());
+                            }
+                            LOG.debug("{}:{} -- Repose filter chain: {}", clusterId, nodeId, filterChainInfo);
                         }
 
                         //Only log this repose ready if we're able to properly fire up a new filter chain
