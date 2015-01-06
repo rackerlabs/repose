@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="filter-one" />
-            <filter name="filter-two" />
+            <filter name="filter-three" />
         </filters>
 
         <destinations>
