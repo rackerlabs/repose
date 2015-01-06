@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>7.0.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>iri-validator</artifactId>
+
+    <name>Repose Components - IRI Validator</name>
+
+    <description>
+        This filter validates that the request URI is a valid IRI.
+    </description>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
+    <dependencies>
+        <!-- Let's use Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <!-- Lazy logging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- The plugin that gets Scala running -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

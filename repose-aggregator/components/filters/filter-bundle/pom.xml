@@ -171,6 +171,12 @@
             <artifactId>forwarded-proto</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>iri-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -296,6 +302,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>forwarded-proto</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupIp>com.rackspace.papi.components</groupIp>
+                            <artifactId>iri-validator</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
