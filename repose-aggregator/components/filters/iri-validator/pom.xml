@@ -42,6 +42,13 @@
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
+
+        <!-- IRI Validator -->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-iri</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 
     <build>
