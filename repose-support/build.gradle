@@ -60,6 +60,7 @@ project(':core-test-filter-bundle') {
 
     dependencies {
         deploy project(':core-test-filter')
+        earlib project(':core-test-filter').configurations.runtime
     }
 
     publishing {
@@ -92,6 +93,7 @@ project(':second-filter-bundle') {
 
     dependencies {
         deploy project(':second-filter')
+        earlib project(':second-filter').configurations.runtime
     }
 
     publishing {
@@ -152,10 +154,6 @@ project(':busted-web-fragment-ear') {
 }
 
 project(':classloader-dependency-one') {
-    dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-    }
 }
 
 project(':classloader-dependency-two') {
@@ -169,7 +167,7 @@ project(':filter-one') {
     dependencies {
         provided 'javax.servlet:javax.servlet-api:3.1.0'
         provided 'javax:javaee-api:6.0'
-        provided 'org.apache.commons:commons-lang3:3.3.2'
+        compile 'org.apache.commons:commons-lang3:3.3.2'
         compile project(':classloader-dependency-one')
     }
 }
@@ -215,6 +213,7 @@ project(':classloader-bundle-one') {
 
     dependencies {
         deploy project(':filter-one')
+        earlib project(':filter-one').configurations.runtime
     }
 
     publishing {
@@ -240,6 +239,7 @@ project(':classloader-bundle-two') {
 
     dependencies {
         deploy project(':filter-two')
+        earlib project(':filter-two').configurations.runtime
     }
 
     publishing {
@@ -263,8 +263,10 @@ project(':classloader-bundle-three') {
     apply plugin: 'maven-publish'
     apply plugin: 'maven-publish-auth'
 
+    //NOTE you have to add earlib dependencies by hand, like scala
     dependencies {
         deploy project(':filter-three')
+        earlib project(':filter-three').configurations.runtime
     }
 
     publishing {
@@ -290,6 +292,7 @@ project(':classloader-bundle-four') {
 
     dependencies {
         deploy project(':filter-four')
+        earlib project(':filter-four').configurations.runtime
     }
 
     publishing {
@@ -315,6 +318,7 @@ project(':classloader-bundle-five') {
 
     dependencies {
         deploy project(':filter-five')
+        earlib project(':filter-five').configurations.runtime
     }
 
     publishing {
