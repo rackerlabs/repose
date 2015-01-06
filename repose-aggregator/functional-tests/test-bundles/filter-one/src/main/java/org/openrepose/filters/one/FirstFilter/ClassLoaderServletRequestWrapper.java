@@ -16,7 +16,7 @@ public class ClassLoaderServletRequestWrapper extends HttpServletRequestWrapper 
     @Override
     public String getHeader(String s) {
         if(StringUtils.startsWith(s, "FOO")){
-            s = new SimplicityDivine().createBar();
+            return new SimplicityDivine().createBar();
         }
         return super.getHeader(s);
     }

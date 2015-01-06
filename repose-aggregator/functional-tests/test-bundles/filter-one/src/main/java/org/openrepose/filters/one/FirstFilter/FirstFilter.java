@@ -15,7 +15,8 @@ public class FirstFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest)servletRequest;
+        ServletRequest request = (ServletRequest)new ClassLoaderServletRequestWrapper((HttpServletRequest)servletRequest);
+        filterChain.doFilter(request, servletResponse);
 
     }
 
