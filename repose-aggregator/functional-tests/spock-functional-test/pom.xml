@@ -24,6 +24,7 @@
         <repose.container>valve</repose.container>
 
         <project.set.dir>${project.basedir}/../..</project.set.dir>
+        <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
@@ -38,19 +39,19 @@
 
         <!-- adding the classloader filters for classloading tests -->
         <filter.bundle-one.dir>
-            ${project.set.dir}/functional-tests/test-bundles/bundle-one/target
+            ${project.support.dir}/classloader-bundle-one/build/libs
         </filter.bundle-one.dir>
-        <filter.bundle-one.ear>bundle-one-*.ear</filter.bundle-one.ear>
+        <filter.bundle-one.ear>classloader-bundle-one-*.ear</filter.bundle-one.ear>
 
         <filter.bundle-two.dir>
-            ${project.set.dir}/functional-tests/test-bundles/bundle-two/target
+            ${project.support.dir}/classloader-bundle-two/build/libs
         </filter.bundle-two.dir>
-        <filter.bundle-two.ear>bundle-two-*.ear</filter.bundle-two.ear>
+        <filter.bundle-two.ear>classloader-bundle-two-*.ear</filter.bundle-two.ear>
 
         <filter.bundle-three.dir>
-            ${project.set.dir}/functional-tests/test-bundles/bundle-three/target
+            ${project.support.dir}/core-test-filter-bundle-class-loader-three/build/libs
         </filter.bundle-three.dir>
-        <filter.bundle-three.ear>bundle-three-*.ear</filter.bundle-three.ear>
+        <filter.bundle-three.ear>core-test-filter-bundle-class-loader-three-*.ear</filter.bundle-three.ear>
 
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>

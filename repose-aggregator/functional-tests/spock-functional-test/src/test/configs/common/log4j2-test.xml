@@ -11,7 +11,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="trace">
             <AppenderRef ref="RollingFile"/>
         </Root>
         <Logger name="com.sun.jersey" level="off"/>
@@ -21,6 +21,6 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
-        <Logger name="intrafilter-logging" level="info"/>
+        <Logger name="intrafilter-logging" level="trace"/>
     </Loggers>
 </Configuration>

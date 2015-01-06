@@ -59,7 +59,7 @@ class ClassLoaderTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(url)
         when: "make a request with the FOO header"
         def headers = [
-                'header': 'FOO'
+                'FOO': 'stuff'
         ]
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
@@ -68,11 +68,11 @@ class ClassLoaderTest extends ReposeValveTest {
         then: "the request header should equal BAR"
         mc.handlings.size() == 1
         mc.receivedResponse.code == 200
-        mc.handlings[0].request.headers.getFirstValue("header") == "BAR"
+        mc.handlings[0].request.headers.getFirstValue("FOO") == "BAR"
 
         when: "make a request with the BAR header"
         headers = [
-                'header': 'BAR'
+                'BAR': 'stuff'
         ]
 
         mc = deproxy.makeRequest(url: url, headers: headers)
@@ -81,7 +81,7 @@ class ClassLoaderTest extends ReposeValveTest {
         then: "the request should bomb"
         mc.handlings.size() == 0
         mc.receivedResponse.code == 500
-        reposeLogSearch.searchByString("ArgumentException").size() > 0
+        reposeLogSearch.searchByString("IllegalArgumentException").size() > 0
     }
 
     /**
@@ -128,7 +128,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         when: "make a request with the FOO header"
         def headers = [
-                'header': 'FOO'
+                'FOO': 'stuff'
         ]
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
@@ -185,7 +185,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         when: "make a request with the FOO header"
         def headers = [
-                'header': 'FOO'
+                'FOO': 'stuff'
         ]
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
