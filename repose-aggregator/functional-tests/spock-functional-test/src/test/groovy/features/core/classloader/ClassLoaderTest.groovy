@@ -6,9 +6,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-/**
- * Created by dimi5963 on 1/5/15.
- */
+
 class ClassLoaderTest extends ReposeValveTest {
     static int originServicePort
     static int reposePort
@@ -27,9 +25,21 @@ class ClassLoaderTest extends ReposeValveTest {
      * start repose with the launcher
      * make a request with header foo. validate that header bar returns
      * make a request with another header.  validate we get a failure back
+     *
+     * Test Scenario #1: An ear file can access a dependency that is not present in another ear.
+     * 1. Create a simple class place it in a jar (JAR 1) which contains a method "createBAR" that returns the string "BAR"
+     * 2. EAR 1 has class as a dependency
+     * 3. EAR 1 contains a request wrapper the wrapper intercepts calls to get HEADER if the header is "FOO", then the wrapper makes a call to createBAR in the dependent class and returns it's result
+     * 4. EAR 1 contains the Foo filter which simply wraps the request and sends it down the chain.
+     * 5. EAR 2 contains a filter that simply calls the request and gets the "FOO" header – the expected result is to get "BAR"...otherwise fail.
+     * 6. Place both filters in system model EAR 1 filter before EAR 2 Filter
+     * 7. Send a request that DOES NOT contain the FOO header
+     * 8. That contains a FOO header with a value other than "BAR"
+     *
      */
 
-    def "test class loader one"(){
+
+    def "An ear file can access a dependency that is not present in another ear"(){
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
@@ -93,11 +103,14 @@ class ClassLoaderTest extends ReposeValveTest {
      *  filter-one
      *  filter-three
      *
-     * start repose with the launcher
-     * make a request with header foo. validate that ClassNotFoundException is logged
+     * Test Scenario #2: An ear file cannot access a dependency from another ear on its own
+     * 1. EAR 3 : contains a filter that simply tries to instantiate the simple class create in filter 1.
+     *   The filter does not list the jar as a dependency. (using class.forName to try to instantiate a string)
+     * 2. Place EAR 1 before EAR 3 in the system model
+     * 3. Send a request
+     * 4. Expected result is ClassNotFound
      */
-
-    def "test class loader two"(){
+    def "Ensure filter three (in filter-bundle-three) cannot reach a dependency in filter-bundle-one"(){
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
@@ -121,10 +134,7 @@ class ClassLoaderTest extends ReposeValveTest {
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/classloader/two", params)
 
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-
-        repose.waitForNon500FromUrl(url)
+        repose.start()
 
         when: "make a request with the FOO header"
         def headers = [
@@ -133,11 +143,9 @@ class ClassLoaderTest extends ReposeValveTest {
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
 
-
-        then: "the request should bomb horribly"
-        mc.handlings.size() == 0
-        mc.receivedResponse.code == 500
-        reposeLogSearch.searchByString("ClassNotFoundException").size() > 0
+        then: "The filter traps the exception and returns successfully"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
     }
 
     /**
