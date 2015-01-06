@@ -79,9 +79,9 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 613
+            client_tenant = 614
             service_admin_role = "not-admin"
-            client_userid = 1234
+            client_userid = 12345
             sleeptime = 62000
         }
 
@@ -98,6 +98,6 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code == "500"
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.net.SocketTimeoutException: Read timed out").size() > 0
+        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after [61000 milliseconds]").size() > 0
     }
 }

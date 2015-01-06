@@ -98,6 +98,6 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code == "500"
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.net.SocketTimeoutException: Read timed out").size() > 0
+        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .31000 milliseconds.").size() > 0
     }
 }
