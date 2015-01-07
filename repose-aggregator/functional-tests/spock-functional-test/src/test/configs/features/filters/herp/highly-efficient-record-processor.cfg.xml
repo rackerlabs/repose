@@ -1,7 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- The id attribute is the named target of the log output,
- it can then be used in log4j backend to determine which appender to go to -->
 <highly-efficient-record-processor xmlns="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
                                    logger-name="highly-efficient-record-processor" service-code="repose" region="USA"
-                                   data-center="DFW"/>
+                                   data-center="DFW">
+    <template crush="true">
+        {
+         "GUID" : "{{guid}}",
+         "ServiceCode" : "{{serviceCode}}",
+         "Region" : "{{region}}",
+         "DataCenter" : "{{dataCenter}}",
+         "Timestamp" : "{{timestamp}}",
+         "Request" : {
+           "Method" : "{{requestMethod}}",
+           "URL" : "{{requestURL}}",
+           "Parameters" : {
+                             {{#parameters}}
+                             "{{key}}" : [
+                               {{#value}}
+                               "{{value}}",
+                               {{/value}}
+                             ],
+                             {{/parameters}}
+                          },
+           "UserName" : "{{userName}}",
+           "ImpersonatorName" : "{{impersonatorName}}",
+           "TenantID" : "{{tenantID}}",
+           "Roles" : [
+                       {{#roles}}
+                       "{{name}}",
+                       {{/roles}}
+                     ],
+           "UserAgent" : "{{userAgent}}"
+         },
+         "Response" : {
+           "Code" : {{responseCode}},
+           "Message" : "{{responseMessage}}"
+         }
+        }
+    </template>
+</highly-efficient-record-processor>

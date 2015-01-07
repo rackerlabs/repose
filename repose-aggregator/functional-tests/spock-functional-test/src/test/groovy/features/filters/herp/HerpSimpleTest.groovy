@@ -1,5 +1,6 @@
 package features.filters.herp
 import framework.ReposeValveTest
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -17,8 +18,6 @@ class HerpSimpleTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs('features/filters/herp', params)
         repose.start()
-        //repose.start(waitOnJmxAfterStarting: false)
-        //repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -31,20 +30,38 @@ class HerpSimpleTest extends ReposeValveTest {
         }
     }
 
-    def "test" () {
+    def "simple simple test" () {
         setup:
+        List listattr = ["GUI","ServiceCode","Region","DataCenter","Timestamp","Request","Method","URL","Parameters",
+                         "UserName","ImpersonatorName","TenantID","Role","UserAgent","Response","Code","Message"]
+        reposeLogSearch.cleanLog()
         MessageChain messageChain
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ['Accept':'application/xml'])
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
 
         then:
         messageChain.receivedResponse.code == "200"
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.Method == "GET"
+        result.Response.Code == 200
+        result.Response.Message == "OK"
     }
 
-    @Unroll
+    @Unroll ("Test Herp filter with method #method, origin service respCode #responseCode")
     def "Happy path using herp with simple request" () {
         setup: "declare messageChain to be of type MessageChain"
+        List listattr = ["GUID","ServiceCode","Region","DataCenter","Timestamp","Request","Method","URL","Parameters",
+                         "UserName","ImpersonatorName","TenantID","Role","UserAgent","Response","Code","Message"]
+
+        reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
                 'Accept': 'application/xml',
@@ -54,7 +71,7 @@ class HerpSimpleTest extends ReposeValveTest {
                 'x-roles' : 'default',
                 'x-user-name' : 'testuser',
                 'x-user-id' : 'testuser',
-                'x-impersionator-name' : 'impersonateuser',
+                'x-impersonator-name' : 'impersonateuser',
                 'x-impersonator-id': '123456'
         ]
         def customHandler = {return new Response(responseCode, "Resource Not Fount", [], reqBody)}
@@ -65,15 +82,41 @@ class HerpSimpleTest extends ReposeValveTest {
                 requestBody: reqBody, defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
 
         then: "result should be " + responseCode
         mc.receivedResponse.code.equals(responseCode)
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.Method == method
+        (result.Request.URL).contains(request)
+        result.Response.Code == responseCode.toInteger()
+        result.Response.Message == respMsg
 
         where:
-        responseCode | request                                                | method | reqBody
-        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""
-        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""
-        "405"        | "/resource1/id"                                        | "POST" | ""
-        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "PUT"  | "some data"
+        responseCode | request                                                | method | reqBody    |respMsg
+        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""         |"NOT_FOUND"
+        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb"   | "GET"  | ""         |"NOT_FOUND"
+        "405"        | "/resource1/id"                                        | "POST" | ""         |"METHOD_NOT_ALLOWED"
+        "400"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc"   | "PUT"  | "some data"|"BAD_REQUEST"
+        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd"   | "PATCH"| "some data"|"UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-eeeeeeeeeeee"   | "PUT"  | "some data"|"REQUEST_ENTITY_TOO_LARGE"
+        "500"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-ffffffffffff"   | "PUT"  | "some data"|"INTERNAL_SERVER_ERROR"
+    }
+
+    private boolean checkAttribute(String jsonpart, List listattr) {
+        boolean check = true
+        for (attr in listattr) {
+            if (!jsonpart.contains(attr)) {
+                check = false
+                break
+            }
+        }
+        return check
     }
 }
