@@ -81,7 +81,7 @@ public class PowerFilterChain implements FilterChain {
             currentFilters = getFilterChainForRequest(request.getRequestURI());
             filterChainAvailable = isCurrentFilterChainAvailable();
             servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
-            servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest)servletRequest).getRequestURL());
+            servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest)servletRequest).getRequestURL().toString());
             servletRequest.setAttribute("http://openrepose.org/queryParams", servletRequest.getParameterMap());
 
             doFilter(servletRequest, servletResponse);

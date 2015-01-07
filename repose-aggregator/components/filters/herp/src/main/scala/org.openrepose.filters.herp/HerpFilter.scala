@@ -83,7 +83,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(Role(_)).toArray,
       "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
       "requestMethod" -> httpServletRequest.getMethod,
-      "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.asInstanceOf[String]).orNull,
+      "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "parameters" -> translateParameters().asJava.entrySet(),
       "timestamp" -> System.currentTimeMillis(),
       "responseCode" -> httpServletResponse.getStatus,
