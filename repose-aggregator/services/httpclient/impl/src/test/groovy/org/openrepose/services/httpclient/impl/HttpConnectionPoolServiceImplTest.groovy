@@ -17,19 +17,30 @@ class HttpConnectionPoolServiceImplTest {
     HttpConnectionPoolConfig poolCfg;
     HttpConnectionPoolServiceImpl srv;
     String  POOL1_ID = "POOL1_ID"
+    Boolean POOL1_DEFAULT = false
+    Integer POOL1_MAX_CON = 10
     Integer POOL1_SO_TIMEOUT = 20000
     String  POOL2_ID = "POOL2_ID"
+    Boolean POOL2_DEFAULT = true
+    Integer POOL2_MAX_CON = 20
     Integer POOL2_SO_TIMEOUT = 60000
     String  POOLU_ID = "POOLU_ID"
+    // Retrieve the defaults defined in the XSD.
+    PoolType poolType = new PoolType()
+    Integer POOLU_SO_TIMEOUT = poolType.getHttpSocketTimeout()
 
     @Before
     void setUp() {
         List<PoolType> pools = PoolTypeHelper.createListOfPools(2, 2)
         PoolType poolType = pools.get(0);
         poolType.setId(POOL1_ID)
+        poolType.setDefault(POOL1_DEFAULT)
+        poolType.setHttpConnManagerMaxTotal(POOL1_MAX_CON)
         poolType.setHttpSocketTimeout(POOL1_SO_TIMEOUT)
         poolType = pools.get(1);
         poolType.setId(POOL2_ID)
+        poolType.setDefault(POOL2_DEFAULT)
+        poolType.setHttpConnManagerMaxTotal(POOL2_MAX_CON)
         poolType.setHttpSocketTimeout(POOL2_SO_TIMEOUT)
 
         poolCfg = new HttpConnectionPoolConfig();
@@ -155,5 +166,31 @@ class HttpConnectionPoolServiceImplTest {
         srv.releaseClient(clientResponse)
 
         assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
+    }
+
+    @Test
+    void getMaxConnections() {
+        int maxConnectionsOne = srv.getMaxConnections(POOL1_ID);
+        int maxConnectionsTwo = srv.getMaxConnections(POOL2_ID);
+        int maxConnectionsUnk = srv.getMaxConnections(POOLU_ID);
+        int maxConnectionsNul = srv.getMaxConnections(null);
+
+        assertEquals(POOL1_MAX_CON, maxConnectionsOne);
+        assertEquals(POOL2_MAX_CON, maxConnectionsTwo);
+        assertEquals(POOL2_MAX_CON, maxConnectionsUnk);
+        assertEquals(POOL2_MAX_CON, maxConnectionsNul);
+    }
+
+    @Test
+    void getSocketTimeouts() {
+        int soTimeoutOne = srv.getSocketTimeout(POOL1_ID);
+        int soTimeoutTwo = srv.getSocketTimeout(POOL2_ID);
+        int soTimeoutUnk = srv.getSocketTimeout(POOLU_ID);
+        int soTimeoutNul = srv.getSocketTimeout(null);
+
+        assertEquals(POOL1_SO_TIMEOUT, soTimeoutOne);
+        assertEquals(POOL2_SO_TIMEOUT, soTimeoutTwo);
+        assertEquals(POOL2_SO_TIMEOUT, soTimeoutUnk);
+        assertEquals(POOL2_SO_TIMEOUT, soTimeoutNul);
     }
 }
