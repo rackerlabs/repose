@@ -6,22 +6,28 @@ import org.openrepose.commons.config.parser.common.ConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.commons.utils.thread.Poller;
+import org.openrepose.core.services.event.common.Event;
+import org.openrepose.core.services.event.common.EventListener;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.threading.ThreadingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Named
-public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManager {
+public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManager, EventListener<ConfigurationEvent, ConfigurationResource> {
 
-    private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
+    private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, ParserListenerPair>> listenerMap;
+    private final Object listenerLock = new Object(); //AUGH
     private final EventService eventManager;
-    private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
     private ConfigurationResourceWatcher resourceWatcher;
     private DestroyableThreadWrapper resourceWatcherThread;
     private final ThreadingService threadingService;
@@ -34,8 +40,7 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
         this.eventManager = eventManager;
         this.threadingService = threadingService;
 
-        listenerMap = new HashMap<>();
-        powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
+        listenerMap = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -51,41 +56,78 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
         resourceWatcherThread.start();
 
         // Listen for configuration events
-        eventManager.listen(powerApiUpdateManagerEventListener, ConfigurationEvent.class);
+        eventManager.listen(this, ConfigurationEvent.class);
     }
 
     @PreDestroy
     @Override
-    public synchronized void destroy() {
+    public void destroy() {
         resourceWatcherThread.destroy();
         listenerMap.clear();
     }
 
     @Override
-    public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName) {
-        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+    public <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName) {
+        synchronized (listenerLock) {
+            ConcurrentHashMap<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
-        if (resourceListeners == null) {
-            resourceListeners = new HashMap<>();
+            if (resourceListeners == null) {
+                resourceListeners = new ConcurrentHashMap<>();
 
-            listenerMap.put(resource.name(), resourceListeners);
-            resourceWatcher.watch(resource);
+                listenerMap.put(resource.name(), resourceListeners);
+                resourceWatcher.watch(resource);
+            }
+
+            resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser, filterName));
         }
-
-        resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser, filterName));
     }
 
     @Override
-    public synchronized <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
-        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+    public <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
+        synchronized (listenerLock) {
+            ConcurrentHashMap<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
-        if (resourceListeners != null) {
-            resourceListeners.remove(listener.hashCode());
+            if (resourceListeners != null) {
+                resourceListeners.remove(listener.hashCode());
 
-            if (resourceListeners.isEmpty()) {
-                resourceWatcher.stopWatching(resource.name());
-                listenerMap.remove(resource.name());
+                if (resourceListeners.isEmpty()) {
+                    resourceWatcher.stopWatching(resource.name());
+                    listenerMap.remove(resource.name());
+                }
             }
         }
     }
+
+
+    @Override
+    public void onEvent(Event<ConfigurationEvent, ConfigurationResource> e) {
+        final String payloadName = e.payload().name();
+        Map<Integer, ParserListenerPair> listeners = listenerMap.get(payloadName);
+
+        LOG.info("Configuration event triggered for: " + payloadName);
+        LOG.info("Notifying " + listeners.values().size() + " listeners");
+        for (ParserListenerPair parserListener : listeners.values()) {
+            UpdateListener updateListener = parserListener.getListener();
+
+            if (updateListener != null) {
+                LOG.info("Notifying " + updateListener.getClass().getName());
+
+                try {
+                    configUpdate(updateListener, parserListener.getParser().read(e.payload()));
+                } catch (Exception ex) {
+                    LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
+                    LOG.trace("", ex);
+                }
+            } else {
+                LOG.warn("Update listener is null for " + payloadName);
+            }
+        }
+    }
+
+    private void configUpdate(UpdateListener upd, Object cfg) {
+        upd.configurationUpdated(cfg);
+        LOG.debug("Configuration Updated: " + cfg.toString());
+
+    }
+
 }
