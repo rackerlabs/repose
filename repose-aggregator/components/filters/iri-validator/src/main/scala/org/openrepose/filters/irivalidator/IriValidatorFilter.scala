@@ -22,7 +22,7 @@ class IriValidatorFilter extends Filter with LazyLogging {
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
     val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
-    val requestUrl = httpServletRequest.getRequestURL.toString // todo: do we need to validate query parameters?
+    val requestUrl = httpServletRequest.getRequestURL.toString + httpServletRequest.getQueryString
 
     // This IRIFactory only verifies the IRI spec define in RFC 3987
     val iriValidator = IRIFactory.iriImplementation()
