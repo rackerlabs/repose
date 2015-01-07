@@ -5,12 +5,12 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Named
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -21,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @Named
 class ValveRunner @Autowired()(
                                 configService: ConfigurationService
-                                ) extends DisposableBean {
-
-  private val LOG = LoggerFactory.getLogger(this.getClass)
+                                ) extends DisposableBean with LazyLogging {
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
@@ -58,12 +56,11 @@ class ValveRunner @Autowired()(
     //Putting the config listeners in here, because I want the context for the configRoot, and the Insecure string
 
     def updateNodes(): Unit = {
+      logger.debug("Updating nodes!")
       val systemModel = currentSystemModel.get
       val containerConfig = currentContainerConfig.get
 
       if (Option(systemModel).isDefined && Option(containerConfig).isDefined) {
-
-
         val sslConfig = containerConfig.getDeploymentConfig.getSslConfiguration
 
         def isLocal(host: String): Boolean = {
@@ -101,9 +98,11 @@ class ValveRunner @Autowired()(
 
         //If there are no configured local nodes, we're going to bail on all of it
         if (newConfiguredLocalNodes.isEmpty) {
-          LOG.error("No local nodes found in system-model, exiting Valve!")
+          logger.error("No local nodes found in system-model, exiting Valve!")
           runLatch.countDown()
         } else {
+          //TODO: replace this with a thread that loops and uses the LinkedBlockingQueue to handle messages...
+          //TODO: would also have to handle an exit state
           //Grab ahold of the node lock, so that no other thread dorks with our nodes while we are
           nodeModificationLock.synchronized {
             //Build a list of nodes that we're going to stop
@@ -111,7 +110,9 @@ class ValveRunner @Autowired()(
             val stopList = activeNodes.filterNot { activeNode =>
               newConfiguredLocalNodes.exists { node =>
                 node.nodeId == activeNode.nodeId &&
-                  node.clusterId == activeNode.clusterId
+                  node.clusterId == activeNode.clusterId &&
+                  node.httpPort == activeNode.httpPort &&
+                  node.httpsPort == activeNode.httpsPort
               }
             }
 
@@ -120,12 +121,30 @@ class ValveRunner @Autowired()(
             val startList = newConfiguredLocalNodes.filterNot { n =>
               activeNodes.exists { active =>
                 active.nodeId == n.nodeId &&
-                  active.clusterId == n.clusterId
+                  active.clusterId == n.clusterId &&
+                  active.httpPort == n.httpPort &&
+                  active.httpsPort == n.httpsPort
               }
             }
 
             //The combination of these two lists will also duplicate nodes, so that a node will be restarted with
             //different settings!
+
+            logger.debug({
+              "New configured nodes: " +
+                newConfiguredLocalNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+            })
+
+            logger.debug({
+              " Nodes to stop: " +
+                stopList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+            })
+
+            logger.debug({
+              "Nodes to start: " +
+                startList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+
+            })
 
             //Shutdown all the stop nodes
             activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
@@ -139,6 +158,12 @@ class ValveRunner @Autowired()(
               node.start()
               node
             }
+
+            logger.debug({
+              "Current running nodes: " +
+                activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+            })
+
           }
         }
       }

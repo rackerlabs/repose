@@ -17,6 +17,15 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
+    <!-- for the scala logger -->
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <!-- need the servlet api for testing to ensure that we can actually mock and test things.... -->
@@ -121,6 +130,12 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- super handy lazy logging! -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
 
         <dependency>

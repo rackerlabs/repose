@@ -131,6 +131,23 @@ class ValveRunnerTest extends FunSpec with Matchers {
       }
     }
     describe("When updating the system-model") {
+      it("A node needs to be changed if it's ports don't match") {
+        withSingleNodeRunner{ runner =>
+          val node = runner.getActiveNodes.head
+          node.nodeId shouldBe "repose_node1"
+          node.httpPort.isDefined shouldBe(true)
+          node.httpPort.get shouldBe(10234)
+
+          updateSystemModel("/valveTesting/1node/change-node-1-port.xml")
+          runner.getActiveNodes.size shouldBe 1
+          runner.getActiveNodes.head shouldNot be(node)
+          runner.getActiveNodes.head.httpPort.isDefined shouldBe(true)
+          runner.getActiveNodes.head.httpPort.get shouldBe(10235)
+
+          val changedNode = runner.getActiveNodes.head
+          changedNode.nodeId shouldBe "repose_node1"
+        }
+      }
       it("restarts the changed node") {
         withSingleNodeRunner { runner =>
           val node = runner.getActiveNodes.head
