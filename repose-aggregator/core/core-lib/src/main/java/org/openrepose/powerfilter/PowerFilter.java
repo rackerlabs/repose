@@ -76,8 +76,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final EventService eventService;
     private final FilterContextFactory filterContextFactory;
 
-    private volatile boolean seenOneArtifactDeployment = false;
-
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
     private final AtomicReference<PowerFilterRouter> powerFilterRouter = new AtomicReference<>();
     private final AtomicReference<List<FilterContext>> currentFilterChain = new AtomicReference<>();
@@ -174,9 +172,6 @@ public class PowerFilter extends DelegatingFilterProxy {
                 LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
             }
 
-            //Note that we've deployed at least one artifact, trying to have less noise....
-            //TODO: Will a new local node being spun up see this event at all?
-            seenOneArtifactDeployment = true;
             configurationHeartbeat();
         }
     }
@@ -209,7 +204,7 @@ public class PowerFilter extends DelegatingFilterProxy {
      * Triggered each time the event service triggers an app deploy and when the system model is updated.
      */
     private void configurationHeartbeat() {
-        if (currentSystemModel.get() != null && seenOneArtifactDeployment) {
+        if (currentSystemModel.get() != null) {
             synchronized (configurationLock) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
                 SystemModel systemModel = currentSystemModel.get();
