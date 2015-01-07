@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+
 /**
  * Created by jennyvo on 1/5/15.
  *  Previously akkatimeout was hard code to 50 second now set the same as http connection
@@ -90,6 +92,37 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/613/",
                 method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
+
+        then: "Request should not be passed from repose"
+        mc.receivedResponse.code == "500"
+        mc.handlings.size() == 0
+        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .61000 milliseconds.").size() > 0
+    }
+
+    def "akka timeout POST test, auth response time out greater than http connection time out" () {
+        reposeLogSearch.cleanLog()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = 613
+            service_admin_role = "not-admin"
+            client_userid = 1234
+            sleeptime = 62000
+            fakeIdentityService.generateTokenHandler = {
+                request, xml ->
+                    new Response(500, null, null, "")
+            }
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/613/",
+                method: 'POST',
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token
