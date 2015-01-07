@@ -81,7 +81,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void configure(HttpConnectionPoolConfig config) {
-
         HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
 
         for (PoolType poolType : config.getPool()) {
@@ -96,7 +95,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         }
 
         poolMap = newPoolMap;
-
     }
 
     @Override
@@ -120,9 +118,10 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public int getMaxConnections(String clientId) {
-
         if (poolMap.containsKey(clientId)) {
             return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return ((PoolingClientConnectionManager) poolMap.get(defaultClientId).getConnectionManager()).getMaxTotal();
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
         }
@@ -132,6 +131,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     public int getSocketTimeout(String clientId) {
         if (poolMap.containsKey(clientId)) {
             return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return poolMap.get(defaultClientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
         } else {
             return DEFAULT_POOL.getHttpSocketTimeout();
         }
