@@ -141,7 +141,7 @@ class ReposeJettyServer(val clusterId: String,
   def shutdown() = {
     isShutdown = true
     stop()
-    appContext.close()
+    nodeContext.close()
   }
 
   /**

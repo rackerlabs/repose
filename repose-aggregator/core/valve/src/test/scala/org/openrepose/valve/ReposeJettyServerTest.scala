@@ -84,7 +84,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     }
   }
 
-  it("Can terminate a server, shutting down it's spring context") {
+  it("Can terminate a server, shutting down the node's entire context") {
     val server = new ReposeJettyServer(
       "cluster",
       "node",
@@ -94,10 +94,13 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
     )
 
     server.start()
-    server.appContext.isActive shouldBe true
-    server.appContext.isRunning shouldBe true
+    server.nodeContext.isActive shouldBe true
+    server.nodeContext.isRunning shouldBe true
 
     server.shutdown()
+    server.nodeContext.isActive shouldBe false
+    server.nodeContext.isRunning shouldBe false
+
     server.appContext.isActive shouldBe false
     server.appContext.isRunning shouldBe false
 
