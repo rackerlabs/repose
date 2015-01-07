@@ -1,21 +1,16 @@
 package org.openrepose.services.httpclient.impl
 
-import org.openrepose.services.httpclient.HttpClientResponse
-import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
-import org.openrepose.core.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
 import org.apache.http.conn.ClientConnectionManager
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
+import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.services.httpclient.HttpClientResponse
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertTrue
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
+import static org.junit.Assert.*
+import static org.mockito.Mockito.*
 
 class HttpConnectionPoolServiceImplTest {
 
