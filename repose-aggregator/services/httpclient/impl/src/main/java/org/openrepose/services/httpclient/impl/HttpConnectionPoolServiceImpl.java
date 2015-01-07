@@ -21,6 +21,7 @@ import static org.openrepose.services.httpclient.impl.HttpConnectionPoolProvider
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
 
     private static PoolType DEFAULT_POOL = new PoolType();
+    private static final String DEFAULT_POOL_ID =  "DEFAULT_POOL";
     private Map<String, HttpClient> poolMap;
     private String defaultClientId;
     private ClientDecommissionManager decommissionManager;
@@ -40,7 +41,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
         if (poolMap.isEmpty()) {
-            defaultClientId = "DEFAULT_POOL";
+            defaultClientId = DEFAULT_POOL_ID;
             HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
         }
