@@ -9,6 +9,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
  * Created by jennyvo on 1/5/15.
+ *  Akka timeout "matches" http connection pool timeout.
+ *  Test is checking if the HttpClient connection timeout is less than 50 seconds,
+ *  then the client is notified then and not delayed until 50 seconds.
  */
 @Category(Slow)
 class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {

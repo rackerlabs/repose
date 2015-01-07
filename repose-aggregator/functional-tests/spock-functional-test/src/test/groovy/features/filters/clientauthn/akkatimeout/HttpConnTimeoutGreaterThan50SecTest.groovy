@@ -9,6 +9,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
  * Created by jennyvo on 1/5/15.
+ *  Previously akkatimeout was hard code to 50 second now set the same as http connection
+ *  timeout. Test is checking If the HttpClient connection timeout is greater than 50 seconds,
+ *  then it is not triggered prematurely at 50 seconds.
  */
 @Category(Slow)
 class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
