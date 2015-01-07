@@ -24,16 +24,17 @@ public class SystemModelInterrogator {
 
     /**
      * For a given system model, get back a map of clusterIds to their NodeIds
+     *
      * @param systemModel Takes a marshalled SystemModel to do work on
      * @return a Map of clusterIds to their NodeIds
      */
     public static Map<String, List<String>> allClusterNodes(SystemModel systemModel) {
         HashMap<String, List<String>> clusterNodes = new HashMap<>();
 
-        for(ReposeCluster cluster : systemModel.getReposeCluster()) {
+        for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             LinkedList<String> nodes = new LinkedList<>();
             clusterNodes.put(cluster.getId(), nodes);
-            for(Node node: cluster.getNodes().getNode()) {
+            for (Node node : cluster.getNodes().getNode()) {
                 nodes.add(node.getId());
             }
         }
@@ -43,15 +44,32 @@ public class SystemModelInterrogator {
 
     /**
      * Returns the ReposeCluster that the localhost belongs to.
+     * Scoped by which cluster ID we're in, because there might be many
      */
     public Optional<ReposeCluster> getLocalCluster(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            if (getLocalNode(systemModel).isPresent()) {
+            if (cluster.getId().equals(clusterId) && getLocalNode(cluster).isPresent()) {
                 return Optional.of(cluster);
             }
         }
 
         return Optional.absent();
+    }
+
+    /**
+     * Gets the local node from a specific cluster
+     *
+     * @param cluster
+     * @return
+     */
+    public Optional<Node> getLocalNode(Cluster cluster) {
+        Optional<Node> localNode = Optional.absent();
+        for (Node node : cluster.getNodes().getNode()) {
+            if (node.getId().equals(nodeId)) {
+                localNode = Optional.of(node);
+            }
+        }
+        return localNode;
     }
 
     /**
@@ -64,11 +82,7 @@ public class SystemModelInterrogator {
         Optional<Node> localNode = Optional.absent();
         for (Cluster reposeCluster : systemModel.getReposeCluster()) {
             if (reposeCluster.getId().equals(clusterId)) {
-                for (Node node : reposeCluster.getNodes().getNode()) {
-                    if (node.getId().equals(nodeId)) {
-                        localNode = Optional.of(node);
-                    }
-                }
+                localNode = getLocalNode(reposeCluster);
             }
         }
 
@@ -77,6 +91,7 @@ public class SystemModelInterrogator {
 
     /**
      * Returns an Optional<Service> if the service name requested is in the system model for your cluster
+     *
      * @param systemModel The system model we're going to look at
      * @param serviceName The name of the service we want
      * @return Optional<Service>

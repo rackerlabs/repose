@@ -1,8 +1,10 @@
 package org.openrepose.core.filter
 
 import com.google.common.base.Optional
+import org.intellij.lang.annotations.Language
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.Marshaller
 import org.openrepose.core.systemmodel.*
 
 import static org.hamcrest.CoreMatchers.equalTo
@@ -95,7 +97,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when no destinations are present, cluster exists but destinations are absent"(){
+    public void "when no destinations are present, cluster exists but destinations are absent"() {
         SystemModel sysModel = getValidSystemModel()
         sysModel.reposeCluster[0].destinations = new DestinationList()
 
@@ -110,7 +112,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when no clusters are present, cluster and destination are absent"(){
+    public void "when no clusters are present, cluster and destination are absent"() {
         SystemModel sysModel = getValidSystemModel()
         sysModel.reposeCluster = new ArrayList<ReposeCluster>()
 
@@ -121,6 +123,45 @@ public class SystemModelInterrogatorTest {
         Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
 
         assertFalse(destination.isPresent())
+    }
+
+    @Test
+    public void "When having multiple clusters, it should select the right local Cluster"() {
+        @Language("XML")
+        def systemModelXML = """<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="cluster-1">
+    <nodes>
+      <node id="node-1-1" hostname="localhost" http-port="1011"/>
+      <node id="node-1-2" hostname="example.com" http-port="1012"/>
+    </nodes>
+    <filters></filters>
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="801" root-path="/" default="true"/>
+    </destinations>
+  </repose-cluster>
+
+  <repose-cluster id="cluster-2">
+    <nodes>
+      <node id="node-2-1" hostname="localhost" http-port="1021"/>
+      <node id="node-2-2" hostname="example.com" http-port="1022"/>
+    </nodes>
+    <filters></filters>
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="802" root-path="/" default="true"/>
+    </destinations>
+  </repose-cluster>
+</system-model>
+"""
+
+        SystemModel systemModel = Marshaller.systemModelString(systemModelXML)
+
+        def interrogator = new SystemModelInterrogator("cluster-2", "node-2-1")
+        def localCluster = interrogator.getLocalCluster(systemModel)
+        assertTrue(localCluster.isPresent())
+        def lc = localCluster.get()
+        assertThat(lc.getId(), equalTo("cluster-2"))
+
     }
 
     /**
