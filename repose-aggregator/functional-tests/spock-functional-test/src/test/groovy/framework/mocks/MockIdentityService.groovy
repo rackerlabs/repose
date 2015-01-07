@@ -476,7 +476,9 @@ class MockIdentityService {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-
+        if(sleeptime > 0) {
+            sleep(sleeptime)
+        }
         return new Response(code, null, headers, body)
     }
 
