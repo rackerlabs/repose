@@ -28,10 +28,10 @@ class IriValidatorFilter extends Filter with LazyLogging {
     val iriValidator = IRIFactory.iriImplementation()
 
     try {
-      logger.trace("Attempting to validate the request URL as an IRI")
+      logger.trace("Attempting to validate the request URI as an IRI")
       iriValidator.construct(requestUrl)
 
-      logger.trace("Request URL is a valid IRI, forwarding the request")
+      logger.trace("Request URI is a valid IRI, forwarding the request")
       filterChain.doFilter(servletRequest, servletResponse)
     } catch {
       case e: IRIException =>
