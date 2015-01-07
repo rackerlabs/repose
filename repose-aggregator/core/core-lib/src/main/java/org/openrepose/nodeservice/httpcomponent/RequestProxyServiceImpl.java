@@ -270,7 +270,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
                 healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
-                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                LOG.error("Unable to identify the local host (cluster:{}, node:{}) in the system model - please check your system-model.cfg.xml", clusterId, nodeId);
                 healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }

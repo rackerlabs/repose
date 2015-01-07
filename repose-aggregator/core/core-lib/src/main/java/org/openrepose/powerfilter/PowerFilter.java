@@ -182,11 +182,12 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            //TODO: how am I getting a non-valid SystemModel (no default destination)???
+            //TODO: how did I get here, when I've unsubscribed!
             LOG.debug("{}:{} New system model configuration provided", clusterId, nodeId);
             SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
             //TODO: is this wrong?
             if (previousSystemModel == null) {
+                LOG.debug("{}:{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", clusterId, nodeId);
                 eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             }
 
