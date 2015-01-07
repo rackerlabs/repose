@@ -31,14 +31,14 @@ class ForwardedProtoFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       val capturedServletRequest = servletRequestCaptor.getValue
       capturedServletRequest.getHeaders("X-Forwarded-Proto").asScala.size shouldEqual 1
-      capturedServletRequest.getHeader("X-Forwarded-Proto") shouldBe "HTTP/1.1"
+      capturedServletRequest.getHeader("X-Forwarded-Proto") shouldBe "HTTP"
     }
 
     it("an https request should contain X-Forwarded-Proto header with value HTTPS") {
       // given:
       val mockFilterChain = mock[FilterChain]
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setProtocol("HTTPS")
+      mockRequest.setProtocol("HTTPS/1.1")
 
       // when:
       forwardedProtoFilter.doFilter(mockRequest, null, mockFilterChain)

@@ -26,7 +26,7 @@ class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLo
       logger.debug(s"Adding the $X_FORWARDED_PROTO header")
 
       val mutableHttpServletRequest = MutableHttpServletRequest.wrap(httpServletRequest)
-      mutableHttpServletRequest.addHeader(X_FORWARDED_PROTO, servletRequest.getProtocol)
+      mutableHttpServletRequest.addHeader(X_FORWARDED_PROTO, servletRequest.getProtocol.substring(0, servletRequest.getProtocol.indexOf('/')))
 
       filterChain.doFilter(mutableHttpServletRequest, servletResponse)
     } else {
