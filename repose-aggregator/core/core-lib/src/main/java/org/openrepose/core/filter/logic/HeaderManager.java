@@ -15,6 +15,7 @@ import java.util.Set;
 public interface HeaderManager {
 
     void putHeader(String key, String... values);
+    void putHeader(String key, String value, Double quality);
     void appendHeader(String key, String... values);
     void appendHeader(String key, String value, Double quality);
     void appendDateHeader(String key, long value);

@@ -145,6 +145,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.rax_default_region.map {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
         }
+        // todo: here
         if (identityConfig.isSendAllProjectIds) {
           writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
         } else {

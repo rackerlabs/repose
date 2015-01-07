@@ -76,6 +76,15 @@ public class HeaderManagerImpl implements HeaderManager {
     }
 
     @Override
+    public void putHeader(String key, String value, Double quality) {
+        // We remove the key first to preserve put logic such that any header put
+        // will remove the header before setting new values
+        headersToRemove.add(HeaderName.wrap(key));
+
+        headersToAdd.put(HeaderName.wrap(key), new LinkedHashSet<>(Arrays.asList(valueWithQuality(value, quality))));
+    }
+
+    @Override
     public void removeHeader(String key) {
         headersToRemove.add(HeaderName.wrap(key));
     }

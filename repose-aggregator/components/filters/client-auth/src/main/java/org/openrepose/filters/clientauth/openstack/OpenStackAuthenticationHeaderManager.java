@@ -38,13 +38,14 @@ public class OpenStackAuthenticationHeaderManager {
     private final String wwwAuthHeaderContents;
     private final String endpointsBase64;
     private final boolean sendAllTenantIds;
+    private final boolean sendTenantIdQuality;
 
     //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
                                                 double delegableQuality, String delegationMessage,
                                                 FilterDirector filterDirector, String tenantId, List<AuthGroup> groups,
                                                 String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
-                                                boolean sendAllTenantIds) {
+                                                boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -58,6 +59,7 @@ public class OpenStackAuthenticationHeaderManager {
         this.endpointsBase64 = endpointsBase64;
         this.isTenanted = tenanted;
         this.sendAllTenantIds = sendAllTenantIds;
+        this.sendTenantIdQuality = sendTenantIdQuality;
     }
 
     //set header with base64 string here
@@ -144,14 +146,22 @@ public class OpenStackAuthenticationHeaderManager {
     private void setTenant() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
         if(!this.isDelagable && !this.isTenanted) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            if (sendTenantIdQuality) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
+            } else {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            }
         } else {
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId);
         }
 
         if(sendAllTenantIds) {
             for(String id : cachableToken.getTenantIds()) {
-                filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id);
+                if (sendTenantIdQuality) {
+                    filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id, 0.5);
+                } else {
+                    filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id);
+                }
             }
         }
     }
