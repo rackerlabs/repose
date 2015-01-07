@@ -61,6 +61,10 @@ class EmptyHeaderManager implements HeaderManager {
   }
 
   @Override
+  public void putHeader(String key, String value, Double quality) {
+  }
+
+  @Override
   public Map<HeaderName, Set<String>> headersToAdd() {
     return Collections.EMPTY_MAP;
   }

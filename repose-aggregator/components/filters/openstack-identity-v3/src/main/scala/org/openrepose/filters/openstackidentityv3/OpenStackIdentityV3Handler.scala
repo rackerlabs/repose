@@ -120,8 +120,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
-        token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
-        if(identityConfig.isSendAllProjectIds) {
+        token.get.user.rax_default_region.map {
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
+        }
+        // todo: here
+        if (identityConfig.isSendAllProjectIds) {
           writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
         } else {
           projectIdUriRegex match {

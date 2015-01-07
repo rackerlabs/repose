@@ -120,7 +120,7 @@ public class OpenStackAuthenticationHandlerTest {
                     requestGroups(),
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
-                    new ArrayList<String>(), false);
+                    new ArrayList<String>(), false, false);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -463,7 +463,7 @@ public class OpenStackAuthenticationHandlerTest {
                     requestGroups(),
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
-                    new ArrayList<String>(), true);
+                    new ArrayList<String>(), true, false);
             handler2 = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
         }

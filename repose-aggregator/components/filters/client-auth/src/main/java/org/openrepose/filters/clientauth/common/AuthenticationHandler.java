@@ -36,7 +36,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted, boolean sendAllTenantIds);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
+                                                    double delegableQuality, String delegationMessage,
+                                                    FilterDirector filterDirector, String extractedResult,
+                                                    List<AuthGroup> groups, String endpointsBase64, boolean tenanted,
+                                                    boolean sendAllTenantIds, boolean sendTenantIdQuality);
 
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
@@ -56,6 +60,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private static final String REASON = " Reason: ";
     private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
     private final boolean sendAllTenantIds;
+    private final boolean sendTenantIdQuality;
 
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
@@ -74,6 +79,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.usrCache = usrCache;
         this.endpointsConfiguration = configurables.getEndpointsConfiguration();
         this.sendAllTenantIds = configurables.sendingAllTenantIds();
+        this.sendTenantIdQuality = configurables.sendTenantIdQuality();
     }
 
     @Override
@@ -159,7 +165,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
         }
 
-
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
+                account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds,
+                sendTenantIdQuality);
 
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64, tenanted, sendAllTenantIds);

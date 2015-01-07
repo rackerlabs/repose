@@ -24,6 +24,7 @@ public class Configurables {
     private final List<String> serviceAdminRoles;
     private final List<String> ignoreTenantRoles;
     private final boolean sendAllTenantIds;
+    private final boolean sendTenantIdQuality;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
@@ -46,7 +47,7 @@ public class Configurables {
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
                          EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles,
-                         boolean sendAllTenantIds) {
+                         boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -60,6 +61,7 @@ public class Configurables {
         this.serviceAdminRoles = serviceAdminRoles;
         this.ignoreTenantRoles = ignoreTenantRoles;
         this.sendAllTenantIds = sendAllTenantIds;
+        this.sendTenantIdQuality = sendTenantIdQuality;
     }
 
     public boolean isDelegable() {
@@ -111,4 +113,8 @@ public class Configurables {
     }
 
     public boolean sendingAllTenantIds() { return sendAllTenantIds; }
+
+    public boolean sendTenantIdQuality() {
+        return sendTenantIdQuality;
+    }
 }
