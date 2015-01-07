@@ -16,14 +16,21 @@ class HttpConnectionPoolServiceImplTest {
 
     HttpConnectionPoolConfig poolCfg;
     HttpConnectionPoolServiceImpl srv;
+    String  POOL1_ID = "POOL1_ID"
     Integer POOL1_SO_TIMEOUT = 20000
+    String  POOL2_ID = "POOL2_ID"
     Integer POOL2_SO_TIMEOUT = 60000
+    String  POOLU_ID = "POOLU_ID"
 
     @Before
     void setUp() {
         List<PoolType> pools = PoolTypeHelper.createListOfPools(2, 2)
-        pools.get(0).setHttpSocketTimeout(POOL1_SO_TIMEOUT)
-        pools.get(1).setHttpSocketTimeout(POOL2_SO_TIMEOUT)
+        PoolType poolType = pools.get(0);
+        poolType.setId(POOL1_ID)
+        poolType.setHttpSocketTimeout(POOL1_SO_TIMEOUT)
+        poolType = pools.get(1);
+        poolType.setId(POOL2_ID)
+        poolType.setHttpSocketTimeout(POOL2_SO_TIMEOUT)
 
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
@@ -34,7 +41,7 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void testGetClient() {
-        HttpClient client = srv.getClient("pool1").getHttpClient();
+        HttpClient client = srv.getClient(POOL1_ID).getHttpClient();
         assertEquals("Should retrieve requested client", POOL1_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
     }
 
@@ -45,7 +52,7 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void testHttpRandomConnectionPool() {
-        HttpClient client = srv.getClient("nonexistent client").getHttpClient();
+        HttpClient client = srv.getClient(POOLU_ID).getHttpClient();
         assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
     }
 
@@ -57,8 +64,8 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void shouldReturnIfClientIsOrIsntAvailable() {
-        assertTrue("Should return true if client is available", srv.isAvailable("pool1"));
-        assertFalse("Should return false if client is not available", srv.isAvailable("nonexistent pool"));
+        assertTrue("Should return true if client is available", srv.isAvailable(POOL1_ID));
+        assertFalse("Should return false if client is not available", srv.isAvailable(POOLU_ID));
     }
 
     @Test
@@ -126,21 +133,21 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void shouldRegisterUserWhenGettingNamedDefaultClient() {
-        HttpClientResponse clientResponse = srv.getClient("defaultPool");
+        HttpClientResponse clientResponse = srv.getClient(HttpConnectionPoolServiceImpl.DEFAULT_POOL_ID);
         assertNotNull(clientResponse)
         assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingNonDefaultClient() {
-        HttpClientResponse clientResponse = srv.getClient("pool");
+        HttpClientResponse clientResponse = srv.getClient(POOLU_ID);
         assertNotNull(clientResponse)
         assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldReleaseUserFromClientWhenBothAreValid() {
-        HttpClientResponse clientResponse = srv.getClient("pool");
+        HttpClientResponse clientResponse = srv.getClient(POOLU_ID);
 
         assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
         assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
