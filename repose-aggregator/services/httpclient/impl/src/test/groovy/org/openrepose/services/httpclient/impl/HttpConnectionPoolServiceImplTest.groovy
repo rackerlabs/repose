@@ -41,24 +41,24 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void testGetClient() {
         HttpClient client = srv.getClient("pool1").getHttpClient();
-        assertEquals("Should retrieve requested client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL1_TCPNODELAY);
+        assertEquals("Should retrieve requested client", POOL1_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
     }
 
     @Test
     void testGetAvailablePools() {
-        assertEquals("Pool Service should have two client pools available", srv.getAvailableClients().size(), 2);
+        assertEquals("Pool Service should have two client pools available", 2, srv.getAvailableClients().size());
     }
 
     @Test
     void testHttpRandomConnectionPool() {
         HttpClient client = srv.getClient("nonexistent client").getHttpClient();
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL2_TCPNODELAY);
+        assertEquals("Should retrive default client", POOL2_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
         HttpClient client = srv.getClient(null).getHttpClient();
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL2_TCPNODELAY);
+        assertEquals("Should retrive default client", POOL2_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
     }
 
     @Test
@@ -151,10 +151,10 @@ class HttpConnectionPoolServiceImplTest {
         HttpClientResponse clientResponse = srv.getClient("pool");
 
         assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size() == 1)
+        assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
 
         srv.releaseClient(clientResponse)
 
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size() == 0)
+        assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
     }
 }
