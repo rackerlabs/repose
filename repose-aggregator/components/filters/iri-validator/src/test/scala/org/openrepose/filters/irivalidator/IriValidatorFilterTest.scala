@@ -31,6 +31,7 @@ class IriValidatorFilterTest extends FunSpec with MockitoSugar {
 
       iriValidatorFilter.doFilter(mockRequest, mockResponse, mockFilterChain)
 
+      verifyZeroInteractions(mockFilterChain)
       verify(mockResponse).sendError(HttpServletResponse.SC_BAD_REQUEST)
     }
 
@@ -55,6 +56,7 @@ class IriValidatorFilterTest extends FunSpec with MockitoSugar {
 
       iriValidatorFilter.doFilter(mockRequest, mockResponse, mockFilterChain)
 
+      verifyZeroInteractions(mockFilterChain)
       verify(mockResponse).sendError(HttpServletResponse.SC_BAD_REQUEST)
     }
   }
