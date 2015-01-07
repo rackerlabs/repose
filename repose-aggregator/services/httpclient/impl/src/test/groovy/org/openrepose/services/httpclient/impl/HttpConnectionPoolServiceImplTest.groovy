@@ -2,6 +2,7 @@ package org.openrepose.services.httpclient.impl
 
 import org.apache.http.client.HttpClient
 import org.apache.http.conn.ClientConnectionManager
+import org.apache.http.impl.conn.PoolingClientConnectionManager
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
@@ -125,7 +126,21 @@ class HttpConnectionPoolServiceImplTest {
         when(mockClient.getConnectionManager()).thenReturn(mockConnMgr)
 
         cpool.shutdown()
+
         verify(mockConnMgr).shutdown()
+    }
+
+    @Test
+    void shouldShutdownAllExistingConnectionPoolsDuringReconfigure() {
+        HttpClient mockClient = mock(HttpClient.class)
+        ClientConnectionManager mockConnMgr = mock(PoolingClientConnectionManager.class)
+        when(mockClient.getConnectionManager()).thenReturn(mockConnMgr)
+
+        srv.poolMap.put("MOCK", mockClient)
+        poolCfg = new HttpConnectionPoolConfig();
+        srv.configure(poolCfg);
+
+        verify(mockConnMgr).closeExpiredConnections()
     }
 
     @Test
