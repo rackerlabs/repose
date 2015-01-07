@@ -21,14 +21,14 @@ class HttpConnectionPoolServiceImplTest {
 
     HttpConnectionPoolConfig poolCfg;
     HttpConnectionPoolServiceImpl srv;
-    Boolean POOL1_TCPNODELAY = false
-    Boolean POOL2_TCPNODELAY = true
+    Integer POOL1_SO_TIMEOUT = 20000
+    Integer POOL2_SO_TIMEOUT = 60000
 
     @Before
     void setUp() {
         List<PoolType> pools = PoolTypeHelper.createListOfPools(2, 2)
-        pools.get(0).setHttpTcpNodelay(POOL1_TCPNODELAY)
-        pools.get(1).setHttpTcpNodelay(POOL2_TCPNODELAY)
+        pools.get(0).setHttpSocketTimeout(POOL1_SO_TIMEOUT)
+        pools.get(1).setHttpSocketTimeout(POOL2_SO_TIMEOUT)
 
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
@@ -37,11 +37,10 @@ class HttpConnectionPoolServiceImplTest {
         srv.configure(poolCfg);
     }
 
-
     @Test
     void testGetClient() {
         HttpClient client = srv.getClient("pool1").getHttpClient();
-        assertEquals("Should retrieve requested client", POOL1_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
+        assertEquals("Should retrieve requested client", POOL1_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
     }
 
     @Test
@@ -52,13 +51,13 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void testHttpRandomConnectionPool() {
         HttpClient client = srv.getClient("nonexistent client").getHttpClient();
-        assertEquals("Should retrive default client", POOL2_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
+        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
         HttpClient client = srv.getClient(null).getHttpClient();
-        assertEquals("Should retrive default client", POOL2_TCPNODELAY, client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
+        assertEquals("Should retrieve default client", POOL2_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
     }
 
     @Test
@@ -94,7 +93,6 @@ class HttpConnectionPoolServiceImplTest {
         assertEquals(client1.getParams().getParameter(CoreConnectionPNames.CONNECTION_TIMEOUT), client2.getParams().getParameter(CoreConnectionPNames.CONNECTION_TIMEOUT))
         assertEquals(client1.getParams().getParameter(CoreConnectionPNames.MAX_HEADER_COUNT), client2.getParams().getParameter(CoreConnectionPNames.MAX_HEADER_COUNT));
         assertEquals(client1.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), client2.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT), client2.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
         assertEquals(client1.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE), client2.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE));
         assertEquals(client1.getConnectionKeepAliveStrategy().timeout, client2.getConnectionKeepAliveStrategy().timeout);
 
@@ -104,7 +102,6 @@ class HttpConnectionPoolServiceImplTest {
         assertEquals(props1.get("defaultMaxPerRoute"), props2.get("defaultMaxPerRoute"));
         assertEquals(props1.get("maxTotal"), props2.get("maxTotal"));
     }
-
 
     @Test
     void shouldShutdownAllConnectionPools() {
