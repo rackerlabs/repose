@@ -88,7 +88,9 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
       path.toUri.toURL
     }.toArray
 
-    URLClassLoader.newInstance(fileUrls)
+    //Spring needs the parent classloader to find the annotations when in tomcat.
+    //Since it works for both valve and the war deployments, we will give it the parent classloader for both.
+    URLClassLoader.newInstance(fileUrls, this.getClass.getClassLoader)
   }
 
   @throws(classOf[EarProcessingException])
