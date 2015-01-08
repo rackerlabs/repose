@@ -1,3 +1,5 @@
+//apply plugin: 'groovy'
+
 buildscript {
     repositories {
         mavenLocal()
@@ -40,10 +42,48 @@ subprojects {
 
     task 'create-dirs' << {
         sourceSets.all { set ->
-            set.allSource.srcDirs.each {it.mkdirs()}
+            set.allSource.srcDirs.each { it.mkdirs() }
         }
     }
 }
+
+/**
+ * Because an Ear project is always the same, this is a function to clean up our build script
+ * @param projectName The name of the ear project
+ * @param deps a list of dependencies that will go in this ear
+ * @return
+ */
+def filterBundleProject(String projectName, List<String> deps) {
+    project(projectName) {
+        apply plugin: 'ear'
+        apply plugin: 'maven'
+        apply plugin: 'maven-publish'
+        apply plugin: 'maven-publish-auth'
+
+        dependencies {
+            deps.each { proj ->
+                deploy project(proj)
+                earlib project(proj).configurations.runtime
+            }
+        }
+
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    artifact ear
+                }
+            }
+            repositories {
+                maven {
+                    name "releases.maven.research.rackspace.com"
+                    url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+                }
+            }
+        }
+    }
+
+}
+
 
 project(':core-test-filter') {
     dependencies {
@@ -52,31 +92,7 @@ project(':core-test-filter') {
     }
 }
 
-project(':core-test-filter-bundle') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    dependencies {
-        deploy project(':core-test-filter')
-        earlib project(':core-test-filter').configurations.runtime
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
+filterBundleProject(':core-test-filter-bundle', [':core-test-filter'])
 
 project(':second-filter') {
     dependencies {
@@ -85,82 +101,16 @@ project(':second-filter') {
     }
 }
 
-project(':second-filter-bundle') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
+filterBundleProject(':second-filter-bundle', [':second-filter'])
 
-    dependencies {
-        deploy project(':second-filter')
-        earlib project(':second-filter').configurations.runtime
-    }
+filterBundleProject(':busted-application-name-ear', [])
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
-
-project(':busted-application-name-ear') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
-
-project(':busted-web-fragment-ear') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
+filterBundleProject(':busted-web-fragment-ear', [])
 
 project(':classloader-dependency-one') {
 }
 
 project(':classloader-dependency-two') {
-    dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-    }
 }
 
 project(':filter-one') {
@@ -205,133 +155,12 @@ project(':filter-five') {
     }
 }
 
-project(':classloader-bundle-one') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
+filterBundleProject(':classloader-bundle-one', [':filter-one'])
 
-    dependencies {
-        deploy project(':filter-one')
-        earlib project(':filter-one').configurations.runtime
-    }
+filterBundleProject(':classloader-bundle-two', [':filter-two'])
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
+filterBundleProject(':classloader-bundle-three', [':filter-three'])
 
-project(':classloader-bundle-two') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
+filterBundleProject(':classloader-bundle-four', [':filter-four'])
 
-    dependencies {
-        deploy project(':filter-two')
-        earlib project(':filter-two').configurations.runtime
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
-
-project(':classloader-bundle-three') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    //NOTE you have to add earlib dependencies by hand, like scala
-    dependencies {
-        deploy project(':filter-three')
-        earlib project(':filter-three').configurations.runtime
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
-
-project(':classloader-bundle-four') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    dependencies {
-        deploy project(':filter-four')
-        earlib project(':filter-four').configurations.runtime
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
-
-project(':classloader-bundle-five') {
-    apply plugin: 'ear'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'maven-publish-auth'
-
-    dependencies {
-        deploy project(':filter-five')
-        earlib project(':filter-five').configurations.runtime
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact ear
-            }
-        }
-        repositories {
-            maven {
-                name "releases.maven.research.rackspace.com"
-                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-            }
-        }
-    }
-}
+filterBundleProject(':classloader-bundle-five', [':filter-five'])
