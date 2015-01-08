@@ -95,7 +95,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     @Unroll("When start data store with port out of range: #port")
     def "Test data store with port out of range"() {
         given:
-        def searchError = "Unable to start Distributed Datastore Server instance on "+port
+        def searchError = "Distributed Datastore port out of range: " + port
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
@@ -116,7 +116,6 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503")
 
         then:
-        reposeLogSearch.searchByString("NullPointerException").size() == 0
         timedSearch(10) {
             reposeLogSearch.searchByString(searchError).size() > 0
         }
@@ -138,7 +137,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort' : dataStorePort
+                'datastorePort': dataStorePort
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
@@ -156,36 +155,6 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         where:
         port << [21, 22, 23, 1023]
-
-    }
-
-    def "When start data store port conflict"() {
-        given:
-        def searchError = "java.net.BindException: Address already in use"
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        reposeLogSearch.cleanLog()
-
-        datastoreEndpoint = "http://localhost:${dataStorePort}"
-
-        def params = properties.getDefaultTemplateParams()
-        params += [
-                'datastorePort' : dataStorePort
-        ]
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/portconflict", params)
-
-        when:
-        repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests("503", false)
-
-        then:
-        reposeLogSearch.searchByString("NullPointerException").size() == 0
-        timedSearch(10) {
-            reposeLogSearch.searchByString(searchError).size() > 0
-        }
 
     }
 

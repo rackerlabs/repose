@@ -3,23 +3,23 @@ package org.openrepose.nodeservice.distributed.jetty;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
-import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
-import org.openrepose.nodeservice.distributed.cluster.utils.AccessListDeterminator;
-import org.openrepose.nodeservice.distributed.cluster.utils.ClusterMemberDeterminator;
-import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.impl.distributed.ThreadSafeClusterView;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.ReposeCluster;
+import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.nodeservice.distributed.cluster.utils.AccessListDeterminator;
+import org.openrepose.nodeservice.distributed.cluster.utils.ClusterMemberDeterminator;
+import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +54,7 @@ public class DistributedDatastoreLauncherService {
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
     private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
 
-    private final String DD_PORT_CONFIG_ISSUE = "dist-datastore-config-issue"; //ONLY triggered if it couldn't find the port
+    private final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
 
 
     @Inject
@@ -109,6 +109,8 @@ public class DistributedDatastoreLauncherService {
                 ddServer = Optional.absent();
             }
         }
+        //Clear any healthcheck problems -- if it's off, it's not a problem any more!
+        healthCheckServiceProxy.resolveIssue(DD_CONFIG_ISSUE);
     }
 
     private void configurationHeartbeat() {
@@ -122,11 +124,16 @@ public class DistributedDatastoreLauncherService {
                 int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, clusterId, nodeId);
                 if (ddPort == -1) {
                     LOG.error("Unable to determine Distributed Datastore port for {}:{}", clusterId, nodeId);
-                    healthCheckServiceProxy.reportIssue(DD_PORT_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
+                    healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
                     return;
                 }
-                //Make sure this time through that if there was an issue, it's resolved
-                healthCheckServiceProxy.resolveIssue(DD_PORT_CONFIG_ISSUE);
+
+                //Do a manual port range check, because it's less complicated than trying to catch exceptions
+                if(ddPort <= 0 || ddPort > 65535) {
+                    LOG.error("Distributed Datastore port out of range: {}", ddPort);
+                    healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort out of range", Severity.BROKEN);
+                    return;
+                }
 
                 //If there's no server running, fire one up, because we should have a server
                 if (!ddServer.isPresent()) {
@@ -146,8 +153,12 @@ public class DistributedDatastoreLauncherService {
                     try {
                         LOG.info("Starting Distributed Datastore listener on port {} ", ddPort);
                         server.runServer(ddPort);
+                        //Only resolving config problems after it's fully started
+                        healthCheckServiceProxy.resolveIssue(DD_CONFIG_ISSUE);
                     } catch (Exception e) {
                         LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
+                        healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE,
+                                "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
                     }
                 }
 
@@ -158,8 +169,11 @@ public class DistributedDatastoreLauncherService {
                         int existingPort = ddServer.get().getPort();
                         LOG.info("Updating existing Distributed Datastore Server instance on {} to {}", existingPort, ddPort);
                         ddServer.get().runServer(ddPort);
+                        healthCheckServiceProxy.resolveIssue(DD_CONFIG_ISSUE);
                     } catch (Exception e) {
                         LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
+                        healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE,
+                                "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
                     }
 
                     //Update the Servlet ClusterView and ACL
@@ -217,8 +231,11 @@ public class DistributedDatastoreLauncherService {
                 boolean listed = smi.getServiceForCluster(configurationObject, "dist-datastore").isPresent();
 
                 if (listed && !isRunning) {
+                    //Note it as being broke, until it's properly configured.
+                    healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: DD Specified in system model, but not configured yet", Severity.BROKEN);
                     startDistributedDatastore();
                 } else if (!listed && isRunning) {
+                    //any health check problems are resolved when we stop it
                     stopDistributedDatastore();
                 }
             }

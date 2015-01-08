@@ -28,7 +28,7 @@ public class MetricsServiceImplTest {
 
     public static class Register {
 
-        protected MetricsService metricsService;
+        protected MetricsServiceImpl metricsService;
         protected ReposeJmxNamingStrategy jmxNamingStrategy;
         protected final String JMX_PREFIX = "MOCK-PREFIX-";
 
