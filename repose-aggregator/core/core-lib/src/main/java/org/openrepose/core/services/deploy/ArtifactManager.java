@@ -193,7 +193,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             artifactApplicationNames.put(archive.getAbsolutePath(), context.getEarDescriptor().getApplicationName());
 
         } catch (EarProcessingException e) {
-            LOG.error("Failure in loading artifact, \"{}\"", archive.getAbsolutePath(), e);
+            LOG.error("Failure in loading artifact, \"{}\". Reason: {}", archive.getAbsolutePath(), e.getLocalizedMessage());
+            LOG.trace("", e);
         }
         return context;
     }
