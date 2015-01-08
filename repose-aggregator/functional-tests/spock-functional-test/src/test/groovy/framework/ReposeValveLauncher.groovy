@@ -194,7 +194,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
-            this.process.destroy()
+            this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
