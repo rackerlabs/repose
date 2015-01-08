@@ -3,7 +3,7 @@ package org.openrepose.valve.spring
 import java.net.{InetAddress, NetworkInterface, UnknownHostException}
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Named
+import javax.inject.{Inject, Named}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -12,14 +12,13 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
 import org.springframework.beans.factory.DisposableBean
-import org.springframework.beans.factory.annotation.Autowired
 
 
 /**
  * A singleton that's spring aware because of the services it needs to use.
  */
 @Named
-class ValveRunner @Autowired()(
+class ValveRunner @Inject()(
                                 configService: ConfigurationService
                                 ) extends DisposableBean with LazyLogging {
 
