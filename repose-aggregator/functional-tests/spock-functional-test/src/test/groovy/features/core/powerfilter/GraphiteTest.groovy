@@ -10,7 +10,7 @@ import org.rackspace.deproxy.PortFinder
 class GraphiteTest extends ReposeValveTest {
 
     static String METRIC_PREFIX = "test.1.metrics"
-    static String METRIC_NAME = "repose-node1-org.openrepose.core.ResponseCode.Repose.2XX.count"
+    static String METRIC_NAME = "org.openrepose.core.ResponseCode.Repose.2XX.count"
 
     int graphitePort;
     MockGraphite mockGraphite
@@ -25,7 +25,7 @@ class GraphiteTest extends ReposeValveTest {
 
         lastCount = -1
         def lineProc = { line ->
-            def m = (line =~ /${METRIC_PREFIX}\.${METRIC_NAME}\s+(\d+)/)
+            def m = (line =~ /${METRIC_PREFIX}\.${jmxHostname}-${METRIC_NAME}\s+(\d+)/)
             if (m) {
                 lastCount = m.group(1).toInteger()
             }
