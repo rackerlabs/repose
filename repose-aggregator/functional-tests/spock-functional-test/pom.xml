@@ -21,6 +21,9 @@
         <spock.version>0.7-groovy-2.0</spock.version>
         <gmaven.version>1.5</gmaven.version>
 
+        <!-- this is the version of artifacts to use from the published repose-support project -->
+        <test.artifact.version>3.0</test.artifact.version>
+
         <repose.container>valve</repose.container>
 
         <project.set.dir>${project.basedir}/../..</project.set.dir>
@@ -453,46 +456,6 @@
             </testResource>
 
             <testResource>
-                <directory>${filter.bundle-one.dir}</directory>
-                <includes>
-                    <include>${filter.bundle-one.ear}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
-            </testResource>
-
-            <testResource>
-                <directory>${filter.bundle-two.dir}</directory>
-                <includes>
-                    <include>${filter.bundle-two.ear}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
-            </testResource>
-
-            <testResource>
-                <directory>${filter.bundle-three.dir}</directory>
-                <includes>
-                    <include>${filter.bundle-three.ear}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
-            </testResource>
-
-            <testResource>
-                <directory>${filter.bundle-four.dir}</directory>
-                <includes>
-                    <include>${filter.bundle-four.ear}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
-            </testResource>
-
-            <testResource>
-                <directory>${filter.bundle-five.dir}</directory>
-                <includes>
-                    <include>${filter.bundle-five.ear}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
-            </testResource>
-
-            <testResource>
                 <directory>${repose.valve.dir}</directory>
                 <includes>
                     <include>${repose.valve.jar}</include>
@@ -531,6 +494,57 @@
 
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-core-test-bundle</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>classloader-bundle-one</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>classloader-bundle-two</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>classloader-bundle-three</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>classloader-bundle-four</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openrepose.filters.core.test</groupId>
+                                    <artifactId>classloader-bundle-five</artifactId>
+                                    <version>${test.artifact.version}</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/repose_home/artifacts</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
