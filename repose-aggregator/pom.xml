@@ -637,6 +637,7 @@
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>commons-logging:commons-logging</exclude>
+                                        <exclude>com.rackspace.papi.commons:jetty-container</exclude>
                                     </excludes>
                                     <searchTransitive>true</searchTransitive>
                                 </bannedDependencies>
