@@ -87,7 +87,7 @@ class ReposeJettyServer(val clusterId: String,
       }
     }
 
-    val connectors = List(httpConnector, httpsConnector).filter(_.isDefined).map(_.get).toArray
+    val connectors = List(httpConnector, httpsConnector).collect{ case Some(x) => x }.toArray
 
     if (connectors.isEmpty) {
       throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
@@ -110,7 +110,6 @@ class ReposeJettyServer(val clusterId: String,
     //Create a spring delegating proxy for a repose filter bean
     // THe name must match the Named bean name (powerFilter)
     val delegatingProxy = new DelegatingFilterProxy("powerFilter")
-    //delegatingProxy.setTargetFilterLifecycle(true) //TODO: why isn't this working?!?!?
     filterHolder.setFilter(delegatingProxy)
     filterHolder.setDisplayName("SpringDelegatingFilter")
 
@@ -140,8 +139,8 @@ class ReposeJettyServer(val clusterId: String,
    */
   def shutdown() = {
     isShutdown = true
-    stop()
     nodeContext.close()
+    stop()
   }
 
   /**

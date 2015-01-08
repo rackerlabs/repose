@@ -13,6 +13,8 @@ import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
 import org.springframework.beans.factory.DisposableBean
 
+import scala.util.{Try, Failure, Success}
+
 
 /**
  * A singleton that's spring aware because of the services it needs to use.
@@ -151,11 +153,28 @@ class ValveRunner @Inject()(
               node.shutdown()
             }
 
+
             //Start up all the new nodes, replacing the existing nodes list with a new one
-            activeNodes = activeNodes ++ startList.map { n =>
+            activeNodes = activeNodes ++ startList.flatMap { n =>
               val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig))
-              node.start()
-              node
+              try{
+                node.start()
+                Some(node)
+              } catch {
+                case e:Exception => {
+                  //If we couldn't start a node, throw a fatal error, and try to start other nodes?
+                  // at the very least, we need to unload all the things, because it's buggered.
+                  node.shutdown()
+                  logger.error(s"Unable to start repose node ${node.clusterId}:${node.nodeId} !!!!", e)
+                  None
+                }
+              }
+            }
+
+            //Do a quick sanity check, in case all local nodes are broke
+            if(activeNodes.isEmpty) {
+              logger.error("Unable to start up *any* local nodes, exiting valve, because there's nothing to do!")
+              runLatch.countDown()
             }
 
             logger.debug({
