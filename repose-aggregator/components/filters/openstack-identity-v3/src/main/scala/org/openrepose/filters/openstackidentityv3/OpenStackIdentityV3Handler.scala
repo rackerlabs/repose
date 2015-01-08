@@ -9,7 +9,7 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -145,19 +145,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.rax_default_region.map {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
         }
-        // todo: here
-        if (identityConfig.isSendAllProjectIds) {
-          writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
-        } else {
-          projectIdUriRegex match {
-            case Some(regex) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).orNull, token.flatMap(_.roles).get, writeAll = false, filterDirector)
-            case None if token.flatMap(_.project).flatMap(_.id).isDefined =>
-              token flatMap (_.project) map { project =>
-                project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
-                project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
-              }
-            case None => None
-          }
+        projectIdUriRegex match {
+          case Some(regex) =>
+            writeProjectHeader(token.flatMap(_.project.flatMap(_.id)), token.flatMap(_.roles).getOrElse(List[Role]()),
+              extractProjectIdFromUri(regex, request.getRequestURI), identityConfig.isSendAllProjectIds,
+              identityConfig.isSendProjectIdQuality, filterDirector.requestHeaderManager)
+          case None =>
+            writeProjectHeader(token.flatMap(_.project.flatMap(_.id)), token.flatMap(_.roles).getOrElse(List[Role]()),
+              None, identityConfig.isSendAllProjectIds, identityConfig.isSendProjectIdQuality,
+              filterDirector.requestHeaderManager)
         }
         token.get.rax_impersonator.map { impersonator =>
           impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
@@ -252,17 +248,38 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private def containsRequiredEndpoint(endpointsList: List[Endpoint], endpointRequirement: Endpoint) =
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
-  private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles: Set[String] = {
-      if (writeAll && roles != null) {
-        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId} :::
-          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId}).toSet
-      } else {
-        Set.empty
+  private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
+                                 writeAll: Boolean, sendQuality: Boolean, headerManager: HeaderManager) {
+    lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId} :::
+      roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId}).toSet
+
+    if (writeAll && sendQuality) {
+      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      projectsFromRoles foreach { rolePid =>
+        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
+          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
+        }
+      }
+    } else if (writeAll && !sendQuality) {
+      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
+      projectsFromRoles foreach { rolePid =>
+        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
+          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid)
+        }
+      }
+    } else if (!writeAll && sendQuality) {
+      projectFromUri map {
+        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0)
+      } orElse {
+        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      }
+    } else {
+      projectFromUri map {
+        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _)
+      } orElse {
+        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
       }
     }
-    def projects: Set[String] = if (projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
-    filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =

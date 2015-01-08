@@ -3,12 +3,12 @@ package org.openrepose.filters.openstackidentityv3
 import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
+import org.openrepose.core.filter.logic.{FilterAction, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
@@ -75,13 +75,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should add the X-Default-Region if rax_default_region is available for the user") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-              Option(List(Role("1","admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+          Option(List(Role("1", "admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain (
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain(
         Entry(
           HeaderName.wrap("X-Default-Region"),
           JavaConversions.setAsJavaSet(Set("ORD")))
@@ -91,19 +91,19 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should not include X-Default-Region if rax_default_region is not available for the user") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null))))
+          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key (HeaderName.wrap("X-Default-Region"))
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key(HeaderName.wrap("X-Default-Region"))
     }
 
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
+          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -125,7 +125,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should not add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is not available") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null))))
+          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -139,26 +139,26 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
-              Some(ProjectForAuthenticateResponse(null, Some("ProjectIdToNotSee"))),
-              Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com")))) ),
-              Some(List(Role("1","admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
+          Some(ProjectForAuthenticateResponse(null, Some("ProjectIdToNotSee"))),
+          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain(
-      Entry(
-        HeaderName.wrap("X-Project-Id"),
-        JavaConversions.setAsJavaSet(Set("12345")))
-        )
+        Entry(
+          HeaderName.wrap("X-Project-Id"),
+          JavaConversions.setAsJavaSet(Set("12345")))
+      )
     }
 
     it("should set the x-project-id header to the default project id if send all project ids is not set/false and there is no uri project id validation") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("DefaultProjectIdToSee"))),
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com")))) ),
-          Some(List(Role("1","admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
+          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
@@ -188,8 +188,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com")))) ),
-          Some(List(Role("1","admin", Some("ProjectIdFromRoles")))), UserForAuthenticateResponse(null))))
+          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Some(List(Role("1", "admin", Some("ProjectIdFromRoles")))), UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -206,8 +206,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com")))) ),
-          Some(List(Role("1","admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse(null))))
+          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Some(List(Role("1", "admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -291,35 +291,56 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("writeProjectHeader") {
     val writeProjectHeader = PrivateMethod[Unit]('writeProjectHeader)
-    val filterDirector = mock[FilterDirector]
     val headerManager = mock[HeaderManager]
-    when(filterDirector.requestHeaderManager()).thenReturn(headerManager)
     val roles = List(Role(null, null, Option("12345"), null, null), Role(null, null, Option("67890"), null, null))
 
     it("should only provide the url project when the flag says to not write all") {
-      val randomness = java.util.UUID.randomUUID.toString
-      identityV3Handler invokePrivate writeProjectHeader(randomness, roles, false, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(randomness))
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, false, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(uriPid))
     }
 
     it("should provide all the projects when the flag says to write all") {
-      val randomness = java.util.UUID.randomUUID.toString
-      identityV3Handler invokePrivate writeProjectHeader(randomness, roles, true, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq(randomness))
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, false, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"))
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("67890"))
     }
 
     it("should handle when roles are present but project ids are missing") {
-      val randomness = java.util.UUID.randomUUID.toString
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
       val roleList = List(Role(null, null, None, None, None), Role(null, null, None, None, None))
-      identityV3Handler invokePrivate writeProjectHeader(randomness, roleList, true, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(randomness))
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
     }
 
     it("should handle when project ids are missing and not missing") {
-      val randomness = java.util.UUID.randomUUID.toString
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
       val roleList = List(Role(null, null, None, None, None), Role(null, null, Option("foo"), None, None), Role(null, null, None, None, None))
-      identityV3Handler invokePrivate writeProjectHeader(randomness, roleList, true, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("foo"), org.mockito.Matchers.eq(randomness))
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("foo"))
+    }
+
+    it("should add qualities when flagged and not writing all") {
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, true, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(uriPid), org.mockito.Matchers.eq(1.0))
+    }
+
+    it("should add qualities when flagged and writing all") {
+      val defaultPid = java.util.UUID.randomUUID.toString
+      val uriPid = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, true, headerManager)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid), org.mockito.Matchers.eq(1.0))
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq(0.5))
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq(0.5))
     }
   }
 
