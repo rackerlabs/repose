@@ -73,7 +73,6 @@ public class MetricsServiceImpl implements MetricsService {
 
     private boolean enabled;
 
-    //TODO: re-add the JMX strategy when we can fix it
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
@@ -86,8 +85,9 @@ public class MetricsServiceImpl implements MetricsService {
 
         this.metrics = new MetricsRegistry();
 
+        //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmx = new JmxReporter(metrics);
-        jmx.start();
+        jmx.start(); //But it needs to be started if there's no configs
 
         this.enabled = true;
     }
@@ -120,6 +120,9 @@ public class MetricsServiceImpl implements MetricsService {
             // we are reinitializing the graphite servers
             shutdownGraphite();
 
+            //We're going to reset the JMX stuff
+            jmx.shutdown();
+
             if (metricsC.getGraphite() != null) {
                 for (GraphiteServer gs : metricsC.getGraphite().getServer()) {
                     try {
@@ -135,6 +138,11 @@ public class MetricsServiceImpl implements MetricsService {
 
             healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
             setEnabled(metricsC.isEnabled());
+
+            //Only start JMX if it's enabled...
+            if(metricsC.isEnabled()) {
+                jmx.start();
+            }
             initialized = true;
         }
 
@@ -168,12 +176,10 @@ public class MetricsServiceImpl implements MetricsService {
         }
     }
 
-    @Override
     public void setEnabled(boolean b) {
         this.enabled = b;
     }
 
-    @Override
     public boolean isEnabled() {
         return enabled;
     }
