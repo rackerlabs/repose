@@ -113,7 +113,7 @@ class RequestProxyServiceHealthCheckTest extends Specification {
         then:
         !listenerObject.isInitialized()
         app.getEvents().find {
-            it.getMessage().getFormattedMessage().contains("Unable to identify the local host in the system model")
+            it.getMessage().getFormattedMessage().contains("Unable to identify the local host (cluster:cluster, node:node) in the system model")
         }
         verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity))
