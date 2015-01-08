@@ -305,7 +305,7 @@
                         </jarModule>
 
                         <jarModule>
-                            <groupIp>com.rackspace.papi.components</groupIp>
+                            <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>iri-validator</artifactId>
                         </jarModule>
                     </modules>
