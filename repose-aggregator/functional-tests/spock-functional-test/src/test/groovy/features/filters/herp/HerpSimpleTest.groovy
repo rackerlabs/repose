@@ -4,6 +4,7 @@ import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 /**
  * Created by jennyvo on 12/16/14.
@@ -29,16 +30,16 @@ class HerpSimpleTest extends ReposeValveTest {
             repose.stop()
         }
     }
-
-    def "simple simple test" () {
+    @Ignore
+    def "simple simple test"() {
         setup:
-        List listattr = ["GUI","ServiceCode","Region","DataCenter","Timestamp","Request","Method","URL","Parameters",
-                         "UserName","ImpersonatorName","TenantID","Role","UserAgent","Response","Code","Message"]
+        List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
         reposeLogSearch.cleanLog()
         MessageChain messageChain
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ['Accept':'application/xml'])
+        messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ['Accept': 'application/xml'])
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
@@ -54,29 +55,30 @@ class HerpSimpleTest extends ReposeValveTest {
         result.Response.Code == 200
         result.Response.Message == "OK"
     }
-
-    @Unroll ("Test Herp filter with method #method, origin service respCode #responseCode")
-    def "Happy path using herp with simple request" () {
+    @Ignore
+    @Unroll("Test Herp filter with method #method, origin service respCode #responseCode")
+    def "Happy path using herp with simple request"() {
         setup: "declare messageChain to be of type MessageChain"
-        List listattr = ["GUID","ServiceCode","Region","DataCenter","Timestamp","Request","Method","URL","Parameters",
-                         "UserName","ImpersonatorName","TenantID","Role","UserAgent","Response","Code","Message"]
+        List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
 
         reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
-                'Accept': 'application/xml',
-                'Host'  : 'LocalHost',
-                'User-agent': 'gdeproxy',
-                'x-tenant-id' : '123456',
-                'x-roles' : 'default',
-                'x-user-name' : 'testuser',
-                'x-user-id' : 'testuser',
-                'x-impersonator-name' : 'impersonateuser',
+                'Accept'           : 'application/xml',
+                'Host'             : 'LocalHost',
+                'User-agent'       : 'gdeproxy',
+                'x-tenant-id'      : '123456',
+                'x-roles'          : 'default',
+                'x-user-name'      : 'testuser',
+                'x-user-id'        : 'testuser',
+                'x-impersonator-name': 'impersonateuser',
                 'x-impersonator-id': '123456'
         ]
-        def customHandler = {return new Response(responseCode, "Resource Not Fount", [], reqBody)}
+        def customHandler = { return new Response(responseCode, "Resource Not Fount", [], reqBody) }
 
-        when: "When Requesting " + method + " " + request
+        when:
+        "When Requesting " + method + " " + request
         mc = deproxy.makeRequest(url: reposeEndpoint +
                 request, method: method, headers: headers,
                 requestBody: reqBody, defaultHandler: customHandler,
@@ -87,7 +89,8 @@ class HerpSimpleTest extends ReposeValveTest {
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
 
-        then: "result should be " + responseCode
+        then:
+        "result should be " + responseCode
         mc.receivedResponse.code.equals(responseCode)
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
@@ -99,14 +102,71 @@ class HerpSimpleTest extends ReposeValveTest {
         result.Response.Message == respMsg
 
         where:
-        responseCode | request                                                | method | reqBody    |respMsg
-        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""         |"NOT_FOUND"
-        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb"   | "GET"  | ""         |"NOT_FOUND"
-        "405"        | "/resource1/id"                                        | "POST" | ""         |"METHOD_NOT_ALLOWED"
-        "400"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc"   | "PUT"  | "some data"|"BAD_REQUEST"
-        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd"   | "PATCH"| "some data"|"UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-eeeeeeeeeeee"   | "PUT"  | "some data"|"REQUEST_ENTITY_TOO_LARGE"
-        "500"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-ffffffffffff"   | "PUT"  | "some data"|"INTERNAL_SERVER_ERROR"
+        responseCode | request                                              | method  | reqBody     | respMsg
+        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
+        "404"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb" | "GET"   | ""          | "NOT_FOUND"
+        "405"        | "/resource1/id"                                      | "POST"  | ""          | "METHOD_NOT_ALLOWED"
+        "400"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
+        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-eeeeeeeeeeee" | "PUT"   | "some data" | "REQUEST_ENTITY_TOO_LARGE"
+        "500"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
+    }
+
+    @Unroll("Test Herp filter with method #method, parameters #parameters, origin service respCode #responseCode")
+    def "Herp test with api body request"() {
+        setup: "declare messageChain to be of type MessageChain"
+        List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
+        def customHandler = ""
+
+        reposeLogSearch.cleanLog()
+        MessageChain mc
+        def Map<String, String> headers = [
+                'Accept'           : 'application/xml',
+                'Host'             : 'LocalHost',
+                'User-agent'       : 'gdeproxy',
+                'x-tenant-id'      : '123456',
+                'x-roles'          : 'default',
+                'x-user-name'      : 'testuser',
+                'x-user-id'        : 'testuser',
+                'x-impersonator-name': 'impersonateuser',
+                'x-impersonator-id': '123456'
+        ]
+        if (responseCode != "200"){
+            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+        }
+
+        when:
+        "When Requesting " + method + "server/abcd"
+        mc = deproxy.makeRequest(url: reposeEndpoint +
+                "/resource"+parameters, method: method, headers: headers,
+                requestBody: "some data", defaultHandler: customHandler,
+                addDefaultHeaders: false
+        )
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+
+        then:
+        "result should be " + responseCode
+        mc.receivedResponse.code.equals(responseCode)
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.Method == method
+        (result.Request.URL).contains("/resource")
+        result.Response.Code == responseCode.toInteger()
+        result.Response.Message == respMsg
+
+        where:
+        responseCode | parameters               | method  | respMsg
+        "200"        | "?username=test"         | "POST"  | "OK"
+        "200"        | "?tenantId=12345"        | "PUT"   | "OK"
+        "415"        | "?id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "?resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
+        "500"        | "?resourceId=test123"    | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
 
     private boolean checkAttribute(String jsonpart, List listattr) {
