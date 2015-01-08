@@ -166,14 +166,6 @@
                     <include>valve-config.conf</include>
                 </includes>
             </resource>
-            <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>filteredProps.conf</exclude>
-                </excludes>
-            </resource>
         </resources>
         <testResources>
             <testResource>
