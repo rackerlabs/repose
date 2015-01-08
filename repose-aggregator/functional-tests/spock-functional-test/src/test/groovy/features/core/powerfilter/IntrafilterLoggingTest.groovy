@@ -80,7 +80,7 @@ class IntrafilterLoggingTest extends ReposeValveTest{
         JSONObject authreqline1 = convertToJson("Intrafilter Request Log", 0)
         assertHeadersExists(["X-Auth-Token","Intrafilter-UUID"], authreqline1)
         assertKeyValueMatch([
-                "currentFilter": "client-auth",
+                "currentFilter": "null-client-auth",
                 "httpMethod": "GET",
                 "requestURI": "/servers/server123",
                 "requestBody": ""
