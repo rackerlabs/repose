@@ -31,6 +31,8 @@ public class Patch extends AbstractRemoteCommand {
     private final byte[] value;
     private final int ttl;
 
+    private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
+
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Patch(TimeUnit timeUnit, SerializablePatch patch, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         super(cacheObjectKey, remoteEndpoint);
@@ -38,7 +40,7 @@ public class Patch extends AbstractRemoteCommand {
         this.ttl = ttl;
         byte[] deferredValue = null;
         try {
-            deferredValue = ObjectSerializer.instance().writeObject(patch);
+            deferredValue = objectSerializer.writeObject(patch);
         } catch (IOException ioe) {
             LOG.warn("unable to serialize object", ioe);
         }
@@ -63,7 +65,7 @@ public class Patch extends AbstractRemoteCommand {
             final InputStream internalStreamReference = response.getData();
 
              try {
-                 return ObjectSerializer.instance().readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
+                 return objectSerializer.readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
              } catch (ClassNotFoundException cnfe) {
                  throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
              }

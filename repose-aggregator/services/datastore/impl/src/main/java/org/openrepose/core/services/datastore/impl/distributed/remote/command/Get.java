@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
  * @author zinic
  */
 public class Get extends AbstractRemoteCommand {
+    private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
    public Get(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
       super(cacheObjectKey, remoteEndpoint);
@@ -35,7 +36,7 @@ public class Get extends AbstractRemoteCommand {
          final InputStream internalStreamReference = response.getData();
 
           try {
-              return ObjectSerializer.instance().readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
+              return objectSerializer.readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
           } catch (ClassNotFoundException cnfe) {
               throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
           }

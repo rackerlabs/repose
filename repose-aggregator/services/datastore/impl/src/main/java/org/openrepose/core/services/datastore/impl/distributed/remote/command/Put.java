@@ -19,6 +19,7 @@ public class Put extends AbstractRemoteCommand {
     private final TimeUnit timeUnit;
     private final Serializable value;
     private final int ttl;
+    private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Put(TimeUnit timeUnit, Serializable value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
@@ -38,7 +39,7 @@ public class Put extends AbstractRemoteCommand {
     @Override
     protected byte[] getBody() {
         try {
-            return ObjectSerializer.instance().writeObject(value);
+            return objectSerializer.writeObject(value);
         } catch (IOException ioe) {
             throw new DatastoreOperationException("Failed to serialize value to be put", ioe);
         }

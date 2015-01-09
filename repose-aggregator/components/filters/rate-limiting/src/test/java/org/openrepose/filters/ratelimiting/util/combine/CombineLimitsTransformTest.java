@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+//TODO: this test fails sometimes!
 public class CombineLimitsTransformTest {
 
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";

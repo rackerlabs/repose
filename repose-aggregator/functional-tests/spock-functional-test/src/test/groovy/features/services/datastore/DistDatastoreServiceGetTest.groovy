@@ -9,12 +9,16 @@ import org.rackspace.deproxy.PortFinder
 
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
+
     def DD_URI
     def DD_HEADERS = ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    def KEY_TOO_LARGE = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray()))
+    def KEY_TOO_LARGE = objectSerializer.writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray()))
     static def distDatastoreEndpoint
+
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -95,7 +99,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     def "GET of key after time to live has expired should return a 404"() {
 
-        def body = ObjectSerializer.instance().writeObject('foo')
+        def body = objectSerializer.writeObject('foo')
         given:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: ['X-PP-Host-Key': 'temp', 'X-TTL': '2'], requestBody: body])
 

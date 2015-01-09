@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PatchTest {
+    static final ObjectSerializer objectSerializer = new ObjectSerializer(GetTest.class.getClassLoader());
 
     @Test
     public void getUrl_shouldTargetCorrectPatchUrl() throws UnknownHostException {
@@ -42,7 +43,7 @@ public class PatchTest {
 
         // RemoteBehavior.ALLOW_FORWARDING
         final ServiceClientResponse response = mock(ServiceClientResponse.class);
-        final byte[] responseData = ObjectSerializer.instance().writeObject("Response Data");
+        final byte[] responseData = objectSerializer.writeObject("Response Data");
 
         ByteArrayInputStream bt = new ByteArrayInputStream(responseData);
 

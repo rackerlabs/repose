@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class GetTest {
+   //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+   static final ObjectSerializer objectSerializer = new ObjectSerializer(GetTest.class.getClassLoader());
 
    public static class WhenCreatingHttpRequestBase {
 
@@ -43,7 +45,7 @@ public class GetTest {
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          final String responseData = "Response Data";
 
-         ByteArrayInputStream bt = new ByteArrayInputStream(ObjectSerializer.instance().writeObject(responseData));
+         ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
 
          when(response.getData()).thenReturn(bt);
          when(response.getStatusCode()).thenReturn(200);

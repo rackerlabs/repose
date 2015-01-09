@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class PutTest {
-
+   static final ObjectSerializer objectSerializer = new ObjectSerializer(PutTest.class.getClassLoader());
    public static class WhenCreatingHttpRequestBase {
 
       @Test
@@ -48,7 +48,7 @@ public class PutTest {
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          final String responseData = "Response Data";
 
-         ByteArrayInputStream bt = new ByteArrayInputStream(ObjectSerializer.instance().writeObject(responseData));
+         ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
 
          when(response.getData()).thenReturn(bt);
          when(response.getStatusCode()).thenReturn(202);

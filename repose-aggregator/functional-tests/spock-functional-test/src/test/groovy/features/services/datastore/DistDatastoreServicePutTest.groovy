@@ -9,10 +9,12 @@ import org.rackspace.deproxy.PortFinder
 import static org.junit.Assert.assertTrue;
 
 class DistDatastoreServicePutTest extends ReposeValveTest {
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     String DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
-    def BODY = ObjectSerializer.instance().writeObject("test data")
+    def BODY = objectSerializer.writeObject("test data")
     static def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     static def distDatastoreEndpoint
@@ -73,7 +75,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT a cache object to an existing key should overwrite the cached value"() {
 
         when: "I make 2 PUT calls for 2 different values for the same key"
-        def newBody = ObjectSerializer.instance().writeObject("MY NEW VALUE")
+        def newBody = objectSerializer.writeObject("MY NEW VALUE")
         deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
         deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
 
@@ -101,7 +103,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT with empty string as body is allowed, and GET will return it"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS,
-                requestBody: ObjectSerializer.instance().writeObject("")])
+                requestBody: objectSerializer.writeObject("")])
 
         then:
         mc.receivedResponse.code == '202'
@@ -111,7 +113,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '200'
-        ObjectSerializer.instance().readObject(mc.receivedResponse.body) == ""
+        objectSerializer.readObject(mc.receivedResponse.body) == ""
     }
 
     def "PUT with no key should return 400 Bad Request"() {
@@ -172,7 +174,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT with really large body within limit (2MEGS 2097152) should return 202"() {
         given:
         def largeBodyContent = RandomStringUtils.random(2006139, ('A'..'Z').join().toCharArray())
-        def largeBody = ObjectSerializer.instance().writeObject(largeBodyContent)
+        def largeBody = objectSerializer.writeObject(largeBodyContent)
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
@@ -185,13 +187,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
-        assertTrue("Equals", largeBodyContent.size() == ObjectSerializer.instance().readObject(mc.receivedResponse.body).size())
+        assertTrue("Equals", largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body).size())
     }
 
     //@Ignore
     def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(
+        def largeBody = objectSerializer.writeObject(
                 RandomStringUtils.random(2097152, ('A'..'Z').join().toCharArray()))
 
         when:

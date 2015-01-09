@@ -546,7 +546,8 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldCheckCacheForCredentials() throws IOException {
             final AuthToken user = new OpenStackToken(authResponse);
-            byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
+
+            byte[] userInfoBytes = new ObjectSerializer(this.getClass().getClassLoader()).writeObject(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
 

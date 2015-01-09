@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
+
+    private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
     private final AtomicReference<DatastoreAccessControl> hostAcl;
     private Datastore localDatastore;
     private final DatastoreService datastoreService;
@@ -43,6 +45,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         this.clusterConfiguration = clusterConfiguration;
         this.hostAcl = new AtomicReference<>(acl);
         localDatastore = datastore.getDefaultDatastore();
+
+        new org.openrepose.core.services.ratelimit.cache.UserRateLimit();
     }
 
     /**
@@ -89,7 +93,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             final Serializable value = localDatastore.get(cacheGet.getCacheKey());
 
             if (value != null) {
-                resp.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
+                resp.getOutputStream().write(objectSerializer.writeObject(value));
                 resp.setStatus(HttpServletResponse.SC_OK);
 
             } else {
@@ -127,7 +131,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         if (CacheRequest.isCacheRequestValid(req)) {
             try {
                 final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
-                localDatastore.put(cachePut.getCacheKey(), ObjectSerializer.instance().readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+                localDatastore.put(cachePut.getCacheKey(), objectSerializer.readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
                 resp.setStatus(HttpServletResponse.SC_ACCEPTED);
             } catch (IOException ioe) {
                 LOG.error(ioe.getMessage(), ioe);
@@ -174,8 +178,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         if (CacheRequest.isCacheRequestValid(request)) {
             try {
                 final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
-                Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) ObjectSerializer.instance().readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
-                response.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
+                Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) objectSerializer.readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
+                response.getOutputStream().write(objectSerializer.writeObject(value));
                 response.setStatus(HttpServletResponse.SC_OK);
             } catch (IOException ioe) {
                 LOG.error(ioe.getMessage(), ioe);
