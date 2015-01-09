@@ -6,16 +6,19 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.impl.HttpConnectionPoolServiceImpl
 
 import static org.junit.Assert.*
+import static org.mockito.Mockito.mock
 
 class HttpConnectionPoolServiceImplEmptyPoolTest {
 
     HttpConnectionPoolConfig poolCfg;
     HttpConnectionPoolServiceImpl srv;
-    String  POOLU_ID = "POOLU_ID"
+    String POOLU_ID = "POOLU_ID"
     // Retrieve the defaults defined in the XSD.
     PoolType poolType = new PoolType()
     Integer POOLU_MAX_CON = poolType.getHttpConnManagerMaxTotal()
@@ -24,7 +27,7 @@ class HttpConnectionPoolServiceImplEmptyPoolTest {
     @Before
     void setUp() {
         poolCfg = new HttpConnectionPoolConfig();
-        srv = new HttpConnectionPoolServiceImpl();
+        srv = new HttpConnectionPoolServiceImpl(mock(ConfigurationService), mock(HealthCheckService));
         srv.configure(poolCfg);
     }
 

@@ -59,12 +59,13 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         httpClientUserManager = new HttpClientUserManager();
 
         configurationListener = new ConfigurationListener();
+        decommissionManager = new ClientDecommissionManager(httpClientUserManager);
+
     }
 
     @PostConstruct
     public void init() {
         LOG.debug("Initializing HttpConnectionPoolService");
-        decommissionManager = new ClientDecommissionManager(httpClientUserManager);
         decommissionManager.startThread();
 
         //Set up the configuration listener
