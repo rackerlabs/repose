@@ -637,6 +637,10 @@
                                     <excludes>
                                         <exclude>commons-logging:commons-logging</exclude>
                                         <exclude>com.rackspace.papi.commons:jetty-container</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-api</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-distributed</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-ehcache</exclude>
+                                        <exclude>com.rackspace.papi.components:datastores-support</exclude>
                                     </excludes>
                                     <searchTransitive>true</searchTransitive>
                                 </bannedDependencies>

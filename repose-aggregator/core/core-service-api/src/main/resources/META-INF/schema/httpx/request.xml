@@ -2,7 +2,7 @@
 
 <httpx xmlns='http://docs.rackspace.com/httpx/v1.0' 
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd'>
+    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 httpx.xsd'>
 
     <request method="PUT" uri="/request" version="HTTP/1.1" fidelity="HEAD BODY">
         <head fidelity="URI_DETAIL HEADERS">

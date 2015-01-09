@@ -30,10 +30,10 @@
     <dependencies>
         <!-- dependency needed for repose datastore interface -->
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-lib</artifactId>
-            <version>${project.version}</version>
+            <groupId>xerces</groupId>
+            <artifactId>xerces-xsd11</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -46,8 +46,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>datastore-api</artifactId>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
