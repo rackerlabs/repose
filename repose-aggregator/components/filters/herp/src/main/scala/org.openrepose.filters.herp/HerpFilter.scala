@@ -1,7 +1,8 @@
 package org.openrepose.filters.herp
 
 import java.io.{StringReader, StringWriter}
-import java.net.URL
+import java.net.{URLDecoder, URL}
+import java.nio.charset.StandardCharsets
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -68,10 +69,12 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse) = {
     def translateParameters(): Map[String, Array[Parameter]] = {
+      def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name())
+
       Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
         case Some(parameters) => {
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
-          parametersMap.mapValues((values: Array[String]) => values.map(Parameter(_))).toMap
+          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => Parameter(decode(value))) }).toMap
         }
         case None => Map[String, Array[Parameter]]()
       }
@@ -86,6 +89,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
+      "requestQueryString" -> httpServletRequest.getQueryString,
       "parameters" -> translateParameters().asJava.entrySet(),
       "timestamp" -> System.currentTimeMillis(),
       "responseCode" -> httpServletResponse.getStatus,
