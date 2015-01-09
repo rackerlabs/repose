@@ -95,11 +95,6 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         return serviceClientResponse;
     }
 
-    @Override
-    public void shutdown() {
-        actorSystem.shutdown();
-    }
-
     private Future getFuture(final ConsistentHashable hashableRequest, final Timeout timeout) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();
 

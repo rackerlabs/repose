@@ -6,7 +6,8 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
-import org.openrepose.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.impl.HttpConnectionPoolServiceImpl
 
 import static org.junit.Assert.*
 
