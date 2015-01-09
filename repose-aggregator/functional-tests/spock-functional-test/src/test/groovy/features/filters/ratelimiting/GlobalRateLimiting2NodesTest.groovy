@@ -56,7 +56,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/globalratelimit", params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
