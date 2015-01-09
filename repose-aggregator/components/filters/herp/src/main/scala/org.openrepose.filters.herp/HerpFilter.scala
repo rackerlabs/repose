@@ -20,6 +20,7 @@ import scala.collection.JavaConverters._
 
 class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
+  private final val X_PROJECT_ID = "X-Project-ID"
 
   private var configurationService: ConfigurationService = _
   private var config: String = _
@@ -70,7 +71,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
         case Some(parameters) => {
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
-          parametersMap.mapValues((values :Array[String]) => values.map(Parameter(_))).toMap
+          parametersMap.mapValues((values: Array[String]) => values.map(Parameter(_))).toMap
         }
         case None => Map[String, Array[Parameter]]()
       }
@@ -79,8 +80,9 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     val templateValues = Map(
       "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
       "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
-      "tenantID" -> httpServletRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString),
-      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(Role(_)).toArray,
+      "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.map(ProjectId)
+        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala.map(ProjectId)).toArray,
+      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(Role).toArray,
       "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
@@ -110,7 +112,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   override def configurationUpdated(config: HerpConfig): Unit = {
     def template: StringReader = {
       var templateText = config.getTemplate.getValue.trim
-      if(config.getTemplate.isCrush) {
+      if (config.getTemplate.isCrush) {
         templateText = templateText.replaceAll("(?m)[ \\t]*(\\r\\n|\\r|\\n)[ \\t]*", " ")
       }
       new StringReader(templateText)
@@ -131,4 +133,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 }
 
 case class Role(name: String) {}
+
+case class ProjectId(id: String) {}
+
 case class Parameter(value: String) {}

@@ -24,7 +24,11 @@
                           },
            "UserName" : "{{userName}}",
            "ImpersonatorName" : "{{impersonatorName}}",
-           "TenantID" : "{{tenantID}}",
+           "ProjectID" : [
+                           {{#projectID}}
+                           "{{id}}",
+                           {{/projectID}}
+                         ],
            "Roles" : [
                        {{#roles}}
                        "{{name}}",

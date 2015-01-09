@@ -56,7 +56,11 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
         |                  },
         |   "UserName" : "{{userName}}",
         |   "ImpersonatorName" : "{{impersonatorName}}",
-        |   "TenantID" : "{{tenantID}}",
+        |   "ProjectID" : [
+        |                   {{#projectID}}
+        |                   "{{id}}",
+        |                   {{/projectID}}
+        |                 ],
         |   "Roles" : [
         |               {{#roles}}
         |               "{{name}}",
@@ -212,7 +216,35 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"TenantID\" : \"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [ \"foo\" ]")
+    }
+    it("should extract and log multiple tenant id header values") {
+      // given:
+      servletRequest.addHeader("X-Tenant-Id", "foo")
+      servletRequest.addHeader("X-Tenant-Id", "bar")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [ \"foo\", \"bar\" ]")
+    }
+    it("should extract and log multiple project id header values") {
+      // given:
+      servletRequest.addHeader("X-Project-Id", "foo")
+      servletRequest.addHeader("X-Project-Id", "bar")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [ \"foo\", \"bar\" ]")
     }
     it("should extract and log the request roles header") {
       // given:
