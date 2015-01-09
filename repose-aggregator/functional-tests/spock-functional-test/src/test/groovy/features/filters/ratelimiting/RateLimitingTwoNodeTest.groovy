@@ -57,7 +57,10 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
-        repose.start()
+        // Doesn't matter which node is given, just need one from the config to prevent:
+        //    Unable to guess what nodeID you want in cluster: repose
+        repose.start([clusterId: "repose", nodeId:"dd-node-1"])
+        //repose.start([clusterId: "repose", nodeId:"dd-node-2"])
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
