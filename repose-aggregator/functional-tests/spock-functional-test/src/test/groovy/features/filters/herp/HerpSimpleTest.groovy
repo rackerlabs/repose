@@ -139,7 +139,7 @@ class HerpSimpleTest extends ReposeValveTest {
         when:
         "When Requesting " + method + "server/abcd"
         mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource"+parameters, method: method, headers: headers,
+                "/resource?"+parameters, method: method, headers: headers,
                 requestBody: "some data", defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
@@ -147,6 +147,9 @@ class HerpSimpleTest extends ReposeValveTest {
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
+        def map = buildParamList(parameters)
+        println (map)
+        println (checkParams(jsonpart, map))
 
         then:
         "result should be " + responseCode
@@ -159,22 +162,65 @@ class HerpSimpleTest extends ReposeValveTest {
         (result.Request.URL).contains("/resource")
         result.Response.Code == responseCode.toInteger()
         result.Response.Message == respMsg
+        checkParams(jsonpart, map)
+
 
         where:
-        responseCode | parameters               | method  | respMsg
-        "200"        | "?username=test"         | "POST"  | "OK"
-        "200"        | "?tenantId=12345"        | "PUT"   | "OK"
-        "415"        | "?id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "?resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
-        "500"        | "?id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
+        responseCode | parameters              | method  | respMsg
+        "200"        | "username=test"         | "POST"  | "OK"
+        "200"        | "tenantId=12345"        | "PUT"   | "OK"
+        "415"        | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
+        "500"        | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
 
+    // Check all required attributes in the log
     private boolean checkAttribute(String jsonpart, List listattr) {
         boolean check = true
         for (attr in listattr) {
             if (!jsonpart.contains(attr)) {
                 check = false
                 break
+            }
+        }
+        return check
+    }
+
+    // Build map for query parameters from request
+    private Map<String, List> buildParamList(String parameters) {
+        Map <String, List> params = [:]
+        List <String> list = parameters.split("&")
+        List <String> av = []
+        for (e in list) {
+            def (k, v) = e.split("=")
+            av.add(v)
+            if (params[k]==null) {
+                params[k] = av
+                av = []
+            }
+            else {
+                List ov = params[k]
+                ov.add(v)
+                params[k] = ov
+            }
+        }
+        return params
+    }
+
+    // Check if all parameters include in Parameters tag
+    private boolean checkParams(String jsonpart, Map <String, List> map) {
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+        boolean check = true
+
+        for (e in map) {
+            List iv = e.value
+            for (v in iv) {
+                if (!(result.Request.Parameters.(e.key).contains(v))) {
+                    check = false
+                    break
+                }
             }
         }
         return check
