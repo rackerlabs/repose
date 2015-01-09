@@ -1,18 +1,20 @@
 package org.openrepose.filters.ratelimiting;
 
+import com.sun.jersey.server.impl.provider.RuntimeDelegateImpl;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
-import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
+import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -21,6 +23,7 @@ import java.util.List;
 
 public class RateLimitingServiceHelper {
 
+   private static final RuntimeDelegateImpl runtimeDelegateImpl = new RuntimeDelegateImpl();
    private final RateLimitingService service;
    private final ActiveLimitsWriter activeLimitsWriter;
    private final CombinedLimitsWriter combinedLimitsWriter;
@@ -29,6 +32,10 @@ public class RateLimitingServiceHelper {
       this.service = service;
       this.activeLimitsWriter = activeLimitsWriter;
       this.combinedLimitsWriter = combinedLimitsWriter;
+      // This fixes the ClassNotFoundException: org.glassfish.jersey.internal.RuntimeDelegateImpl
+      // and requires the Maven dependency: com.sun.jersey:jersey-server:jar:1.16:compile
+      // http://www.programcreek.com/java-api-examples/index.php?api=javax.ws.rs.ext.RuntimeDelegate
+      RuntimeDelegate.setInstance(runtimeDelegateImpl);
    }
 
    public MimeType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
