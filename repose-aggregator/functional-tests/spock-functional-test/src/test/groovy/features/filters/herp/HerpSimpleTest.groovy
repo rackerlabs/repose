@@ -166,7 +166,7 @@ class HerpSimpleTest extends ReposeValveTest {
         "200"        | "?tenantId=12345"        | "PUT"   | "OK"
         "415"        | "?id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
         "413"        | "?resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
-        "500"        | "?resourceId=test123"    | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "500"        | "?id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
 
     private boolean checkAttribute(String jsonpart, List listattr) {
