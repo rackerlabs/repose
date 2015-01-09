@@ -38,6 +38,7 @@
         <module>content-type-stripper</module>
         <module>derp</module>
         <module>add-header</module>
+        <module>forwarded-proto</module>
     </modules>
 
     <properties>
