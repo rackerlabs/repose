@@ -90,6 +90,12 @@
             <version>2.12.0-rax</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>rate-limiting-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
