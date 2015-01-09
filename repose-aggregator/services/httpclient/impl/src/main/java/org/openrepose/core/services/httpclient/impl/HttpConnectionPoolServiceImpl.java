@@ -1,11 +1,12 @@
 package org.openrepose.core.services.httpclient.impl;
 
+import org.apache.http.params.CoreConnectionPNames;
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
+import org.openrepose.core.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
-import org.openrepose.core.service.httpclient.config.PoolType;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
@@ -32,6 +33,7 @@ import static org.openrepose.core.services.httpclient.impl.HttpConnectionPoolPro
 public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
     private static PoolType DEFAULT_POOL = new PoolType();
+    private static final String DEFAULT_POOL_ID =  "DEFAULT_POOL";
     private Map<String, HttpClient> poolMap;
     private final ConfigurationService configurationService;
     private String defaultClientId;
@@ -93,7 +95,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
         if (poolMap.isEmpty()) {
-            defaultClientId = "DEFAULT_POOL";
+            defaultClientId = DEFAULT_POOL_ID;
             HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
         }
@@ -133,7 +135,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     public void configure(HttpConnectionPoolConfig config) {
-
         HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
 
         for (PoolType poolType : config.getPool()) {
@@ -148,7 +149,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         }
 
         poolMap = newPoolMap;
-
     }
 
     @Override
@@ -172,11 +172,23 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
     @Override
     public int getMaxConnections(String clientId) {
-
         if (poolMap.containsKey(clientId)) {
             return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return ((PoolingClientConnectionManager) poolMap.get(defaultClientId).getConnectionManager()).getMaxTotal();
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
+        }
+    }
+
+    @Override
+    public int getSocketTimeout(String clientId) {
+        if (poolMap.containsKey(clientId)) {
+            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return poolMap.get(defaultClientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        } else {
+            return DEFAULT_POOL.getHttpSocketTimeout();
         }
     }
 

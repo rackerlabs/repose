@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>7.0.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>forwarded-proto</artifactId>
+
+    <name>Repose Components - Forwarded Protocol</name>
+
+    <description>
+        This filter supports the X-Forwarded-Proto header.
+    </description>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Let's use Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <!-- Http Delegation Library for delegating requests -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>http-delegation</artifactId>
+        </dependency>
+
+        <!-- MutableHttpServletRequest -->
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+
+        <!-- Mockrunner for mock HttpServletRequest -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Lazy logging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- The plugin that gets Scala running -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

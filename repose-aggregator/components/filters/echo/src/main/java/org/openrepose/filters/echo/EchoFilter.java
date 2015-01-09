@@ -1,8 +1,6 @@
 package org.openrepose.filters.echo;
 
 import org.eclipse.jetty.http.HttpStatus;
-import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
-import org.slf4j.Logger;
 
 import javax.inject.Named;
 import javax.servlet.*;
@@ -14,12 +12,8 @@ import java.util.Enumeration;
 @Named
 public class EchoFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(EchoFilter.class);
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
 

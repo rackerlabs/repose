@@ -104,6 +104,5 @@ class AkkaServiceClientImplTest {
         assertEquals(returnString1, returnString2)
         assertEquals(returnString, returnString2)
         assertEquals(returnString, returnString1)
-
     }
 }

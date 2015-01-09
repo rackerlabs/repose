@@ -57,4 +57,9 @@ public interface HttpClientService {
      * Returns the maximum number of connections available for the given clientId
      */
     int getMaxConnections(String clientId);
+
+    /**
+     * Returns the timeout of socket for the given clientId in milliseconds
+     */
+    int getSocketTimeout(String clientId);
 }
