@@ -195,8 +195,14 @@ class ValveRunner @Inject()(
         currentContainerConfig.set(configurationObject)
 
         nodeModificationLock.synchronized {
+          logger.debug({
+            "ALL Nodes restarted (Container Config updated): " +
+              activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+          })
           activeNodes = activeNodes.map { node =>
-            node.restart()
+            val n1 = node.restart()
+            n1.start()
+            n1
           }
         }
 
