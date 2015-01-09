@@ -3,7 +3,6 @@ package org.openrepose.powerfilter;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
@@ -351,7 +350,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
         long streamLimit = containerConfigurationService.getContentBodyReadLimit();
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
