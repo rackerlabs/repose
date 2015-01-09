@@ -120,6 +120,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.rax_default_region.map {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
         }
+        token.get.project.foreach { project =>
+          project.name.foreach { projectName =>
+            requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
+          }
+        }
         projectIdUriRegex match {
           case Some(regex) =>
             writeProjectHeader(token.flatMap(_.project.flatMap(_.id)), token.flatMap(_.roles).getOrElse(List[Role]()),
