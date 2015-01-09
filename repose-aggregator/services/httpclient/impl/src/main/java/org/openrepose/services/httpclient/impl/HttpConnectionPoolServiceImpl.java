@@ -1,5 +1,6 @@
 package org.openrepose.services.httpclient.impl;
 
+import org.apache.http.params.CoreConnectionPNames;
 import org.openrepose.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.services.httpclient.HttpClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
@@ -20,6 +21,7 @@ import static org.openrepose.services.httpclient.impl.HttpConnectionPoolProvider
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
 
     private static PoolType DEFAULT_POOL = new PoolType();
+    private static final String DEFAULT_POOL_ID =  "DEFAULT_POOL";
     private Map<String, HttpClient> poolMap;
     private String defaultClientId;
     private ClientDecommissionManager decommissionManager;
@@ -39,7 +41,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
         if (poolMap.isEmpty()) {
-            defaultClientId = "DEFAULT_POOL";
+            defaultClientId = DEFAULT_POOL_ID;
             HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
         }
@@ -80,7 +82,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void configure(HttpConnectionPoolConfig config) {
-
         HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
 
         for (PoolType poolType : config.getPool()) {
@@ -95,7 +96,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         }
 
         poolMap = newPoolMap;
-
     }
 
     @Override
@@ -119,11 +119,23 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public int getMaxConnections(String clientId) {
-
         if (poolMap.containsKey(clientId)) {
             return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return ((PoolingClientConnectionManager) poolMap.get(defaultClientId).getConnectionManager()).getMaxTotal();
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
+        }
+    }
+
+    @Override
+    public int getSocketTimeout(String clientId) {
+        if (poolMap.containsKey(clientId)) {
+            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        } else if (poolMap.containsKey(defaultClientId)) {
+            return poolMap.get(defaultClientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        } else {
+            return DEFAULT_POOL.getHttpSocketTimeout();
         }
     }
 
