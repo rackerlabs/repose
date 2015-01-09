@@ -19,12 +19,6 @@
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>default-router</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rate-limiting</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -199,11 +193,6 @@
                     <generateApplicationXml>false</generateApplicationXml>
 
                     <modules>
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>default-router</artifactId>
-                        </jarModule>
-
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>versioning</artifactId>
