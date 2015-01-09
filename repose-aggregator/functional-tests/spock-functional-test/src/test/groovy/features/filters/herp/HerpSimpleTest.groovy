@@ -4,7 +4,6 @@ import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
 /**
  * Created by jennyvo on 12/16/14.
@@ -30,7 +29,7 @@ class HerpSimpleTest extends ReposeValveTest {
             repose.stop()
         }
     }
-    @Ignore
+
     def "simple simple test"() {
         setup:
         List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
@@ -55,7 +54,7 @@ class HerpSimpleTest extends ReposeValveTest {
         result.Response.Code == 200
         result.Response.Message == "OK"
     }
-    @Ignore
+
     @Unroll("Test Herp filter with method #method, origin service respCode #responseCode")
     def "Happy path using herp with simple request"() {
         setup: "declare messageChain to be of type MessageChain"
