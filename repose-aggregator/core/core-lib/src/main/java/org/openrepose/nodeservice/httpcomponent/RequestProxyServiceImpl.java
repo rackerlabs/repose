@@ -89,6 +89,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     @PreDestroy
     public void destroy() {
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
     }
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {

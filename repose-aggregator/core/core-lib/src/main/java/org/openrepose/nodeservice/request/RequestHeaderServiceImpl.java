@@ -71,6 +71,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     public void destroy() {
         configurationService.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
     }
 
     public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder) {

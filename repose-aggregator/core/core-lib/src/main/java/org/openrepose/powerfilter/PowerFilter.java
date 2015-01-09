@@ -311,6 +311,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 context.destroy();
             }
         }
+
+        //Ensure that since we're dying any health check stuff we reported doesn't matter
+        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
     }
 
     private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
