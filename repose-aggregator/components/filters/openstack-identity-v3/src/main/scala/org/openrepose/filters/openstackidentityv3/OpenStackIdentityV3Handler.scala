@@ -109,16 +109,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         // Set the appropriate headers
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-        token.get.user.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
-        token.get.roles.map { roles =>
+        token.get.user.name.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
+        token.get.roles.foreach { roles =>
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
         }
-        token.get.user.id.map { id =>
+        token.get.user.id.foreach { id =>
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
-        token.get.user.rax_default_region.map {
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _)
+        token.get.user.rax_default_region.foreach { defaultRegion =>
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
         token.get.project.foreach { project =>
           project.name.foreach { projectName =>
@@ -135,12 +135,12 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
               None, identityConfig.isSendAllProjectIds, identityConfig.isSendProjectIdQuality,
               filterDirector.requestHeaderManager)
         }
-        token.get.rax_impersonator.map { impersonator =>
-          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
-          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString,_))
+        token.get.rax_impersonator.foreach { impersonator =>
+          impersonator.id.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+          impersonator.name.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         }
         if (forwardCatalog) {
-          token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+          token.get.catalog.foreach(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
         }
         if (forwardGroups) {
           userGroups.foreach(group => requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group + ";q=1.0"))
