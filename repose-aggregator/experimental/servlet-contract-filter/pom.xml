@@ -8,7 +8,6 @@
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components.experimental</groupId>
     <artifactId>servlet-contract-filter</artifactId>
 
     <name>Servlet Contract Filter</name>
@@ -31,12 +30,6 @@
             <artifactId>javax.servlet</artifactId>
             <version>3.1</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

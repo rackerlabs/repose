@@ -8,7 +8,6 @@
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
     <artifactId>filter-bundle</artifactId>
 
     <name>Repose Components - EAR Bundle</name>
@@ -17,12 +16,6 @@
     <packaging>ear</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>default-router</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rate-limiting</artifactId>
@@ -205,11 +198,6 @@
                     <generateApplicationXml>false</generateApplicationXml>
 
                     <modules>
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>default-router</artifactId>
-                        </jarModule>
-
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>versioning</artifactId>
