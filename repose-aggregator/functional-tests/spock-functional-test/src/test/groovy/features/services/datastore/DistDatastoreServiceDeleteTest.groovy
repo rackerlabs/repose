@@ -9,16 +9,15 @@ import org.rackspace.deproxy.PortFinder
 
 class DistDatastoreServiceDeleteTest extends ReposeValveTest {
 
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
+
     def DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
     def BODY = objectSerializer.writeObject('test body')
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     static def distDatastoreEndpoint
-
-    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
-    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
-
 
     def setupSpec() {
         deproxy = new Deproxy()
