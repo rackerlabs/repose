@@ -155,7 +155,7 @@ class HerpSimpleTest extends ReposeValveTest {
         result.ServiceCode == "repose"
         result.Region == "USA"
         result.DataCenter == "DFW"
-        result.Request.ProjectID == "123456"
+        result.Request.ProjectID[0] == "123456"
         result.Request.UserName == "testuser"
         result.Request.ImpersonatorName == "impersonateuser"
         result.Request.Method == method
@@ -220,7 +220,7 @@ class HerpSimpleTest extends ReposeValveTest {
         result.ServiceCode == "repose"
         result.Region == "USA"
         result.DataCenter == "DFW"
-        result.Request.ProjectID == "123456"
+        result.Request.ProjectID[0] == "123456"
         result.Request.UserName == "testuser"
         result.Request.ImpersonatorName == "impersonateuser"
         result.Request.Method == method
@@ -284,7 +284,7 @@ class HerpSimpleTest extends ReposeValveTest {
         for (e in map) {
             List iv = e.value
             for (v in iv) {
-                if (!(result.Request.Parameters.(e.key).contains(v))) {
+                if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v,"UTF-8")))) {
                     check = false
                     break
                 }

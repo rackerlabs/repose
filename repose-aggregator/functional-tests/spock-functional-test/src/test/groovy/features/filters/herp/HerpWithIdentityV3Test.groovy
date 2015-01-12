@@ -50,6 +50,7 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             default_region = "DFW"
+            client_userid = 12345
             impersonate_name="impersonateuser"
             impersonate_id="567"
         }
@@ -67,7 +68,7 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         result.Region == "USA"
         result.DataCenter == "DFW"
         result.Request.Method == "GET"
-        result.Request.ProjectID == "123456"
+        result.Request.ProjectID[0] == null
         result.Request.UserName == "username"
         result.Request.ImpersonatorName == fakeIdentityV3Service.impersonate_name
         result.Response.Code == 200
