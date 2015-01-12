@@ -3,8 +3,10 @@ package features.filters.herp
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
 import groovy.json.JsonSlurper
+import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 /**
  * Created by jennyvo on 1/12/15.
@@ -62,6 +64,40 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         result.Request.Method == "GET"
         result.Response.Code == 200
         result.Response.Message == "OK"
+    }
+
+    def "when client failed to authenticate, the auth filter failed before get to herp" () {
+        given:
+        List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
+        reposeLogSearch.cleanLog()
+        fakeIdentityV3Service.with {
+            client_domainid = 11111
+            client_userid = 11111
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        fakeIdentityV3Service.validateTokenHandler = {
+            tokenId, request ->
+                new Response(404, null, null, fakeIdentityV3Service.identityFailureAuthJsonRespTemplate)
+        }
+
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/11111/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "401"
+        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://"+identityEndpoint.hostname+":"+properties.identityPort
+        !reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
     }
 
     // Check all required attributes in the log

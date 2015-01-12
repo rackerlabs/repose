@@ -33,7 +33,7 @@ class HerpSimpleTest extends ReposeValveTest {
     def "simple simple test"() {
         setup:
         List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
-                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
         reposeLogSearch.cleanLog()
         MessageChain messageChain
 
@@ -59,7 +59,7 @@ class HerpSimpleTest extends ReposeValveTest {
     def "Happy path using herp with simple request"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
-                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
 
         reposeLogSearch.cleanLog()
         MessageChain mc
@@ -115,7 +115,7 @@ class HerpSimpleTest extends ReposeValveTest {
     def "Herp test with api body request"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
-                         "UserName", "ImpersonatorName", "TenantID", "Role", "UserAgent", "Response", "Code", "Message"]
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
         def customHandler = ""
 
         reposeLogSearch.cleanLog()
@@ -155,6 +155,9 @@ class HerpSimpleTest extends ReposeValveTest {
         result.ServiceCode == "repose"
         result.Region == "USA"
         result.DataCenter == "DFW"
+        result.Request.ProjectID == "123456"
+        result.Request.UserName == "testuser"
+        result.Request.ImpersonatorName == "impersonateuser"
         result.Request.Method == method
         (result.Request.URL).contains("/resource")
         result.Response.Code == responseCode.toInteger()
@@ -217,6 +220,9 @@ class HerpSimpleTest extends ReposeValveTest {
         result.ServiceCode == "repose"
         result.Region == "USA"
         result.DataCenter == "DFW"
+        result.Request.ProjectID == "123456"
+        result.Request.UserName == "testuser"
+        result.Request.ImpersonatorName == "impersonateuser"
         result.Request.Method == method
         (result.Request.URL).contains("/resource")
         result.Response.Code == responseCode.toInteger()
@@ -236,6 +242,8 @@ class HerpSimpleTest extends ReposeValveTest {
 
     // Check all required attributes in the log
     private boolean checkAttribute(String jsonpart, List listattr) {
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
         boolean check = true
         for (attr in listattr) {
             if (!jsonpart.contains(attr)) {
