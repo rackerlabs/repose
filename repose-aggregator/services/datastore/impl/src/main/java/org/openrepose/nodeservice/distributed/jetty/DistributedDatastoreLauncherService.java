@@ -190,6 +190,8 @@ public class DistributedDatastoreLauncherService {
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
+        
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
 
         stopDistributedDatastore();

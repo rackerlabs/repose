@@ -42,8 +42,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return true;
     }
 
-    public void deregister(HealthCheckServiceProxy proxy) {
-        reports.remove(proxy);
+    private Map<String, HealthCheckReport> deregister(HealthCheckServiceProxy proxy) {
+        return reports.remove(proxy);
     }
 
     private HealthCheckReport getDiagnosis(HealthCheckServiceProxy proxy, String issueName) {

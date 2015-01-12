@@ -33,7 +33,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private final ContainerConfigurationListener containerConfigurationListener;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationService;
-    private final HealthCheckService healthCheckService;
     private final String clusterId;
     private final String nodeId;
     private final String reposeVersion;
@@ -50,28 +49,26 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
                                     @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
-        this.healthCheckService = healthCheckService;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.reposeVersion = reposeVersion;
 
         this.containerConfigurationListener = new ContainerConfigurationListener();
         this.systemModelListener = new SystemModelListener();
+        healthCheckServiceProxy = healthCheckService.register(); //Sometimes we might deregister before we get to init
     }
 
     @PostConstruct
     public void init() {
-        healthCheckServiceProxy = healthCheckService.register();
-
         configurationService.subscribeTo("container.cfg.xml", containerConfigurationListener, ContainerConfiguration.class);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         configurationService.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
-        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
     }
 
     public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder) {
