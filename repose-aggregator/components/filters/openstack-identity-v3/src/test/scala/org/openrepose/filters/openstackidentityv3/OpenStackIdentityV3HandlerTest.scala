@@ -4,6 +4,7 @@ import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
@@ -298,16 +299,16 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, false, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(uriPid))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid))
     }
 
     it("should provide all the projects when the flag says to write all") {
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, false, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"))
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("67890"))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq("12345"))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq("67890"))
     }
 
     it("should handle when roles are present but project ids are missing") {
@@ -315,7 +316,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val uriPid = java.util.UUID.randomUUID.toString
       val roleList = List(Role(null, null, None, None, None), Role(null, null, None, None, None))
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid))
     }
 
     it("should handle when project ids are missing and not missing") {
@@ -323,24 +324,24 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val uriPid = java.util.UUID.randomUUID.toString
       val roleList = List(Role(null, null, None, None, None), Role(null, null, Option("foo"), None, None), Role(null, null, None, None, None))
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid))
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("foo"))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq("foo"))
     }
 
     it("should add qualities when flagged and not writing all") {
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, true, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(uriPid), org.mockito.Matchers.eq(1.0))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid), mockitoEq(1.0))
     }
 
     it("should add qualities when flagged and writing all") {
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, true, headerManager)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(defaultPid), org.mockito.Matchers.eq(1.0))
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq(0.5))
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq(0.5))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid), mockitoEq(1.0))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq("12345"), mockitoEq(0.5))
+      verify(headerManager).appendHeader(mockitoEq("X-Project-ID"), mockitoEq("67890"), mockitoEq(0.5))
     }
   }
 
