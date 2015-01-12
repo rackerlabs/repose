@@ -69,10 +69,30 @@ public class CombineLimitsTransformTest {
         final String actual = output.toString();
         final Matcher matcher = validationPattern.matcher(actual);
 
-        assertTrue("Combined limits must match expected output pattern", matcher.matches());
-
-        assertNotNull("Combined limits must include rate limits", matcher.group(1));
-        assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+        try {
+            assertTrue("Combined limits must match expected output pattern", matcher.matches());
+            assertNotNull("Combined limits must include rate limits", matcher.group(1));
+            assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+        } catch (AssertionError e) {
+            System.err.println("================================================================================");
+            System.err.println("This is the CombineLimitsTransformTest AssertionError output:");
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("is = " + is);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("rll = " + rll);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("tPair = " + tPair);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("output = " + output);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("combiner = " + combiner);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("actual = " + actual);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("matcher = " + matcher);
+            System.err.println("================================================================================");
+            throw e;
+        }
     }
 
     @Test
