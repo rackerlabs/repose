@@ -70,10 +70,10 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    This is the mustache based template that will be used to output events.
+                    This is the Handlebars or Mustache based template that will be used to output events.
                     Supported fields include guid, serviceCode, region, dataCenter, timestamp, requestMethod,
-                    requestURL, parameters, userNames, impersonatorName, projectID, roles, userAgent, responseCode,
-                    responseMessage.
+                    requestURL, requestQueryString, parameters, userNames, impersonatorName, projectID, roles,
+                    userAgent, responseCode, responseMessage.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
