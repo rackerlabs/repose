@@ -46,8 +46,13 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         reposeLogSearch.cleanLog()
 
         when: "I send a GET request to Repose with an X-Subject-Token header"
-        fakeIdentityV3Service.resetCounts()
-        fakeIdentityV3Service.default_region = "DFW"
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            default_region = "DFW"
+            impersonate_name="impersonateuser"
+            impersonate_id="567"
+        }
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
@@ -62,6 +67,9 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         result.Region == "USA"
         result.DataCenter == "DFW"
         result.Request.Method == "GET"
+        result.Request.ProjectID == "123456"
+        result.Request.UserName == "username"
+        result.Request.ImpersonatorName == fakeIdentityV3Service.impersonate_name
         result.Response.Code == 200
         result.Response.Message == "OK"
     }
