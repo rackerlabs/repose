@@ -1,16 +1,17 @@
 package framework.client.jmx
 
 import org.linkedin.util.clock.SystemClock
+import org.spockframework.runtime.SpockAssertionError
+import org.spockframework.runtime.SpockTimeoutError
+import spock.util.concurrent.PollingConditions
 
 import javax.management.MBeanServerConnection
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
 
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-
 /**
- * Simple JMX client
+ * Deceptively Simple JMX client
  */
 class JmxClient {
 
@@ -25,111 +26,93 @@ class JmxClient {
     }
 
     /**
+     * Takes a closure of code to evaluate, and wraps it with a bit more context around why JMX might timeout
+     * TODO: this should go into a test library
+     * @param tehCode TEH CODE
+     * @return
+     */
+    static def eventually(Closure tehCode) {
+        def conditions = new PollingConditions(timeout: 25, initialDelay: 0, delay: 0.1)
+        Exception whyFail = null
+
+        try {
+            conditions.eventually {
+                try {
+                    tehCode.call()
+                } catch (Exception e) {
+                    //Don't actually care, because eventually a thingy
+                    whyFail = e
+                    assert false
+                }
+            }
+        } catch (SpockTimeoutError ste) {
+            throw new SpockAssertionError(ste.getMessage(), whyFail)
+        }
+
+    }
+
+    /**
      * Looks for a particular mbean & attribute by JMX name and returns it.
-     *
      *
      * @param name - complete MBean name, to be passed into ObjectName
      * @return
      */
-    def getMBeanAttribute( name, attr ) {
-
-        def obj
-
-        try {
-            waitForCondition( clock, '25s', '1s', {
-                obj = server.getAttribute( new ObjectName( name ), attr )
-                obj != null
-            })
-        } catch (TimeoutException) {
-            // ignore this and simply return the total mbeans found
+    def getMBeanAttribute(name, attr) {
+        def obj = null
+        eventually {
+            obj = server.getAttribute(new ObjectName(name), attr)
+            assert obj != null
         }
-
-        obj
+        return obj
     }
+
 
     /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
-     *
-     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
      *
      * @param beanName
      * @return
      */
     def getMBeans(domain, expectedClassName, expectedCount) {
+        def mbeans = null
 
-        def mbeans
-
-        try {
-            waitForCondition(clock, '30s', '1s', {
-                def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
-                mbeans = beansInDomain.findAll { it.className == expectedClassName }
-                mbeans.size() == expectedCount
-            })
-        } catch (TimeoutException) {
-            // ignore this and simply return the total mbeans found
+        eventually {
+            def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
+            mbeans = beansInDomain.findAll { it.className == expectedClassName }
+            assert mbeans.size() == expectedCount
         }
 
-        mbeans
+        return mbeans
     }
     /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
-     *
-     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
      *
      * @param beanName
      * @return
      */
     def getMBeans(domain) {
-
-        def mbeans
-
-        try {
-            waitForCondition(clock, '25s', '1s', {
-                mbeans = server.queryMBeans(new ObjectName(domain), null)
-                mbeans != null && mbeans.size() >= 1
-            })
-        } catch (TimeoutException) {
-            // ignore this and simply return the total mbeans found
+        def mbeans = null
+        eventually {
+            mbeans = server.queryMBeans(new ObjectName(domain), null)
+            assert mbeans != null && mbeans.size() >= 1
         }
-
-        mbeans
+        return mbeans
     }
+
     /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
-     *
-     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
      *
      * @param beanName
      * @return
      */
     def getMBeanNames(domain) {
-
         def mbeans
 
-        try {
-            waitForCondition(clock, '25s', '1s', {
-                mbeans = server.queryNames(new ObjectName(domain), null)
-                mbeans != null && mbeans.size() >= 1
-            })
-        } catch (TimeoutException) {
-            // ignore this and simply return the total mbeans found
+        eventually {
+            mbeans = server.queryNames(new ObjectName(domain), null)
+            assert mbeans != null && mbeans.size() >= 1
         }
 
-        mbeans
+        return mbeans
     }
-
-    /**
-     * Accounting for some test flakiness caused by some latency in MBeans being available to JMX clients.
-     *
-     * Either this is due to async processing with the JMX mbean registration, or there is some latency
-     * with an MBean being visible to a client.
-     *
-     */
-    def getMBeanCount(domain, expectedClassName, expectedCount) {
-        def Set mbeans = getMBeans(domain, expectedClassName, expectedCount)
-        mbeans.size()
-    }
-
-
-
 }
