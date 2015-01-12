@@ -36,7 +36,7 @@ class IriValidatorFilter extends Filter with LazyLogging {
     } catch {
       case e: IRIException =>
         logger.error(s"$requestUrl is an invalid IRI, rejecting the request")
-        httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST)
+        httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getViolation.getShortMessage)
     }
   }
 }
