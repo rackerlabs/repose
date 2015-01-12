@@ -2,9 +2,10 @@ package features.filters.apivalidator
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
+import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
+import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
@@ -60,18 +61,21 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     }
 
     def "when loading validators on startup, should register validator MXBeans"() {
-
-        deproxy.makeRequest(url: reposeEndpoint + "/")
+        def conditions = new PollingConditions(timeout: 60, initialDelay: 10, factor: 5)
 
         when:
-        def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+        deproxy.makeRequest(url: reposeEndpoint + "/")
 
         then:
-        validatorBeans.size() == 3
+        conditions.eventually {
+            def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+            assert validatorBeans.size() == 3
+        }
+
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
-
+        def conditions = new PollingConditions(timeout: 60, initialDelay: 10, factor: 5)
         deproxy.makeRequest(url: reposeEndpoint + "/")
 
         given:
@@ -80,14 +84,14 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         when: "I update the Repose API Validator filter with 2 new validators"
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
 
-        and: "I send a request to Repose to ensure that the filter registers the new validator MBeans"
-        def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
-
         then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
-        afterUpdateBeans.size() == 2
-        afterUpdateBeans.each { updatedBean ->
-            beforeUpdateBeans.each {
-                assert (updatedBean.name != it.name)
+        conditions.eventually {
+            def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
+            assert afterUpdateBeans.size() == 2
+            afterUpdateBeans.each { updatedBean ->
+                beforeUpdateBeans.each {
+                    assert (updatedBean.name != it.name)
+                }
             }
         }
     }
