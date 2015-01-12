@@ -72,7 +72,7 @@
                 <html:p>
                     This is the mustache based template that will be used to output events.
                     Supported fields include guid, serviceCode, region, dataCenter, timestamp, requestMethod,
-                    requestURL, parameters, userNames, impersonatorName, tenantID, roles, userAgent, responseCode,
+                    requestURL, parameters, userNames, impersonatorName, projectID, roles, userAgent, responseCode,
                     responseMessage.
                 </html:p>
             </xs:documentation>
