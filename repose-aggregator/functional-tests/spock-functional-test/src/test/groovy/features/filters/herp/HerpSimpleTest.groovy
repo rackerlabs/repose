@@ -147,8 +147,6 @@ class HerpSimpleTest extends ReposeValveTest {
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
         def map = buildParamList(parameters)
-        println (map)
-        println (checkParams(jsonpart, map))
 
         then:
         "result should be " + responseCode
@@ -169,6 +167,67 @@ class HerpSimpleTest extends ReposeValveTest {
         "200"        | "username=test"         | "POST"  | "OK"
         "200"        | "tenantId=12345"        | "PUT"   | "OK"
         "415"        | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
+        "500"        | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
+    }
+
+    @Unroll("Test Herp filter with method #method, parameters #parameters, origin service respCode #responseCode")
+    def "Herp test also support projectId"() {
+        setup: "declare messageChain to be of type MessageChain"
+        List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
+        def customHandler = ""
+
+        reposeLogSearch.cleanLog()
+        MessageChain mc
+        def Map<String, String> headers = [
+                'Accept'           : 'application/xml',
+                'Host'             : 'LocalHost',
+                'User-agent'       : 'gdeproxy',
+                'x-project-id'     : '123456',
+                'x-roles'          : 'default',
+                'x-user-name'      : 'testuser',
+                'x-user-id'        : 'testuser',
+                'x-impersonator-name': 'impersonateuser',
+                'x-impersonator-id': '123456'
+        ]
+        if (responseCode != "200"){
+            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+        }
+
+        when:
+        "When Requesting " + method + "server/abcd"
+        mc = deproxy.makeRequest(url: reposeEndpoint +
+                "/resource?"+parameters, method: method, headers: headers,
+                requestBody: "some data", defaultHandler: customHandler,
+                addDefaultHeaders: false
+        )
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+        def map = buildParamList(parameters)
+
+        then:
+        "result should be " + responseCode
+        mc.receivedResponse.code.equals(responseCode)
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.Method == method
+        (result.Request.URL).contains("/resource")
+        result.Response.Code == responseCode.toInteger()
+        result.Response.Message == respMsg
+        checkParams(jsonpart, map)
+
+
+        where:
+        responseCode | parameters              | method  | respMsg
+        "200"        | "username=test"         | "POST"  | "OK"
+        "200"        | "projectId=12345"       | "PUT"   | "OK"
+        "415"        | "id=12345&projectId=123"| "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
         "413"        | "resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
         "500"        | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
         "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
