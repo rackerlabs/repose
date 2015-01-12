@@ -127,13 +127,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
         projectIdUriRegex match {
           case Some(regex) =>
-            writeProjectHeader(token.flatMap(_.project.flatMap(_.id)), token.flatMap(_.roles).getOrElse(List[Role]()),
-              extractProjectIdFromUri(regex, request.getRequestURI), identityConfig.isSendAllProjectIds,
+            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
+            val roles = token.flatMap(_.roles).getOrElse(List[Role]())
+            val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
+            writeProjectHeader(defaultProjectId, roles, uriProjectId, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, filterDirector.requestHeaderManager)
           case None =>
-            writeProjectHeader(token.flatMap(_.project.flatMap(_.id)), token.flatMap(_.roles).getOrElse(List[Role]()),
-              None, identityConfig.isSendAllProjectIds, identityConfig.isSendProjectIdQuality,
-              filterDirector.requestHeaderManager)
+            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
+            val roles = token.flatMap(_.roles).getOrElse(List[Role]())
+            writeProjectHeader(defaultProjectId, roles, None, identityConfig.isSendAllProjectIds,
+              identityConfig.isSendProjectIdQuality, filterDirector.requestHeaderManager)
         }
         token.get.rax_impersonator.foreach { impersonator =>
           impersonator.id.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
