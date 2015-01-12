@@ -258,13 +258,11 @@ public class PowerFilter extends DelegatingFilterProxy {
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, true);
                     } catch (FilterInitializationException fie) {
-                        LOG.error("{}:{} -- Unable to create new filter chain. Reason: {}", clusterId, nodeId, fie.getLocalizedMessage());
-                        LOG.trace("", fie);
+                        LOG.error("{}:{} -- Unable to create new filter chain.", clusterId, nodeId, fie);
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     } catch (PowerFilterChainException e) {
-                        LOG.error("{}:{} -- Unable to initialize filter chain builder. Reason {}", clusterId, nodeId, e.getLocalizedMessage());
-                        LOG.trace("", e);
+                        LOG.error("{}:{} -- Unable to initialize filter chain builder.", clusterId, nodeId, e);
                         //Update the JMX bean with our status
                         configurationInformation.updateNodeStatus(clusterId, nodeId, false);
                     }
