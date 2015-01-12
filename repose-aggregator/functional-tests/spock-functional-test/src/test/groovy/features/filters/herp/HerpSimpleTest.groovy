@@ -205,6 +205,7 @@ class HerpSimpleTest extends ReposeValveTest {
         )
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
+        println(jsonpart)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
         def map = buildParamList(parameters)

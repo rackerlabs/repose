@@ -19,7 +19,7 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs('features/filters/herp', params)
-        repose.configurationProvider.applyConfigs('features/filters/withIdentityV3', params)
+        repose.configurationProvider.applyConfigs('features/filters/herp/withIdentityV3', params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -35,6 +35,7 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         if(repose)
             repose.stop()
     }
+
 
     def "When using herp filter with identity V3 filter the set of headers include projectId will be added to log"() {
         given:
