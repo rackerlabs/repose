@@ -1,12 +1,12 @@
 package org.openrepose.filters.herp
 
-import java.io.{StringReader, StringWriter}
-import java.net.{URLDecoder, URL}
+import java.io.StringWriter
+import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
+import com.github.jknack.handlebars.{Handlebars, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -30,7 +30,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var serviceCode: String = _
   private var region: String = _
   private var dataCenter: String = _
-  private var mustacheTemplate: Mustache = _
+  private var handlebarsTemplate: Template = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
@@ -68,24 +68,24 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse) = {
-    def translateParameters(): Map[String, Array[Parameter]] = {
+    def translateParameters(): Map[String, Array[String]] = {
       def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name())
 
       Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
         case Some(parameters) => {
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
-          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => Parameter(decode(value))) }).toMap
+          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value))}).toMap
         }
-        case None => Map[String, Array[Parameter]]()
+        case None => Map[String, Array[String]]()
       }
     }
 
     val templateValues = Map(
       "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
       "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
-      "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.map(ProjectId)
-        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala.map(ProjectId)).toArray,
-      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(Role).toArray,
+      "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
+        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray,
+      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
       "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
@@ -101,7 +101,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     )
 
     val templateOutput: StringWriter = new StringWriter
-    mustacheTemplate.execute(templateOutput, templateValues.asJava)
+    handlebarsTemplate.apply(templateValues.asJava, templateOutput)
 
     herpLogger.info(templateOutput.toString)
   }
@@ -114,20 +114,20 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   }
 
   override def configurationUpdated(config: HerpConfig): Unit = {
-    def template: StringReader = {
+    def templateString: String = {
       var templateText = config.getTemplate.getValue.trim
       if (config.getTemplate.isCrush) {
         templateText = templateText.replaceAll("(?m)[ \\t]*(\\r\\n|\\r|\\n)[ \\t]*", " ")
       }
-      new StringReader(templateText)
+      templateText
     }
 
     herpLogger = LoggerFactory.getLogger(config.getLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
-    def mustacheFactory = new DefaultMustacheFactory()
-    mustacheTemplate = mustacheFactory.compile(template, "herp template")
+    def handlebars = new Handlebars()
+    handlebarsTemplate = handlebars.compileInline(templateString)
     initialized = true
   }
 
@@ -135,9 +135,3 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     initialized
   }
 }
-
-case class Role(name: String) {}
-
-case class ProjectId(id: String) {}
-
-case class Parameter(value: String) {}

@@ -36,44 +36,37 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
     val templateText =
       """
-        |{
-        | "GUID" : "{{guid}}",
-        | "ServiceCode" : "{{serviceCode}}",
-        | "Region" : "{{region}}",
-        | "DataCenter" : "{{dataCenter}}",
-        | "Timestamp" : "{{timestamp}}",
-        | "Request" : {
-        |   "Method" : "{{requestMethod}}",
-        |   "URL" : "{{requestURL}}",
-        |   "QueryString" : "{{requestQueryString}}",
-        |   "Parameters" : {
-        |                     {{#parameters}}
-        |                     "{{key}}" : [
-        |                       {{#value}}
-        |                       "{{value}}",
-        |                       {{/value}}
-        |                     ],
-        |                     {{/parameters}}
-        |                  },
-        |   "UserName" : "{{userName}}",
-        |   "ImpersonatorName" : "{{impersonatorName}}",
-        |   "ProjectID" : [
-        |                   {{#projectID}}
-        |                   "{{id}}",
-        |                   {{/projectID}}
-        |                 ],
-        |   "Roles" : [
-        |               {{#roles}}
-        |               "{{name}}",
-        |               {{/roles}}
-        |             ],
-        |   "UserAgent" : "{{userAgent}}"
-        | },
-        | "Response" : {
-        |   "Code" : {{responseCode}},
-        |   "Message" : "{{responseMessage}}"
-        | }
-        |}
+         {
+          "GUID" : "{{guid}}",
+          "ServiceCode" : "{{serviceCode}}",
+          "Region" : "{{region}}",
+          "DataCenter" : "{{dataCenter}}",
+          "Timestamp" : "{{timestamp}}",
+          "Request" : {
+            "Method" : "{{requestMethod}}",
+            "URL" : "{{requestURL}}",
+            "QueryString" : "{{requestQueryString}}",
+            "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
+                           },
+            "UserName" : "{{userName}}",
+            "ImpersonatorName" : "{{impersonatorName}}",
+            "ProjectID" : [
+                            {{#each projectID}}
+                            {{#if @index}},{{/if}}"{{.}}"
+                            {{/each}}
+                          ],
+            "Roles" : [
+                        {{#each roles}}
+                        {{#if @index}},{{/if}}"{{.}}"
+                        {{/each}}
+                      ],
+            "UserAgent" : "{{userAgent}}"
+          },
+          "Response" : {
+            "Code" : {{responseCode}},
+            "Message" : "{{responseMessage}}"
+          }
+         }
       """.stripMargin
     val template = new Template
     template.setValue(templateText)
@@ -191,7 +184,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : {  \"foo\" : [  \"bar\",  \"baz\",  ],  }")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo\" : [\"bar\",\"baz\"] }")
     }
     it("should extract and log the decoded request parameters") {
       // given:
@@ -204,7 +197,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : {  \"foo bar\" : [  \"baz test\",  ],  }")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo bar\" : [\"baz test\"] }")
     }
     it("should extract and log the request user name header") {
       // given:
@@ -243,7 +236,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\",  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
     }
     it("should extract and log multiple tenant id header values") {
       // given:
@@ -257,7 +250,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\",  \"bar\",  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
     }
     it("should extract and log multiple project id header values") {
       // given:
@@ -271,7 +264,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\",  \"bar\",  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
     }
     it("should extract and log the request roles header") {
       // given:
@@ -285,7 +278,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\" : [  \"foo\",  \"bar\",  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\" : [  \"foo\"  ,\"bar\"  ]")
     }
     it("should extract and log the request user agent") {
       // given:
