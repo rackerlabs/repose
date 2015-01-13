@@ -102,11 +102,7 @@ public class HeaderManagerImpl implements HeaderManager {
     }
 
     private String valueWithQuality(String value, Double quality) {
-        String result = value;
-        if (quality != null && quality.doubleValue() != 1.0) {
-            result += ";q=" + quality;
-        }
-        return result;
+        return value + ";q=" + quality;
     }
 
     @Override
