@@ -2,7 +2,7 @@ package org.openrepose.common.auth;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Abstract class to encapsulate information from the validatetoken calls from the  Authentication Service client {@link org.openrepose.common.auth.openstack.AuthenticationService}
@@ -20,7 +20,7 @@ public abstract class AuthToken implements Serializable {
     public abstract String getImpersonatorUsername();
     public abstract String getTenantName();
     public abstract String getDefaultRegion();
-    public abstract List<String> getTenantIds();
+    public abstract Set<String> getTenantIds();
    
 
     
