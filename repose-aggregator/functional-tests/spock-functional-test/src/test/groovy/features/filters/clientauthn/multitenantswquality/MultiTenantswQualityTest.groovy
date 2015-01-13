@@ -70,8 +70,8 @@ class MultiTenantswQualityTest extends ReposeValveTest{
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant)
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant+";q=0.5")
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant+";q=1.0")
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant+";q=0.5") // todo: this is invalid when there is only one tenant
         }
 
         where:
