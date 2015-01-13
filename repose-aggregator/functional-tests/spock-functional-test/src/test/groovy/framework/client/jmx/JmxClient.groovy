@@ -6,6 +6,7 @@ import org.spockframework.runtime.SpockTimeoutError
 import spock.util.concurrent.PollingConditions
 
 import javax.management.MBeanServerConnection
+import javax.management.ObjectInstance
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
@@ -32,13 +33,14 @@ class JmxClient {
      * @return
      */
     static def eventually(Closure tehCode) {
-        def conditions = new PollingConditions(timeout: 25, initialDelay: 0, delay: 0.1)
+        def conditions = new PollingConditions(timeout: 25, initialDelay: 0, delay: 0.5)
         Exception whyFail = null
 
         try {
             conditions.eventually {
                 try {
                     tehCode.call()
+                    whyFail = null
                 } catch (Exception e) {
                     //Don't actually care, because eventually a thingy
                     whyFail = e
@@ -57,15 +59,22 @@ class JmxClient {
      * @param name - complete MBean name, to be passed into ObjectName
      * @return
      */
-    def getMBeanAttribute(name, attr) {
+    def getMBeanAttribute(name, attr, boolean now = false) {
         def obj = null
-        eventually {
-            obj = server.getAttribute(new ObjectName(name), attr)
-            assert obj != null
+        if (now) {
+            try {
+                obj = server.getAttribute(new ObjectName(name), attr)
+            } catch(Exception e) {
+                obj = null
+            }
+        } else {
+            eventually {
+                obj = server.getAttribute(new ObjectName(name), attr)
+                assert obj != null
+            }
         }
         return obj
     }
-
 
     /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
