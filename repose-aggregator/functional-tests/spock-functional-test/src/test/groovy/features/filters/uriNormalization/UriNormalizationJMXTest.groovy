@@ -129,8 +129,8 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
 
@@ -141,7 +141,7 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
 

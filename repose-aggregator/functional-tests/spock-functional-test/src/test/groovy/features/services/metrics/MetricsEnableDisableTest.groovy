@@ -63,9 +63,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == null
-        repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == null
+        repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
+        repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count") == null
+        repose.jmx.quickMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == null
     }
 
     def "when 'enabled' is not specified, reporting should occur"() {

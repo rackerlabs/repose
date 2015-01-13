@@ -68,8 +68,8 @@ class VersioningJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
-        (repose.jmx.getMBeanAttribute(VERSION_V1, "Count") ?: 0) == 0
-        (repose.jmx.getMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(VERSION_V1, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
 
 
         when:
@@ -78,7 +78,7 @@ class VersioningJMXTest extends ReposeValveTest {
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
         repose.jmx.getMBeanAttribute(VERSION_V1, "Count") == 1
-        (repose.jmx.getMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
 
 
         when:
