@@ -94,13 +94,13 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when request is for role-1, should increment invalid request for ApiValidator mbeans for role 1"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -109,20 +109,20 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
     }
 
     def "when request is for role-2, should increment invalid request for ApiValidator mbeans for role 2"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -131,20 +131,20 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
     }
 
     def "when request is for role-3, should increment invalid request for ApiValidator mbeans for role 3"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -153,20 +153,20 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
     }
 
     def "when request is for role-3 and role-2, should increment invalid request for ApiValidator mbeans for role 3 and role 2"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -176,19 +176,19 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
     }
 
     def "when request is for role-3 and role-1, should increment invalid request for ApiValidator mbeans for role 3 and role 1"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -197,20 +197,20 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
     }
 
     def "when request is for role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 1 and role 2"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -218,7 +218,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-1, role-2']])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
+        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
@@ -226,13 +226,13 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when request is for role-3, role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 3, role 1, and role 2"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
@@ -248,13 +248,13 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when request is for api validator, should increment ApiValidator mbeans for all"() {
         given:
-        def validator1Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count")
+        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
         validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count")
+        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
         validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count")
+        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
         validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count")
+        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
         validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
 
         when:
