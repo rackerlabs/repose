@@ -49,7 +49,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers)
 
-        def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
+        def getBeanObj = repose.jmx.quickMBeanNames(intrumentedHandler)
 
         def validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
         def checkstrscope = 'scope=\"raxRolesEnabled_'
