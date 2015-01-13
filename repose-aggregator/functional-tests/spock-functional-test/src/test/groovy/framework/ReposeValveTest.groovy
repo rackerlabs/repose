@@ -21,7 +21,7 @@ abstract class ReposeValveTest extends Specification {
     String jmxHostname = InetAddress.getLocalHost().getHostName()
 
     @Shared
-    def ReposeLauncher repose
+    def ReposeValveLauncher repose
 
     @Shared
     def Deproxy deproxy
