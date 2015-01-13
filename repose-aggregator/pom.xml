@@ -636,6 +636,7 @@
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>commons-logging:commons-logging</exclude>
+                                        <exclude>com.rackspace.papi.commons:classloader</exclude>
                                         <exclude>com.rackspace.papi.commons:jetty-container</exclude>
                                         <exclude>com.rackspace.papi.components:datastore-api</exclude>
                                         <exclude>com.rackspace.papi.components:datastore-distributed</exclude>
