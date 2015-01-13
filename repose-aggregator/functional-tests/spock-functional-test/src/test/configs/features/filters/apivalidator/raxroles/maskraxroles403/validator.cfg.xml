@@ -39,7 +39,7 @@
         </application>
     </validator>
 
-    <validator role="test_user4" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
+    <validator role="test_user4" default="true" enable-rax-roles="true" mask-rax-roles-403="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
