@@ -119,17 +119,38 @@ class JmxClient {
     }
 
     /**
+     * Tries to get a list of mbeans by the domain passed, if it cannot find them, or any exception is thrown
+     * return an empty list of mbeans.
+     * @param domain
+     * @return
+     */
+    def quickMBeanNames(domain) {
+        try {
+            return server.queryNames(new ObjectName(domain), null)
+        }catch(Exception e) {
+            return []
+        }
+    }
+
+    /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
+     * Throws a failure if it cannot satisfy any beans by that name within a time period
      *
      * @param beanName
      * @return
      */
     def getMBeanNames(domain) {
-        def mbeans
+        def mbeans = []
 
-        eventually {
-            mbeans = server.queryNames(new ObjectName(domain), null)
-            assert mbeans != null && mbeans.size() >= 1
+        try {
+            eventually {
+                mbeans = server.queryNames(new ObjectName(domain), null)
+                assert mbeans != null && mbeans.size() >= 1
+            }
+        } catch (SpockAssertionError sae) {
+            //This is mostly for debugging purposes so we can see what happened when we looked for mbeans.
+            def names = server.queryNames(null, null)
+            throw new SpockAssertionError("Unable to find MBeans by the name ${domain}. Available beans: ${names.collect { it.canonicalName + "\n" }}", sae)
         }
 
         return mbeans
