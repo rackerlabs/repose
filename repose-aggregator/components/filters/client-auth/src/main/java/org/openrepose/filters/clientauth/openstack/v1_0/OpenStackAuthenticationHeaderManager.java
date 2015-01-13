@@ -124,23 +124,32 @@ public class OpenStackAuthenticationHeaderManager {
     */
     private void setTenant() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
-        if(!this.isDelagable && !this.isTenanted) {
-            if (sendTenantIdQuality) {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
-            } else {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
-            }
-        } else {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId);
-        }
 
-        if(sendAllTenantIds) {
-            for(String id : cachableToken.getTenantIds()) {
-                if (sendTenantIdQuality) {
+        if (sendAllTenantIds && sendTenantIdQuality) {
+            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
+            for (String id : cachableToken.getTenantIds()) {
+                if (!id.equals(cachableToken.getTenantId())) {
                     filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id, 0.5);
-                } else {
+                }
+            }
+        } else if (sendAllTenantIds && !sendTenantIdQuality) {
+            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            for (String id : cachableToken.getTenantIds()) {
+                if (!id.equals(cachableToken.getTenantId())) {
                     filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id);
                 }
+            }
+        } else if (!sendAllTenantIds && sendTenantIdQuality) {
+            if (!this.isDelagable && !this.isTenanted) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
+            } else {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId, 1.0);
+            }
+        } else {
+            if (!this.isDelagable && !this.isTenanted) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            } else {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId);
             }
         }
     }
