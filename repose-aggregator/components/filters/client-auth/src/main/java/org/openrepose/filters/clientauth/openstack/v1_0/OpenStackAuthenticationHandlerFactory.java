@@ -69,7 +69,7 @@ public final class OpenStackAuthenticationHandlerFactory {
                 getServiceAdminRoles(authConfig.getServiceAdminRoles()),
                 getIgnoreTenantRoles(authConfig.getIgnoreTenantRoles()),
                 authConfig.isSendAllTenantIds(),
-                authConfig.isSendProjectIdQuality());
+                authConfig.isSendTenantIdQuality());
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
     }

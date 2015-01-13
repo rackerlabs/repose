@@ -95,7 +95,7 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="send-project-id-quality" type="xs:boolean" use="optional" default="false">
+            <xs:attribute name="send-tenant-id-quality" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
