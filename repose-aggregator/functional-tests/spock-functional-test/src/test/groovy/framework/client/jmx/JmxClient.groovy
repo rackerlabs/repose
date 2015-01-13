@@ -54,24 +54,34 @@ class JmxClient {
     }
 
     /**
+     * This provides a very quick "get the mbean attribute or null" method. NO timeouts, no waiting. No exceptions
+     * Useful, I guess, in cases where the tests don't care if the mbean is present. Seems like bad design, but we probably
+     * have some mbeans that don't show up until after something happens
+     * @param name
+     * @param attr
+     * @return
+     */
+    def quickMBeanAttribute(name, attr) {
+        def obj = null
+        try {
+            obj = server.getAttribute(new ObjectName(name), attr)
+        } catch (Exception e) {
+            obj = null
+        }
+        return obj
+    }
+
+    /**
      * Looks for a particular mbean & attribute by JMX name and returns it.
      *
      * @param name - complete MBean name, to be passed into ObjectName
      * @return
      */
-    def getMBeanAttribute(name, attr, boolean now = false) {
+    def getMBeanAttribute(name, attr) {
         def obj = null
-        if (now) {
-            try {
-                obj = server.getAttribute(new ObjectName(name), attr)
-            } catch(Exception e) {
-                obj = null
-            }
-        } else {
-            eventually {
-                obj = server.getAttribute(new ObjectName(name), attr)
-                assert obj != null
-            }
+        eventually {
+            obj = server.getAttribute(new ObjectName(name), attr)
+            assert obj != null
         }
         return obj
     }
