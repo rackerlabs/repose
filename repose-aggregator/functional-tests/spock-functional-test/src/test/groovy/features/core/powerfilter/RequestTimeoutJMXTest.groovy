@@ -37,7 +37,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     def "when responses have timed out, should increment RequestTimeout mbeans for specific endpoint"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")
+        def target = repose.jmx.quickMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")
         target = (target == null) ? 0 : target
 
         when:
@@ -51,7 +51,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     def "when responses have timed out, should increment RequestTimeout mbeans for all endpoint"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
         target = (target == null) ? 0 : target
 
         when:
@@ -64,7 +64,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     def "when SOME responses have timed out, should increment RequestTimeout mbeans for specific endpoint only for timeouts"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
         target = (target == null) ? 0 : target
 
         when:
