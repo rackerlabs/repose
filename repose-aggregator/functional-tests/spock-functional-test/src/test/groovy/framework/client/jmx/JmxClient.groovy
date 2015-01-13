@@ -57,6 +57,8 @@ class JmxClient {
      * This provides a very quick "get the mbean attribute or null" method. NO timeouts, no waiting. No exceptions
      * Useful, I guess, in cases where the tests don't care if the mbean is present. Seems like bad design, but we probably
      * have some mbeans that don't show up until after something happens
+     *
+     * Used when you don't care if you can't get an mbean, or it's attribute
      * @param name
      * @param attr
      * @return
@@ -121,6 +123,7 @@ class JmxClient {
     /**
      * Tries to get a list of mbeans by the domain passed, if it cannot find them, or any exception is thrown
      * return an empty list of mbeans.
+     * Most often used when you don't care if you can't find an mbean
      * @param domain
      * @return
      */
