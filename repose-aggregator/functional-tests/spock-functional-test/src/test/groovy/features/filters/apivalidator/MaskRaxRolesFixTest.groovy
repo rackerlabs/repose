@@ -11,7 +11,7 @@ import spock.lang.Unroll
  * Reason: API Checker - Repose is returning HTTP code 403 with response body of 404
  * This test check if issue fix
  */
-class MaskRaxRolesFixTest extends ReposeValveTest{
+class MaskRaxRolesFixTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -37,6 +37,7 @@ class MaskRaxRolesFixTest extends ReposeValveTest{
     and certain user roles set at method level will allow to access certain methods in the wadl.
     i.e. a:admin role in this setting will have access to all methods
  */
+
     @Unroll("User4:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true and wadl set up role from multiple resource level"() {
 
@@ -56,54 +57,54 @@ class MaskRaxRolesFixTest extends ReposeValveTest{
         }
 
         where:
-        method | path | headers | responseCode
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:admin"]            | "200"
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:observer"]         | "200"
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:observer, a:bar"]  | "200"
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:bar, a:admin"]     | "200"
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:bar"]              | "404"
-        "GET"    | "/a"   | ["x-roles": "test_user4, a:creator"]          | "405"
-        "GET"    | "/a"   | ["x-roles": "test_user4"]                     | "404"
-        "GET"    | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "200"
-        "GET"    | "/a/b" | ["x-roles": "test_user4, b:observer"]         | "200"
-        "GET"    | "/a/b" | ["x-roles": "test_user4, b:creator"]          | "405"
-        "GET"    | "/b"   | ["x-roles": "test_user4, a:admin"]            | "404"
-        "GET"    | "/a/b" | ["x-roles": "test_user4, a:observer"]         | "404"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:admin"]            | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:creator"]          | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, a:creator"]   | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, a:admin"]     | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, b:creator"]   | "405"
-        "POST"   | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "405"
-        "POST"   | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "405"
-        "POST"   | "/a/c" | ["x-roles": "test_user4, a:creator"]          | "404"
-        "POST"   | "/x"   | ["x-roles": "test_user4, a:admin"]            | "404"
-        "POST"   | "/b"   | ["x-roles": "test_user4, a:creator"]          | "404"
-        "POST"   | "/a"   | ["x-roles": "test_user4, b:creator"]          | "405"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:observer"]         | "405"
-        "POST"   | "/a"   | ["x-roles": "test_user4"]                     | "404"
-        "POST"   | "/a"   | null                                          | "403"
-        "PUT"    | "/a"   | ["x-roles": "test_user4, a:admin"]            | "405"   //PUT method is not available at this level
-        "PUT"    | "/a"   | ["x-roles": "test_user4"]                     | "404"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin, b:observer"] | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:creator"]          | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer, a:admin"]| "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer"]         | "405"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4"]                     | "404"
-        "PUT"    | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
-        "PUT"    | "/b"   | ["x-roles": "test_user4, b:creator"]          | "404"
-        "DELETE" | "/a"   | ["x-roles": "test_user4, a:admin"]            | "405"
-        "DELETE" | "/b"   | ["x-roles": "test_user4, a:admin"]            | "404"
-        "DELETE" | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "200"
-        "DELETE" | "/a/b" | ["x-roles": "test_user4, b:creator"]          | "200"
-        "DELETE" | "/a/b" | ["x-roles": "test_user4, b:admin"]            | "200"
-        "DELETE" | "/a/b" | ["x-roles": "test_user4, b:observer"]         | "405"
-        "DELETE" | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "200"
-        "DELETE" | "/a/b" | null                                          | "403"
-        "DELETE" | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
-        "GET"    | "/header"   | ["x-roles": "test_user4", "X-Auth-Token": "foo"]| "403"
-        "GET"    | "/header2"  | ["x-roles": "test_user4", "X-Auth-Token": "foo"]| "403"
+        method   | path       | headers                                          | responseCode
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:admin"]               | "200"
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:observer"]            | "200"
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:observer, a:bar"]     | "200"
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:bar, a:admin"]        | "200"
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:bar"]                 | "404"
+        "GET"    | "/a"       | ["x-roles": "test_user4, a:creator"]             | "405"
+        "GET"    | "/a"       | ["x-roles": "test_user4"]                        | "404"
+        "GET"    | "/a/b"     | ["x-roles": "test_user4, a:admin"]               | "200"
+        "GET"    | "/a/b"     | ["x-roles": "test_user4, b:observer"]            | "200"
+        "GET"    | "/a/b"     | ["x-roles": "test_user4, b:creator"]             | "405"
+        "GET"    | "/b"       | ["x-roles": "test_user4, a:admin"]               | "404"
+        "GET"    | "/a/b"     | ["x-roles": "test_user4, a:observer"]            | "404"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:admin"]               | "200"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:creator"]             | "200"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:foo, a:creator"]      | "200"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:foo, a:admin"]        | "200"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:foo, b:creator"]      | "405"
+        "POST"   | "/a/b"     | ["x-roles": "test_user4, a:admin"]               | "405"
+        "POST"   | "/a/b"     | ["x-roles": "test_user4, a:creator"]             | "405"
+        "POST"   | "/a/c"     | ["x-roles": "test_user4, a:creator"]             | "404"
+        "POST"   | "/x"       | ["x-roles": "test_user4, a:admin"]               | "404"
+        "POST"   | "/b"       | ["x-roles": "test_user4, a:creator"]             | "404"
+        "POST"   | "/a"       | ["x-roles": "test_user4, b:creator"]             | "405"
+        "POST"   | "/a"       | ["x-roles": "test_user4, a:observer"]            | "405"
+        "POST"   | "/a"       | ["x-roles": "test_user4"]                        | "404"
+        "POST"   | "/a"       | null                                             | "404"
+        "PUT"    | "/a"       | ["x-roles": "test_user4, a:admin"]               | "405"   //PUT method is not available at this level
+        "PUT"    | "/a"       | ["x-roles": "test_user4"]                        | "404"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, a:admin"]               | "200"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, a:admin, b:observer"]   | "200"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, a:creator"]             | "200"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, b:creator"]             | "200"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, b:observer, a:admin"]   | "200"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4, b:observer"]            | "405"
+        "PUT"    | "/a/b"     | ["x-roles": "test_user4"]                        | "404"
+        "PUT"    | "/a/c"     | ["x-roles": "test_user4, b:creator"]             | "404"
+        "PUT"    | "/b"       | ["x-roles": "test_user4, b:creator"]             | "404"
+        "DELETE" | "/a"       | ["x-roles": "test_user4, a:admin"]               | "405"
+        "DELETE" | "/b"       | ["x-roles": "test_user4, a:admin"]               | "404"
+        "DELETE" | "/a/b"     | ["x-roles": "test_user4, a:admin"]               | "200"
+        "DELETE" | "/a/b"     | ["x-roles": "test_user4, b:creator"]             | "200"
+        "DELETE" | "/a/b"     | ["x-roles": "test_user4, b:admin"]               | "200"
+        "DELETE" | "/a/b"     | ["x-roles": "test_user4, b:observer"]            | "405"
+        "DELETE" | "/a/b"     | ["x-roles": "test_user4, a:creator"]             | "200"
+        "DELETE" | "/a/b"     | null                                             | "404"
+        "DELETE" | "/a/c"     | ["x-roles": "test_user4, b:creator"]             | "404"
+        "GET"    | "/header"  | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "404"
+        "GET"    | "/header2" | ["x-roles": "test_user4", "X-Auth-Token": "foo"] | "405"
     }
 }
