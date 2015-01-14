@@ -195,7 +195,7 @@ class MaskRaxRoles403Test extends ReposeValveTest{
         "POST"   | "/a"   | ["x-roles": "test_user4, b:creator"]          | "405"
         "POST"   | "/a"   | ["x-roles": "test_user4, a:observer"]         | "405"
         "POST"   | "/a"   | ["x-roles": "test_user4"]                     | "404"
-        "POST"   | "/a"   | null                                          | "404"
+        "POST"   | "/a"   | null                                          | "403"   //Doesnt match a validator
         "PUT"    | "/a"   | ["x-roles": "test_user4, a:admin"]            | "405"   //PUT method is not available at this level
         "PUT"    | "/a"   | ["x-roles": "test_user4"]                     | "404"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "200"
