@@ -6,7 +6,7 @@ import org.rackspace.deproxy.Deproxy
 /**
  * Created by jcombs on 1/12/15.
  */
-class IRAValidatorTest extends ReposeValveTest {
+class IRIValidatorTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
