@@ -13,9 +13,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     @Shared
     String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
-    String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
-    String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
-
     String NAME_ROLE_1 = "\",name=\"role-1\""
     String NAME_ROLE_2 = "\",name=\"role-2\""
     String NAME_ROLE_3 = "\",name=\"role-3\""
@@ -43,54 +40,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.stop()
     }
 
-
-    def "when loading validators on startup, should register Configuration MXBeans"() {
-
-        String ConfigurationBeanDomain = "*org.openrepose.core.services.jmx:type=ConfigurationInformation"
-        String ConfigurationClassName = "org.openrepose.core.services.jmx.ConfigurationInformation"
-
-        deproxy.makeRequest(url: reposeEndpoint + "/")
-
-        when:
-        def validatorBeans = repose.jmx.getMBeans(ConfigurationBeanDomain, ConfigurationClassName, 1)
-
-        then:
-        validatorBeans.size() == 1
-
-    }
-
-    def "when loading validators on startup, should register validator MXBeans"() {
-
-        deproxy.makeRequest(url: reposeEndpoint + "/")
-
-        when:
-        def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
-
-        then:
-        validatorBeans.size() == 3
-    }
-
-    def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
-
-        deproxy.makeRequest(url: reposeEndpoint + "/")
-
-        given:
-        def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
-
-        when: "I update the Repose API Validator filter with 2 new validators"
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
-
-        and: "I send a request to Repose to ensure that the filter registers the new validator MBeans"
-        def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
-
-        then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
-        afterUpdateBeans.size() == 2
-        afterUpdateBeans.each { updatedBean ->
-            beforeUpdateBeans.each {
-                assert (updatedBean.name != it.name)
-            }
-        }
-    }
 
     def "when request is for role-1, should increment invalid request for ApiValidator mbeans for role 1"() {
         given:
