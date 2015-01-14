@@ -24,29 +24,24 @@ class IRIValidatorTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "When using iri-validator filter, Repose guards the request to the origin services" () {
+    def "When using iri-validator filter, Repose guards the request to the origin services"() {
         given:
-        def Map headers = ["x-rax-user": "test-user-a", "x-rax-groups": "reposegroup11"]
-        def path = "/" + requestpath + "/?" + query;
+        def path = "/" + requestpath
+        if (query != null) {
+            path += "?" + query
+        }
 
         when: "Request contains value(s) of the target header"
-        def mc = deproxy.makeRequest([url: reposeEndpoint + path, headers: headers])
-
+        def mc = deproxy.makeRequest(reposeEndpoint + path)
 
         then: "The x-forwarded-proto header is additionally added to the request going to the origin service"
         mc.receivedResponse.code == expectedCode
-        mc.getSentRequest().getHeaders().contains("x-rax-user")
-        mc.getSentRequest().getHeaders().getFirstValue("x-rax-user") == "test-user-a"
-        mc.getSentRequest().getHeaders().contains("x-forwarded-proto") == false
-        mc.handlings[0].request.headers.contains("x-rax-user")
-        mc.handlings[0].request.headers.getFirstValue("x-rax-user") == "test-user-a"
-        mc.handlings[0].request.headers.contains("x-forwarded-proto")
-        String forwardedProto = mc.handlings[0].request.headers.getFirstValue("x-forwarded-proto")
-        forwardedProto.toLowerCase().contains("http")
+        if (reachedOrigin) mc.handlings[0] else !mc.handlings[0]
 
         where:
-        method   | requestpath     | query     | expectedCode
-        "GET"    | "test"          |"a=b"      | "200"
-        "GET"    | "test"          |"%%a=b"    | "500?"
+        method | requestpath | query   | expectedCode | reachedOrigin
+        "GET"  | "test"      | "a=b"   | "200"        | true
+        "GET"  | "test"      | "%aa=b" | "400"        | false
+        "GET"  | "%aa"       | null    | "400"        | false
     }
 }

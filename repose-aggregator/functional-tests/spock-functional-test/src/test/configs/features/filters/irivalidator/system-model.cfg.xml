@@ -8,7 +8,6 @@
     </nodes>
     <filters>
         <filter name="iri-validator"/>
-        <filter name="forwarded-proto"/>
     </filters>
     <destinations>
       <endpoint id="service" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true"/>
