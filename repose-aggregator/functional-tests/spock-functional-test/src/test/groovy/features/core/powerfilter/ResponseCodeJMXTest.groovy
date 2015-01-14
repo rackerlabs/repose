@@ -7,6 +7,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Ignore
+import spock.lang.Unroll
 
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {
@@ -25,6 +26,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
@@ -41,6 +43,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     // Greg/Dimitry: Is it expected that all2XX and repose2XX are equal?  It's not the sum of repose responses + origin service
     // responses?
+    @Unroll("When sending requests, the counters should be incremented: iteration #loop")
     def "when sending requests, response code counters should be incremented"() {
         given:
         // the initial values are equivalent the the number of calls made in the when block
@@ -68,6 +71,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         responses.each { MessageChain mc ->
             assert(mc.receivedResponse.code == "200")
         }
+        
+        where:
+        loop << (1..500).toArray()
     }
 
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
