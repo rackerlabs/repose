@@ -68,7 +68,8 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       //This should compile and close the context!
       filterBeanContext.close()
 
-      intercept[NoSuchBeanDefinitionException] {
+      //In spring 4.1 when the filter context is closed, we get an IllegalStateException
+      intercept[IllegalStateException] {
         filterBeanContext.getBean("org.openrepose.core.spring.testfilter.TestFilter")
       }
     }
