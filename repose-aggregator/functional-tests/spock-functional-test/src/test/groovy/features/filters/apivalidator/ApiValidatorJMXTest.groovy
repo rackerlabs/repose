@@ -25,6 +25,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def setupSpec() {
         params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory() //Ensure this crap is cleaned up
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmx", params)
