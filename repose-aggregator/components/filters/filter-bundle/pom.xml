@@ -74,6 +74,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-identity-auth-2.0</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -85,6 +86,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>service-authentication</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
