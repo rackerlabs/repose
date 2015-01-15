@@ -28,7 +28,7 @@ class IriValidatorFilterTest extends FunSpec with MockitoSugar {
       val mockRequest = mock[HttpServletRequest]
       val mockResponse = mock[HttpServletResponse]
       val mockFilterChain = mock[FilterChain]
-      when(mockRequest.getRequestURL).thenReturn(new StringBuffer("http://www.example.com/%%a"))
+      when(mockRequest.getRequestURL).thenReturn(new StringBuffer("http://www.example.com/%aa"))
 
       iriValidatorFilter.doFilter(mockRequest, mockResponse, mockFilterChain)
 
@@ -53,7 +53,7 @@ class IriValidatorFilterTest extends FunSpec with MockitoSugar {
       val mockRequest = mock[HttpServletRequest]
       val mockResponse = mock[HttpServletResponse]
       val mockFilterChain = mock[FilterChain]
-      when(mockRequest.getRequestURL).thenReturn(new StringBuffer("http://www.example.com/test?%%a=b"))
+      when(mockRequest.getRequestURL).thenReturn(new StringBuffer("http://www.example.com/test?%aa=b"))
 
       iriValidatorFilter.doFilter(mockRequest, mockResponse, mockFilterChain)
 

@@ -26,10 +26,7 @@ class IRIValidatorTest extends ReposeValveTest {
 
     def "When using iri-validator filter, Repose guards the request to the origin services"() {
         given:
-        def path = "/" + requestpath
-        if (query != null) {
-            path += "?" + query
-        }
+        def path = "/" + requestpath + query
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest(reposeEndpoint + path)
@@ -39,9 +36,9 @@ class IRIValidatorTest extends ReposeValveTest {
         if (reachedOrigin) mc.handlings[0] else !mc.handlings[0]
 
         where:
-        method | requestpath | query   | expectedCode | reachedOrigin
-        "GET"  | "test"      | "a=b"   | "200"        | true
-        "GET"  | "test"      | "%aa=b" | "400"        | false
-        "GET"  | "%aa"       | null    | "400"        | false
+        method | requestpath | query    | expectedCode | reachedOrigin
+        "GET"  | "test"      | "?a=b"   | "200"        | true
+        "GET"  | "test"      | "?%aa=b" | "400"        | false
+        "GET"  | "%aa"       | ""       | "400"        | false
     }
 }
