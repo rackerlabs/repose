@@ -49,7 +49,12 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
         logger.debug(s"Header removed: ${configuredHeader.getName}")
       }
 
-      headerManager.appendHeader(configuredHeader.getName, configuredHeader.getValue, configuredHeader.getQuality)
+      Option(configuredHeader.getQuality) match {
+        case Some(quality) =>
+          headerManager.appendHeader(configuredHeader.getName, configuredHeader.getValue, quality)
+        case None =>
+          headerManager.appendHeader(configuredHeader.getName, configuredHeader.getValue)
+      }
       logger.debug(s"Added header ${configuredHeader.getName} with value ${configuredHeader.getValue} and quality ${configuredHeader.getQuality}")
     }
   }
