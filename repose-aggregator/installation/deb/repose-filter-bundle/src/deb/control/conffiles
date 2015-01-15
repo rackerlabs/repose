@@ -14,3 +14,4 @@
 /etc/repose/header-translation.cfg.xml
 /etc/repose/openstack-identity-v3.cfg.xml
 /etc/repose/add-header.cfg.xml
+/etc/repose/highly-efficient-record-processor.cfg.xml
