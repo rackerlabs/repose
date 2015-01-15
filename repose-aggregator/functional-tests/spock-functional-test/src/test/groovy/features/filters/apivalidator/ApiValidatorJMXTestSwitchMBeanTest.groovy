@@ -5,9 +5,12 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
+import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
 class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
+
+    final def conditions = new PollingConditions(timeout:10)
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
@@ -79,14 +82,15 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         when: "I update the Repose API Validator filter with 2 new validators"
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
 
-        and: "I send a request to Repose to ensure that the filter registers the new validator MBeans"
-        def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
-
         then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
-        afterUpdateBeans.size() == 2
-        afterUpdateBeans.each { updatedBean ->
-            beforeUpdateBeans.each {
-                assert (updatedBean.name != it.name)
+        conditions.eventually {
+            //The new mbeans should be different, and we should always have two
+            def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
+            assert afterUpdateBeans.size() == 2
+            afterUpdateBeans.each { updatedBean ->
+                beforeUpdateBeans.each {
+                    assert (updatedBean.name != it.name)
+                }
             }
         }
     }

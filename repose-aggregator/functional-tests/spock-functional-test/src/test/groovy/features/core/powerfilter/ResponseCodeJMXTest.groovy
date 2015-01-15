@@ -8,9 +8,13 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Ignore
 import spock.lang.Unroll
+import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {
+
+    //One second timeout, initial delay is 0 and the delay is .1, which is every 100ms
+    final def conditions = new PollingConditions(timeout: 1)
 
     String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
 
@@ -58,20 +62,22 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         def responses = []
 
         when:
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/cluster"))
 
         then:
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
-        repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count").is(null)
-        repose.jmx.quickMBeanAttribute(ALL_5XX, "Count").is(null)
+        conditions.eventually {
+            assert repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
+            assert repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
+            assert repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count").is(null)
+            assert repose.jmx.quickMBeanAttribute(ALL_5XX, "Count").is(null)
+        }
 
         responses.each { MessageChain mc ->
-            assert(mc.receivedResponse.code == "200")
+            assert (mc.receivedResponse.code == "200")
         }
-        
+
         where:
         loop << (1..500).toArray()
     }
@@ -89,7 +95,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
         when:
         MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
-        MessageChain mc2 = deproxy.makeRequest(url:reposeEndpoint + "/cluster")
+        MessageChain mc2 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
         then:
         mc1.receivedResponse.code == "502"
@@ -118,9 +124,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         // NOTE:  We verify that Repose is up and running by sending a GET request in repose.start()
         // This is logged as well, so we need to add this to our count
 
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url:reposeEndpoint + "/cluster");
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
+        deproxy.makeRequest(url: reposeEndpoint + "/cluster");
 
         def reposeCount = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
 
