@@ -81,8 +81,8 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
         "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
     }
 
-    @Unroll ("No project id form token object: request project #reqProject")
-    def "when no project id form token object" () {
+    @Unroll ("No project id from token object: request project #reqProject")
+    def "when no project id from token object" () {
         given:
         fakeIdentityV3Service.with {
             identitySuccessJsonRespTemplate = identitySuccessJsonRespShortTemplate  // No project id in token object
