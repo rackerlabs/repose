@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 /*
  * Listener class to iterate through AuthFeedReaders and retrieve items to delete from the cache
@@ -65,7 +66,15 @@ public class FeedCacheInvalidator implements Runnable {
 
             // Iterate through atom feeds to retrieve tokens and users to invalidate from Repose cache
             for (AuthFeedReader rdr : feeds) {
-                CacheKeys keys = rdr.getCacheKeys();
+                CacheKeys keys = null;
+                try {
+                    keys = rdr.getCacheKeys();
+                } catch (TimeoutException e) {
+                    // TODO: WDS FIX_THIS NOTE-1.5
+                    // This could also be handled lower.
+                    LOG.error("Unable get Cached Keys.");
+                    LOG.trace("", e);
+                }
 
                 userKeys.addAll(keys.getUserKeys());
                 tokenKeys.addAll(keys.getTokenKeys());

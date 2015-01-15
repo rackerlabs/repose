@@ -21,6 +21,7 @@ import org.openstack.docs.identity.api.v2.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,7 +43,7 @@ public class FeedListenerManagerTest {
    private static CacheManager cacheManager;
 
    @Before
-   public void setUp() throws IOException {
+   public void setUp() throws IOException, TimeoutException {
 
       Configuration defaultConfiguration = new Configuration();
       defaultConfiguration.setName("TestCacheManager");

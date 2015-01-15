@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
@@ -80,8 +81,13 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info(message);
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
+        } catch (TimeoutException ex) {
+            LOG.error(message);
+            LOG.trace("", ex);
+            myDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
         } catch (Exception ex) {
-            LOG.error(message, ex);
+            LOG.error(message);
+            LOG.trace("", ex);
             myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -109,7 +115,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorizedForToken(String userToken) {
+    private boolean isEndpointAuthorizedForToken(String userToken) throws TimeoutException {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
         if(cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
@@ -149,7 +155,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         };
     }
 
-    private List<CachedEndpoint> requestEndpointsForToken(String userToken) {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws TimeoutException {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {

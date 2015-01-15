@@ -5,6 +5,7 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Endpoint;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  *
@@ -12,11 +13,11 @@ import java.util.List;
  */
 public interface AuthenticationService {
 
-    AuthenticateResponse validateToken(String tenant, String userToken);
+    AuthenticateResponse validateToken(String tenant, String userToken) throws TimeoutException;
     
-    List<Endpoint> getEndpointsForToken(String userToken);
+    List<Endpoint> getEndpointsForToken(String userToken) throws TimeoutException;
 
-    AuthGroups getGroups(String userId);
+    AuthGroups getGroups(String userId) throws TimeoutException;
 
-    String getBase64EndpointsStringForHeaders(String userToken, String format);
+    String getBase64EndpointsStringForHeaders(String userToken, String format) throws TimeoutException;
 }

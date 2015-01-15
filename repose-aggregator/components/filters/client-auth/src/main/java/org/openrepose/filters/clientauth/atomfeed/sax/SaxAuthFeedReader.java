@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed
@@ -62,14 +63,15 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         factory.setNamespaceAware(true);
     }
 
-    public void setAuthed(String uri, String user, String pass) {
+    public void setAuthed(String uri, String user, String pass) throws TimeoutException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
+        // TODO: WDS FIX_THIS NOTE-2.2
         adminToken = provider.getAdminToken();
     }
 
     @Override
-    public CacheKeys getCacheKeys() {
+    public CacheKeys getCacheKeys() throws TimeoutException {
 
         moreData = true;
         ServiceClientResponse resp;
@@ -97,7 +99,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         return resultKeys;
     }
 
-    private ServiceClientResponse getFeed() {
+    private ServiceClientResponse getFeed() throws TimeoutException {
 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<String, String>();
@@ -113,6 +115,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 break;
             case UNAUTHORIZED:
                 if (isAuthed) {
+                    // TODO: WDS FIX_THIS NOTE-1.3
                     adminToken = provider.getFreshAdminToken();
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);

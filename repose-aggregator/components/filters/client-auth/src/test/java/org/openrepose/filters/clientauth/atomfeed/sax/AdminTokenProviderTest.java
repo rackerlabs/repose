@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyMapOf;
@@ -40,7 +41,7 @@ public class AdminTokenProviderTest {
    }
 
    @Test
-   public void shouldRetrieveAdminToken() throws IOException, JAXBException {
+   public void shouldRetrieveAdminToken() throws IOException, JAXBException, TimeoutException {
       
       
       JAXBContext coreJaxbContext = JAXBContext.newInstance(

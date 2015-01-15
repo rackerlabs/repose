@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 /**
@@ -77,7 +78,14 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
                 }
                 if (modifiedConfig.getAtomFeeds() != null) {
-                    activateOpenstackAtomFeedListener(modifiedConfig);
+                    try {
+                        activateOpenstackAtomFeedListener(modifiedConfig);
+                    } catch (TimeoutException e) {
+                        // TODO: WDS FIX_THIS NOTE-2.4
+                        // This could also be handled lower.
+                        LOG.error("Unable to activate Openstack Atom Feed Listener.");
+                        LOG.trace("", e);
+                    }
                 } else if (manager != null) {
                     //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
                     manager.stopReading();
@@ -95,7 +103,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         //Launch listener for atom-feeds if config present
-        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) {
+        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws TimeoutException {
 
             if (manager != null) {
                 //If we have an existing manager we will shutdown the already running thread
@@ -113,6 +121,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
+                    // TODO: WDS FIX_THIS NOTE-2.3
                     if (!StringUtilities.isBlank(feed.getAuthUri())) {
                         rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                     } else {

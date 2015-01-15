@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
@@ -54,7 +55,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldRetrieveUserAndTokenKeysFromAtomFeed() {
+    public void shouldRetrieveUserAndTokenKeysFromAtomFeed() throws TimeoutException {
 
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
         when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
@@ -70,7 +71,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldLogUnauthorizedFeeds() {
+    public void shouldLogUnauthorizedFeeds() throws TimeoutException {
 
         resp3 = new ServiceClientResponse(401, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
@@ -82,7 +83,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldLogServerErrorFromAtomFeeds() {
+    public void shouldLogServerErrorFromAtomFeeds() throws TimeoutException {
 
         resp3 = new ServiceClientResponse(503, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);

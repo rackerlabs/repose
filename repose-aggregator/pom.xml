@@ -9,6 +9,7 @@
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>com.rackspace.papi</groupId>
     <artifactId>profile-support</artifactId>
 
     <name>Repose - Build Support Profiles</name>
@@ -541,7 +542,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
 

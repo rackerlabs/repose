@@ -9,6 +9,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
+import javax.servlet.http.HttpServletResponse
+
 /**
  * Created by jennyvo on 1/5/15.
  *  Previously akkatimeout was hard code to 50 second now set the same as http connection
@@ -99,9 +101,10 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .61000 milliseconds.").size() > 0
+        sleep(1000)
+        reposeLogSearch.searchByString("Error acquiring value from akka \\(POST\\) or the cache. Reason: Futures timed out after").size() > 0
     }
 
     def "akka timeout POST test, auth response time out greater than http connection time out" () {
@@ -130,8 +133,9 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .61000 milliseconds.").size() > 0
+        sleep(1000)
+        reposeLogSearch.searchByString("Error acquiring value from akka \\(GET\\) or the cache. Reason: Futures timed out after").size() > 0
     }
 }

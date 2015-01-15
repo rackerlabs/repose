@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author fran
@@ -28,11 +29,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token);
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws TimeoutException;
 
-    protected abstract AuthGroups getGroups(String group);
+    protected abstract AuthGroups getGroups(String group) throws TimeoutException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration);
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws TimeoutException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -137,6 +138,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 try {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
+                } catch (TimeoutException ex) {
+                    LOG.error(FAILURE_AUTH_N);
+                    LOG.trace("", ex);
+                    filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
                 } catch (Exception ex) {
                     LOG.error(FAILURE_AUTH_N, ex);
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -155,7 +160,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 if (endpointsConfiguration != null) {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
-
+            } catch (TimeoutException ex) {
+                LOG.error(FAILURE_AUTH_N);
+                LOG.trace("", ex);
+                filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
             } catch (Exception ex) {
                 LOG.error(FAILURE_AUTH_N, ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -173,7 +182,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) {
+    private String getEndpointsInBase64(AuthToken token) throws TimeoutException {
         String tokenId = null;
 
         if (token != null) {
@@ -200,7 +209,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws TimeoutException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);

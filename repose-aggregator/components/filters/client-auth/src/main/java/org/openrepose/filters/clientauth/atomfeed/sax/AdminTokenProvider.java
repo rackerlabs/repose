@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
 
 public class AdminTokenProvider {
 
@@ -59,17 +60,21 @@ public class AdminTokenProvider {
         }
     }
 
-    public String getFreshAdminToken() {
+    public String getFreshAdminToken() throws TimeoutException {
 
         curAdminToken = null;
+        // TODO: WDS FIX_THIS NOTE-1.2
         return getAdminToken();
     }
 
-    public String getAdminToken() {
+    public String getAdminToken() throws TimeoutException {
 
         String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 
         if (adminToken == null) {
+            // TODO: WDS FIX_THIS NOTE-1.1
+            // TODO: WDS FIX_THIS NOTE-2.1
+            // This POST is the root of both ToDo's.
             final ServiceClientResponse serviceResponse = client.post(AdminToken.CACHE_KEY,
                     authUrl + "/tokens",
                     new HashMap<String, String>(),

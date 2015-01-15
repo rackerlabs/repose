@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author fran
@@ -86,7 +87,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthToken validateToken(ExtractorResult<String> account, String token) {
+    public AuthToken validateToken(ExtractorResult<String> account, String token) throws TimeoutException {
         AuthToken authToken = null;
 
         if (account != null) {
@@ -125,7 +126,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthGroups getGroups(String group) {
+    public AuthGroups getGroups(String group) throws TimeoutException {
         return authenticationService.getGroups(group);
     }
 
@@ -135,7 +136,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override //getting the final encoded string
-    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) {
+    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws TimeoutException {
         return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat());
     }
 
