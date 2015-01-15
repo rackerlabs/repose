@@ -68,6 +68,28 @@ public class HeaderManagerImplTest {
             assertEquals("Should put header value if header not present.", "username;q=1", values.iterator().next());
         }
 
+        @Test
+        public void shouldPutQualityInHeader() {
+            when(mockRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn(null);
+
+            headerManagerImpl.putHeader(PowerApiHeader.USER.toString(), "username", 0.5);
+
+            Set<String> values = headerManagerImpl.headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
+
+            assertEquals("Should put header value if header not present.", "username;q=0.5", values.iterator().next());
+        }
+
+        @Test
+        public void shouldPutDefaultQualityInHeader() {
+            when(mockRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn(null);
+
+            headerManagerImpl.appendHeader(PowerApiHeader.USER.toString(), "username", 1.0);
+
+            Set<String> values = headerManagerImpl.headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
+
+            assertEquals("Should put header value if header not present.", "username;q=1.0", values.iterator().next());
+        }
+
                /*
             As per RFC 2616, section 4.2
             Multiple message-header fields with the same field-name MAY be present in a message if and only if the

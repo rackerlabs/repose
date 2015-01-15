@@ -175,7 +175,11 @@ public class TranslationResult {
             director.requestHeaderManager().removeAllHeaders();
 
             for (QualityNameValuePair header : headers.getRequest().getHeader()) {
-                director.requestHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                if (header.getQuality() == 1.0) {
+                    director.requestHeaderManager().appendHeader(header.getName(), header.getValue());
+                } else {
+                    director.requestHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                }
             }
         }
 
@@ -183,7 +187,11 @@ public class TranslationResult {
             director.responseHeaderManager().removeAllHeaders();
 
             for (QualityNameValuePair header : headers.getResponse().getHeader()) {
-                director.responseHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                if (header.getQuality() == 1.0) {
+                    director.responseHeaderManager().appendHeader(header.getName(), header.getValue());
+                } else {
+                    director.responseHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                }
             }
         }
     }
