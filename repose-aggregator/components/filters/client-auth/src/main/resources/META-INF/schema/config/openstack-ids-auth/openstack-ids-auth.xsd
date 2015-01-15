@@ -87,6 +87,18 @@
                 </xs:annotation>
             </xs:attribute>
 
+            <xs:attribute name="send-tenant-id-quality" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If set to false, x-tenant-id headers are not sent with qualities.
+                            If set to true, the default x-tenant-id will be given the highest quality, and qualities will
+                            be attached to every x-tenant-id header.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+
             <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
                 <xs:annotation>
                     <xs:documentation>

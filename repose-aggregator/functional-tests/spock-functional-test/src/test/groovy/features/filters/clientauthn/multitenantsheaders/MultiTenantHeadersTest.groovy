@@ -1,14 +1,18 @@
-package features.filters.clientauthn.tenantvalidation
+package features.filters.clientauthn.multitenantsheaders
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
 /**
- * Created by jennyvo on 8/19/14.
+ * Created by jennyvo on 8/26/14.
+ * This test verify when user token having multi-tenant client-auth filter will retrieve
+ * all tenants and put in multi x-tenant-id in headers
  */
-class MultiTenantedCheckTest extends ReposeValveTest {
+class MultiTenantHeadersTest extends ReposeValveTest{
 
     def static originEndpoint
     def static identityEndpoint
@@ -43,14 +47,14 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll ("when passing #requestTenant with setting #defaultTenant #serviceRespCode")
-    def "When authenticate user with tenanted client-mapping matching more than one from tenant list" () {
+    @Unroll("#defaultTenant, #secondTenant, #requestTenant ")
+    def "When user token have multi-tenant will retrieve all tenants in the header" () {
         given:
         fakeIdentityService.with {
             client_token = clientToken
-            tokenExpiresAt = (new DateTime()).plusDays(1);
+            tokenExpiresAt = (new DateTime()).plusDays(1)
             client_tenant = defaultTenant
-            client_tenant_file = "nast-id"
+            client_tenant_file = secondTenant
             service_admin_role = "not-admin"
         }
 
@@ -62,20 +66,21 @@ class MultiTenantedCheckTest extends ReposeValveTest {
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == serviceRespCode
+
         if (serviceRespCode != "200")
             assert mc.handlings.size() == 0
         else {
             assert mc.handlings.size() == 1
-            assert mc.handlings[0].request.headers.getFirstValue('x-tenant-id') == requestTenant
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant)
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant)
         }
 
         where:
-        defaultTenant   | requestTenant         | authResponseCode  |clientToken        |serviceRespCode
-        "123456"        | "123456"              | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "no-a-nast-id"        | "200"             |UUID.randomUUID()  | "401"
-        "900000"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "nast-id"       | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "900000"        | "900000"              | "200"             |''                 | "401"
+        defaultTenant   | secondTenant  |requestTenant  |clientToken        |serviceRespCode    | numberTenants
+        "123456"        | "nast-id"     | "123456"      |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "nast-id"     | "nast-id"     |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "123456"      | "123456"      |UUID.randomUUID()  | "200"             | 1
+        "123456"        | "nast-id"     | "223456"      |UUID.randomUUID()  | "401"             | 0
     }
 }

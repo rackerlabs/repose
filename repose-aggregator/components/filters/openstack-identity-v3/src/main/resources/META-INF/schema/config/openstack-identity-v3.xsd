@@ -39,6 +39,18 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="send-project-id-quality" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to false, x-project-id headers are not sent with qualities.
+                        If set to true, the default x-project-id will be given the highest quality, and qualities will
+                        be attached to every x-project-id header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>

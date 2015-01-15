@@ -34,7 +34,7 @@
             <xs:extension base="HeaderValue">
                 <xs:attribute name="name" type="xs:string" use="required"/>
                 <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false"/>
-                <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional" default="1.0">
+                <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>

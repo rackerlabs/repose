@@ -1,4 +1,4 @@
-package features.filters.clientauthn.tenantvalidation
+package features.filters.clientauthn.multitenantswquality
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
@@ -8,11 +8,9 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 8/26/14.
- * This test verify when user token having multi-tenant client-auth filter will retrieve
- * all tenants and put in multi x-tenant-id in headers
+ * Created by jennyvo on 1/13/15.
  */
-class MultiTenantHeadersTest extends ReposeValveTest{
+class MultiTenantswQualityTest extends ReposeValveTest{
 
     def static originEndpoint
     def static identityEndpoint
@@ -26,7 +24,7 @@ class MultiTenantHeadersTest extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantheader", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantswquality", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -72,8 +70,10 @@ class MultiTenantHeadersTest extends ReposeValveTest{
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant)
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant)
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant+";q=1.0")
+            if (!secondTenant.equals(defaultTenant)) {
+                assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant+";q=0.5")
+            }
         }
 
         where:
@@ -84,3 +84,4 @@ class MultiTenantHeadersTest extends ReposeValveTest{
         "123456"        | "nast-id"     | "223456"      |UUID.randomUUID()  | "401"             | 0
     }
 }
+
