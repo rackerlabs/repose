@@ -70,8 +70,6 @@ public class FeedCacheInvalidator implements Runnable {
                 try {
                     keys = rdr.getCacheKeys();
                 } catch (TimeoutException e) {
-                    // TODO: WDS FIX_THIS NOTE-1.5
-                    // This could also be handled lower.
                     LOG.error("Unable get Cached Keys.");
                     LOG.trace("", e);
                 }

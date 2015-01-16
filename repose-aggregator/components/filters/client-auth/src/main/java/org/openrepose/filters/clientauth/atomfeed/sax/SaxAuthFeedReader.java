@@ -66,7 +66,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     public void setAuthed(String uri, String user, String pass) throws TimeoutException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
-        // TODO: WDS FIX_THIS NOTE-2.2
         adminToken = provider.getAdminToken();
     }
 
@@ -115,7 +114,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 break;
             case UNAUTHORIZED:
                 if (isAuthed) {
-                    // TODO: WDS FIX_THIS NOTE-1.3
                     adminToken = provider.getFreshAdminToken();
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);

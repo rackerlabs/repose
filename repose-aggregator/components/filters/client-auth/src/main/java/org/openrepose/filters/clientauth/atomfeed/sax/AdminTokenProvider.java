@@ -61,9 +61,7 @@ public class AdminTokenProvider {
     }
 
     public String getFreshAdminToken() throws TimeoutException {
-
         curAdminToken = null;
-        // TODO: WDS FIX_THIS NOTE-1.2
         return getAdminToken();
     }
 
@@ -72,9 +70,6 @@ public class AdminTokenProvider {
         String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 
         if (adminToken == null) {
-            // TODO: WDS FIX_THIS NOTE-1.1
-            // TODO: WDS FIX_THIS NOTE-2.1
-            // This POST is the root of both ToDo's.
             final ServiceClientResponse serviceResponse = client.post(AdminToken.CACHE_KEY,
                     authUrl + "/tokens",
                     new HashMap<String, String>(),

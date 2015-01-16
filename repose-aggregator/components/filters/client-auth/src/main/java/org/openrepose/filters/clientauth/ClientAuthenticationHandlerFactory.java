@@ -81,8 +81,6 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                     try {
                         activateOpenstackAtomFeedListener(modifiedConfig);
                     } catch (TimeoutException e) {
-                        // TODO: WDS FIX_THIS NOTE-2.4
-                        // This could also be handled lower.
                         LOG.error("Unable to activate Openstack Atom Feed Listener.");
                         LOG.trace("", e);
                     }
@@ -121,7 +119,6 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
-                    // TODO: WDS FIX_THIS NOTE-2.3
                     if (!StringUtilities.isBlank(feed.getAuthUri())) {
                         rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                     } else {
@@ -129,10 +126,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                                 modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
                     }
                 }
-
                     listeners.add(rdr);
-
-
             }
 
             manager = new FeedListenerManager(datastore, listeners, getMinimumCheckInterval(modifiedConfig.getAtomFeeds().getCheckInterval()));
