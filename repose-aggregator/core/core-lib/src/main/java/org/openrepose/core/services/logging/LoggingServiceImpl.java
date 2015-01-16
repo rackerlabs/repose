@@ -1,12 +1,16 @@
 package org.openrepose.core.services.logging;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -16,6 +20,19 @@ public class LoggingServiceImpl implements LoggingService {
     private String currentConfigFileName = null;
 
     public LoggingServiceImpl() {
+        //Do some log wrapping only one time, not every time we configure
+        //Wiretap Standard Error to the STDERR logger
+        PrintStream stdErr = IoBuilder.forLogger("STDERR")
+                .setLevel(Level.WARN)
+                .filter(System.err) //Also output to standard err, but I want it in my logs!
+                .buildPrintStream();
+        System.setErr(stdErr);
+
+        PrintStream stdOut = IoBuilder.forLogger("STDOUT")
+                .setLevel(Level.INFO)
+                .filter(System.out)
+                .buildPrintStream();
+        System.setOut(stdOut);
     }
 
     @Override
