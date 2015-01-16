@@ -92,12 +92,6 @@
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
-
-        <!-- Updated listener and configuration service -->
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-service-api</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
