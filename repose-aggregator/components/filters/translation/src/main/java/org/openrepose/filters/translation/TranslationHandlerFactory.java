@@ -1,5 +1,7 @@
 package org.openrepose.filters.translation;
 
+import com.saxonica.config.EnterpriseTransformerFactory;
+import net.sf.saxon.trans.DynamicLoader;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.translation.config.*;
 import org.openrepose.filters.translation.xslt.XsltParameter;
@@ -161,6 +163,11 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
         if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
            updateTransformerPool( SAXON_EE_FACTORY_NAME );
+          //Now that we have a Saxon EE transformer factory, we need to configure it...
+          //We have to do casting to get the configuration object, to configure the DynamicLoader for our classloader
+          //This is only needed for saxon EE, because it generates bytecode.
+          EnterpriseTransformerFactory etf = (EnterpriseTransformerFactory)transformerFactory;
+          etf.getConfiguration().getDynamicLoader().setClassLoader(this.getClass().getClassLoader());
         } else {
             updateTransformerPool(SAXON_HE_FACTORY_NAME);
         }
