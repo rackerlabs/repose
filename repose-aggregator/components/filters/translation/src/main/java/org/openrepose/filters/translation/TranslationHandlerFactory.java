@@ -163,6 +163,13 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
         if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
            updateTransformerPool( SAXON_EE_FACTORY_NAME );
+          /*
+           * I found this through here: http://sourceforge.net/p/saxon/mailman/message/29737564/
+           * A bit of deduction and stuff let me to assume that all dynamic loading is done with the DynamicLoader
+           * object. The only way to get ahold of that is to typecast the TransformerFactory to the actual class, and
+           * then get the DynamicLoader out of it, and set it's classloader to the one where the saxonica classes 
+           * are located.
+           */
           //Now that we have a Saxon EE transformer factory, we need to configure it...
           //We have to do casting to get the configuration object, to configure the DynamicLoader for our classloader
           //This is only needed for saxon EE, because it generates bytecode.
