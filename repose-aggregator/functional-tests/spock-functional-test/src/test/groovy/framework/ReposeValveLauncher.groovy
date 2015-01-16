@@ -29,6 +29,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     def jmxPort = null
     def debugPort = null
     def classPaths = []
+    def additionalEnvironment = [:]
 
     Process process
 
@@ -139,7 +140,13 @@ class ReposeValveLauncher extends ReposeLauncher {
         println("Starting repose: ${cmd}")
 
         def th = new Thread({
-            this.process = cmd.execute()
+            //Construct a new environment, including all from the previous, and then overriding with our new one
+            def newEnv = System.getenv()
+            additionalEnvironment.each { k,v ->
+                newEnv.put(k, v) //Should override anything, if there's anything to override
+            }
+            def envList = newEnv.collect { k,v -> "$k=$v" }
+            this.process = cmd.execute(envList, null)
             this.process.consumeProcessOutput(System.out, System.err)
         });
 
@@ -153,7 +160,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 connectViaJmxRemote(jmxUrl)
             }
 
-            if(clusterId && nodeId){
+            if (clusterId && nodeId) {
                 print("Waiting for repose node: ${clusterId}:${nodeId} to start: ")
             } else {
                 print("Waiting for repose auto-guessed node to start: ")
@@ -228,6 +235,15 @@ class ReposeValveLauncher extends ReposeLauncher {
     @Override
     void addToClassPath(String path) {
         classPaths.add(path)
+    }
+
+    /**
+     * This takes a single string and will append it to the list of environment vars to be set for the .execute() method
+     * Following docs from: http://groovy.codehaus.org/groovy-jdk/java/lang/String.html#execute%28java.util.List,%20java.io.File%29
+     * @param environmentPair
+     */
+    void addToEnvironment(String key, String value) {
+        additionalEnvironment.put(key, value)
     }
 
     /**
