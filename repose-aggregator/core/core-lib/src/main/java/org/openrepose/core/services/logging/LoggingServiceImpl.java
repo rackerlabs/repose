@@ -1,8 +1,10 @@
 package org.openrepose.core.services.logging;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -14,6 +16,8 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -40,6 +44,19 @@ public class LoggingServiceImpl implements LoggingService {
         URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
 
         configurationService.subscribeTo("container.cfg.xml", containerXsdURL, configurationListener, ContainerConfiguration.class);
+        //Do some log wrapping only one time, not every time we configure
+        //Wiretap Standard Error to the STDERR logger
+        PrintStream stdErr = IoBuilder.forLogger("STDERR")
+                .setLevel(Level.WARN)
+                .filter(System.err) //Also output to standard err, but I want it in my logs!
+                .buildPrintStream();
+        System.setErr(stdErr);
+
+        PrintStream stdOut = IoBuilder.forLogger("STDOUT")
+                .setLevel(Level.INFO)
+                .filter(System.out)
+                .buildPrintStream();
+        System.setOut(stdOut);
     }
 
     @PreDestroy

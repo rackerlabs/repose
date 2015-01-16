@@ -215,6 +215,12 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
 
+        <!-- this guy gets me some dependencies that let me log STDERR and STDOUT 
+        while still letting them go to the console -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-iostreams</artifactId>
+        </dependency>
         <!-- for JSON support for log4j2 Configuration Files
          NOTE: there were multiple versions of jackson in core thanks to transitive dependencies.
          This was brought on in https://github.com/rackerlabs/repose/commit/ed84bc51ed8698ebc69b4228e7f23c6ec3420977
