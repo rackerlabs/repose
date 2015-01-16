@@ -40,6 +40,7 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <!-- Scalatest for testing scala -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
@@ -51,17 +52,13 @@
             <artifactId>http-delegation</artifactId>
         </dependency>
 
-        <!-- These three are required because of our coupling between filters and core -->
+        <!-- FilterConfigHelper -->
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-        </dependency>
-
+        <!-- CommonHttpHeader, HttpStatusCode, OpenStackServiceHeader -->
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
@@ -74,6 +71,7 @@
             <version>2.1.2</version>
         </dependency>
 
+        <!-- MockHttpServletRequest/Response -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
