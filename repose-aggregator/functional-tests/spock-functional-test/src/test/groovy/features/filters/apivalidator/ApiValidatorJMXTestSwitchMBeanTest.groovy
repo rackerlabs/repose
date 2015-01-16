@@ -4,13 +4,15 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Shared
+import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
 class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
-    final def conditions = new PollingConditions(timeout:10, initialDelay: 1)
+    final def conditions = new PollingConditions(timeout: 10, initialDelay: 1)
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
@@ -83,15 +85,26 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
 
         then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
-        conditions.eventually {
-            //The new mbeans should be different, and we should always have two
-            def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
-            assert afterUpdateBeans.size() == 2
-            afterUpdateBeans.each { updatedBean ->
-                beforeUpdateBeans.each {
-                    assert (updatedBean.name != it.name)
+        def loopCount = 0
+        def lastSawAfterUpdateBeansCount = 0
+        def lastSawAfterUpdateBeans = []
+        try {
+            conditions.eventually {
+                loopCount += 1
+                //The new mbeans should be different, and we should always have two
+                def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
+                lastSawAfterUpdateBeans = afterUpdateBeans
+                lastSawAfterUpdateBeansCount = afterUpdateBeans.size()
+                assert afterUpdateBeans.size() == 2
+                afterUpdateBeans.each { updatedBean ->
+                    beforeUpdateBeans.each {
+                        assert (updatedBean.name != it.name)
+                    }
                 }
             }
+        } catch (IllegalArgumentException iae) {
+            //Stupid spock is stupid and I don't know why
+            throw new SpockAssertionError("Stupid failure: ${loopCount} tries. With ${lastSawAfterUpdateBeansCount} beans last seen: ${lastSawAfterUpdateBeans}", iae)
         }
     }
 }
