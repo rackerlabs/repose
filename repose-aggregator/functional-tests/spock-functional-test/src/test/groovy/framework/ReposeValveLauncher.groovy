@@ -141,7 +141,9 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         def th = new Thread({
             //Construct a new environment, including all from the previous, and then overriding with our new one
-            def newEnv = System.getenv()
+            def newEnv = new HashMap<String, String>()
+            newEnv.putAll(System.getenv())
+            
             additionalEnvironment.each { k,v ->
                 newEnv.put(k, v) //Should override anything, if there's anything to override
             }
