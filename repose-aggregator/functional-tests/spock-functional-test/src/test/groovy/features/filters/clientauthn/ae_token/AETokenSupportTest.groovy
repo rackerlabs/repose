@@ -64,9 +64,10 @@ class AETokenSupportTest extends ReposeValveTest {
 
         (1..numClients).each {
             threadNum ->
-                Map header1 = ['X-Auth-Token': RandomStringUtils.random(250, charset)]
+                //Map header1 = ['X-Auth-Token': RandomStringUtils.random(250, charset)]
                 def thread = Thread.start {
                     (1..callsPerClient).each {
+                        Map header1 = ['X-Auth-Token': RandomStringUtils.random(250, charset)]
                         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                         if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
@@ -93,6 +94,7 @@ class AETokenSupportTest extends ReposeValveTest {
 
         then:
         fakeIdentityService.generateTokenCount == 1
+        fakeIdentityService.validateTokenCount == numClients * callsPerClient
 
         and:
         missingAuthHeader == false
@@ -102,6 +104,6 @@ class AETokenSupportTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        50         | 300
+        50         | 150
     }
 }
