@@ -76,13 +76,29 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
 
+        when: "I make a request to exercise repose so it has the jmx beeeens"
         deproxy.makeRequest(url: reposeEndpoint + "/")
 
-        given:
-        def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+        then: "I get beans before making the config change"
+        conditions.eventually {
+            def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+            assert beforeUpdateBeans.size() == 3
+            //Assert that we found our three beans!
+            assert beforeUpdateBeans.any { bean ->
+                bean.objectName.toString().contains("role-1")
+            }
+            assert beforeUpdateBeans.any { bean ->
+                bean.objectName.toString().contains("role-2")
+            }
+            assert beforeUpdateBeans.any { bean ->
+                bean.objectName.toString().contains("role-3")
+            }
+        }
+
 
         when: "I update the Repose API Validator filter with 2 new validators"
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
+
 
         then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
         def loopCount = 0
@@ -90,17 +106,16 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         def lastSawAfterUpdateBeans = []
         try {
             conditions.eventually {
+                deproxy.makeRequest(url: reposeEndpoint + "/")
                 loopCount += 1
                 //The new mbeans should be different, and we should always have two
                 def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
                 lastSawAfterUpdateBeans = afterUpdateBeans
                 lastSawAfterUpdateBeansCount = afterUpdateBeans.size()
                 assert afterUpdateBeans.size() == 2
-                afterUpdateBeans.each { updatedBean ->
-                    beforeUpdateBeans.each {
-                        assert (updatedBean.name != it.name)
-                    }
-                }
+                //Look for the two beans
+                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-a")}
+                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-b")}
             }
         } catch (IllegalArgumentException iae) {
             //Stupid spock is stupid and I don't know why

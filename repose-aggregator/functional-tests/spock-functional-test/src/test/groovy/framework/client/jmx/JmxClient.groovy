@@ -94,7 +94,7 @@ class JmxClient {
      * @param beanName
      * @return
      */
-    def getMBeans(domain, expectedClassName, expectedCount) {
+    Collection<ObjectInstance> getMBeans(domain, expectedClassName, expectedCount) {
         def mbeans = null
 
         eventually {
