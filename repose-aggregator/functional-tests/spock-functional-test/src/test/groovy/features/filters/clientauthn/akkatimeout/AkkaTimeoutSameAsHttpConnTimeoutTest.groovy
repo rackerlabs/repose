@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 
@@ -103,9 +104,11 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka \\(POST\\) or the cache. Reason: Futures timed out after").size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
     }
 
+    @Unroll ("akka timeout with admin resp: #adminResponseCode")
     def "akka timeout POST test, auth response time out greater than http connection time out" () {
         reposeLogSearch.cleanLog()
         fakeIdentityService.with {
@@ -115,9 +118,6 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
             service_admin_role = "not-admin"
             client_userid = 1234
             sleeptime = 35000
-        }
-
-        if(adminResponseCode != 200){
             fakeIdentityService.generateTokenHandler = {
                 request, xml ->
                     new Response(adminResponseCode, null, null, "")
@@ -138,7 +138,8 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka \\(POST\\) or the cache. Reason: Futures timed out after").size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString("Error acquiring value from akka .POST. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
 
         where:
         adminResponseCode << [500, 404]
