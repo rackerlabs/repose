@@ -80,19 +80,33 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/")
 
         then: "I get beans before making the config change"
-        conditions.eventually {
-            def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
-            assert beforeUpdateBeans.size() == 3
-            //Assert that we found our three beans!
-            assert beforeUpdateBeans.any { bean ->
-                bean.objectName.toString().contains("role-1")
+        int lastFoundSize = 0
+        boolean foundOne = false
+        boolean foundTwo = false
+        boolean foundThree = false
+        int upperLoopCount = 0
+        try {
+            conditions.eventually {
+                upperLoopCount += 1
+                def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+                lastFoundSize = beforeUpdateBeans.size()
+                assert lastFoundSize == 3
+                //Assert that we found our three beans!
+                foundOne = beforeUpdateBeans.any { bean ->
+                    bean.objectName.toString().contains("role-1")
+                }
+                foundTwo = beforeUpdateBeans.any { bean ->
+                    bean.objectName.toString().contains("role-2")
+                }
+                foundThree = beforeUpdateBeans.any { bean ->
+                    bean.objectName.toString().contains("role-3")
+                }
+                assert foundOne
+                assert foundTwo
+                assert foundThree
             }
-            assert beforeUpdateBeans.any { bean ->
-                bean.objectName.toString().contains("role-2")
-            }
-            assert beforeUpdateBeans.any { bean ->
-                bean.objectName.toString().contains("role-3")
-            }
+        }catch(IllegalArgumentException iae) {
+            throw new SpockAssertionError("Stupid Spock problem: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree", iae)
         }
 
 
