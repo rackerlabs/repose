@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 
@@ -54,7 +53,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out less than http connection time out" () {
+    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds" () {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -79,7 +78,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than http connection time out" () {
+    def "akka timeout test, auth response time out greater than socket connection time out" () {
         reposeLogSearch.cleanLog()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -104,12 +103,11 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("NullPointerException").size() == 0
         reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 
-    @Unroll ("akka timeout with admin resp: #adminResponseCode")
-    def "akka timeout POST test, auth response time out greater than http connection time out" () {
+    def "akka timeout POST test, auth response time out greater than socket connection time out" () {
         reposeLogSearch.cleanLog()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -120,7 +118,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
             sleeptime = 35000
             fakeIdentityService.generateTokenHandler = {
                 request, xml ->
-                    new Response(adminResponseCode, null, null, "")
+                    new Response(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, null, "")
             }
         }
 
@@ -138,10 +136,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
+        reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString("Error acquiring value from akka .POST. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
-
-        where:
-        adminResponseCode << [500, 404]
     }
 }
