@@ -14,6 +14,7 @@ import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
@@ -110,7 +111,9 @@ public class ServiceClient {
                client.getParams().setParameter(queryParameters[index], queryParameters[index + 1]);
             }
 
-            HttpResponse httpResponse = client.execute(base);
+            //NOTE have to create a new HttpContext each time, to avoid reusing cookies accidentally
+            // If not doing this, the cookies and stuff can be shared, and that's super bad
+            HttpResponse httpResponse = client.execute(base, new BasicHttpContext());
             HttpEntity entity = httpResponse.getEntity();
 
             InputStream stream = null;
