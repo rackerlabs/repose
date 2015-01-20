@@ -7,6 +7,8 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.github.jknack.handlebars.{Handlebars, Template}
+import com.rabbitmq.client
+import com.rabbitmq.client.MessageProperties
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -18,10 +20,12 @@ import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.future
 
 class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
+  private final val QUEUE_NAME = "message_queue"
 
   private var configurationService: ConfigurationService = _
   private var config: String = _
@@ -31,12 +35,21 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var region: String = _
   private var dataCenter: String = _
   private var handlebarsTemplate: Template = _
+  private var mqConnection: client.Connection = _
+  private var queueChannel: client.Channel = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
     logger.info("Initializing filter using config " + config)
+    val connectionFactory = new client.ConnectionFactory()
+    connectionFactory.setHost("localhost")
+
+    mqConnection = connectionFactory.newConnection()
+    queueChannel = mqConnection.createChannel()
+    queueChannel.queueDeclare(QUEUE_NAME, true, false, false, null)
+
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/highly-efficient-record-processor.xsd")
@@ -100,15 +113,23 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       "dataCenter" -> dataCenter
     )
 
-    val templateOutput: StringWriter = new StringWriter
-    handlebarsTemplate.apply(templateValues.asJava, templateOutput)
+    future {
+      // todo: filtering here
 
-    herpLogger.info(templateOutput.toString)
+      val templateOutput: StringWriter = new StringWriter
+      handlebarsTemplate.apply(templateValues.asJava, templateOutput)
+
+      herpLogger.info(templateOutput.toString)
+      queueChannel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, templateOutput.toString.getBytes)
+    }
   }
 
   override def destroy(): Unit = {
     logger.trace("HERP filter destroying ...")
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
+
+    queueChannel.close()
+    mqConnection.close()
 
     logger.trace("HERP filter destroyed.")
   }
