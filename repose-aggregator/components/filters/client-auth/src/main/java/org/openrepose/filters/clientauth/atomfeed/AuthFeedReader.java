@@ -1,9 +1,8 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
-import java.util.concurrent.TimeoutException;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 
 public interface AuthFeedReader {
 
-   CacheKeys getCacheKeys() throws TimeoutException;
-   String getFeedId();
+   CacheKeys getCacheKeys() throws AkkServiceClientException;
 }

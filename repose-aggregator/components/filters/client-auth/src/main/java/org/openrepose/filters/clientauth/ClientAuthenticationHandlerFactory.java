@@ -1,13 +1,10 @@
 package org.openrepose.filters.clientauth;
 
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
@@ -17,15 +14,18 @@ import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.filters.clientauth.config.RackspaceIdentityFeed;
 import org.openrepose.filters.clientauth.config.URIPattern;
 import org.openrepose.filters.clientauth.config.WhiteList;
-import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandlerFactory;
+import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 /**
@@ -80,8 +80,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 if (modifiedConfig.getAtomFeeds() != null) {
                     try {
                         activateOpenstackAtomFeedListener(modifiedConfig);
-                    } catch (TimeoutException e) {
-                        LOG.error("Unable to activate Openstack Atom Feed Listener.");
+                    } catch (AkkServiceClientException e) {
+                        LOG.error("Unable to activate OpenStack Atom Feed Listener.");
                         LOG.trace("", e);
                     }
                 } else if (manager != null) {
@@ -101,7 +101,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         //Launch listener for atom-feeds if config present
-        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws TimeoutException {
+        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AkkServiceClientException {
 
             if (manager != null) {
                 //If we have an existing manager we will shutdown the already running thread

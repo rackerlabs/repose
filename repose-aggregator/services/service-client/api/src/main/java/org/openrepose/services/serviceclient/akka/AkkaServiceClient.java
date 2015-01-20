@@ -11,8 +11,8 @@ import java.util.concurrent.TimeoutException;
  */
 public interface AkkaServiceClient {
 
-    ServiceClientResponse get(String token, String uri, Map<String, String> headers) throws TimeoutException;
-    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws TimeoutException;
+    ServiceClientResponse get(String token, String uri, Map<String, String> headers) throws AkkServiceClientException;
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkServiceClientException;
 
     void shutdown();
 }

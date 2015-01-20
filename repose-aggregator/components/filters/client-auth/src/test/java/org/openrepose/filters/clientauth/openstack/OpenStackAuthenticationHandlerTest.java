@@ -1,28 +1,27 @@
 package org.openrepose.filters.clientauth.openstack;
 
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.OpenStackGroup;
 import org.openrepose.common.auth.openstack.OpenStackToken;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.filters.clientauth.common.*;
-import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandler;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
@@ -32,9 +31,7 @@ import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeFactory;
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -243,7 +240,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void tenantIdFromTokenMatchesURI() throws TimeoutException {
+        public void tenantIdFromTokenMatchesURI() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             userForAuthenticateResponse.setRoles(defaultRoleList());
             Token token = new Token();
@@ -267,7 +264,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void tenantIdFromTokenMatchesAnIdFromRoles() throws TimeoutException {
+        public void tenantIdFromTokenMatchesAnIdFromRoles() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             Role role1 = new Role();
             role1.setName("123456");
@@ -306,7 +303,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void tenantIDDoesNotMatch() throws TimeoutException {
+        public void tenantIDDoesNotMatch() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             //set the roles of the user to defaults
             userForAuthenticateResponse.setRoles(defaultRoleList());
@@ -334,7 +331,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void mossoIDTestInToken() throws TimeoutException {
+        public void mossoIDTestInToken() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
             //set the roles of the user to defaults
             userForAuthenticateResponse.setRoles(defaultRoleList());
@@ -366,7 +363,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void mossoIDTestInRoles() throws TimeoutException {
+        public void mossoIDTestInRoles() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
             //set the roles of the user to defaults
             Role role1 = new Role();
@@ -472,7 +469,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void testSendAllTenants() throws TimeoutException {
+        public void testSendAllTenants() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             userForAuthenticateResponse.setRoles(defaultRoleList());
             Token token = new Token();
@@ -545,7 +542,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldCheckCacheForCredentials() throws IOException, TimeoutException {
+        public void shouldCheckCacheForCredentials() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
@@ -558,7 +555,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldUseCachedUserInfo() throws TimeoutException {
+        public void shouldUseCachedUserInfo() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
@@ -572,7 +569,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException, TimeoutException {
+        public void shouldNotUseCachedUserInfoForExpired() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
@@ -588,7 +585,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldNotUseCachedUserInfoForBadTokenId() throws TimeoutException {
+        public void shouldNotUseCachedUserInfoForBadTokenId() throws Exception {
             authResponse.getToken().setId("differentId");
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
@@ -653,7 +650,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldCheckCacheForGroup() throws IOException, TimeoutException {
+        public void shouldCheckCacheForGroup() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
@@ -664,7 +661,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldUseCachedGroupInfo() throws TimeoutException {
+        public void shouldUseCachedGroupInfo() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
@@ -683,7 +680,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException, TimeoutException {
+        public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
@@ -742,7 +739,7 @@ public class OpenStackAuthenticationHandlerTest {
 
    
     @Test
-    public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException, TimeoutException {
+    public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
         final AuthToken user = new OpenStackToken(authResponse);
         when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
@@ -831,7 +828,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldPassValidCredentials() throws TimeoutException {
+        public void shouldPassValidCredentials() throws Exception {
             AuthenticateResponse authResp = new AuthenticateResponse();
             UserForAuthenticateResponse user = new UserForAuthenticateResponse();
             user.setName("username");

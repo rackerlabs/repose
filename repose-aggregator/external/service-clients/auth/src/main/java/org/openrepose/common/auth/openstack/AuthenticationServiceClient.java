@@ -10,6 +10,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class hosts the interaction between Repose and an OpenStack Identity Endpoint.
@@ -86,7 +86,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthenticateResponse validateToken(String tenant, String userToken) throws TimeoutException { //this is where we ask auth service if token is valid
+    public AuthenticateResponse validateToken(String tenant, String userToken) throws AkkServiceClientException { //this is where we ask auth service if token is valid
 
         AuthenticateResponse authenticateResponse = null;
         ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
@@ -129,7 +129,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return authenticateResponse;
     }
 
-    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws TimeoutException {
+    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AkkServiceClientException {
         final Map<String, String> headers = new HashMap<>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
@@ -137,7 +137,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public List<Endpoint> getEndpointsForToken(String userToken) throws TimeoutException {
+    public List<Endpoint> getEndpointsForToken(String userToken) throws AkkServiceClientException {
         final Map<String, String> headers = new HashMap<>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
@@ -181,7 +181,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
     @Override
-    public String getBase64EndpointsStringForHeaders(String userToken, String format) throws TimeoutException {
+    public String getBase64EndpointsStringForHeaders(String userToken, String format) throws AkkServiceClientException {
         final Map<String, String> headers = new HashMap<>();
 
         //defaulting to json format
@@ -253,7 +253,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthGroups getGroups(String userId) throws TimeoutException {
+    public AuthGroups getGroups(String userId) throws AkkServiceClientException {
         final Map<String, String> headers = new HashMap<>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
@@ -311,7 +311,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private String getAdminToken(boolean force) throws TimeoutException {
+    private String getAdminToken(boolean force) throws AkkServiceClientException {
 
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 

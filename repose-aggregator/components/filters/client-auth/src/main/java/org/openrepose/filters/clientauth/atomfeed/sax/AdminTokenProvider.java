@@ -9,6 +9,7 @@ import org.openrepose.common.auth.openstack.AdminToken;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import java.util.HashMap;
-import java.util.concurrent.TimeoutException;
 
 public class AdminTokenProvider {
 
@@ -60,12 +60,12 @@ public class AdminTokenProvider {
         }
     }
 
-    public String getFreshAdminToken() throws TimeoutException {
+    public String getFreshAdminToken() throws AkkServiceClientException {
         curAdminToken = null;
         return getAdminToken();
     }
 
-    public String getAdminToken() throws TimeoutException {
+    public String getAdminToken() throws AkkServiceClientException {
 
         String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 

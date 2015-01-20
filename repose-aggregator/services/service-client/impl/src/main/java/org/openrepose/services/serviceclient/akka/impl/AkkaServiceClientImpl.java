@@ -11,6 +11,7 @@ import com.typesafe.config.ConfigFactory;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static akka.pattern.Patterns.ask;
 import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
@@ -61,39 +61,33 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
 
     @Override
-    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws TimeoutException {
+    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws AkkServiceClientException {
         ServiceClientResponse serviceClientResponse = null;
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
             Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout);
             serviceClientResponse = Await.result(future, timeout.duration());
-        } catch (TimeoutException e) {
-            LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
-            LOG.trace("", e);
-            throw e;
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+            throw new AkkServiceClientException("Error acquiring value from akka (GET) or the cache.", e);
         }
         return serviceClientResponse;
     }
 
     @Override
-    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws TimeoutException {
+    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkServiceClientException {
         ServiceClientResponse serviceClientResponse = null;
         AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
             Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout);
             serviceClientResponse = Await.result(future, timeout.duration());
-        } catch (TimeoutException e) {
-            LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
-            LOG.trace("", e);
-            throw e;
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+            throw new AkkServiceClientException("Error acquiring value from akka (POST) or the cache.", e);
         }
         return serviceClientResponse;
     }

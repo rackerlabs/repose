@@ -1,7 +1,6 @@
 package org.openrepose.services.serviceclient.akka.impl
 
 import java.io.StringWriter
-import java.util.concurrent.TimeoutException
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
@@ -21,6 +20,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -165,7 +165,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
-              intercept[TimeoutException] {
+              intercept[AkkServiceClientException] {
                 val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               }
               val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)

@@ -4,6 +4,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -27,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed
@@ -63,14 +63,14 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         factory.setNamespaceAware(true);
     }
 
-    public void setAuthed(String uri, String user, String pass) throws TimeoutException {
+    public void setAuthed(String uri, String user, String pass) throws AkkServiceClientException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
         adminToken = provider.getAdminToken();
     }
 
     @Override
-    public CacheKeys getCacheKeys() throws TimeoutException {
+    public CacheKeys getCacheKeys() throws AkkServiceClientException {
 
         moreData = true;
         ServiceClientResponse resp;
@@ -98,7 +98,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         return resultKeys;
     }
 
-    private ServiceClientResponse getFeed() throws TimeoutException {
+    private ServiceClientResponse getFeed() throws AkkServiceClientException {
 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<String, String>();
@@ -180,10 +180,5 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             }
             curResource = "";
         }
-    }
-
-    @Override
-    public String getFeedId() {
-        return feedId;
     }
 }

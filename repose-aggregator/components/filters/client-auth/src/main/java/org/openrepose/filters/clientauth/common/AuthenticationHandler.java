@@ -2,7 +2,6 @@ package org.openrepose.filters.clientauth.common;
 
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
-import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
@@ -15,6 +14,7 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,11 +29,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws TimeoutException;
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AkkServiceClientException;
 
-    protected abstract AuthGroups getGroups(String group) throws TimeoutException;
+    protected abstract AuthGroups getGroups(String group) throws AkkServiceClientException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws TimeoutException;
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AkkServiceClientException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -138,10 +138,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 try {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
-                } catch (TimeoutException ex) {
+                } catch (AkkServiceClientException ex) {
                     LOG.error(FAILURE_AUTH_N);
                     LOG.trace("", ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                    if(ex.getCause() instanceof TimeoutException) {
+                        filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                    } else {
+                        filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    }
                 } catch (Exception ex) {
                     LOG.error(FAILURE_AUTH_N, ex);
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -160,10 +164,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 if (endpointsConfiguration != null) {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
-            } catch (TimeoutException ex) {
+            } catch (AkkServiceClientException ex) {
                 LOG.error(FAILURE_AUTH_N);
                 LOG.trace("", ex);
-                filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                if(ex.getCause() instanceof TimeoutException) {
+                    filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                } else {
+                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                }
                 delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
             } catch (Exception ex) {
                 LOG.error(FAILURE_AUTH_N, ex);
@@ -182,7 +190,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) throws TimeoutException {
+    private String getEndpointsInBase64(AuthToken token) throws AkkServiceClientException {
         String tokenId = null;
 
         if (token != null) {
@@ -209,7 +217,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws TimeoutException {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AkkServiceClientException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);

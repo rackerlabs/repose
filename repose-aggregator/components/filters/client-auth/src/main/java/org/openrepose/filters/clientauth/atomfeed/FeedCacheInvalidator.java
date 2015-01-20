@@ -6,12 +6,12 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 /*
  * Listener class to iterate through AuthFeedReaders and retrieve items to delete from the cache
@@ -69,7 +69,7 @@ public class FeedCacheInvalidator implements Runnable {
                 CacheKeys keys = null;
                 try {
                     keys = rdr.getCacheKeys();
-                } catch (TimeoutException e) {
+                } catch (AkkServiceClientException e) {
                     LOG.error("Unable get Cached Keys.");
                     LOG.trace("", e);
                 }
