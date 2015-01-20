@@ -18,7 +18,7 @@ import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandle
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 
@@ -80,7 +80,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 if (modifiedConfig.getAtomFeeds() != null) {
                     try {
                         activateOpenstackAtomFeedListener(modifiedConfig);
-                    } catch (AkkServiceClientException e) {
+                    } catch (AkkaServiceClientException e) {
                         LOG.error("Unable to activate OpenStack Atom Feed Listener.");
                         LOG.trace("", e);
                     }
@@ -101,7 +101,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         //Launch listener for atom-feeds if config present
-        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AkkServiceClientException {
+        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AkkaServiceClientException {
 
             if (manager != null) {
                 //If we have an existing manager we will shutdown the already running thread

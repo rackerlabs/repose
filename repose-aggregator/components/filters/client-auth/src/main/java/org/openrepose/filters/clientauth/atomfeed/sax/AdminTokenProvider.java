@@ -9,7 +9,7 @@ import org.openrepose.common.auth.openstack.AdminToken;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;
@@ -60,12 +60,12 @@ public class AdminTokenProvider {
         }
     }
 
-    public String getFreshAdminToken() throws AkkServiceClientException {
+    public String getFreshAdminToken() throws AkkaServiceClientException {
         curAdminToken = null;
         return getAdminToken();
     }
 
-    public String getAdminToken() throws AkkServiceClientException {
+    public String getAdminToken() throws AkkaServiceClientException {
 
         String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 

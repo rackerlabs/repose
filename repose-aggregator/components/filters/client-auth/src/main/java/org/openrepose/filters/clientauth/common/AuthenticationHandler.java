@@ -14,7 +14,7 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,11 +29,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AkkServiceClientException;
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AkkaServiceClientException;
 
-    protected abstract AuthGroups getGroups(String group) throws AkkServiceClientException;
+    protected abstract AuthGroups getGroups(String group) throws AkkaServiceClientException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AkkServiceClientException;
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AkkaServiceClientException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -138,7 +138,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 try {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
-                } catch (AkkServiceClientException ex) {
+                } catch (AkkaServiceClientException ex) {
                     LOG.error(FAILURE_AUTH_N);
                     LOG.trace("", ex);
                     if(ex.getCause() instanceof TimeoutException) {
@@ -164,7 +164,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 if (endpointsConfiguration != null) {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
-            } catch (AkkServiceClientException ex) {
+            } catch (AkkaServiceClientException ex) {
                 LOG.error(FAILURE_AUTH_N);
                 LOG.trace("", ex);
                 if(ex.getCause() instanceof TimeoutException) {
@@ -190,7 +190,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) throws AkkServiceClientException {
+    private String getEndpointsInBase64(AuthToken token) throws AkkaServiceClientException {
         String tokenId = null;
 
         if (token != null) {
@@ -217,7 +217,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AkkServiceClientException {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AkkaServiceClientException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);

@@ -6,7 +6,7 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.openrepose.services.datastore.Datastore;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class FeedCacheInvalidator implements Runnable {
                     CacheKeys keys = rdr.getCacheKeys();
                     userKeys.addAll(keys.getUserKeys());
                     tokenKeys.addAll(keys.getTokenKeys());
-                } catch (AkkServiceClientException e) {
+                } catch (AkkaServiceClientException e) {
                     LOG.error("Unable get Cached Keys.");
                     LOG.trace("", e);
                 }

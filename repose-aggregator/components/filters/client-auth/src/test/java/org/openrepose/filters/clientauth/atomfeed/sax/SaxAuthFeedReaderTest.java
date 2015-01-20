@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldRetrieveUserAndTokenKeysFromAtomFeed() throws AkkServiceClientException {
+    public void shouldRetrieveUserAndTokenKeysFromAtomFeed() throws AkkaServiceClientException {
 
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
         when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
@@ -70,7 +70,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldLogUnauthorizedFeeds() throws AkkServiceClientException {
+    public void shouldLogUnauthorizedFeeds() throws AkkaServiceClientException {
 
         resp3 = new ServiceClientResponse(401, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
@@ -82,7 +82,7 @@ public class SaxAuthFeedReaderTest {
     }
 
     @Test
-    public void shouldLogServerErrorFromAtomFeeds() throws AkkServiceClientException {
+    public void shouldLogServerErrorFromAtomFeeds() throws AkkaServiceClientException {
 
         resp3 = new ServiceClientResponse(503, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);

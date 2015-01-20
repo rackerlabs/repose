@@ -18,7 +18,7 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info(message);
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
-        } catch (AkkServiceClientException ex) {
+        } catch (AkkaServiceClientException ex) {
             LOG.error(message);
             LOG.trace("", ex);
             if(ex.getCause() instanceof TimeoutException) {
@@ -120,7 +120,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorizedForToken(String userToken) throws AkkServiceClientException {
+    private boolean isEndpointAuthorizedForToken(String userToken) throws AkkaServiceClientException {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
         if(cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
@@ -160,7 +160,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         };
     }
 
-    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AkkServiceClientException {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AkkaServiceClientException {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {

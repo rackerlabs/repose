@@ -1,8 +1,8 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 
 public interface AuthFeedReader {
 
-   CacheKeys getCacheKeys() throws AkkServiceClientException;
+   CacheKeys getCacheKeys() throws AkkaServiceClientException;
 }

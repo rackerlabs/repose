@@ -17,7 +17,7 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastore;
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.*;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class AuthFeedListenerTest {
    private static CacheManager cacheManager;
 
    @Before
-   public void setUp() throws IOException, AkkServiceClientException {
+   public void setUp() throws IOException, AkkaServiceClientException {
 
       Configuration defaultConfiguration = new Configuration();
       defaultConfiguration.setName("TestCacheManager");

@@ -4,7 +4,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.services.serviceclient.akka.AkkServiceClientException;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -63,14 +63,14 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         factory.setNamespaceAware(true);
     }
 
-    public void setAuthed(String uri, String user, String pass) throws AkkServiceClientException {
+    public void setAuthed(String uri, String user, String pass) throws AkkaServiceClientException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
         adminToken = provider.getAdminToken();
     }
 
     @Override
-    public CacheKeys getCacheKeys() throws AkkServiceClientException {
+    public CacheKeys getCacheKeys() throws AkkaServiceClientException {
 
         moreData = true;
         ServiceClientResponse resp;
@@ -98,7 +98,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         return resultKeys;
     }
 
-    private ServiceClientResponse getFeed() throws AkkServiceClientException {
+    private ServiceClientResponse getFeed() throws AkkaServiceClientException {
 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<String, String>();
