@@ -1,5 +1,6 @@
 package org.openrepose.core.services.httpcomponent;
 
+import org.apache.http.protocol.BasicHttpContext;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
@@ -131,7 +132,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ServiceClientResponse execute(HttpRequestBase base) {
         HttpClientResponse httpClientResponse = getClient();
         try {
-            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base);
+            //We have to create a new HttpContext each time, so that we don't accidentally reuse cookies!
+            //REAL BAD
+            //Hopefully a plain BasicHttpContext() is suitable
+            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base, new BasicHttpContext());
             HttpEntity entity = httpResponse.getEntity();
             HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
 
