@@ -12,7 +12,7 @@ import spock.util.concurrent.PollingConditions
 @Category(Slow.class)
 class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
-    final def conditions = new PollingConditions(timeout: 10, initialDelay: 1)
+    final def conditions = new PollingConditions(timeout: 30, initialDelay: 1)
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
@@ -80,6 +80,7 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/")
 
         then: "I get beans before making the config change"
+        def foundBeans = []
         int lastFoundSize = 0
         boolean foundOne = false
         boolean foundTwo = false
@@ -88,17 +89,17 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
         try {
             conditions.eventually {
                 upperLoopCount += 1
-                def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
-                lastFoundSize = beforeUpdateBeans.size()
+                foundBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+                lastFoundSize = foundBeans.size()
                 assert lastFoundSize == 3
                 //Assert that we found our three beans!
-                foundOne = beforeUpdateBeans.any { bean ->
+                foundOne = foundBeans.any { bean ->
                     bean.objectName.toString().contains("role-1")
                 }
-                foundTwo = beforeUpdateBeans.any { bean ->
+                foundTwo = foundBeans.any { bean ->
                     bean.objectName.toString().contains("role-2")
                 }
-                foundThree = beforeUpdateBeans.any { bean ->
+                foundThree = foundBeans.any { bean ->
                     bean.objectName.toString().contains("role-3")
                 }
                 assert foundOne
@@ -106,7 +107,7 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
                 assert foundThree
             }
         }catch(IllegalArgumentException iae) {
-            throw new SpockAssertionError("Stupid Spock problem: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree", iae)
+            throw new SpockAssertionError("Spock Timeout: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree  :  $foundBeans", iae)
         }
 
 
@@ -133,7 +134,7 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
             }
         } catch (IllegalArgumentException iae) {
             //Stupid spock is stupid and I don't know why
-            throw new SpockAssertionError("Stupid failure: ${loopCount} tries. With ${lastSawAfterUpdateBeansCount} beans last seen: ${lastSawAfterUpdateBeans}", iae)
+            throw new SpockAssertionError("Timeout: ${loopCount} tries. With ${lastSawAfterUpdateBeansCount} beans last seen: ${lastSawAfterUpdateBeans}", iae)
         }
     }
 }
