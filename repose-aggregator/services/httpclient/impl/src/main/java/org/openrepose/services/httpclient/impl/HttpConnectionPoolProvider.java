@@ -1,5 +1,8 @@
 package org.openrepose.services.httpclient.impl;
 
+import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
@@ -30,7 +33,21 @@ public final class HttpConnectionPoolProvider {
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
         cm.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
-        DefaultHttpClient client = new DefaultHttpClient(cm);
+
+        //Set all the params up front, instead of mutating them? Maybe this matters
+        HttpParams params = new BasicHttpParams();
+        params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, poolConf.getHttpSocketTimeout());
+        params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, poolConf.getHttpConnectionTimeout());
+        params.setParameter(CoreConnectionPNames.TCP_NODELAY, poolConf.isHttpTcpNodelay());
+        params.setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
+        params.setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
+        params.setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
+
+        //Pass in the params and the connection manager
+        DefaultHttpClient client = new DefaultHttpClient(cm, params);
+
         final String uuid =  UUID.randomUUID().toString();
         client.getParams().setParameter(CLIENT_INSTANCE_ID, uuid);
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
@@ -38,13 +55,6 @@ public final class HttpConnectionPoolProvider {
         SchemeRegistry registry = cm.getSchemeRegistry();
         Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
         registry.register(scheme);
-        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, poolConf.getHttpSocketTimeout());
-        client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, poolConf.getHttpConnectionTimeout());
-        client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, poolConf.isHttpTcpNodelay());
-        client.getParams().setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
-        client.getParams().setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
-        client.getParams().setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
 
         client.setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
 
