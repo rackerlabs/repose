@@ -1,5 +1,6 @@
 package org.openrepose.core.filter.logic;
 
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.thread.KeyedStackLock;
 
@@ -40,7 +41,7 @@ public abstract class AbstractConfiguredFilterHandlerFactory<T extends FilterLog
     }
 
     @Override
-    public void configurationUpdated(Object configurationObject) {
+    public void configurationUpdated(Object configurationObject) throws UpdateFailedException {
         UpdateListener listener = listeners.get(configurationObject.getClass());
         if (listener != null) {
 
