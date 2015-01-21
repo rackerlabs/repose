@@ -1,5 +1,6 @@
 package org.openrepose.filters.clientauth;
 
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ServiceClient;
@@ -67,7 +68,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(ClientAuthConfig modifiedConfig) {
+        public void configurationUpdated(ClientAuthConfig modifiedConfig) throws UpdateFailedException {
 
             updateUriMatcher(modifiedConfig.getWhiteList());
 
@@ -80,9 +81,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 if (modifiedConfig.getAtomFeeds() != null) {
                     try {
                         activateOpenstackAtomFeedListener(modifiedConfig);
-                    } catch (AkkaServiceClientException e) {
-                        LOG.error("Unable to activate OpenStack Atom Feed Listener.");
-                        LOG.trace("", e);
+                    } catch (Exception e) {
+                        throw new UpdateFailedException("Unable to activate OpenStack Atom Feed Listener.", e);
                     }
                 } else if (manager != null) {
                     //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
