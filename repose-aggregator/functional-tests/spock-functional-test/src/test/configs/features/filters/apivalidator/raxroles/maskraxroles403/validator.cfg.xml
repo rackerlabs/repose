@@ -51,6 +51,15 @@
                         <method name="DELETE" rax:roles="b:creator b:admin"/>
                     </resource>
                 </resource>
+                <resource path="/header" rax:roles="a:admin">
+                    <param name="X-Auth-Token" style="header" required="true"/>
+                    <method name="GET" rax:roles="x:something"/>
+                </resource>
+                <resource path="/header2" rax:roles="a:admin">
+                    <param name="X-Auth-Token" style="header" required="true"/>
+                    <method name="GET" rax:roles="x:something"/>
+                    <method name="POST" rax:roles="#all"/>
+                </resource>
             </resources>
         </application>
     </validator>
