@@ -33,7 +33,7 @@ class ConnectionManagementTest extends ReposeValveTest{
         }
     }
 
-    @Unroll("When sending a #reqMethod through repose")
+    @Unroll("When sending a #reqMethod with a huge body through repose returns a 413")
     def "should return 413 on request body that is too large"(){
         given: "I have a request body that exceed the header size limit"
         def body = makeLargeString(32100)
