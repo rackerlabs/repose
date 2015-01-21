@@ -2,6 +2,7 @@ package org.openrepose.core.services.config.impl;
 
 import org.openrepose.commons.config.ConfigurationResourceException;
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager;
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.ConfigurationParserFactory;
 import org.openrepose.commons.config.parser.common.ConfigurationParser;
@@ -105,33 +106,52 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     }
 
     @Override
-    public <T> void subscribeTo(String filterName,String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
+    public <T> void subscribeTo(String filterName, String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
         final ConfigurationResource resource = resourceResolver.resolve(configurationName);
-         updateManager.registerListener(listener, resource, customParser,filterName); 
+        updateManager.registerListener(listener, resource, customParser, filterName);
         if (sendNotificationNow) {
             // Initial load of the cfg object
-            try {
-                                          
-                listener.configurationUpdated(customParser.read(resource));
-           
-                if(filterName!=null && !filterName.isEmpty() && listener.isInitialized()){
-                     getConfigurationInformation().setFilterLoadingInformation(filterName,listener.isInitialized(), resource);
-                }else{
-                       getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
-                }
+            PowerApiConfigurationManager.loadConfig(filterName, configurationName, listener, customParser, getConfigurationInformation(), resource);
+        }
+    }
 
-                } catch (Exception ex) {
-                    if(filterName!=null && !filterName.isEmpty()){
-                     getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource, ex.getMessage()); 
-                    }
-                   // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
-                if (ex.getCause() instanceof FileNotFoundException) {
-                    LOG.error("An I/O error has occurred while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
-                 
-                } else {
-                    LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
-                    LOG.trace("", ex);
-                }
+    /**
+     * Refactored this into a static package-private (e.g. friendly) helper method
+     * so that this logic was centralized and reusable.
+     */
+    static void loadConfig(String filterName,
+                           String configurationName,
+                           UpdateListener listener,
+                           ConfigurationParser customParser,
+                           ConfigurationInformation configurationInformation,
+                           ConfigurationResource resource) {
+        try {
+            listener.configurationUpdated(customParser.read(resource));
+            LOG.debug("Configuration Updated: " + resource.toString());
+            if (filterName != null && !filterName.isEmpty() && listener.isInitialized()) {
+                configurationInformation.setFilterLoadingInformation(filterName, listener.isInitialized(), resource);
+            } else {
+                configurationInformation.setFilterLoadingFailedInformation(filterName, resource, "Failed loading File");
+            }
+        } catch (Exception ex) {
+            if (filterName != null && !filterName.isEmpty()) {
+                configurationInformation.setFilterLoadingFailedInformation(filterName, resource, ex.getMessage());
+            }
+            if (ex.getCause() instanceof FileNotFoundException) {
+                LOG.error("An I/O error has occurred while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
+
+            } else {
+                LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
+                LOG.trace("", ex);
+            }
+            // In an effort to track down all the filters that were using the unchecked exceptions to elicit this behavior...
+            // The ClassCastException is thrown by JaxbConfigurationParser.
+            if (!(ex instanceof UpdateFailedException) && !(ex instanceof ClassCastException)) {
+                LOG.error("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
+                LOG.error("Please send this stack trace to the Repose developers at: ReposeCore@Rackspace.com");
+                LOG.error("<STACK_TRACE>", ex);
+                LOG.error("</STACK_TRACE>");
+                LOG.error("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
             }
         }
     }
