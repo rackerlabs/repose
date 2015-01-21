@@ -44,12 +44,14 @@ public final class HttpConnectionPoolProvider {
         params.setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
         params.setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
         params.setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
+        params.setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
+
+        final String uuid =  UUID.randomUUID().toString();
+        params.setParameter(CLIENT_INSTANCE_ID, uuid);
 
         //Pass in the params and the connection manager
         DefaultHttpClient client = new DefaultHttpClient(cm, params);
 
-        final String uuid =  UUID.randomUUID().toString();
-        client.getParams().setParameter(CLIENT_INSTANCE_ID, uuid);
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
         SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         SchemeRegistry registry = cm.getSchemeRegistry();
@@ -57,8 +59,6 @@ public final class HttpConnectionPoolProvider {
         registry.register(scheme);
 
         client.setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
-
-        client.getParams().setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
 
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
