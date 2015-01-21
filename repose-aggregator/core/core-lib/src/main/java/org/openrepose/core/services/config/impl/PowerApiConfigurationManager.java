@@ -147,11 +147,11 @@ public class PowerApiConfigurationManager implements ConfigurationService {
             // In an effort to track down all the filters that were using the unchecked exceptions to elicit this behavior...
             // The ClassCastException is thrown by JaxbConfigurationParser.
             if (!(ex instanceof UpdateFailedException) && !(ex instanceof ClassCastException)) {
-                LOG.error("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
-                LOG.error("Please send this stack trace to the Repose developers at: ReposeCore@Rackspace.com");
-                LOG.error("<STACK_TRACE>", ex);
-                LOG.error("</STACK_TRACE>");
-                LOG.error("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
+                LOG.warn("This *MIGHT* be important! {}", ex.getLocalizedMessage());
+                LOG.debug("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
+                LOG.debug("<STACK_TRACE>", ex);
+                LOG.debug("</STACK_TRACE>");
+                LOG.debug("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
             }
         }
     }
