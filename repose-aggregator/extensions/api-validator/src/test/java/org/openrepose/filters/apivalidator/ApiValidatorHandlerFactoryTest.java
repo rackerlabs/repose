@@ -35,7 +35,7 @@ public class ApiValidatorHandlerFactoryTest {
         private List<HeaderValue> roles;
         
         @Before
-        public void setup() {
+        public void setup() throws Exception {
             ValidatorConfiguration config = new ValidatorConfiguration();
             ValidatorItem item = new ValidatorItem();
             item.setWadl(wadl);

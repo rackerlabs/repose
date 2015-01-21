@@ -40,7 +40,7 @@ public class RoutingTaggerTest {
         private DestinationRouterConfiguration destinationRouterConfig;
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
             
             destinationRouterConfig = new DestinationRouterConfiguration();
             factory = new DestinationRouterHandlerFactory(null);

@@ -26,7 +26,7 @@ public class UriNormalizationHandlerFactoryTest {
 
     
     @Test
-    public void shouldCreateNewInstanceOfContentNormalizationHandler() {
+    public void shouldCreateNewInstanceOfContentNormalizationHandler() throws Exception {
      
        UriNormalizationConfig config=new UriNormalizationConfig();
        instance.configurationUpdated(config);

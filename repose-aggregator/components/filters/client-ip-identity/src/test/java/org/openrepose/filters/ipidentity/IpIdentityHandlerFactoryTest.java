@@ -25,7 +25,7 @@ public class IpIdentityHandlerFactoryTest {
     IpIdentityHandlerFactory factory;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         
         factory = new IpIdentityHandlerFactory();
 
@@ -42,7 +42,7 @@ public class IpIdentityHandlerFactoryTest {
     }
 
     @Test
-    public void shouldCatchConfigurationUpdate(){
+    public void shouldCatchConfigurationUpdate() throws Exception {
         
         final Double QUALITY2 = 0.6;
         final String QUALITY2_VALUE = ";q=0.6";
@@ -61,7 +61,7 @@ public class IpIdentityHandlerFactoryTest {
     }
     
     @Test
-    public void shouldUseDefaultQuality(){
+    public void shouldUseDefaultQuality() throws Exception {
         
         final String DEFAULT_QUALITY_VALUE = ";q=0.1";
         
@@ -75,7 +75,7 @@ public class IpIdentityHandlerFactoryTest {
     }
     
     @Test
-    public void shouldUseDefaultQualityIfConfigIsBlank(){
+    public void shouldUseDefaultQualityIfConfigIsBlank() throws Exception {
         
         final String DEFAULT_QUALITY_VALUE = ";q=0.1";
         

@@ -29,7 +29,7 @@ public class TranslationHandlerFactoryTest {
    
         
         @Test
-        public void shouldCreateProcessorPoolsOnConfigUpdate() {
+        public void shouldCreateProcessorPoolsOnConfigUpdate() throws Exception {
             TranslationConfig config = new TranslationConfig();
             RequestTranslations requestTranslations = new RequestTranslations();
             ResponseTranslations responseTranslations = new ResponseTranslations();
