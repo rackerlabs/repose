@@ -81,7 +81,7 @@ class HttpClientStateTest extends ReposeValveTest {
         (1..1000).each { count ->
             defer {
                 HttpClient client = new DefaultHttpClient()
-                def response = client.execute(new HttpGet("http://localhost:${jettyPort}/"))
+                def response = client.execute(new HttpGet("http://localhost:${properties.reposePort}/"))
                 String content = response.getEntity().getContent().getText()
                 sessionIds.add(content) //Just store it for later verification
                 //Lets not use deproxy this time
