@@ -75,7 +75,7 @@ class HttpClientStateTest extends ReposeValveTest {
         when:
 
         //Do it as a thread pool, in order to perhaps exercise the clients...
-        def pool = Executors.newFixedThreadPool(10)
+        def pool = Executors.newFixedThreadPool(20)
         def defer = { c -> pool.submit(c as Callable) }
         //TODO: make a pile of requests, and for all of them each one should have a different session, not one should be reused
         (1..1000).each { count ->
@@ -84,6 +84,14 @@ class HttpClientStateTest extends ReposeValveTest {
                 def response = client.execute(new HttpGet("http://localhost:${properties.reposePort}/"))
                 String content = response.getEntity().getContent().getText()
                 sessionIds.add(content) //Just store it for later verification
+
+                //Make one more request using this client, to see if we get the same session id
+                def response2 = client.execute(new HttpGet("http://localhost:${properties.reposePort}/"))
+                String content2 = response2.getEntity().getContent().getText()
+
+                //TODO: need to check this somehow in the spock assertions
+                assert content.equals(content2)
+
                 //Lets not use deproxy this time
 //                MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/", headers: [
 //                        'x-trace-request': 'true',
