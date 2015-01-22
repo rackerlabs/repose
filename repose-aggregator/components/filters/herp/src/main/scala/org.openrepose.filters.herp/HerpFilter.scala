@@ -8,7 +8,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.github.jknack.handlebars.{Handlebars, Template}
 import com.rabbitmq.client
-import com.rabbitmq.client.MessageProperties
+import com.rabbitmq.client.AMQP.BasicProperties
+import com.rabbitmq.client.{DefaultConsumer, Envelope, MessageProperties}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -20,12 +21,16 @@ import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
-import scala.concurrent.future
 
 class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
-  private final val QUEUE_NAME = "message_queue"
+  private final val QUEUE_NAME = "audit_queue"
+
+  // todo: make sure these get shut down
+  private val connectionFactory = new client.ConnectionFactory()
+  private val mqConnection = connectionFactory.newConnection()
+  private val queueChannel = mqConnection.createChannel()
 
   private var configurationService: ConfigurationService = _
   private var config: String = _
@@ -35,21 +40,12 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var region: String = _
   private var dataCenter: String = _
   private var handlebarsTemplate: Template = _
-  private var mqConnection: client.Connection = _
-  private var queueChannel: client.Channel = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
     logger.info("Initializing filter using config " + config)
-    val connectionFactory = new client.ConnectionFactory()
-    connectionFactory.setHost("localhost")
-
-    mqConnection = connectionFactory.newConnection()
-    queueChannel = mqConnection.createChannel()
-    queueChannel.queueDeclare(QUEUE_NAME, true, false, false, null)
-
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
     configurationService = powerApiContext.configurationService
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/highly-efficient-record-processor.xsd")
@@ -60,6 +56,9 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       this,
       classOf[HerpConfig]
     )
+
+    logger.info("Setting up message queue...")
+    queueChannel.queueDeclare(QUEUE_NAME, true, false, false, null)
 
     logger.trace("HERP filter initialized.")
   }
@@ -113,15 +112,12 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       "dataCenter" -> dataCenter
     )
 
-    future {
-      // todo: filtering here
+    // todo: filtering, asynchronous processing with Akka actors
 
-      val templateOutput: StringWriter = new StringWriter
-      handlebarsTemplate.apply(templateValues.asJava, templateOutput)
+    val templateOutput: StringWriter = new StringWriter
+    handlebarsTemplate.apply(templateValues.asJava, templateOutput)
 
-      herpLogger.info(templateOutput.toString)
-      queueChannel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, templateOutput.toString.getBytes)
-    }
+    queueChannel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, templateOutput.toString.getBytes)
   }
 
   override def destroy(): Unit = {
@@ -149,6 +145,15 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     dataCenter = config.getDataCenter
     def handlebars = new Handlebars()
     handlebarsTemplate = handlebars.compileInline(templateString)
+
+    // Registering a queue consumer
+    queueChannel.basicConsume(QUEUE_NAME, false, "event_consumer", new DefaultConsumer(queueChannel) {
+      override def handleDelivery(consumerTag: String, envelope: Envelope, properties: BasicProperties, body: Array[Byte]): Unit = {
+        herpLogger.info(new String(body))
+        queueChannel.basicAck(envelope.getDeliveryTag, false)
+      }
+    })
+
     initialized = true
   }
 
