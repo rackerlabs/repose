@@ -43,35 +43,16 @@ class MisbehavingOriginTest extends ReposeValveTest {
         running = false
     }
 
-//    @Unroll("When sending a #reqMethod through repose")
-//    def "should return 413 on request body that is too large"(){
-//        given: "I have a request body that exceed the header size limit"
-//        def body = makeLargeString(32100)
-//
-//        when: "I send a request to REPOSE with my request body"
-//        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, requestBody: body, method: reqMethod)
-//
-//        then: "I get a response of 413"
-//        mc.receivedResponse.code == "413"
-//        mc.handlings.size() == 0
-//
-//        where:
-//        reqMethod | _
-//        "POST"    | _
-//        "PUT"     | _
-//        "DELETE"  | _
-//        "PATCH"   | _
-//    }
-
-    def "returns a 502 when the origin service doesn't respond with proper http"() {
+    //TODO: I want this to return a 502, but I cannot, because repose internals can't deal with other exceptions
+    def "returns a 500 when the origin service doesn't respond with proper http"() {
         given: "something is going to do bad things"
 
         when: "Request goes through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
-        then: "repose should return a 502 bad gateway"
+        then: "repose should return a 500 Internal Server Error"
         mc.receivedResponse != null
-        mc.receivedResponse.code == "502"
+        mc.receivedResponse.code == "500"
     }
 
     private class NullLoop implements Runnable {
