@@ -25,12 +25,6 @@
         <limit id="six" uri="/service2/doget" uri-regex="/service2/doget" http-methods="GET" unit="SECOND" value="5"/>
     </limit-group>
 
-    <limit-group id="reset-limits" groups="reset-limits" default="false">
-        <limit id="one" uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="MINUTE" value="1000"/>
-        <limit id="four" uri="/service2/makeput" uri-regex="/service2/makeput" http-methods="PUT" unit="DAY" value="5"/>
-        <limit id="six" uri="/service2/doget" uri-regex="/service2/doget" http-methods="GET" unit="SECOND" value="5"/>
-    </limit-group>
-
     <limit-group id="unique" groups="unique" default="false">
         <limit id="one" uri="/service/\w*" uri-regex="/service/(&quot;.+&quot;)" http-methods="GET" unit="MINUTE" value="30"/>
         <limit id="two" uri="/service/\s*" uri-regex="/service/(\w.*)" http-methods="POST" unit="HOUR" value="100"/>
