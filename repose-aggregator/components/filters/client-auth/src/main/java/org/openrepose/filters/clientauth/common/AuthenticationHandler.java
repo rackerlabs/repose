@@ -3,6 +3,7 @@ package org.openrepose.filters.clientauth.common;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthToken;
+import org.openrepose.common.auth.openstack.AuthenticationServiceException;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -29,11 +30,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AkkaServiceClientException;
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthenticationServiceException;
 
-    protected abstract AuthGroups getGroups(String group) throws AkkaServiceClientException;
+    protected abstract AuthGroups getGroups(String group) throws AuthenticationServiceException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AkkaServiceClientException;
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthenticationServiceException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -131,53 +132,39 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         final boolean allow = allowAccount(account);
 
-        if (!StringUtilities.isBlank(authToken) && allow) {
-            token = checkToken(account, authToken);
-
-            if (token == null) {
-                try {
-                    token = validateToken(account, StringUriUtilities.encodeUri(authToken));
-                    cacheUserInfo(token, offset);
-                } catch (AkkaServiceClientException ex) {
-                    LOG.error(FAILURE_AUTH_N);
-                    LOG.trace("", ex);
-                    if(ex.getCause() instanceof TimeoutException) {
-                        filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
-                    } else {
-                        filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                    }
-                } catch (Exception ex) {
-                    LOG.error(FAILURE_AUTH_N, ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                }
-            }
-        }
-
         String endpointsInBase64 = "";
         List<AuthGroup> groups = new ArrayList<AuthGroup>();
+        try {
+            if (!StringUtilities.isBlank(authToken) && allow) {
+                token = checkToken(account, authToken);
 
-        if (token != null) {
-            try {
+                if (token == null) {
+                    token = validateToken(account, StringUriUtilities.encodeUri(authToken));
+                    cacheUserInfo(token, offset);
+                }
+            }
+
+            if (token != null) {
                 groups = getAuthGroups(token, offset);
 
                 //getting the encoded endpoints to pass into the header, if the endpoints config is not null
                 if (endpointsConfiguration != null) {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
-            } catch (AkkaServiceClientException ex) {
-                LOG.error(FAILURE_AUTH_N);
-                LOG.trace("", ex);
-                if(ex.getCause() instanceof TimeoutException) {
-                    filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
-                } else {
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                }
-                delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
-            } catch (Exception ex) {
-                LOG.error(FAILURE_AUTH_N, ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
             }
+        } catch (AuthenticationServiceException ex) {
+            LOG.error(FAILURE_AUTH_N);
+            LOG.trace("", ex);
+            if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
+                filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+            } else {
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            }
+            delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
+        } catch (Exception ex) {
+            LOG.error(FAILURE_AUTH_N, ex);
+            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
         }
 
         setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
@@ -190,7 +177,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) throws AkkaServiceClientException {
+    private String getEndpointsInBase64(AuthToken token) throws AuthenticationServiceException {
         String tokenId = null;
 
         if (token != null) {
@@ -217,7 +204,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AkkaServiceClientException {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AuthenticationServiceException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);

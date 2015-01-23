@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
 import org.openrepose.common.auth.openstack.AuthenticationService;
+import org.openrepose.common.auth.openstack.AuthenticationServiceException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
@@ -82,10 +83,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info(message);
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
-        } catch (AkkaServiceClientException ex) {
+        } catch (AuthenticationServiceException ex) {
             LOG.error(message);
             LOG.trace("", ex);
-            if(ex.getCause() instanceof TimeoutException) {
+            if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
                 myDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
             } else {
                 myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -120,7 +121,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorizedForToken(String userToken) throws AkkaServiceClientException {
+    private boolean isEndpointAuthorizedForToken(String userToken) throws AuthenticationServiceException {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
         if(cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
@@ -160,7 +161,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         };
     }
 
-    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AkkaServiceClientException {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AuthenticationServiceException {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
