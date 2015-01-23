@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://openrepose.org/components/openstack-identity/auth-z/v1.0"
-           xmlns:rs-auth-z="http://openrepose.org/components/openstack-identity/auth-z/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0"
+           xmlns:rs-auth-z="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 

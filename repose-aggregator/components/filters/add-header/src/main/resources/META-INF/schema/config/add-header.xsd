@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema targetNamespace="http://docs.api.rackspacecloud.com/repose/add-header/v1.0"
-           xmlns="http://docs.api.rackspacecloud.com/repose/add-header/v1.0"
+<xs:schema targetNamespace="http://docs.openrepose.org/repose/add-header/v1.0"
+           xmlns="http://docs.openrepose.org/repose/add-header/v1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
            elementFormDefault="qualified">

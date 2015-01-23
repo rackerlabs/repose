@@ -3,7 +3,7 @@ package org.openrepose.filters.translation.httpx
 import java.io.{ByteArrayInputStream, InputStream}
 
 import org.junit.runner.RunWith
-import org.openrepose.repose.httpx.v1._
+import org.openrepose.docs.repose.httpx.v1._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 

@@ -2,10 +2,10 @@ package org.openrepose.filters.translation.httpx;
 
 import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
-import org.openrepose.repose.httpx.v1.Headers;
-import org.openrepose.repose.httpx.v1.ObjectFactory;
-import org.openrepose.repose.httpx.v1.QueryParameters;
-import org.openrepose.repose.httpx.v1.RequestInformation;
+import org.openrepose.docs.repose.httpx.v1.Headers;
+import org.openrepose.docs.repose.httpx.v1.ObjectFactory;
+import org.openrepose.docs.repose.httpx.v1.QueryParameters;
+import org.openrepose.docs.repose.httpx.v1.RequestInformation;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 

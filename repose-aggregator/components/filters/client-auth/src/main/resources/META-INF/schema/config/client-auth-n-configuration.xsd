@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/repose/client-auth/v1.0"
-           xmlns:auth="http://docs.rackspacecloud.com/repose/client-auth/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/client-auth/v1.0"
+           xmlns:auth="http://docs.openrepose.org/repose/client-auth/v1.0"
            xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
-           xmlns:auth-http-basic="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0"
+           xmlns:auth-http-basic="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
@@ -15,7 +15,7 @@
    <xs:import namespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" schemaLocation="./openstack-ids-auth/openstack-ids-auth.xsd" />
     
    <!-- HTTP Basic Authentication -->
-   <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />
+   <xs:import namespace="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />
     
    <!-- Configuration -->
    <xs:element name="client-auth" type="auth:clientAuthConfig" />
