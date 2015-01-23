@@ -1,5 +1,6 @@
 package org.openrepose.filters.clientauth;
 
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
@@ -19,7 +20,6 @@ import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandle
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 
@@ -74,7 +74,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
             accountRegexExtractor.clear();
             if (modifiedConfig.getOpenstackAuth() != null) {
-                authenticationModule = getOpenStackAuthHandler(modifiedConfig);
+                try {
+                    authenticationModule = getOpenStackAuthHandler(modifiedConfig);
+                } catch (AuthServiceException e) {
+                    throw new UpdateFailedException("Unable to retrieve OpenStack Auth Handler.", e);
+                }
                 for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
                 }
@@ -101,7 +105,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         //Launch listener for atom-feeds if config present
-        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AkkaServiceClientException {
+        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AuthServiceException {
 
             if (manager != null) {
                 //If we have an existing manager we will shutdown the already running thread
@@ -170,7 +174,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         uriMatcher = new UriMatcher(whiteListRegexPatterns);
     }
 
-    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
+    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) throws AuthServiceException {
         return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaServiceClient);
     }
 

@@ -4,6 +4,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
@@ -11,7 +12,6 @@ import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.atomfeed.*;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -60,7 +60,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         factory.setNamespaceAware(true);
     }
 
-    public void setAuthed(String uri, String user, String pass) throws AkkaServiceClientException {
+    public void setAuthed(String uri, String user, String pass) throws AuthServiceException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
         adminToken = provider.getAdminToken();
@@ -113,7 +113,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 if (isAuthed) {
                     try {
                         adminToken = provider.getFreshAdminToken();
-                    } catch (AkkaServiceClientException e) {
+                    } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);

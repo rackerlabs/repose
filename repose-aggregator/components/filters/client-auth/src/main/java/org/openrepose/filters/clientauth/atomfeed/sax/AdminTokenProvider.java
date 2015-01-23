@@ -4,13 +4,14 @@ package org.openrepose.filters.clientauth.atomfeed.sax;
 // TODO: this should be refactored into the openstack stuff I think
 // TODO: also I wish JSON instead of sax and xml and marshalling :(
 
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.ResponseUnmarshaller;
 import org.openrepose.common.auth.openstack.AdminToken;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;
 
@@ -60,21 +61,26 @@ public class AdminTokenProvider {
         }
     }
 
-    public String getFreshAdminToken() throws AkkaServiceClientException {
+    public String getFreshAdminToken() throws AuthServiceException {
         curAdminToken = null;
         return getAdminToken();
     }
 
-    public String getAdminToken() throws AkkaServiceClientException {
+    public String getAdminToken() throws AuthServiceException {
 
         String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 
         if (adminToken == null) {
-            final ServiceClientResponse serviceResponse = client.post(AdminToken.CACHE_KEY,
-                    authUrl + "/tokens",
-                    new HashMap<String, String>(),
-                    requestBody,
-                    MediaType.APPLICATION_XML_TYPE);
+            final ServiceClientResponse serviceResponse;
+            try {
+                serviceResponse = client.post(AdminToken.CACHE_KEY,
+                        authUrl + "/tokens",
+                        new HashMap<String, String>(),
+                        requestBody,
+                        MediaType.APPLICATION_XML_TYPE);
+            } catch (AkkaServiceClientException e) {
+                throw new AuthServiceException("Unable to get admin token.", e);
+            }
 
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:

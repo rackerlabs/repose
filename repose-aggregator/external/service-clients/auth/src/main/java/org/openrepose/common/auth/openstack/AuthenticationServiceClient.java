@@ -86,7 +86,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthenticationServiceException { //this is where we ask auth service if token is valid
+    public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException { //this is where we ask auth service if token is valid
 
         AuthenticateResponse authenticateResponse = null;
         ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
@@ -129,19 +129,19 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return authenticateResponse;
     }
 
-    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AuthenticationServiceException {
+    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AuthServiceException {
             final Map<String, String> headers = new HashMap<>();
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
         try {
             return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
         } catch (AkkaServiceClientException e) {
-            throw new AuthenticationServiceException("Unable to validate user.", e);
+            throw new AuthServiceException("Unable to validate user.", e);
         }
     }
 
     @Override
-    public List<Endpoint> getEndpointsForToken(String userToken) throws AuthenticationServiceException {
+    public List<Endpoint> getEndpointsForToken(String userToken) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         List<Endpoint> endpointList;
@@ -177,7 +177,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + endpointListResponse.getStatusCode());
             }
         } catch (AkkaServiceClientException e) {
-            throw new AuthenticationServiceException("Unable to get endpoints.", e);
+            throw new AuthServiceException("Unable to get endpoints.", e);
         }
 
         return endpointList;
@@ -185,7 +185,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
     @Override
-    public String getBase64EndpointsStringForHeaders(String userToken, String format) throws AuthenticationServiceException {
+    public String getBase64EndpointsStringForHeaders(String userToken, String format) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         //defaulting to json format
@@ -227,7 +227,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + serviceClientResponse.getStatusCode());
             }
         } catch (AkkaServiceClientException e) {
-            throw new AuthenticationServiceException("Unable to get endpoints.", e);
+            throw new AuthServiceException("Unable to get endpoints.", e);
         }
 
         return rawEndpointsData;
@@ -245,7 +245,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return new String(encodedString);
     }
 
-    private List<Endpoint> getEndpointList(ServiceClientResponse endpointListResponse) {
+    private List<Endpoint> getEndpointList(ServiceClientResponse endpointListResponse) throws AuthServiceException {
         List<Endpoint> endpointList = new ArrayList<>();
 
         final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
@@ -258,7 +258,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthGroups getGroups(String userId) throws AuthenticationServiceException {
+    public AuthGroups getGroups(String userId) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         AuthGroups authGroups;
@@ -296,13 +296,13 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     throw new AuthServiceException("Unable to retrieve groups for user. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
             }
         } catch (AkkaServiceClientException e) {
-            throw new AuthenticationServiceException("Unable to get groups.", e);
+            throw new AuthServiceException("Unable to get groups.", e);
         }
 
         return authGroups;
     }
 
-    private AuthGroups getAuthGroups(ServiceClientResponse serviceResponse) {
+    private AuthGroups getAuthGroups(ServiceClientResponse serviceResponse) throws AuthServiceException {
         final List<AuthGroup> authGroupList = new ArrayList<>();
         final Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
 
@@ -319,7 +319,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private String getAdminToken(boolean force) throws AuthenticationServiceException {
+    private String getAdminToken(boolean force) throws AuthServiceException {
 
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
@@ -348,7 +348,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 }
             }
         } catch (AkkaServiceClientException e) {
-            throw new AuthenticationServiceException("Unable to retrieve admin token.", e);
+            throw new AuthServiceException("Unable to retrieve admin token.", e);
         }
 
         return adminToken;
