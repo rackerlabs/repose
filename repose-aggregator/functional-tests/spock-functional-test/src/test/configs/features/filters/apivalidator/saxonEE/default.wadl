@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+   xmlns:rax="http://docs.rackspace.com/api"
+   xmlns="http://wadl.dev.java.net/2009/02"
+   xmlns:test="http://test.openrespose/test/v1.1"
+   xsi:schemaLocation="http://test.openrespose/test/v1.1
+		       test.xsd">
+    <grammars>
+        <include href="test.xsd" />
+    </grammars>
+    <resources base="http://localhost:${targetPort}/">
+        <resource path="/wadl/default">
+            <!--
+            <method name="GET" id="getContainers">
+                <response>
+                    <representation mediaType="application/xml"/>
+                </response>
+            </method>
+            -->
+            <resource path="/resource1">
+                <resource path="{id}">
+                    <param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="xs:string" style="template" name="id"/>
+                    <method name="PUT" id="putContainer">
+                        <response>
+                            <representation mediaType="application/xml"/>
+                        </response>
+                    </method>
+                    <method name="DELETE" id="deleteContainer"/>
+                    <method name="GET" id="getContainer">
+                        <request>
+                            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="xs:string" style="query" name="search"/>
+                        </request>
+                        <response>
+                            <representation mediaType="application/xml"/>
+                        </response>
+                    </method>
+                    <resource path="{item}">
+                        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="test:UUID" style="template" name="item"/>
+                        <method name="PUT" id="putItem">
+                            <request>
+                                <representation mediaType="*/*"/>
+                            </request>
+                            <response>
+                                <representation mediaType="*/*"/>
+                            </response>
+                        </method>
+                        <method name="DELETE" id="deleteItem"/>
+                        <method name="GET" id="getItem">
+                            <response>
+                                <representation mediaType="*/*"/>
+                            </response>
+                        </method>
+                    </resource>
+                    <resource path="reqheader">
+                        <method name="GET" id="getItemReqHeader">
+                            <request>
+                                <param type="xs:string" style="header" name="x-required-header" required="true"/>
+                            </request>
+                        </method>
+                    </resource>
+                    
+                </resource>
+            </resource>
+            <resource path="/resource2">
+                <resource path="/unvalidated/echobody">
+                    <method name="PUT" id="unvalidatedPutItem">
+                        <request>
+                            <representation mediaType="application/xml" element="test:c" rax:ignoreXSD="true"/>
+                        </request>
+                    </method>
+                </resource>
+            </resource>
+        </resource>
+    </resources>
+</application>
