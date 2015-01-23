@@ -1,9 +1,11 @@
 package org.openrepose.core.services.httpcomponent;
 
+import com.google.common.base.Throwables;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
 import org.openrepose.core.proxy.HttpException;
@@ -106,11 +108,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             return responseCode.getCode();
         } catch (ClientProtocolException ex) {
-            if ("ReadLimitReachedException".equals(ex.getCause().getCause().getClass().getSimpleName())) {
+            if(Throwables.getRootCause(ex) instanceof ReadLimitReachedException){
                 LOG.error("Error reading request content", ex);
                 response.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
             } else {
-                LOG.error("Error processing request", ex);
+                //Sadly, because of how this is implemented, I can't make sure my problem is actually with
+                // the origin service. I can only "fail" here.
+                LOG.error("Error processing outgoing request", ex);
                 return -1;
             }
         } finally {
