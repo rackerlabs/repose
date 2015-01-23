@@ -80,8 +80,8 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
-        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
-        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
+        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
     }
 
     @Unroll ("Req with auth resp: #authRespCode")
@@ -118,7 +118,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         where:
         authRespCode | delegatedMsg
         404          | "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
-        401          | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+        401          | "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
     }
 }
 

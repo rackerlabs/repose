@@ -2,8 +2,8 @@ package org.openrepose.filters.clientauth.common;
 
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.AuthToken;
-import org.openrepose.common.auth.openstack.AuthenticationServiceException;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -30,11 +30,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthenticationServiceException;
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException;
 
-    protected abstract AuthGroups getGroups(String group) throws AuthenticationServiceException;
+    protected abstract AuthGroups getGroups(String group) throws AuthServiceException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthenticationServiceException;
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -61,14 +61,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final AuthUserCache usrCache;
     private final EndpointsConfiguration endpointsConfiguration;
     private static final String REASON = " Reason: ";
-    private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
+    private static final String FAILURE_AUTH_N = "Failure in Auth-N filter.";
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
 
     protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
         @Override
         protected String initialValue() {
-            return "Failure in AuthN filter.";
+            return FAILURE_AUTH_N;
         }
     };
 
@@ -152,19 +152,19 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
             }
-        } catch (AuthenticationServiceException ex) {
-            LOG.error(FAILURE_AUTH_N);
+        } catch (AuthServiceException ex) {
+            LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
             LOG.trace("", ex);
             if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
                 filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
             } else {
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
-            delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
+            delegationMessage.set(FAILURE_AUTH_N);
         } catch (Exception ex) {
             LOG.error(FAILURE_AUTH_N, ex);
             filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            delegationMessage.set(FAILURE_AUTH_N + ex.getMessage());
+            delegationMessage.set(FAILURE_AUTH_N + REASON + ex.getMessage());
         }
 
         setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
@@ -177,7 +177,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) throws AuthenticationServiceException {
+    private String getEndpointsInBase64(AuthToken token) throws AuthServiceException {
         String tokenId = null;
 
         if (token != null) {
@@ -204,7 +204,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AuthenticationServiceException {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AuthServiceException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);

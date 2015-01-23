@@ -168,7 +168,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
         309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=Unable to validate token for tenant. Invalid token:\\s.*;q=0.7"
-        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
+        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
     }
 
 

@@ -58,7 +58,7 @@ class ClientAuthNAndApiValidatorDelegableTest  extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles" : roles,
                                        "Content-Type" : "application/xml",
                                        "X-Auth-Token": fakeIdentityService.client_token]
-        def authDelegatedMsg = 'status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3'
+        def authDelegatedMsg = 'status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3'
 
         when: "User passes a request through repose with authN and apiValidator delegable"
         MessageChain mc = deproxy.makeRequest(

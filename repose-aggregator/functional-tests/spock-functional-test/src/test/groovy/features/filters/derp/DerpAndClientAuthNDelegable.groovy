@@ -81,8 +81,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant  | serviceAdminRole  | responseCode   | msgBody
-        506           | 506             | "not-admin"       | "401"         | "Failure in AuthN filter"
-        ""            | 512             | "not-admin"       | "401"         | "Failure in AuthN filter"
+        506           | 506             | "not-admin"       | "401"         | "Failure in Auth-N filter."
+        ""            | 512             | "not-admin"       | "401"         | "Failure in Auth-N filter."
     }
 
 
