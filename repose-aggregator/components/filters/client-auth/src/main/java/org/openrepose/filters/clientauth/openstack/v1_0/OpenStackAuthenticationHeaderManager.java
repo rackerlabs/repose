@@ -38,6 +38,7 @@ public class OpenStackAuthenticationHeaderManager {
 
     //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
+                                                double delegableQuality, String delegationMessage,
                                                 FilterDirector filterDirector, String tenantId, List<AuthGroup> groups,
                                                 String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
                                                 boolean sendAllTenantIds, boolean sendTenantIdQuality) {

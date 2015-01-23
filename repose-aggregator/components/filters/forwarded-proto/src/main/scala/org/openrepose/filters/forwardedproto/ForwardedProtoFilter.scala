@@ -11,7 +11,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
  * The sole purpose of this filter is to add the X-Forwarded-Proto header to a request with a value which
  * corresponds to the protocol of the request (e.g., http or https).
  */
-class ForwardedProtoFilter extends Filter with LazyLogging {
+class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
 
   private final val X_FORWARDED_PROTO = "X-Forwarded-Proto"
 

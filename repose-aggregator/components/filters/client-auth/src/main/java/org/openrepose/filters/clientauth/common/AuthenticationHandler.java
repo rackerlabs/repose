@@ -37,6 +37,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
     protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
+                                                    double delegableQuality, String delegationMessage,
                                                     FilterDirector filterDirector, String extractedResult,
                                                     List<AuthGroup> groups, String endpointsBase64, boolean tenanted,
                                                     boolean sendAllTenantIds, boolean sendTenantIdQuality);
@@ -164,9 +165,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
         }
 
-        setFilterDirectorValues(authToken, token, delegable, filterDirector,
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
                 account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds,
                 sendTenantIdQuality);
+
+        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
         return filterDirector;
     }

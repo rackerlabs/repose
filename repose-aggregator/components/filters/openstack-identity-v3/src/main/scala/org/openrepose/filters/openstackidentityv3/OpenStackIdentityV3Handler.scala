@@ -5,9 +5,6 @@ import javax.servlet.http.HttpServletRequest
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
-import org.apache.commons.codec.binary.Base64
-import org.openrepose.commons.utils.http._
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._

@@ -52,7 +52,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
           
        
             openStackAuthenticationHeaderManager =
-                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable,
+                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
       
         }
@@ -131,7 +131,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
        
             openStackAuthenticationHeaderManager =
-                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable,
+                    new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
              openStackAuthenticationHeaderManager.setFilterDirectorValues();
       
@@ -159,6 +159,16 @@ public class OpenStackAuthenticationHeaderManagerTest {
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.USER_ID.toString())));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(PowerApiHeader.GROUPS.toString())));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.X_EXPIRATION.toString())));
+        }
+
+        @Test
+        public void shouldAddDelegationHeader() {
+            OpenStackAuthenticationHeaderManager headerManager =
+                    new OpenStackAuthenticationHeaderManager(null, null, true, 0.7, "test",
+                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
+            headerManager.setFilterDirectorValues();
+
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())));
         }
     }
 }
