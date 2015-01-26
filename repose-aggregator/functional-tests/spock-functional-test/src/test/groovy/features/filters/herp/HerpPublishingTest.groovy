@@ -20,6 +20,8 @@ class HerpPublishingTest extends ReposeValveTest {
     private final Set<String> processedRequestGuids = new HashSet<>()
     private final Set<String> failedRequestGuids = new HashSet<>()
 
+    private boolean consumerReprocessed = false
+
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(
@@ -56,8 +58,17 @@ class HerpPublishingTest extends ReposeValveTest {
         }
     }
 
-    def "HERP exactly once semantics"() {
-        // todo: extend consumer service to count requests
+    def "HERP exactly-once semantics"() {
+        when:
+        1000.each {
+            sendRequest()
+        }
+
+        then:
+        conditions.eventually {
+            processedRequestGuids.containsAll(sentRequestGuids)
+        }
+        !consumerReprocessed
     }
 
     static def consumerService = { Request request ->
@@ -71,6 +82,9 @@ class HerpPublishingTest extends ReposeValveTest {
             failedRequestGuids.add(guid)
             new Response("500")
         } else {
+            if (processedRequestGuids.contains(guid)) {
+                consumerReprocessed = true
+            }
             failedRequestGuids.remove(guid)
             processedRequestGuids.add(guid)
             new Response("200")
