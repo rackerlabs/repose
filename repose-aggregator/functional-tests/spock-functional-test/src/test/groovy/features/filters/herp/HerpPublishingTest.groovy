@@ -78,6 +78,11 @@ class HerpPublishingTest extends ReposeValveTest {
         }
 
         String guid = request.getHeaders().getFirstValue(USER_NAME_HEADER) // todo: will probably be sent in the body
+
+        if (processedRequestGuids.contains(guid)) {
+            consumerReprocessed = true
+        }
+
         if (shouldFail) {
             failedRequestGuids.add(guid)
             new Response("500")
