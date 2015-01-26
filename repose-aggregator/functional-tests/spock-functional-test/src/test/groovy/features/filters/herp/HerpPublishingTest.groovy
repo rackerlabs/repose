@@ -2,16 +2,19 @@ package features.filters.herp
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import spock.util.concurrent.PollingConditions
 
 class HerpPublishingTest extends ReposeValveTest {
 
-    private static final String GUID_HEADER = "X-GUID-HEADER"
+    private static final String USER_NAME_HEADER = "X-User-Name"
 
-    private final Set<String> sentRequestGuids = new HashSet<>() // todo
+    private final PollingConditions conditions = new PollingConditions(timeout: 60, delay: 1)
+    private final Set<String> sentRequestGuids = new HashSet<>()
     private final Set<String> processedRequestGuids = new HashSet<>()
-    private final Set<String> failedRequestGuids= new HashSet<>()
+    private final Set<String> failedRequestGuids = new HashSet<>()
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -26,14 +29,32 @@ class HerpPublishingTest extends ReposeValveTest {
         repose.start(true, true, "cluster", "node")
     }
 
-    // todo: tests go here
-
-    def "sample test"() {
+    def "HERP sends a proper request to the consuming service"() {
         when:
-        deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: defaultHeaders)
+        MessageChain messageChain = sendRequest()
+
+        then:
+        messageChain.getOrphanedHandlings().find {
+            it.getEndpoint().getDefaultHandler().equals(consumerService)
+        } != null
+        // todo: further request validation
     }
 
-    def defaultHeaders = { [GUID_HEADER: UUID.randomUUID().toString()] }
+    def "HERP at-least-once semantics"() {
+        when:
+        1000.each {
+            sendRequest()
+        }
+
+        then:
+        conditions.eventually {
+            processedRequestGuids.containsAll(sentRequestGuids)
+        }
+    }
+
+    def "HERP exactly once semantics"() {
+        // todo: extend consumer service to count requests
+    }
 
     def consumerService = { Request request ->
         def shouldFail = {
@@ -41,7 +62,7 @@ class HerpPublishingTest extends ReposeValveTest {
             new Random().nextInt(101) < 15
         }
 
-        String guid = request.getHeaders().getFirstValue(GUID_HEADER)
+        String guid = request.getHeaders().getFirstValue(USER_NAME_HEADER) // todo: will probably be sent in the body
         if (shouldFail) {
             failedRequestGuids.add(guid)
             new Response("500")
@@ -50,5 +71,11 @@ class HerpPublishingTest extends ReposeValveTest {
             processedRequestGuids.add(guid)
             new Response("200")
         }
+    }
+
+    def sendRequest() {
+        String guid = UUID.randomUUID().toString()
+        deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: [USER_NAME_HEADER: guid])
+        sentRequestGuids.add(guid)
     }
 }
