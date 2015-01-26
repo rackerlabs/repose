@@ -56,7 +56,7 @@ class HerpPublishingTest extends ReposeValveTest {
         // todo: extend consumer service to count requests
     }
 
-    def consumerService = { Request request ->
+    static def consumerService = { Request request ->
         def shouldFail = {
             // Simulate a 15% failure rate in the origin service
             new Random().nextInt(101) < 15
