@@ -75,7 +75,8 @@ class HerpPublishingTest extends ReposeValveTest {
 
     def sendRequest() {
         String guid = UUID.randomUUID().toString()
-        deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: [USER_NAME_HEADER: guid])
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: [USER_NAME_HEADER: guid])
         sentRequestGuids.add(guid)
+        messageChain
     }
 }
