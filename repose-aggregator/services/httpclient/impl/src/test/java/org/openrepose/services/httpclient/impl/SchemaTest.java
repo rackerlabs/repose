@@ -44,7 +44,7 @@ public class SchemaTest {
         @Test
         public void shouldFailWhenConfigHasNonUniquePoolIds() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "    <pool id='default' default='true'/> " +
                             "    <pool id='default' default='false'/> " +
                             "</http-connection-pools>";
@@ -54,7 +54,7 @@ public class SchemaTest {
         @Test
         public void shouldFailIfMoreThanOneDefaultPool() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "    <pool id='default' default='true'/> " +
                             "    <pool id='default2' default='true'/> " +
                             "</http-connection-pools>";
@@ -65,7 +65,7 @@ public class SchemaTest {
         @Test
         public void shouldFailINoDefaultPool() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "    <pool id='default' default='false'/> " +
                             "    <pool id='default2' default='false'/> " +
                             "</http-connection-pools>";
@@ -76,7 +76,7 @@ public class SchemaTest {
         @Test
         public void shouldFailIfMaxPerRouteGreaterThanMaxTotal() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                     "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
                     "</http-connection-pools>";
             assertInvalidConfig(xml, "Max connections per route must be less than or equal to total max connections");
@@ -85,7 +85,7 @@ public class SchemaTest {
         @Test
         public void shouldPassIfMaxPerRouteEqualsMaxTotal() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='200' /> " +
                             "</http-connection-pools>";
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
@@ -95,7 +95,7 @@ public class SchemaTest {
         @Test
         public void shouldFailIfChunkedEncodingIsConfiguredWrong() throws Exception {
             String xml =
-                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "<pool id='default' default='true' chunked-encoding='blah' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
                             "</http-connection-pools>";
             assertInvalidConfig(xml, "'blah' is not a valid value for 'boolean'");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting datastore="distributed/hash-ring" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting datastore="distributed/hash-ring" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
   <request-endpoint uri-regex="/service/limits/" include-absolute-limits="false"/>
   <limit-group id="customer-limits " groups="customer" default="true">
     <limit id="all" uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="10"/>

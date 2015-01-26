@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- http://wiki.openrepose.org/display/REPOSE/Client+Authorization+Filter -->
-<rackspace-authorization xmlns='http://openrepose.org/components/openstack-identity/auth-z/v1.0'>
+<rackspace-authorization xmlns='http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0'>
     <authentication-server username="auth" password="admin_password" href="AUTH_ENDPOINT" />
     <service-endpoint href="ATOM_HOPPER_SERVICE_CATALOG_ENTRY"/>
 </rackspace-authorization>

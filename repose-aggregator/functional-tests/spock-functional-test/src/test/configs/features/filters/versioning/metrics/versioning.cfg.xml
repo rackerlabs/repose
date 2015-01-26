@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<versioning xmlns="http://docs.rackspacecloud.com/repose/versioning/v2.0">
+<versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
     <service-root href="http://localhost:${reposePort}/"/>
 
     <version-mapping id="v1" pp-dest-id="target1" status="CURRENT">

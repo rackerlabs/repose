@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<rate-limiting datastore-warn-limit="1200"  xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting datastore-warn-limit="1200"  xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
 
     <!--
         Defines an endpoint with a matching regex to bind GET requests for

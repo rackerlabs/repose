@@ -29,7 +29,7 @@ class VersioningFilterSpecification extends Specification {
         def xml = new StreamingMarkupBuilder().bind() {
             mkp.xmlDeclaration()
             "versioning"(
-                    "xmlns": "http://docs.rackspacecloud.com/repose/versioning/v2.0"
+                    "xmlns": "http://docs.openrepose.org/repose/versioning/v2.0"
             ) {
                 "service-root"(
                         href: "localhost:9999"
@@ -60,7 +60,7 @@ class VersioningFilterSpecification extends Specification {
         def xml = new StreamingMarkupBuilder().bind() {
             mkp.xmlDeclaration()
             "system-model"(
-                    "xmlns": "http://docs.rackspacecloud.com/repose/system-model/v2.0"
+                    "xmlns": "http://docs.openrepose.org/repose/system-model/v2.0"
             ) {
                 "repose-cluster"(
                         id: "repose-cluster"

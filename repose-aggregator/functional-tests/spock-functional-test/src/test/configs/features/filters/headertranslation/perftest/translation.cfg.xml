@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0">
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0">
     <request-translations>
         <request-translation http-methods="ALL" content-type="*/*" accept="*/*" translated-content-type="">
             <style-sheets>

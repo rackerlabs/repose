@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config>
         <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
         <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>

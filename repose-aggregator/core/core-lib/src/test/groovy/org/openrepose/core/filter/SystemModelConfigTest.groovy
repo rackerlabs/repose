@@ -111,7 +111,7 @@ class SystemModelConfigTest extends Specification {
             endpointDefaults = [null];
         }
         return xmlBuilder.bind {
-            'system-model'('xmlns': 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
+            'system-model'('xmlns': 'http://docs.openrepose.org/repose/system-model/v2.0') {
                 'repose-cluster'('id': 'repose') {
                     'nodes'() {
                         'node'('id': 'node1', 'hostname': 'localhost', 'http-port': '8080')

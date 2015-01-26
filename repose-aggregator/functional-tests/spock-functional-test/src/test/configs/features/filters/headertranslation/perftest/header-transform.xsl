@@ -2,7 +2,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+                xmlns:httpx="http://docs.openrepose.org/repose/httpx/v1.0"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:repose="http://wwww.openrepose.org/2013/XMLSchema"
                 version="2.0">

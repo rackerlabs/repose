@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openstack-identity-v3 xmlns="http://docs.openrepose.org/openstack-identity-v3/v1.0">
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
 
     <openstack-identity-service username="admin-username"
                       password="admin-password"
                       uri="http://localhost:${identityPort}"
-                      xmlns="http://docs.openrepose.org/openstack-identity-v3/v1.0"/>
+                      xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
     <white-list>
         <uri-pattern>.*public-info.*</uri-pattern>
         <uri-pattern>.*test-info.*</uri-pattern>

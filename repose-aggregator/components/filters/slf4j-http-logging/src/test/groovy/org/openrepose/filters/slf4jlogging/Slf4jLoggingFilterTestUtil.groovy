@@ -21,7 +21,7 @@ class Slf4jLoggingFilterTestUtil {
         def xml = new StreamingMarkupBuilder().bind() {
             mkp.xmlDeclaration()
             "slf4j-http-logging"(
-                    "xmlns": "http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
+                    "xmlns": "http://docs.openrepose.org/repose/slf4j-http-logging/v1.0"
             ) {
                 logEntries.each { le ->
                     if (le.getFormat() != null) {

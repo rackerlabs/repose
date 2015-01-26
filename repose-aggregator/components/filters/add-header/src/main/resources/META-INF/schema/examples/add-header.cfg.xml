@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<add-headers xmlns="http://docs.api.rackspacecloud.com/repose/add-header/v1.0">
+<add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
     <request>
         <header name="foo">
             <value>bar</value>

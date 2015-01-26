@@ -39,7 +39,7 @@ class SchemaTest {
 
         String xml =
             """<?xml version="1.0" encoding="UTF-8"?>
-<uri-stripper xmlns="http://docs.api.rackspacecloud.com/repose/uri-stripper/v1.0" rewrite-location="true" token-index="-1"/>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="-1"/>
 """
 
         assertInvalidConfig(xml, "is not facet-valid with respect to minInclusive '0' for type 'nonNegativeInt'.")

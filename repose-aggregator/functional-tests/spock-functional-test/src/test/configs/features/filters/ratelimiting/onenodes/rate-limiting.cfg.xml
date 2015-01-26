@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint uri-regex="/service2/limits" include-absolute-limits="true"/>
 
     <limit-group id="higher-limits" groups="higher test" default="false">

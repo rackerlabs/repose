@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when
 class MocksUtilTest {
 
     String testXml = """<request-info
-    xmlns="http://openrepose.org/repose/httpx/v1.0">
+    xmlns="http://docs.openrepose.org/repose/httpx/v1.0">
     <method>GET</method>
     <path>/blah</path>
     <uri>request-info.com/blah</uri>

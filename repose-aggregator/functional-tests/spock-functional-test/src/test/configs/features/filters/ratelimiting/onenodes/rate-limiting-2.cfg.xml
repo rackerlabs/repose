@@ -1,4 +1,4 @@
-<rate-limiting overLimit-429-responseCode="true" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting overLimit-429-responseCode="true" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint uri-regex="rate2/service/limits" />
 
 

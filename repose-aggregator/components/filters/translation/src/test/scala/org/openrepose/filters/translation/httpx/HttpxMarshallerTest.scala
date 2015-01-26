@@ -50,7 +50,7 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       requestInfo.setUrl("bar")
       stringify(httpxMarshaller.marshall(requestInfo)) shouldBe
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<request-information xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+          "<request-information xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
           "<uri>foo</uri>" +
           "<url>bar</url>" +
           "</request-information>"
@@ -67,7 +67,7 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       headers.setRequest(headerList)
       stringify(httpxMarshaller.marshall(headers)) shouldBe
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<headers xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+          "<headers xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
             "<request><header quality=\"0.25\" name=\"header1\" value=\"value1\"/></request>" +
           "</headers>"
     }
@@ -80,7 +80,7 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       queryParameters.getParameter.add(pair)
       stringify(httpxMarshaller.marshall(queryParameters)) shouldBe
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<parameters xmlns=\"http://openrepose.org/repose/httpx/v1.0\">" +
+          "<parameters xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
             "<parameter name=\"name1\" value=\"paramValue\"/>" +
           "</parameters>"
     }
