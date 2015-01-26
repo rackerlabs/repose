@@ -7,6 +7,10 @@ import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.util.concurrent.PollingConditions
 
+import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.notNullValue
+import static spock.util.matcher.HamcrestSupport.expect
+
 class HerpPublishingTest extends ReposeValveTest {
 
     private static final String USER_NAME_HEADER = "X-User-Name"
@@ -34,9 +38,9 @@ class HerpPublishingTest extends ReposeValveTest {
         MessageChain messageChain = sendRequest()
 
         then:
-        messageChain.getOrphanedHandlings().find {
+        expect messageChain.getOrphanedHandlings().find {
             it.getEndpoint().getDefaultHandler().equals(consumerService)
-        } != null
+        }, is(notNullValue())
         // todo: further request validation
     }
 
@@ -57,7 +61,7 @@ class HerpPublishingTest extends ReposeValveTest {
     }
 
     static def consumerService = { Request request ->
-        def shouldFail = {
+        boolean shouldFail = {
             // Simulate a 15% failure rate in the origin service
             new Random().nextInt(101) < 15
         }
