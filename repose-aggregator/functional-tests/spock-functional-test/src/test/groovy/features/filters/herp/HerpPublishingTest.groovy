@@ -71,7 +71,7 @@ class HerpPublishingTest extends ReposeValveTest {
         !consumerReprocessed
     }
 
-    static def consumerService = { Request request ->
+    synchronized static def consumerService = { Request request ->
         boolean shouldFail = {
             // Simulate a 15% failure rate in the origin service
             new Random().nextInt(101) < 15
