@@ -16,11 +16,12 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.jms.core.JmsTemplate
 
 import scala.collection.JavaConverters._
 
 @Named
-class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+class HerpFilter @Inject()(configurationService: ConfigurationService, jmsTemplate: JmsTemplate) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
 
@@ -98,6 +99,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "dataCenter" -> dataCenter
     )
 
+    jmsTemplate.convertAndSend("uae-queue", templateValues.asJava)
     val templateOutput: StringWriter = new StringWriter
     handlebarsTemplate.apply(templateValues.asJava, templateOutput)
 
