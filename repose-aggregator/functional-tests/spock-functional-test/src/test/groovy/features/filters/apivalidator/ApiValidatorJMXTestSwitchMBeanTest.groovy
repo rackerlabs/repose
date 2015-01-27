@@ -1,12 +1,11 @@
 package features.filters.apivalidator
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.spockframework.runtime.SpockAssertionError
+import spock.lang.Ignore
 import spock.lang.Shared
-import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
@@ -63,6 +62,7 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
     }
 
+    @Ignore // just testing
     def "when loading validators on startup, should register validator MXBeans"() {
 
         deproxy.makeRequest(url: reposeEndpoint + "/")
