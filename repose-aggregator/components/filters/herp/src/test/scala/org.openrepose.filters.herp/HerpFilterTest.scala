@@ -28,7 +28,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppender = ctx.getConfiguration.getAppender("highly-efficient-record-processor-ListAppender").asInstanceOf[ListAppender].clear
 
-    herpFilter = new HerpFilter(null)
+    herpFilter = new HerpFilter(null, null)
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse

@@ -3,6 +3,7 @@ package org.openrepose.filters.herp
 import javax.jms.ConnectionFactory
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.jms.listener.SimpleMessageListenerContainer
 import org.springframework.jms.listener.adapter.MessageListenerAdapter
@@ -14,7 +15,7 @@ import org.springframework.jms.listener.adapter.MessageListenerAdapter
  * Time: 4:01 PM
  */
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = Array(classOf[JmxAutoConfiguration]))
 class HerpConfiguration {
 
   @Bean

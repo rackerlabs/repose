@@ -99,9 +99,9 @@ class HerpFilter @Inject()(configurationService: ConfigurationService, jmsTempla
       "dataCenter" -> dataCenter
     )
 
-    jmsTemplate.convertAndSend("uae-queue", templateValues.asJava)
     val templateOutput: StringWriter = new StringWriter
     handlebarsTemplate.apply(templateValues.asJava, templateOutput)
+    jmsTemplate.convertAndSend("uae-queue", templateOutput.toString)
 
     herpLogger.info(templateOutput.toString)
   }

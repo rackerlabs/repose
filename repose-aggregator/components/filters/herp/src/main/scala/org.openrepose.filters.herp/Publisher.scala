@@ -9,7 +9,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
  * Time: 7:54 AM
  */
 class Publisher extends LazyLogging {
-  def sendEvent(eventData :java.util.Map): Unit = {
-    logger.info(eventData.toString)
+  def sendEvent(eventBody :String): Unit = {
+    logger.error("***************************************************************Butts*********************************************************************\n" + eventBody)
   }
 }
