@@ -19,11 +19,6 @@ import org.springframework.jms.listener.adapter.MessageListenerAdapter
 class HerpConfiguration {
 
   @Bean
-  def publisher() :Publisher = {
-    new Publisher()
-  }
-
-  @Bean
   def listenerAdapter(publisher :Publisher) :MessageListenerAdapter = {
     val messaqeListener = new MessageListenerAdapter(publisher)
     messaqeListener.setDefaultListenerMethod("sendEvent")
