@@ -5,22 +5,24 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.util.concurrent.PollingConditions
 
+import static org.hamcrest.Matchers.greaterThan
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
 import static spock.util.matcher.HamcrestSupport.expect
 
 class HerpPublishingTest extends ReposeValveTest {
 
-    private static final String USER_NAME_HEADER = "X-User-Name"
+    private static final Set<String> sentRequestGuids = new HashSet<>()
+    private static final Set<String> processedRequestGuids = new HashSet<>()
+    private static final Set<String> failedRequestGuids = new HashSet<>()
+    private static final Random random = new Random()
+
+    private static boolean consumerReprocessed = false
 
     private final PollingConditions conditions = new PollingConditions(timeout: 60, delay: 1)
-    private final Set<String> sentRequestGuids = new HashSet<>()
-    private final Set<String> processedRequestGuids = new HashSet<>()
-    private final Set<String> failedRequestGuids = new HashSet<>()
-
-    private boolean consumerReprocessed = false
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -35,20 +37,23 @@ class HerpPublishingTest extends ReposeValveTest {
         repose.start(true, true, "cluster", "node")
     }
 
+    @Ignore
     def "HERP sends a proper request to the consuming service"() {
         when:
         MessageChain messageChain = sendRequest()
 
         then:
-        expect messageChain.getOrphanedHandlings().find {
-            it.getEndpoint().getDefaultHandler().equals(consumerService)
-        }, is(notNullValue())
-        // todo: further request validation
+        conditions.eventually {
+            expect messageChain.getOrphanedHandlings().find {
+                it.getEndpoint().getDefaultHandler().equals(consumerService)
+            }, is(notNullValue())
+            // todo: further request validation
+        }
     }
 
     def "HERP at-least-once semantics"() {
         when:
-        1000.each {
+        20.times {
             sendRequest()
         }
 
@@ -56,11 +61,12 @@ class HerpPublishingTest extends ReposeValveTest {
         conditions.eventually {
             processedRequestGuids.containsAll(sentRequestGuids)
         }
+        expect processedRequestGuids.size(), is(greaterThan(19))
     }
 
     def "HERP exactly-once semantics"() {
         when:
-        1000.each {
+        20.times {
             sendRequest()
         }
 
@@ -68,16 +74,15 @@ class HerpPublishingTest extends ReposeValveTest {
         conditions.eventually {
             processedRequestGuids.containsAll(sentRequestGuids)
         }
+        expect processedRequestGuids.size(), is(greaterThan(19))
         !consumerReprocessed
     }
 
     synchronized static def consumerService = { Request request ->
-        boolean shouldFail = {
-            // Simulate a 15% failure rate in the origin service
-            new Random().nextInt(101) < 15
-        }
+        // Simulate a 15% failure rate in the origin service
+        boolean shouldFail = random.nextInt(101) < 15
 
-        String guid = request.getHeaders().getFirstValue(USER_NAME_HEADER) // todo: will probably be sent in the body
+        String guid = request.getBody().toString()
 
         if (processedRequestGuids.contains(guid)) {
             consumerReprocessed = true

@@ -3,35 +3,7 @@
 <highly-efficient-record-processor xmlns="http://docs.openrepose.org/highly-efficient-record-processor/v1.0"
                                    logger-name="highly-efficient-record-processor" service-code="repose" region="USA"
                                    data-center="DFW">
-    <!-- todo: write a real config -->
     <template crush="true">
-        {
-          "GUID" : "{{guid}}",
-          "ServiceCode" : "{{serviceCode}}",
-          "Region" : "{{region}}",
-          "DataCenter" : "{{dataCenter}}",
-          "Timestamp" : "{{timestamp}}",
-          "Request" : {
-            "Method" : "{{requestMethod}}",
-            "URL" : "{{requestURL}}",
-            "QueryString" : "{{requestQueryString}}",
-            "Parameters" : { {{#each parameters}}
-                             {{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]
-                             {{/each}} },
-            "UserName" : "{{userName}}",
-            "ImpersonatorName" : "{{impersonatorName}}",
-            "ProjectID" : [ {{#each projectID}}
-                            {{#if @index}},{{/if}}"{{.}}"
-                            {{/each}} ],
-            "Roles" : [ {{#each roles}}
-                        {{#if @index}},{{/if}}"{{.}}"
-                        {{/each}} ],
-            "UserAgent" : "{{userAgent}}"
-          },
-          "Response" : {
-            "Code" : {{responseCode}},
-            "Message" : "{{responseMessage}}"
-          }
-        }
+        {{userName}}
     </template>
 </highly-efficient-record-processor>
