@@ -149,7 +149,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 
     val herpLogger = LoggerFactory.getLogger(config.getLoggerName)
     val handlebarsTemplate = new Handlebars().compileInline(templateString) // todo: any value in adding helpers or setting pretty print? (Handlebars)
-    auditConsumer = new AuditConsumer(herpLogger, handlebarsTemplate, queue)
+    auditConsumer = new AuditConsumer(herpLogger, handlebarsTemplate, queue, transactionContext)
     new Thread(auditConsumer).start()
 
     initialized = true

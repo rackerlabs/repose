@@ -4,21 +4,28 @@ import java.io.StringWriter
 
 import com.github.jknack.handlebars.Template
 import com.hazelcast.core.TransactionalQueue
+import com.hazelcast.transaction.TransactionContext
 import org.slf4j.Logger
 
-class AuditConsumer(logger: Logger, template: Template, queue: TransactionalQueue[TemplateValues]) extends Runnable {
+class AuditConsumer(logger: Logger, template: Template, queue: TransactionalQueue[TemplateValues], transactionContext: TransactionContext) extends Runnable {
 
   private var runState: Thread.State = Thread.State.NEW
 
   override def run(): Unit = {
-    context.begingTransaction
     runState = Thread.State.RUNNABLE
     while (runState == Thread.State.RUNNABLE) {
-      val templateValues = queue.take()
-      val templateOutput = new StringWriter
-      template.apply(templateValues, templateOutput)
+      try {
+        transactionContext.beginTransaction()
+        val templateValues = queue.take()
+        val templateOutput = new StringWriter
+        template.apply(templateValues, templateOutput)
 
-      logger.info(templateOutput.toString)
+        logger.info(templateOutput.toString)
+        transactionContext.commitTransaction()
+      } catch {
+        case _: Throwable =>
+          transactionContext.rollbackTransaction()
+      }
     }
   }
 
