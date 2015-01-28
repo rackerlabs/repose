@@ -2,10 +2,11 @@ package org.openrepose.filters.herp
 
 import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.{Executors, TimeUnit}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.github.jknack.handlebars.Handlebars
+import com.github.jknack.handlebars.{Handlebars, Template}
 import com.hazelcast.config.{Config, QueueConfig, QueueStoreConfig}
 import com.hazelcast.core.{Hazelcast, TransactionalQueue}
 import com.hazelcast.transaction.TransactionOptions
@@ -18,7 +19,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.herp.config.HerpConfig
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
 
@@ -30,10 +31,13 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
   private var configurationService: ConfigurationService = _
   private var config: String = _
   private var initialized = false
+  private var herpLogger: Logger = _
   private var serviceCode: String = _
   private var region: String = _
   private var dataCenter: String = _
-  private var auditConsumer: AuditConsumer = _
+  private var handlebarsTemplate: Template = _
+
+  private val executorService = Executors.newCachedThreadPool()
 
   // Setting up Hazelcast queue
   private val hcConfig = new Config()
@@ -115,17 +119,16 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     )
 
     queue.offer(templateValues)
+    executorService.submit(new AuditConsumer(executorService, herpLogger, handlebarsTemplate, queue, transactionContext))
   }
 
   override def destroy(): Unit = {
     logger.trace("HERP filter destroying ...")
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
 
-    while (queue.size() != 0) {
-      wait(100)
-    }
+    executorService.shutdown()
+    executorService.awaitTermination(30, TimeUnit.SECONDS)
     hazelcast.shutdown()
-    auditConsumer.terminate()
 
     logger.trace("HERP filter destroyed.")
   }
@@ -141,16 +144,12 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
 
     // Read in configuration
     // todo: small window of error due to setting fields since a request could come in while we're in this method
+    herpLogger = LoggerFactory.getLogger(config.getLoggerName)
+
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
-
-    auditConsumer.terminate()
-
-    val herpLogger = LoggerFactory.getLogger(config.getLoggerName)
-    val handlebarsTemplate = new Handlebars().compileInline(templateString) // todo: any value in adding helpers or setting pretty print? (Handlebars)
-    auditConsumer = new AuditConsumer(herpLogger, handlebarsTemplate, queue, transactionContext)
-    new Thread(auditConsumer).start()
+    handlebarsTemplate = new Handlebars().compileInline(templateString) // todo: any value in adding helpers or setting pretty print? (Handlebars)
 
     initialized = true
   }
