@@ -47,7 +47,7 @@ public class IpIdentityHandlerTest {
     * Test of handleRequest method, of class IpIdentityHandler.
     */
    @Test
-   public void testHandleRequest() {
+   public void testHandleRequest() throws Exception {
       config = new IpIdentityConfig();
       config.setQuality(QUALITY);
       factory.configurationUpdated(config);
@@ -73,7 +73,7 @@ public class IpIdentityHandlerTest {
    }
 
    @Test
-   public void shouldAddWhiteListGroupAndQuality() {      
+   public void shouldAddWhiteListGroupAndQuality() throws Exception {
       config = new IpIdentityConfig();
       config.setQuality(QUALITY);
       WhiteList whiteList = new WhiteList();
@@ -92,7 +92,7 @@ public class IpIdentityHandlerTest {
    }
 
    @Test
-   public void shouldUseXForwardedForHeaderWithWhitelistRange() {      
+   public void shouldUseXForwardedForHeaderWithWhitelistRange() throws Exception {
       final String IP = "192.168.1.1";
       final String NETWORK = "192.168.0.0/16";
       config = new IpIdentityConfig();
@@ -113,7 +113,7 @@ public class IpIdentityHandlerTest {
    }
 
    @Test
-   public void shouldUseXForwardedForHeader() {      
+   public void shouldUseXForwardedForHeader() throws Exception {
       final String IP = "192.169.1.1";
       final String NETWORK = "192.168.0.0/16";
       config = new IpIdentityConfig();

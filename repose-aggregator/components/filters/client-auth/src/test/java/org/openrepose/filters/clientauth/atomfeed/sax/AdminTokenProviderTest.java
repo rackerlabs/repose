@@ -4,29 +4,25 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 public class AdminTokenProviderTest {
@@ -40,7 +36,7 @@ public class AdminTokenProviderTest {
    }
 
    @Test
-   public void shouldRetrieveAdminToken() throws IOException, JAXBException {
+   public void shouldRetrieveAdminToken() throws Exception {
       
       
       JAXBContext coreJaxbContext = JAXBContext.newInstance(

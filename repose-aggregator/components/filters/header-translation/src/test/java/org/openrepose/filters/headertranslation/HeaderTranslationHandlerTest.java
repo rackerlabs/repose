@@ -42,7 +42,7 @@ public class HeaderTranslationHandlerTest {
         private String[] singleRequestHeaderValue = {"value1"};
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
 
             factory = new HeaderTranslationHandlerFactory();
 
@@ -216,7 +216,7 @@ public class HeaderTranslationHandlerTest {
         private String[] requestHeaderValues = {"value1", "value2", "value3"};
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
 
             factory = new HeaderTranslationHandlerFactory();
 

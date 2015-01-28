@@ -40,7 +40,7 @@ public class HeaderIdentityHandlerTest {
         private HeaderIdentityConfig config;
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
             
             factory = new HeaderIdentityHandlerFactory();
             config = new HeaderIdentityConfig();

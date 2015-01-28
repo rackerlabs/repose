@@ -45,7 +45,7 @@ public class CompressionHandlerFactoryTest {
    }
 
    @Test
-   public void shouldInitializeCompressionHandlerFactory() {
+   public void shouldInitializeCompressionHandlerFactory() throws Exception {
 
       factory.configurationUpdated(config);
       assertTrue("Should initialize new content compression handler factory", factory.isInitialized());
@@ -58,7 +58,7 @@ public class CompressionHandlerFactoryTest {
    }
 
    @Test
-   public void shouldBuildCompressionHandler() {
+   public void shouldBuildCompressionHandler() throws Exception {
 
       factory.configurationUpdated(config);
       CompressionHandler handler = factory.buildHandler();

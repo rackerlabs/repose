@@ -40,19 +40,12 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
-                    configUpdate(updateListener, parserListener.getParser().read(e.payload()));
-                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
-                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
-                   }else{
-                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File"); 
-                   }
-                }catch(Exception ex){
-                    
-                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
-                    parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage()); 
-                   }
-                   LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
-                   LOG.trace("", ex);
+                    PowerApiConfigurationManager.loadConfig(parserListener.getFilterName(),
+                            e.payload().name(),
+                            updateListener,
+                            parserListener.getParser(),
+                            parserListener.getConfigurationInformation(),
+                            e.payload());
                 } finally {
                     currentThread.setContextClassLoader(previousClassLoader);
                 }
@@ -66,11 +59,5 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
         final Map<Integer, ParserListenerPair> mapReference = new HashMap<Integer, ParserListenerPair>(listenerMap.get(resourceName));
 
         return Collections.unmodifiableMap(mapReference);
-    }
-
-    private void configUpdate(UpdateListener upd, Object cfg) {
-        upd.configurationUpdated(cfg);
-        LOG.debug("Configuration Updated: " + cfg.toString());
-
     }
 }

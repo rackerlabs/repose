@@ -1,13 +1,12 @@
 package org.openrepose.filters.clientauth;
 
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.common.auth.AuthServiceException;
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
@@ -17,8 +16,11 @@ import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.filters.clientauth.config.RackspaceIdentityFeed;
 import org.openrepose.filters.clientauth.config.URIPattern;
 import org.openrepose.filters.clientauth.config.WhiteList;
-import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandlerFactory;
+import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -66,18 +68,26 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(ClientAuthConfig modifiedConfig) {
+        public void configurationUpdated(ClientAuthConfig modifiedConfig) throws UpdateFailedException {
 
             updateUriMatcher(modifiedConfig.getWhiteList());
 
             accountRegexExtractor.clear();
             if (modifiedConfig.getOpenstackAuth() != null) {
-                authenticationModule = getOpenStackAuthHandler(modifiedConfig);
+                try {
+                    authenticationModule = getOpenStackAuthHandler(modifiedConfig);
+                } catch (AuthServiceException e) {
+                    throw new UpdateFailedException("Unable to retrieve OpenStack Auth Handler.", e);
+                }
                 for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
                 }
                 if (modifiedConfig.getAtomFeeds() != null) {
-                    activateOpenstackAtomFeedListener(modifiedConfig);
+                    try {
+                        activateOpenstackAtomFeedListener(modifiedConfig);
+                    } catch (Exception e) {
+                        throw new UpdateFailedException("Unable to activate OpenStack Atom Feed Listener.", e);
+                    }
                 } else if (manager != null) {
                     //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
                     manager.stopReading();
@@ -95,7 +105,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         //Launch listener for atom-feeds if config present
-        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) {
+        private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) throws AuthServiceException {
 
             if (manager != null) {
                 //If we have an existing manager we will shutdown the already running thread
@@ -120,10 +130,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                                 modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
                     }
                 }
-
                     listeners.add(rdr);
-
-
             }
 
             manager = new FeedListenerManager(datastore, listeners, getMinimumCheckInterval(modifiedConfig.getAtomFeeds().getCheckInterval()));
@@ -167,7 +174,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         uriMatcher = new UriMatcher(whiteListRegexPatterns);
     }
 
-    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
+    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) throws AuthServiceException {
         return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaServiceClient);
     }
 

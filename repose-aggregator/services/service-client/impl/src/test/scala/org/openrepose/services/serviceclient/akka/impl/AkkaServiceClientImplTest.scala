@@ -20,6 +20,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -164,10 +165,11 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
-              val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
-              serviceClientResponse shouldBe null
+              intercept[AkkaServiceClientException] {
+                val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
+              }
               val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-              events.count(_.contains(s"Error acquiring value from akka ($method) or the cache")) shouldBe 1
+              events.count(_.contains(s"Error acquiring value from akka ($method) or the cache. Reason: Futures timed out after [")) shouldBe 1
             }
           }
         }

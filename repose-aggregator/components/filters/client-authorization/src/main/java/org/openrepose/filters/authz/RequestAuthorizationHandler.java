@@ -3,6 +3,7 @@ package org.openrepose.filters.authz;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -18,6 +19,7 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
@@ -80,8 +83,17 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info(message);
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
+        } catch (AuthServiceException ex) {
+            LOG.error(message);
+            LOG.trace("", ex);
+            if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
+                myDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+            } else {
+                myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            }
         } catch (Exception ex) {
-            LOG.error(message, ex);
+            LOG.error(message);
+            LOG.trace("", ex);
             myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -109,7 +121,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorizedForToken(String userToken) {
+    private boolean isEndpointAuthorizedForToken(String userToken) throws AuthServiceException {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
         if(cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
@@ -149,7 +161,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         };
     }
 
-    private List<CachedEndpoint> requestEndpointsForToken(String userToken) {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AuthServiceException {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {

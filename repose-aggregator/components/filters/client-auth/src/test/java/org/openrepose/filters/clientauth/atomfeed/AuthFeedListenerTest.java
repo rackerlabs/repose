@@ -1,8 +1,5 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
-import org.openrepose.common.auth.AuthGroups;
-import org.openrepose.common.auth.AuthToken;
-import org.openrepose.common.auth.openstack.OpenStackToken;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -10,6 +7,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthToken;
+import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
@@ -19,7 +19,6 @@ import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastore;
 import org.openstack.docs.identity.api.v2.*;
 
-import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
@@ -42,7 +41,7 @@ public class AuthFeedListenerTest {
    private static CacheManager cacheManager;
 
    @Before
-   public void setUp() throws IOException {
+   public void setUp() throws Exception {
 
       Configuration defaultConfiguration = new Configuration();
       defaultConfiguration.setName("TestCacheManager");

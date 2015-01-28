@@ -1,16 +1,18 @@
 package org.openrepose.filters.authz;
 
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +39,20 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(RackspaceAuthorization configurationObject) {
+        public void configurationUpdated(RackspaceAuthorization configurationObject) throws UpdateFailedException {
             authorizationConfiguration = configurationObject;
 
             final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
             if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-                authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(),
-                        serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),
-                        configurationObject.getAuthenticationServer().getConnectionPoolId(),httpClientService,
-                        akkaServiceClient);
+                try {
+                    authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(),
+                            serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),
+                            configurationObject.getAuthenticationServer().getConnectionPoolId(),httpClientService,
+                            akkaServiceClient);
+                } catch (AuthServiceException e) {
+                    throw new UpdateFailedException("Failed to authorize.", e);
+                }
             } else {
                 LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
             }
