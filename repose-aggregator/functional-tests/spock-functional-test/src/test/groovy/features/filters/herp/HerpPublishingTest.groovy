@@ -5,23 +5,24 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.util.concurrent.PollingConditions
 
-import static org.hamcrest.Matchers.greaterThan
-import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.notNullValue
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.expect
 
 class HerpPublishingTest extends ReposeValveTest {
 
-    private static final Set<String> sentRequestGuids = new HashSet<>()
-    private static final Set<String> processedRequestGuids = new HashSet<>()
-    private static final Set<String> failedRequestGuids = new HashSet<>()
+    private static final String USER_NAME_HEADER = "X-User-Name"
+
+    private static final List<String> sentRequestGuids = new ArrayList<>()
+    private static final List<String> processedRequestGuids = new ArrayList<>()
+    private static final List<String> failedRequestGuids = new ArrayList<>()
     private static final Random random = new Random()
 
-    private static boolean consumerReprocessed = false
-
+    private final ExecutorService executorService = Executors.newCachedThreadPool()
     private final PollingConditions conditions = new PollingConditions(timeout: 60, delay: 1)
 
     def setupSpec() {
@@ -37,74 +38,78 @@ class HerpPublishingTest extends ReposeValveTest {
         repose.start(true, true, "cluster", "node")
     }
 
-    @Ignore
+    def setup() {
+        sentRequestGuids.clear()
+        processedRequestGuids.clear()
+        failedRequestGuids.clear()
+    }
+
     def "HERP sends a proper request to the consuming service"() {
         when:
-        MessageChain messageChain = sendRequest()
+        sendAsyncRequest()
 
         then:
         conditions.eventually {
-            expect messageChain.getOrphanedHandlings().find {
-                it.getEndpoint().getDefaultHandler().equals(consumerService)
-            }, is(notNullValue())
+            expect processedRequestGuids.size() + failedRequestGuids.size(), is(greaterThan(0))
             // todo: further request validation
         }
     }
 
     def "HERP at-least-once semantics"() {
+        given:
+        int numRequests = 1000
+
         when:
-        20.times {
-            sendRequest()
+        numRequests.times {
+            sendAsyncRequest()
         }
 
         then:
         conditions.eventually {
-            processedRequestGuids.containsAll(sentRequestGuids)
+            expect sentRequestGuids.size(), is(equalTo(1000))
+            expect sentRequestGuids.size(), is(lessThanOrEqualTo(processedRequestGuids.size()))
+            expect new HashSet<String>(processedRequestGuids).containsAll(sentRequestGuids), is(equalTo(true))
         }
-        expect processedRequestGuids.size(), is(greaterThan(19))
     }
 
     def "HERP exactly-once semantics"() {
+        given:
+        int numRequests = 1000
+
         when:
-        20.times {
-            sendRequest()
+        numRequests.times {
+            sendAsyncRequest()
         }
 
         then:
         conditions.eventually {
-            processedRequestGuids.containsAll(sentRequestGuids)
+            expect sentRequestGuids.size(), is(equalTo(1000))
+            expect sentRequestGuids.size(), is(equalTo(processedRequestGuids.size()))
+            expect processedRequestGuids.containsAll(sentRequestGuids), is(equalTo(true))
         }
-        expect processedRequestGuids.size(), is(greaterThan(19))
-        !consumerReprocessed
     }
 
-    synchronized static def consumerService = { Request request ->
+    static def consumerService = { Request request ->
         // Simulate a 15% failure rate in the origin service
         boolean shouldFail = random.nextInt(101) < 15
 
         String guid = request.getBody().toString()
 
-        if (processedRequestGuids.contains(guid)) {
-            consumerReprocessed = true
-        }
-
         if (shouldFail) {
             failedRequestGuids.add(guid)
             new Response("500")
         } else {
-            if (processedRequestGuids.contains(guid)) {
-                consumerReprocessed = true
-            }
-            failedRequestGuids.remove(guid)
             processedRequestGuids.add(guid)
             new Response("200")
         }
     }
 
-    def sendRequest() {
-        String guid = UUID.randomUUID().toString()
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-User-Name": guid]) // todo: why does USER_NAME_HEADER not resolve here?
-        sentRequestGuids.add(guid)
-        messageChain
+    def sendAsyncRequest() {
+        executorService.submit({
+            String guid = UUID.randomUUID().toString()
+            MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: [USER_NAME_HEADER: guid])
+            sentRequestGuids.add(guid)
+            messageChain
+        } as Runnable)
     }
 }
