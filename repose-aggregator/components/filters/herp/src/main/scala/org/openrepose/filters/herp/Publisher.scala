@@ -1,11 +1,11 @@
 package org.openrepose.filters.herp
 
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.HttpResponse
-import org.apache.http.client.methods.{HttpPost, HttpGet}
-import org.apache.http.entity.{StringEntity, HttpEntityWrapper}
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.StringEntity
 import org.openrepose.core.services.httpclient.{HttpClientResponse, HttpClientService}
 
 /**
@@ -21,6 +21,8 @@ class Publisher @Inject()(httpClientService :HttpClientService) extends LazyLogg
     val request = new HttpPost("http://localhost:12345")
     request.setEntity(new StringEntity(eventBody))
     val response: HttpResponse = client.getHttpClient.execute(request)
+    request.releaseConnection()
+    httpClientService.releaseClient(client)
     if(response.getStatusLine.getStatusCode != 200) {
       throw new RuntimeException("Oops the remote end crapped itself")
     }
