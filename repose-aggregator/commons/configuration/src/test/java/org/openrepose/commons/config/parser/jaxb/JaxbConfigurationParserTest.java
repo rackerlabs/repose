@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,6 +21,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class JaxbConfigurationParserTest {
+    private static final String CFG_DATA = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "\n" +
+            "<element>\n" +
+            "    <hello>Hi there.</hello>\n" +
+            "    <goodbye>See ya.</goodbye>\n" +
+            "</element>\n";
+
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -45,7 +53,8 @@ public class JaxbConfigurationParserTest {
             ConfigurationParser<Element> parser = new JaxbConfigurationParser<Element>(Element.class, jaxbContext, null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-            when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
+            ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+            when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
             Element element = parser.read(cfgResource);
 
@@ -58,7 +67,8 @@ public class JaxbConfigurationParserTest {
             ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext , null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-            when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
+            ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+            when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
             parser.read(cfgResource);
         }
