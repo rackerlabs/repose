@@ -9,6 +9,7 @@ import java.util.Map;
 
 public interface RequestProxyService {
 
+    //TODO: this is the most terrible return value ever
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     void setRewriteHostHeader(boolean value);

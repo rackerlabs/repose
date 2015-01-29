@@ -1,5 +1,4 @@
 package features.filters.clientauthn.akkatimeout
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
@@ -7,8 +6,8 @@ import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 
+import javax.servlet.http.HttpServletResponse
 /**
  * Created by jennyvo on 1/5/15.
  *  Akka timeout "matches" http connection pool timeout.
@@ -51,7 +50,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out less than http connection time out" () {
+    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds" () {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -76,7 +75,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than http connection time out" () {
+    def "akka timeout test, auth response time out greater than socket connection time out" () {
         reposeLogSearch.cleanLog()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -98,45 +97,10 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .31000 milliseconds.").size() > 0
-    }
-
-    def "akka timeout POST test, auth response time out greater than http connection time out" () {
-        reposeLogSearch.cleanLog()
-        fakeIdentityService.with {
-            client_token = UUID.randomUUID().toString()
-            tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 613
-            service_admin_role = "not-admin"
-            client_userid = 1234
-            sleeptime = 35000
-        }
-
-        if(adminResponseCode != 200){
-            fakeIdentityService.generateTokenHandler = {
-                request, xml ->
-                    new Response(adminResponseCode, null, null, "")
-            }
-        }
-
-        when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/613/",
-                method: 'POST',
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
-                ]
-        )
-
-        then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"
-        mc.handlings.size() == 0
-        reposeLogSearch.searchByString("java.util.concurrent.TimeoutException: Futures timed out after .31000 milliseconds.").size() > 0
-
-        where:
-        adminResponseCode << [500, 404]
+        sleep(1000)
+        reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

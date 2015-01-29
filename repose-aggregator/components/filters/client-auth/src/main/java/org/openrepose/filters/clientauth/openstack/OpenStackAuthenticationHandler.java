@@ -2,14 +2,15 @@ package org.openrepose.filters.clientauth.openstack;
 
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
 import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.clientauth.common.*;
 import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.filters.clientauth.common.*;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthToken validateToken(ExtractorResult<String> account, String token) {
+    public AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException {
         AuthToken authToken = null;
 
         if (account != null) {
@@ -125,7 +126,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthGroups getGroups(String group) {
+    public AuthGroups getGroups(String group) throws AuthServiceException {
         return authenticationService.getGroups(group);
     }
 
@@ -135,7 +136,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override //getting the final encoded string
-    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) {
+    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException {
         return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat());
     }
 

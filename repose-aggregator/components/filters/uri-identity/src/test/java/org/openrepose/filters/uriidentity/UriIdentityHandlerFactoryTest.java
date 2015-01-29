@@ -37,7 +37,7 @@ public class UriIdentityHandlerFactoryTest {
     private UriIdentityHandler handler;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
 
         factory = new UriIdentityHandlerFactory();
         config = new UriIdentityConfig();
@@ -66,7 +66,7 @@ public class UriIdentityHandlerFactoryTest {
     }
 
     @Test
-    public void shouldSetDefaultQuality(){
+    public void shouldSetDefaultQuality() throws Exception {
 
         config = new UriIdentityConfig();
         IdentificationMappingList identificationMappingList = new IdentificationMappingList();

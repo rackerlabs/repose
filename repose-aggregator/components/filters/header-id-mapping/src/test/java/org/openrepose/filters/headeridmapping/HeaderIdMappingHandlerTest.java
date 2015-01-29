@@ -42,7 +42,7 @@ public class HeaderIdMappingHandlerTest {
       private HeaderIdMappingConfig config;
 
       @Before
-      public void setUp() {
+      public void setUp() throws Exception {
          HttpHeaderList headerList = new HttpHeaderList();
          factory = new HeaderIdMappingHandlerFactory();
 

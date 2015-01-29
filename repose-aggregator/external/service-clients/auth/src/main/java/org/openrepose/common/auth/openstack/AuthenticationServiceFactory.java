@@ -3,8 +3,8 @@ package org.openrepose.common.auth.openstack;
 import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.ResponseUnmarshaller;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ public class AuthenticationServiceFactory {
 
    public AuthenticationService build(String targetHostUri, String username, String password, String tenantId,
                                       String connectionPoolId,HttpClientService httpClientService,
-                                      AkkaServiceClient akkaServiceClient) {
+                                      AkkaServiceClient akkaServiceClient) throws AuthServiceException {
 
       JAXBContext coreJaxbContext;
       JAXBContext groupJaxbContext;

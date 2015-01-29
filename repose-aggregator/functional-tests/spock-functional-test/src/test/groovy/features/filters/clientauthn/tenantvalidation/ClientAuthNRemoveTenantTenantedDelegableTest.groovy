@@ -88,9 +88,9 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant  | authResponseCode | responseCode | delegatingMsg
-        200           | 201             | 500              | "200"        | "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
-        202           | 203             | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
-        204           | 205             | 200              | "200"        | "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.7"
+        200           | 201             | 500              | "200"        | "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        202           | 203             | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        204           | 205             | 200              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
     }
 
     @Unroll("tenant: #requestTenant with identity returning HTTP 200 response with tenant id (#responseTenant), role (#serviceAdminRole)")

@@ -4,16 +4,14 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
-import org.openrepose.filters.clientauth.atomfeed.CacheKeyType;
-import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
-import org.openrepose.filters.clientauth.atomfeed.FeedCacheKeys;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.filters.clientauth.atomfeed.*;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -62,14 +60,14 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         factory.setNamespaceAware(true);
     }
 
-    public void setAuthed(String uri, String user, String pass) {
+    public void setAuthed(String uri, String user, String pass) throws AuthServiceException {
         isAuthed = true;
         provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
         adminToken = provider.getAdminToken();
     }
 
     @Override
-    public CacheKeys getCacheKeys() {
+    public CacheKeys getCacheKeys() throws FeedException {
 
         moreData = true;
         ServiceClientResponse resp;
@@ -97,7 +95,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         return resultKeys;
     }
 
-    private ServiceClientResponse getFeed() {
+    private ServiceClientResponse getFeed() throws FeedException {
 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<String, String>();
@@ -113,7 +111,11 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 break;
             case UNAUTHORIZED:
                 if (isAuthed) {
-                    adminToken = provider.getFreshAdminToken();
+                    try {
+                        adminToken = provider.getFreshAdminToken();
+                    } catch (AuthServiceException e) {
+                        throw new FeedException("Failed to obtain credentials.", e);
+                    }
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);
                 } else { // case where we're getting back 401s and the client has not configured auth credentials for this feed.
@@ -179,10 +181,5 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             }
             curResource = "";
         }
-    }
-
-    @Override
-    public String getFeedId() {
-        return feedId;
     }
 }

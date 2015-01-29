@@ -1,24 +1,18 @@
 package org.openrepose.filters.clientauth.openstack;
 
+import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
-import org.openrepose.filters.clientauth.common.AuthGroupCache;
-import org.openrepose.filters.clientauth.common.AuthTokenCache;
-import org.openrepose.filters.clientauth.common.AuthUserCache;
-import org.openrepose.filters.clientauth.common.AuthenticationHandler;
-import org.openrepose.filters.clientauth.common.Configurables;
-import org.openrepose.filters.clientauth.common.EndpointsCache;
-import org.openrepose.filters.clientauth.common.EndpointsConfiguration;
-import org.openrepose.filters.clientauth.common.UriMatcher;
+import org.openrepose.filters.clientauth.common.*;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.filters.clientauth.openstack.config.IgnoreTenantRoles;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +24,7 @@ public final class OpenStackAuthenticationHandlerFactory {
 
     public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor,
                                                     Datastore datastore, UriMatcher uriMatcher,
-                                                    HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
+                                                    HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) throws AuthServiceException {
         final AuthTokenCache cache = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
         final AuthUserCache usrCache = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());

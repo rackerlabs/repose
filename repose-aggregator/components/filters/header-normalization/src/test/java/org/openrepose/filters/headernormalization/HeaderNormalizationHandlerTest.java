@@ -46,7 +46,7 @@ public class HeaderNormalizationHandlerTest {
         private String[] requestHeaders = {"X-Auth-Header", "Content-Type", "X-User-Header", "Accept", "X-Group-Header", "X-Auth-Token"};
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
 
             factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();
@@ -165,7 +165,7 @@ public class HeaderNormalizationHandlerTest {
         private String[] requestHeaders = {"X-Auth-Header", "Content-Type", "X-User-Header", "Accept", "X-Group-Header", "X-Auth-Token"};
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
 
             factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();
@@ -284,7 +284,7 @@ public class HeaderNormalizationHandlerTest {
         private String[] requestHeaders = {"X-Auth-Header", "Content-Type", "X-User-Header", "Accept", "X-Group-Header", "X-Auth-Token"};
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
 
             factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();

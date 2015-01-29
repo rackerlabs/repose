@@ -43,7 +43,7 @@ public class TranslationHandlerTest {
         private ConfigurationService manager;
 
         @Before
-        public void setup() {
+        public void setup() throws Exception {
             manager = mock(ConfigurationService.class);
             factory = new TranslationHandlerFactory(manager, "", "");
             TranslationConfig config = new TranslationConfig();
@@ -196,7 +196,7 @@ public class TranslationHandlerTest {
         private ConfigurationService manager;
 
         @Before
-        public void setup() {
+        public void setup() throws Exception {
             manager = mock(ConfigurationService.class);
             factory = new TranslationHandlerFactory(manager, "", "");
             TranslationConfig config = new TranslationConfig();

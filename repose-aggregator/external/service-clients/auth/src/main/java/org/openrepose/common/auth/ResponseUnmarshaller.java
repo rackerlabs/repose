@@ -39,7 +39,7 @@ public class ResponseUnmarshaller {
       });
    }
 
-   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
+   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) throws AuthServiceException {
         Object rtn = null;
         Unmarshaller pooledObject;
         try {

@@ -1,6 +1,7 @@
 package org.openrepose.core.services.config.impl;
 
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager;
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.common.ConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
@@ -124,7 +125,7 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
         }
     }
 
-    private void configUpdate(UpdateListener upd, Object cfg) {
+    private void configUpdate(UpdateListener upd, Object cfg) throws UpdateFailedException {
         upd.configurationUpdated(cfg);
         LOG.debug("Configuration Updated: " + cfg.toString());
 

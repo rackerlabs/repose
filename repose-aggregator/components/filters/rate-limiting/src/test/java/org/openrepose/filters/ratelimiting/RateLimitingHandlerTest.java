@@ -214,8 +214,8 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     protected ReadableHttpServletResponse mockedResponse;
     protected DistributedDatastore datastore;
 
-      @Before
-    public void beforeAny() {
+    @Before
+    public void beforeAny() throws Exception {
       datastore = mock(DistributedDatastore.class);
       final DatastoreService service = mock(DatastoreService.class);
 

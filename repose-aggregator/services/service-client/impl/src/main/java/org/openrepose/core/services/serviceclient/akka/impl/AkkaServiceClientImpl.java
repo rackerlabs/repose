@@ -10,6 +10,7 @@ import com.typesafe.config.ConfigFactory;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import scala.concurrent.Await;
@@ -68,7 +69,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     }
 
     @Override
-    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) {
+    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws AkkaServiceClientException {
         ServiceClientResponse serviceClientResponse = null;
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
@@ -76,13 +77,15 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
             Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout);
             serviceClientResponse = Await.result(future, timeout.duration());
         } catch (Exception e) {
-            LOG.error("Error acquiring value from akka (GET) or the cache", e);
+            LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+            throw new AkkaServiceClientException("Error acquiring value from akka (GET) or the cache.", e);
         }
         return serviceClientResponse;
     }
 
     @Override
-    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
+    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException {
         ServiceClientResponse serviceClientResponse = null;
         AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
@@ -90,7 +93,9 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
             Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout);
             serviceClientResponse = Await.result(future, timeout.duration());
         } catch (Exception e) {
-            LOG.error("Error acquiring value from akka (POST) or the cache", e);
+            LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+            throw new AkkaServiceClientException("Error acquiring value from akka (POST) or the cache.", e);
         }
         return serviceClientResponse;
     }
