@@ -122,7 +122,7 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
       templateText
     }
 
-    herpLogger = LoggerFactory.getLogger(config.getLoggerName)
+    herpLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter

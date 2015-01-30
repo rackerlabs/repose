@@ -36,7 +36,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
-    herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
+    herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-Logger")
     val templateText =
       """
          {
