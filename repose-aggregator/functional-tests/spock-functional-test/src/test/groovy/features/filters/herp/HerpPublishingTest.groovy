@@ -7,19 +7,19 @@ import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.util.concurrent.PollingConditions
 
+import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.expect
 
 class HerpPublishingTest extends ReposeValveTest {
 
-    private static final String USER_NAME_HEADER = "X-User-Name"
-
-    private static final List<String> sentRequestGuids = new ArrayList<>()
-    private static final List<String> processedRequestGuids = new ArrayList<>()
-    private static final List<String> failedRequestGuids = new ArrayList<>()
+    private static final List<String> sentRequestGuids = new Vector<>()
+    private static final List<String> processedRequestGuids = new Vector<>()
+    private static final List<String> failedRequestGuids = new Vector<>()
     private static final Random random = new Random()
 
     private final ExecutorService executorService = Executors.newCachedThreadPool()
@@ -60,9 +60,15 @@ class HerpPublishingTest extends ReposeValveTest {
         int numRequests = 1000
 
         when:
+        println "\n****************Started " + new Date(System.currentTimeMillis())
         numRequests.times {
             sendAsyncRequest()
         }
+
+        println "\n****************Submitted all jobs " + new Date(System.currentTimeMillis())
+        executorService.shutdown()
+        executorService.awaitTermination(60, TimeUnit.SECONDS)
+        println "\n****************All jobs completed " + new Date(System.currentTimeMillis())
 
         then:
         conditions.eventually {
@@ -70,6 +76,10 @@ class HerpPublishingTest extends ReposeValveTest {
             expect sentRequestGuids.size(), is(lessThanOrEqualTo(processedRequestGuids.size()))
             expect new HashSet<String>(processedRequestGuids).containsAll(sentRequestGuids), is(equalTo(true))
         }
+        println "\n****************Done " + new Date(System.currentTimeMillis())
+//        sentRequestGuids.size() == 1000
+//        sentRequestGuids.size() <= processedRequestGuids.size()
+//        new HashSet<String>(processedRequestGuids).containsAll(sentRequestGuids)
     }
 
     def "HERP exactly-once semantics"() {
@@ -107,9 +117,9 @@ class HerpPublishingTest extends ReposeValveTest {
     def sendAsyncRequest() {
         executorService.submit({
             String guid = UUID.randomUUID().toString()
-            MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: [USER_NAME_HEADER: guid])
+            MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-User-Name": guid])
             sentRequestGuids.add(guid)
             messageChain
-        } as Runnable)
+        } as Callable)
     }
 }
