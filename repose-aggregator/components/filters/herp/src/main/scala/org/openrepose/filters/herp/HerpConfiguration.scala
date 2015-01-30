@@ -32,7 +32,7 @@ class HerpConfiguration {
     container.setMessageListener(messageListener)
     container.setConnectionFactory(connectionFactory)
     container.setDestinationName("uae-queue")
-    container.setConcurrentConsumers(5)
+    container.setConcurrentConsumers(20)
     container
   }
 }
