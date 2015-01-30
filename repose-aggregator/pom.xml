@@ -520,7 +520,7 @@
                 <plugin>
                     <groupId>net.alchim31.maven</groupId>
                     <artifactId>scala-maven-plugin</artifactId>
-                    <version>3.1.6</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <!--
                         Using the zinc compiler seems to break things!
@@ -535,7 +535,7 @@
                          Turning off incremental compilation and it works again. The speed cost isn't there, because
                          we generally have to clean install every time anyway, thanks to build problems. :(
                         -->
-                        <!--<recompileMode>incremental</recompileMode> -->
+                        <!--<recompileMode>incremental</recompileMode>-->
                     </configuration>
                     <!--
                      http://davidb.github.io/scala-maven-plugin/example_java.html
