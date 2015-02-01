@@ -23,6 +23,7 @@ import org.openrepose.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class ServiceClient {
 
         }
 
-        return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+        return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
     }
 
     public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
@@ -179,7 +180,7 @@ public class ServiceClient {
 
             } catch (URISyntaxException e) {
                 LOG.error("Error building request URI", e);
-                return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+                return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
 
             }
 

@@ -1,7 +1,5 @@
 package org.openrepose.filters.echo;
 
-import org.eclipse.jetty.http.HttpStatus;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +24,7 @@ public class EchoFilter implements Filter {
             }
         }
         
-        httpResponse.setStatus(HttpStatus.OK_200);
+        httpResponse.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override

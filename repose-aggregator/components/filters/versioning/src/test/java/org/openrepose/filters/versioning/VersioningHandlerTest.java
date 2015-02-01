@@ -1,14 +1,13 @@
 package org.openrepose.filters.versioning;
 
-import org.openrepose.core.systemmodel.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.systemmodel.*;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
@@ -16,10 +15,12 @@ import org.openrepose.filters.versioning.domain.ConfigurationData;
 import org.openrepose.filters.versioning.util.ContentTransformer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -143,7 +144,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
-      assertTrue("Response should be OK", director.getResponseStatus().equals(HttpStatusCode.OK));
+      assertEquals("Response should be OK", director.getResponseStatusCode(), HttpServletResponse.SC_OK);
 
    }
 
@@ -155,7 +156,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
-      assertTrue("Response should be OK", director.getResponseStatus().equals(HttpStatusCode.OK));
+       assertEquals("Response should be OK", director.getResponseStatusCode(), HttpServletResponse.SC_OK);
    }
 
    @Test
@@ -167,7 +168,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
-      assertTrue("Response should be Multiple Choises", director.getResponseStatus().equals(HttpStatusCode.MULTIPLE_CHOICES));
+      assertEquals("Response should be Multiple Choises", director.getResponseStatusCode(), HttpServletResponse.SC_MULTIPLE_CHOICES);
    }
 
    @Test
@@ -178,7 +179,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request through", director.getFilterAction().equals(FilterAction.PASS));
-      assertTrue("Response should still be set to Internal Server Error", director.getResponseStatus().equals(HttpStatusCode.INTERNAL_SERVER_ERROR));
+      assertEquals("Response should still be set to Internal Server Error", director.getResponseStatusCode(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       // Versioning no longer sets URL.  This is determined by the filter chain
       //assertTrue("The request URL has been rewritten to include the mapped version", director.getRequestUrl().toString().endsWith("/version1/somethingelse"));
    }
@@ -191,7 +192,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
-      assertTrue("Response should still be set to Bad Gateway", director.getResponseStatus().equals(HttpStatusCode.BAD_GATEWAY));
+      assertEquals("Response should still be set to Bad Gateway", director.getResponseStatusCode(), HttpServletResponse.SC_BAD_GATEWAY);
    }
 
    @Test
@@ -202,7 +203,7 @@ public class VersioningHandlerTest {
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
-      assertTrue("Response should still be set to Bad Gateway", director.getResponseStatus().equals(HttpStatusCode.BAD_GATEWAY));
+      assertEquals("Response should still be set to Bad Gateway", director.getResponseStatusCode(), HttpServletResponse.SC_BAD_GATEWAY);
    }
 
    @Test

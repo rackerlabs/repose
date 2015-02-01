@@ -1,7 +1,6 @@
 package org.openrepose.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
@@ -12,6 +11,7 @@ import org.openrepose.services.datastore.distributed.SerializablePatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -59,7 +59,7 @@ public class Patch extends AbstractRemoteCommand {
 
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException {
-        if (response.getStatusCode() == HttpStatusCode.OK.intValue()) {
+        if (response.getStatus() == HttpServletResponse.SC_OK) {
             final InputStream internalStreamReference = response.getData();
 
              try {
@@ -68,7 +68,7 @@ public class Patch extends AbstractRemoteCommand {
                  throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
              }
         } else {
-            throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
+            throw new DatastoreOperationException("Remote request failed with: " + response.getStatus());
         }
     }
 

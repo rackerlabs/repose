@@ -1,23 +1,22 @@
 package org.openrepose.core.filter;
 
-import org.openrepose.core.RequestTimeout;
-import org.openrepose.core.ResponseCode;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
+import org.openrepose.core.RequestTimeout;
+import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.logic.DispatchPathBuilder;
 import org.openrepose.core.filter.routing.DestinationLocation;
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.core.systemmodel.*;
 import org.openrepose.core.services.headers.request.RequestHeaderService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.systemmodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +139,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             configDestinationElement = destinations.get(routingDestination.getDestinationId());
             if (configDestinationElement == null) {
                 LOG.warn("Invalid routing destination specified: " + routingDestination.getDestinationId() + " for domain: " + domain.getId());
-                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
+                ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 location = locationBuilder.build(configDestinationElement, routingDestination.getUri(), servletRequest);
 
@@ -192,11 +191,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
-                            servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                            servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
                             servletResponse.setLastException(e);
                         } else {
                             LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
-                            ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                            ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                         }
                     }
                 }

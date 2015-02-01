@@ -3,7 +3,6 @@ import com.rackspace.httpdelegation.HttpDelegationHeaderNames
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy
 import org.openrepose.common.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.components.authz.rackspace.config.DelegatingType
@@ -16,6 +15,8 @@ import org.openstack.docs.identity.api.v2.Endpoint
 import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import javax.servlet.http.HttpServletResponse
 
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
@@ -126,7 +127,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         filterDirector.getFilterAction() == filterAction
-        filterDirector.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        filterDirector.getResponseStatusCode() == HttpServletResponse.SC_FORBIDDEN
         isDelegableHeaderAccurateFor delegable, filterDirector, serviceCatalogFailureMessage()
 
         where:
@@ -145,7 +146,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         director.getFilterAction() == filterAction
-        director.getResponseStatus() == HttpStatusCode.UNAUTHORIZED
+        director.getResponseStatusCode() == HttpServletResponse.SC_UNAUTHORIZED
         isDelegableHeaderAccurateFor delegable, director, authTokenNotFoundMessage()
 
         where:
@@ -165,7 +166,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         director.getFilterAction() == filterAction
-        director.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        director.getResponseStatusCode() == HttpServletResponse.SC_FORBIDDEN
         isDelegableHeaderAccurateFor delegable, director, authTokenNotAuthorized()
 
         where:
@@ -204,7 +205,7 @@ class RequestAuthorizationHandlerTest extends Specification {
         final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        director.getResponseStatus() == HttpStatusCode.INTERNAL_SERVER_ERROR
+        director.getResponseStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         director.getFilterAction() == filterAction
         isDelegableHeaderAccurateFor delegable, director, authServiceFailure()
 

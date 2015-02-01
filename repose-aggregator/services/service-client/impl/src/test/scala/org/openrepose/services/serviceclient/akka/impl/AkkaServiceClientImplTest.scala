@@ -96,7 +96,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
             val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
             serviceClientResponse should not be null
-            serviceClientResponse.getStatusCode shouldBe HttpServletResponse.SC_OK
+            serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
             app.getEvents.size shouldBe 0
           }
 
@@ -151,7 +151,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
-              serviceClientResponse.getStatusCode shouldBe HttpServletResponse.SC_OK
+              serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
               val inputStream = serviceClientResponse.getData
               val content = io.Source.fromInputStream(inputStream).getLines().mkString
               inputStream.close()

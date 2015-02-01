@@ -1,19 +1,19 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
-import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterDirector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,7 +105,7 @@ public class ApiValidatorHandlerTest {
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             FilterDirector director = instance.handleRequest(request, response);
             verify(nullValidatorInfo).getValidator();
-            assertEquals(HttpStatusCode.BAD_GATEWAY, director.getResponseStatus());
+            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, director.getResponseStatusCode());
         }
 
         @Test
@@ -116,7 +116,7 @@ public class ApiValidatorHandlerTest {
             
             FilterDirector director = instance.handleRequest(request, response);
             verify(blowupValidator).validate(request, response, chain);
-            assertEquals(HttpStatusCode.BAD_GATEWAY, director.getResponseStatus());
+            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, director.getResponseStatusCode());
         }
 
         @Test

@@ -1,6 +1,5 @@
 package org.openrepose.core.filter.logic.impl;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -10,6 +9,7 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -34,8 +34,8 @@ public final class SimplePassFilterDirector extends AbstractFilterDirector {
   }
 
   @Override
-  public HttpStatusCode getResponseStatus() {
-    return HttpStatusCode.OK;
+  public int getResponseStatusCode() {
+    return HttpServletResponse.SC_OK;
   }
 
   @Override

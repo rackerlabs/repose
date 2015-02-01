@@ -9,7 +9,6 @@ import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.ResponseUnmarshaller;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
@@ -18,6 +17,7 @@ import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
@@ -91,39 +91,39 @@ public class AuthenticationServiceClient implements AuthenticationService {
         AuthenticateResponse authenticateResponse = null;
         ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
 
-        switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
-            case OK:
+        switch (serviceResponse.getStatus()) {
+            case HttpServletResponse.SC_OK:
                 authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                 break;
 
-            case NOT_FOUND:
+            case HttpServletResponse.SC_NOT_FOUND:
                 // User's token is bad
                 delegationMessage.set("Unable to validate token: " + userToken + ". Invalid token.");
-                LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatusCode());
+                LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatus());
                 break;
 
-            case UNAUTHORIZED:
-                LOG.error("Unable to validate token: " + userToken + " due to status code: " + serviceResponse.getStatusCode()  + " :admin token expired. Retrieving new admin token and retrying token validation...");
+            case HttpServletResponse.SC_UNAUTHORIZED:
+                LOG.error("Unable to validate token: " + userToken + " due to status code: " + serviceResponse.getStatus()  + " :admin token expired. Retrieving new admin token and retrying token validation...");
 
                 serviceResponse = validateUser(userToken, tenant, true);
 
-                if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
+                if (serviceResponse.getStatus() == HttpServletResponse.SC_OK) {
                     authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                } else if (serviceResponse.getStatusCode() == HttpStatusCode.NOT_FOUND.intValue()) {
-                    delegationMessage.set("Unable to validate token: " + userToken + ". Invalid token. Status Code: " + serviceResponse.getStatusCode());
-                    LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatusCode());
+                } else if (serviceResponse.getStatus() == HttpServletResponse.SC_NOT_FOUND) {
+                    delegationMessage.set("Unable to validate token: " + userToken + ". Invalid token. Status Code: " + serviceResponse.getStatus());
+                    LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatus());
                 } else {
                     delegationMessage.set("Unable to validate token: " + userToken + " with configured admin credentials.");
-                    LOG.error("Still unable to validate token: " + serviceResponse.getStatusCode());
+                    LOG.error("Still unable to validate token: " + serviceResponse.getStatus());
                     throw new AuthServiceException("Unable to authenticate user with configured Admin credentials");
                 }
                 break;
 
 
             default:
-                delegationMessage.set("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatusCode() + " for token: " + userToken);
-                LOG.error("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatusCode());
-                throw new AuthServiceException("Unable to validate token. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
+                delegationMessage.set("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatus() + " for token: " + userToken);
+                LOG.error("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatus());
+                throw new AuthServiceException("Unable to validate token. Response from " + targetHostUri + ": " + serviceResponse.getStatus());
         }
 
         return authenticateResponse;
@@ -152,29 +152,29 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             ServiceClientResponse endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-            switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
-                case OK:
+            switch (endpointListResponse.getStatus()) {
+                case HttpServletResponse.SC_OK:
                     endpointList = getEndpointList(endpointListResponse);
                     break;
-                case UNAUTHORIZED:
-                    LOG.error("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. " +
+                case HttpServletResponse.SC_UNAUTHORIZED:
+                    LOG.error("Unable to get endpoints for user: " + endpointListResponse.getStatus() + " :admin token expired. " +
                             "Retrieving new admin token and retrying endpoints retrieval...");
 
                     headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
                     endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-                    if (endpointListResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
+                    if (endpointListResponse.getStatus() == HttpServletResponse.SC_OK) {
                         endpointList = getEndpointList(endpointListResponse);
                     } else {
                         delegationMessage.set("Unable to get endpoints for user: " + userToken + " with configured admin credentials");
-                        LOG.error("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
+                        LOG.error("Still unable to get endpoints: " + endpointListResponse.getStatus());
                         throw new AuthServiceException("Unable to retrieve service catalog for user with configured Admin credentials");
                     }
                     break;
                 default:
-                    delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + endpointListResponse.getStatusCode());
-                    LOG.error("Unable to get endpoints for token. Status code: " + endpointListResponse.getStatusCode());
-                    throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + endpointListResponse.getStatusCode());
+                    delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + endpointListResponse.getStatus());
+                    LOG.error("Unable to get endpoints for token. Status code: " + endpointListResponse.getStatus());
+                    throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + endpointListResponse.getStatus());
             }
         } catch (AkkaServiceClientException e) {
             throw new AuthServiceException("Unable to get endpoints.", e);
@@ -203,28 +203,28 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-            switch (HttpStatusCode.fromInt(serviceClientResponse.getStatusCode())) {
-                case OK:
+            switch (serviceClientResponse.getStatus()) {
+                case HttpServletResponse.SC_OK:
                     rawEndpointsData = convertStreamToBase64String(serviceClientResponse.getData());
                     break;
-                case UNAUTHORIZED:
-                    LOG.error("Unable to get endpoints for user: " + serviceClientResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
+                case HttpServletResponse.SC_UNAUTHORIZED:
+                    LOG.error("Unable to get endpoints for user: " + serviceClientResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
 
                     headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
                     serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-                    if (serviceClientResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
+                    if (serviceClientResponse.getStatus() == HttpServletResponse.SC_ACCEPTED) {
                         rawEndpointsData = convertStreamToBase64String(serviceClientResponse.getData());
                     } else {
                         delegationMessage.set("Unable to get endpoints for user: " + userToken + " with configured admin credentials");
-                        LOG.error("Still unable to get endpoints: " + serviceClientResponse.getStatusCode());
+                        LOG.error("Still unable to get endpoints: " + serviceClientResponse.getStatus());
                         throw new AuthServiceException("Unable to retrieve service catalog for user with configured Admin credentials");
                     }
                     break;
                 default:
-                    delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + serviceClientResponse.getStatusCode());
-                    LOG.error("Unable to get endpoints for token. Status code: " + serviceClientResponse.getStatusCode());
-                    throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + serviceClientResponse.getStatusCode());
+                    delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + serviceClientResponse.getStatus());
+                    LOG.error("Unable to get endpoints for token. Status code: " + serviceClientResponse.getStatus());
+                    throw new AuthServiceException("Unable to retrieve service catalog for user. Response from " + targetHostUri + ": " + serviceClientResponse.getStatus());
             }
         } catch (AkkaServiceClientException e) {
             throw new AuthServiceException("Unable to get endpoints.", e);
@@ -270,30 +270,30 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             ServiceClientResponse serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
-            switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
-                case OK:
+            switch (serviceResponse.getStatus()) {
+                case HttpServletResponse.SC_OK:
                     authGroups = getAuthGroups(serviceResponse);
                     break;
-                case UNAUTHORIZED:
-                    LOG.error("Unable to get groups for user: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
+                case HttpServletResponse.SC_UNAUTHORIZED:
+                    LOG.error("Unable to get groups for user: " + serviceResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
 
                     headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
 
                     serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
-                    if (serviceResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
+                    if (serviceResponse.getStatus() == HttpServletResponse.SC_ACCEPTED) {
                         authGroups = getAuthGroups(serviceResponse);
                     } else {
-                        delegationMessage.set("Unable to get groups for user id: " + userId + ". Status code: " + serviceResponse.getStatusCode());
-                        LOG.error("Still unable to get groups: " + serviceResponse.getStatusCode());
-                        throw new AuthServiceException("Unable to retrieve groups for user. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
+                        delegationMessage.set("Unable to get groups for user id: " + userId + ". Status code: " + serviceResponse.getStatus());
+                        LOG.error("Still unable to get groups: " + serviceResponse.getStatus());
+                        throw new AuthServiceException("Unable to retrieve groups for user. Response from " + targetHostUri + ": " + serviceResponse.getStatus());
 
                     }
                     break;
                 default:
-                    delegationMessage.set("Unable to get groups for user id: " + userId + ". Status code: " + serviceResponse.getStatusCode());
-                    LOG.error("Unable to get groups for user id: " + userId + " Status code: " + serviceResponse.getStatusCode());
-                    throw new AuthServiceException("Unable to retrieve groups for user. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
+                    delegationMessage.set("Unable to get groups for user id: " + userId + ". Status code: " + serviceResponse.getStatus());
+                    LOG.error("Unable to get groups for user id: " + userId + " Status code: " + serviceResponse.getStatus());
+                    throw new AuthServiceException("Unable to retrieve groups for user. Response from " + targetHostUri + ": " + serviceResponse.getStatus());
             }
         } catch (AkkaServiceClientException e) {
             throw new AuthServiceException("Unable to get groups.", e);
@@ -331,8 +331,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
                         requestBody,
                         MediaType.APPLICATION_XML_TYPE);
 
-                switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
-                    case OK:
+                switch (serviceResponse.getStatus()) {
+                    case HttpServletResponse.SC_OK:
                         final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
 
                         Token token = authenticateResponse.getToken();
@@ -341,8 +341,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
                         break;
 
                     default:
-                        delegationMessage.set("Unable to get admin token. Status code: " + serviceResponse.getStatusCode());
-                        LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatusCode());
+                        delegationMessage.set("Unable to get admin token. Status code: " + serviceResponse.getStatus());
+                        LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatus());
                         currentAdminToken = null;
                         throw new AuthServiceException("Unable to retrieve admin token ");
                 }

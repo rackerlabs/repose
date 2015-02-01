@@ -1,9 +1,10 @@
 package org.openrepose.services.datastore.impl.distributed.remote.command;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -24,6 +25,6 @@ public class Delete extends AbstractRemoteCommand {
 
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException {
-        return Boolean.valueOf(response.getStatusCode() == HttpStatusCode.ACCEPTED.intValue());
+        return Boolean.valueOf(response.getStatus() == HttpServletResponse.SC_ACCEPTED);
     }
 }

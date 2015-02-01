@@ -1,7 +1,9 @@
 package features.filters.identitybasicauth
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
+import org.openrepose.core.filter.logic.FilterDirector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -9,17 +11,6 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
-
-import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-import static javax.servlet.http.HttpServletResponse.SC_GATEWAY_TIMEOUT
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
-import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED
-import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
 /**
  * Created by jennyvo on 11/12/14.
@@ -29,7 +20,6 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityService fakeIdentityService
-    def static final SC_TOO_MANY_REQUESTS = 429
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -155,16 +145,16 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
 
         where:
         reqTenant | identityStatusCode                              | delegatedMsg //(these msgs need to be update when done with impl
-        9400      | SC_BAD_REQUEST              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9401      | SC_UNAUTHORIZED             | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        9403      | SC_FORBIDDEN                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9404      | SC_NOT_FOUND                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9500      | SC_INTERNAL_SERVER_ERROR    | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9501      | SC_NOT_IMPLEMENTED          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9502      | SC_BAD_GATEWAY              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9503      | SC_SERVICE_UNAVAILABLE      | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9504      | SC_GATEWAY_TIMEOUT          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9505      | SC_REQUEST_ENTITY_TOO_LARGE | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
-        9506      | SC_TOO_MANY_REQUESTS        | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
+        9400      | HttpServletResponse.SC_BAD_REQUEST              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9401      | HttpServletResponse.SC_UNAUTHORIZED             | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        9403      | HttpServletResponse.SC_FORBIDDEN                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9404      | HttpServletResponse.SC_NOT_FOUND                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR    | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9502      | HttpServletResponse.SC_BAD_GATEWAY              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE      | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9505      | HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
+        9506      | FilterDirector.SC_TOO_MANY_REQUESTS             | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
     }
 }

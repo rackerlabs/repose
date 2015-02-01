@@ -7,7 +7,6 @@ package org.openrepose.filters.clientauth.atomfeed.sax;
 import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.atomfeed.*;
@@ -17,6 +16,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -76,7 +76,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
             resp = getFeed();
 
-            if (resp.getStatusCode() == HttpStatusCode.OK.intValue()) {
+            if (resp.getStatus() == HttpServletResponse.SC_OK) {
 
                 try {
                     SAXParser parser = factory.newSAXParser();
@@ -106,10 +106,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         resp = client.get(targetFeed, headers);
 
 
-        switch (HttpStatusCode.fromInt(resp.getStatusCode())) {
-            case OK:
+        switch (resp.getStatus()) {
+            case HttpServletResponse.SC_OK:
                 break;
-            case UNAUTHORIZED:
+            case HttpServletResponse.SC_UNAUTHORIZED:
                 if (isAuthed) {
                     try {
                         adminToken = provider.getFreshAdminToken();
@@ -125,7 +125,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 }
                 break;
             default: // If we receive anything other than a 200 or a 401 there is an error with the atom feed
-                LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatusCode());
+                LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatus());
                 moreData = false;
                 break;
 

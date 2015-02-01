@@ -1,6 +1,5 @@
 package org.openrepose.core.valve.jetty.servlet;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class ProxyServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!isPowerApiContextManagerIntiliazed() || !isRequestFilterChainComplete(req)) {
             LOG.debug("Filter chain is not available to process request.");
-            resp.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Filter chain is not available to process request");
+            resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Filter chain is not available to process request");
         }
     }
 }

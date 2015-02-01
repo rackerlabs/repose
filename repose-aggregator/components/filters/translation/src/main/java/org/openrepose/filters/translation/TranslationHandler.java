@@ -1,7 +1,6 @@
 package org.openrepose.filters.translation;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
@@ -13,17 +12,18 @@ import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.translation.xslt.XsltParameter;
-import org.openrepose.filters.translation.xslt.xmlfilterchain.TranslationResult;
-import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlChainPool;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.filters.translation.httpx.processor.TranslationPreProcessor;
+import org.openrepose.filters.translation.xslt.XsltParameter;
+import org.openrepose.filters.translation.xslt.xmlfilterchain.TranslationResult;
+import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlChainPool;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -167,7 +167,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
                             }
                             in = new ByteArrayInputStream(filterDirector.getResponseMessageBodyBytes());
                         } else {
-                            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                             response.setContentLength(0);
                             filterDirector.responseHeaderManager().removeHeader("Content-Length");
                             break;
@@ -177,7 +177,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             }
         } catch (IOException ex) {
             LOG.error("Error executing response transformer chain", ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentLength(0);
         }
 
@@ -218,14 +218,14 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
                     }
                     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
                 } else {
-                    filterDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+                    filterDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_REQUEST);
                     filterDirector.setFilterAction(FilterAction.RETURN);
                     break;
                 }
             }
         } catch (IOException ex) {
             LOG.error("Error executing request transformer chain", ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             filterDirector.setFilterAction(FilterAction.RETURN);
         }
 

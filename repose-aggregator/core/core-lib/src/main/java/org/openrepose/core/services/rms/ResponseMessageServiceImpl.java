@@ -2,7 +2,6 @@ package org.openrepose.core.services.rms;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
@@ -61,7 +60,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
 
         if(!isInitialized()) {
-            response.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating Response Messaging service.");
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating Response Messaging service.");
         } else {
             if (matchedCode != null) {
                 HttpLogFormatter formatter;

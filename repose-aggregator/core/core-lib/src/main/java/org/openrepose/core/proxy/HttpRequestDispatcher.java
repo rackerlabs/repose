@@ -1,7 +1,8 @@
 package org.openrepose.core.proxy;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,8 +11,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,7 +35,7 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         int status = proxyService.proxyRequest(targetHost, (HttpServletRequest) request, (HttpServletResponse) response);
         if (status < 0) {
             HttpServletResponse httpResponse = (HttpServletResponse)response;
-            httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
