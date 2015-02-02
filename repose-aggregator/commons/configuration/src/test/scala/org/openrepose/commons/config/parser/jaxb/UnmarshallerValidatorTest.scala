@@ -1,6 +1,7 @@
 package org.openrepose.commons.config.parser.jaxb
 
 import java.io.ByteArrayInputStream
+import java.util.{Calendar, Date, GregorianCalendar}
 import javax.xml.bind.JAXBContext
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
@@ -60,6 +61,10 @@ class UnmarshallerValidatorTest extends FunSpec with BeforeAndAfter with Matcher
          """.stripMargin
 
         it("should update the config namespace to http://docs.openrepose.org/repose/.") {
+          /////////////////////////////////////////////////////////////////////////////////////
+          // This is a Time-Bomb to remind us to remove the backwards compatible hack.       //
+          new Date() should be < new GregorianCalendar(2015, Calendar.SEPTEMBER, 1).getTime()//
+          /////////////////////////////////////////////////////////////////////////////////////
           val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
           factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
           val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
