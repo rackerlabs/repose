@@ -15,6 +15,7 @@ import org.openrepose.commons.config.parser.jaxb.test.UnmarshallerValidatorTestI
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.xml.sax.SAXParseException
 
 import scala.collection.JavaConversions._
 
@@ -37,22 +38,22 @@ class UnmarshallerValidatorTest extends FunSpec with BeforeAndAfter with Matcher
   }
 
   describe(s"The UnmarshallerValidator") {
-    oldNamespaces.foreach { oldNamespace =>
-      describe(s"with a config containing the deprecated namespace $oldNamespace") {
-        val schemaData =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-           |<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           |           xmlns="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
-           |           targetNamespace="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
-           |           elementFormDefault="qualified"
-           |           attributeFormDefault="unqualified">
-           |    <xs:element name="unmarshaller-test" type="UnmarshallerValidatorTestImpl"/>
-           |    <xs:complexType name="UnmarshallerValidatorTestImpl">
-           |        <xs:attribute name="unmarshaller-test-attribute" type="xs:string" use="required"/>
-           |    </xs:complexType>
-           |</xs:schema>
+    val schemaData =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         |           xmlns="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
+         |           targetNamespace="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
+         |           elementFormDefault="qualified"
+         |           attributeFormDefault="unqualified">
+         |    <xs:element name="unmarshaller-test" type="UnmarshallerValidatorTestImpl"/>
+         |    <xs:complexType name="UnmarshallerValidatorTestImpl">
+         |        <xs:attribute name="unmarshaller-test-attribute" type="xs:string" use="required"/>
+         |    </xs:complexType>
+         |</xs:schema>
          """.stripMargin
 
+    oldNamespaces.foreach { oldNamespace =>
+      describe(s"with a config containing the deprecated namespace $oldNamespace") {
         val configData =
           s"""<?xml version="1.0" encoding="UTF-8"?>
            |<unmarshaller-test
@@ -75,6 +76,44 @@ class UnmarshallerValidatorTest extends FunSpec with BeforeAndAfter with Matcher
           val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
           events.count(_.contains(s"Contains old namespace  - $oldNamespace")) shouldBe 1
         }
+      }
+    }
+
+    it("should not log the a message if the namespace is already correct.") {
+      val configData =
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+           |<unmarshaller-test
+           |        xmlns="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
+           |        unmarshaller-test-attribute="This is the attribute value."/>
+       """.stripMargin
+
+      val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
+      factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
+      val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
+      val jaxbContext = JAXBContext.newInstance(classOf[UnmarshallerValidatorTestImpl].getPackage.getName)
+      val unmarshallerValidator = new UnmarshallerValidator(jaxbContext)
+      unmarshallerValidator.setSchema(schema)
+      unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
+      val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
+      events.count(_.contains(s"Contains old namespace  - ")) shouldBe 0
+    }
+
+    it("should throw an exception when the config namespace is bad.") {
+      val configData =
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<unmarshaller-test
+         |        xmlns="http://test.something.bad/repose/unmarshaller-test/v0.0"
+         |        unmarshaller-test-attribute="This is the attribute value."/>
+       """.stripMargin
+
+      val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
+      factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
+      val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
+      val jaxbContext = JAXBContext.newInstance(classOf[UnmarshallerValidatorTestImpl].getPackage.getName)
+      val unmarshallerValidator = new UnmarshallerValidator(jaxbContext)
+      unmarshallerValidator.setSchema(schema)
+      intercept[SAXParseException] {
+        unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
       }
     }
   }
