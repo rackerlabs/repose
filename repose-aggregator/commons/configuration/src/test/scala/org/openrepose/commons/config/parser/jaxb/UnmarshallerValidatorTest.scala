@@ -73,7 +73,7 @@ class UnmarshallerValidatorTest extends FunSpec with BeforeAndAfter with Matcher
           unmarshallerValidator.setSchema(schema)
           unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
           val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-          events.count(_.contains(s"Using old namespace - $oldNamespace")) shouldBe 1
+          events.count(_.contains(s"Contains old namespace  - $oldNamespace")) shouldBe 1
         }
       }
     }

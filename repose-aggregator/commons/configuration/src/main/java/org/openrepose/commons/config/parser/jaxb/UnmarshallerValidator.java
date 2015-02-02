@@ -99,8 +99,21 @@ public class UnmarshallerValidator {
                                                 namespace.contains(OLD_NAMESPACES[4]) ||
                                                 namespace.contains(OLD_NAMESPACES[5])) {
                                             LOG.warn("Contains old namespace  - {}", namespace);
-                                            LOG.warn("The namespace should be - {}{}repose/", HTTP_HDR, OLD_NAMESPACES[5]);
+                                            StringBuilder stringBuilder = new StringBuilder(namespace);
+
+                                            // Convert any old namespace to the new namespace.
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[0]), HTTP_HDR + OLD_NAMESPACES[5]);
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[1]), HTTP_HDR + OLD_NAMESPACES[5]);
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[2]), HTTP_HDR + OLD_NAMESPACES[5]);
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[3]), HTTP_HDR + OLD_NAMESPACES[5]);
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[4]), HTTP_HDR + OLD_NAMESPACES[5]);
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5] + "repose/"), HTTP_HDR + OLD_NAMESPACES[5]);
+
+                                            // Add the "repose" is at the end.
+                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5]), HTTP_HDR + OLD_NAMESPACES[5] + "repose/");
+                                            LOG.warn("The namespace should be - {}", stringBuilder.toString());
                                             LOG.trace("", e);
+
                                             try {
                                                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                                                 Transformer transformer = transformerFactory.newTransformer();
@@ -108,7 +121,7 @@ public class UnmarshallerValidator {
                                                 StreamResult result = new StreamResult(baos);
                                                 transformer.transform(new DOMSource(doc), result);
                                                 LOG.trace("ByteArrayOutputStream.toString() = \r\n" + baos.toString());
-                                                StringBuilder stringBuilder = new StringBuilder(baos.toString());
+                                                stringBuilder = new StringBuilder(baos.toString());
 
                                                 // Convert all of the old namespaces to the new namespace.
                                                 UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[0]), HTTP_HDR + OLD_NAMESPACES[5]);
