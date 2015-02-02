@@ -115,7 +115,7 @@ public class CoreSpringProvider {
             mBeanExporter.setAutowireCandidate(true);
             MutablePropertyValues mBeanExporterProps = new MutablePropertyValues();
             mBeanExporterProps.add("autodetect", true);
-            mBeanExporterProps.add("server", "reposeMBeanServer");
+            mBeanExporterProps.add("server", mBeanServer);
             mBeanExporter.setPropertyValues(mBeanExporterProps);
 
             coreContext.registerBeanDefinition("exporter", mBeanExporter);
