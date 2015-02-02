@@ -98,7 +98,8 @@ public class UnmarshallerValidator {
                                                 namespace.contains(OLD_NAMESPACES[3]) ||
                                                 namespace.contains(OLD_NAMESPACES[4]) ||
                                                 namespace.contains(OLD_NAMESPACES[5])) {
-                                            LOG.error("Using old namespace - {}", namespace);
+                                            LOG.warn("Contains old namespace  - {}", namespace);
+                                            LOG.warn("The namespace should be - {}{}repose/", HTTP_HDR, OLD_NAMESPACES[5]);
                                             LOG.trace("", e);
                                             try {
                                                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
