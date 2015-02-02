@@ -4,12 +4,15 @@ import java.io.InputStream
 import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper}
 
 import com.mockrunner.mock.web._
+import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header, HttpMessage}
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
+@RunWith(classOf[JUnitRunner])
 class AddHeaderHandlerTest extends FunSpec with Matchers with PrivateMethodTester with BeforeAndAfter {
   var handler: AddHeaderHandler = _
   var myDirector: FilterDirector = _

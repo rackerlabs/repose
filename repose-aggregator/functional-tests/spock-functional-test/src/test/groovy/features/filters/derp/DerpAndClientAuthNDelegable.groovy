@@ -114,12 +114,11 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         /* expected internal delegated messages to derp from authn:
             "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
-            "status_code=500.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
+            "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
         */
         where:
         authRespCode | responseCode   | msgBody
         404          | "401"          | "Unable to validate token"
-        401          | "500"          | "Failure in AuthN filter"
+        401          | "500"          | "Failure in Auth-N filter."
     }
 }
-

@@ -3,12 +3,15 @@ package org.openrepose.filters.herp
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.openrepose.filters.herp.config.{Template, HerpConfig}
+import org.junit.runner.RunWith
+import org.openrepose.filters.herp.config.{HerpConfig, Template}
 import org.scalatest._
+import org.scalatest.junit.JUnitRunner
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 
+@RunWith(classOf[JUnitRunner])
 class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with Matchers {
 
   var herpFilter: HerpFilter = _
@@ -381,7 +384,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
 
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should not include("\nLine One\n Line Two")
+      logEvents.get(0).getMessage.getFormattedMessage should not include ("\nLine One\n Line Two")
     }
   }
 }

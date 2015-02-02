@@ -3,16 +3,19 @@ package org.openrepose.filters.derp
 import java.io.PrintWriter
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{ServletRequest, FilterChain, ServletResponse}
+import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
+import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.FunSpec
+import org.scalatest.junit.JUnitRunner
 
 import scala.collection.JavaConverters.asJavaEnumerationConverter
 
+@RunWith(classOf[JUnitRunner])
 class DerpFilterTest extends FunSpec {
 
   describe("doFilter") {

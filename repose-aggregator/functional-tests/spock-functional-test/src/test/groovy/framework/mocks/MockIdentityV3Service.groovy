@@ -589,7 +589,7 @@ class MockIdentityV3Service {
                         "self": "http://identity:35357/v3/roles/76e72a"
                     },
                     "name": "\${serviceadmin}",
-                     "RAX-AUTH:projectId": "\${projectid}"
+                     "RAX-AUTH:project_id": "\${projectid}"
                 },
                 {
                     "id": "f4f392",
