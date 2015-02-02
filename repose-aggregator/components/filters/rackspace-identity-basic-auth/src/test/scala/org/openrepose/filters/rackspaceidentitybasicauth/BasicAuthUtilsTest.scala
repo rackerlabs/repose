@@ -1,8 +1,11 @@
 package org.openrepose.filters.rackspaceidentitybasicauth
 
 import org.apache.commons.codec.binary.Base64
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class BasicAuthUtilsTest extends FunSpec with Matchers with BasicAuthUtils {
 
   describe("decoding username and API key credentials") {

@@ -4,14 +4,17 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.{FilterChain, ServletResponse}
 
 import com.mockrunner.mock.web.MockHttpServletRequest
+import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
+@RunWith(classOf[JUnitRunner])
 class ForwardedProtoFilterTest extends FunSpec with Matchers with MockitoSugar {
 
   val forwardedProtoFilter = new ForwardedProtoFilter()

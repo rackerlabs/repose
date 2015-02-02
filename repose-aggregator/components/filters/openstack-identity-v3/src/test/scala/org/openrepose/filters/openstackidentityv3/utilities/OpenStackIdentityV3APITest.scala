@@ -3,10 +3,12 @@ package org.openrepose.filters.openstackidentityv3.utilities
 import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.MediaType
+
 import org.apache.http.message.BasicHeader
 import org.hamcrest.Matchers.{equalTo, is, lessThanOrEqualTo, theInstance}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
+import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{HttpStatusCode, ServiceClientResponse}
@@ -14,11 +16,13 @@ import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityServi
 import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
 import org.openrepose.services.datastore.Datastore
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
 import scala.util.{Failure, Success, Try}
 
+@RunWith(classOf[JUnitRunner])
 class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matchers with PrivateMethodTester with MockitoSugar {
 
   var identityV3API: OpenStackIdentityV3API = _
