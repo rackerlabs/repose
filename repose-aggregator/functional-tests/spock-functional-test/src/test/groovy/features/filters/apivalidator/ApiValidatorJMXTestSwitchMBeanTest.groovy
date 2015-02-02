@@ -11,7 +11,7 @@ import spock.util.concurrent.PollingConditions
 @Category(Slow.class)
 class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
-    final def conditions = new PollingConditions(timeout: 30, initialDelay: 1)
+    final def conditions = new PollingConditions(timeout: 90, initialDelay: 3)
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
@@ -62,16 +62,41 @@ class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
     }
 
-    @Ignore // just testing
     def "when loading validators on startup, should register validator MXBeans"() {
 
+        when:
         deproxy.makeRequest(url: reposeEndpoint + "/")
 
-        when:
-        def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
-
         then:
-        validatorBeans.size() == 3
+        def foundBeans = []
+        int lastFoundSize = 0
+        boolean foundOne = false
+        boolean foundTwo = false
+        boolean foundThree = false
+        int upperLoopCount = 0
+        try {
+            conditions.eventually {
+                upperLoopCount += 1
+                foundBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+                lastFoundSize = foundBeans.size()
+                assert lastFoundSize == 3
+                //Assert that we found our three beans!
+                foundOne = foundBeans.any { bean ->
+                    bean.objectName.toString().contains("role-1")
+                }
+                foundTwo = foundBeans.any { bean ->
+                    bean.objectName.toString().contains("role-2")
+                }
+                foundThree = foundBeans.any { bean ->
+                    bean.objectName.toString().contains("role-3")
+                }
+                assert foundOne
+                assert foundTwo
+                assert foundThree
+            }
+        }catch(IllegalArgumentException iae) {
+            throw new SpockAssertionError("Spock Timeout: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree  :  $foundBeans", iae)
+        }
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
