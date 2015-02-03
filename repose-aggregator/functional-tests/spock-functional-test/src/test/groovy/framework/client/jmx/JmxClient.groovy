@@ -89,6 +89,26 @@ class JmxClient {
     }
 
     /**
+     * So this just tries to get the mbeans real quick, and bails if there's any exception.
+     * Doesn't assert any list of anything, just gets the mbeans as quickly as possible
+     * @param domain
+     * @param expectedClassName
+     * @return
+     */
+    Collection<ObjectInstance> quickMBeans(domain, expectedClassName) {
+        Set<ObjectInstance> mbeans = []
+
+        try {
+            def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
+            mbeans = beansInDomain.findAll { it.className == expectedClassName }
+        } catch (Exception e) {
+            //Nothing at all!
+        }
+
+        return mbeans
+    }
+
+    /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
      *
      * @param beanName
@@ -130,7 +150,7 @@ class JmxClient {
     def quickMBeanNames(domain) {
         try {
             return server.queryNames(new ObjectName(domain), null)
-        }catch(Exception e) {
+        } catch (Exception e) {
             return []
         }
     }
