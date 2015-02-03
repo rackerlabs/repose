@@ -215,6 +215,12 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
 
+        <!-- I want to be able to get to the java.util.logging logs -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+        </dependency>
+
         <!-- this guy gets me some dependencies that let me log STDERR and STDOUT 
         while still letting them go to the console -->
         <dependency>
