@@ -11,7 +11,7 @@ import spock.util.concurrent.PollingConditions
 @Category(Slow.class)
 class ApiValidatorJMXTestSwitchMBeanTest extends ReposeValveTest {
 
-    final def conditions = new PollingConditions(timeout: 90, initialDelay: 3)
+    final def conditions = new PollingConditions(timeout: 120, initialDelay: 3)
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
