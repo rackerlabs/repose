@@ -24,7 +24,7 @@
             <xs:element name="template" type="Template"/>
         </xs:sequence>
 
-        <xs:attribute name="logger-name" type="xs:string" use="required">
+        <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional" default="org.openrepose.herp.pre.filter">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
