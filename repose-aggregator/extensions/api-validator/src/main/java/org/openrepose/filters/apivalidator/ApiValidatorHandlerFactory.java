@@ -170,6 +170,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 boolean loadedWADL = true;
 
                 for (ValidatorInfo info : validators) {
+                    LOG.debug("Creating validator for {}", info.getName());
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
                         if (loadedWADL) {
                             loadedWADL = info.reinitValidator();
@@ -184,6 +185,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     // If we couldn't match the particular config... be safe and clear
                     // all of the validators
                     for (ValidatorInfo info : validators) {
+                        LOG.debug("REINIT valdiator: {}", info.getName());
                         info.reinitValidator();
                     }
                 }
