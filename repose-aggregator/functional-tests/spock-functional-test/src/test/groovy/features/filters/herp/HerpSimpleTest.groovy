@@ -107,7 +107,7 @@ class HerpSimpleTest extends ReposeValveTest {
         "405"        | "/resource1/id"                                      | "POST"  | ""          | "METHOD_NOT_ALLOWED"
         "400"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
         "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-eeeeeeeeeeee" | "PUT"   | "some data" | "REQUEST_ENTITY_TOO_LARGE"
+        "413"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
         "500"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
@@ -170,7 +170,7 @@ class HerpSimpleTest extends ReposeValveTest {
         "200"        | "username=test"         | "POST"  | "OK"
         "200"        | "tenantId=12345"        | "PUT"   | "OK"
         "415"        | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
+        "413"        | "resourceId=test123"    | "PUT"   | "PAYLOAD_TOO_LARGE"
         "500"        | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
         "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
@@ -235,7 +235,7 @@ class HerpSimpleTest extends ReposeValveTest {
         "200"        | "username=test"         | "POST"  | "OK"
         "200"        | "projectId=12345"       | "PUT"   | "OK"
         "415"        | "id=12345&projectId=123"| "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "resourceId=test123"    | "PUT"   | "REQUEST_ENTITY_TOO_LARGE"
+        "413"        | "resourceId=test123"    | "PUT"   | "PAYLOAD_TOO_LARGE"
         "500"        | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
         "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
