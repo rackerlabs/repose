@@ -22,9 +22,21 @@
 
         <xs:sequence>
             <xs:element name="template" type="Template"/>
+            <xs:element name="filterOut" type="FilterOut" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional" default="org.openrepose.herp.pre.filter">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="post-filter-logger-name" type="xs:string" use="optional" default="org.openrepose.herp.post.filter">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -91,5 +103,50 @@
                 </xs:attribute>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="FilterOut">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is the set of criteria applied to the events to determine if an event is sent through to the
+                    named post filter logger. Multiple FilterOut elements are logically OR'd together.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="match" type="Match" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Match">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is an individual criterion used in determining if an event passes through.
+                    Multiple Match elements are logically AND'd together.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="field" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the template field to compare the regular expression against.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the regular expression to apply to the template field.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>
