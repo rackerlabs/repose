@@ -66,6 +66,11 @@ public class ValidatorInfo {
     //The exceptions thrown by the validator are all custom exceptions which extend throwable
     @SuppressWarnings("PMD.AvoidCatchingThrowable")
     public boolean initValidator() {
+        LOG.debug("CALL TO ValidatorInfo#initValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName());
+
+        //TODO: I bet this is the cause of our thread bugs, I suspect another thread is asking for a validator,
+        // and so it's getting initialized and never cleaned up! SUPER TERRIBLE
+        //MUTABLE STATE IS REAL BAD
         if (validator != null) {
             return true;
         }
@@ -107,6 +112,8 @@ public class ValidatorInfo {
     }
 
     public Validator getValidator() {
+        Exception e = new Exception();
+        LOG.debug("CALL TO ValidatorInfo#getValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName(), e);
         initValidator();
         return validator;
     }
