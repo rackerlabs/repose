@@ -71,6 +71,7 @@ public class ValidatorInfo {
         }
 
         try {
+            LOG.debug("Calling the validator creation method for {}", name);
             validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
             return true;
         } catch (Throwable ex) {
@@ -89,6 +90,7 @@ public class ValidatorInfo {
 
     public boolean reinitValidator() {
         if (validator != null) {
+            LOG.debug("in reInitValidator Destroying: {}", validator);
             validator.destroy();
             validator = null;
         }

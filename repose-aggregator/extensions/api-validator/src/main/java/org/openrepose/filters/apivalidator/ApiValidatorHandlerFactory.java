@@ -30,10 +30,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
     private List<ValidatorInfo> validators;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private final ConfigurationService configurationService;
     private final ApiValidatorWadlListener wadlListener;
-    private final Object lock;
+    private final Object lock = new Object();
     private final String configRoot;
     private boolean multiRoleMatch = false;
     private final String config;
@@ -43,7 +43,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                                       MetricsService metricsService) {
         this.configurationService = configurationService;
         this.wadlListener = new ApiValidatorWadlListener();
-        this.lock = new Object();
         this.configRoot = configurationRoot;
         this.config = config;
         this.metricsService = metricsService;
@@ -61,6 +60,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     configurationService.unsubscribeFrom(info.getUri(), wadlListener);
                 }
                 if (info.getValidator() != null) {
+                    LOG.debug("DESTROYING VALIDATOR: {}", info.getName());
                     info.getValidator().destroy();
                 }
             }
@@ -79,7 +79,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         if (wadl == null) {
             return;
         }
-
+        //TODO: what if it's already subscribed? How do we know this?
+        //TODO: do we ever unwatch?
         LOG.info("Watching WADL: " + wadl);
         configurationService.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
     }
@@ -102,6 +103,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             validators = validatorConfigurator.getValidators();
 
             for (ValidatorInfo validator : validators) {
+                LOG.debug("Adding listener for {}:{}", validator.getName(), validator.getUri());
                 addListener(validator.getUri());
             }
 
@@ -170,11 +172,13 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 boolean loadedWADL = true;
 
                 for (ValidatorInfo info : validators) {
-                    LOG.debug("Creating validator for {}", info.getName());
+                    LOG.debug("Checking config for validator: {}", info.getName());
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
                         if (loadedWADL) {
+                            LOG.debug("REINIT validator: {}", info.getName());
                             loadedWADL = info.reinitValidator();
                         } else {
+                            LOG.debug("REINIT validator: {}", info.getName());
                             info.reinitValidator();
                         }
                         found = true;
@@ -182,6 +186,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 }
 
                 if (!found) {
+                    LOG.debug("Didn't match a particular config, so reinit *all* the validators");
                     // If we couldn't match the particular config... be safe and clear
                     // all of the validators
                     for (ValidatorInfo info : validators) {
