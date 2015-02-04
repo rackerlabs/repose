@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<uri-identity xmlns='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0'>
+<uri-identity xmlns='http://docs.openrepose.org/repose/uri-identity/v1.0'>
 
     <identification-mappings>
         <mapping identification-regex=".*/service/(\w*)?/.*"/>

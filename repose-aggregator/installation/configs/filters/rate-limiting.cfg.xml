@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- http://wiki.openrepose.org/display/REPOSE/Rate+Limiting+Filter -->
-<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <!--
         Defines an endpoint with a matching regex to bind GET requests for
         returning live rate limiting information.

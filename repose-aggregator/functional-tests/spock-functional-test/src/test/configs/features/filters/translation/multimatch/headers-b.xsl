@@ -2,8 +2,8 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
-    xmlns:ah="http://openrepose.org/repose/ah-fn"
+    xmlns:httpx="http://docs.openrepose.org/repose/httpx/v1.0"
+    xmlns:ah="http://docs.openrepose.org/repose/ah-fn"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     version="2.0">
 

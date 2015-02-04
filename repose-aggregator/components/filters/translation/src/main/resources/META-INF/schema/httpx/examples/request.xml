@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<request xmlns="http://openrepose.org/repose/httpx/v1.0">
+<request xmlns="http://docs.openrepose.org/repose/httpx/v1.0">
     <uri>/translation/request/</uri>
     <url>http://127.0.0.1:8088/translation/request/</url>
     <informational>

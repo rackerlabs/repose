@@ -58,7 +58,7 @@ public class SchemaTest {
         @Test
         public void shouldValidateWhenValidMethodUsed() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
                             "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
@@ -96,7 +96,7 @@ public class SchemaTest {
         @Test
         public void shouldValidateWhenDuplicateHttpMethodAndDifferentUriRegex() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
                     "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
                     "       <limit id=\"two\" uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
@@ -110,7 +110,7 @@ public class SchemaTest {
         @Test
         public void shouldValidateWhenDuplicateUriRegexsAndDifferentMethods() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
                     "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
                     "       <limit id=\"two\" uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
@@ -124,7 +124,7 @@ public class SchemaTest {
         @Test
         public void shouldValidateIfLimitIdsSameAcrossGroups() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='customer-limits' groups='customer foo'> " +
                             "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
                             "        <limit id=\"two\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
@@ -140,7 +140,7 @@ public class SchemaTest {
         @Test
         public void shouldFailWhenInvalidMethodUsed() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
                             "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
@@ -153,7 +153,7 @@ public class SchemaTest {
         @Test
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'/> " +
                     "    <limit-group id='test-limits' groups='user'/> " +
                     "</rate-limiting>";
@@ -163,7 +163,7 @@ public class SchemaTest {
         @Test
         public void shouldFailIfMoreThanOneDefaultLimitGroup() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='customer-limits' groups='customer foo' default='true'/> " +
                     "    <limit-group id='test-limits' groups='user' default='true'/> " +
                     "</rate-limiting>";
@@ -173,7 +173,7 @@ public class SchemaTest {
         @Test
         public void shouldFailIfNonUniqueLimitIdsUsed() throws Exception {
             String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='customer-limits' groups='customer'> " +
                     "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
                     "        <limit id=\"one\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +

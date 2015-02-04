@@ -3,8 +3,8 @@
 
 <headers
   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-  xmlns='http://openrepose.org/repose/httpx/v1.0'
-  xsi:schemaLocation='http://openrepose.org/repose/httpx/v1.0 ../httpx.xsd'>
+  xmlns='http://docs.openrepose.org/repose/httpx/v1.0'
+  xsi:schemaLocation='http://docs.openrepose.org/repose/httpx/v1.0 ../httpx.xsd'>
   
   <request>
     <header name="HOST" value="blah"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
-<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose">
     <nodes>
       <node id="repose_node1" hostname="localhost" http-port="8080"/>

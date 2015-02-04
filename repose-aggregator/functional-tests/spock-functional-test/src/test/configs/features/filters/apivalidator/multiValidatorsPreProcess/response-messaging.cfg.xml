@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
+<response-messaging xmlns="http://docs.openrepose.org/repose/response-messaging/v1.0">
   <status-code id="400" code-regex="4.." overwrite="IF_EMPTY">
         <message media-type="*/*">
 <![CDATA[

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
-<repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config http-port="8080" connection-timeout="30000" read-timeout="30000">
         <deployment-directory auto-clean="false">/var/repose</deployment-directory>
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>

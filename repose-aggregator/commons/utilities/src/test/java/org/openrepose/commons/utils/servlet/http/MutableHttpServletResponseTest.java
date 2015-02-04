@@ -244,7 +244,7 @@ public class MutableHttpServletResponseTest {
     @Test
     public void shouldWriteResponseMessageBody() throws IOException {
       String responseBody = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-              + "<versions xmlns:ns2=\"http://www.w3.org/2005/Atom\" xmlns=\"http://docs.openstack.org/common/api/v1.0\" xmlns:ns3=\"http://docs.rackspacecloud.com/repose/versioning/v1.0\">"
+              + "<versions xmlns:ns2=\"http://www.w3.org/2005/Atom\" xmlns=\"http://docs.openstack.org/common/api/v1.0\" xmlns:ns3=\"http://docs.openrepose.org/repose/versioning/v1.0\">"
               + "<version xsi:type=\"ns3:ServiceVersionMapping\" pp-host-id=\"service-v1\" name=\"Service Version 1\" status=\"DEPRECATED\" id=\"v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
               + "<ns2:link href=\"http://localhost:65000/v1/\" rel=\"self\"/>"
               + "</version>"

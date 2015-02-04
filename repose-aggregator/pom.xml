@@ -298,6 +298,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-iostreams</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <type>test-jar</type>
                 <version>2.1</version>
@@ -515,9 +520,22 @@
                 <plugin>
                     <groupId>net.alchim31.maven</groupId>
                     <artifactId>scala-maven-plugin</artifactId>
-                    <version>3.1.6</version>
+                    <version>3.2.0</version>
                     <configuration>
-                        <recompileMode>incremental</recompileMode>
+                        <!--
+                        Using the zinc compiler seems to break things!
+                         we would get this error:
+                         [ERROR] Failed to execute goal net.alchim31.maven:scala-maven-plugin:3.1.6:compile
+                         (scala-compile-first) on project service-client-akka: Execution scala-compile-first of goal
+                         net.alchim31.maven:scala-maven-plugin:3.1.6:compile failed: An API incompatibility was
+                         encountered while executing net.alchim31.maven:scala-maven-plugin:3.1.6:compile:
+                         java.lang.ClassFormatError: Absent Code attribute in method that is not native or abstract in
+                         class file javax/ws/rs/core/MediaType
+
+                         Turning off incremental compilation and it works again. The speed cost isn't there, because
+                         we generally have to clean install every time anyway, thanks to build problems. :(
+                        -->
+                        <!--<recompileMode>incremental</recompileMode>-->
                     </configuration>
                     <!--
                      http://davidb.github.io/scala-maven-plugin/example_java.html

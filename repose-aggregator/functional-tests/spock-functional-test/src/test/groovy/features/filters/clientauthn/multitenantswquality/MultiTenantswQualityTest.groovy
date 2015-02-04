@@ -17,11 +17,13 @@ class MultiTenantswQualityTest extends ReposeValveTest{
 
     def static MockIdentityService fakeIdentityService
 
+    def static params
+
     def setupSpec() {
 
         deproxy = new Deproxy()
 
-        def params = properties.defaultTemplateParams
+        params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantswquality", params)
@@ -83,5 +85,44 @@ class MultiTenantswQualityTest extends ReposeValveTest{
         "123456"        | "123456"      | "123456"      |UUID.randomUUID()  | "200"             | 1
         "123456"        | "nast-id"     | "223456"      |UUID.randomUUID()  | "401"             | 0
     }
+
+
+    def "With legacy xsd namespace: when user token have multi-tenant will retrieve all tenants in the header" () {
+        given:
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantswquality/oldnamespace", params, /*sleepTime*/ 10)
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+            client_tenant = defaultTenant
+            client_tenant_file = secondTenant
+            service_admin_role = "not-admin"
+        }
+
+        when: "User passes a request through repose with $requestTenant"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Everything gets passed as is to the origin service (no matter the user)"
+        mc.receivedResponse.code == serviceRespCode
+
+        if (serviceRespCode != "200")
+            assert mc.handlings.size() == 0
+        else {
+            assert mc.handlings.size() == 1
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant+";q=1.0")
+            if (!secondTenant.equals(defaultTenant)) {
+                assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant+";q=0.5")
+            }
+        }
+
+        where:
+        defaultTenant   | secondTenant  |requestTenant  |clientToken        |serviceRespCode    | numberTenants
+        "123456"        | "nast-id"     | "123456"      |UUID.randomUUID()  | "200"             | 2
+    }
+
+
 }
 

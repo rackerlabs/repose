@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 public class UnknownContentStreamProcessor implements InputStreamProcessor {
 
-   private static final String UNKNOWN_PREFIX = "<httpx:unknown-content xmlns:httpx=\"http://openrepose.org/repose/httpx/v1.0\"><![CDATA[";
+   private static final String UNKNOWN_PREFIX = "<httpx:unknown-content xmlns:httpx=\"http://docs.openrepose.org/repose/httpx/v1.0\"><![CDATA[";
    private static final String UNKNOWN_SUFFIX = "]]></httpx:unknown-content>";
 
    @Override

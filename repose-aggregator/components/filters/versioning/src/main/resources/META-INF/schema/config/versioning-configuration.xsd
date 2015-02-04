@@ -2,8 +2,8 @@
 
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/repose/versioning/v2.0"
-           xmlns:vers-config="http://docs.rackspacecloud.com/repose/versioning/v2.0"
+           targetNamespace="http://docs.openrepose.org/repose/versioning/v2.0"
+           xmlns:vers-config="http://docs.openrepose.org/repose/versioning/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"

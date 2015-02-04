@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-doctype-decl="true">
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0" allow-doctype-decl="true">
     <request-translations>
         <request-translation content-type="application/xml" translated-content-type="application/xml">
             <style-sheets>
@@ -8,7 +8,7 @@
                     <xsl>
                         <xsl:stylesheet
                                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                                xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+                                xmlns:httpx="http://docs.openrepose.org/repose/httpx/v1.0"
                                 version="2.0">
 
                             <xsl:output method="xml" encoding="UTF-8"/>

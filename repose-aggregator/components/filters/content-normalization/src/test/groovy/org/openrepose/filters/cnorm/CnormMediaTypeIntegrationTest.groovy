@@ -46,8 +46,8 @@ class CnormMediaTypeIntegrationTest extends Specification {
             mkp.xmlDeclaration()
             "content-normalization"(
                     "xmlns:xsi": 'http://www.w3.org/2001/XMLSchema-instance',
-                    "xmlns": 'http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0',
-                    "xsi:schemaLocation": 'http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'
+                    "xmlns": 'http://docs.openrepose.org/repose/content-normalization/v1.0',
+                    "xsi:schemaLocation": 'http://docs.openrepose.org/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'
             ) {
                 "media-types" {
                     mediaTypes.each { mt ->

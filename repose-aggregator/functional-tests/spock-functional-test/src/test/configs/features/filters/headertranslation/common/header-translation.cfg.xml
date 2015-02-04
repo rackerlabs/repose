@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-translation  xmlns="http://docs.api.rackspacecloud.com/repose/header-translation/v1.0">
+<header-translation  xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 
     <header original-name="X-OneToOne-A" new-name="X-OneToOne-C" remove-original="false" />
     <header original-name="X-OneToOneRemoval-A" new-name="X-OneToOneRemoval-C" remove-original="true" />
