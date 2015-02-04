@@ -7,7 +7,6 @@ package org.openrepose.filters.clientauth.atomfeed.sax;
 import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.ResponseUnmarshaller;
 import org.openrepose.common.auth.openstack.AdminToken;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
@@ -15,6 +14,7 @@ import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -82,8 +82,8 @@ public class AdminTokenProvider {
                 throw new AuthServiceException("Unable to get admin token.", e);
             }
 
-            switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
-                case OK:
+            switch (serviceResponse.getStatus()) {
+                case HttpServletResponse.SC_OK:
                     final AuthenticateResponse authenticateResponse = marshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
 
                     Token token = authenticateResponse.getToken();
@@ -92,7 +92,7 @@ public class AdminTokenProvider {
                     break;
 
                 default:
-                    LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatusCode());
+                    LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatus());
                     curAdminToken = null;
                     break;
             }

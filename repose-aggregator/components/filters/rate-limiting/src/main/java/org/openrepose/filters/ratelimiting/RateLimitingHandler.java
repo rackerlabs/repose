@@ -3,18 +3,17 @@ package org.openrepose.filters.ratelimiting;
 import com.google.common.base.Optional;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.openrepose.services.datastore.DatastoreOperationException;
 import org.openrepose.services.ratelimit.RateLimitingServiceImpl;
 import org.openrepose.services.ratelimit.exception.CacheException;
@@ -84,7 +83,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER.toString());
 
       // Auto return a 401 if the request does not meet expectations
-      director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+      director.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
       director.setFilterAction(FilterAction.RETURN);
     }
 
@@ -99,13 +98,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
 
     director.setFilterAction(FilterAction.RETURN);
-    director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+    director.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
   }
 
   private void describeLimitsForRequest(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
     if (preferredMediaType.getMimeType() == MimeType.UNKNOWN) {
       director.setFilterAction(FilterAction.RETURN);
-      director.setResponseStatus(HttpStatusCode.NOT_ACCEPTABLE);
+      director.setResponseStatusCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
     } else {
       // If include absolute limits let request pass thru but prepare the combined
       // (absolute and active) limits when processing the response
@@ -119,7 +118,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
           director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
           director.setFilterAction(FilterAction.RETURN);
-          director.setResponseStatus(HttpStatusCode.OK);
+          director.setResponseStatusCode(HttpServletResponse.SC_OK);
         } catch (Exception e) {
           consumeException(e, director);
         }
@@ -147,11 +146,11 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       // We use a 413 "Request Entity Too Large" to communicate that the user
       // in question has hit their rate limit for this requested URI
       if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
-        director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
+        director.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       } else if (overLimit429ResponseCode) {
-        director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
+        director.setResponseStatusCode(FilterDirector.SC_TOO_MANY_REQUESTS);
       } else {
-        director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
+        director.setResponseStatusCode(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
       }
       director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
 
@@ -159,7 +158,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       LOG.error("Failure when tracking limits.", e);
 
       director.setFilterAction(FilterAction.RETURN);
-      director.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+      director.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
     }
 
     return pass;

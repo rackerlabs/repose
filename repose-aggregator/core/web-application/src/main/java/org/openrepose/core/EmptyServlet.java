@@ -1,6 +1,5 @@
 package org.openrepose.core;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public final class EmptyServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!isPowerApiContextManagerIntiliazed() || !isRequestFilterChainComplete(req)) {
             LOG.debug("Filter chain is not available to process request.");
-            resp.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Filter chain is not available to process request");
+            resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Filter chain is not available to process request");
         }
     }
 }

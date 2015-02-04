@@ -1,7 +1,6 @@
 package org.openrepose.core.filter.logic.impl;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
@@ -11,6 +10,8 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 import org.openrepose.core.systemmodel.Destination;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,11 +29,11 @@ public class FilterDirectorImpl implements FilterDirector {
     private String requestUri, requestUriQuery;
 
     public FilterDirectorImpl() {
-        this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
+        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
     }
 
-    private FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
-        this.status = delegatedStatus.intValue();
+    private FilterDirectorImpl(int delegatedStatus, FilterAction delegatedAction) {
+        this.status = delegatedStatus;
         this.delegatedAction = delegatedAction;
 
         directorOutputStream = new ByteArrayOutputStream();
@@ -95,7 +96,7 @@ public class FilterDirectorImpl implements FilterDirector {
             responseHeaderManager().applyTo(response);
         }
 
-        if (HttpStatusCode.UNSUPPORTED_RESPONSE_CODE.intValue() != status && delegatedAction != FilterAction.NOT_SET) {
+        if (FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE != status && delegatedAction != FilterAction.NOT_SET) {
             response.setStatus(status);
         }
 
@@ -157,18 +158,8 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public HttpStatusCode getResponseStatus() {
-        return HttpStatusCode.fromInt(status);
-    }
-
-    @Override
     public int getResponseStatusCode() {
         return status;
-    }
-
-    @Override
-    public void setResponseStatus(HttpStatusCode delegatedStatus) {
-        this.status = delegatedStatus.intValue();
     }
 
     @Override

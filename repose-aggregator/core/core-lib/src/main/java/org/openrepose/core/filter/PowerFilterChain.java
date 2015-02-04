@@ -1,18 +1,17 @@
 package org.openrepose.core.filter;
 
-import org.openrepose.core.FilterProcessingTime;
-import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonMethod;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.filter.intrafilterLogging.RequestLog;
 import org.openrepose.core.filter.intrafilterLogging.ResponseLog;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +124,7 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private boolean isResponseOk(HttpServletResponse response) {
-        return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
+        return response.getStatus() < HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
 
     private ClassLoader setClassLoader(ClassLoader loader) {
@@ -160,7 +159,7 @@ public class PowerFilterChain implements FilterChain {
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             mutableHttpResponse.popOutputStream();
             setClassLoader(previousClassLoader);
@@ -218,7 +217,7 @@ public class PowerFilterChain implements FilterChain {
             }
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mutableHttpResponse.setLastException(ex);
         } finally {
             setClassLoader(previousClassLoader);

@@ -1,15 +1,15 @@
 package org.openrepose.services.datastore.impl.distributed.remote.command;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.services.datastore.DatastoreOperationException;
-import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.io.ObjectSerializer;
+import org.openrepose.services.datastore.DatastoreOperationException;
+import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -51,7 +51,7 @@ public class PutTest {
          ByteArrayInputStream bt = new ByteArrayInputStream(ObjectSerializer.instance().writeObject(responseData));
 
          when(response.getData()).thenReturn(bt);
-         when(response.getStatusCode()).thenReturn(202);
+         when(response.getStatus()).thenReturn(202);
 
          Assert.assertEquals("Put command must communicate success on 202", Boolean.TRUE, putCommand.handleResponse(response));
       }
@@ -63,7 +63,7 @@ public class PutTest {
          final int ttl = 30;
          final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
-         when(response.getStatusCode()).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue());
+         when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
 
          putCommand.handleResponse(response);
       }

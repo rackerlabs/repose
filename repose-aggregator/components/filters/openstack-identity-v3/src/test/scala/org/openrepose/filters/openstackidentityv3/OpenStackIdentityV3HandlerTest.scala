@@ -1,13 +1,14 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.util
+import javax.servlet.http.HttpServletResponse
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import org.openrepose.core.filter.logic.{FilterAction, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
@@ -70,7 +71,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       mockRequest.setRequestURI("/test3")
 
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction equals FilterAction.RETURN
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus equals HttpStatusCode.UNAUTHORIZED
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatusCode equals HttpServletResponse.SC_UNAUTHORIZED
     }
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
@@ -235,43 +236,43 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
       List(
         Map(
-          responseStatus -> HttpStatusCode.OK,
-          resultStatus -> HttpStatusCode.OK
+          responseStatus -> HttpServletResponse.SC_OK,
+          resultStatus -> HttpServletResponse.SC_OK
         ),
         Map(
-          responseStatus -> HttpStatusCode.FORBIDDEN,
+          responseStatus -> HttpServletResponse.SC_FORBIDDEN,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpStatusCode.FORBIDDEN,
+          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpStatusCode.UNAUTHORIZED,
+          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpStatusCode.FORBIDDEN,
+          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpStatusCode.UNAUTHORIZED,
-          resultStatus -> HttpStatusCode.INTERNAL_SERVER_ERROR
+          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
+          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpStatusCode.NOT_IMPLEMENTED,
+          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpStatusCode.INTERNAL_SERVER_ERROR
+          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpStatusCode.NOT_IMPLEMENTED,
-          resultStatus -> HttpStatusCode.NOT_IMPLEMENTED
+          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
+          resultStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED
         )
       ).map { parameterMap =>
-        mockServletResponse.setStatus(parameterMap.get(responseStatus).get.asInstanceOf[HttpStatusCode].intValue)
+        mockServletResponse.setStatus(parameterMap.get(responseStatus).get.asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
           mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap.get(responseWwwAuthenticate).get.asInstanceOf[String])
         }
 
         val responseFilterDirector = identityV3Handler.handleResponse(mockServletRequest, MutableHttpServletResponse.wrap(mockServletRequest, mockServletResponse))
 
-        responseFilterDirector.getResponseStatus shouldBe parameterMap.get(resultStatus).get
+        responseFilterDirector.getResponseStatusCode shouldBe parameterMap.get(resultStatus).get
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
           responseFilterDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString)) should contain(parameterMap.get(resultWwwAuthenticate).get)
         }

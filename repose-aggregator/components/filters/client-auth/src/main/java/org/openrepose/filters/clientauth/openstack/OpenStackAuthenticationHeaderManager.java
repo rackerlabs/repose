@@ -9,6 +9,7 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class OpenStackAuthenticationHeaderManager {
 
     //set header with base64 string here
     public void setFilterDirectorValues() {
-        if (validToken && filterDirector.getResponseStatus() != HttpStatusCode.INTERNAL_SERVER_ERROR) {
+        if (validToken && filterDirector.getResponseStatusCode() != HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
             filterDirector.setFilterAction(FilterAction.PASS);
             setExtendedAuthorization();
             setUser();
@@ -79,7 +80,7 @@ public class OpenStackAuthenticationHeaderManager {
             if (isDelagable) {
                 setIdentityStatus();
             }
-        } else if (isDelagable && nullCredentials() && filterDirector.getResponseStatus() != HttpStatusCode.INTERNAL_SERVER_ERROR) {
+        } else if (isDelagable && nullCredentials() && filterDirector.getResponseStatusCode() != HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
@@ -90,7 +91,7 @@ public class OpenStackAuthenticationHeaderManager {
             setIdentityStatus();
             setDelegationHeader();
             filterDirector.setResponseStatusCode(200); // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
-        } else if (filterDirector.getResponseStatusCode() == HttpStatusCode.UNAUTHORIZED.intValue()) {
+        } else if (filterDirector.getResponseStatusCode() == HttpServletResponse.SC_UNAUTHORIZED) {
             filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
         }
     }

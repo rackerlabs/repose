@@ -14,7 +14,6 @@ import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.OpenStackGroup;
 import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
@@ -30,6 +29,7 @@ import org.openrepose.services.datastore.Datastore;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -909,7 +909,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must identify proxy auth failures", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, responseDirector.getResponseStatusCode());
         }
     }
 
@@ -931,7 +931,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must identify proxy auth failures", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, responseDirector.getResponseStatusCode());
         }
 
         @Test
@@ -940,7 +940,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must identify proxy auth failures", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, responseDirector.getResponseStatusCode());
         }
 
         @Test
@@ -950,7 +950,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
+            assertEquals("Auth component must identify proxy auth failures", HttpServletResponse.SC_NOT_IMPLEMENTED, responseDirector.getResponseStatusCode());
         }
     }
 

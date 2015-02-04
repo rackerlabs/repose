@@ -7,7 +7,6 @@ import org.openrepose.common.auth.AuthToken;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -19,6 +18,7 @@ import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -96,7 +96,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         FilterDirector filterDirector = new FilterDirectorImpl();
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+        filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
         filterDirector.setFilterAction(FilterAction.RETURN);
 
         final String uri = request.getRequestURI();
@@ -118,7 +118,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private FilterDirector authenticate(HttpServletRequest request) {
         final FilterDirector filterDirector = new FilterDirectorImpl();
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+        filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
         filterDirector.setFilterAction(FilterAction.RETURN);
         int offset = getCacheOffset();
 
@@ -156,14 +156,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
             LOG.trace("", ex);
             if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
-                filterDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                filterDirector.setResponseStatusCode(HttpServletResponse.SC_GATEWAY_TIMEOUT);
             } else {
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
             delegationMessage.set(FAILURE_AUTH_N);
         } catch (Exception ex) {
             LOG.error(FAILURE_AUTH_N, ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             delegationMessage.set(FAILURE_AUTH_N + REASON + ex.getMessage());
         }
 

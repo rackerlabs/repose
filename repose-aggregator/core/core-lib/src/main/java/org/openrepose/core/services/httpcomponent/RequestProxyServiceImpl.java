@@ -1,8 +1,15 @@
 package org.openrepose.core.services.httpcomponent;
 
 import com.google.common.base.Throwables;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
@@ -12,14 +19,6 @@ import org.openrepose.core.proxy.HttpException;
 import org.openrepose.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.services.httpclient.HttpClientResponse;
 import org.openrepose.services.httpclient.HttpClientService;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +109,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         } catch (ClientProtocolException ex) {
             if(Throwables.getRootCause(ex) instanceof ReadLimitReachedException){
                 LOG.error("Error reading request content", ex);
-                response.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
             } else {
                 //Sadly, because of how this is implemented, I can't make sure my problem is actually with
                 // the origin service. I can only "fail" here.
@@ -153,7 +152,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             httpClientService.releaseClient(httpClientResponse);
         }
 
-        return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+        return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
     }
 
     @Override

@@ -1,14 +1,13 @@
 package org.openrepose.filters.compression;
 
-import org.openrepose.external.pjlcompression.CompressingFilter;
-import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.PowerFilterChain;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.openrepose.external.pjlcompression.CompressingFilter;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -17,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.zip.ZipException;
@@ -55,7 +55,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 
@@ -67,7 +67,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.OK.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_OK, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 
@@ -79,7 +79,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.BAD_REQUEST.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 
@@ -91,7 +91,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.BAD_REQUEST.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 
@@ -103,7 +103,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 
@@ -115,7 +115,7 @@ public class CompressionHandlerTest {
 
         FilterDirector director = compressionHandler.handleRequest(request, response);
 
-        assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), director.getResponseStatusCode());
+        assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, director.getResponseStatusCode());
         assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
     }
 }

@@ -2,11 +2,12 @@ package org.openrepose.filters.clientauth.openstack;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.Logger;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class OpenStackResponseHandler {
 
@@ -30,19 +31,19 @@ public class OpenStackResponseHandler {
         // (since we are a proxy) how to correctly authenticate itself
         final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
-        switch (HttpStatusCode.fromInt(response.getStatus())) {
+        switch (response.getStatus()) {
             // NOTE: We should only mutate the WWW-Authenticate header on a
             // 401 (unauthorized) or 403 (forbidden) response from the origin service
-            case UNAUTHORIZED:
-            case FORBIDDEN:
+            case HttpServletResponse.SC_UNAUTHORIZED:
+            case HttpServletResponse.SC_FORBIDDEN:
                 myDirector = updateHttpResponse(myDirector, wwwAuthenticateHeader);
                 break;
-            case NOT_IMPLEMENTED:
+            case HttpServletResponse.SC_NOT_IMPLEMENTED:
                 if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
-                    myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
                 } else {
-                    myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+                    myDirector.setResponseStatusCode(HttpServletResponse.SC_NOT_IMPLEMENTED);
                 }
                 break;
                 
@@ -50,7 +51,7 @@ public class OpenStackResponseHandler {
                 break;
         }
 
-        LOG.debug("Outgoing response code is " + myDirector.getResponseStatus().intValue());
+        LOG.debug("Outgoing response code is " + myDirector.getResponseStatusCode());
         return myDirector;
     }
 
@@ -64,7 +65,7 @@ public class OpenStackResponseHandler {
             // a delegated WWW-Authenticate header, this means that our own authentication
             // with the origin service has failed and must then be communicated as
             // a 500 (internal server error) to the client
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            director.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         return director;

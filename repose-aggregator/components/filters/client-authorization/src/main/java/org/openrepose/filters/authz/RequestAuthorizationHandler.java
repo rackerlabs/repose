@@ -7,7 +7,6 @@ import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.components.authz.rackspace.config.DelegatingType;
@@ -25,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -61,7 +61,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.RETURN);
-        myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         String message = "Failure in authorization component";
 
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
@@ -71,7 +71,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 // Reject if no token
                 message = "Authentication token not found in X-Auth-Token header. Rejecting request.";
                 LOG.debug(message);
-                myDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+                myDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
             } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
                             isEndpointAuthorizedForToken(authenticationToken)) {
                 myDirector.setFilterAction(FilterAction.PASS);
@@ -81,20 +81,20 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
                         configuredEndpoint.getHref() + "\".  User not authorized to access service.";
                 LOG.info(message);
-                myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+                myDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN);
             }
         } catch (AuthServiceException ex) {
             LOG.error(message);
             LOG.trace("", ex);
             if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
-                myDirector.setResponseStatus(HttpStatusCode.GATEWAY_TIMEOUT);
+                myDirector.setResponseStatusCode(HttpServletResponse.SC_GATEWAY_TIMEOUT);
             } else {
-                myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (Exception ex) {
             LOG.error(message);
             LOG.trace("", ex);
-            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         if(delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {

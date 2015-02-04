@@ -2,7 +2,6 @@ package org.openrepose.core.filter;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.filter.ApplicationContextAwareFilter;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -228,16 +227,16 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         try {
             synchronized (internalLock) {
                 if (powerFilterChainBuilder == null) {
-                    mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
+                    mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Filter chain has not been initialized");
                 } else if (!papiContext.healthCheckService().isHealthy()) {
-                    mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
+                    mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Currently unable to serve requests");
                 } else {
                     requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
                 }
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("Error creating filter chain", ex);
-            mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
+            mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE , "Error creating filter chain");
             mutableHttpResponse.setLastException(ex);
         }
 
@@ -259,11 +258,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
         } catch (URISyntaxException use) {
             LOG.debug("Invalid URI requested: {}", mutableHttpRequest.getRequestURI());
-            mutableHttpResponse.sendError(HttpStatusCode.BAD_REQUEST.intValue(), "Error processing request");
+            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
             mutableHttpResponse.setLastException(use);
         } catch (Exception ex) {
             LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
+            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             mutableHttpResponse.setLastException(ex);
         } finally {
             // In the case where we pass/route the request, there is a chance that

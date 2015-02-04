@@ -24,7 +24,6 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
 
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
-  private final val SC_TOO_MANY_REQUESTS = 429
   private val identityServiceUri = basicAuthConfig.getRackspaceIdentityServiceUri
   private val tokenCacheTtlMillis = basicAuthConfig.getTokenCacheTimeoutMillis
   private val delegationWithQuality = Option(basicAuthConfig.getDelegating).map(_.getQuality)
@@ -76,7 +75,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
                       datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
                     }
                   }
-                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) => {
+                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS) => {
                     delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
                       filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
                     }
@@ -107,7 +106,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
         datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
       }
     }
-    logger.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    logger.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatusCode)
     filterDirector
   }
 
@@ -143,7 +142,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
       MediaType.APPLICATION_XML_TYPE))
 
     authTokenResponse.map { tokenResponse =>
-      val statusCode = tokenResponse.getStatusCode
+      val statusCode = tokenResponse.getStatus
       if (statusCode == HttpServletResponse.SC_OK) {
         val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData()).mkString)
         val idString = (xmlString \\ "access" \ "token" \ "@id").text
