@@ -8,6 +8,7 @@ import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.herp.config.{HerpConfig, Template}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.springframework.http.HttpStatus._
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
@@ -20,7 +21,8 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
-  var listAppender: ListAppender = _
+  var listAppenderPre: ListAppender = _
+  var listAppenderPost: ListAppender = _
 
   override def beforeAll() {
     System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
@@ -30,14 +32,16 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
   //todo: replace this and the log4j2 config with programmatic modification to the root logger with a mock appender?
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
-    listAppender = ctx.getConfiguration.getAppender("highly-efficient-record-processor-ListAppender").asInstanceOf[ListAppender].clear
+    listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
+    listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
 
     herpFilter = new HerpFilter(null)
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
-    herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-Logger")
+    herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-pre-Logger")
+    herpConfig.setPostFilterLoggerName("highly-efficient-record-processor-post-Logger")
     val templateText =
       """
          {
@@ -85,7 +89,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include regex "\"ServiceCode\" : \"\".*\"URL\" : \"\""
     }
@@ -95,7 +99,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include regex "\"GUID\" : \".+\""
     }
@@ -108,7 +112,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ServiceCode\" : \"some-service\"")
     }
@@ -121,7 +125,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Region\" : \"some-region\"")
     }
@@ -134,7 +138,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"DataCenter\" : \"some-data-center\"")
     }
@@ -147,7 +151,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Method\" : \"POST\"")
     }
@@ -160,7 +164,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"URL\" : \"http://foo.com\"")
     }
@@ -173,7 +177,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"QueryString\" : \"a=b&amp;c=d%20e\"")
     }
@@ -186,7 +190,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo\" : [\"bar\",\"baz\"] }")
     }
@@ -199,7 +203,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo bar\" : [\"baz test\"] }")
     }
@@ -212,7 +216,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"foo\"")
     }
@@ -225,7 +229,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ImpersonatorName\" : \"foo\"")
     }
@@ -238,7 +242,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
     }
@@ -252,7 +256,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
     }
@@ -266,7 +270,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
     }
@@ -280,7 +284,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\" : [  \"foo\"  ,\"bar\"  ]")
     }
@@ -293,33 +297,33 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"UserAgent\" : \"foo\"")
     }
     it("should extract and log the response code") {
       // given:
-      servletResponse.setStatus(418)
+      servletResponse.setStatus(I_AM_A_TEAPOT.value)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Code\" : 418")
     }
     it("should extract and log the response message") {
       // given:
-      servletResponse.setStatus(418, "I'm a teapot")
+      servletResponse.setStatus(I_AM_A_TEAPOT.value, I_AM_A_TEAPOT.getReasonPhrase)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"I_AM_A_TEAPOT\"")
     }
@@ -332,7 +336,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       // then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"UNKNOWN\"")
     }
@@ -349,9 +353,34 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       //then:
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("HEY A BODY")
+    }
+  }
+
+  describe("The doFilter() method with a filtering config") {
+    describe("should filter out the matched events from the post filter log and let all others pass") {
+      it("when there are fields with String values.") {
+        //      "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
+        ???
+      }
+      it("when there are fields with String array values.") {
+        //      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
+        ???
+      }
+      it("when there are fields with maps with String keys and String array values.") {
+        //      "parameters" -> translateParameters().asJava.entrySet(),
+        ???
+      }
+      it("when there are fields with maps with Long integer values.") {
+        //      "timestamp" -> System.currentTimeMillis(),
+        ???
+      }
+      it("when there are fields with maps with Integer values.") {
+        //      "responseCode" -> httpServletResponse.getStatus,
+        ???
+      }
     }
   }
 
@@ -361,12 +390,12 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       template.setValue("\n Line One\n Line Two")
       template.setCrush(false)
       herpConfig.setTemplate(template)
-      servletResponse.setStatus(418, "I'm a teapot")
+      servletResponse.setStatus(I_AM_A_TEAPOT.value, I_AM_A_TEAPOT.getReasonPhrase)
 
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("Line One\n Line Two")
     }
@@ -376,12 +405,12 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       template.setValue("\n Line One\n Line Two")
       template.setCrush(true)
       herpConfig.setTemplate(template)
-      servletResponse.setStatus(418, "I'm a teapot")
+      servletResponse.setStatus(I_AM_A_TEAPOT.value, I_AM_A_TEAPOT.getReasonPhrase)
 
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("Line One Line Two")
     }
@@ -391,12 +420,12 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       template.setValue("\n Line One\n Line Two")
       template.setCrush(false)
       herpConfig.setTemplate(template)
-      servletResponse.setStatus(418, "I'm a teapot")
+      servletResponse.setStatus(I_AM_A_TEAPOT.value, I_AM_A_TEAPOT.getReasonPhrase)
 
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-      def logEvents = listAppender.getEvents
+      def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should not include ("\nLine One\n Line Two")
     }
