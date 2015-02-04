@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
-                                   pre-filter-logger-name="highly-efficient-record-processor" service-code="repose" region="USA"
-                                   data-center="DFW">
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
+                                   service-code="repose" region="USA" data-center="DFW">
     <template crush="true">
         {
           "GUID" : "{{guid}}",
@@ -33,4 +34,15 @@
           }
         }
     </template>
+    <filterOut>
+        <match field="UserName" regex=".*[fF]oo.*"/>
+        <!-- Implicit AND -->
+        <match field="DataCenter" regex="DFW"/>
+    </filterOut>
+    <!-- Implicit OR -->
+    <filterOut>
+        <match field="UserName" regex=".*[bB]ar.*"/>
+        <!-- Implicit AND -->
+        <match field="region" regex="USA"/>
+    </filterOut>
 </highly-efficient-record-processor>
