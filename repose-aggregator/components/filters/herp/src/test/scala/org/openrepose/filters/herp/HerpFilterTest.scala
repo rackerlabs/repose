@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
+import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.herp.config.{HerpConfig, Template}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -36,7 +37,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
-    herpConfig.setLoggerName("highly-efficient-record-processor-Logger")
+    herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-Logger")
     val templateText =
       """
          {
@@ -320,7 +321,20 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppender.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"IM_A_TEAPOT\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"I_AM_A_TEAPOT\"")
+    }
+    it("should extract and log the response message of an invalid response code") {
+      // given:
+      servletResponse.setStatus(FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE, "Unsupported Response Code")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"UNKNOWN\"")
     }
     ignore("should extract and log the response body") {
       //given:

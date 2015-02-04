@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<openstack-identity-v3 xmlns="http://docs.openrepose.org/openstack-identity-v3/v1.0"
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
              token-cache-timeout="300000"
              groups-cache-timeout="300000"
              cache-offset="10000">

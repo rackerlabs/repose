@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rate-limiting datastore="distributed/hash-ring" xxdatastore-warn-limit="1" use-capture-groups="true" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting datastore="distributed/hash-ring" xxdatastore-warn-limit="1" use-capture-groups="true" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint uri-regex="/limits" include-absolute-limits="false" />
 
     <limit-group id="limited" groups="BETA_Group IP_Standard" default="false">

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/repose/container/v2.0"
-           xmlns:papic="http://docs.rackspacecloud.com/repose/container/v2.0"
+           targetNamespace="http://docs.openrepose.org/repose/container/v2.0"
+           xmlns:papic="http://docs.openrepose.org/repose/container/v2.0"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"

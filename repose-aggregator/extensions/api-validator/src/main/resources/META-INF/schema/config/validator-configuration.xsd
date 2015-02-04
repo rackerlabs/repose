@@ -2,8 +2,8 @@
 
 <xs:schema elementFormDefault="qualified"
            attributeFormDefault="unqualified"
-           targetNamespace="http://openrepose.org/repose/validator/v1.0"
-           xmlns:scr="http://openrepose.org/repose/validator/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/validator/v1.0"
+           xmlns:scr="http://docs.openrepose.org/repose/validator/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"

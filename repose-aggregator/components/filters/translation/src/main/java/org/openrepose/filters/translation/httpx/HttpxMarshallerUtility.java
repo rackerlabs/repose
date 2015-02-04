@@ -22,7 +22,7 @@ import java.net.URL;
 public class HttpxMarshallerUtility {
     private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
     private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
-    private static final String HTTPX_PACKAGE = "org.openrepose.repose.httpx.v1";
+    private static final String HTTPX_PACKAGE = "org.openrepose.docs.repose.httpx.v1";
     private static final JAXBContext jaxbContext = getContext();
     public static final Schema schema = getSchemaSource();
     public static final ObjectPool<Marshaller> marshallerPool = new SoftReferenceObjectPool<>(

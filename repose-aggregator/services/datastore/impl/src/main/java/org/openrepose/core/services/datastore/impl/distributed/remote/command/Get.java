@@ -1,6 +1,5 @@
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
@@ -8,6 +7,7 @@ import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -30,9 +30,9 @@ public class Get extends AbstractRemoteCommand {
     
    @Override
    public Object handleResponse(ServiceClientResponse response) throws IOException {
-      final int statusCode = response.getStatusCode();
+      final int statusCode = response.getStatus();
 
-      if (statusCode == HttpStatusCode.OK.intValue()) {
+      if (statusCode == HttpServletResponse.SC_OK) {
          final InputStream internalStreamReference = response.getData();
 
           try {
@@ -40,7 +40,7 @@ public class Get extends AbstractRemoteCommand {
           } catch (ClassNotFoundException cnfe) {
               throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
           }
-      } else if (statusCode == HttpStatusCode.NOT_FOUND.intValue()) {
+      } else if (statusCode == HttpServletResponse.SC_NOT_FOUND) {
          return null;
       }
 

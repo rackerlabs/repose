@@ -1,6 +1,5 @@
 package org.openrepose.filters.versioning;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.FilterAction;
@@ -24,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBElement;
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
@@ -72,12 +72,12 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          }
          filterDirector.responseHeaderManager().appendHeader("Content-Type", httpRequestInfo.getPreferedMediaRange().getMimeType().getMimeType());
       } catch (VersionedHostNotFoundException vhnfe) {
-         filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+         filterDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
          filterDirector.setFilterAction(FilterAction.RETURN);
 
          LOG.warn("Configured versioned service mapping refers to a bad pp-dest-id. Reason: " + vhnfe.getMessage(), vhnfe);
       } catch (MalformedURLException murlex) {
-         filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+         filterDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
          filterDirector.setFilterAction(FilterAction.RETURN);
 
          LOG.warn("Configured versioned service mapping refers to a bad host definition. Reason: " + murlex.getMessage(), murlex);
@@ -94,7 +94,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    private void handleUnversionedRequest(HttpRequestInfo httpRequestInfo, FilterDirector filterDirector) {
       // Is this a request to the service root to describe the available versions? (e.g. http://api.service.com/)
       if (configurationData.isRequestForVersions(httpRequestInfo)) {
-         filterDirector.setResponseStatus(HttpStatusCode.OK);
+         filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
          filterDirector.setFilterAction(FilterAction.RETURN);
 
          final JAXBElement<VersionChoiceList> versions = VERSIONING_OBJECT_FACTORY.createVersions(configurationData.versionChoicesAsList(httpRequestInfo));
@@ -109,7 +109,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
 
          transformer.transform(versionElement, versionedRequest.getRequestInfo().getPreferedMediaRange(), filterDirector.getResponseOutputStream());
 
-         filterDirector.setResponseStatus(HttpStatusCode.OK);
+         filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
          filterDirector.setFilterAction(FilterAction.RETURN);
       } else {
          RouteDestination dest = filterDirector.addDestination(targetOriginService.getOriginServiceHost(), versionedRequest.asInternalURI(), (float) VERSIONING_DEFAULT_QUALITY);
@@ -119,7 +119,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    }
 
    private void writeMultipleChoices(FilterDirector filterDirector, HttpRequestInfo httpRequestInfo) {
-      filterDirector.setResponseStatus(HttpStatusCode.MULTIPLE_CHOICES);
+      filterDirector.setResponseStatusCode(HttpServletResponse.SC_MULTIPLE_CHOICES);
       filterDirector.setFilterAction(FilterAction.RETURN);
 
       final VersionChoiceList versionChoiceList = configurationData.versionChoicesAsList(httpRequestInfo);

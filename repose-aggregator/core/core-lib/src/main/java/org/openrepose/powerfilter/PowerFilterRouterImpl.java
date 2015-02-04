@@ -1,7 +1,6 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -112,7 +111,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             if (configDestinationElement == null) {
                 //TODO: do we really need domain? rename to cluster?
                 LOG.warn("Invalid routing destination specified: {} for domain: {} ", routingDestination.getDestinationId(), domain.getId());
-                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
+                ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 location = locationBuilder.build(configDestinationElement, routingDestination.getUri(), servletRequest);
                 rootPath = configDestinationElement.getRootPath();
@@ -165,11 +164,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
-                            servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                            servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
                             servletResponse.setLastException(e);
                         } else {
                             LOG.error("Connection Refused to {}", location.getUri(), e);
-                            ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                            ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                         }
                     }
                 }

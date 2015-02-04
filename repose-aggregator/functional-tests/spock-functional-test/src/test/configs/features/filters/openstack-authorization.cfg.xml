@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rackspace-authorization xmlns='http://openrepose.org/components/openstack-identity/auth-z/v1.0'>
+<rackspace-authorization xmlns='http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0'>
     <authentication-server username="auth" password="admin_password" href="http://50.57.189.15:8080/keystone" />
     <service-endpoint href="https://service.api.rackspacecloud.com/v1.0" />
 </rackspace-authorization>

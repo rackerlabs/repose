@@ -41,7 +41,7 @@ class SchemaTest {
 
         String xml = """<?xml version="1.0" encoding="UTF-8"?>
 
-<distributed-datastore xmlns='http://openrepose.org/repose/distributed-datastore/v1.0'>
+<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
     <allowed-hosts allow-all="true">
         <allow host="127.0.0.1" />
     </allowed-hosts>

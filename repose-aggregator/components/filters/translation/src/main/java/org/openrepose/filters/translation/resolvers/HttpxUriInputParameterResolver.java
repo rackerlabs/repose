@@ -2,9 +2,9 @@ package org.openrepose.filters.translation.resolvers;
 
 import org.openrepose.filters.translation.httpx.HttpxMarshaller;
 import org.openrepose.filters.translation.httpx.HttpxProducer;
-import org.openrepose.repose.httpx.v1.Headers;
-import org.openrepose.repose.httpx.v1.QueryParameters;
-import org.openrepose.repose.httpx.v1.RequestInformation;
+import org.openrepose.docs.repose.httpx.v1.Headers;
+import org.openrepose.docs.repose.httpx.v1.QueryParameters;
+import org.openrepose.docs.repose.httpx.v1.RequestInformation;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -1,4 +1,5 @@
 package features.filters.identitybasicauth
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -7,19 +8,10 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-import static javax.servlet.http.HttpServletResponse.SC_GATEWAY_TIMEOUT
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
-import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED
-import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 /**
  * Created by jennyvo on 11/12/14.
@@ -29,7 +21,6 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityService fakeIdentityService
-    def static final SC_TOO_MANY_REQUESTS = 429
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -76,7 +67,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -90,7 +81,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.contains("x-delegated")
 
@@ -114,7 +105,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
@@ -147,14 +138,14 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.2")
 
         where:
-        reqTenant | identityStatusCode                              | delegatedMsg //(these msgs need to be update when done with impl
+        reqTenant | identityStatusCode          | delegatedMsg //(these msgs need to be update when done with impl
         9400      | SC_BAD_REQUEST              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
         9401      | SC_UNAUTHORIZED             | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
         9403      | SC_FORBIDDEN                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"

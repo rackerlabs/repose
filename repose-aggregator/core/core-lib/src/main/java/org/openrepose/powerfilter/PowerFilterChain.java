@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.FilterProcessingTime;
@@ -124,7 +123,7 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private boolean isResponseOk(HttpServletResponse response) {
-        return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
+        return response.getStatus() < HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
 
     private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse,
@@ -148,8 +147,8 @@ public class PowerFilterChain implements FilterChain {
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
-            LOG.error("Failure in filter: {}", filterName, ex);
-            mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
+            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             mutableHttpResponse.popOutputStream();
         }
@@ -205,7 +204,7 @@ public class PowerFilterChain implements FilterChain {
             }
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mutableHttpResponse.setLastException(ex);
         }
     }

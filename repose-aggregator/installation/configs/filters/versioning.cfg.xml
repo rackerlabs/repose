@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- http://wiki.openrepose.org/display/REPOSE/Versioning+Filter -->
-<versioning xmlns="http://docs.rackspacecloud.com/repose/versioning/v2.0">
+<versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
     <service-root href="http://localhost:8080/" />
 
     <version-mapping id="v1" pp-dest-id="service-v1" status="DEPRECATED">

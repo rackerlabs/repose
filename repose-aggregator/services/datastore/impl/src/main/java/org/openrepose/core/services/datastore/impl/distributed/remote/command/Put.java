@@ -1,13 +1,13 @@
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -47,8 +47,8 @@ public class Put extends AbstractRemoteCommand {
     
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException {
-        if (response.getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
-            throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
+        if (response.getStatus() != HttpServletResponse.SC_ACCEPTED) {
+            throw new DatastoreOperationException("Remote request failed with: " + response.getStatus());
         }
 
         return Boolean.TRUE;

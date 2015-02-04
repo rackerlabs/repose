@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uri-stripper xmlns="http://docs.api.rackspacecloud.com/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1"/>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1"/>

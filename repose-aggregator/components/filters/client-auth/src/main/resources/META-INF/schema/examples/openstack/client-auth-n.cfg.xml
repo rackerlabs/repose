@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+<client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
     <openstack-auth tenanted="false" request-groups="true" token-cache-timeout="600000" group-cache-timeout="600000" xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username" password="admin_password" uri="https://identity.example.com/v2.0/" />
         

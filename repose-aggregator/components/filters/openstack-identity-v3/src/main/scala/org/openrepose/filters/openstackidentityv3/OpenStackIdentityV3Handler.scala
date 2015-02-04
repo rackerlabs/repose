@@ -1,6 +1,6 @@
 package org.openrepose.filters.openstackidentityv3
 
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -62,7 +62,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
       // Set the default behavior for this filter
       filterDirector.setFilterAction(FilterAction.RETURN)
-      filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+      filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
@@ -73,9 +73,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
           failureInValidation = true
-          delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), e.getMessage) {
+          delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage) {
             filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
           }
           None
         case Failure(e) =>
@@ -88,19 +88,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Attempt to check the project ID if configured to do so
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
-        delegateOrElse(HttpStatusCode.UNAUTHORIZED.intValue(), "Invalid project ID for token: " + token.get) {
+        delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid project ID for token: " + token.get) {
           filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
           filterDirector.setFilterAction(FilterAction.RETURN)
-          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
         }
       }
 
       // Attempt to authorize the token against a configured endpoint
       if (!failureInValidation && !isAuthorized(token.get)) {
         failureInValidation = true
-        delegateOrElse(HttpStatusCode.FORBIDDEN.intValue(), "Invalid endpoints for token: " + token.get) {
+        delegateOrElse(HttpServletResponse.SC_FORBIDDEN, "Invalid endpoints for token: " + token.get) {
           filterDirector.setFilterAction(FilterAction.RETURN)
-          filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
         }
       }
 
@@ -201,10 +201,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     // (since we are a proxy) how to correctly authenticate itself
     val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString))
 
-    HttpStatusCode.fromInt(responseStatus) match {
+    responseStatus match {
       // NOTE: We should only mutate the WWW-Authenticate header on a
       // 401 (unauthorized) or 403 (forbidden) response from the origin service
-      case HttpStatusCode.FORBIDDEN | HttpStatusCode.UNAUTHORIZED =>
+      case HttpServletResponse.SC_FORBIDDEN | HttpServletResponse.SC_UNAUTHORIZED =>
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(OpenStackIdentityV3Headers.X_DELEGATED.toLowerCase)) {
@@ -219,20 +219,20 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           // with the origin service has failed and must then be communicated as
           // a 500 (internal server error) to the client
           logger.error("Authentication with the origin service has failed.")
-          filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         }
-      case HttpStatusCode.NOT_IMPLEMENTED =>
+      case HttpServletResponse.SC_NOT_IMPLEMENTED =>
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(OpenStackIdentityV3Headers.X_DELEGATED)) {
           logger.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
-          filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         } else {
-          filterDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_NOT_IMPLEMENTED)
         }
       case _ =>
         logger.trace("Response from origin service requires no additional processing. Passing it along.")
     }
 
-    logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatusCode)
     filterDirector
   }
 

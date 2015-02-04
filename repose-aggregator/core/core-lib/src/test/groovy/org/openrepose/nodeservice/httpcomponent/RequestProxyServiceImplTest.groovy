@@ -61,7 +61,7 @@ class RequestProxyServiceImplTest extends Specification {
         request.getHeaders("thing").first().value == "other thing"
         readBytes == sentBytes
 
-        response.statusCode == 418
+        response.status == 418
         returnedBytes == [1, 2, 3] as byte[]
     }
 }

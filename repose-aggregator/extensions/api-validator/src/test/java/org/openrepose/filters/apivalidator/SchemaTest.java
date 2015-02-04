@@ -31,7 +31,7 @@ public class SchemaTest {
     @Test
     public void shouldNotRequireRaxRolesAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                         "    <validator" +
                         "        role=\"default\"" +
                         "        default=\"true\"" +
@@ -44,7 +44,7 @@ public class SchemaTest {
     @Test
     public void shouldAllowEnableRaxRolesAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                 "    <validator" +
                 "        role=\"default\"" +
                 "        default=\"true\"" +
@@ -58,7 +58,7 @@ public class SchemaTest {
     @Test
     public void shouldAllowXsdEngineAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\">" +
                         "    <validator" +
                         "        role=\"default\"" +
                         "        default=\"true\"" +
@@ -72,7 +72,7 @@ public class SchemaTest {
     @Test(expected = SAXException.class)
     public void shouldNotAllowInvalidRaxRolesAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                         "    <validator" +
                         "        role=\"default\"" +
                         "        default=\"true\"" +
@@ -86,7 +86,7 @@ public class SchemaTest {
     @Test(expected = SAXException.class)
     public void shouldNotAllowUseSaxonAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\">" +
                 "    <validator" +
                 "        role=\"default\"" +
                 "        default=\"true\"" +
@@ -100,7 +100,7 @@ public class SchemaTest {
     @Test(expected = SAXException.class)
     public void shouldNotAllowVersionAttribute() throws IOException, SAXException {
         String xml =
-                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" version=\"1\">" +
+                "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" version=\"1\">" +
                 "    <validator" +
                 "        role=\"default\"" +
                 "        default=\"true\"" +

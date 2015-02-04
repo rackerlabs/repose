@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:httpx="http://openrepose.org/repose/httpx/v1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:repose="http://wwww.openrepose.org/2013/XMLSchema" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:httpx="http://docs.openrepose.org/repose/httpx/v1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:repose="http://wwww.openrepose.org/2013/XMLSchema" version="2.0">
     <xsl:output method="xml"/>
     <xsl:param name="input-request-uri"/>
     <xsl:param name="output-request-uri"/>
@@ -7,7 +7,7 @@
 
     <xsl:template match="httpx:request-information">
         <xsl:result-document method="xml" include-content-type="no" href="{$output-request-uri}">
-            <request-information xmlns="http://openrepose.org/repose/httpx/v1.0">
+            <request-information xmlns="http://docs.openrepose.org/repose/httpx/v1.0">
                 <xsl:apply-templates />
             </request-information>
         </xsl:result-document>

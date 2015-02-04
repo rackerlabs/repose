@@ -11,13 +11,15 @@ import com.github.jknack.handlebars.{Handlebars, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
@@ -91,7 +93,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "parameters" -> translateParameters().asJava.entrySet(),
       "timestamp" -> System.currentTimeMillis(),
       "responseCode" -> httpServletResponse.getStatus,
-      "responseMessage" -> HttpStatusCode.fromInt(httpServletResponse.getStatus).name(),
+      "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name()).getOrElse("UNKNOWN"),
       "guid" -> java.util.UUID.randomUUID.toString,
       "serviceCode" -> serviceCode,
       "region" -> region,
@@ -120,7 +122,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       templateText
     }
 
-    herpLogger = LoggerFactory.getLogger(config.getLoggerName)
+    herpLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter

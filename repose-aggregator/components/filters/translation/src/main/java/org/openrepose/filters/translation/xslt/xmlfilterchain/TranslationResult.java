@@ -5,7 +5,7 @@ import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.filters.translation.httpx.HttpxMarshaller;
 import org.openrepose.filters.translation.xslt.XsltParameter;
 import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.repose.httpx.v1.*;
+import org.openrepose.docs.repose.httpx.v1.*;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
