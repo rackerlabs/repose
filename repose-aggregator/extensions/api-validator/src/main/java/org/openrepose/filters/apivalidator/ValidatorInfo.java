@@ -13,6 +13,10 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 
+/**
+ * TODO this thing shouldn't contain mutable state :(
+ * It's the cause of bugs, when we update the validator in here :(
+ */
 public class ValidatorInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidatorInfo.class);
@@ -20,6 +24,7 @@ public class ValidatorInfo {
     private final List<String> roles;
     private final Config config;
     private Validator validator;
+    private final Object validatorLock = new Object();
     private final Node wadl;
     private final String systemId;
     private final String name;
@@ -71,33 +76,38 @@ public class ValidatorInfo {
         //TODO: I bet this is the cause of our thread bugs, I suspect another thread is asking for a validator,
         // and so it's getting initialized and never cleaned up! SUPER TERRIBLE
         //MUTABLE STATE IS REAL BAD
-        if (validator != null) {
-            return true;
-        }
+        synchronized(validatorLock) {
+            if (validator != null) {
+                return true;
+            }
 
-        try {
-            LOG.debug("Calling the validator creation method for {}", name);
-            validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
-            return true;
-        } catch (Throwable ex) {
-            LOG.warn("Error loading validator for WADL: " + uri, ex);
-            return false;
+            try {
+                LOG.debug("Calling the validator creation method for {}", name);
+                validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
+                return true;
+            } catch (Throwable ex) {
+                LOG.warn("Error loading validator for WADL: " + uri, ex);
+                return false;
+            }
         }
-
     }
 
     public void clearValidator() {
-        if (validator != null) {
-            validator.destroy();
-            validator = null;
+        synchronized(validatorLock) {
+            if (validator != null) {
+                validator.destroy();
+                validator = null;
+            }
         }
     }
 
     public boolean reinitValidator() {
-        if (validator != null) {
-            LOG.debug("in reInitValidator Destroying: {}", validator);
-            validator.destroy();
-            validator = null;
+        synchronized(validatorLock) {
+            if (validator != null) {
+                LOG.debug("in reInitValidator Destroying: {}", validator);
+                validator.destroy();
+                validator = null;
+            }
         }
         return initValidator();
     }
@@ -112,8 +122,6 @@ public class ValidatorInfo {
     }
 
     public Validator getValidator() {
-        Exception e = new Exception();
-        LOG.debug("CALL TO ValidatorInfo#getValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName(), e);
         initValidator();
         return validator;
     }
