@@ -27,8 +27,10 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachine", params)
-        repose.start()
+        //repose.start()
+        repose.start(waitOnJmxAfterStarting: false)
 
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -45,7 +47,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         certain user roles will allow to access certain methods according to config in the wadl.
         i.e. 'GET' method only be available to access by a:observer and a:admin role
     */
-    @Unroll("enableapicoverage:headers=#headers,expected S0_a_admin:#S0_a_admin_count, SA:#SA_count")
+    @Unroll("method=#method,headers=#headers,expected S0_a_admin:#S0_a_admin_count, SA:#SA_count")
     def "when enable-api-coverage is true, validate count at state level"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
@@ -53,17 +55,18 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         def customHandler = ""
         reposeLogSearch.cleanLog()
 
-        given:
         File outputfile = new File("output.dot")
         if (outputfile.exists())
             outputfile.delete()
         MessageChain messageChain
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers)
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method, headers: headers)
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         println(jsonpart)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
 
         if(headers != null)
             s0_count = s0_count + 1
@@ -87,41 +90,51 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         then:
         messageChain.getReceivedResponse().getCode().equals(responseCode)
         checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        //result.Request.ProjectID[0] == "123456"
+        //result.Request.UserName == "testuser"
+        //result.Request.ImpersonatorName == "impersonateuser"
+        result.Request.Method == method
+        (result.Request.URL).contains("/resource")
+        result.Response.Code == responseCode.toInteger()
+        //result.Response.Message ==
         S0 == s0_count
         SA == SA_count
         S0_a_admin == S0_a_admin_count
 
         where:
-        method   | headers                                             | responseCode   | SA_count  | S0_a_admin_count
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"          | 1         | 0
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"          | 2         | 0
-        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"          | 3         | 1
-        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"          | 4         | 2
-        "GET"    | ["x-roles": "raxRolesEnabled"]                      | "404"          | 4         | 2
-        "GET"    | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"          | 4         | 2
-        "GET"    | null                                                | "403"          | 4         | 2
-        "POST"   | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"          | 5         | 3
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"          | 6         | 4
-        "POST"   | ["x-roles": "raxRolesEnabled"]                      | "404"          | 6         | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:observer"]          | "405"          | 6         | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"          | 6         | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:observer"]   | "405"          | 6         | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"          | 6         | 4
-        "POST"   | null                                                | "403"          | 6         | 4//this will not effect config change
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"          | 7         | 5
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin, a:bar"]      | "200"          | 8         | 6
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"          | 9         | 7
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:admin"] | "200"          | 10        | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"          | 10        | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"          | 10        | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "404"          | 10        | 8
-        "DELETE" | null                                                | "403"          | 10        | 8//this will not effect config change
+        method   | headers                                              | responseCode  | SA_count  | S0_a_admin_count
+        "GET"    | ["x-roles": "raxRolesEnabled, a:observer"]           | "200"         | 1         | 0
+        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]    | "200"         | 2         | 0
+        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 3         | 1
+        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 4         | 2
+        "GET"    | ["x-roles": "raxRolesEnabled"]                       | "404"         | 4         | 2
+        "GET"    | ["x-roles": "raxRolesEnabled, a:creator"]            | "404"         | 4         | 2
+        //"GET"    | null                                                | "403"         | 4         | 2
+        "POST"   | ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 5         | 3
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 6         | 4
+        "POST"   | ["x-roles": "raxRolesEnabled"]                       | "404"         | 6         | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:observer"]           | "405"         | 6         | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 6         | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:observer"]    | "405"         | 6         | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:creator"]            | "404"         | 6         | 4
+        //"POST"   | null                                                | "403"         | 6         | 4//this will not effect config change
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 7         | 5
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin, a:bar"]       | "200"         | 8         | 6
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 9         | 7
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:admin"]  | "200"         | 10        | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 10        | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]     | "404"         | 10        | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]    | "404"         | 10        | 8
+        //"DELETE" | null                                                | "403"         | 10        | 8//this will not effect config change
         // PUT method is not available in wadl should expect to get 405 to whoever rax-role
-        "PUT"    | ["x-roles": "raxRolesEnabled"]                      | "404"          | 10        | 8
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"          | 10        | 8
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "405"          | 10        | 8
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"          | 10        | 8
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "405"          | 10        | 9
+        "PUT"    | ["x-roles": "raxRolesEnabled"]                       | "404"         | 10        | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 10        | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]    | "405"         | 10        | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]     | "404"         | 10        | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]              | "405"         | 10        | 9
     }
 
     // Check all required attributes in the log

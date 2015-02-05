@@ -10,6 +10,7 @@
         <filters>
             <filter name="api-validator" />
             <filter name="herp"/>
+            <filter name="derp"/>
         </filters>
 
         <destinations>
