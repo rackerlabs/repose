@@ -4,10 +4,27 @@
     <delegating />
     <validator role="raxRolesEnabled"
                default="false"
-               wadl="test.wadl"
                enable-rax-roles="true"
                mask-rax-roles-403="true"
                enable-api-coverage="true"
                dot-output="output.dot">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/resources">
+                    <method name="GET" rax:roles="a:observer a:admin">
+                        <doc xml:lang="EN" title="Get Test">
+                        </doc>
+                    </method>
+                    <method name="POST" rax:roles="a:admin">
+                        <doc xml:lang="EN" title="Create Test">
+                        </doc>
+                    </method>
+                    <method name="DELETE" rax:roles="a:admin">
+                        <doc xml:lang="EN" title="Delete Test">
+                        </doc>
+                    </method>
+                </resource>
+            </resources>
+        </application>
     </validator>
 </validators>
