@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<destination-router xmlns='http://openrepose.org/repose/destination-router/v1.0'>
+    <target id="mocks-cluster" quality="1"/>
+</destination-router>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.rackspacecloud.com/repose/http-logging/v1.0">
+    <!-- The id attribute is the named target of the log output,
+it can then be used in log4j backend to determine which appender to go to -->
+    <!-- The format includes what will be logged. The arguments with % are a subset of the apache mod_log_config
+found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->
+    <http-log
+            id="my-special-log"
+            format="Remote User=%u\tURL Path Requested=%U\tRequest Protocol=%H\tServer Port=%p\tQuery String=%q\tResponse Time=%T seconds\tResponse Time=%D microseconds\tRequest Line=&quot;%r&quot;\tTime Request Received=%t\tStatus=%s\n">
+            <targets>
+                <file location="/home/jennyvo/reposerepose-aggregator/functional-tests/spock-functional-test/target/repose_home/logs/http.log"/>
+            </targets>
+    </http-log>
+</http-logging>

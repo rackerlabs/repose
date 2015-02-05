@@ -14,11 +14,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,7 @@ import java.util.regex.Pattern;
 
 /**
  * This object executes Schema 1.1 validation (if schema provided) & JAXB unmarshalling for a JAXBContext & XML Schema.
- *
+ * <p/>
  * This object was created because JAXB unmarshalling was throwing invalid errors when initialized with certain 1.1
  * schemas.
  */
@@ -39,6 +40,8 @@ public class UnmarshallerValidator {
     private Schema schema;
     private Unmarshaller unmarshaller;
     private DocumentBuilder db;
+    //The transformer we'll use for translating our configuration xmls
+    public static final String SAXON_HE_FACTORY_NAME = "net.sf.saxon.TransformerFactoryImpl";
 
     private static final String[] OLD_NAMESPACES = {
             "/docs.api.rackspacecloud.com/repose/", // 0
@@ -50,126 +53,62 @@ public class UnmarshallerValidator {
     };
     private static final String HTTP_HDR = "http:/";
 
-    public UnmarshallerValidator( JAXBContext context ) throws JAXBException, ParserConfigurationException {
+    public UnmarshallerValidator(JAXBContext context) throws JAXBException, ParserConfigurationException {
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware( true );
+        dbf.setNamespaceAware(true);
 
         db = dbf.newDocumentBuilder();
 
         unmarshaller = context.createUnmarshaller();
     }
 
-    public void setSchema( Schema schema ) {
+    public void setSchema(Schema schema) {
 
         this.schema = schema;
     }
 
-    public Object validateUnmarshal( InputStream inputstream ) throws JAXBException, IOException, SAXException {
+    public Object validateUnmarshal(InputStream inputstream) throws JAXBException, IOException, SAXException {
 
         Document doc;
 
         try {
-
-            doc = db.parse( inputstream );
-
+            doc = db.parse(inputstream);
         } finally {
-
             db.reset();
         }
 
-        if (schema != null ) {
+        if (schema != null) {
             try {
                 schema.newValidator().validate(new DOMSource(doc));
-            } catch (SAXParseException e) {
-                if (e.getLocalizedMessage().contains("Cannot find the declaration of element")) {
-                    if (doc != null) {
-                        Node node = doc.getFirstChild(); // Root Node
-                        while(node != null && node.getNodeName().equals("#comment")) {
-                            node = node.getNextSibling();
-                        }
-                        if (node != null) {
-                            NamedNodeMap namedNodeMap = node.getAttributes();
-                            if (namedNodeMap != null) {
-                                Node attribute = namedNodeMap.getNamedItem("xmlns");
-                                if (attribute != null) {
-                                    String namespace = attribute.getNodeValue();
-                                    if (namespace != null) {
-                                        if (namespace.contains(OLD_NAMESPACES[0]) ||
-                                                namespace.contains(OLD_NAMESPACES[1]) ||
-                                                namespace.contains(OLD_NAMESPACES[2]) ||
-                                                namespace.contains(OLD_NAMESPACES[3]) ||
-                                                namespace.contains(OLD_NAMESPACES[4]) ||
-                                                namespace.contains(OLD_NAMESPACES[5])) {
-                                            LOG.warn("Contains old namespace  - {}", namespace);
-                                            StringBuilder stringBuilder = new StringBuilder(namespace);
+                //If we can't parse it, try translating it and validating it again
+            } catch (SAXParseException saxParseException) {
+                if (saxParseException.getLocalizedMessage().contains("Cannot find the declaration of element")) {
 
-                                            // Convert any old namespace to the new namespace.
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[0]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[1]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[2]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[3]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[4]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5] + "repose/"), HTTP_HDR + OLD_NAMESPACES[5]);
+                    //Run a quick XSLT
+                    //TODO: need a transformer....
+                    try {
+                        TransformerFactory factory = TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, this.getClass().getClassLoader());
 
-                                            // Add the "repose" is at the end.
-                                            UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5]), HTTP_HDR + OLD_NAMESPACES[5] + "repose/");
-                                            LOG.warn("The namespace should be - {}", stringBuilder.toString());
-                                            LOG.trace("", e);
+                        StreamSource styleSource = new StreamSource(this.getClass().getResourceAsStream("/configurationXSLT/consistentNamespace.xsl"));
+                        Transformer transformer = factory.newTransformer(styleSource);
 
-                                            try {
-                                                TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                                                Transformer transformer = transformerFactory.newTransformer();
-                                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                                StreamResult result = new StreamResult(baos);
-                                                transformer.transform(new DOMSource(doc), result);
-                                                LOG.trace("ByteArrayOutputStream.toString() = \r\n" + baos.toString());
-                                                stringBuilder = new StringBuilder(baos.toString());
+                        DOMResult result = new DOMResult();
+                        transformer.transform(new DOMSource(doc), result);
 
-                                                // Convert all of the old namespaces to the new namespace.
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[0]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[1]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[2]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[3]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[4]), HTTP_HDR + OLD_NAMESPACES[5]);
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5] + "repose/"), HTTP_HDR + OLD_NAMESPACES[5]);
+                        LOG.warn("DEPRECATION WARNING: {} contains old namespace, update your configs!");
 
-                                                // Add the "repose" is at the end of each.
-                                                UnmarshallerValidator.replaceAll(stringBuilder, Pattern.compile(HTTP_HDR + OLD_NAMESPACES[5]), HTTP_HDR + OLD_NAMESPACES[5] + "repose/");
-                                                LOG.trace("stringBuilder.toString() = \r\n" + stringBuilder.toString());
+                        schema.newValidator().validate(new DOMSource(result.getNode()));
 
-                                                try {
-                                                    doc = db.parse(new ByteArrayInputStream(stringBuilder.toString().getBytes()));
-                                                } finally {
-                                                    db.reset();
-                                                }
-
-                                                schema.newValidator().validate(new DOMSource(doc));
-                                                return unmarshaller.unmarshal(doc);
-                                            } catch (TransformerException e1) {
-                                                LOG.error("Failed to transform!!! Reason: {}", e1.getLocalizedMessage());
-                                                LOG.trace("", e1);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    } catch (TransformerConfigurationException e) {
+                        throw new SAXException("Problem configuring transformer to attempt to translate", e);
+                    } catch (TransformerException e) {
+                        throw new SAXException("Unable to transform xml", e);
                     }
                 }
-                throw e;
+                throw saxParseException;
             }
         }
-        return unmarshaller.unmarshal( doc );
-    }
-
-    public static void replaceAll(StringBuilder sb, Pattern pattern, String replacement) {
-        int last = 0;
-        Matcher m = pattern.matcher(sb);
-        while(m.find(last)) {
-            last = m.end();
-            sb.replace(m.start(), last, replacement);
-            m = pattern.matcher(sb);
-        }
+        return unmarshaller.unmarshal(doc);
     }
 }
