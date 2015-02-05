@@ -1,6 +1,6 @@
 package org.openrepose.core.proxy;
 
-import org.openrepose.commons.utils.proxy.RequestProxyService;
+import org.openrepose.core.services.RequestProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

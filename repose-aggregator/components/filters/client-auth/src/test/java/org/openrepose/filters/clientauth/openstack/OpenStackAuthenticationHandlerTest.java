@@ -25,7 +25,7 @@ import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -544,7 +544,8 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldCheckCacheForCredentials() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
+
+            byte[] userInfoBytes = new ObjectSerializer(this.getClass().getClassLoader()).writeObject(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
 

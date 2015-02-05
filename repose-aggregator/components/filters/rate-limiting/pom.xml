@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -12,15 +13,17 @@
     <artifactId>rate-limiting</artifactId>
 
     <name>Repose Components - Rate Limiting</name>
-    <description>The rate limiting filter is used to limit the usage rate a which a specific user or member of a group accesses the origin service.
+    <description>The rate limiting filter is used to limit the usage rate a which a specific user or member of a group
+        accesses the origin service.
 
         Headers:
         X-PP-User (rquired)
-            Single value header used to describe a unique client that makes requests. The name is used to store request hits.
-            This header must be set by one of the Identity filters upstream from rate limiting.
+        Single value header used to describe a unique client that makes requests. The name is used to store request
+        hits.
+        This header must be set by one of the Identity filters upstream from rate limiting.
         X-PP-Groups (optional)
-            List of string values that describe all limit groups the client belongs to.
-            The first group that matches is the one the rate limit applies to in case of multiple matches.
+        List of string values that describe all limit groups the client belongs to.
+        The first group that matches is the one the rate limit applies to in case of multiple matches.
 
         These headers are populated by other parts of repose like the Auth filter.
 
@@ -40,7 +43,9 @@
         the HTTP response code is set to TOO_MANY_REQUESTS.
 
         The filter uses information from the RateLimiter found in rate-limiting-service.
-        Another readme is located there with more information. (/repose-aggregator/services/rate-limiting-service/README.md)</description>
+        Another readme is located there with more information.
+        (/repose-aggregator/services/rate-limiting-service/README.md)
+    </description>
 
     <packaging>jar</packaging>
 
@@ -55,19 +60,19 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>datastore-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-service-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastoreservice-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -76,8 +81,16 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>jetty-container</artifactId>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.16</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>2.14</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -86,14 +99,27 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <!--Apache Pool Support-->
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

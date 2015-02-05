@@ -1,12 +1,10 @@
 package org.openrepose.filters.versioning
 
 import org.mockito.Mockito
-import org.openrepose.core.domain.Port
-import org.openrepose.core.domain.ServicePorts
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList
-import org.openrepose.services.healthcheck.HealthCheckService
 import spock.lang.Specification
 
 /**
@@ -14,11 +12,9 @@ import spock.lang.Specification
  */
 class VersioningHandlerFactoryTest extends Specification {
 
-    def servicePorts, metricsService, healthService, systemModel
+    def metricsService, healthService
 
     def setup(){
-        servicePorts = new ServicePorts()
-        servicePorts << new Port("http", 8080)
         metricsService = Mockito.mock(MetricsService)
         healthService = Mockito.mock(HealthCheckService)
         Mockito.when(healthService.register(VersioningHandlerFactory)).thenReturn("1234")
@@ -29,7 +25,7 @@ class VersioningHandlerFactoryTest extends Specification {
     def "GetListeners"() {
 
         when:
-        def factory = new VersioningHandlerFactory(servicePorts, metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
             //this overrides isInitialized method on the inner class listener to set isInitialized to true
             @Override
             boolean isInitialized() {
@@ -47,7 +43,7 @@ class VersioningHandlerFactoryTest extends Specification {
     def "BuildHandler - handler factory not initialized"() {
 
         when:
-        def factory = new VersioningHandlerFactory(servicePorts, metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
             @Override
             boolean isInitialized() {
                 return false
@@ -62,7 +58,7 @@ class VersioningHandlerFactoryTest extends Specification {
     def "BuildHandler -  - happy path"(){
 
         when:
-        def factory = new VersioningHandlerFactory(servicePorts, metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
             @Override
             boolean isInitialized() {
                 return true

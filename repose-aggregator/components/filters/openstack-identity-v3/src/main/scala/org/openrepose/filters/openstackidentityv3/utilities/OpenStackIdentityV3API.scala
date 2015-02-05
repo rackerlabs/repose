@@ -9,11 +9,11 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.core.services.datastore.Datastore
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
-import org.openrepose.services.datastore.Datastore
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import spray.json._
 
 import scala.collection.JavaConverters._

@@ -69,7 +69,7 @@ public class HttpxMarshallerUtility {
 
     private static JAXBContext getContext() {
         try {
-            return JAXBContext.newInstance(HTTPX_PACKAGE);
+            return JAXBContext.newInstance(HTTPX_PACKAGE, HttpxMarshallerUtility.class.getClassLoader());
         } catch (JAXBException ex) {
             throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
         }

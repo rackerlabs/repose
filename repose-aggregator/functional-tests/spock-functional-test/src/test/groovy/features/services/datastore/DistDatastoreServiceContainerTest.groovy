@@ -1,7 +1,7 @@
 package features.services.datastore
 import framework.*
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.services.datastore.StringValue
+import org.openrepose.core.services.datastore.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -33,6 +33,9 @@ class DistDatastoreServiceContainerTest extends Specification {
     static def logFile
     static def ReposeLogSearch reposeLogSearch
     static Deproxy deproxy
+
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     def setupSpec() {
 
@@ -92,7 +95,7 @@ class DistDatastoreServiceContainerTest extends Specification {
 
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
+        def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
         def strurl = datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
 
         when: "Send a simple request"
@@ -117,7 +120,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         mc.receivedResponse.code == '200'
 
         when: "PUT a new cache object should return 202 response"
-        body = ObjectSerializer.instance().writeObject('test data PUT GET DELETE')
+        body = objectSerializer.writeObject('test data PUT GET DELETE')
         mc = deproxy.makeRequest(
                         method: 'PUT',
                         url: strurl,
@@ -185,8 +188,8 @@ class DistDatastoreServiceContainerTest extends Specification {
         mc.receivedResponse.code == '404'
 
         when: "PATCH a cache object to an existing key should overwrite the cached value"
-        body = ObjectSerializer.instance().writeObject(new StringValue.Patch("original value"))
-        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(" patched on value"))
+        body = objectSerializer.writeObject(new StringValue.Patch("original value"))
+        def newBody = objectSerializer.writeObject(new StringValue.Patch(" patched on value"))
         mc1 = deproxy.makeRequest(
                         method: 'PATCH',
                         url:strurl,
@@ -211,8 +214,8 @@ class DistDatastoreServiceContainerTest extends Specification {
         then:"The body of the get response should be the patched value"
         mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
-        ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
-        ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
+        objectSerializer.readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
+        objectSerializer.readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
 
         // This test rate limit share between 2 nodes
         when: "the request hit the first node using up all limit"

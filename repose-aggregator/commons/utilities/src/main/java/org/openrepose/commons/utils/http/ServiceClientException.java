@@ -1,6 +1,6 @@
 package org.openrepose.commons.utils.http;
 
-import org.openrepose.services.httpclient.HttpClientNotFoundException;
+import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
 
 /**
  Custom exception to handle apache http client exceptions in Serviceclient

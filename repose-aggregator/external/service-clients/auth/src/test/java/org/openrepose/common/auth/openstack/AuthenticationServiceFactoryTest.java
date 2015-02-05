@@ -2,8 +2,8 @@ package org.openrepose.common.auth.openstack;
 
 
 import org.junit.Test;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -21,7 +21,5 @@ public class AuthenticationServiceFactoryTest {
        httpClientService=mock(HttpClientService.class);
        AuthenticationService result = instance.build("/some/host/uri", "username", "password",null,null,httpClientService, akkaServiceClient);
        assertNotNull(result);
-        
     }
-    
 }

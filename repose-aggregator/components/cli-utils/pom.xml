@@ -28,6 +28,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastoreservice-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>

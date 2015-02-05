@@ -1,8 +1,8 @@
 package org.openrepose.filters.rackspaceidentitybasicauth
 
 import org.junit.runner.RunWith
-import org.openrepose.services.datastore.DatastoreService
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.datastore.DatastoreService
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar

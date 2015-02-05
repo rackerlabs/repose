@@ -62,6 +62,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.rackspace.papi.core</groupId>
+                <artifactId>core-service-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>configuration</artifactId>
                 <version>${project.version}</version>
@@ -70,12 +76,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>utilities</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
-                <artifactId>jetty-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -108,6 +108,14 @@
                 <artifactId>commons-codec</artifactId>
                 <version>1.7</version>
             </dependency>
+
+            <!-- many filters are pulling in Guava, probably thanks to core using it -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>14.0.1</version> <!-- same version core is using -->
+            </dependency>
+
 
             <dependency>
                 <groupId>org.openrepose</groupId>

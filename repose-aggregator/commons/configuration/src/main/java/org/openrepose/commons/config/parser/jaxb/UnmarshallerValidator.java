@@ -85,6 +85,9 @@ public class UnmarshallerValidator {
                 if (e.getLocalizedMessage().contains("Cannot find the declaration of element")) {
                     if (doc != null) {
                         Node node = doc.getFirstChild(); // Root Node
+                        while(node != null && node.getNodeName().equals("#comment")) {
+                            node = node.getNextSibling();
+                        }
                         if (node != null) {
                             NamedNodeMap namedNodeMap = node.getAttributes();
                             if (namedNodeMap != null) {

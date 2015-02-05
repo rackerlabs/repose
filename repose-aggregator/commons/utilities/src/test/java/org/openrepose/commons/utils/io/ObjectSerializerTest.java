@@ -50,7 +50,7 @@ public class ObjectSerializerTest {
       @Before
       public void setUp() {
          
-         serializer = ObjectSerializer.instance();
+         serializer = new ObjectSerializer(this.getClass().getClassLoader());
          target = new MySerializableObject("x123", "y123");
       }
       

@@ -1,22 +1,21 @@
 package org.openrepose.filters.versioning;
 
 import com.google.common.base.Optional;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.openrepose.filters.versioning.domain.ConfigurationData;
 import org.openrepose.filters.versioning.util.ContentTransformer;
-import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.Severity;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,20 +30,21 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
-    private final ContentTransformer transformer;
-    private final ServicePorts ports;
+    private final String clusterId;
+    private final String nodeId;
     private final MetricsService metricsService;
+    private final HealthCheckServiceProxy healthCheckServiceProxy;
+    private final ContentTransformer contentTransformer;
 
-    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ReposeCluster localDomain;
     private Node localHost;
 
-    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService, HealthCheckService healthCheckService) {
-        this.ports = ports;
+    public VersioningHandlerFactory(String clusterId, String nodeId, MetricsService metricsService, HealthCheckService healthCheckService) {
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
         this.metricsService = metricsService;
-
         this.healthCheckServiceProxy = healthCheckService.register();
-        this.transformer = new ContentTransformer();
+        this.contentTransformer = new ContentTransformer();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(configurationObject);
             Optional<Node> node = interrogator.getLocalNode(configurationObject);
 
@@ -127,6 +127,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
 
-        return new VersioningHandler(configData, transformer, metricsService);
+        return new VersioningHandler(configData, contentTransformer, metricsService);
     }
 }

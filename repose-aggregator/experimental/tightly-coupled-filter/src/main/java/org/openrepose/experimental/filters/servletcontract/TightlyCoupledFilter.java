@@ -5,6 +5,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import java.util.Scanner;
 /**
  * This experimental filter is to verify that repose can do modifications of the response. Even if it's tightly coupled.
  */
+@Named
 public class TightlyCoupledFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(TightlyCoupledFilter.class.getName());
 

@@ -54,7 +54,7 @@ class DefaultDestinationTest extends Specification {
 
     }
 
-    @Unroll("when defaults: #default1, #default2, #default3")
+    @Unroll("Fails to connect when defaults: #default1, #default2, #default3")
     def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
         given:
         // set the common and good configs
@@ -108,7 +108,7 @@ class DefaultDestinationTest extends Specification {
 
     }
 
-    @Unroll("when defaults: #default1, #default2, #default3")
+    @Unroll("starts and returns 200 when defaults: #default1, #default2, #default3")
     def "start with only one default destination endpoint in system model configs, should return 200"() {
         given:
         // set the common and good configs

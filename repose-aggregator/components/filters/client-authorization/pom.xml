@@ -28,8 +28,41 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-service-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastoreservice-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>service-client-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>httpclient-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.external</groupId>
+            <artifactId>os-auth-schemas</artifactId>
         </dependency>
 
         <dependency>

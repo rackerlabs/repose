@@ -18,7 +18,7 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

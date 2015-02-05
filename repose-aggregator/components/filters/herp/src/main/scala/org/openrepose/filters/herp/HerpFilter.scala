@@ -3,6 +3,7 @@ package org.openrepose.filters.herp
 import java.io.StringWriter
 import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -13,7 +14,6 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.http.HttpStatus
@@ -21,11 +21,11 @@ import org.springframework.http.HttpStatus
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+@Named
+class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
 
-  private var configurationService: ConfigurationService = _
   private var config: String = _
   private var initialized = false
   private var herpLogger: Logger = _
@@ -39,8 +39,6 @@ class HerpFilter extends Filter with HttpDelegationManager with UpdateListener[H
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
     logger.info("Initializing filter using config " + config)
-    val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
-    configurationService = powerApiContext.configurationService
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/highly-efficient-record-processor.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,

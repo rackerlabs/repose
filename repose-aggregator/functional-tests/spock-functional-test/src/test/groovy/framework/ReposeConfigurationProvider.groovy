@@ -71,7 +71,10 @@ class ReposeConfigurationProvider {
         } else {
             reposeConfigDir.mkdirs()
         }
+    }
 
+    public File getSystemModel() {
+        new File(reposeConfigDir, "system-model.cfg.xml")
     }
 
 }

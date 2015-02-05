@@ -3,19 +3,18 @@ package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
-import org.openrepose.services.datastore.hash.MD5MessageDigestFactory;
-import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
+import org.openrepose.core.services.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.security.NoSuchAlgorithmException;
 
-@Component("reposeLocalDatastore")
+@Named("reposeLocalDatastore")
 @ManagedResource(objectName = "org.openrepose.core.services.datastore.impl.ehcache:type=ReposeLocalCache",
                  description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
@@ -25,8 +24,8 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
     private final DatastoreService datastoreService;
 
-    @Autowired
-    public ReposeLocalCache(@Qualifier("datastoreService") DatastoreService datastoreService) {
+    @Inject
+    public ReposeLocalCache(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
     }
 

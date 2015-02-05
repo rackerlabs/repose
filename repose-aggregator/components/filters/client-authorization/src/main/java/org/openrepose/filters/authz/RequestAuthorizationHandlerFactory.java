@@ -10,9 +10,9 @@ import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.services.httpclient.HttpClientService;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

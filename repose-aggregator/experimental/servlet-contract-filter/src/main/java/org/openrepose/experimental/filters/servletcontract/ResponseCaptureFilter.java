@@ -3,6 +3,7 @@ package org.openrepose.experimental.filters.servletcontract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import java.io.PrintWriter;
  * PS - ServletResponse.getContentType() returns null as well, although the content type can be accessed through the
  * call to ServletResponse.getHeaders()
  */
+@Named
 public class ResponseCaptureFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseCaptureFilter.class);
 

@@ -20,26 +20,24 @@ import java.net.URL;
 public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory<UnmarshallerValidator> {
 
     private final JAXBContext context;
-    
-    private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerPoolableObjectFactory.class);
-    
-    private final URL xsdStreamSource;
 
-    public UnmarshallerPoolableObjectFactory(JAXBContext context) {
-        this.context = context;
-        xsdStreamSource = null;
-     }
-    
-    public UnmarshallerPoolableObjectFactory(JAXBContext context, URL xsdStreamSource) {
+    private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerPoolableObjectFactory.class);
+
+    private final URL xsdStreamSource;
+    private final ClassLoader classLoader;
+
+    public UnmarshallerPoolableObjectFactory(JAXBContext context, URL xsdStreamSource, ClassLoader classLoader) {
         this.context = context;
         this.xsdStreamSource = xsdStreamSource;
-     }
-    
+        this.classLoader = classLoader;
+    }
+
     @Override
     public UnmarshallerValidator makeObject() {
         try {
             UnmarshallerValidator uv = new UnmarshallerValidator(context);
             if (xsdStreamSource != null) {
+                //TODO: this might need to have a classloader
                 SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
                 factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
                 Schema schema = factory.newSchema(xsdStreamSource);
@@ -47,9 +45,9 @@ public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory
             }
             return uv;
         } catch (ParserConfigurationException pce) {
-            throw new ResourceConstructionException("Failed to configure DOM parser. Reason: " + pce.getMessage(), pce);
+            throw new ResourceConstructionException("Failed to configure DOM parser.", pce);
         } catch (JAXBException jaxbe) {
-            throw new ResourceConstructionException("Failed to construct JAXB unmarshaller. Reason: " + jaxbe.getMessage(), jaxbe);
+            throw new ResourceConstructionException("Failed to construct JAXB unmarshaller.", jaxbe);
         } catch (SAXException ex) {
             LOG.error("Error validating XML file", ex);
         }

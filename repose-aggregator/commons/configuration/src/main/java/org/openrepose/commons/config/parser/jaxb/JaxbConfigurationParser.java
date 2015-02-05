@@ -1,14 +1,15 @@
 package org.openrepose.commons.config.parser.jaxb;
 
-import org.openrepose.commons.config.parser.common.AbstractConfigurationObjectParser;
-import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
+import org.openrepose.commons.config.parser.common.AbstractConfigurationObjectParser;
+import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -25,7 +26,31 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
 
     public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
-        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource));
+        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource, configurationClass.getClassLoader()));
+    }
+
+    /**
+     * Creates a jaxb parser for a specific classloader.
+     * Throws up the JAXB exception so that things know they have to handle it.
+     * Moved from a "factory" class that was just a collection of static methods
+     *
+     * @param configurationClass
+     * @param xsdStreamSource
+     * @param loader
+     * @param <T>
+     * @return
+     * @throws javax.xml.bind.JAXBException
+     */
+    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass, URL xsdStreamSource, ClassLoader loader) throws JAXBException {
+        if(xsdStreamSource == null) {
+            LOG.warn("Creating a JAXB Parser Pool without any schema to validate for {}", configurationClass);
+            if(LOG.isDebugEnabled()) {
+                Exception tracer = new Exception("Repose Devs might care about this trace");
+                LOG.debug("Logging the current stack to find where a parser pool is created without a validator", tracer);
+            }
+        }
+        final JAXBContext context = JAXBContext.newInstance(configurationClass.getPackage().getName(), loader);
+        return new JaxbConfigurationParser<>(configurationClass, context, xsdStreamSource);
     }
 
     @Override
@@ -63,7 +88,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
         if (!configurationClass().isInstance(rtn)) {
             throw new ClassCastException("Parsed object from XML does not match the expected configuration class. "
                     + "Expected: " + configurationClass().getCanonicalName() + "  -  "
-                    + "Actual: " + (rtn==null?null:rtn.getClass().getCanonicalName()));
+                    + "Actual: " + (rtn == null ? null : rtn.getClass().getCanonicalName()));
         }
         return configurationClass().cast(rtn);
     }

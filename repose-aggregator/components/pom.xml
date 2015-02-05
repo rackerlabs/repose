@@ -23,7 +23,6 @@
     <modules>
         <module>filters</module>
         <module>cli-utils</module>
-        <module>datastores</module>
     </modules>
 
     <dependencyManagement>

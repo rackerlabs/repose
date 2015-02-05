@@ -13,11 +13,11 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.services.datastore.DatastoreOperationException;
+import org.openrepose.core.services.ratelimit.RateLimitingServiceImpl;
+import org.openrepose.core.services.ratelimit.exception.CacheException;
+import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.filters.ratelimiting.log.LimitLogger;
-import org.openrepose.services.datastore.DatastoreOperationException;
-import org.openrepose.services.ratelimit.RateLimitingServiceImpl;
-import org.openrepose.services.ratelimit.exception.CacheException;
-import org.openrepose.services.ratelimit.exception.OverLimitException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;

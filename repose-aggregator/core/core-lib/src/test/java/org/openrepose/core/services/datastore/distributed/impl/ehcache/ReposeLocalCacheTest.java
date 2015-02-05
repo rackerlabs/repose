@@ -1,8 +1,8 @@
 package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 
-import org.openrepose.services.datastore.Datastore;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.services.datastore.impl.DatastoreServiceImpl;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

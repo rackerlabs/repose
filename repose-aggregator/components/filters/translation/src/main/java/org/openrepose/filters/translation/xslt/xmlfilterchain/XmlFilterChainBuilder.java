@@ -48,7 +48,7 @@ public class XmlFilterChainBuilder {
         try {
 
             XALANC_TRANSFORMER_FACTORY =
-                    (SAXTransformerFactory) TransformerFactory.newInstance( XALANC_FACTORY_NAME, null );
+                    (SAXTransformerFactory) TransformerFactory.newInstance( XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
 
             XALANC_TRANSFORMER_FACTORY.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
 
@@ -197,7 +197,7 @@ public class XmlFilterChainBuilder {
   }
 
   protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
-    System.setProperty("entityExpansionLimit","10"); 
+    System.setProperty("entityExpansionLimit","10");
     SAXParserFactory spf = SAXParserFactory.newInstance();
     spf.setXIncludeAware(false);
     spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);

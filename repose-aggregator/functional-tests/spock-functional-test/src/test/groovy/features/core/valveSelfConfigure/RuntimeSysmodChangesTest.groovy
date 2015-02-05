@@ -24,6 +24,8 @@ class RuntimeSysmodChangesTest extends Specification {
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
+    //This must be longer than the 15 second hard coded Poller timeout
+    //TODO: eventually replace this with a JMX trigger to force a configuration update.
     int sleep_duration = 35000
 
     def setup() {
@@ -53,6 +55,7 @@ class RuntimeSysmodChangesTest extends Specification {
         ]
         reposeConfigProvider.cleanConfigDirectory()
 
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/single-node-with-proto", params)
@@ -101,11 +104,12 @@ class RuntimeSysmodChangesTest extends Specification {
             'node2port': port2,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/two-nodes', params)
+        println("Change config to two-nodes")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
-        1 == 1
+        1 == 1 //WAT
 
 
 
@@ -136,6 +140,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'sysmodPort': port2,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/single-node-with-proto', params)
+        println("changed configs to single-node-with-proto")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
@@ -173,6 +178,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'node3port': port3,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
+        println("changed to three-nodes config")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
         repose.waitForNon500FromUrl("http://localhost:${port2}")
@@ -211,6 +217,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'node3port': port3,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
+        println("changed to three-nodes config again, but a different hostname")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         repose.waitForNon500FromUrl("http://localhost:${port3}")

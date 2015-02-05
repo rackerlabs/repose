@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.core</groupId>
+        <artifactId>core-support</artifactId>
+        <version>7.0.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.core</groupId>
+    <artifactId>core-service-api</artifactId>
+
+    <name>Repose Core Service APIs</name>
+    <description>
+        APIs for the core services repose provides.
+    </description>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+
+        <!-- sadly the core API pulls in a pile of things :( -->
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/system-model</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/container</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/httpx</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/response-messaging</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging
+                            </outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/metrics</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/metrics</outputDir>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <configuration>
+                    <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

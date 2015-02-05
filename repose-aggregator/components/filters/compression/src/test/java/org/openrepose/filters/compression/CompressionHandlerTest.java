@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.core.filter.PowerFilterChain;
+import org.openrepose.powerfilter.PowerFilterChain;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.external.pjlcompression.CompressingFilter;

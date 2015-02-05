@@ -1,5 +1,7 @@
 package org.openrepose.filters.translation;
 
+import com.saxonica.config.EnterpriseTransformerFactory;
+import net.sf.saxon.trans.DynamicLoader;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.translation.config.*;
 import org.openrepose.filters.translation.xslt.XsltParameter;
@@ -36,7 +38,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
   public TranslationHandlerFactory(ConfigurationService configService, String configurationRoot, String config) {
 
-    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, null);
+    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, this.getClass().getClassLoader());
 
     requestProcessorPools = new ArrayList<XmlChainPool>();
     responseProcessorPools = new ArrayList<XmlChainPool>();
@@ -146,7 +148,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
   private void updateTransformerPool (String transFactoryClass) {
      if (!transformerFactory.getClass().getCanonicalName().equals(transFactoryClass)) {
-        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, null);
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, this.getClass().getClassLoader());
      }
   }
 
@@ -161,6 +163,18 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
         if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
            updateTransformerPool( SAXON_EE_FACTORY_NAME );
+          /*
+           * I found this through here: http://sourceforge.net/p/saxon/mailman/message/29737564/
+           * A bit of deduction and stuff let me to assume that all dynamic loading is done with the DynamicLoader
+           * object. The only way to get ahold of that is to typecast the TransformerFactory to the actual class, and
+           * then get the DynamicLoader out of it, and set it's classloader to the one where the saxonica classes 
+           * are located.
+           */
+          //Now that we have a Saxon EE transformer factory, we need to configure it...
+          //We have to do casting to get the configuration object, to configure the DynamicLoader for our classloader
+          //This is only needed for saxon EE, because it generates bytecode.
+          EnterpriseTransformerFactory etf = (EnterpriseTransformerFactory)transformerFactory;
+          etf.getConfiguration().getDynamicLoader().setClassLoader(this.getClass().getClassLoader());
         } else {
             updateTransformerPool(SAXON_HE_FACTORY_NAME);
         }

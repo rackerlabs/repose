@@ -1,7 +1,7 @@
 package features.services.datastore
 
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.services.datastore.StringValue
+import org.openrepose.core.services.datastore.StringValue
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -11,6 +11,8 @@ import org.rackspace.deproxy.PortFinder
 
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     static def params
     static def distDatastoreEndpoint
@@ -31,7 +33,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.start()
+        repose.start([clusterId: "repose", nodeId:"nofilters"])
         waitUntilReadyToServiceRequests()
     }
 
@@ -54,7 +56,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
+        def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
 
         when:
         MessageChain mc =
@@ -74,8 +76,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("original value"))
-        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(" patched on value"))
+        def body = objectSerializer.writeObject(new StringValue.Patch("original value"))
+        def newBody = objectSerializer.writeObject(new StringValue.Patch(" patched on value"))
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
         MessageChain mc1 = deproxy.makeRequest(
@@ -104,15 +106,15 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then: "The body of the get response should be my second request body"
         mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
-        ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
-        ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
+        objectSerializer.readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
+        objectSerializer.readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
     }
 
     def "when putting cache objects" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
+        def body = objectSerializer.writeObject(new StringValue("test data"))
 
 
         when:
@@ -133,7 +135,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
+        def body = objectSerializer.writeObject(new StringValue("test data"))
         MessageChain mc =
             deproxy.makeRequest(
                     [
@@ -170,7 +172,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
+        def body = objectSerializer.writeObject(new StringValue("test data"))
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
 
 

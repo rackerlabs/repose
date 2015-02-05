@@ -6,9 +6,9 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
 @Category(Slow.class)
-class DestinationRouterJMXTest extends ReposeValveTest{
-    String PREFIX = "\"repose-node1-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
+class DestinationRouterJMXTest extends ReposeValveTest {
 
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
     String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""
 
@@ -33,9 +33,8 @@ class DestinationRouterJMXTest extends ReposeValveTest{
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for specific endpoint"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count")
+        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count")
         target = (target == null) ? 0 : target
-
 
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint/1"])
@@ -48,7 +47,7 @@ class DestinationRouterJMXTest extends ReposeValveTest{
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for all endpoints"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
+        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
         target = (target == null) ? 0 : target
 
         when:
@@ -61,7 +60,7 @@ class DestinationRouterJMXTest extends ReposeValveTest{
 
     def "when requests DO NOT match destination router target URI, should NOT increment DestinationRouter mbeans for all endpoints"() {
         given:
-        def target = repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
+        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
         target = (target == null) ? 0 : target
 
         when:
@@ -69,6 +68,6 @@ class DestinationRouterJMXTest extends ReposeValveTest{
         deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == (target == 0 ? null : 0)
+        repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == (target == 0 ? null : 0)
     }
 }

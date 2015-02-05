@@ -7,7 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.papi.service</groupId>
     <artifactId>service-client-akka</artifactId>
 
     <name>Repose Services - AuthClient Akka Impl</name>
@@ -24,6 +23,12 @@
             <artifactId>akka-actor_2.10</artifactId>
         </dependency>
 
+        <!-- we are explicitly using typesafe's config here, so we should explicitly depend on it -->
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
@@ -33,6 +38,12 @@
         <dependency>
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>service-client-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -48,6 +59,7 @@
             <artifactId>commons-io</artifactId>
         </dependency>
 
+        <!-- we're using scala classes in java land here -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>

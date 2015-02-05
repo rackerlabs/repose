@@ -54,6 +54,7 @@ class MultiClusterMultiNodeTest extends Specification {
                 'port22': port22,
         ]
         reposeConfigProvider.cleanConfigDirectory()
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)

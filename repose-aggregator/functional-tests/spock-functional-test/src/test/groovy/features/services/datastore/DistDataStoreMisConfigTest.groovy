@@ -17,7 +17,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
 
 
-    @Unroll("When start data store config #configuration")
+    @Unroll("When start data store using config #configuration")
     def "Test data store with wrong config"() {
         given:
         def searchError = "Configuration update error. Reason: "
@@ -58,10 +58,10 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
     }
 
-    @Unroll("When start data store mismatch config #configuration")
+    @Unroll("When start data store mismatch for config #configuration")
     def "Test data store with mismatch config"() {
         given:
-        def searchError = "Configuration update error. Reason: port out of range:-1"
+        def searchError = "Unable to determine Distributed Datastore port for" //clusterId:nodeId
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
@@ -95,7 +95,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     @Unroll("When start data store with port out of range: #port")
     def "Test data store with port out of range"() {
         given:
-        def searchError = "port out of range:"+port
+        def searchError = "Distributed Datastore port out of range: " + port
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
@@ -116,19 +116,18 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503")
 
         then:
-        reposeLogSearch.searchByString("NullPointerException").size() == 0
         timedSearch(10) {
             reposeLogSearch.searchByString(searchError).size() > 0
         }
 
         where:
-        port    << [65536,-1]
+        port    << [65536, -3] //-1 is used internally as "I can't find the port"
     }
 
     @Unroll("When start data store with reserved: #port")
     def "Test start data store with reserved ports"() {
         given:
-        def searchError = "Unable to start Distributed Datastore Jetty Instance: Permission denied"
+        def searchError = "Unable to start Distributed Datastore Server instance on ${port}"
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
@@ -138,7 +137,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort' : dataStorePort
+                'datastorePort': dataStorePort
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
@@ -156,36 +155,6 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         where:
         port << [21, 22, 23, 1023]
-
-    }
-
-    def "When start data store port conflict"() {
-        given:
-        def searchError = "java.net.BindException: Address already in use"
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        reposeLogSearch.cleanLog()
-
-        datastoreEndpoint = "http://localhost:${dataStorePort}"
-
-        def params = properties.getDefaultTemplateParams()
-        params += [
-                'datastorePort' : dataStorePort
-        ]
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/portconflict", params)
-
-        when:
-        repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests("503", false)
-
-        then:
-        reposeLogSearch.searchByString("NullPointerException").size() == 0
-        timedSearch(10) {
-            reposeLogSearch.searchByString(searchError).size() > 0
-        }
 
     }
 

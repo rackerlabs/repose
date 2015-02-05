@@ -1,7 +1,7 @@
 package org.openrepose.filters.slf4jlogging
 
 import org.intellij.lang.annotations.Language
-import org.openrepose.commons.config.parser.ConfigurationParserFactory
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.ByteArrayConfigurationResource
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig
 import spock.lang.Specification
@@ -21,9 +21,10 @@ class AdditionalXSDFormatTest extends Specification {
 
     Slf4JHttpLoggingConfig marshalConfig(String xml) {
         URL xsdURL = getClass().getResource("/META-INF/schema/config/slf4j-http-logging-configuration.xsd");
-        def parser = ConfigurationParserFactory.getXmlConfigurationParser(
+        def parser = JaxbConfigurationParser.getXmlConfigurationParser(
                 Slf4JHttpLoggingConfig.class,
-                xsdURL)
+                xsdURL,
+                this.getClass().getClassLoader())
         def configResource = new ByteArrayConfigurationResource("slf4jConfig", xml.getBytes(StandardCharsets.UTF_8))
         parser.read(configResource)
     }

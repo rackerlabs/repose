@@ -1,6 +1,7 @@
 package org.openrepose.filters.contenttypestripper
 
 import java.io.PushbackInputStream
+import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
@@ -11,6 +12,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
+@Named
 class ContentTypeStripperFilter extends Filter {
 
   override def init(p1: FilterConfig): Unit = {}

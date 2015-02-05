@@ -9,7 +9,7 @@ import org.openrepose.common.auth.AuthServiceException
 import org.openrepose.common.auth.ResponseUnmarshaller
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openstack.docs.identity.api.v2.AuthenticationRequest
 import org.openstack.docs.identity.api.v2.ObjectFactory
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername
@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AuthenticationServiceClientTest extends Specification {

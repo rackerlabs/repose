@@ -6,8 +6,10 @@ import org.openrepose.core.services.event.common.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a thread that continuously monitors configuration
@@ -23,16 +25,16 @@ import java.util.Map;
 public class ConfigurationResourceWatcher implements RecurringTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationResourceWatcher.class);
-    private final Map<String, ConfigurationResource> watchMap;
+    private final ConcurrentHashMap<String, ConfigurationResource> watchMap;
     private final EventService eventManager;
 
     public ConfigurationResourceWatcher(EventService eventManager) {
         this.eventManager = eventManager;
-        watchMap = new HashMap<String, ConfigurationResource>();
+        watchMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         for (ConfigurationResource resource : watchMap.values()) {
             try {
                 if (resource.updated()) {
@@ -51,11 +53,11 @@ public class ConfigurationResourceWatcher implements RecurringTask {
         }
     }
 
-    public synchronized void watch(ConfigurationResource resource) {
+    public void watch(ConfigurationResource resource) {
         watchMap.put(resource.name(), resource);
     }
 
-    public synchronized void stopWatching(String resourceName) {
+    public void stopWatching(String resourceName) {
         watchMap.remove(resourceName);
     }
 }

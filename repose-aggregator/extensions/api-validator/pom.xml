@@ -28,9 +28,31 @@
         </dependency>
 
         <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- actually uses something from the commons project -->
+        <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
 
         <dependency>
@@ -38,10 +60,11 @@
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.rackspace.papi.components.api-checker</groupId>
             <artifactId>checker-core</artifactId>
-            <version>1.0.20</version>
+            <version>1.0.21</version>
         </dependency>
     </dependencies>
 

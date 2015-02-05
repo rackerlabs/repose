@@ -16,6 +16,7 @@
 
 package org.openrepose.external.pjlcompression;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -29,7 +30,12 @@ import java.lang.reflect.Constructor;
  */
 public final class LogTest {
 
+    /**
+     * this test tests a commons logging implementation that we are *NOT* using
+     * @throws Exception
+     */
     @Test
+    @Ignore
     public void testJakartaImpl() throws Exception {
         Class<?> delegateClass =
                 Class.forName("org.openrepose.external.pjlcompression.JakartaCommonsLoggingImpl");

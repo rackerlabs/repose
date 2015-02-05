@@ -5,8 +5,8 @@ import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
-    String RESPONSE_CODE_PREFIX = "\"repose-node1-org.openrepose.core\":type=\"ResponseCode\",scope=\""
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
+    String RESPONSE_CODE_PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
 
     String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_2XX = "\",name=\"2XX\""
@@ -63,9 +63,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == null
-        repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == null
+        repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
+        repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count") == null
+        repose.jmx.quickMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == null
     }
 
     def "when 'enabled' is not specified, reporting should occur"() {

@@ -6,6 +6,6 @@
         schemaLocation="limits.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.services.ratelimit.config" />
+        <package name="org.openrepose.core.services.ratelimit.config" />
     </schemaBindings>
 </bindings>

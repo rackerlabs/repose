@@ -14,7 +14,7 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClientException;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
