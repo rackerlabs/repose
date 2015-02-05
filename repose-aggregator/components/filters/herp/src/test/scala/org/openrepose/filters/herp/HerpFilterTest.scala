@@ -1,11 +1,13 @@
 package org.openrepose.filters.herp
 
+import java.util
+
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.openrepose.core.filter.logic.FilterDirector
-import org.openrepose.filters.herp.config.{HerpConfig, Template}
+import org.openrepose.filters.herp.config.{HerpConfig, Template, FilterOut, Match}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.springframework.http.HttpStatus._
@@ -359,27 +361,142 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     }
   }
 
-  describe("The doFilter() method with a filtering config") {
-    describe("should filter out the matched events from the post filter log and let all others pass") {
-      it("when there are fields with String values.") {
-        //      "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
-        ???
+  describe("The doFilter() method with a filtering config should filter out the matched events,") {
+    val conditions: Map[String, Int] = Map(
+      // Regex     | Log Events
+      ".*[Ff]oo.*" -> 0,
+      ".*[Bb]ar.*" -> 1)
+    conditions.foreach { condition =>
+      describe(s"if the regex is ${condition._1} then the passed events should be ${condition._2}") {
+        it("when the field has a String value.") {
+          // given:
+          val test = "---foo---"
+          servletRequest.addHeader("X-User-Name", test)
+          val matcher = new Match
+          matcher.setField("userName")
+          matcher.setRegex(condition._1)
+          val filterOut = new FilterOut
+          filterOut.getMatch.add(matcher)
+          herpConfig.getFilterOut.add(filterOut)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(test)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
+        it("when there are fields with String array values.") {
+          // given:
+          val test = "---foo---"
+          servletRequest.addHeader("X-Roles", test)
+          val matcher = new Match
+          matcher.setField("roles")
+          matcher.setRegex(condition._1)
+          val filterOut = new FilterOut
+          filterOut.getMatch.add(matcher)
+          herpConfig.getFilterOut.add(filterOut)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(test)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
+        it("when there are fields with maps with String keys and String array values and the condition is in a key.") {
+          val test = "---foo---"
+          val paramMap = new util.HashMap[String, Array[String]]
+          paramMap.put(test, Array[String]("A", "B", "C"))
+          paramMap.put("---baz---", Array[String]("1", "2", "3"))
+          servletRequest.setAttribute("http://openrepose.org/queryParams", paramMap)
+          val matcher = new Match
+          matcher.setField("parameters")
+          matcher.setRegex(condition._1)
+          val filterOut = new FilterOut
+          filterOut.getMatch.add(matcher)
+          herpConfig.getFilterOut.add(filterOut)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(test)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
+        it("when there are fields with maps with String keys and String array values and the condition is in a value.") {
+          val test = "---foo---"
+          val paramMap = new util.HashMap[String, Array[String]]
+          paramMap.put("---buz---", Array[String]("A", "B", "C"))
+          paramMap.put("---baz---", Array[String]("1", "2", test))
+          servletRequest.setAttribute("http://openrepose.org/queryParams", paramMap)
+          val matcher = new Match
+          matcher.setField("parameters")
+          matcher.setRegex(condition._1)
+          val filterOut = new FilterOut
+          filterOut.getMatch.add(matcher)
+          herpConfig.getFilterOut.add(filterOut)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(test)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
       }
-      it("when there are fields with String array values.") {
-        //      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
-        ???
-      }
-      it("when there are fields with maps with String keys and String array values.") {
-        //      "parameters" -> translateParameters().asJava.entrySet(),
-        ???
-      }
-      it("when there are fields with maps with Long integer values.") {
-        //      "timestamp" -> System.currentTimeMillis(),
-        ???
-      }
-      it("when there are fields with maps with Integer values.") {
-        //      "responseCode" -> httpServletResponse.getStatus,
-        ???
+    }
+  }
+  describe("The doFilter() method with a filtering config should filter out the matched events,") {
+    val conditions: Map[String, Int] = Map(
+      // Regex     | Log Events
+      "4[01]8" -> 0,
+      "4[23]8" -> 1)
+    conditions.foreach { condition =>
+      describe(s"if the regex is ${condition._1} then the passed events should be ${condition._2}") {
+        it("when there are fields with maps with Integer values.") {
+          // given:
+          val test = I_AM_A_TEAPOT.value
+          servletRequest.addHeader("X-Roles", test)
+          val matcher = new Match
+          matcher.setField("responseCode")
+          matcher.setRegex(condition._1)
+          val filterOut = new FilterOut
+          filterOut.getMatch.add(matcher)
+          herpConfig.getFilterOut.add(filterOut)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(test.toString)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
       }
     }
   }
