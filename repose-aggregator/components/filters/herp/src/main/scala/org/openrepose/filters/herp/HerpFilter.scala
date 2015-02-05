@@ -14,7 +14,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.herp.config.HerpConfig
+import org.openrepose.filters.herp.config.{FilterOut, HerpConfig}
 import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.http.HttpStatus
 
@@ -28,11 +28,13 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
 
   private var config: String = _
   private var initialized = false
-  private var herpLogger: Logger = _
+  private var preLogger: Logger = _
+  private var postLogger: Logger = _
   private var serviceCode: String = _
   private var region: String = _
   private var dataCenter: String = _
   private var handlebarsTemplate: Template = _
+  private var filterOut: Iterable[FilterOut] = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
@@ -103,7 +105,14 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     val templateOutput: StringWriter = new StringWriter
     handlebarsTemplate.apply(templateValues.asJava, templateOutput)
 
-    herpLogger.info(templateOutput.toString)
+    preLogger.info(templateOutput.toString)
+    if(!doFilterOut(templateValues)) {
+      postLogger.info(templateOutput.toString)
+    }
+  }
+
+  private def doFilterOut(values: Map[String, Any]): Boolean = {
+    false
   }
 
   override def destroy(): Unit = {
@@ -122,12 +131,14 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       templateText
     }
 
-    herpLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
+    preLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
+    postLogger = LoggerFactory.getLogger(config.getPostFilterLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
     def handlebars = new Handlebars()
     handlebarsTemplate = handlebars.compileInline(templateString)
+    filterOut = config.getFilterOut.asScala
     initialized = true
   }
 
