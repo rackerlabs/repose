@@ -467,17 +467,18 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       }
     }
   }
+
   describe("The doFilter() method with a filtering config should filter out the matched events,") {
     val conditions: Map[String, Int] = Map(
       // Regex     | Log Events
-      "4[01]8" -> 0,
-      "4[23]8" -> 1)
+      ".*[Ff]oo.*" -> 0,
+      ".*[Bb]ar.*" -> 1)
     conditions.foreach { condition =>
       describe(s"if the regex is ${condition._1} then the passed events should be ${condition._2}") {
         it("when there are fields with maps with Integer values.") {
           // given:
           val test = I_AM_A_TEAPOT.value
-          servletRequest.addHeader("X-Roles", test)
+          servletResponse.setStatus(test)
           val matcher = new Match
           matcher.setField("responseCode")
           matcher.setRegex(condition._1)
@@ -493,6 +494,60 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           def logEventsPre = listAppenderPre.getEvents
           logEventsPre.size shouldBe 1
           logEventsPre.get(0).getMessage.getFormattedMessage should include(test.toString)
+
+          def logEventsPost = listAppenderPost.getEvents
+          logEventsPost.size shouldBe condition._2
+        }
+      }
+    }
+  }
+
+  describe("The doFilter() method with a filtering config should filter out the matched events,") {
+    val conditions: Map[String, Int] = Map(
+      // Regex     | Log Events
+      ".*[Ff]oo.*" -> 0,
+      ".*[Bb]ar.*" -> 1)
+    conditions.foreach { condition =>
+      describe(s"if the regex is ${condition._1} then the passed events should be ${condition._2}") {
+        it("when the matches of a filterOut are AND'd and the filterOut's are OR'd.") {
+          // given:
+          val testOne = "---foo---"
+          val testTwo = "---BUZ---"
+          servletRequest.addHeader("X-User-Name", testOne)
+          servletRequest.addHeader("X-Roles", testTwo)
+          val filtersOut = herpConfig.getFilterOut
+          val filterOne = new FilterOut
+          val matchersOne = filterOne.getMatch
+          val matcherOne = new Match
+          matcherOne.setField("userName")
+          matcherOne.setRegex(condition._1) // Conditionally matches
+          matchersOne.add(matcherOne)
+          val matcherTwo = new Match
+          matcherTwo.setField("roles")
+          matcherTwo.setRegex(".*BUZ.*")  // Always matches
+          matchersOne.add(matcherTwo)
+          filtersOut.add(filterOne)
+          val filterTwo = new FilterOut
+          val matchersTwo = filterTwo.getMatch
+          val matcherThree = new Match
+          matcherThree.setField("userName")
+          matcherThree.setRegex("NO-MATCH") // Never Matches
+          matchersTwo.add(matcherThree)
+          val matcherFour = new Match
+          matcherFour.setField("roles")
+          matcherFour.setRegex(".*BUZ.*") // Always matches
+          matchersTwo.add(matcherFour)
+          filtersOut.add(filterTwo)
+
+          // when:
+          herpFilter.configurationUpdated(herpConfig)
+          herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          // then:
+          def logEventsPre = listAppenderPre.getEvents
+          logEventsPre.size shouldBe 1
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(testOne.toString)
+          logEventsPre.get(0).getMessage.getFormattedMessage should include(testTwo.toString)
 
           def logEventsPost = listAppenderPost.getEvents
           logEventsPost.size shouldBe condition._2
