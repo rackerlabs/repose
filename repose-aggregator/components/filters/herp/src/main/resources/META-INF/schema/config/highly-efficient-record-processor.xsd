@@ -134,7 +134,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        This is the template field to compare the regular expression against.
+                        This is the event field to compare the regular expression against.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -143,7 +143,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        This is the regular expression to apply to the template field.
+                        This is the regular expression to apply to the event field.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
