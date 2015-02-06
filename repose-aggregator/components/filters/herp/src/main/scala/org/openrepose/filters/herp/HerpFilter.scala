@@ -192,15 +192,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     initialized = true
 
     def processFiltersOut(filters: Iterable[FilterOut]): Iterable[Iterable[(String, Regex)]] = {
-      val filterList = new util.ArrayList[Iterable[(String, Regex)]]
-      filters.foreach { filter =>
-        val matcherList = new util.ArrayList[(String, Regex)]
-        filter.getMatch.asScala.foreach { matcher =>
-          matcherList.add((matcher.getField, matcher.getRegex.r))
+      filters.map { filter =>
+        filter.getMatch.asScala.map { matcher =>
+          (matcher.getField, matcher.getRegex.r)
         }
-        filterList.add(matcherList.asScala)
       }
-      filterList.asScala
     }
   }
 
