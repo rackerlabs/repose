@@ -20,6 +20,9 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 
+
+  val expectedLogMessage = "DEPRECATION WARNING: One of your config files contains an old namespace"
+
   val LIST_APPENDER_REF = "List0"
   var app: ListAppender = _
 
@@ -35,112 +38,93 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   //
   /////////////////////////////////////////////////////////////////////////////////////
 
-  val filesList: List[String] = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("/unmarshallerValidator/oldXmlConfigs/")).getLines().toList
+  /**
+   * Construct myself a list of files to do work on!
+   */
+  def pathedFiles(path:String): List[String] = {
+    Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path)).getLines().toList.map { file =>
+      path + file
+    }
+  }
 
-  //I copied all the XSDs into a folder, since they won't be available on this class path :(
-  // TODO: maybe this test should live somewhere else, possibly as an "integration" test, but much simpler.
-  val xsdUrlMap:Map[String, URL] = filesList.map { file =>
-    val xsdSchemaName = file.replace(".cfg.xml", ".xsd")
+  val oldXmlFiles = pathedFiles("unmarshallerValidator/oldXmlConfigs/")
+  val badNamespaceFiles = pathedFiles("unmarshallerValidator/badNamespace/")
+  val correctNamespaceFiles = pathedFiles("unmarshallerValidator/correctNamespace/")
+
+  //oldXmlFiles contains the largest list of the files, I should probably combine them.
+  val xsdUrlMap: Map[String, URL] = oldXmlFiles.map { file =>
+    val fileName = file.split("/").last
+
+    val xsdSchemaName = fileName.replace(".cfg.xml", ".xsd")
 
     //Return a map of the config file to the schema location
-    file -> this.getClass.getResource(s"/unmarshallerValidator/xsd/$xsdSchemaName")
+    fileName -> this.getClass.getResource(s"/unmarshallerValidator/xsd/$xsdSchemaName")
   }.toMap
 
   //Since this test isn't doing any actual unmarshalling, we'll give it a fake JAXB context
   val mockContext = mock[JAXBContext]
   val uv = new UnmarshallerValidator(mockContext)
 
+  import scala.collection.JavaConversions._
+
+
+  /**
+   * Get a schema based on the configuration file name. Much easier to deal with
+   * @param configFile
+   * @return
+   */
+  def getSchemaForFile(configFile: String): Schema = {
+    val xsdURL = xsdUrlMap(configFile.split("/").last)
+    //Build the schema thingy
+    val factory: SchemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
+    factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
+    factory.newSchema(xsdURL)
+  }
+
+  /**
+   * Do the actual validation
+   * @param configFile
+   */
+  def validate(configFile: String): Unit = {
+    uv.setSchema(getSchemaForFile(configFile))
+
+    val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance
+    dbf.setNamespaceAware(true)
+
+    val db = dbf.newDocumentBuilder
+    //It's nice that java doesn't reference things the same way always :(
+    uv.validate(db.parse(this.getClass.getResourceAsStream("/" + configFile)))
+  }
+
   describe("Validating oldXmlConfigs") {
-    filesList.foreach { configFile =>
-      it(s"validates the old configuration for $configFile") {
-        val xsdURL = xsdUrlMap(configFile)
-        //Build the schema thingy
-        val factory: SchemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-        val schema: Schema = factory.newSchema(xsdURL)
-
-        uv.setSchema(schema)
-
-        val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance
-        dbf.setNamespaceAware(true)
-
-        val db = dbf.newDocumentBuilder
-
-        uv.validate(db.parse(this.getClass.getResourceAsStream(s"/unmarshallerValidator/oldXmlConfigs/$configFile")))
+    oldXmlFiles.foreach { configFile =>
+      it(s"validates the old namespace configuration for $configFile") {
+        validate(configFile)
+        val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
+        events.count(_.contains(expectedLogMessage)) shouldBe 1
       }
     }
   }
 
+  describe("Validating an already correct namespace") {
+    correctNamespaceFiles.foreach { configFile =>
+      it(s"should not log the a message for $configFile") {
+        validate(configFile)
 
+        val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
+        events.count(_.contains(expectedLogMessage)) shouldBe 0
 
-  describe(s"The UnmarshallerValidator") {
-
-    val oldNamespace = "OOPS"
-
-    describe(s"with a config containing the deprecated namespace $oldNamespace") {
-      val configData =
-        s"""<?xml version="1.0" encoding="UTF-8"?>
-           |<unmarshaller-test
-           |     xmlns="$oldNamespace/unmarshaller-test/v0.0"
-                                       |     unmarshaller-test-attribute="This is the attribute value."/>
-         """.stripMargin
-
-      it("should update the config namespace to http://docs.openrepose.org/repose/.") {
-        pending
-        //          /////////////////////////////////////////////////////////////////////////////////////
-        //          // This is a Time-Bomb to remind us to remove the backwards compatible hack.       //
-        //          new Date() should be < new GregorianCalendar(2015, Calendar.SEPTEMBER, 1).getTime() //
-        //          /////////////////////////////////////////////////////////////////////////////////////
-        //          val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-        //          factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-        //          val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
-        //          val jaxbContext = JAXBContext.newInstance(classOf[UnmarshallerValidatorTestImpl].getPackage.getName)
-        //          val unmarshallerValidator = new UnmarshallerValidator(jaxbContext)
-        //          unmarshallerValidator.setSchema(schema)
-        //          unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
-        //          val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-        //          events.count(_.contains(s"Contains old namespace  - $oldNamespace")) shouldBe 1
+      }
+    }
+  }
+  describe("Validating invalid configurations") {
+    badNamespaceFiles.foreach { configFile =>
+      it(s"should throw an exception for $configFile") {
+        intercept[Exception] {
+          validate(configFile)
+        }
       }
     }
   }
 
-  it("should not log the a message if the namespace is already correct.") {
-    pending
-    //      val configData =
-    //        s"""<?xml version="1.0" encoding="UTF-8"?>
-    //           |<unmarshaller-test
-    //           |        xmlns="http://docs.openrepose.org/repose/unmarshaller-test/v0.0"
-    //           |        unmarshaller-test-attribute="This is the attribute value."/>
-    //       """.stripMargin
-    //
-    //      val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-    //      factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-    //      val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
-    //      val jaxbContext = JAXBContext.newInstance(classOf[UnmarshallerValidatorTestImpl].getPackage.getName)
-    //      val unmarshallerValidator = new UnmarshallerValidator(jaxbContext)
-    //      unmarshallerValidator.setSchema(schema)
-    //      unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
-    //      val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-    //      events.count(_.contains(s"Contains old namespace  - ")) shouldBe 0
-  }
-
-  it("should throw an exception when the config namespace is bad.") {
-    pending
-    //      val configData =
-    //        s"""<?xml version="1.0" encoding="UTF-8"?>
-    //         |<unmarshaller-test
-    //         |        xmlns="http://test.something.bad/repose/unmarshaller-test/v0.0"
-    //         |        unmarshaller-test-attribute="This is the attribute value."/>
-    //       """.stripMargin
-    //
-    //      val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-    //      factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-    //      val schema = factory.newSchema(new StreamSource(new ByteArrayInputStream(schemaData.getBytes())))
-    //      val jaxbContext = JAXBContext.newInstance(classOf[UnmarshallerValidatorTestImpl].getPackage.getName)
-    //      val unmarshallerValidator = new UnmarshallerValidator(jaxbContext)
-    //      unmarshallerValidator.setSchema(schema)
-    //      intercept[SAXParseException] {
-    //        unmarshallerValidator.validateUnmarshal(new ByteArrayInputStream(configData.getBytes))
-    //      }
-  }
 }
