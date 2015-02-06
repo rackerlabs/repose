@@ -22,7 +22,7 @@
 
         <xs:sequence>
             <xs:element name="template" type="Template"/>
-            <xs:element name="filterOut" type="FilterOut" maxOccurs="unbounded"/>
+            <xs:element name="filterOut" type="FilterOut" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional" default="org.openrepose.herp.pre.filter">
