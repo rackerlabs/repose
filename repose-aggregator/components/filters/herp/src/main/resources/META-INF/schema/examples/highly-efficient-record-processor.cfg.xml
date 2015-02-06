@@ -35,14 +35,14 @@
         }
     </template>
     <filterOut>
-        <match field="UserName" regex=".*[fF]oo.*"/>
+        <match field="userName" regex=".*[fF]oo.*"/>
         <!-- Implicit AND -->
-        <match field="DataCenter" regex="DFW"/>
+        <match field="dataCenter" regex="DFW"/>
     </filterOut>
     <!-- Implicit OR -->
     <filterOut>
-        <match field="UserName" regex=".*[bB]ar.*"/>
+        <match field="userName" regex=".*[bB]ar.*"/>
         <!-- Implicit AND -->
-        <match field="region" regex="USA"/>
+        <match field="parameters.abc" regex="123"/>
     </filterOut>
 </highly-efficient-record-processor>
