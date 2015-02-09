@@ -421,6 +421,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           def logEventsPost = listAppenderPost.getEvents
           logEventsPost.size shouldBe condition._2
         }
+      }
+    }
+  }
+
+  describe("the doFilter method with a filtering config,") {
+    val conditions: Map[(String, String), Int] = Map(
+      // Regex     | Log Events
+      (".*[Ff]oo.*", "NO-MATCH") -> 0,
+      ("NO-MATCH", ".*[Ff]oo.*") -> 0,
+      (".*[Bb]ar.*", "NO-MATCH") -> 1,
+      ("NO-MATCH", ".*[Bb]ar.*") -> 1)
+    conditions.foreach { condition =>
+      describe(s"if the regex is ${condition._1}, then the total unfiltered events should be ${condition._2},") {
         it("when the matches of a filterOut are AND'd and the filterOut's are OR'd.") {
           // given:
           val testOne = "---foo---"
@@ -432,22 +445,22 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           val matchersOne = filterOne.getMatch
           val matcherOne = new Match
           matcherOne.setField("userName")
-          matcherOne.setRegex(condition._1) // Conditionally matches
+          matcherOne.setRegex(condition._1._1)  // Conditionally matches
           matchersOne.add(matcherOne)
-          val matcherTwo = new Match        // AND'd
+          val matcherTwo = new Match            // AND'd
           matcherTwo.setField("roles")
-          matcherTwo.setRegex(".*BUZ.*")    // Always matches
+          matcherTwo.setRegex(".*BUZ.*")        // Always matches
           matchersOne.add(matcherTwo)
           filtersOut.add(filterOne)
-          val filterTwo = new FilterOut     // OR'd
+          val filterTwo = new FilterOut         // OR'd
           val matchersTwo = filterTwo.getMatch
           val matcherThree = new Match
           matcherThree.setField("userName")
-          matcherThree.setRegex("NO-MATCH") // Never Matches
+          matcherThree.setRegex(condition._1._2)// Never Matches
           matchersTwo.add(matcherThree)
-          val matcherFour = new Match       // AND'd
+          val matcherFour = new Match           // AND'd
           matcherFour.setField("roles")
-          matcherFour.setRegex(".*BUZ.*")   // Always matches
+          matcherFour.setRegex(".*BUZ.*")       // Always matches
           matchersTwo.add(matcherFour)
           filtersOut.add(filterTwo)
 
