@@ -1,16 +1,15 @@
 package features.filters.herp
+
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
- * Created by jennyvo on 2/3/15.
- *  When using with api validator with enable-api-coverage
- *  method name should be moved forward to log
+ * Created by jennyvo on 2/9/15.
  */
-class HerpMethodLoggerHandlerTest extends ReposeValveTest{
+class HerpMethodLoggerHandleWDerpTest extends ReposeValveTest{
     String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
     def static s0_count = 0
     def S0 = 0
@@ -28,6 +27,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachine", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachine/withderp", params)
         //repose.start()
         repose.start(waitOnJmxAfterStarting: false)
 
@@ -60,8 +60,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         MessageChain mc
 
         when:
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method, headers: headers,
-                defaultHandler: { new Response(responseCode, null, null, null) })
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method, headers: headers)
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         println(jsonpart)

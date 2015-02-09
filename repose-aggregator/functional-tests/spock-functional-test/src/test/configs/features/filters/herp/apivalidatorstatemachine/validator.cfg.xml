@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="false" xmlns='http://openrepose.org/repose/validator/v1.0'>
-    <delegating />
+    <delegating quality="0.5" />
     <validator role="raxRolesEnabled"
                default="false"
                enable-rax-roles="true"
