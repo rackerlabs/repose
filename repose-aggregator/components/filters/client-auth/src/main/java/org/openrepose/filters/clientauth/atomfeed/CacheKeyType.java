@@ -3,5 +3,5 @@ package org.openrepose.filters.clientauth.atomfeed;
 
 public enum CacheKeyType {
    
-   USER, TOKEN;
+   USER, TOKEN, TRR_TOKEN, NONE;
 }

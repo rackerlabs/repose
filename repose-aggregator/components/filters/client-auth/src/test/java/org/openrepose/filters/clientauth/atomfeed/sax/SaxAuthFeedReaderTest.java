@@ -62,7 +62,8 @@ public class SaxAuthFeedReaderTest {
         CacheKeys keys = reader.getCacheKeys();
 
         String[] users = {"224277258"}; //User from atom feed
-        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"}; //token from atom feed
+        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66", //The token revocation event
+                "4a2b42f4-6c63-11e1-815b-7fcbcf67f549"}; // The TRR user event
 
         assertArrayEquals("Retrieved key should have user from atom feed", keys.getUserKeys().toArray(), users);
         assertArrayEquals("Retrieved keys should have token from atom feed", keys.getTokenKeys().toArray(), tokens);
