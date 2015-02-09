@@ -17,6 +17,10 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scala.io.Source
 
+/**
+ * TODO: Unfortunately we can't actually test all the Unmarshalling because of classpath problems.
+ * Fortunately an integration test catches some of the unmarshalling problem
+ */
 @RunWith(classOf[JUnitRunner])
 class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 

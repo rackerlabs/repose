@@ -65,9 +65,9 @@ public class UnmarshallerValidator {
      * TODO: refactor this configuration garbage to be less bad.
      *
      * @param doc
-     * @return
+     * @return The translated document to be unmarshalled instead!
      */
-    public void validate(Document doc) throws IOException, SAXException {
+    public DOMSource validate(Document doc) throws IOException, SAXException {
         if (schema != null) {
             try {
                 schema.newValidator().validate(new DOMSource(doc));
@@ -87,7 +87,11 @@ public class UnmarshallerValidator {
 
                         LOG.warn("DEPRECATION WARNING: One of your config files contains an old namespace, update/check your configs!");
 
-                        schema.newValidator().validate(new DOMSource(result.getNode()));
+                        DOMSource translatedSource = new DOMSource(result.getNode());
+
+                        schema.newValidator().validate(translatedSource);
+
+                        return translatedSource;
                     } catch (TransformerConfigurationException e) {
                         throw new SAXException("Problem configuring transformer to attempt to translate", e);
                     } catch (TransformerException e) {
@@ -100,6 +104,9 @@ public class UnmarshallerValidator {
         } else {
             LOG.debug("Validate method called, but not given any schema");
         }
+        //If we made it to here, that means we didn't need to translate it, or we didn't have a schema.
+        // For the other execution path, we'll either throw an exception or return the new document
+        return new DOMSource(doc);
     }
 
 
@@ -112,9 +119,9 @@ public class UnmarshallerValidator {
         } finally {
             db.reset();
         }
-        //This method will either silently succeed, or we'll barf validation exceptions
-        validate(doc);
-        return unmarshaller.unmarshal(doc);
+        //We will either get back a DOMSource for the same document, or a new
+        DOMSource source = validate(doc);
+        return unmarshaller.unmarshal(source);
 
     }
 }
