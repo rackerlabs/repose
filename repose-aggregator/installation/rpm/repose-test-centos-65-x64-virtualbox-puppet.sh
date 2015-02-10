@@ -21,7 +21,8 @@ vagrant init centos-65-x64-virtualbox-puppet http://puppet-vagrant-boxes.puppetl
 vagrant up
 
 vagrant ssh -c "/vagrant/repose-test-genric-rpm.sh && /vagrant/repose-test-genric-all.sh"
-if [ "$?" -eq 0 ]; then
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
     vagrant destroy -f
     echo -e "\n\nReview the test output at: ${VAGRANT_DIR}/repose-curl.out\n"
 else
@@ -34,3 +35,4 @@ STOP=$(date +"%s")
 DIFF=$(($STOP-$START))
 echo -en "\nTotal time: $(($DIFF / 60)) minutes and $(($DIFF % 60)) seconds\n"
 echo -en "Finished at: $(date)\n"
+exit $STATUS
