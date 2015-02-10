@@ -66,7 +66,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
+            <groupId>org.openrepose.rackspace</groupId>
             <artifactId>client-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -96,7 +96,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
+            <groupId>org.openrepose.rackspace</groupId>
             <artifactId>client-authorization</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -138,13 +138,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
+            <groupId>org.openrepose.rackspace</groupId>
             <artifactId>rackspace-identity-basic-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
+            <groupId>org.openrepose.rackspace</groupId>
             <artifactId>rackspace-auth-user</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -209,118 +209,6 @@
 
                 <configuration>
                     <generateApplicationXml>false</generateApplicationXml>
-
-                    <modules>
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>versioning</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>client-auth</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>uri-normalization</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>content-normalization</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>header-normalization</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>rate-limiting</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>destination-router</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>flush-output</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>translation</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>echo</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>client-authorization</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>compression</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>header-translation</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>uri-stripper</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>openstack-identity-v3</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>rackspace-identity-basic-auth</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>content-type-stripper</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>derp</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>add-header</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>forwarded-proto</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>iri-validator</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>org.openrepose</groupId>
-                            <artifactId>herp</artifactId>
-                        </jarModule>
-                    </modules>
                 </configuration>
             </plugin>
         </plugins>
