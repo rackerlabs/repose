@@ -87,12 +87,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     }
     case class MapValue(value: Option[Map[String, Array[String]]]) extends Value {
       override def toJava: Any = {
-        val x = value.orNull
-        if (x == null) {
-          null
-        } else {
-          x.asJava.entrySet()
-        }
+        value.map({case x => x.asJava.entrySet()}).orNull
       }
     }
     case class LongValue(value: Option[Long]) extends Value {
