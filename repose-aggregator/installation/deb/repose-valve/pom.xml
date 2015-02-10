@@ -208,6 +208,27 @@
                                             </src>
                                         </data>
 
+                                        <!-- The /var/repose directory. -->
+                                        <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
+                                        <data>
+                                            <type>template</type>
+                                            <paths>
+                                                <path>
+                                                    var/repose
+                                                </path>
+                                            </paths>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>750</filemode>
+                                            </mapper>
+                                        </data>
+
                                         <!-- The /var/log/repose directory. -->
                                         <data>
                                             <type>template</type>
@@ -228,25 +249,25 @@
                                             </mapper>
                                         </data>
 
-                                        <!-- The /var/repose directory. -->
-                                        <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
+                                        <!-- The Repose sysconfig file -->
                                         <data>
-                                            <type>template</type>
-                                            <paths>
-                                                <path>
-                                                    var/repose
-                                                </path>
-                                            </paths>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <user>
-                                                    repose
-                                                </user>
-                                                <group>
-                                                    repose
-                                                </group>
-                                                <filemode>750</filemode>
+                                        <type>file</type>
+                                        <mapper>
+                                        <type>perm</type>
+                                        <prefix>
+                                            /etc/sysconfig
+                                        </prefix>
+                                            <user>
+                                                root
+                                            </user>
+                                            <group>
+                                                root
+                                            </group>
+                                            <filemode>644</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../configs/etc/sysconfig/repose
+                                            </src>
                                         </data>
 
                                         <!-- The logrotate script -->
