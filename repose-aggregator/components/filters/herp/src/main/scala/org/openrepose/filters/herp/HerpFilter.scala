@@ -110,7 +110,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
-      "parameters" -> nullIfEmpty(translateParameters()),
+      "parameters" -> Option(nullIfEmpty(translateParameters())).map(_.asJava).orNull,
       "timestamp" -> System.currentTimeMillis,
       "responseCode" -> httpServletResponse.getStatus,
       "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
