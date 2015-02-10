@@ -16,6 +16,10 @@
         Module for the ROOT.WAR DEB.
     </description>
 
+    <properties>
+        <artifactName>repose-war</artifactName>
+    </properties>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -57,7 +61,7 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
+                                    <deb>[[buildDir]]/[[artifactName]]-[[version]].deb</deb>
                                     <timestamped>false</timestamped>
                                     <dataSet>
                                         <!-- The /usr/share/repose directory. -->
@@ -117,7 +121,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/${project.artifactId}
+                                                    /usr/share/doc/${artifactName}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
@@ -237,7 +241,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/${project.artifactId}
+                                                    /usr/share/doc/${artifactName}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>

@@ -16,6 +16,10 @@
         Module for the CLI-Utils RPM.
     </description>
 
+    <properties>
+        <artifactName>repose-cli-utils</artifactName>
+    </properties>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -67,7 +71,7 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <name>${project.artifactId}</name>
+                            <name>${artifactName}</name>
 
                             <mappings>
                                 <!-- The JAR file -->
@@ -129,7 +133,7 @@
                                 <!--The git.properties file -->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}
+                                        /usr/share/doc/${artifactName}
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
@@ -148,7 +152,7 @@
                                 <!--This adds the license file on installation.-->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}/
+                                        /usr/share/doc/${artifactName}/
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>

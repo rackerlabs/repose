@@ -16,6 +16,10 @@
         Module for the Filter Bundle RPM.
     </description>
 
+    <properties>
+        <artifactName>repose-filter-bundle</artifactName>
+    </properties>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -53,7 +57,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
-                            <name>${project.artifactId}</name>
+                            <name>${artifactName}</name>
 
                             <mappings>
                                 <!-- The filters archive. -->
@@ -101,7 +105,7 @@
                                 <!--The git.properties file -->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}
+                                        /usr/share/doc/${artifactName}
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
@@ -120,7 +124,7 @@
                                 <!-- This adds the license file on installation. -->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}
+                                        /usr/share/doc/${artifactName}
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>

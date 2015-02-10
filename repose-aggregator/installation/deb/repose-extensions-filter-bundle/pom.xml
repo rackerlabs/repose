@@ -16,6 +16,10 @@
         Module for the Extension Filter Bundle DEB.
     </description>
 
+    <properties>
+        <artifactName>repose-extensions-filter-bundle</artifactName>
+    </properties>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -56,7 +60,7 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
+                                    <deb>[[buildDir]]/[[artifactName]]-[[version]].deb</deb>
                                     <timestamped>false</timestamped>
 
                                     <dataSet>
@@ -81,7 +85,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/${project.artifactId}
+                                                    /usr/share/doc/${artifactName}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
@@ -115,7 +119,7 @@
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>
-                                                    /usr/share/doc/${project.artifactId}
+                                                    /usr/share/doc/${artifactName}
                                                 </prefix>
                                                 <filemode>444</filemode>
                                             </mapper>
