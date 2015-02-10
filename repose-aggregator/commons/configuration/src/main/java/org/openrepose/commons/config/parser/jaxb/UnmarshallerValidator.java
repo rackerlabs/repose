@@ -42,6 +42,7 @@ public class UnmarshallerValidator {
     private DocumentBuilder db;
     //The transformer we'll use for translating our configuration xmls
     public static final String SAXON_HE_FACTORY_NAME = "net.sf.saxon.TransformerFactoryImpl";
+    public static final String XALAN_FACTORY_NAME = "org.apache.xalan.processor.TransformerFactoryImpl";
 
     public UnmarshallerValidator(JAXBContext context) throws JAXBException, ParserConfigurationException {
 
@@ -76,8 +77,9 @@ public class UnmarshallerValidator {
                 if (saxParseException.getLocalizedMessage().contains("Cannot find the declaration of element")) {
                     //Run a quick XSLT
                     try {
-                        //This factory creation is hella slow....
-                        TransformerFactory factory = TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, this.getClass().getClassLoader());
+                        //Why does this die a horrible death when the saxon EE license is specified?
+                        new org.apache.xalan.processor.TransformerFactoryImpl();
+                        TransformerFactory factory = TransformerFactory.newInstance(XALAN_FACTORY_NAME, this.getClass().getClassLoader());
 
                         StreamSource styleSource = new StreamSource(this.getClass().getResourceAsStream("/configurationXSLT/consistentNamespace.xsl"));
                         Transformer transformer = factory.newTransformer(styleSource);
