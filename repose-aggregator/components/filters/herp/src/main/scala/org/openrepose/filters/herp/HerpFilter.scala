@@ -3,7 +3,6 @@ package org.openrepose.filters.herp
 import java.io.StringWriter
 import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
-import java.util
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -21,7 +20,6 @@ import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConverters._
 import scala.util.Try
-import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
@@ -36,7 +34,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
   private var region: String = _
   private var dataCenter: String = _
   private var handlebarsTemplate: Template = _
-  private var filtersOut: Iterable[Iterable[(String, Regex)]] = _
+  private var filtersOut: Iterable[FilterOut] = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
@@ -72,35 +70,6 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
 
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse) = {
-    trait Value {
-      def toJava: Any
-    }
-    case class StringValue(value: Option[String]) extends Value {
-      override def toJava: Any = {
-        value.orNull
-      }
-    }
-    case class StringArrayValue(value: Option[Array[String]]) extends Value {
-      override def toJava: Any = {
-        value.orNull
-      }
-    }
-    case class MapValue(value: Option[Map[String, Array[String]]]) extends Value {
-      override def toJava: Any = {
-        val x = value.orNull
-        if (x == null) {
-          null
-        } else {
-          x.asJava.entrySet()
-        }
-      }
-    }
-    case class LongValue(value: Option[Long]) extends Value {
-      override def toJava: Any = {
-        value.orNull
-      }
-    }
-
     def translateParameters(): Map[String, Array[String]] = {
       def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name)
 
@@ -112,55 +81,50 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       }
     }
 
-    def doFilterOut(valuesMap: Map[String, Value]): Boolean = {
-      val hitFilters = filtersOut.filter { andFilter =>
-        andFilter.forall { case (keyOrig, pattern) =>
-          val keySplit = keyOrig.split('.')
-          val foundMatch: Boolean = valuesMap(keySplit(0)) match {
-            case LongValue(Some(x)) => pattern.findFirstIn(x.toString).isDefined
-            case StringValue(Some(x)) => pattern.findFirstIn(x).isDefined
-            case StringArrayValue(Some(x)) => x.filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
-            case MapValue(Some(x)) =>
-              // IF there is a sub key,
-              // THEN try the map;
-              // ELSE just bail.
-              if (keySplit.size > 1) {
-                x.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
-              } else {
-                false
-              }
+    def filter(valuesMap: Map[String, Any]): Boolean = {
+      filtersOut.exists { fo =>
+        fo.getMatch.asScala.forall { m =>
+          val field = m.getField
+          val pattern = m.getRegex.r.pattern
+
+          valuesMap.get(field) match {
+            case Some(value: Int) => pattern.matcher(value.toString).matches()
+            case Some(value: Long) => pattern.matcher(value.toString).matches()
+            case Some(value: String) => pattern.matcher(value).matches()
+            case Some(value: Array[String]) => value.exists(pattern.matcher(_).matches())
+            case Some(value: Map[String, Array[String]]) => ???
+            case Some(_) => false // we don't know how to match against the provided type
+            case None => false
           }
-          foundMatch
         }
       }
-      hitFilters.nonEmpty
     }
 
-    val eventValues: Map[String, Value] = Map(
-      "userName" -> StringValue(Option(httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString))),
-      "impersonatorName" -> StringValue(Option(httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString))),
-      "projectID" -> StringArrayValue(Option(httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
-        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray)),
-      "roles" -> StringArrayValue(Option(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray)),
-      "userAgent" -> StringValue(Option(httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString))),
-      "requestMethod" -> StringValue(Option(httpServletRequest.getMethod)),
-      "requestURL" -> StringValue(Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString)),
-      "requestQueryString" -> StringValue(Option(httpServletRequest.getQueryString)),
-      "parameters" -> MapValue(Option(translateParameters())),
-      "timestamp" -> LongValue(Option(System.currentTimeMillis)),
-      "responseCode" -> LongValue(Option(httpServletResponse.getStatus)),
-      "responseMessage" -> StringValue(Option(Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"))),
-      "guid" -> StringValue(Option(java.util.UUID.randomUUID.toString)),
-      "serviceCode" -> StringValue(Option(serviceCode)),
-      "region" -> StringValue(Option(region)),
-      "dataCenter" -> StringValue(Option(dataCenter))
+    val eventValues: Map[String, Any] = Map(
+      "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
+      "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
+      "projectID" -> Option(httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString))
+        .map(_.asScala.++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray).map(nullIfEmpty(_)).orNull,
+      "roles" -> Option(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray),
+      "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
+      "requestMethod" -> httpServletRequest.getMethod,
+      "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
+      "requestQueryString" -> httpServletRequest.getQueryString,
+      "parameters" -> nullIfEmpty(translateParameters()),
+      "timestamp" -> System.currentTimeMillis,
+      "responseCode" -> httpServletResponse.getStatus,
+      "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
+      "guid" -> java.util.UUID.randomUUID.toString,
+      "serviceCode" -> serviceCode,
+      "region" -> region,
+      "dataCenter" -> dataCenter
     )
 
     val templateOutput: StringWriter = new StringWriter
-    handlebarsTemplate.apply(eventValues.map { case (k, v) => k -> v.toJava}.asJava, templateOutput)
+    handlebarsTemplate.apply(eventValues.asJava, templateOutput)
 
     preLogger.info(templateOutput.toString)
-    if (!doFilterOut(eventValues)) {
+    if (!filter(eventValues)) {
       postLogger.info(templateOutput.toString)
     }
   }
@@ -188,19 +152,13 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     dataCenter = config.getDataCenter
     def handlebars = new Handlebars
     handlebarsTemplate = handlebars.compileInline(templateString)
-    filtersOut = processFiltersOut(config.getFilterOut.asScala)
+    filtersOut = config.getFilterOut.asScala
     initialized = true
-
-    def processFiltersOut(filters: Iterable[FilterOut]): Iterable[Iterable[(String, Regex)]] = {
-      filters.map { filter =>
-        filter.getMatch.asScala.map { matcher =>
-          (matcher.getField, matcher.getRegex.r)
-        }
-      }
-    }
   }
 
   override def isInitialized: Boolean = {
     initialized
   }
+
+  private def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
 }
