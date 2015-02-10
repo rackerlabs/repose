@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.rackspace.papi.service</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>httpclient-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>httpclient-connection-pool</artifactId>
 
     <name>Repose Services - HttpClient Connection Pool Impl</name>
-
+    <artifactId>httpclient-connection-pool</artifactId>
     <packaging>jar</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -28,7 +30,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -39,13 +41,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>health-check-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>

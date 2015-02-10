@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.rackspace.repose.services</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>services-pom</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>rate-limiting-service</artifactId>
-    <groupId>com.rackspace.papi.service</groupId>
 
     <name>Repose Services - Rate Limiting</name>
+    <artifactId>rate-limiting-service</artifactId>
+    <packaging>jar</packaging>
 
-    <description>The RateLimiter is responsible for updating user rate limits and flagging if a user exceeds a limit.
+    <description>
+        The RateLimiter is responsible for updating user rate limits and flagging if a user exceeds a limit.
         handleRateLimit determines if a user has requests remaining by checking that user's NextAvailableResponse,
         and if not, it throws an OverLimitException.
 
         A cache for limiting information is maintained, and the system uses trackLimits and queryLimits from
         RateLimitingServiceImplementation to keep track of and update this information. This cache is used to
         determine whether a user should be rate limited or not, and is used to make the decision about available
-        requests which is mentioned above.</description>
-
-    <packaging>jar</packaging>
+        requests which is mentioned above.
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -46,7 +46,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>

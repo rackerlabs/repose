@@ -1,185 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>filter-bundle</artifactId>
-
     <name>Repose Components - EAR Bundle</name>
-    <description>TODO</description>
-
+    <artifactId>filter-bundle</artifactId>
     <packaging>ear</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>rate-limiting</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>versioning</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>uri-normalization</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>content-normalization</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>header-normalization</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>header-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>header-id-mapping</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>uri-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>client-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>destination-router</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>slf4j-http-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>translation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>echo</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>client-authorization</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>client-ip-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>flush-output</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>compression</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>header-translation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>uri-stripper</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>openstack-identity-v3</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>rackspace-identity-basic-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>rackspace-auth-user</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>content-type-stripper</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>add-header</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>derp</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>forwarded-proto</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>iri-validator</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>herp</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -211,112 +212,112 @@
 
                     <modules>
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>versioning</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>client-auth</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>uri-normalization</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>content-normalization</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>header-normalization</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>rate-limiting</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>destination-router</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>flush-output</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>translation</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>echo</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>client-authorization</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>compression</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>header-translation</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>uri-stripper</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>openstack-identity-v3</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>rackspace-identity-basic-auth</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>content-type-stripper</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>derp</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>add-header</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>forwarded-proto</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>iri-validator</artifactId>
                         </jarModule>
 
                         <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>herp</artifactId>
                         </jarModule>
                     </modules>

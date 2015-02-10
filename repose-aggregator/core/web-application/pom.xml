@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.core</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>core-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.core</groupId>
-    <artifactId>web-application</artifactId>
-
     <name>Repose Core - Root Web Application</name>
+    <artifactId>web-application</artifactId>
+    <packaging>war</packaging>
 
     <description>
         This is the ROOT.war application project for Power API. This is a simple
@@ -21,20 +19,18 @@
         is essential for existing Java API projects only.
     </description>
 
-    <packaging>war</packaging>
-
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>

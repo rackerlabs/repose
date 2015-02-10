@@ -2,17 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.commons</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>commons-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.commons</groupId>
-    <artifactId>utilities</artifactId>
-
     <name>Repose Commons - Utilities</name>
+    <artifactId>utilities</artifactId>
+    <packaging>jar</packaging>
 
     <description>
         Common utility classes (such as jaxb utilities, regex, logging) that
@@ -21,16 +19,13 @@
         Utility classes should not have dependencies on other Repose modules.
     </description>
 
-
-    <packaging>jar</packaging>
-
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>

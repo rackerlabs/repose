@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.repose.installation.deb</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>deb</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.deb.cli-utils</groupId>
-    <artifactId>repose-cli-utils</artifactId>
-
     <name>Repose - Installation Cloud Integration CLI-Utilities DEB</name>
+    <artifactId>repose-deb-cli-utils</artifactId>
+    <packaging>deb</packaging>
 
     <description>
         Module for the Repose CLI-Utils DEB.
     </description>
-
-    <packaging>deb</packaging>
 
     <profiles>
         <profile>
@@ -38,7 +35,7 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.components</groupId>
+                                            <groupId>org.openrepose</groupId>
                                             <artifactId>cli-utils</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>

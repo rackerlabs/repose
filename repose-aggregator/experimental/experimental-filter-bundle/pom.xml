@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components.experimental</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>experimental-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components.experimental</groupId>
-    <artifactId>experimental-filter-bundle</artifactId>
-
     <name>Repose Components - Experimental EAR Bundle</name>
+    <artifactId>experimental-filter-bundle</artifactId>
     <packaging>ear</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,17 +22,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.components.experimental</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>servlet-contract-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.rackspace.papi.components.experimental</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>exception-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
-            <groupId>com.rackspace.papi.components.experimental</groupId>
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>tightly-coupled-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -62,11 +64,11 @@
 
                     <modules>
                         <jarModule>
-                            <groupId>com.rackspace.papi.components.experimental</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>servlet-contract-filter</artifactId>
                         </jarModule>
                         <jarModule>
-                            <groupId>com.rackspace.papi.components.experimental</groupId>
+                            <groupId>org.openrepose</groupId>
                             <artifactId>exception-filter</artifactId>
                         </jarModule>
                     </modules>
