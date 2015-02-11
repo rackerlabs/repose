@@ -178,7 +178,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.handlings.size() == 0
         fakeIdentityService.validateTokenCount == 1
     }
-    
+
     def "verify also support new TRR_Token event"() {
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
