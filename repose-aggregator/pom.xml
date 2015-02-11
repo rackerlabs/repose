@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>repose</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.0.0</version>
     </parent>
 
     <name>Repose - Build Support Profiles</name>
@@ -602,7 +601,7 @@
                 <version>${gmaven.version}</version>
                 <configuration>
                     <providerSelection>1.8</providerSelection>
-                    <source/>
+                    <source />
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -695,8 +694,7 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <illegalTransitiveDependencyCheck
-                                        implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
+                                <illegalTransitiveDependencyCheck implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
                                     <reportOnly>false</reportOnly>
                                     <useClassesFromLastBuild>true</useClassesFromLastBuild>
                                     <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
