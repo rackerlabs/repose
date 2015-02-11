@@ -232,10 +232,11 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         responseCode | username | projectid | parameters              | method  | respMsg
         "200"        | "User"   | "123456"  | "username=test"         | "POST"  | "OK"
         "200"        | "admin"  | "-123456" | "tenantId=12345"        | "PUT"   | "OK"
-        "415"        | "repoes" | "-123456" | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
+        "415"        | "repose" | "-123456" | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
         "413"        | "testUser"| "123456" | "resourceId=test123"    | "PUT"   | "PAYLOAD_TOO_LARGE"
         "500"        | "Test"   | "000456"  | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
         "500"        | "test"   | "-123456" | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "200"        | "admin"  | "123456"  | "tenantId=-123456"      | "POST"  | "OK"
     }
 
     // Check all required attributes in the log

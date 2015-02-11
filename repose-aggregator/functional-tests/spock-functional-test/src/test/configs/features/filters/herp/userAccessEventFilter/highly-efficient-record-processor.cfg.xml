@@ -49,4 +49,9 @@
         <!-- Implicit AND -->
         <match field="dataCenter" regex="DFW"/>
     </filterOut>
+    <filterOut>
+        <match field="parameters.tenantId" regex="(-)\d*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
 </highly-efficient-record-processor>
