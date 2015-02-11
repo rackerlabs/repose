@@ -163,7 +163,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 curType = CacheKeyType.TOKEN;
             } else if(StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/trr/user")
                     && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TRR_USER")) {
-                curType = CacheKeyType.TRR_TOKEN;
+                curType = CacheKeyType.TRR_USER;
             }
         }
     }
@@ -178,8 +178,8 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 case USER:
                     resultKeys.addUserKey(curResource);
                     break;
-                case TRR_TOKEN:
-                    resultKeys.addTokenKey(curResource);
+                case TRR_USER:
+                    resultKeys.addUserKey(curResource);
                     break;
             }
             curResource = "";
