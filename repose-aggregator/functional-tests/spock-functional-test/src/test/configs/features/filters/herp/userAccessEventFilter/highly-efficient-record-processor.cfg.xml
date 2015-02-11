@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
-                                   pre-filter-logger-name="highly-efficient-record-processor-pre-Logger"
-                                   post-filter-logger-name="highly-efficient-record-processor-post-Logger"
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
                                    service-code="repose" region="USA" data-center="DFW">
     <template crush="true">
         {
@@ -34,4 +34,24 @@
           }
         }
     </template>
+    <filterOut>
+        <match field="userName" regex=".*User.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="userName" regex=".*Test.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="projectID" regex="(-)\d*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="parameters.tenantId" regex="(-)\d*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
 </highly-efficient-record-processor>

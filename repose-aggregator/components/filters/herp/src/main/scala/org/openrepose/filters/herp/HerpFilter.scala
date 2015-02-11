@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConverters._
 import scala.util.Try
+import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
@@ -28,11 +29,13 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
 
   private var config: String = _
   private var initialized = false
-  private var herpLogger: Logger = _
+  private var preLogger: Logger = _
+  private var postLogger: Logger = _
   private var serviceCode: String = _
   private var region: String = _
   private var dataCenter: String = _
   private var handlebarsTemplate: Template = _
+  private var filtersOut: Iterable[Iterable[(String, Regex)]] = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("HERP filter initializing ...")
@@ -69,18 +72,18 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponse) = {
     def translateParameters(): Map[String, Array[String]] = {
-      def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name())
+      def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name)
 
       Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
-        case Some(parameters) => {
+        case Some(parameters) =>
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
           parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value))}).toMap
-        }
         case None => Map[String, Array[String]]()
       }
     }
 
-    val templateValues = Map(
+    //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
+    val eventValues: Map[String, Any] = Map(
       "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
       "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
       "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
@@ -90,10 +93,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
+      "parameters_SCALA" -> translateParameters(),
       "parameters" -> translateParameters().asJava.entrySet(),
-      "timestamp" -> System.currentTimeMillis(),
+      "timestamp" -> System.currentTimeMillis,
       "responseCode" -> httpServletResponse.getStatus,
-      "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name()).getOrElse("UNKNOWN"),
+      "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
       "guid" -> java.util.UUID.randomUUID.toString,
       "serviceCode" -> serviceCode,
       "region" -> region,
@@ -101,15 +105,46 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     )
 
     val templateOutput: StringWriter = new StringWriter
-    handlebarsTemplate.apply(templateValues.asJava, templateOutput)
+    handlebarsTemplate.apply(eventValues.asJava, templateOutput)
 
-    herpLogger.info(templateOutput.toString)
+    preLogger.info(templateOutput.toString)
+    if (!doFilterOut(eventValues)) {
+      postLogger.info(templateOutput.toString)
+    }
+
+    def doFilterOut(valuesMap: Map[String, Any]): Boolean = {
+      filtersOut.exists { andFilter =>
+        andFilter.forall { case (keyOrig, pattern) =>
+          val keySplit = keyOrig.split('.')
+          valuesMap.get(keySplit(0)) match {
+            case Some(value: Int) => pattern.findFirstIn(value.toString).isDefined
+            case Some(value: Long) => pattern.findFirstIn(value.toString).isDefined
+            case Some(value: String) => pattern.findFirstIn(value).isDefined
+            case Some(value: Array[String]) => value.exists(pattern.findFirstIn(_).isDefined)
+            case Some(value: java.util.Set[_]) =>
+              // IF there is a sub key,
+              // THEN try the map;
+              // ELSE just bail.
+              if (keySplit.size > 1) {
+                // Retrieve the Scala version of the Map.
+                valuesMap.get(keySplit(0) + "_SCALA") match {
+                  case Some(scalaValue: Map[String, Array[String]]) =>
+                    scalaValue.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
+                  case _ => false
+                }
+              } else {
+                false
+              }
+            case _ => false
+          }
+        }
+      }
+    }
   }
 
   override def destroy(): Unit = {
     logger.trace("HERP filter destroying ...")
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
-
     logger.trace("HERP filter destroyed.")
   }
 
@@ -122,12 +157,18 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       templateText
     }
 
-    herpLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
+    preLogger = LoggerFactory.getLogger(config.getPreFilterLoggerName)
+    postLogger = LoggerFactory.getLogger(config.getPostFilterLoggerName)
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
-    def handlebars = new Handlebars()
+    def handlebars = new Handlebars
     handlebarsTemplate = handlebars.compileInline(templateString)
+    filtersOut = config.getFilterOut.asScala.map { filter =>
+      filter.getMatch.asScala.map { matcher =>
+        (matcher.getField, matcher.getRegex.r)
+      }
+    }
     initialized = true
   }
 
