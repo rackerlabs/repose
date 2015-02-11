@@ -66,8 +66,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.cloud.services.clients</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>auth</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
