@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.test</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>functional-test-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.rackspace.papi</groupId>
-    <artifactId>repose-spock-tests</artifactId>
-
     <name>Repose Test - Spock Functional Tests</name>
-
+    <artifactId>repose-spock-tests</artifactId>
     <packaging>jar</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <groovy.version>2.1.3</groovy.version>
@@ -141,7 +141,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.external.testing</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>test-glassfish-container</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -154,25 +154,25 @@
 
 
         <dependency>
-            <groupId>com.rackspace.papi.test.mocks</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>mocks-util</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>valve</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -180,7 +180,8 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.8</version> <!-- same version as used elsewhere -->
+            <version>1.8</version>
+            <!-- same version as used elsewhere -->
         </dependency>
     </dependencies>
 
@@ -549,7 +550,7 @@
                 <artifactId>gmaven-plugin</artifactId>
                 <version>${gmaven.version}</version>
                 <configuration>
-                    <source />
+                    <source/>
                     <providerSelection>1.8</providerSelection>
                 </configuration>
                 <dependencies>
@@ -588,7 +589,7 @@
                 <executions>
                     <execution>
                         <id>default-test</id>
-                        <phase />
+                        <phase/>
                     </execution>
                 </executions>
             </plugin>

@@ -2,18 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>rate-limiting</artifactId>
-
     <name>Repose Components - Rate Limiting</name>
-    <description>The rate limiting filter is used to limit the usage rate a which a specific user or member of a group
+    <artifactId>rate-limiting</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        The rate limiting filter is used to limit the usage rate a which a specific user or member of a group
         accesses the origin service.
 
         Headers:
@@ -47,36 +47,34 @@
         (/repose-aggregator/services/rate-limiting-service/README.md)
     </description>
 
-    <packaging>jar</packaging>
-
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>rate-limiting-service</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 

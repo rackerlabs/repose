@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
-    <!-- WARNING!!!! DON'T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
-    <artifactId>repose-cli-utils</artifactId>
-
     <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
+    <artifactId>repose-rpm-cli-utils</artifactId>
+    <packaging>pom</packaging>
 
     <description>
         Module for the CLI-Utils RPM.
     </description>
 
-    <packaging>pom</packaging>
+    <properties>
+        <artifactName>repose-cli-utils</artifactName>
+    </properties>
 
     <profiles>
         <profile>
@@ -49,7 +49,7 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.components</groupId>
+                                            <groupId>org.openrepose</groupId>
                                             <artifactId>cli-utils</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
@@ -71,7 +71,7 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <name>${project.artifactId}</name>
+                            <name>${artifactName}</name>
 
                             <mappings>
                                 <!-- The JAR file -->
@@ -133,7 +133,7 @@
                                 <!--The git.properties file -->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}
+                                        /usr/share/doc/${artifactName}
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
@@ -152,7 +152,7 @@
                                 <!--This adds the license file on installation.-->
                                 <mapping>
                                     <directory>
-                                        /usr/share/doc/${project.artifactId}/
+                                        /usr/share/doc/${artifactName}/
                                     </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>

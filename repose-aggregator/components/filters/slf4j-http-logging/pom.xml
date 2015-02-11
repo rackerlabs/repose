@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
         <version>7.0.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>slf4j-http-logging</artifactId>
-
     <name>Repose Components - SLF4J HTTP Logging</name>
-    <description>A SLF4j named target to handle http logging
+    <artifactId>slf4j-http-logging</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        A SLF4j named target to handle http logging
 
         The SLF4J HTTP Logging filter logs information sent to and from repose in HTTP requests and responses,
         using SLF4J as indicated by its name.
@@ -19,9 +21,8 @@
         It does not need to be followed or preceded by any specific filters, but it should be the first filter
         in the filter chain when used.
 
-        This filter replaces the HTTP Logging filter, which is deprecated.</description>
-
-    <packaging>jar</packaging>
+        This filter replaces the HTTP Logging filter, which is deprecated.
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -29,12 +30,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
         </dependency>
 
@@ -44,7 +45,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 
