@@ -48,7 +48,7 @@ class AtomFeedResponseSimulator {
                 'Content-type': 'application/xml',
         ]
         hasEntry = false
-        isTRRToken = false
+        //isTRRToken = false
         def body = templateEngine.createTemplate(template).make(params)
 
         return new Response(200, 'OK', headers, body)
@@ -128,30 +128,39 @@ class AtomFeedResponseSimulator {
     <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
           rel="previous"/>
     <updated>\${time}</updated>
- <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns="http://www.w3.org/2001/XMLSchema">
-    <atom:title>CloudIdentity</atom:title>
-    <atom:content type="application/xml">
-        <event xmlns="http://docs.rackspace.com/core/event"
-            xmlns:id="http://docs.rackspace.com/event/identity/trr/user"
-            id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
-            version="2"
-            resourceId="\${token}"
-            eventTime="\${time}"
-            type="DELETE"
-            dataCenter="DFW1"
-            region="DFW">
-            <id:product serviceCode="CloudIdentity"
-                version="1"
-                resourceType="TRR_USER"
-                tokenCreationDate="2013-09-26T15:32:00Z">
-                <id:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
-            </id:product>
-        </event>
-    </atom:content>
-</atom:entry>
+        <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
+        <atom:category term="rgn:DFW"/>
+        <atom:category term="dc:DFW1"/>
+        <atom:category term="rid:\${token}"/>
+        <atom:category term="cloudidentity.user.trr_user.delete"/>
+        <atom:category term="type:cloudidentity.user.trr_user.delete"/>
+        <atom:title>CloudIdentity</atom:title>
+        <atom:content type="application/xml">
+            <event xmlns="http://docs.rackspace.com/core/event"
+                xmlns:sample="http://docs.rackspace.com/event/identity/trr/user"
+                id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+                version="2"
+                resourceId="\${token}"
+                eventTime="\${time}"
+                type="DELETE"
+                dataCenter="DFW1"
+                region="DFW">
+                <sample:product serviceCode="CloudIdentity"
+                    version="1"
+                    resourceType="TRR_USER"
+                    tokenCreationDate="2013-09-26T15:32:00Z">
+                    <sample:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
+                </sample:product>
+            </event>
+        </atom:content>
+        <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
+        rel="self"/>
+        <atom:updated>\${time}</atom:updated>
+        <atom:published>\${time}</atom:published>
+    </atom:entry>
 </feed>
 """
-
 }
