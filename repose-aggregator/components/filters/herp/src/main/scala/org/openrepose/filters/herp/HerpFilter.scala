@@ -88,16 +88,13 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
       "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
         .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray,
-      //"projectID" -> Option(httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString))
-      //  .map(_.asScala.++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray).map(nullIfEmpty(_)).orNull,
       "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
-      //"roles" -> Option(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray),
       "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
+      "parameters_SCALA" -> translateParameters(),
       "parameters" -> translateParameters().asJava.entrySet(),
-      //"parameters" -> Option(nullIfEmpty(translateParameters())).map(_.asJava.entrySet()).orNull,
       "timestamp" -> System.currentTimeMillis,
       "responseCode" -> httpServletResponse.getStatus,
       "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
@@ -124,17 +121,21 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
             case Some(value: Long) => pattern.findFirstIn(value.toString).isDefined
             case Some(value: String) => pattern.findFirstIn(value).isDefined
             case Some(value: Array[String]) => value.exists(pattern.findFirstIn(_).isDefined)
-            case Some(value: Map[String, Array[String]]) =>
+            case Some(value: java.util.Set[_]) =>
               // IF there is a sub key,
               // THEN try the map;
               // ELSE just bail.
               if (keySplit.size > 1) {
-                value.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
+                // Retrieve the Scala version of the Map.
+                valuesMap.get(keySplit(0) + "_SCALA") match {
+                  case Some(scalaValue: Map[String, Array[String]]) =>
+                    scalaValue.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
+                  case _ => false
+                }
               } else {
                 false
               }
-            case Some(_) => false // we don't know how to match against the provided type
-            case None => false
+            case _ => false
           }
         }
       }
