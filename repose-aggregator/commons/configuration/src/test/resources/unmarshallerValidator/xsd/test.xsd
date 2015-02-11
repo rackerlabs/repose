@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:test="http://test.openrespose/test/v1.1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://test.openrespose/test/v1.1"
+>
+  <element name="c">
+    <complexType>
+      <choice>
+	<element name="nodeList" type="test:NodeList"/>
+	<element name="test" type="xsd:string"/>
+      </choice>
+    </complexType>
+  </element>
+
+  <simpleType name="UUID">
+      <annotation>
+          <xsd:documentation
+              xml:lang="EN"
+              xmlns="http://www.w3.org/1999/xhtml">
+              <p>
+                  A universally unique identifier.
+              </p>
+          </xsd:documentation>
+      </annotation>
+      <restriction base="xsd:string">
+          <length value="36" fixed="true"/>
+          <pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+      </restriction>
+  </simpleType>
+    <xsd:complexType name="NodeList">
+        <xsd:annotation>
+            <xsd:documentation>
+                <html:p>Defines a list of nodes within a cluster</html:p>
+            </xsd:documentation>
+        </xsd:annotation>
+      
+        <xsd:sequence>
+            <xsd:element name="node" type="test:Node" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Node">
+        <xsd:annotation>
+            <xsd:documentation>
+                <html:p>Defines a single host in the system model</html:p>
+            </xsd:documentation>
+        </xsd:annotation>
+
+        <xsd:attribute name="id" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <html:p>Defines the proxy's id which will be referenced elsewhere in different configs</html:p>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="hostname" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <html:p>Hostname of the node this proxy model defines. This will be used for personality matching when the proxy is started</html:p>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="http-port" type="xsd:int" use="optional" default="0">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <html:p>Port number of the http service of the host</html:p>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="https-port" type="xsd:int" use="optional" default="0">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <html:p>Port number of the https service of the host</html:p>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+</schema>
+

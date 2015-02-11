@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/display/REPOSE/Header+Identity -->
+<header-identity  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0 ../config/header-identity-configuration.xsd'>
+
+   <source-headers>
+      <header id="X-Auth-Token" quality=".95" />
+      <header id="X-Forwarded-For" quality="0.5"/>
+   </source-headers>
+
+</header-identity>
