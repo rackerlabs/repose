@@ -41,7 +41,6 @@ public class UnmarshallerValidator {
     private Unmarshaller unmarshaller;
     private DocumentBuilder db;
     //The transformer we'll use for translating our configuration xmls
-    public static final String SAXON_HE_FACTORY_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final String XALAN_FACTORY_NAME = "org.apache.xalan.processor.TransformerFactoryImpl";
 
     public UnmarshallerValidator(JAXBContext context) throws JAXBException, ParserConfigurationException {
@@ -77,7 +76,10 @@ public class UnmarshallerValidator {
                 if (saxParseException.getLocalizedMessage().contains("Cannot find the declaration of element")) {
                     //Run a quick XSLT
                     try {
-                        //Why does this die a horrible death when the saxon EE license is specified?
+                        //Tightly coupling to xalan, because saxon brings a handful of problems I don't want to deal with
+                        // If HE only is installed, and a license file is available, it generates EE specific code somehow
+                        // If EE is installed, and we load up repose in a container, it *always* looks for the license
+                        // Xalan doesn't care.
                         new org.apache.xalan.processor.TransformerFactoryImpl();
                         TransformerFactory factory = TransformerFactory.newInstance(XALAN_FACTORY_NAME, this.getClass().getClassLoader());
 
