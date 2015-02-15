@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration packages="org.apache.logging.log4j.flume.appender">
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
