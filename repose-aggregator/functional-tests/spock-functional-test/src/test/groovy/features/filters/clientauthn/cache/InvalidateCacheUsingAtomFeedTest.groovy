@@ -3,6 +3,7 @@ import features.filters.clientauthn.AtomFeedResponseSimulator
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
@@ -179,9 +180,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 1
     }
 
-    def "verify also support new TRR_Token event"() {
+    def "When a user is cached by repose, and a TRR event comes in, invalidate tokens for that user"() {
 
-        when: "I send a GET request to REPOSE with an X-Auth-Token header"
+        when: "I send a GET request to REPOSE with an X-Auth-Token header for a specific user"
         fakeIdentityService.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
@@ -207,9 +208,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
 
 
-        when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
-        // change identity atom feed
+        when: "Identity atom feed has a TRR event to invalidate our user"
 
+        //Make identity respond with a 404 every time now.
         fakeIdentityService.with {
             fakeIdentityService.validateTokenHandler = {
                 tokenId, request,xml ->
@@ -217,13 +218,12 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
             }
         }
         fakeIdentityService.resetCounts()
+        //Configure the fake Atom Feed to hork back a TRR token
         fakeAtomFeed.hasEntry = true
         fakeAtomFeed.isTRRToken = true
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityService.client_userid.toString())
 
-
-
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
+        and: "we sleep for 15 seconds so that repose can check the atom feed"
         sleep(15000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
