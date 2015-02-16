@@ -46,6 +46,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
         </dependency>
