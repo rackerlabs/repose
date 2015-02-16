@@ -1,5 +1,6 @@
 package features.filters.identitybasicauth
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -22,6 +23,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityService fakeIdentityService
+    ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -47,6 +49,8 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
         }
+        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch.cleanLog()
     }
 
     def cleanupSpec() {
@@ -256,6 +260,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
         mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
 
         where:
         reqTenant | identityStatusCode
