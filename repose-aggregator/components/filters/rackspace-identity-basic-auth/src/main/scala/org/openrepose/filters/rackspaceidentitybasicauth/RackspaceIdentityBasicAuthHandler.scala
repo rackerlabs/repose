@@ -1,11 +1,13 @@
 package org.openrepose.filters.rackspaceidentitybasicauth
 
+import java.util.{Calendar, GregorianCalendar}
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.utils.http.HttpDate
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -145,7 +147,10 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
         val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER)}
         if (retryHeaders.isEmpty) {
           logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
-          TokenCreationInfo(statusCode, None, userName, "5")
+          val retryCalendar = new GregorianCalendar()
+          retryCalendar.add(Calendar.SECOND, 5)
+          val retryString = new HttpDate(retryCalendar.getTime()).toRFC1123()
+          TokenCreationInfo(statusCode, None, userName, retryString)
         } else {
           TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
         }
