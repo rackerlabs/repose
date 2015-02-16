@@ -206,6 +206,14 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
+                                <!-- We are removing the Log4j2Plugins.dat file from the log4j-flume-ng dependency
+                                     so that we don't overwrite the existing Log4j2Plugins.dat file. Overwriting causes
+                                     logs to vanish (presumably being consumed by the Flume appender). This is a
+                                     design flaw which exists between the Log4j2 plugin system and fat/shaded jars.
+                                     See: https://issues.apache.org/jira/browse/LOG4J2-673
+
+                                     Note that the packages attribute in the Log4j2 configuration file should cause
+                                     Log4j2 to recognize the Flume appender as a plugin.-->
                                 <filter>
                                     <artifact>org.apache.logging.log4j:log4j-flume-ng</artifact>
                                     <excludes>
