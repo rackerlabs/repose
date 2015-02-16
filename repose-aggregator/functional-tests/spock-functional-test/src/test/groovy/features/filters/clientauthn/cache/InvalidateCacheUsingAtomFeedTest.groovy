@@ -3,10 +3,8 @@ import features.filters.clientauthn.AtomFeedResponseSimulator
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -220,7 +218,6 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.resetCounts()
         //Configure the fake Atom Feed to hork back a TRR token
         fakeAtomFeed.hasEntry = true
-        fakeAtomFeed.isTRRToken = true
         atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityService.client_userid.toString())
 
         and: "we sleep for 15 seconds so that repose can check the atom feed"

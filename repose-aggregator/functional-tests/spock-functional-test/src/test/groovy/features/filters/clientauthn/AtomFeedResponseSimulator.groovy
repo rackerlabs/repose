@@ -12,7 +12,6 @@ class AtomFeedResponseSimulator {
 
     def templateEngine = new SimpleTemplateEngine()
     volatile boolean hasEntry = false
-    boolean isTRRToken = false
     int atomPort
 
     def client_token = 'this-is-the-token'
