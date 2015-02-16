@@ -145,8 +145,6 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
         val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER)}
         if (retryHeaders.isEmpty) {
           logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
-          val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
-          logger.debug(s"xmlString = $xmlString")
           TokenCreationInfo(statusCode, None, userName, "5")
         } else {
           TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
