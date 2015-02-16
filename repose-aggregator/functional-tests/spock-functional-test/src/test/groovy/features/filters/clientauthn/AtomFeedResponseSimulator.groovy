@@ -11,52 +11,67 @@ class AtomFeedResponseSimulator {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
     def templateEngine = new SimpleTemplateEngine()
-    boolean hasEntry = false
+    volatile boolean hasEntry = false
     boolean isTRRToken = false
     int atomPort
 
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
 
+    def headers = [
+            'Connection'  : 'close',
+            'Content-type': 'application/xml',
+    ]
+
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort
+    }
+
+    /**
+     * This is a method that takes params, and returns a closure
+     * Creates an appropriate closure for the TRR user token revocation event
+     * @param userId
+     * @return
+     */
+    def trrEventHandler(String userId) {
+        { request ->
+            if (hasEntry) {
+                def params = [
+                        'atomPort': atomPort,
+                        'time'    : new DateTime().toString(DATE_FORMAT),
+                        'userId'  : userId
+                ]
+                hasEntry = false //Only respond with it once once it's been got
+
+                new Response(200, 'OK', headers, templateEngine.createTemplate(tokenRevocationRecordAtomEntryXml).make(params)
+                )
+            }
+        }
     }
 
     def handler = { request ->
 
         def template
 
-        if (hasEntry){
-            if (isTRRToken)
-                template = atomWithTRRTokenEntyXml
-            else
-                template = atomWithEntryXml
-        }
-        else
+        if (hasEntry) {
+            template = atomWithEntryXml
+        } else {
             template = atomEmptyXml
-        def now = new DateTime()
+        }
 
         def params = [
                 'atomPort': atomPort,
-                'time': now.toString(DATE_FORMAT),
-                'token': client_token,
-                'tenant': client_tenant,
-        ]
-
-        def headers = [
-                'Connection': 'close',
-                'Content-type': 'application/xml',
+                'time'    : new DateTime().toString(DATE_FORMAT),
+                'token'   : client_token,
+                'tenant'  : client_tenant,
         ]
         hasEntry = false
-        //isTRRToken = false
-        def body = templateEngine.createTemplate(template).make(params)
-
-        return new Response(200, 'OK', headers, body)
+        return new Response(200, 'OK', headers, templateEngine.createTemplate(template).make(params))
     }
 
 
     def String atomEmptyXml =
-"""<?xml version="1.0"?>
+            """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
@@ -71,7 +86,7 @@ class AtomFeedResponseSimulator {
 """
 
     def String atomWithEntryXml =
-"""<?xml version="1.0"?>
+            """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
@@ -116,8 +131,13 @@ class AtomFeedResponseSimulator {
     </atom:entry>
 </feed>
 """
-    def atomWithTRRTokenEntyXml =
-"""<?xml version="1.0"?>
+
+    /**
+     * This is to revoke a specific set of tokens for a specific user
+     * The resourceId is a user id, not a token ID.
+     */
+    def tokenRevocationRecordAtomEntryXml =
+            """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
@@ -134,7 +154,7 @@ class AtomFeedResponseSimulator {
         <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
         <atom:category term="rgn:DFW"/>
         <atom:category term="dc:DFW1"/>
-        <atom:category term="rid:\${token}"/>
+        <atom:category term="rid:\${userId}"/>
         <atom:category term="cloudidentity.user.trr_user.delete"/>
         <atom:category term="type:cloudidentity.user.trr_user.delete"/>
         <atom:title>CloudIdentity</atom:title>
@@ -143,7 +163,7 @@ class AtomFeedResponseSimulator {
                 xmlns:sample="http://docs.rackspace.com/event/identity/trr/user"
                 id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
                 version="2"
-                resourceId="\${token}"
+                resourceId="\${userId}"
                 eventTime="\${time}"
                 type="DELETE"
                 dataCenter="DFW1"
