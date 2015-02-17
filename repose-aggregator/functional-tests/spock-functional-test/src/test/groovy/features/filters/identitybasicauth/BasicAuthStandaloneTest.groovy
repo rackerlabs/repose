@@ -84,7 +84,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain with out client-aut filter just a pass through"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -102,7 +102,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain NOT processing the HTTP Basic authentication"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -119,7 +119,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request reject if invalid apikey or username"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
@@ -144,7 +144,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -161,7 +161,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -177,7 +177,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName(HttpHeaders.AUTHORIZATION) == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
@@ -189,10 +189,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def "Inject header WWW-authenticate when basicauth or other component failed with 401"() {
         when: "the request sends with invalid key"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
-                defaultHandler: { new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, null) })
+                defaultHandler: { new Response(SC_UNAUTHORIZED, null, null, null) })
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
