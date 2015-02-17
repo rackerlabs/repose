@@ -68,7 +68,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
     }
