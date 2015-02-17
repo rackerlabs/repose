@@ -61,8 +61,9 @@ public class SaxAuthFeedReaderTest {
         reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
         CacheKeys keys = reader.getCacheKeys();
 
-        String[] users = {"224277258"}; //User from atom feed
-        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"}; //token from atom feed
+        String[] users = {"224277258", //User from atom feed
+                "4a2b42f4-6c63-11e1-815b-7fcbcf67f549"}; //TRR User from feed
+        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"};
 
         assertArrayEquals("Retrieved key should have user from atom feed", keys.getUserKeys().toArray(), users);
         assertArrayEquals("Retrieved keys should have token from atom feed", keys.getTokenKeys().toArray(), tokens);

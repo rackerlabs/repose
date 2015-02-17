@@ -141,7 +141,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-
         if (StringUtilities.nullSafeEquals(uri, "http://www.w3.org/2005/Atom") && StringUtilities.nullSafeEquals(localName, "link")) {
             // Get Prev Link
             if ("previous".equals(attributes.getValue("rel"))) {
@@ -162,20 +161,24 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             } else if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/token")
                     && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TOKEN")) {
                 curType = CacheKeyType.TOKEN;
+            } else if(StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/trr/user")
+                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TRR_USER")) {
+                curType = CacheKeyType.TRR_USER;
             }
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-
         if (StringUtilities.nullSafeEquals(localName, "event")) {
-
             switch (curType) {
                 case TOKEN:
                     resultKeys.addTokenKey(curResource);
                     break;
                 case USER:
+                    resultKeys.addUserKey(curResource);
+                    break;
+                case TRR_USER:
                     resultKeys.addUserKey(curResource);
                     break;
             }
