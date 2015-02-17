@@ -2,10 +2,16 @@ package features.filters.clientauthn.serviceresponse
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import org.joda.time.DateTime
+import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
 import org.rackspace.deproxy.MessageChain
+import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
 
@@ -102,6 +108,43 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         false       | false          | true         | 501       | "500"
         false       | false          | true         | 502       | "500"
         false       | false          | true         | 503       | "500"
+    }
+
+
+    @Unroll("Sending request with mock identity response set to HTTP #identityStatusCode and Retry-After header")
+    def "when failing to authenticate client because of temporary failures"() {
+        given: "the HTTP authentication header containing the client token and a Mock Identity return status of HTTP #identityStatusCode"
+
+        def retryTimeStamp = DateTime.now().plusMinutes(5)
+        def retryString = new HttpDate(retryTimeStamp.toGregorianCalendar().getTime()).toRFC1123()
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            validateTokenHandler = {
+                tokenId, request, xml ->
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+            }
+        }
+
+        when: "user passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
+
+        then: "request body sent from repose to the origin service should contain HTTP 503"
+        mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
+        mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
+
+        where:
+        reqTenant | identityStatusCode
+        1111      | SC_REQUEST_ENTITY_TOO_LARGE
+        1112      | SC_TOO_MANY_REQUESTS
     }
 
 }
