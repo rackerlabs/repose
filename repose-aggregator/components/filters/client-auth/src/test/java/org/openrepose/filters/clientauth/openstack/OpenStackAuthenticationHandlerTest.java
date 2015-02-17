@@ -9,11 +9,13 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
+import org.openrepose.common.auth.AuthServiceOverLimitException;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.OpenStackGroup;
 import org.openrepose.common.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
@@ -830,7 +832,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() throws Exception {
-            AuthenticateResponse authResp = new AuthenticateResponse();
+            AuthenticateResponse authResponse = new AuthenticateResponse();
             UserForAuthenticateResponse user = new UserForAuthenticateResponse();
             user.setName("username");
             Token token = new Token();
@@ -838,12 +840,12 @@ public class OpenStackAuthenticationHandlerTest {
             token.getTenant().setId("12345");
             token.getTenant().setName("12345");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
-            authResp.setToken(token);
-            authResp.setUser(user);
-            authResp.getUser().setRoles(getTwoRoles());
-            authResp.getToken().setId("tokentokentoken");
+            authResponse.setToken(token);
+            authResponse.setUser(user);
+            authResponse.getUser().setRoles(getTwoRoles());
+            authResponse.getToken().setId("tokentokentoken");
 
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResp);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
             final FilterDirector director = handler.handleRequest(request, response);
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
@@ -1027,6 +1029,44 @@ public class OpenStackAuthenticationHandlerTest {
             when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertFalse(requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).toString().equalsIgnoreCase("[Proxy usertest1]"));
+        }
+    }
+
+    public static class WhenAuthServiceRateLimits extends TestParent {
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
+
+        @Test
+        public void with413ShouldReturn503() throws Exception {
+            Calendar retryCalendar = new GregorianCalendar();
+            retryCalendar.add(Calendar.SECOND, 5);
+            String retryValue = new HttpDate(retryCalendar.getTime()).toRFC1123();
+            int statusCode = HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE; // 413
+            when(authService.validateToken(anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals(HttpServletResponse.SC_SERVICE_UNAVAILABLE, requestDirector.getResponseStatusCode()); // 503
+        }
+
+        @Test
+        public void with429ShouldReturn503() throws Exception {
+            Calendar retryCalendar = new GregorianCalendar();
+            retryCalendar.add(Calendar.SECOND, 5);
+            String retryValue = new HttpDate(retryCalendar.getTime()).toRFC1123();
+            int statusCode = FilterDirector.SC_TOO_MANY_REQUESTS; // 429
+            when(authService.validateToken(anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals(HttpServletResponse.SC_SERVICE_UNAVAILABLE, requestDirector.getResponseStatusCode()); // 503
         }
     }
 }
