@@ -34,7 +34,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
 
-    herpFilter = new HerpFilter(null)
+    herpFilter = new HerpFilter(null, "cluster", "node")
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
@@ -48,6 +48,8 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           "ServiceCode" : "{{serviceCode}}",
           "Region" : "{{region}}",
           "DataCenter" : "{{dataCenter}}",
+          "Cluster" : "{{clusterId}}",
+          "Node" : "{{nodeId}}",
           "Timestamp" : "{{timestamp}}",
           "Request" : {
             "Method" : "{{requestMethod}}",
@@ -140,6 +142,22 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"DataCenter\" : \"some-data-center\"")
+    }
+    it("should log the parametered cluster") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Cluster\" : \"cluster\"")
+    }
+    it("should log the parametered node") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Node\" : \"node\"")
     }
     it("should extract and log the request method") {
       // given:

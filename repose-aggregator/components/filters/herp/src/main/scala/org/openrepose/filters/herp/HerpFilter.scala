@@ -14,8 +14,10 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConverters._
@@ -23,7 +25,10 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 @Named
-class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+class HerpFilter @Inject()(configurationService: ConfigurationService,
+                           @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
+                           @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
+                           extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
 
@@ -101,7 +106,9 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "guid" -> java.util.UUID.randomUUID.toString,
       "serviceCode" -> serviceCode,
       "region" -> region,
-      "dataCenter" -> dataCenter
+      "dataCenter" -> dataCenter,
+      "clusterId" -> clusterId,
+      "nodeId" -> nodeId
     )
 
     val templateOutput: StringWriter = new StringWriter
