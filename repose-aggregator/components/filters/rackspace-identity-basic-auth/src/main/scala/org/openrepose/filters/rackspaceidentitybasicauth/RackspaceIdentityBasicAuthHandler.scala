@@ -149,7 +149,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
           logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
           val retryCalendar = new GregorianCalendar()
           retryCalendar.add(Calendar.SECOND, 5)
-          val retryString = new HttpDate(retryCalendar.getTime()).toRFC1123()
+          val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
           TokenCreationInfo(statusCode, None, userName, retryString)
         } else {
           TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
