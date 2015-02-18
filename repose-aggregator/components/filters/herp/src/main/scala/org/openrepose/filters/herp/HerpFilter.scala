@@ -108,7 +108,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "region" -> region,
       "dataCenter" -> dataCenter,
       "clusterId" -> clusterId,
-      "nodeId" -> nodeId
+      "nodeId" -> nodeId,
+      "requestorIp" -> Option(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString)).getOrElse(httpServletRequest.getRemoteAddr)
     )
 
     val templateOutput: StringWriter = new StringWriter

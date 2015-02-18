@@ -50,6 +50,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           "DataCenter" : "{{dataCenter}}",
           "Cluster" : "{{clusterId}}",
           "Node" : "{{nodeId}}",
+          "RequestorIp" : "{{requestorIp}}",
           "Timestamp" : "{{timestamp}}",
           "Request" : {
             "Method" : "{{requestMethod}}",
@@ -158,6 +159,33 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Node\" : \"node\"")
+    }
+    it("should extract and log the x-forwarded-for header over the remote address") {
+      // given:
+      servletRequest.addHeader("X-FORWARDED-FOR", "1.2.3.4")
+      servletRequest.setRemoteAddr("4.3.2.1")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"1.2.3.4\"")
+    }
+    it("should extract and log the remote address") {
+      // given:
+      servletRequest.setRemoteAddr("4.3.2.1")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"4.3.2.1\"")
     }
     it("should extract and log the request method") {
       // given:

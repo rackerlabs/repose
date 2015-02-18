@@ -85,7 +85,7 @@
                     This is the Handlebars or Mustache based template that will be used to output events.
                     Supported fields include guid, serviceCode, region, dataCenter, timestamp, requestMethod,
                     requestURL, requestQueryString, parameters, userNames, impersonatorName, projectID, roles,
-                    userAgent, responseCode, responseMessage, clusterId, nodeId.
+                    userAgent, responseCode, responseMessage, clusterId, nodeId, requestorIp.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
