@@ -125,6 +125,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
                     new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
             }
         }
+        reposeLogSearch.cleanLog()
 
         when: "user passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
