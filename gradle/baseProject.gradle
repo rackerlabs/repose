@@ -86,13 +86,13 @@ task 'create-dirs' << {
  * All projects have some of the same dependencies
  */
 dependencies {
-    testCompile "junit:junit:4.1",
-            "org.codehaus.groovy:groovy-all:2.1.3",
+    testCompile "org.codehaus.groovy:groovy-all:2.1.3",
             "org.spockframework:spock-core:0.7-groovy-2.0",
-            "org.mockito:mockito-all:1.9.5",
-            "org.powermock:powermock-module-junit4:1.5.4",
-            "org.powermock:powermock-api-mockito:1.5.4",
-            "org.hamcrest:hamcrest-all:1.3",
+            "org.hamcrest:hamcrest-all:1.3",                //This order matters!
+            "org.powermock:powermock-module-junit4:1.5.4",  //This order matters!
+            "org.powermock:powermock-api-mockito:1.5.4",    //This order matters!
+            "org.mockito:mockito-all:1.9.5",                //This order matters!
+            "junit:junit-dep:4.1",                          //This order matters!
             "org.apache.logging.log4j:log4j-core:${log4jVersion}",
             "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
 }
