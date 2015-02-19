@@ -1,0 +1,13 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:core:core-service-api"),
+            "xerces:xerces-xsd11:2.12.0-rax",
+            "xalan:xalan:2.7.1",
+            "commons-pool:commons-pool:${commonsPoolVersion}"
+
+    testCompile "org.scala-lang:scala-library:${scalaVersion}",
+            "org.scalatest:scalatest_2.10:$scalaTestVersion",
+            "com.typesafe.scala-logging:scala-logging-slf4j_2.10:${scalaLoggingVersion}"
+}

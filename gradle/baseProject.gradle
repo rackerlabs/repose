@@ -10,6 +10,10 @@ apply plugin: 'propdeps-maven'
 //All our projects will use mavenCentral for their maven source (at least)
 repositories {
     mavenCentral()
+    maven{
+        //TODO: maybe need creds: http://gradle.org/docs/current/userguide/dependency_management.html#sub:maven_repo
+        url "https://maven.research.rackspacecloud.com/content/groups/aggregate"
+    }
 }
 
 //All the projects use this version, they don't all use the same group
@@ -94,7 +98,8 @@ dependencies {
             "org.mockito:mockito-all:1.9.5",                //This order matters!
             "junit:junit-dep:4.1",                          //This order matters!
             "org.apache.logging.log4j:log4j-core:${log4jVersion}",
-            "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+            "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
+            group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
 }
 
 
