@@ -1,7 +1,9 @@
 /**
  * Look at all this JAXB. Look at it.
  *
- * apply this
+ * apply this in your build.gradle per project to get jaxb stuff
+ * It will automatically include the generated sources, as well as apply the XSL to all the schemas
+ * TODO: move the xsl schema to a root parent level, rather than duplicating it in each project
  */
 configurations {
     jaxb //Need a jaxb configuration for the jaxb stuff
@@ -13,8 +15,8 @@ dependencies {
             'javax.xml.bind:jaxb-api:2.2.7'
 }
 
-def generatedSources = "${projectDir}/src/main/generated-sources"
-def jaxbSafeXSDSources = "${projectDir}/src/main/generated-xsd"
+def generatedSources = "${projectDir}/build/src/generated-sources"
+def jaxbSafeXSDSources = "${projectDir}/build/src/generated-xsd"
 
 task makeJaxbSafe() {
     description "Makes our XSDs safe for jaxb, because XSD 1.1"
@@ -61,3 +63,13 @@ task jaxb(dependsOn: 'makeJaxbSafe') {
         }
     }
 }
+
+//Have all compile tasks depend on the jaxb task
+//NOTE: this guy's tasks need to know about the java, scala, and groovy plugins
+[JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
+    tasks.withType(type){
+        dependsOn('jaxb')
+    }}
+
+//Add it to your project's source sets
+sourceSets.main.java.srcDirs += generatedSources
