@@ -121,7 +121,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
-          //ex.getRetryAfter shouldBe notNull()
+          ex.getRetryAfter shouldNot be(null)
         }
 
         it(s"having headers while retrieving admin token") {
@@ -342,7 +342,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
-          //ex.getRetryAfter shouldBe notNull()
+          ex.getRetryAfter shouldNot be(null)
         }
 
         it(s"having headers while retrieving admin token") {
@@ -403,7 +403,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
-          //ex.getRetryAfter shouldBe notNull()
+          ex.getRetryAfter shouldNot be(null)
         }
 
         it(s"having headers while retrieving admin token") {
