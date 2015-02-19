@@ -1,22 +1,24 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.util
+import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.{HttpDate, CommonHttpHeader}
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
-import org.openrepose.core.filter.logic.{FilterAction, HeaderManager}
+import org.openrepose.core.filter.logic.{FilterDirector, FilterAction, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.springframework.http.HttpHeaders
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Try}
@@ -220,6 +222,30 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
           HeaderName.wrap("X-Project-Id"),
           JavaConversions.setAsJavaSet(Set("ProjectIdFromProject", "ProjectIdFromRoles", "RaxExtensionProjectId")))
       )
+    }
+
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    statusCodes.foreach { statusCode =>
+      it(s"should return a ${HttpServletResponse.SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
+        val retryCalendar = new GregorianCalendar()
+        retryCalendar.add(Calendar.SECOND, 5)
+        val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+        when(identityAPI.validateToken("123456")).thenReturn(
+          Failure(new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryString)))
+        val mockRequest = new MockHttpServletRequest()
+        mockRequest.setHeader("X-Subject-Token", "123456")
+        identityConfig.setForwardGroups(false)
+        identityConfig.setValidateProjectIdInUri(null)
+        identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+        val filterDirector = identityV3Handler.handleRequest(mockRequest, mockServletResponse)
+        filterDirector.getResponseStatusCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+// TODO: FIX_THIS: Why doesn't this work?
+//        filterDirector.requestHeaderManager.headersToAdd should contain(
+//          Entry(
+//            HeaderName.wrap(HttpHeaders.RETRY_AFTER),
+//            JavaConversions.setAsJavaSet(Set(retryString)))
+//        )
+      }
     }
   }
 

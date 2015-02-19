@@ -1,5 +1,6 @@
 package org.openrepose.filters.openstackidentityv3
 
+import java.util.{GregorianCalendar, Calendar}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
@@ -14,6 +15,7 @@ import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Con
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
+import org.springframework.http.HttpHeaders
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -53,6 +55,17 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       }
     }
 
+    def authServiceOverLimit(e: IdentityServiceOverLimitException, filterDirector: FilterDirector): Unit = {
+      filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+      var retry = e.getRetryAfter
+      if (retry == null) {
+        val retryCalendar = new GregorianCalendar
+        retryCalendar.add(Calendar.SECOND, 5)
+        retry = new HttpDate(retryCalendar.getTime).toRFC1123
+      }
+      filterDirector.responseHeaderManager.appendHeader(HttpHeaders.RETRY_AFTER, retry)
+    }
+
     // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
       logger.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
@@ -76,6 +89,12 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage) {
             filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
+          }
+          None
+        case Failure(e: IdentityServiceOverLimitException) =>
+          failureInValidation = true
+          delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
+            authServiceOverLimit(e, filterDirector)
           }
           None
         case Failure(e) =>
@@ -110,21 +129,27 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           identityAPI.getGroups(userId) match {
             case Success(groupsList) =>
               groupsList.map(_.name)
+            case Failure(e: IdentityServiceOverLimitException) =>
+              failureInValidation = true
+              delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
+                authServiceOverLimit(e, filterDirector)
+              }
+              List.empty[String]
             case Failure(e) =>
               failureInValidation = true
               logger.error(e.getMessage)
               delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
-              List[String]()
+              List.empty[String]
           }
         } getOrElse {
           failureInValidation = true
           logger.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
           delegateOrElse(filterDirector.getResponseStatusCode,
             "The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.") {}
-          List[String]()
+          List.empty[String]
         }
       } else {
-        List[String]()
+        List.empty[String]
       }
 
       // If all validation succeeds, pass the request and set headers
@@ -298,7 +323,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       case Some(regex) =>
         // Check whether or not this user should bypass project ID validation
         val userRoles = token.roles.getOrElse(List[Role]()).map(_.name)
-        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List[String]()), userRoles)
+        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List.empty[String]), userRoles)
 
         if (bypassProjectIdCheck) {
           true
