@@ -1,10 +1,6 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
-    <validator
-
-            role="default"
-            default="true"
-            wadl="generic_pass.wadl"
-            dot-output="default.dot"
-            enable-rax-roles="true" />
+    <validator role="test_user"
+               wadl="${repose.config.directory}/relatedconfig/generic_pass.wadl"
+               default="false" />
 </validators>

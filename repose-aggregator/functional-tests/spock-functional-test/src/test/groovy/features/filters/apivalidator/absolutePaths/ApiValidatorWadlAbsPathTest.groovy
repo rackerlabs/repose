@@ -34,7 +34,7 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
 
     def "when loading validators on startup, should also pass with related path config"() {
 
-        given: "repose is started using a non-uri path for the wadl, in this case the path does_not_exist.wadl"
+        given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
@@ -54,7 +54,7 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
 
     def "when loading validators on startup, should work with absolute wadl path"() {
 
-        given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
+        given: "repose is started using absolute path for the wadl, in this case the path to generic_pass.wadl"
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
