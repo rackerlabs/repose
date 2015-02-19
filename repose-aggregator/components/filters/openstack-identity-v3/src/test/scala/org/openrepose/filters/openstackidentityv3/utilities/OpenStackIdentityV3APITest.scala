@@ -115,8 +115,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getAdminToken(true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           //ex.getRetryAfter shouldBe notNull()
@@ -137,8 +139,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getAdminToken(true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           ex.getRetryAfter shouldBe retryString
@@ -332,8 +336,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.validateToken("test-subject-token", true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           //ex.getRetryAfter shouldBe notNull()
@@ -354,8 +360,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.validateToken("test-subject-token", true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           ex.getRetryAfter shouldBe retryString
@@ -389,8 +397,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getGroups("test-user-id", true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           //ex.getRetryAfter shouldBe notNull()
@@ -411,8 +421,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getGroups("test-user-id", true)
-          value shouldBe a[Failure[IdentityServiceOverLimitException]]
-          val ex = value.failed.get.asInstanceOf[IdentityServiceOverLimitException]
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
           ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
           ex.getStatusCode shouldBe statusCode
           ex.getRetryAfter shouldBe retryString
