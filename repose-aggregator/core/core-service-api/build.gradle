@@ -1,0 +1,10 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply from: "$rootDir/gradle/jaxb.gradle"
+
+dependencies {
+    compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxbRuntimeVersion}",
+            project(":repose-aggregator:commons:utilities"),
+            "com.google.guava:guava:14.0.1"
+}
+
