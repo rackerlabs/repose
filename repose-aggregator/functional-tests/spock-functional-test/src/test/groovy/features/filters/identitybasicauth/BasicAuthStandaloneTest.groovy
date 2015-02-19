@@ -50,7 +50,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
         }
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.cleanLog()
     }
 
     def cleanupSpec() {
