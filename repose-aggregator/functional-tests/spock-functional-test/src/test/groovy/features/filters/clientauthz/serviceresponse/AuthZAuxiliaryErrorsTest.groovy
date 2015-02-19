@@ -44,11 +44,16 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup() {
+        sleep 500
+        reposeLogSearch.cleanLog()
+        fakeIdentityService.resetHandlers()
+    }
+
     @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Endpoints Call: #endpointsBroken Error Code: #errorCode")
     def "When Auxiliary service is broken for Service Endpoints call"(){
 
         given: "When Calls to Auth Return bad responses"
-
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -91,7 +96,6 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         false       | true           | 501       | "500"
         false       | true           | 502       | "500"
         false       | true           | 503       | "500"
-
     }
 
     @Unroll("Sending request with mock identity response set to HTTP #identityStatusCode and Retry-After header")
