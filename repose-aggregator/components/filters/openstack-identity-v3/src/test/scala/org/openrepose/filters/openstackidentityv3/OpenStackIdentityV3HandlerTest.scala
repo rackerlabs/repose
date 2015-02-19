@@ -239,12 +239,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
         val filterDirector = identityV3Handler.handleRequest(mockRequest, mockServletResponse)
         filterDirector.getResponseStatusCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
-// TODO: FIX_THIS: Why doesn't this work?
-//        filterDirector.requestHeaderManager.headersToAdd should contain(
-//          Entry(
-//            HeaderName.wrap(HttpHeaders.RETRY_AFTER),
-//            JavaConversions.setAsJavaSet(Set(retryString)))
-//        )
+        filterDirector.responseHeaderManager.headersToAdd should contain(
+          Entry(
+            HeaderName.wrap(HttpHeaders.RETRY_AFTER),
+            JavaConversions.setAsJavaSet(Set(retryString)))
+        )
       }
     }
   }
