@@ -107,7 +107,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
 
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
-            validateTokenHandler = {
+            getEndpointsHandler = {
                 tokenId, request, xml ->
                     new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
             }
