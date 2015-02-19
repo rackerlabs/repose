@@ -1,0 +1,63 @@
+/**
+ * Look at all this JAXB. Look at it.
+ *
+ * apply this
+ */
+configurations {
+    jaxb //Need a jaxb configuration for the jaxb stuff
+}
+
+dependencies {
+    jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41',
+            'com.sun.xml.bind:jaxb-impl:2.2.7-b41',
+            'javax.xml.bind:jaxb-api:2.2.7'
+}
+
+def generatedSources = "${projectDir}/src/main/generated-sources"
+def jaxbSafeXSDSources = "${projectDir}/src/main/generated-xsd"
+
+task makeJaxbSafe() {
+    description "Makes our XSDs safe for jaxb, because XSD 1.1"
+    def targetDir = file(jaxbSafeXSDSources)
+    inputs.files(fileTree(dir: "$projectDir/src/main/resources/META-INF/schema", includes: ["**/*.xsd", "**/*.xjb"]))
+    outputs.dir jaxbSafeXSDSources
+
+    doLast {
+        targetDir.mkdirs()
+        //Find all XSDs in the src/main/resources/META-INF.schema
+        ant.xslt(
+                extension: '.xsd',
+                basedir: "$projectDir/src/main/resources/META-INF/schema",
+                includes: "**/*.xsd",
+                style: "${projectDir}/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl",
+                destdir: "${jaxbSafeXSDSources}"
+        )
+
+        //Copy over any bindings.xjb into their appropriate directories
+        ant.copy(
+                todir: jaxbSafeXSDSources
+        ) {
+            fileset(dir: "${projectDir}/src/main/resources/META-INF/schema", includes: "**/*.xjb")
+        }
+    }
+}
+
+task jaxb(dependsOn: 'makeJaxbSafe') {
+    description "compiles XSDs to classes"
+    def jaxbTargetDir = file(generatedSources)
+    inputs.source(jaxbSafeXSDSources)
+    outputs.dir generatedSources
+
+    doLast {
+        jaxbTargetDir.mkdirs()
+        ant.taskdef(name: 'xjc',
+                classname: 'com.sun.tools.xjc.XJCTask',
+                classpath: configurations.jaxb.asPath
+        )
+        ant.jaxbTargetDir = jaxbTargetDir
+        ant.xjc(destdir: '${jaxbTargetDir}') {
+            schema(dir: jaxbSafeXSDSources, includes: "**/*.xsd")
+            binding(dir: jaxbSafeXSDSources, includes: "**/*.xjb")
+        }
+    }
+}
