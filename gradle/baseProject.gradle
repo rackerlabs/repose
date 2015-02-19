@@ -1,0 +1,104 @@
+//Get us scala and groovy support
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'groovy'
+
+//We want to have all these plugins configured for us
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+
+//All our projects will use mavenCentral for their maven source (at least)
+repositories {
+    mavenCentral()
+}
+
+//All the projects use this version, they don't all use the same group
+version = "7.0.1.0-SNAPSHOT"
+
+/**
+ * If you want to override dependencies, you can do it here. You can also ban them from here I think
+ */
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if(it.requested.name == 'commons-logging') {
+            it.useTarget 'org.slf4j:jcl-over-slf4j:1.7.7' //TODO: use parameterized slf4j version
+        }
+    }
+}
+
+compileJava {
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
+}
+
+
+/**
+ * Because an Ear project is always the same, this is a function to clean up our build script
+ * @param projectName The name of the ear project
+ * @param deps a list of dependencies that will go in this ear
+ * @return
+ */
+def filterBundleProject(String projectName, List<String> deps) {
+    project(projectName) {
+        apply plugin: 'ear'
+        apply plugin: 'maven'
+        apply plugin: 'maven-publish'
+        apply plugin: 'maven-publish-auth'
+
+        dependencies {
+            deps.each { proj ->
+                deploy project(proj)
+                earlib project(proj).configurations.runtime
+            }
+        }
+
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    artifact ear
+                }
+            }
+            repositories {
+                maven {
+                    name "releases.maven.research.rackspace.com"
+                    url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+                }
+            }
+        }
+    }
+}
+
+//Tell the scala compile tasks not to use the ant based compiler
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
+/**
+ * Create all the source directories, a handy task
+ */
+task 'create-dirs' << {
+    sourceSets.all { set ->
+        set.allSource.srcDirs.each { it.mkdirs() }
+    }
+}
+
+/**
+ * All projects have some of the same dependencies
+ */
+dependencies {
+    testCompile "junit:junit:4.1",
+            "org.codehaus.groovy:groovy-all:2.1.3",
+            "org.spockframework:spock-core:0.7-groovy-2.0",
+            "org.mockito:mockito-all:1.9.5",
+            "org.powermock:powermock-module-junit4:1.5.4",
+            "org.powermock:powermock-api-mockito:1.5.4",
+            "org.hamcrest:hamcrest-all:1.3",
+            "org.apache.logging.log4j:log4j-core:${log4jVersion}",
+            "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+}
+
+
+//TODO: jacoco coverage for almost all projects
+//TODO: integration test task
+//TODO: all unit tests task
+//TODO: all integration tests task
