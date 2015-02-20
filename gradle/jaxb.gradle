@@ -25,7 +25,7 @@ def jaxbSafeXSDSources = "${projectDir}/build/src/generated-xsd"
 task transformXSDs() {
     description "Makes our XSDs safe for jaxb, because XSD 1.1, or just copy them if there's no XSD to translate"
     def targetDir = file(jaxbSafeXSDSources)
-    def xsltFile = "${projectDir}/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl"
+    def xsltFile = "${rootDir}/gradle/xsl/remove-1.1-elements.xsl"
     def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
     //If they set a property for the jaxbXSLT file override our default
@@ -45,6 +45,8 @@ task transformXSDs() {
 
         //Find all XSDs in the src/main/resources/META-INF.schema
         if (file(xsltFile).exists()) {
+            println("TRANSFORMING SCHEMA")
+            logger.lifecycle("Transforming Schemas")
             ant.xslt(
                     extension: '.xsd',
                     basedir: schemaBaseDir,
@@ -53,6 +55,7 @@ task transformXSDs() {
                     destdir: "${jaxbSafeXSDSources}"
             )
         } else {
+            logger.lifecycle("NOT Transforming Schemas")
             ant.copy(todir: jaxbSafeXSDSources) {
                 fileset(dir: schemaBaseDir, includes: "**/*.xsd")
 
@@ -82,7 +85,10 @@ task jaxb(dependsOn: 'transformXSDs') {
                 classpath: configurations.jaxb.asPath
         )
         ant.jaxbTargetDir = jaxbTargetDir
-        ant.xjc(destdir: '${jaxbTargetDir}') {
+        ant.xjc(
+                destdir: '${jaxbTargetDir}',
+                extension: true //Some of our jaxb stuff requires extensions...
+        ) {
             schema(dir: jaxbSafeXSDSources, includes: "**/*.xsd")
             binding(dir: jaxbSafeXSDSources, includes: "**/*.xjb")
         }
