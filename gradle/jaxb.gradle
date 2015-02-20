@@ -25,21 +25,26 @@ def jaxbSafeXSDSources = "${projectDir}/build/src/generated-xsd"
 task transformXSDs() {
     description "Makes our XSDs safe for jaxb, because XSD 1.1, or just copy them if there's no XSD to translate"
     def targetDir = file(jaxbSafeXSDSources)
-    //TODO: also add the XSD to this inputs, if the XSD changed
-    inputs.files(fileTree(dir: "$projectDir/src/main/resources/META-INF/schema", includes: ["**/*.xsd", "**/*.xjb"]))
-    outputs.dir jaxbSafeXSDSources
     def xsltFile = "${projectDir}/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl"
     def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
+    //If they set a property for the jaxbXSLT file override our default
+    if (project.hasProperty('jaxbXsltFile')) {
+        xsltFile = project.jaxbXsltFile
+    }
+
+    //TODO: also add the XSD to this inputs, if the XSD changed
+    inputs.files(
+            fileTree(dir: "$projectDir/src/main/resources/META-INF/schema", includes: ["**/*.xsd", "**/*.xjb"]),
+            file(xsltFile)
+    )
+    outputs.dir jaxbSafeXSDSources
+
     doLast {
         targetDir.mkdirs()
-        //If they set a property for the jaxbXSLT file override our default
-        if(project.hasProperty('jaxbXsltFile')) {
-            xsltFile = project.jaxbXsltFile
-        }
 
         //Find all XSDs in the src/main/resources/META-INF.schema
-        if(file(xsltFile).exists()) {
+        if (file(xsltFile).exists()) {
             ant.xslt(
                     extension: '.xsd',
                     basedir: schemaBaseDir,
@@ -48,7 +53,7 @@ task transformXSDs() {
                     destdir: "${jaxbSafeXSDSources}"
             )
         } else {
-            ant.copy(todir:jaxbSafeXSDSources) {
+            ant.copy(todir: jaxbSafeXSDSources) {
                 fileset(dir: schemaBaseDir, includes: "**/*.xsd")
 
             }
@@ -87,9 +92,10 @@ task jaxb(dependsOn: 'transformXSDs') {
 //Have all compile tasks depend on the jaxb task
 //NOTE: this guy's tasks need to know about the java, scala, and groovy plugins
 [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
-    tasks.withType(type){
+    tasks.withType(type) {
         dependsOn('jaxb')
-    }}
+    }
+}
 
 //Add it to your project's source sets
 sourceSets.main.java.srcDirs += generatedSources
