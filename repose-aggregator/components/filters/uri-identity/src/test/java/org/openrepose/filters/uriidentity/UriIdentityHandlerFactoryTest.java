@@ -1,25 +1,23 @@
 package org.openrepose.filters.uriidentity;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.filters.uriidentity.config.IdentificationMapping;
 import org.openrepose.filters.uriidentity.config.IdentificationMappingList;
 import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author malconis
  */
 public class UriIdentityHandlerFactoryTest {
@@ -93,5 +91,30 @@ public class UriIdentityHandlerFactoryTest {
 
         assertEquals("Should find user name in header", USER1 + QUALITY_VALUE, userName);
 
+    }
+
+    @Test
+    public void shouldAddConfiguredGroup() throws Exception {
+        when(request.getRequestURI()).thenReturn(URI1);
+
+        config = new UriIdentityConfig();
+        IdentificationMappingList identificationMappingList = new IdentificationMappingList();
+
+        IdentificationMapping mapping = new IdentificationMapping();
+        mapping.setId("Mapping 1");
+        mapping.setIdentificationRegex(REGEX1);
+        identificationMappingList.getMapping().add(mapping);
+
+        config.setIdentificationMappings(identificationMappingList);
+        config.setGroup("tst-grp");
+
+        factory.configurationUpdated(config);
+        handler = factory.buildHandler();
+
+        FilterDirector result = handler.handleRequest(request, response);
+
+        Set<String> groupValues = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString()));
+
+        assertTrue("the configured group should be added", groupValues.contains("tst-grp;q=0.5"));
     }
 }
