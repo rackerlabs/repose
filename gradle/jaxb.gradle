@@ -18,22 +18,33 @@ dependencies {
 def generatedSources = "${projectDir}/build/src/generated-sources"
 def jaxbSafeXSDSources = "${projectDir}/build/src/generated-xsd"
 
-task makeJaxbSafe() {
-    description "Makes our XSDs safe for jaxb, because XSD 1.1"
+task transformXSDs() {
+    description "Makes our XSDs safe for jaxb, because XSD 1.1, or just copy them if there's no XSD to translate"
     def targetDir = file(jaxbSafeXSDSources)
+    //TODO: also add the XSD to this inputs, if the XSD changed
     inputs.files(fileTree(dir: "$projectDir/src/main/resources/META-INF/schema", includes: ["**/*.xsd", "**/*.xjb"]))
     outputs.dir jaxbSafeXSDSources
+    def xsltFile = "${projectDir}/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl"
+    def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
     doLast {
         targetDir.mkdirs()
         //Find all XSDs in the src/main/resources/META-INF.schema
-        ant.xslt(
-                extension: '.xsd',
-                basedir: "$projectDir/src/main/resources/META-INF/schema",
-                includes: "**/*.xsd",
-                style: "${projectDir}/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl",
-                destdir: "${jaxbSafeXSDSources}"
-        )
+        if(file(xsltFile).exists()) {
+            ant.xslt(
+                    extension: '.xsd',
+                    basedir: schemaBaseDir,
+                    includes: "**/*.xsd",
+                    style: xsltFile,
+                    destdir: "${jaxbSafeXSDSources}"
+            )
+        } else {
+            ant.copy(todir:jaxbSafeXSDSources) {
+                fileset(dir: schemaBaseDir, includes: "**/*.xsd")
+
+            }
+
+        }
 
         //Copy over any bindings.xjb into their appropriate directories
         ant.copy(
@@ -44,7 +55,7 @@ task makeJaxbSafe() {
     }
 }
 
-task jaxb(dependsOn: 'makeJaxbSafe') {
+task jaxb(dependsOn: 'transformXSDs') {
     description "compiles XSDs to classes"
     def jaxbTargetDir = file(generatedSources)
     inputs.source(jaxbSafeXSDSources)
