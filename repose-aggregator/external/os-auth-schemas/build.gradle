@@ -1,0 +1,10 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+//Specifying a different XSLT file to use for the jaxb stuff
+project.ext.jaxbXsltFile = "$projectDir/src/main/resources/META-INF/schema/xsl/s1.0p.xsl"
+apply from: "$rootDir/gradle/jaxb.gradle"
+
+
+dependencies {
+    compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+}

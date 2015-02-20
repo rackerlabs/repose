@@ -4,6 +4,10 @@
  * apply this in your build.gradle per project to get jaxb stuff
  * It will automatically include the generated sources, as well as apply the XSL to all the schemas
  * TODO: move the xsl schema to a root parent level, rather than duplicating it in each project
+ *
+ * NOTE: you can override the XSLT to be applied using
+ * project.ext.jaxbXsltFile = "path to xslt"
+ * ----------> MUST BE SET BEFORE APPLYING THIS SCRIPT <----------
  */
 configurations {
     jaxb //Need a jaxb configuration for the jaxb stuff
@@ -29,6 +33,11 @@ task transformXSDs() {
 
     doLast {
         targetDir.mkdirs()
+        //If they set a property for the jaxbXSLT file override our default
+        if(project.hasProperty('jaxbXsltFile')) {
+            xsltFile = project.jaxbXsltFile
+        }
+
         //Find all XSDs in the src/main/resources/META-INF.schema
         if(file(xsltFile).exists()) {
             ant.xslt(
