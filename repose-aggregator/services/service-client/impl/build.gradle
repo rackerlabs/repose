@@ -1,0 +1,19 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile "com.typesafe.akka:akka-actor_2.10:2.2.3",
+            "com.typesafe:config:1.2.1",
+            project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:services:service-client:api"), //TODO: this name might be bad
+            project(":repose-aggregator:services:httpclient:api"),
+            "com.google.guava:guava:15.0:cdi1.0", //WAT
+            "commons-io:commons-io:2.4",
+            "org.scala-lang:scala-library:$scalaVersion"
+
+    testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+            "com.sun.jersey:jersey-server:1.16",
+            "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+            "org.eclipse.jetty:jetty-server:$jettyVersion"
+
+        //TODO: the mavens did some extraction of the reference.conf for akka, but I really think that's not necessary....
+}
