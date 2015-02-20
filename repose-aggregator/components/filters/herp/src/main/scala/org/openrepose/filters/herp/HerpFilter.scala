@@ -89,14 +89,28 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       }
     }
 
+    def stripHeaderParams(headerValue: String): String = Option(headerValue).map(_.split(";", 2)(0)).orNull
+
+    def getPreferredHeader(allProjectIds: Traversable[String]): String = {
+      def getQuality(headerValue: String): Double = {
+        """;\s*q\s*=\s*(\d+\.\d+)""".r.findFirstMatchIn(headerValue).map(_.group(1).toDouble).getOrElse(1.0)
+      }
+
+      if (allProjectIds.isEmpty) null
+      else stripHeaderParams(allProjectIds.maxBy(getQuality))
+    }
+
+    val projectIds = httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
+      .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toTraversable
+
     //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(
-      "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
-      "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
-      "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
-        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray,
-      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
-      "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
+      "userName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)),
+      "impersonatorName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)),
+      "defaultProjectId" -> stripHeaderParams(getPreferredHeader(projectIds)),
+      "projectID" -> projectIds.map(stripHeaderParams).toArray,
+      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(stripHeaderParams).toArray,
+      "userAgent" -> stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
@@ -111,7 +125,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "dataCenter" -> dataCenter,
       "clusterId" -> clusterId,
       "nodeId" -> nodeId,
-      "requestorIp" -> Option(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString)).getOrElse(httpServletRequest.getRemoteAddr)
+      "requestorIp" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString)))
+        .getOrElse(httpServletRequest.getRemoteAddr)
     )
 
     val templateOutput: StringWriter = new StringWriter

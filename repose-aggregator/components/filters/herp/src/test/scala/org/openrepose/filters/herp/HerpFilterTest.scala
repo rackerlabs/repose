@@ -63,6 +63,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
                            },
             "UserName" : "{{userName}}",
             "ImpersonatorName" : "{{impersonatorName}}",
+            "DefaultProjectID" : "{{defaultProjectId}}",
             "ProjectID" : [
                             {{#each projectID}}
                             {{#if @index}},{{/if}}"{{.}}"
@@ -314,6 +315,20 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
+    }
+    it("should extract and log the default request tenant id header") {
+      // given:
+      servletRequest.addHeader("X-Tenant-Id", "foo;q=0.5")
+      servletRequest.addHeader("X-Tenant-Id", "bar;q=1.0")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"bar\"")
     }
     it("should extract and log multiple tenant id header values") {
       // given:
