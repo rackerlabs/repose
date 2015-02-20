@@ -106,7 +106,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
-        it(s"not having headers while retrieving admin token") {
+        it("not having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
@@ -124,7 +124,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           ex.getRetryAfter shouldNot be(null)
         }
 
-        it(s"having headers while retrieving admin token") {
+        it("having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
@@ -327,7 +327,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
-        it(s"not having headers while retrieving admin token") {
+        it("not having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
@@ -345,7 +345,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           ex.getRetryAfter shouldNot be(null)
         }
 
-        it(s"having headers while retrieving admin token") {
+        it("having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
@@ -388,7 +388,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
-        it(s"not having headers while retrieving admin token") {
+        it("not having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
@@ -406,7 +406,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           ex.getRetryAfter shouldNot be(null)
         }
 
-        it(s"having headers while retrieving admin token") {
+        it("having headers while retrieving admin token") {
           val mockServiceClientResponse = mock[ServiceClientResponse]
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
