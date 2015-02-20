@@ -3,11 +3,13 @@ package org.openrepose.filters.herp
 import java.io.StringWriter
 import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.github.jknack.handlebars.{Handlebars, Template}
+import com.github.jknack.handlebars.{Options, Helper, Handlebars, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -170,7 +172,10 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
-    def handlebars = new Handlebars
+    val handlebars = new Handlebars
+    handlebars.registerHelper("cadfTimestamp", new CadfTimestamp)
+    handlebars.registerHelper("cadfMethod", new CadfMethod)
+    handlebars.registerHelper("cadfOutcome", new CadfOutcome)
     handlebarsTemplate = handlebars.compileInline(templateString)
     filtersOut = config.getFilterOut.asScala.map { filter =>
       filter.getMatch.asScala.map { matcher =>
@@ -182,5 +187,33 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
 
   override def isInitialized: Boolean = {
     initialized
+  }
+}
+
+class CadfTimestamp extends Helper[Long] {
+  override def apply(context: Long, options: Options): CharSequence = {
+    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date(context))
+  }
+}
+
+class CadfMethod extends Helper[String] {
+  override def apply(context: String, options: Options): CharSequence = {
+    context.toLowerCase match {
+      case "get"    => "read/get"
+      case "head"   => "read/head"
+      case "post"   => "update/post"
+      case "put"    => "update/put"
+      case "delete" => "update/delete"
+      case "patch"  => "update/patch"
+    }
+  }
+}
+
+class CadfOutcome extends Helper[Int] {
+  override def apply(context: Int, options: Options): CharSequence = {
+    if ((context >= 200) && (context < 300))
+      "success"
+    else
+      "failure"
   }
 }

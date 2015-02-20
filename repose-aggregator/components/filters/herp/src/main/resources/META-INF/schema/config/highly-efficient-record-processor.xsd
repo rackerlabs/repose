@@ -86,6 +86,8 @@
                     Supported fields include guid, serviceCode, region, dataCenter, timestamp, requestMethod,
                     requestURL, requestQueryString, parameters, userName, impersonatorName, projectID, roles,
                     userAgent, responseCode, responseMessage, clusterId, nodeId, requestorIp.
+                    A number of helpers are available for formatting for cadf including cadfOutcome, cadfTimestamp,
+                    cadfMethod.
                 </html:p>
             </xs:documentation>
         </xs:annotation>

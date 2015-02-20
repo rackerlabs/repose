@@ -37,6 +37,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     herpFilter = new HerpFilter(null, "cluster", "node")
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
+    servletRequest.setMethod("GET")
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
     herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-pre-Logger")
@@ -52,8 +53,10 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           "Node" : "{{nodeId}}",
           "RequestorIp" : "{{requestorIp}}",
           "Timestamp" : "{{timestamp}}",
+          "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
           "Request" : {
             "Method" : "{{requestMethod}}",
+            "CadfMethod" : "{{cadfMethod requestMethod}}",
             "URL" : "{{requestURL}}",
             "QueryString" : "{{requestQueryString}}",
             "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
@@ -74,6 +77,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           },
           "Response" : {
             "Code" : {{responseCode}},
+            "CadfOutcome" : "{{cadfOutcome responseCode}}",
             "Message" : "{{responseMessage}}"
           }
          }
@@ -187,6 +191,13 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"4.3.2.1\"")
     }
+    it("should expose the cadf timestamp") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfTimestamp\" : \"")
+    }
     it("should extract and log the request method") {
       // given:
       servletRequest.setMethod("POST")
@@ -199,6 +210,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Method\" : \"POST\"")
+    }
+    it("should expose the cadf method") {
+      // given:
+      servletRequest.setMethod("POST")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfMethod\" : \"update/post\"")
     }
     it("should extract and log the request url") {
       // given:
@@ -358,6 +382,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Code\" : 418")
+    }
+    it("should expose the cadf outcome") {
+      // given:
+      servletResponse.setStatus(I_AM_A_TEAPOT.value)
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfOutcome\" : \"failure\"")
     }
     it("should extract and log the response message") {
       // given:
@@ -605,6 +642,52 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should not include "\nLine One\n Line Two"
+    }
+  }
+
+  describe("cadf timestamp") {
+    it("should convert as expected") {
+      val timestampFormater = new CadfTimestamp
+      timestampFormater(0, null) should equal ("1969-12-31T18:00:00-06:00")
+    }
+  }
+
+  describe("cadf method") {
+    val methodFormatter = new CadfMethod
+    val methods: Map[String, String] = Map(
+      "get"    -> "read/get",
+      "head"   -> "read/head",
+      "post"   -> "update/post",
+      "put"    -> "update/put",
+      "delete" -> "update/delete",
+      "patch"  -> "update/patch"
+    )
+    methods.foreach { method =>
+      it(s"should translate ${method._1} into ${method._2}") {
+        methodFormatter(method._1, null) should equal (method._2)
+      }
+    }
+  }
+
+  describe("cadf outcome") {
+    val outcomeFormatter = new CadfOutcome
+    val outcomes: Map[Int, String] = Map(
+      200 -> "success",
+      201 -> "success",
+      204 -> "success",
+      301 -> "failure",
+      301 -> "failure",
+      400 -> "failure",
+      404 -> "failure",
+      412 -> "failure",
+      429 -> "failure",
+      500 -> "failure",
+      503 -> "failure"
+    )
+    outcomes.foreach { outcome =>
+      it(s"should translate status ${outcome._1} into ${outcome._2}") {
+        outcomeFormatter(outcome._1, null) should equal (outcome._2)
+      }
     }
   }
 }
