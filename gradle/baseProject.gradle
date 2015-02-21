@@ -19,7 +19,7 @@ repositories {
 //All the projects use this version, they don't all use the same group
 version = "7.0.1.0-SNAPSHOT"
 
-/**
+/*
  * If you want to override dependencies, you can do it here. You can also ban them from here I think
  */
 configurations.all {
@@ -30,6 +30,9 @@ configurations.all {
     }
 }
 
+/*
+ * Set our source levels
+ */
 compileJava {
     sourceCompatibility = "1.7"
     targetCompatibility = "1.7"

@@ -70,6 +70,23 @@ task copyTestArtifacts << {
     }
 }
 
+//For the ReplaceTokens ant filter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+/*
+This requires all filtering to be done by @value@, not the maven style of doing ${some.value}
+ */
+processResources {
+    //Hack all the properties to a toString value, because I don't care!
+    filter(ReplaceTokens, tokens: project.properties.collectEntries{ k,v -> [k.toString(), v.toString() ?: '']})
+}
+
+processTestResources {
+    //Hack all the properties to a toString value, because I don't care!
+    filter(ReplaceTokens, tokens: project.properties.collectEntries{ k,v -> [k.toString(), v.toString() ?: '']})
+}
+
+
 //Make sure we have our test artifacts before testing
 test.dependsOn("copyTestArtifacts")
 
