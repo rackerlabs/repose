@@ -1,0 +1,15 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply from: "$rootDir/gradle/jaxb.gradle"
+
+dependencies {
+    compile project(":repose-aggregator:services:httpclient:api"),
+            project(":repose-aggregator:core:core-service-api"),
+            project(":repose-aggregator:services:health-check:api"),
+            "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+            "org.apache.httpcomponents:httpclient:4.2.5", //TODO: commons-codec exclusion?
+            "javax.inject:javax.inject:1"
+
+    testCompile "xerces:xerces-xsd11:$xercesRaxVersion"
+
+}

@@ -8,9 +8,10 @@ dependencies {
             project(":repose-aggregator:services:httpclient:api"),
             "com.google.guava:guava:15.0:cdi1.0", //WAT
             "commons-io:commons-io:2.4",
-            "org.scala-lang:scala-library:$scalaVersion"
+            "org.scala-lang:scala-library:$scalaVersion",
+            "javax.inject:javax.inject:1"
 
-    testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
             "com.sun.jersey:jersey-server:1.16",
             "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
             "org.eclipse.jetty:jetty-server:$jettyVersion"

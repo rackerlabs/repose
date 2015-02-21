@@ -1,0 +1,21 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply from: "$rootDir/gradle/jaxb.gradle"
+
+dependencies {
+    compile project(":repose-aggregator:core:core-service-api"),
+            project(":repose-aggregator:services:datastore:api"),
+            project(":repose-aggregator:services:health-check:api"),
+            project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:services:rate-limiting-service"),
+            "com.google.guava:guava:14.0.1",
+            "org.springframework:spring-beans:$springVersion",
+            "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+            "org.eclipse.jetty:jetty-server:$jettyVersion",
+            "org.eclipse.jetty:jetty-servlet:$jettyVersion",
+            "net.sf.ehcache:ehcache-core:2.2.0",
+            "com.yammer.metrics:metrics-ehcache:$yammerVersion",
+            "javax.inject:javax.inject:1"
+
+    testCompile "xerces:xerces-xsd11:$xercesRaxVersion"
+}

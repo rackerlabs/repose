@@ -10,7 +10,7 @@ apply plugin: 'propdeps-maven'
 //All our projects will use mavenCentral for their maven source (at least)
 repositories {
     mavenCentral()
-    maven{
+    maven {
         //TODO: maybe need creds: http://gradle.org/docs/current/userguide/dependency_management.html#sub:maven_repo
         url "https://maven.research.rackspacecloud.com/content/groups/aggregate"
     }
@@ -24,7 +24,7 @@ version = "7.0.1.0-SNAPSHOT"
  */
 configurations.all {
     resolutionStrategy.eachDependency {
-        if(it.requested.name == 'commons-logging') {
+        if (it.requested.name == 'commons-logging') {
             it.useTarget 'org.slf4j:jcl-over-slf4j:1.7.7' //TODO: use parameterized slf4j version
         }
     }
@@ -34,7 +34,6 @@ compileJava {
     sourceCompatibility = "1.7"
     targetCompatibility = "1.7"
 }
-
 
 /**
  * Because an Ear project is always the same, this is a function to clean up our build script
@@ -100,8 +99,10 @@ dependencies {
             "org.apache.logging.log4j:log4j-core:${log4jVersion}",
             "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
             group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
-}
 
+    //Use the latest version of the zinc compiler
+    zinc "com.typesafe.zinc:zinc:0.3.7"
+}
 
 //TODO: jacoco coverage for almost all projects
 //TODO: integration test task

@@ -1,0 +1,77 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+//For this project, we need joint scala/java compilation so that dependencies in the code are properly handled
+sourceSets.main.scala.srcDirs += "src/main/java"
+sourceSets.main.java.srcDirs = []
+//tasks.compileJava.dependsOn(compileScala)
+//tasks.compileScala.dependsOn.remove("compileJava")
+
+configurations {
+    testingArtifacts {
+        transitive = false
+    }
+}
+
+dependencies {
+    compile "javax.inject:javax.inject:1",
+            project(":repose-aggregator:external:jee6-schemas"),
+            project(":repose-aggregator:core:core-service-api"),
+            project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:commons:configuration"),
+            project(":repose-aggregator:services:service-client:api"),
+            project(":repose-aggregator:services:service-client:impl"),
+            project(":repose-aggregator:services:health-check:api"),
+            project(":repose-aggregator:services:health-check:impl"),
+            project(":repose-aggregator:services:httpclient:api"),
+            project(":repose-aggregator:services:httpclient:impl"),
+            project(":repose-aggregator:services:datastore:api"),
+            project(":repose-aggregator:services:datastore:impl"),
+            "org.apache.httpcomponents:httpclient:$httpClientVersion",
+            "org.springframework:spring-core:$springVersion",
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-web:$springVersion",
+            "com.google.guava:guava:14.0.1",
+            "commons-io:commons-io:2.4",
+            "org.apache.commons:commons-lang3:3.3.2",
+            "joda-time:joda-time:2.6",
+            "org.eclipse.jetty:jetty-server:$jettyVersion",
+            "com.yammer.metrics:metrics-core:$yammerVersion",
+            "com.yammer.metrics:metrics-graphite:$yammerVersion",
+            "javax.ws.rs:javax.ws.rs-api:$javaxWsApiVersion",
+            "org.apache.logging.log4j:log4j-flume-ng:$log4jVersion",
+            "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+            "org.apache.logging.log4j:log4j-api:$log4jVersion",
+            "org.apache.logging.log4j:log4j-core:$log4jVersion",
+            "org.apache.logging.log4j:log4j-jul:$log4jVersion",
+            "org.apache.logging.log4j:log4j-iostreams:$log4jVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+            "com.typesafe:config:1.0.2",
+            "org.scala-lang:scala-library:$scalaVersion",
+            "javax.servlet:javax.servlet-api:3.1.0"
+
+    testCompile "org.springframework:spring-test:$springVersion",
+            "org.scalatest:scalatest_2.10:$scalaTestVersion",
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+
+    testingArtifacts "org.openrepose.filters.core.test:core-test-filter-bundle:$testArtifactVersion",
+            "org.openrepose.filters.core.test:busted-application-name-ear:$testArtifactVersion",
+            "org.openrepose.filters.core.test:busted-web-fragment-ear:$testArtifactVersion",
+            "org.openrepose.filters.core.test:second-filter-bundle:$testArtifactVersion"
+}
+
+task copyTestArtifacts << {
+    copy {
+        from configurations.testingArtifacts
+        into 'build/earFiles'
+
+    }
+}
+
+//Make sure we have our test artifacts before testing
+test.dependsOn("copyTestArtifacts")
+
+//TODO: define task to get artifacts by certain group/artifactIDs and put them into a build/earFiles dir
+//TODO: resource filtering! //not sure I can make it look like mavens

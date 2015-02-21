@@ -45,7 +45,6 @@ task transformXSDs() {
 
         //Find all XSDs in the src/main/resources/META-INF.schema
         if (file(xsltFile).exists()) {
-            println("TRANSFORMING SCHEMA")
             logger.lifecycle("Transforming Schemas")
             ant.xslt(
                     extension: '.xsd',
