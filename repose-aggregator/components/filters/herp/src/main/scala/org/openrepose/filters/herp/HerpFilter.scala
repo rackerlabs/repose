@@ -113,7 +113,9 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "userAgent" -> stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
-      "targetHost" -> Try(new URL(httpServletRequest.getRequestURL.toString).getHost).getOrElse(null),
+      "targetHost" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map { requestUrl =>
+        Try(new URL(requestUrl.toString).getHost).getOrElse(null)
+      }.orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
       "parameters_SCALA" -> translateParameters(),
       "parameters" -> translateParameters().asJava.entrySet(),
