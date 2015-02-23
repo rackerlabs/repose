@@ -22,7 +22,7 @@ version = "7.0.1.0-SNAPSHOT"
 /*
  * If you want to override dependencies, you can do it here. You can also ban them from here I think
  */
-configurations{
+configurations {
     all {
         resolutionStrategy.eachDependency {
             if (it.requested.name == 'commons-logging') {
@@ -31,9 +31,10 @@ configurations{
         }
     }
 
-    //For compiling be strict!
-    compile.transitive = false
-    testCompile.transitive = false
+    //For compiling be strict -- CANNOT: https://issues.gradle.org/browse/GRADLE-900
+    //compile.transitive = false
+    //Test code transitive dependency stuff is super hard...
+    //testCompile.transitive = false
 }
 
 /*
@@ -74,9 +75,11 @@ dependencies {
             "org.powermock:powermock-api-mockito:1.5.4",    //This order matters!
             "org.mockito:mockito-all:1.9.5",                //This order matters!
             "junit:junit:4.11",                          //This order matters!
+            "org.apache.logging.log4j:log4j-api:${log4jVersion}",
             "org.apache.logging.log4j:log4j-core:${log4jVersion}",
-            "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
-            group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
+            "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+
+    testCompile group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
 
     //Use the latest version of the zinc compiler
     zinc "com.typesafe.zinc:zinc:0.3.7"
