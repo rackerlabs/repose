@@ -22,12 +22,18 @@ version = "7.0.1.0-SNAPSHOT"
 /*
  * If you want to override dependencies, you can do it here. You can also ban them from here I think
  */
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (it.requested.name == 'commons-logging') {
-            it.useTarget 'org.slf4j:jcl-over-slf4j:1.7.7' //TODO: use parameterized slf4j version
+configurations{
+    all {
+        resolutionStrategy.eachDependency {
+            if (it.requested.name == 'commons-logging') {
+                it.useTarget 'org.slf4j:jcl-over-slf4j:1.7.7' //TODO: use parameterized slf4j version
+            }
         }
     }
+
+    //For compiling be strict!
+    compile.transitive = false
+    testCompile.transitive = false
 }
 
 /*
@@ -67,7 +73,7 @@ dependencies {
             "org.powermock:powermock-module-junit4:1.5.4",  //This order matters!
             "org.powermock:powermock-api-mockito:1.5.4",    //This order matters!
             "org.mockito:mockito-all:1.9.5",                //This order matters!
-            "junit:junit-dep:4.1",                          //This order matters!
+            "junit:junit:4.11",                          //This order matters!
             "org.apache.logging.log4j:log4j-core:${log4jVersion}",
             "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
             group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"

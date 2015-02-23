@@ -6,5 +6,7 @@ dependencies {
             "org.apache.httpcomponents:httpclient:$httpClientVersion",
             "commons-pool:commons-pool:1.6",
             "org.glassfish:javax.servlet:3.1", //TODO: this is some weird hybrid of 2.5 and 3.1.0
-            "javax.ws.rs:javax.ws.rs-api:2.0.1"
+            "javax.ws.rs:javax.ws.rs-api:2.0.1",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "org.apache.httpcomponents:httpcore:$httpClientVersion"
 }
