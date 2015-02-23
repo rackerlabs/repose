@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,6 +136,11 @@ public class ValidatorConfigurator {
     }
 
     private String getWadlPath(String uri, String configRoot) {
-        return new File(configRoot, uri).toURI().toString();
+        //If the wadl path is already absolute, just return that rather than prepending the config root
+        if(Paths.get(uri).isAbsolute()) {
+            return new File(uri).toString();
+        } else {
+            return new File(configRoot, uri).toURI().toString();
+        }
     }
 }
