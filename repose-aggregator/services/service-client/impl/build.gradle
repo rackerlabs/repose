@@ -2,7 +2,7 @@ apply from: "$rootDir/gradle/baseProject.gradle"
 
 dependencies {
     compile "com.typesafe.akka:akka-actor_2.10:2.2.3",
-            "com.typesafe:config:1.2.1",
+            "com.typesafe:config:$typesafeConfigVersion",
             project(":repose-aggregator:commons:utilities"),
             project(":repose-aggregator:services:service-client:api"), //TODO: this name might be bad
             project(":repose-aggregator:services:httpclient:api"),
