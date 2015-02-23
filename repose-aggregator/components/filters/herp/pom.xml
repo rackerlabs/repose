@@ -28,12 +28,6 @@
     </repositories>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-
         <!-- Let's use Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -69,6 +63,18 @@
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
             <version>2.1.2</version>
+        </dependency>
+
+        <!-- @Value -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <!-- HttpStatus -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
 
         <!-- MockHttpServletRequest/Response -->
