@@ -49,6 +49,41 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
       }
     }
 
+    def processFailedToken(code: Int, userName: String, retry: String, encodedCredentials: String): Unit = {
+      code match {
+        case (HttpServletResponse.SC_UNAUTHORIZED) =>
+          delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+          }
+        case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS) => // (413 | 429)
+          delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
+            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry)
+          }
+        case (_) =>
+          delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+          }
+      }
+      if (delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
+    }
+
+    def processNoCachedToken(encodedCredentials: String): Unit = {
+      // request a token
+      getUserToken(encodedCredentials) match {
+        case TokenCreationInfo(code, Some(token), userName, _) =>
+          val tokenStr = token.toString
+          if (tokenCacheTtlMillis > 0) {
+            datastore.put(TOKEN_KEY_PREFIX + encodedCredentials, tokenStr, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
+          }
+          filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
+        case TokenCreationInfo(code, _, userName, retry) =>
+          processFailedToken(code, userName, retry, encodedCredentials)
+      }
+    }
+
     // We need to process the Response unless a couple of specific conditions occur.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     if (!httpServletRequest.getHeaderNames.asScala.toList.contains(X_AUTH_TOKEN)) {
@@ -58,34 +93,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
             val tokenString = token.toString
             filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenString)
           case None =>
-            // request a token
-            getUserToken(encodedCredentials) match {
-              case TokenCreationInfo(code, Some(token), userName, _) =>
-                val tokenStr = token.toString
-                if (tokenCacheTtlMillis > 0) {
-                  datastore.put(TOKEN_KEY_PREFIX + encodedCredentials, tokenStr, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
-                }
-                filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
-              case TokenCreationInfo(code, _, userName, retry) =>
-                code match {
-                  case (HttpServletResponse.SC_UNAUTHORIZED) =>
-                    delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
-                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
-                      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-                      datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
-                    }
-                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS) => // (413 | 429)
-                    delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
-                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
-                      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry)
-                    }
-                  case (_) =>
-                    delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
-                      filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
-                    }
-                }
-                if (delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
-            }
+            processNoCachedToken(encodedCredentials)
         }
       }
     }
