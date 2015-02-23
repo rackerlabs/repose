@@ -11,7 +11,7 @@ import spock.lang.Unroll
 import javax.ws.rs.core.HttpHeaders
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS
 
 /**
  * Created by jennyvo on 11/12/14.
@@ -156,6 +156,6 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         9503      | SC_SERVICE_UNAVAILABLE      | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
         9504      | SC_GATEWAY_TIMEOUT          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
         9505      | SC_REQUEST_ENTITY_TOO_LARGE | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
-        9506      | SC_TOO_MANY_REQUESTS        | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
+        9506      | TOO_MANY_REQUESTS.value     | "status_code=503`component=Rackspace Identity Basic Auth`message=Rate limited by identity service"
     }
 }

@@ -24,6 +24,11 @@ import scala.xml._
 class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicAuthConfig, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler with HttpDelegationManager with BasicAuthUtils with LazyLogging {
 
+  // Since JVM case statements require a constant expression at compile time
+  // and it doesn't look into an enum to see it's final attributes,
+  // this magic number was extracted to a local constant.
+  //private static final int TOO_MANY_REQUESTS_VALUE = org.springframework.http.HttpStatus.TOO_MANY_REQUESTS.value();
+  private final val TOO_MANY_REQUESTS_VALUE = 429;
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
   private val identityServiceUri = basicAuthConfig.getRackspaceIdentityServiceUri
@@ -74,7 +79,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
                       filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
                       datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
                     }
-                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS) => // (413 | 429)
+                  case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | TOO_MANY_REQUESTS_VALUE) => // (413 | 429)
                     delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
                       filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
                       filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry)
@@ -143,7 +148,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
         val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
         val idString = (xmlString \\ "access" \ "token" \ "@id").text
         TokenCreationInfo(statusCode, Option(idString), userName, "0")
-      } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) { // (413 | 429)
+      } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == TOO_MANY_REQUESTS_VALUE) { // (413 | 429)
         val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER)}
         if (retryHeaders.isEmpty) {
           logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")

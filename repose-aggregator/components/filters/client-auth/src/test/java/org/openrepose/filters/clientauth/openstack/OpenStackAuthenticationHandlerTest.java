@@ -42,9 +42,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
-
-
-
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 /**
  * @author zinic
@@ -1061,7 +1059,7 @@ public class OpenStackAuthenticationHandlerTest {
             Calendar retryCalendar = new GregorianCalendar();
             retryCalendar.add(Calendar.SECOND, 5);
             String retryValue = new HttpDate(retryCalendar.getTime()).toRFC1123();
-            int statusCode = FilterDirector.SC_TOO_MANY_REQUESTS; // 429
+            int statusCode = TOO_MANY_REQUESTS.value(); // 429
             when(authService.validateToken(anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");

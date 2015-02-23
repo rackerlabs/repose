@@ -15,7 +15,6 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
-import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
@@ -24,6 +23,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 
 import scala.util.{Failure, Success, Try}
 
@@ -103,7 +103,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       identityV3API.invokePrivate(getAdminToken(true)).failed.get shouldBe a[InvalidAdminCredentialsException]
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, HttpStatus.TOO_MANY_REQUESTS.value)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {
@@ -324,7 +324,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, HttpStatus.TOO_MANY_REQUESTS.value)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {
@@ -385,7 +385,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       identityV3API invokePrivate fetchGroups("test-user-id", true) shouldBe a[Failure[_]]
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, HttpStatus.TOO_MANY_REQUESTS.value)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {

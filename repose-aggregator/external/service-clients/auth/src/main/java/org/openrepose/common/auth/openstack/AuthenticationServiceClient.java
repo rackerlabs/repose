@@ -11,7 +11,6 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.*;
@@ -42,6 +41,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
     private static final String TOKEN_PREFIX = "TOKEN:";
     private static final String GROUPS_PREFIX = "GROUPS:";
     private static final String ENDPOINTS_PREFIX = "ENDPOINTS";
+    // Since JVM case statements require a constant expression at compile time
+    // and it doesn't look into an enum to see it's final attributes,
+    // this magic number was extracted to a local constant.
+    //private static final int TOO_MANY_REQUESTS_VALUE = org.springframework.http.HttpStatus.TOO_MANY_REQUESTS.value();
+    private static final int TOO_MANY_REQUESTS_VALUE = 429;
 
     private AdminToken currentAdminToken;
     private final String requestBody;
@@ -117,7 +121,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 }
                 break;
             case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE:
-            case FilterDirector.SC_TOO_MANY_REQUESTS: // (413 | 429)
+            case TOO_MANY_REQUESTS_VALUE: // (413 | 429)
                 delegationMessage.set("Unable to validate token: " + userToken + ". Invalid token. Status Code: " + serviceResponse.getStatus());
                 throw buildAuthServiceOverLimitException(serviceResponse);
             default:
@@ -172,7 +176,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     }
                     break;
                 case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE:
-                case FilterDirector.SC_TOO_MANY_REQUESTS: // (413 | 429)
+                case TOO_MANY_REQUESTS_VALUE: // (413 | 429)
                     delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + endpointListResponse.getStatus());
                     throw buildAuthServiceOverLimitException(endpointListResponse);
                 default:
@@ -226,7 +230,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     }
                     break;
                 case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE:
-                case FilterDirector.SC_TOO_MANY_REQUESTS: // (413 | 429)
+                case TOO_MANY_REQUESTS_VALUE: // (413 | 429)
                     delegationMessage.set("Unable to get endpoints for token: " + userToken + ". Status code: " + serviceClientResponse.getStatus());
                     throw buildAuthServiceOverLimitException(serviceClientResponse);
                 default:
@@ -299,7 +303,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     }
                     break;
                 case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE:
-                case FilterDirector.SC_TOO_MANY_REQUESTS: // (413 | 429)
+                case TOO_MANY_REQUESTS_VALUE: // (413 | 429)
                     delegationMessage.set("Unable to get groups for user id: " + userId + ". Status code: " + serviceResponse.getStatus());
                     throw buildAuthServiceOverLimitException(serviceResponse);
                 default:
@@ -352,7 +356,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                         adminToken = currentAdminToken.getToken();
                         break;
                     case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE:
-                    case FilterDirector.SC_TOO_MANY_REQUESTS: // (413 | 429)
+                    case TOO_MANY_REQUESTS_VALUE: // (413 | 429)
                         delegationMessage.set("Unable to get admin token. Status code: " + serviceResponse.getStatus());
                         throw buildAuthServiceOverLimitException(serviceResponse);
                     default:

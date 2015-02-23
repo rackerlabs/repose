@@ -26,7 +26,7 @@ import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 import static org.openrepose.core.filter.logic.FilterAction.PASS
 import static org.openrepose.core.filter.logic.FilterAction.RETURN
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS
 
 class RequestAuthorizationHandlerTest extends Specification {
 
@@ -240,9 +240,9 @@ class RequestAuthorizationHandlerTest extends Specification {
         where:
         desc                                    | filterAction | delegable            | statusCode
         "When delegating is not set, it should" | RETURN       | null                 | SC_REQUEST_ENTITY_TOO_LARGE
-        "When delegating is not set, it should" | RETURN       | null                 | SC_TOO_MANY_REQUESTS
+        "When delegating is not set, it should" | RETURN       | null                 | TOO_MANY_REQUESTS.value
         "When delegating is set, it should not" | PASS         | new DelegatingType() | SC_REQUEST_ENTITY_TOO_LARGE
-        "When delegating is set, it should not" | PASS         | new DelegatingType() | SC_TOO_MANY_REQUESTS
+        "When delegating is set, it should not" | PASS         | new DelegatingType() | TOO_MANY_REQUESTS.value
     }
 
     def "should Cache Fresh Endpoint Lists"() {

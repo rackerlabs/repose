@@ -29,12 +29,6 @@ public interface FilterDirector {
      */
     public static final int SC_UNSUPPORTED_RESPONSE_CODE = -1;
 
-    /**
-     * Status code (429) indicates that the user has sent too many
-     * requests in a given amount of time ("rate limiting").
-     */
-    public static final int SC_TOO_MANY_REQUESTS = 429;
-
    void setRequestUriQuery(String query);
    
    void setRequestUri(String newUri);

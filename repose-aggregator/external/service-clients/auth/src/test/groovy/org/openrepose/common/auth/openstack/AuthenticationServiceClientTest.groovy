@@ -10,7 +10,6 @@ import org.openrepose.common.auth.AuthServiceOverLimitException
 import org.openrepose.common.auth.ResponseUnmarshaller
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
-import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openstack.docs.identity.api.v2.AuthenticationRequest
 import org.openstack.docs.identity.api.v2.ObjectFactory
@@ -25,6 +24,7 @@ import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
 import static org.mockito.Mockito.*
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS
 
 class AuthenticationServiceClientTest extends Specification {
     @Shared def objectFactory = new ObjectFactory()
@@ -95,7 +95,7 @@ class AuthenticationServiceClientTest extends Specification {
         app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token. Status code: $statusCode" }
 
         where:
-        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  TOO_MANY_REQUESTS.value] // [413, 429]
     }
 
     def 'reuses the admin token if it is still valid'() {
@@ -286,7 +286,7 @@ class AuthenticationServiceClientTest extends Specification {
         app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for token: ${userToValidate.token}. Status code: $statusCode" }
 
         where:
-        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  TOO_MANY_REQUESTS.value] // [413, 429]
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {

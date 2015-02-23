@@ -11,7 +11,7 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.{HttpDate, CommonHttpHeader}
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
-import org.openrepose.core.filter.logic.{FilterDirector, FilterAction, HeaderManager}
+import org.openrepose.core.filter.logic.{FilterAction, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
@@ -19,6 +19,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Try}
@@ -224,7 +225,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       )
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, HttpStatus.TOO_MANY_REQUESTS.value())
     statusCodes.foreach { statusCode =>
       it(s"should return a ${HttpServletResponse.SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
         val retryCalendar = new GregorianCalendar()

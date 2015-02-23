@@ -13,7 +13,7 @@ import spock.lang.Ignore
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS
 
 /**
  * Created by jennyvo on 9/17/14.
@@ -264,6 +264,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         where:
         reqTenant | identityStatusCode
         9505      | SC_REQUEST_ENTITY_TOO_LARGE
-        9506      | SC_TOO_MANY_REQUESTS
+        9506      | TOO_MANY_REQUESTS.value
     }
 }

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 /* Responsible for handling requests and responses to ratelimiting, also tracks and provides limits */
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
@@ -148,7 +149,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
         director.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       } else if (overLimit429ResponseCode) {
-        director.setResponseStatusCode(FilterDirector.SC_TOO_MANY_REQUESTS);
+        director.setResponseStatusCode(TOO_MANY_REQUESTS.value());
       } else {
         director.setResponseStatusCode(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
       }

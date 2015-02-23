@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS
 
 /**
  * Created by jamesc on 1/18/15.
@@ -122,7 +122,7 @@ class IdentityV3AuxiliaryErrorsTest extends ReposeValveTest{
         where:
         reqDomain | identityStatusCode
         1115      | SC_REQUEST_ENTITY_TOO_LARGE
-        1116      | SC_TOO_MANY_REQUESTS
+        1116      | TOO_MANY_REQUESTS.value
 
     }
 
