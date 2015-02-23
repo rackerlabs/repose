@@ -44,6 +44,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * TODO: seems that sometimes this test includes namespaces on some of the elements.
+ * Not while being run in the IDe, but sometimes in maven, and almost every time with gradle.
+ */
 public class CombineLimitsTransformTest {
 
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";
@@ -56,6 +60,12 @@ public class CombineLimitsTransformTest {
     public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     public static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
 
+    //This validation pattern needs to take into account that there might be an xml namespace in there.
+    //Seems that the namespace gets dropped on the <rates> tag
+    //TODO: a better solution to this would be to xpath out the elements and ensure that the xpath structure matches
+    //The below regex is brittle and I just did to get it passing again.
+    //Don't use regexp on XML: http://stackoverflow.com/a/1732454/423218
+    private final Pattern validationPattern = Pattern.compile(".*(<[\\S:]*rates xmlns.*>.*</[\\S:]*rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
     private DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 
