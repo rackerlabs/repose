@@ -5,7 +5,7 @@
                                    post-filter-logger-name="org.openrepose.herp.post.filter"
                                    service-code="repose" region="USA" data-center="DFW">
     <template crush="true">
-        <!-- todo: methodLabel, host.address -->
+        <!-- todo: methodLabel -->
         <![CDATA[
         <?xml version="1.0"?>
         <event xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
@@ -21,10 +21,10 @@
                outcome="{{cadfOutcome responseCode}}">
             <initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
                        typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
-                <host address="TODO" agent="{{userAgent}}" />
+                <host address="{{requestorIp}}" agent="{{userAgent}}" />
             </initiator>
             <target typeURI="service" name="{{serviceCode}}" >
-                <host address="TODO" />
+                <host address="{{targetHost}}" />
             </target>
             <attachments>
                 <attachment name="auditData" contentType="ua:auditData">

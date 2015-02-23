@@ -58,6 +58,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
             "Method" : "{{requestMethod}}",
             "CadfMethod" : "{{cadfMethod requestMethod}}",
             "URL" : "{{requestURL}}",
+            "TargetHost" : "{{targetHost}}",
             "QueryString" : "{{requestQueryString}}",
             "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
                            },
@@ -250,6 +251,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"QueryString\" : \"a=b&amp;c=d%20e\"")
+    }
+    it("should extract and log the target host") {
+      // given:
+      servletRequest.setAttribute("http://openrepose.org/requestUrl", "http://foo.com")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"TargetHost\" : \"foo.com\"")
     }
     it("should extract and log the request parameters") {
       // given:
