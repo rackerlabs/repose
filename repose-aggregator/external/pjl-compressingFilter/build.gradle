@@ -1,0 +1,14 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+repositories {
+    maven {
+        url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+    }
+}
+
+dependencies {
+    compile project(":repose-aggregator:commons:utilities")
+
+    testCompile "com.mockrunner:mockrunner:0.4.1",
+            "org.jboss.spec:jboss-javaee-6.0:1.0.0.Final"
+}
