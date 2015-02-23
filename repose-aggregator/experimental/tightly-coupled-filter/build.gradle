@@ -1,0 +1,12 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile project(path: ":repose-aggregator:commons:utilities", transitive: false),
+            "javax.inject:javax.inject:1",
+            "org.slf4j:slf4j-api:1.7.10",
+            "org.apache.commons:commons-lang3:3.1",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "org.glassfish:javax.servlet:3.1"
+
+    testCompile "junit:junit:4.8.2"
+}
