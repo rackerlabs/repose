@@ -1,0 +1,16 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile project(":repose-aggregator:external:os-auth-schemas"),
+            project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:services:httpclient:api"),
+            project(":repose-aggregator:services:service-client:api"),
+            "commons-codec:commons-codec:1.8",
+            "commons-pool:commons-pool:$commonsPoolVersion",
+            "com.sun.jersey:jersey-client:1.16",
+            "com.sun.jersey:jersey-server:1.16",
+            "commons-io:commons-io:2.4"
+
+    testCompile "javax.mail:mail:1.4.4"
+}
+
