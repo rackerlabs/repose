@@ -1,0 +1,32 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply plugin: 'ear'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'maven-publish-auth'
+
+//All the projects this guy depends on. We don't put them in dependencies, because we have to hit them up twice.
+def deps = [
+        ':repose-aggregator:extensions:api-validator'
+]
+
+dependencies {
+    deps.each { proj ->
+        deploy project(proj)
+        earlib project(path: proj, configuration: 'runtime')
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact ear
+        }
+    }
+    repositories {
+        maven {
+            name "releases.maven.research.rackspace.com"
+            url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+        }
+    }
+}
