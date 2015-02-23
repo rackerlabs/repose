@@ -1,0 +1,11 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile "org.apache.jena:jena-iri:1.1.1",
+            "javax.inject:javax.inject:1",
+            "javax.servlet:javax.servlet-api:3.1.0",
+            "org.scala-lang:scala-library:$scalaVersion",
+            "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+    testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+}

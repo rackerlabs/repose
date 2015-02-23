@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<limits xmlns="http://docs.openstack.org/common/api/v1.0" xmlns:lim="http://docs.openstack.org/common/api/v1.0">
+    <ns2:rates xmlns:ns2="http://docs.openstack.org/common/api/v1.0"
+               xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+        <ns2:rate uri="*loadbalancer*" regex="/loadbalancer/.*">
+            <ns2:limit verb="GET" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="PUT" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="POST" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="DELETE" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+        </ns2:rate>
+        <ns2:rate uri="*loadbalancer/vips*" regex="/loadbalancer/vips/.*">
+            <ns2:limit verb="GET" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="PUT" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="POST" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+            <ns2:limit verb="DELETE" value="20" remaining="19" unit="HOUR" next-available="2015-02-23T21:03:48.428Z"/>
+        </ns2:rate>
+    </ns2:rates>
+    <absolute>
+        <limit name="an absolute" value="5"/>
+        <limit name="domain_value" value="3"/>
+    </absolute>
+</limits>

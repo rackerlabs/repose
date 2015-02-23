@@ -1,0 +1,66 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply plugin: 'ear'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'maven-publish-auth'
+
+//One of the things we depend on needs this repo
+repositories {
+    maven {
+        url "http://repo.typesafe.com/typesafe/maven-releases"
+    }
+}
+
+//All the projects this guy depends on. We don't put them in dependencies, because we have to hit them up twice.
+def deps = [
+        ':repose-aggregator:components:filters:add-header',
+        ':repose-aggregator:components:filters:client-auth',
+        ':repose-aggregator:components:filters:client-authorization',
+        ':repose-aggregator:components:filters:client-ip-identity',
+        ':repose-aggregator:components:filters:compression',
+        ':repose-aggregator:components:filters:content-normalization',
+        ':repose-aggregator:components:filters:content-type-stripper',
+        ':repose-aggregator:components:filters:derp',
+        ':repose-aggregator:components:filters:destination-router',
+        ':repose-aggregator:components:filters:echo',
+        ':repose-aggregator:components:filters:flush-output',
+        ':repose-aggregator:components:filters:forwarded-proto',
+        ':repose-aggregator:components:filters:header-id-mapping',
+        ':repose-aggregator:components:filters:header-identity',
+        ':repose-aggregator:components:filters:header-normalization',
+        ':repose-aggregator:components:filters:header-translation',
+        ':repose-aggregator:components:filters:herp',
+        ':repose-aggregator:components:filters:iri-validator',
+        ':repose-aggregator:components:filters:openstack-identity-v3',
+        ':repose-aggregator:components:filters:rackspace-auth-user',
+        ':repose-aggregator:components:filters:rackspace-identity-basic-auth',
+        ':repose-aggregator:components:filters:rate-limiting',
+        ':repose-aggregator:components:filters:slf4j-http-logging',
+        ':repose-aggregator:components:filters:translation',
+        ':repose-aggregator:components:filters:uri-identity',
+        ':repose-aggregator:components:filters:uri-normalization',
+        ':repose-aggregator:components:filters:uri-stripper',
+        ':repose-aggregator:components:filters:versioning'
+]
+
+dependencies {
+    deps.each { proj ->
+        deploy project(proj)
+        earlib project(path: proj, configuration: 'runtime')
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact ear
+        }
+    }
+    repositories {
+        maven {
+            name "releases.maven.research.rackspace.com"
+            url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+        }
+    }
+}
