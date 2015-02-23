@@ -6,7 +6,7 @@
         <mapping identification-regex=".*/service/(\w*)?/.*"/>
     </identification-mappings>
 
-    <group>User_Standard</group>
+    <group>User_Default</group>
     <quality>0.5</quality>
 
 </uri-identity>
