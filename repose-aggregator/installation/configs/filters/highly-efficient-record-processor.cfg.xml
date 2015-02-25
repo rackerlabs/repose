@@ -5,7 +5,7 @@
                                    post-filter-logger-name="org.openrepose.herp.post.filter"
                                    service-code="repose" region="USA" data-center="DFW">
     <template crush="true">
-        <!-- todo: methodLabel, host.address -->
+        <!-- todo: methodLabel -->
         <![CDATA[
         <?xml version="1.0"?>
         <event xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'

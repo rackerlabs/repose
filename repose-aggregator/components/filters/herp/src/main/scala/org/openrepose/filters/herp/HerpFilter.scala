@@ -3,19 +3,23 @@ package org.openrepose.filters.herp
 import java.io.StringWriter
 import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.github.jknack.handlebars.{Handlebars, Template}
+import com.github.jknack.handlebars.{Options, Helper, Handlebars, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 
 import scala.collection.JavaConverters._
@@ -23,7 +27,10 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 @Named
-class HerpFilter @Inject()(configurationService: ConfigurationService) extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+class HerpFilter @Inject()(configurationService: ConfigurationService,
+                           @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
+                           @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
+                           extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
 
@@ -82,16 +89,33 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       }
     }
 
+    def stripHeaderParams(headerValue: String): String = Option(headerValue).map(_.split(";", 2)(0)).orNull
+
+    def getPreferredHeader(allProjectIds: Traversable[String]): String = {
+      def getQuality(headerValue: String): Double = {
+        """;\s*q\s*=\s*(\d+\.\d+)""".r.findFirstMatchIn(headerValue).map(_.group(1).toDouble).getOrElse(1.0)
+      }
+
+      if (allProjectIds.isEmpty) null
+      else stripHeaderParams(allProjectIds.maxBy(getQuality))
+    }
+
+    val projectIds = httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
+      .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toTraversable
+
     //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(
-      "userName" -> httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString),
-      "impersonatorName" -> httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString),
-      "projectID" -> httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
-        .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toArray,
-      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toArray,
-      "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString),
+      "userName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)),
+      "impersonatorName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)),
+      "defaultProjectId" -> stripHeaderParams(getPreferredHeader(projectIds)),
+      "projectID" -> projectIds.map(stripHeaderParams).toArray,
+      "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(stripHeaderParams).toArray,
+      "userAgent" -> stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)),
       "requestMethod" -> httpServletRequest.getMethod,
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
+      "targetHost" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map { requestUrl =>
+        Try(new URL(requestUrl.toString).getHost).getOrElse(null)
+      }.orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
       "parameters_SCALA" -> translateParameters(),
       "parameters" -> translateParameters().asJava.entrySet(),
@@ -101,7 +125,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
       "guid" -> java.util.UUID.randomUUID.toString,
       "serviceCode" -> serviceCode,
       "region" -> region,
-      "dataCenter" -> dataCenter
+      "dataCenter" -> dataCenter,
+      "clusterId" -> clusterId,
+      "nodeId" -> nodeId,
+      "requestorIp" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString)))
+        .getOrElse(httpServletRequest.getRemoteAddr)
     )
 
     val templateOutput: StringWriter = new StringWriter
@@ -162,7 +190,10 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
     serviceCode = config.getServiceCode
     region = config.getRegion
     dataCenter = config.getDataCenter
-    def handlebars = new Handlebars
+    val handlebars = new Handlebars
+    handlebars.registerHelper("cadfTimestamp", new CadfTimestamp)
+    handlebars.registerHelper("cadfMethod", new CadfMethod)
+    handlebars.registerHelper("cadfOutcome", new CadfOutcome)
     handlebarsTemplate = handlebars.compileInline(templateString)
     filtersOut = config.getFilterOut.asScala.map { filter =>
       filter.getMatch.asScala.map { matcher =>
@@ -174,5 +205,33 @@ class HerpFilter @Inject()(configurationService: ConfigurationService) extends F
 
   override def isInitialized: Boolean = {
     initialized
+  }
+}
+
+class CadfTimestamp extends Helper[Long] {
+  override def apply(context: Long, options: Options): CharSequence = {
+    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date(context))
+  }
+}
+
+class CadfMethod extends Helper[String] {
+  override def apply(context: String, options: Options): CharSequence = {
+    context.toLowerCase match {
+      case "get"    => "read/get"
+      case "head"   => "read/head"
+      case "post"   => "update/post"
+      case "put"    => "update/put"
+      case "delete" => "update/delete"
+      case "patch"  => "update/patch"
+    }
+  }
+}
+
+class CadfOutcome extends Helper[Int] {
+  override def apply(context: Int, options: Options): CharSequence = {
+    if ((context >= 200) && (context < 300))
+      "success"
+    else
+      "failure"
   }
 }
