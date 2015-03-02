@@ -14,6 +14,10 @@ repositories {
         //TODO: maybe need creds: http://gradle.org/docs/current/userguide/dependency_management.html#sub:maven_repo
         url "https://maven.research.rackspacecloud.com/content/groups/aggregate"
     }
+    maven {
+        //For play-json
+        url "http://repo.typesafe.com/typesafe/maven-releases"
+    }
 }
 
 //All the projects use this version, they don't all use the same group
