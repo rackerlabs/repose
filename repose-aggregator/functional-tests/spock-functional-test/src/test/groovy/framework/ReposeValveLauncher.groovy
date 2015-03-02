@@ -107,12 +107,12 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
-            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
+            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file: ${jarFile.getAbsolutePath()}")
         }
 
         File configFolder = new File(configDir)
         if (!configFolder.exists() || !configFolder.isDirectory()) {
-            throw new FileNotFoundException("Missing or invalid configuration folder.")
+            throw new FileNotFoundException("Missing or invalid configuration folder: ${configFolder.getAbsolutePath()}")
         }
 
         if (killOthersBeforeStarting) {

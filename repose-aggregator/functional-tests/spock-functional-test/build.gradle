@@ -70,7 +70,6 @@ sourceSets {
     }
 }
 
-def artifactBase = "$projectDir/build/artifacts"
 def reposeHome = "$buildDir/repose_home"
 
 // Resource processing time!
@@ -83,11 +82,12 @@ filterTokens += [
         "repose.home"                : reposeHome,
         "repose.config.directory"    : "$buildDir/repose_home/configs",
         "repose.raw.config.directory": "$projectDir/src/test/configs",
-        "repose.valve.jar.location"  : "$artifactBase/valve",
-        "repose.config.templates"    : "$buildDir/configs",
+        "repose.valve.jar.location"  : "$reposeHome/valve-$version-all.jar",
+        "repose.config.templates"    : "$buildDir/resources/configs",
         "repose.root.war.location"   : "$reposeHome/ROOT.war",
-        "target.hostname"            : "localhost"
-].collectEntries{ k,v -> [k.toString(), v.toString()]} //Stupid ancient ant tasks
+        "target.hostname"            : "localhost",
+        "repose.container"           : "valve"
+].collectEntries { k, v -> [k.toString(), v.toString()] } //Stupid ancient ant tasks
 
 processResources {
     //Hack all the properties to a toString value, because I don't care!
@@ -138,5 +138,12 @@ task("copyMocksWar", type: Copy) {
     into reposeHome
 }
 
-
 tasks.build.dependsOn(["copyFilterBundles", "copyTomcat", "copyGlassfish", "copyValve", "copyRootWar", "copyMocksWar"])
+
+task("integrationTests", type: Test) {
+    testLogging.showStandardStreams = true
+    dependsOn(["build"])
+    description "Run *ALL* the integration tests"
+    testClassesDir = sourceSets.test.output.classesDir
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.configs.runtimeClasspath
+}
