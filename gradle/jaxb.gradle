@@ -7,6 +7,7 @@
  *
  * NOTE: you can override the XSLT to be applied using
  * project.ext.jaxbXsltFile = "path to xslt"
+ * project.ext.jaxbSchemaBase = "path to xsd"
  * ----------> MUST BE SET BEFORE APPLYING THIS SCRIPT <----------
  */
 configurations {
@@ -33,9 +34,13 @@ task transformXSDs() {
         xsltFile = project.jaxbXsltFile
     }
 
+    if (project.hasProperty('jaxbSchemaBase')) {
+        schemaBaseDir = project.jaxbSchemaBase
+    }
+
     //TODO: also add the XSD to this inputs, if the XSD changed
     inputs.files(
-            fileTree(dir: "$projectDir/src/main/resources/META-INF/schema", includes: ["**/*.xsd", "**/*.xjb"]),
+            fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
             file(xsltFile)
     )
     outputs.dir jaxbSafeXSDSources
@@ -66,7 +71,7 @@ task transformXSDs() {
         ant.copy(
                 todir: jaxbSafeXSDSources
         ) {
-            fileset(dir: "${projectDir}/src/main/resources/META-INF/schema", includes: "**/*.xjb")
+            fileset(dir: schemaBaseDir, includes: "**/*.xjb")
         }
     }
 }
