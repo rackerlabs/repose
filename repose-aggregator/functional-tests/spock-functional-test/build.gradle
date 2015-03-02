@@ -1,0 +1,30 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+dependencies {
+    compile project(":repose-aggregator:functional-tests:mocks-util"),
+            project(":repose-aggregator:functional-tests:mocks-servlet"),
+            project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:services:datastore:api"),
+            project(":repose-aggregator:core:valve"),
+            project(":repose-aggregator:functional-tests:glassfish-support"),
+            project(":repose-aggregator:functional-tests:tomcat-support"),
+            project(":repose-aggregator:components:filters:filter-bundle"),
+            project(":repose-aggregator:experimental:experimental-filter-bundle"),
+            project(":repose-aggregator:extensions:extensions-filter-bundle"),
+            "joda-time:joda-time:2.2",
+            "commons-lang:commons-lang:2.6",
+            "commons-io:commons-io:2.4",
+            "org.linkedin:org.linkedin.util-groovy:1.8.0",
+            "org.apache.httpcomponents:httpclient:4.2.5",
+            "org.rackspace:deproxy:0.21",
+            "xerces:xerces-xsd11:2.12.0-rax",
+            "commons-codec:commons-codec:1.8"
+}
+
+test.enabled = false
+
+task("test", overwrite: true) {
+    doLast {
+        println("I AM THE LIZARD KING")
+    }
+}

@@ -1,0 +1,22 @@
+apply from: "$rootDir/gradle/baseProject.gradle"
+
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(":repose-aggregator:functional-tests:container-support"),
+            project(":repose-aggregator:functional-tests:mocks-util"),
+            "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion",
+            "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatVersion",
+            "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatVersion",
+            "org.apache.tomcat:tomcat-jasper:$tomcatVersion",
+            "org.apache.tomcat:tomcat-jasper-el:$tomcatVersion",
+            "org.apache.tomcat:tomcat-jsp-api:$tomcatVersion",
+            "commons-cli:commons-cli:1.2",
+            "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+            "org.apache.logging.log4j:log4j-api:$log4jVersion",
+            "org.apache.logging.log4j:log4j-core:$log4jVersion"
+
+}
+
+mainClassName = "org.openrepose.commons.utils.test.tomcat.ReposeTomcatServer"
