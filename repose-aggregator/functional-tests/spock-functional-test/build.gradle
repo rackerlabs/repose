@@ -141,9 +141,25 @@ task("copyMocksWar", type: Copy) {
 tasks.build.dependsOn(["copyFilterBundles", "copyTomcat", "copyGlassfish", "copyValve", "copyRootWar", "copyMocksWar"])
 
 task("integrationTests", type: Test) {
-    testLogging.showStandardStreams = true
     dependsOn(["build"])
     description "Run *ALL* the integration tests"
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath + sourceSets.configs.runtimeClasspath
+}
+
+tasks.addRule("Pattern: iTest<ClassName>") {String taskName ->
+    if(taskName.startsWith("iTest")) {
+        def testClass = (taskName - "iTest")
+        task(taskName, type: Test) {
+            description("Run a single integration test")
+            dependsOn(['build'])
+            testClassesDir = sourceSets.test.output.classesDir
+            classpath = sourceSets.test.runtimeClasspath + sourceSets.configs.runtimeClasspath
+            include "**/${testClass}.*"
+
+            testLogging {
+                events 'started', 'passed'
+            }
+        }
+    }
 }
