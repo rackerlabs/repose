@@ -69,7 +69,7 @@ public class ValidatorInfo {
     }
 
     //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings("PMD.AvoidCatchingThrowable")
+    @SuppressWarnings({"squid:S1181","PMD.AvoidCatchingThrowable"})
     public boolean initValidator() {
         LOG.debug("CALL TO ValidatorInfo#initValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName());
 
