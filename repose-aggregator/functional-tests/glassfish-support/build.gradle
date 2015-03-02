@@ -13,3 +13,10 @@ dependencies {
 }
 
 mainClassName = "org.openrepose.commons.utils.test.glassfish.ReposeGlassfishServer"
+
+tasks.build.dependsOn("shadowJar")
+
+
+artifacts {
+    shadow shadowJar
+}

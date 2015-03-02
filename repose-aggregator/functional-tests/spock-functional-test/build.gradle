@@ -2,24 +2,32 @@ apply from: "$rootDir/gradle/baseProject.gradle"
 
 
 configurations {
-    filterBundles
-    tomcat
-    glassfish
-    valve
+    filterBundles{
+        transitive = false
+    }
+    tomcat {
+        transitive = false
+    }
+    glassfish {
+        transitive = false
+    }
+    valve {
+        transitive = false
+    }
 
 }
 
 dependencies {
 
-    filterBundles project(":repose-aggregator:components:filters:filter-bundle"),
-            project(":repose-aggregator:experimental:experimental-filter-bundle"),
-            project(":repose-aggregator:extensions:extensions-filter-bundle")
+    filterBundles project(path: ":repose-aggregator:components:filters:filter-bundle", configuration: "earFile"),
+            project(path: ":repose-aggregator:experimental:experimental-filter-bundle", configuration: "earFile"),
+            project(path: ":repose-aggregator:extensions:extensions-filter-bundle", configuration: "earFile")
 
-    tomcat project(":repose-aggregator:functional-tests:tomcat-support")
+    tomcat project(path: ":repose-aggregator:functional-tests:tomcat-support", configuration: "shadow")
 
-    glassfish project(":repose-aggregator:functional-tests:glassfish-support")
+    glassfish project(path: ":repose-aggregator:functional-tests:glassfish-support", configuration: "shadow")
 
-    valve project(":repose-aggregator:core:valve")
+    valve project(path: ":repose-aggregator:core:valve", configuration: "shadow")
 
     compile project(":repose-aggregator:functional-tests:mocks-util"),
             project(":repose-aggregator:functional-tests:mocks-servlet"),
@@ -47,3 +55,11 @@ task("test", overwrite: true) {
         println("I AM THE LIZARD KING")
     }
 }
+
+["filterBundles", "tomcat", "glassfish", "valve"].collect { config ->
+    task("copy$config", type:Copy) {
+        from configurations."$config"
+        into "build/artifacts/$config"
+    }
+}
+

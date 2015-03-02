@@ -20,3 +20,9 @@ dependencies {
 }
 
 mainClassName = "org.openrepose.commons.utils.test.tomcat.ReposeTomcatServer"
+
+tasks.build.dependsOn("shadowJar")
+
+artifacts {
+    shadow shadowJar
+}

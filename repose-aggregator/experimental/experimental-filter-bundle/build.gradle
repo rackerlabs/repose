@@ -5,6 +5,14 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'maven-publish-auth'
 
+configurations {
+    earFile
+}
+
+artifacts {
+    earFile ear
+}
+
 //All the projects this guy depends on. We don't put them in dependencies, because we have to hit them up twice.
 def deps = [
         ':repose-aggregator:experimental:exception-filter',
@@ -16,7 +24,7 @@ def deps = [
 dependencies {
     deps.each { proj ->
         deploy project(proj)
-        earlib project(path: proj, configuration: 'runtime')
+        earlib project(path: proj, configuration: 'compile')
     }
 }
 

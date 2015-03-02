@@ -46,3 +46,9 @@ shadowJar {
     exclude "META-INF/*.DSA"
     exclude "META-INF/*.RSA"
 }
+
+tasks.build.dependsOn("shadowJar")
+
+artifacts {
+    shadow shadowJar
+}
