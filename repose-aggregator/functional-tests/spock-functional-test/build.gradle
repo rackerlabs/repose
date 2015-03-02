@@ -1,17 +1,36 @@
 apply from: "$rootDir/gradle/baseProject.gradle"
 
+
+configurations {
+    filterBundles
+    tomcat
+    glassfish
+    valve
+
+}
+
 dependencies {
+
+    filterBundles project(":repose-aggregator:components:filters:filter-bundle"),
+            project(":repose-aggregator:experimental:experimental-filter-bundle"),
+            project(":repose-aggregator:extensions:extensions-filter-bundle")
+
+    tomcat project(":repose-aggregator:functional-tests:tomcat-support")
+
+    glassfish project(":repose-aggregator:functional-tests:glassfish-support")
+
+    valve project(":repose-aggregator:core:valve")
+
     compile project(":repose-aggregator:functional-tests:mocks-util"),
             project(":repose-aggregator:functional-tests:mocks-servlet"),
             project(":repose-aggregator:commons:utilities"),
+            project(":repose-aggregator:core:core-lib"),
+            project(":repose-aggregator:commons:configuration"),
             project(":repose-aggregator:services:datastore:api"),
-            project(":repose-aggregator:core:valve"),
-            project(":repose-aggregator:functional-tests:glassfish-support"),
-            project(":repose-aggregator:functional-tests:tomcat-support"),
-            project(":repose-aggregator:components:filters:filter-bundle"),
-            project(":repose-aggregator:experimental:experimental-filter-bundle"),
-            project(":repose-aggregator:extensions:extensions-filter-bundle"),
+            "org.glassfish.main.extras:glassfish-embedded-all:3.1.2.2",
+            "org.codehaus.jackson:jackson-core-lgpl:1.9.13",
             "joda-time:joda-time:2.2",
+            "org.eclipse.jetty:jetty-server:$jettyVersion",
             "commons-lang:commons-lang:2.6",
             "commons-io:commons-io:2.4",
             "org.linkedin:org.linkedin.util-groovy:1.8.0",
