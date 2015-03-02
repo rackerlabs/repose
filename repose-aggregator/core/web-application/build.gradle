@@ -2,6 +2,14 @@ apply from: "$rootDir/gradle/baseProject.gradle"
 
 apply plugin: 'war'
 
+configurations {
+    warFile
+}
+
+artifacts {
+    warFile war
+}
+
 //TODO: i'm not sure this is the right way to do things
 war.archiveName = "ROOT.war"
 

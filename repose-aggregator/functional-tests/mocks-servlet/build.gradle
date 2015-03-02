@@ -2,6 +2,15 @@ apply from: "$rootDir/gradle/baseProject.gradle"
 
 apply plugin: 'war'
 
+configurations {
+    warFile
+}
+
+artifacts {
+    warFile war
+}
+
+
 dependencies {
     compile "com.sun.jersey:jersey-server:1.9.1",
             project(":repose-aggregator:functional-tests:mocks-util")

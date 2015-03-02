@@ -2,7 +2,7 @@ apply from: "$rootDir/gradle/baseProject.gradle"
 
 
 configurations {
-    filterBundles{
+    filterBundles {
         transitive = false
     }
     tomcat {
@@ -14,20 +14,34 @@ configurations {
     valve {
         transitive = false
     }
-
+    rootWar {
+        transitive = false
+    }
+    mocks {
+        transitive = false
+    }
 }
 
 dependencies {
 
     filterBundles project(path: ":repose-aggregator:components:filters:filter-bundle", configuration: "earFile"),
             project(path: ":repose-aggregator:experimental:experimental-filter-bundle", configuration: "earFile"),
-            project(path: ":repose-aggregator:extensions:extensions-filter-bundle", configuration: "earFile")
+            project(path: ":repose-aggregator:extensions:extensions-filter-bundle", configuration: "earFile"),
+            "org.openrepose.filters.core.test:classloader-bundle-one:3.0",
+            "org.openrepose.filters.core.test:classloader-bundle-two:3.0",
+            "org.openrepose.filters.core.test:classloader-bundle-three:3.0",
+            "org.openrepose.filters.core.test:classloader-bundle-four:3.0",
+            "org.openrepose.filters.core.test:classloader-bundle-five:3.0"
 
     tomcat project(path: ":repose-aggregator:functional-tests:tomcat-support", configuration: "shadow")
 
     glassfish project(path: ":repose-aggregator:functional-tests:glassfish-support", configuration: "shadow")
 
     valve project(path: ":repose-aggregator:core:valve", configuration: "shadow")
+
+    rootWar project(path: ":repose-aggregator:core:web-application", configuration: "warFile")
+
+    mocks project(path: ":repose-aggregator:functional-tests:mocks-servlet", configuration: "warFile")
 
     compile project(":repose-aggregator:functional-tests:mocks-util"),
             project(":repose-aggregator:functional-tests:mocks-servlet"),
@@ -48,6 +62,44 @@ dependencies {
             "commons-codec:commons-codec:1.8"
 }
 
+sourceSets {
+    configs {
+        resources {
+            srcDir 'src/test/configs' //TODO: don't want to filter these
+        }
+    }
+}
+
+def artifactBase = "$projectDir/build/artifacts"
+def reposeHome = "$buildDir/repose_home"
+
+// Resource processing time!
+//For the ReplaceTokens ant filter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+def filterTokens = project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] }
+
+filterTokens += [
+        "repose.home"                : reposeHome,
+        "repose.config.directory"    : "$buildDir/repose_home/configs",
+        "repose.raw.config.directory": "$projectDir/src/test/configs",
+        "repose.valve.jar.location"  : "$artifactBase/valve",
+        "repose.config.templates"    : "$buildDir/configs",
+        "repose.root.war.location"   : "$reposeHome/ROOT.war",
+        "target.hostname"            : "localhost"
+].collectEntries{ k,v -> [k.toString(), v.toString()]} //Stupid ancient ant tasks
+
+processResources {
+    //Hack all the properties to a toString value, because I don't care!
+    filter(ReplaceTokens, tokens: filterTokens)
+}
+
+processTestResources {
+    //Hack all the properties to a toString value, because I don't care!
+    filter(ReplaceTokens, tokens: filterTokens)
+}
+
+
 test.enabled = false
 
 task("test", overwrite: true) {
@@ -56,10 +108,35 @@ task("test", overwrite: true) {
     }
 }
 
-["filterBundles", "tomcat", "glassfish", "valve"].collect { config ->
-    task("copy$config", type:Copy) {
-        from configurations."$config"
-        into "build/artifacts/$config"
-    }
+task("copyFilterBundles", type: Copy) {
+    from configurations.filterBundles
+    into "$reposeHome/artifacts"
 }
 
+task("copyTomcat", type: Copy) {
+    from configurations.tomcat
+    into "$reposeHome"
+}
+
+task("copyGlassfish", type: Copy) {
+    from configurations.glassfish
+    into reposeHome
+}
+
+task("copyValve", type: Copy) {
+    from configurations.valve
+    into reposeHome
+}
+
+task("copyRootWar", type: Copy) {
+    from configurations.rootWar
+    into reposeHome
+}
+
+task("copyMocksWar", type: Copy) {
+    from configurations.mocks
+    into reposeHome
+}
+
+
+tasks.build.dependsOn(["copyFilterBundles", "copyTomcat", "copyGlassfish", "copyValve", "copyRootWar", "copyMocksWar"])
