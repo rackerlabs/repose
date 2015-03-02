@@ -18,6 +18,7 @@ public class MockServiceProvider {
         factory = new ObjectFactory();
     }
 
+    @SuppressWarnings("squid:S1166")
     public String getEchoBody(HttpServletRequest request, String body) {
 
         StringBuilder resp = new StringBuilder("");
