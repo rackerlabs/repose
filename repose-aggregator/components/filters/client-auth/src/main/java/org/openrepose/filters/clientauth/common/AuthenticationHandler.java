@@ -1,12 +1,11 @@
 package org.openrepose.filters.clientauth.common;
 
-import org.openrepose.common.auth.AuthGroup;
-import org.openrepose.common.auth.AuthGroups;
-import org.openrepose.common.auth.AuthServiceException;
-import org.openrepose.common.auth.AuthToken;
+import org.apache.http.HttpHeaders;
+import org.openrepose.common.auth.*;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -152,6 +151,18 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                     endpointsInBase64 = getEndpointsInBase64(token);
                 }
             }
+        } catch (AuthServiceOverLimitException ex) {
+            LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
+            LOG.trace("", ex);
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE); // (503)
+            String retry = ex.getRetryAfter();
+            if(retry == null) {
+                Calendar retryCalendar = new GregorianCalendar();
+                retryCalendar.add(Calendar.SECOND, 5);
+                retry = new HttpDate(retryCalendar.getTime()).toRFC1123();
+            }
+            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry);
+            delegationMessage.set(FAILURE_AUTH_N);
         } catch (AuthServiceException ex) {
             LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
             LOG.trace("", ex);

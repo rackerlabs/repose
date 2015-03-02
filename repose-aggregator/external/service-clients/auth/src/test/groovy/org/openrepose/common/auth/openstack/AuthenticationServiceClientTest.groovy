@@ -6,9 +6,11 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.common.auth.AuthServiceException
+import org.openrepose.common.auth.AuthServiceOverLimitException
 import org.openrepose.common.auth.ResponseUnmarshaller
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
+import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openstack.docs.identity.api.v2.AuthenticationRequest
 import org.openstack.docs.identity.api.v2.ObjectFactory
@@ -17,6 +19,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
@@ -72,6 +75,27 @@ class AuthenticationServiceClientTest extends Specification {
         def e = thrown(AuthServiceException)
         e.getMessage() =~ "Unable to retrieve admin token"
         app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token.  Verify admin credentials. 401" }
+    }
+
+    @Unroll
+    def 'throws an AuthServiceOverLimitException when the admin token request is over limit with $statusCode'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+
+        def akkaServiceClient = mock(AkkaServiceClient)
+        mockAdminTokenRequest(akkaServiceClient, admin, statusCode)
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        client.validateToken("123456", "someToken")
+
+        then:
+        def e = thrown(AuthServiceOverLimitException)
+        e.getMessage() =~ "Rate limited by identity service"
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token. Status code: $statusCode" }
+
+        where:
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
     }
 
     def 'reuses the admin token if it is still valid'() {
@@ -195,7 +219,7 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     def getStatusList() {
-        ((200..599) - 200 - 401 - 404)
+        ((200..599) - 200 - 401 - 404 - 413 - 429)
     }
 
     def "can get endpoints for a given user token"() {
@@ -239,6 +263,30 @@ class AuthenticationServiceClientTest extends Specification {
         app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..." }
         response[0].id == 12345
         response[0].publicURL == "http://foo.com"
+    }
+
+    @Unroll
+    def 'throws an AuthServiceOverLimitException when the endpoints request is over limit with $statusCode'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
+
+        def akkaServiceClient = mock(AkkaServiceClient)
+        mockAdminTokenRequest(akkaServiceClient, admin)
+        mockUserEndpointRequest(akkaServiceClient, admin.token, userToValidate, statusCode)
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        client.getEndpointsForToken(userToValidate.token)
+
+        then:
+        def e = thrown(AuthServiceOverLimitException)
+        e.getMessage() =~ "Rate limited by identity service"
+        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for token: ${userToValidate.token}. Status code: $statusCode" }
+
+        where:
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {

@@ -3,11 +3,17 @@ package features.filters.clientauthz.serviceresponse
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
+import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
+import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 @Category(Slow.class)
 class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
@@ -38,11 +44,16 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup() {
+        sleep 500
+        reposeLogSearch.cleanLog()
+        fakeIdentityService.resetHandlers()
+    }
+
     @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Endpoints Call: #endpointsBroken Error Code: #errorCode")
     def "When Auxiliary service is broken for Service Endpoints call"(){
 
         given: "When Calls to Auth Return bad responses"
-
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -67,8 +78,8 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         true        | false          | 402       | "500"
         true        | false          | 403       | "500"
         true        | false          | 404       | "500"
-        true        | false          | 413       | "500"
-        true        | false          | 429       | "500"
+        true        | false          | 413       | "503"
+        true        | false          | 429       | "503"
         true        | false          | 500       | "500"
         true        | false          | 501       | "500"
         true        | false          | 502       | "500"
@@ -79,13 +90,48 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         false       | true           | 402       | "500"
         false       | true           | 403       | "500"
         false       | true           | 404       | "500"
-        false       | true           | 413       | "500"
-        false       | true           | 429       | "500"
+        false       | true           | 413       | "503"
+        false       | true           | 429       | "503"
         false       | true           | 500       | "500"
         false       | true           | 501       | "500"
         false       | true           | 502       | "500"
         false       | true           | 503       | "500"
+    }
 
+    @Unroll("Sending request with mock identity response set to HTTP #identityStatusCode and Retry-After header")
+    def "when failing to authenticate client because of temporary failures"() {
+        given: "the HTTP authentication header containing the client token and a Mock Identity return status of HTTP #identityStatusCode"
+
+        def retryTimeStamp = DateTime.now().plusMinutes(5)
+        def retryString = new HttpDate(retryTimeStamp.toGregorianCalendar().getTime()).toRFC1123()
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            getEndpointsHandler = {
+                tokenId, request, xml ->
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+            }
+        }
+
+        when: "user passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
+
+        then: "request body sent from repose to the origin service should contain HTTP 503"
+        mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
+        mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
+
+        where:
+        reqTenant | identityStatusCode
+        1111      | SC_REQUEST_ENTITY_TOO_LARGE
+        1112      | SC_TOO_MANY_REQUESTS
     }
 
 }

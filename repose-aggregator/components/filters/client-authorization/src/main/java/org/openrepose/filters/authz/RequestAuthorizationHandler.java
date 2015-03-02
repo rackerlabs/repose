@@ -3,10 +3,13 @@ package org.openrepose.filters.authz;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy;
+import org.apache.http.HttpHeaders;
 import org.openrepose.common.auth.AuthServiceException;
+import org.openrepose.common.auth.AuthServiceOverLimitException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.components.authz.rackspace.config.DelegatingType;
@@ -83,6 +86,17 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info(message);
                 myDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN);
             }
+        } catch (AuthServiceOverLimitException ex) {
+            LOG.error(message);
+            LOG.trace("", ex);
+            myDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE); // (503)
+            String retry = ex.getRetryAfter();
+            if(retry == null) {
+                Calendar retryCalendar = new GregorianCalendar();
+                retryCalendar.add(Calendar.SECOND, 5);
+                retry = new HttpDate(retryCalendar.getTime()).toRFC1123();
+            }
+            myDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry);
         } catch (AuthServiceException ex) {
             LOG.error(message);
             LOG.trace("", ex);
