@@ -1,9 +1,9 @@
 package org.openrepose.commons.utils.io;
 
-import org.openrepose.commons.utils.io.charset.CharacterSets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public final class InputStreamMerger extends InputStream {
 
@@ -12,7 +12,7 @@ public final class InputStreamMerger extends InputStream {
    }
 
    public static InputStream wrap(String string) {
-      return new ByteArrayInputStream(string.getBytes(CharacterSets.UTF_8));
+      return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
    }
    private int index = 0;
    private final InputStream[] streams;
