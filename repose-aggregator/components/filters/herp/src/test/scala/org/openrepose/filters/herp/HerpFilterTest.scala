@@ -1,5 +1,7 @@
 package org.openrepose.filters.herp
 
+import java.util.TimeZone
+
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -675,9 +677,22 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
   }
 
   describe("cadf timestamp") {
-    it("should convert as expected") {
-      val timestampFormater = new CadfTimestamp
-      timestampFormater(0, null) should equal ("1969-12-31T18:00:00-06:00")
+    val timestampFormater = new CadfTimestamp
+    val timeZones: Map[TimeZone, String] = Map(
+      TimeZone.getTimeZone("Etc/GMT-1") -> "1970-01-01T01:00:00.000+01:00",
+      TimeZone.getTimeZone("GMT") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("GMT0") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("UTC") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("US/Eastern") -> "1969-12-31T19:00:00.000-05:00",
+      TimeZone.getTimeZone("US/Central") -> "1969-12-31T18:00:00.000-06:00",
+      TimeZone.getTimeZone("US/Mountain") -> "1969-12-31T17:00:00.000-07:00",
+      TimeZone.getTimeZone("US/Pacific") -> "1969-12-31T16:00:00.000-08:00"
+    )
+    timeZones.foreach { timeZone =>
+      it(s"should convert as expected in ${timeZone._1.getDisplayName}") {
+        TimeZone.setDefault(timeZone._1)
+        timestampFormater(0, null) should equal(timeZone._2)
+      }
     }
   }
 
