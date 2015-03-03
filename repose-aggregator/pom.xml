@@ -595,6 +595,15 @@
         </pluginManagement>
 
         <plugins>
+            <!--
+             Just include the plugin, because configuration for it isn't actually honored :(
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
