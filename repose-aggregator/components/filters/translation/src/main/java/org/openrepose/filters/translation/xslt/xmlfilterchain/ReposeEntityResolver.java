@@ -1,6 +1,5 @@
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
-import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.slf4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -8,6 +7,7 @@ import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class ReposeEntityResolver implements EntityResolver {
 
@@ -28,6 +28,6 @@ public class ReposeEntityResolver implements EntityResolver {
          return parent.resolveEntity(publicId, systemId);
       }
 
-      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes(CharacterSets.UTF_8)));
+      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
    }
 }

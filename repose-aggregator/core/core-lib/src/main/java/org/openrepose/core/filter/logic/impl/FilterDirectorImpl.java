@@ -2,7 +2,6 @@ package org.openrepose.core.filter.logic.impl;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
@@ -13,6 +12,7 @@ import org.openrepose.core.systemmodel.Destination;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -141,7 +141,7 @@ public class FilterDirectorImpl implements FilterDirector {
         final byte[] bytesWritten = directorOutputStream.toByteArray();
 
         if (bytesWritten.length > 0) {
-            return new String(bytesWritten,CharacterSets.UTF_8);
+            return new String(bytesWritten, StandardCharsets.UTF_8);
         }
 
         return "";

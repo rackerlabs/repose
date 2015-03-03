@@ -1,7 +1,6 @@
 package org.openrepose.filters.translation.httpx;
 
 import org.apache.commons.pool.ObjectPool;
-import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.docs.repose.httpx.v1.Headers;
 import org.openrepose.docs.repose.httpx.v1.ObjectFactory;
 import org.openrepose.docs.repose.httpx.v1.QueryParameters;
@@ -18,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class HttpxMarshaller {
 
@@ -96,7 +96,7 @@ public class HttpxMarshaller {
     marshall(o, out);
 
     if (LOG.isDebugEnabled()) {
-      LOG.debug(new String(out.toByteArray(),CharacterSets.UTF_8));
+      LOG.debug(new String(out.toByteArray(), StandardCharsets.UTF_8));
     }
 
     return new ByteArrayInputStream(out.toByteArray());
