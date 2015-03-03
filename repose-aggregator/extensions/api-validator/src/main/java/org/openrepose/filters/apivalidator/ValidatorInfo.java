@@ -68,8 +68,7 @@ public class ValidatorInfo {
         throw new IllegalArgumentException("WADL Source Not Specified");
     }
 
-    //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings({"squid:S1181","PMD.AvoidCatchingThrowable"})
+    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     public boolean initValidator() {
         LOG.debug("CALL TO ValidatorInfo#initValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName());
 

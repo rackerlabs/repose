@@ -111,8 +111,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         return null;
     }
 
-    //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings({"squid:S1181","PMD.AvoidCatchingThrowable"})
+    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, HttpServletResponse response) {
         try {
             ErrorResult error = getErrorResult(result);
@@ -127,8 +126,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings({"squid:S1181","PMD.AvoidCatchingThrowable"})
+    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
