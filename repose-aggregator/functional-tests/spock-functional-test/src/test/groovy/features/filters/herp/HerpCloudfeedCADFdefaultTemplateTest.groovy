@@ -65,8 +65,14 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
                 requestBody: reqBody, defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
-        def format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        def format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         def now = format.format(curdate)
+        // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+        // "For formatting, if the offset value from GMT is 0offset value from GMT is 0, 'Z' is produced."
+        // This only manipulates the Time Zones that produce a 'Z'.
+        if(now.endsWith("Z")) {
+            now.substring(0, now.length()-1) + "+00:00"
+        }
 
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
         String eventxml = logLine.substring(logLine.indexOf("<?xml"),logLine.size() - 1)
