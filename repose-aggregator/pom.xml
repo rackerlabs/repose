@@ -465,12 +465,11 @@
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
-                <property>
-                    <name>gpg.passphrase</name>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
                 <gpg.keyname>E7C89BBB</gpg.keyname>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
             </properties>
             <build>
                 <plugins>
