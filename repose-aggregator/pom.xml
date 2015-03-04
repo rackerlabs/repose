@@ -463,6 +463,7 @@
 
     <profiles>
         <profile>
+            <!-- this profile works with gnupg 2.0.x NOT with 2.1.x -->
             <id>release-sign-artifacts</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -485,9 +486,42 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- other linuxes reference gpg2 for the 2.x version of gpg -->
+                                    <!-- other linuxes reference gpg2 for the 2.0 version of gpg -->
                                     <executable>gpg2</executable>
-                                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- this profile is for gpg 2.1.x -->
+            <id>gpg2.1-sign-artifacts</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.keyname>E7C89BBB</gpg.keyname>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- other linuxes reference gpg2 for the 2.0 version of gpg -->
+                                    <executable>gpg2</executable>
+                                    <!-- These arguments only work on gnupg 2.1.x ! ARGH -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
@@ -499,6 +533,7 @@
                 </plugins>
             </build>
         </profile>
+
     </profiles>
 
     <build>
