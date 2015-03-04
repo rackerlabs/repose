@@ -210,7 +210,15 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
 
 class CadfTimestamp extends Helper[Long] {
   override def apply(context: Long, options: Options): CharSequence = {
-    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date(context))
+    // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+    // "For formatting, if the offset value from GMT is 0, 'Z' is produced."
+    // This only manipulates the Time Zones that produce a 'Z'.
+    val formattedString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(context))
+    if(formattedString.endsWith("Z")) {
+      formattedString.substring(0, formattedString.length()-1) + "+00:00"
+    } else {
+      formattedString
+    }
   }
 }
 
