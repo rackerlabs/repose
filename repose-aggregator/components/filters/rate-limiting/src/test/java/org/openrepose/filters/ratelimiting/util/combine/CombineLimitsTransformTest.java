@@ -5,11 +5,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.openrepose.filters.ratelimiting.util.TransformHelper;
-import org.openrepose.services.ratelimit.RateLimitListBuilder;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.config.*;
+import org.openrepose.core.services.ratelimit.RateLimitListBuilder;
+import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 
 import javax.xml.bind.JAXBContext;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+//TODO: this test fails sometimes!
 public class CombineLimitsTransformTest {
 
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";
@@ -68,10 +69,30 @@ public class CombineLimitsTransformTest {
         final String actual = output.toString();
         final Matcher matcher = validationPattern.matcher(actual);
 
-        assertTrue("Combined limits must match expected output pattern", matcher.matches());
-
-        assertNotNull("Combined limits must include rate limits", matcher.group(1));
-        assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+        try {
+            assertTrue("Combined limits must match expected output pattern", matcher.matches());
+            assertNotNull("Combined limits must include rate limits", matcher.group(1));
+            assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+        } catch (AssertionError e) {
+            System.err.println("================================================================================");
+            System.err.println("This is the CombineLimitsTransformTest AssertionError output:");
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("is = " + is);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("rll = " + rll);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("tPair = " + tPair);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("output = " + output);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("combiner = " + combiner);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("actual = " + actual);
+            System.err.println("--------------------------------------------------------------------------------");
+            System.err.println("matcher = " + matcher);
+            System.err.println("================================================================================");
+            throw e;
+        }
     }
 
     @Test

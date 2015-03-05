@@ -7,22 +7,22 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.services.datastore.DatastoreService;
-import org.openrepose.services.datastore.Patch;
-import org.openrepose.services.datastore.distributed.DistributedDatastore;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.cache.UserRateLimit;
-import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
-import org.openrepose.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.Patch;
+import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
+import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.core.services.ratelimit.config.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +51,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
       assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
-      assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
+      assertEquals("Must return 401 if the user has not been identified", HttpServletResponse.SC_UNAUTHORIZED, director.getResponseStatusCode());
     }
   }
 
@@ -70,7 +70,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         defaultConfig.setUriRegex(".*");
         defaultConfig.getHttpMethods().add(HttpMethod.GET);
         defaultConfig.setValue(10);
-        defaultConfig.setUnit(org.openrepose.services.ratelimit.config.TimeUnit.MINUTE);
+        defaultConfig.setUnit(org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE);
 
       when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
 
@@ -181,7 +181,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
       assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
-      assertEquals("On rejected media type, returned status code must be 406", HttpStatusCode.NOT_ACCEPTABLE, director.getResponseStatus());
+      assertEquals("On rejected media type, returned status code must be 406", HttpServletResponse.SC_NOT_ACCEPTABLE, director.getResponseStatusCode());
     }
 
     @Test

@@ -1,6 +1,5 @@
 package org.openrepose.core.filter.logic;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
@@ -70,11 +69,6 @@ public class AbstractFilterDirector implements FilterDirector {
    }
 
    @Override
-   public HttpStatusCode getResponseStatus() {
-      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
-   }
-
-   @Override
    public HeaderManager requestHeaderManager() {
       throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
@@ -91,11 +85,6 @@ public class AbstractFilterDirector implements FilterDirector {
 
    @Override
    public void setFilterAction(FilterAction action) {
-      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
-   }
-
-   @Override
-   public void setResponseStatus(HttpStatusCode delegatedStatus) {
       throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 

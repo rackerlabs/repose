@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration packages="org.apache.logging.log4j.flume.appender">
     <Appenders>
         <RollingFile name="RollingFile" fileName="${repose.log.name}"
                      filePattern="${repose.log.pattern}" immediateFlush="true">
@@ -11,7 +11,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="RollingFile"/>
         </Root>
         <Logger name="com.sun.jersey" level="off"/>
@@ -22,5 +22,16 @@
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
+
+        <!-- I need debug info from JMX! -->
+        <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
+        <!-- also useful: http://logging.apache.org/log4j/2.x/log4j-jul/index.html -->
+        <!-- set these to FINEST to get log analysis of when mbeans were started and where -->
+        <Logger name="javax.management" level="debug" />
+        <Logger name="javax.management.remote" level="debug" />
+
+        <!-- because adding the JUL bridge, I need to silence a bunch of internal sun stuff -->
+        <Logger name="com.sun.xml.internal" level="warn" />
+
     </Loggers>
 </Configuration>

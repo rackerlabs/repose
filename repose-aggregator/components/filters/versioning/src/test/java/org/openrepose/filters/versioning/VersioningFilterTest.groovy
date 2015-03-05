@@ -19,7 +19,7 @@ class VersioningFilterTest extends VersioningFilterSpecification {
     def configurationManager, request, response, chain, handlerFactory, handler, filterDirector, filterConfig
 
     def setup(){
-        /*configurationManager = mock(ConfigurationService)
+        /*configurationService = mock(ConfigurationService)
         request = mock(HttpServletRequest)
         response = mock(HttpServletResponse)
         chain = mock(FilterChain)
@@ -39,7 +39,7 @@ class VersioningFilterTest extends VersioningFilterSpecification {
     def "Destroy - happy path"() {
         when:
         def filter = new VersioningFilter()
-        filter.configurationManager = configurationManager
+        filter.configurationService = configurationManager
         filter.destroy()
         then:
         noExceptionThrown()

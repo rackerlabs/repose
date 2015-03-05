@@ -9,22 +9,20 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-RUN_PORT=8774
-CONFIG_DIRECTORY=/etc/repose
-
-USER=root
-NAME=repose-valve
+# Set sensible defaults
 LOG_PATH=/var/log/repose
-PID_FILE=/var/run/repose-valve.pid
+JAVA=/usr/bin/java
+CONFIG_DIRECTORY=/etc/repose
+USER=repose
+NAME=repose-valve
 DAEMON_HOME=/usr/share/repose
-CLEAN=/usr/local/bin/clean-repose-deploy
-
-# Set sensible defaults 
-
+PID_FILE=/var/run/${NAME}.pid
+REPOSE_JAR=${DAEMON_HOME}/${NAME}.jar
+START_ARGS="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
+JAVA_OPTS=""
+RUN_OPTS="-c $CONFIG_DIRECTORY"
+CLEAN=/usr/bin/clean-repose-deploy
 daemonize=/usr/sbin/daemonize
-daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
-run_opts="-p $RUN_PORT -c $CONFIG_DIRECTORY"
-java_opts=""
 
 # Can override the defaults in /etc/sysconfig
 . /etc/sysconfig/repose
@@ -49,7 +47,7 @@ start()
 {
   echo -n "Starting $NAME: "
   $CLEAN $CONFIG_DIRECTORY > /dev/null 2>&1
-  daemon $daemonize $daemonize_opts /usr/bin/java $java_opts -jar $DAEMON_HOME/$NAME.jar $run_opts
+  daemon $daemonize $START_ARGS $JAVA $JAVA_OPTS -jar $REPOSE_JAR $RUN_OPTS
   echo
 }
 
@@ -76,7 +74,7 @@ case "$1" in
     ;;
 
   status)
-    status -p $PID_FILE repose-valve
+    status -p $PID_FILE $NAME
     ;;
 
   *)

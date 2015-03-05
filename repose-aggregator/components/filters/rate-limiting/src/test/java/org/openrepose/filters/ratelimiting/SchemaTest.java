@@ -8,9 +8,10 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.transform.Transform;
 import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.core.services.ratelimit.config.ObjectFactory;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
-import org.openrepose.services.ratelimit.config.Limits;
-import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.core.services.ratelimit.config.Limits;
+import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -40,7 +41,7 @@ public class SchemaTest {
         @Before
         public void standUp() throws Exception {
             jaxbContext = JAXBContext.newInstance(
-                    org.openrepose.services.ratelimit.config.ObjectFactory.class);
+                    ObjectFactory.class);
 
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 

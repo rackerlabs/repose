@@ -1,16 +1,15 @@
 package org.openrepose.core.servlet.filter;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.systemmodel.DestinationCluster;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +33,7 @@ public class FilterDirectorImplTest {
             final FilterDirectorImpl impl = new FilterDirectorImpl();
 
             assertNotNull("By default, the delegated action should not be null", impl.getFilterAction());
-            assertNotNull("By default, the delegated status should not be null", impl.getResponseStatus());
+            assertNotNull("By default, the delegated status should not be null", impl.getResponseStatusCode());
             assertNotNull("By default, the message body should not be null", impl.getResponseMessageBody());
             assertNotNull("By default, should have output stream", impl.getResponseOutputStream());
             assertNotNull("By default, should have print writer", impl.getResponseWriter());
@@ -78,11 +77,11 @@ public class FilterDirectorImplTest {
         @Test
         public void shouldSetStatusCode2() throws IOException {
             final int status = 201;
-            impl.setResponseStatus(HttpStatusCode.fromInt(status));
+            impl.setResponseStatusCode(status);
             impl.setFilterAction(FilterAction.PASS);
             impl.applyTo(response);
             verify(httpResponse).setStatus(status);
-            assertEquals(HttpStatusCode.fromInt(status), impl.getResponseStatus());
+            assertEquals(status, impl.getResponseStatusCode());
             assertEquals(FilterAction.PASS, impl.getFilterAction());
         }
     }

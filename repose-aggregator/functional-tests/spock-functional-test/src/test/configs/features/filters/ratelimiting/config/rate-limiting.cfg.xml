@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
 
     <limit-group id="default" groups="default" default="true">
         <limit id="one" uri="*" uri-regex=".*" http-methods="ALL" unit="HOUR" value="1"/>

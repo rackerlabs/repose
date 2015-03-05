@@ -2,6 +2,7 @@ package features.filters.uriNormalization
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
+import framework.ReposeValveTest
 import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -9,9 +10,9 @@ import org.rackspace.deproxy.Deproxy
 import spock.lang.Specification
 
 @Category(Slow.class)
-class UriNormalizationJMXTest extends Specification {
+class UriNormalizationJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-config-test-org.openrepose.core.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""
 
     String URI_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
     String URI_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""
@@ -23,12 +24,8 @@ class UriNormalizationJMXTest extends Specification {
     String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},name=\"/tertiary/path/.\\*_GET\""
     String URI_NORMALIZATION_ACROSS_ALL = "${PREFIX},name=\"ACROSS ALL\""
 
-    Deproxy deproxy
-
-    TestProperties properties
     Map params
     ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
 
     def setup() {
 
@@ -132,8 +129,8 @@ class UriNormalizationJMXTest extends Specification {
         then:
         mc.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
 
@@ -144,7 +141,7 @@ class UriNormalizationJMXTest extends Specification {
         mc.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
-        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
 

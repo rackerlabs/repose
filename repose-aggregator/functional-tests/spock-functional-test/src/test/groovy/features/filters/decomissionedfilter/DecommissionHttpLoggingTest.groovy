@@ -24,7 +24,7 @@ class DecommissionHttpLoggingTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString("Filter is not available for processing requests: http-logging").size() > 0
+        reposeLogSearch.searchByString("none of the loaded artifacts supply a filter named http-logging").size() > 0
     }
     def cleanup() {
         if (deproxy)

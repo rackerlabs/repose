@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0">
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0">
     <response-translations>
         <response-translation content-type="application/json" accept="application/xml,application/atom+xml" translated-content-type="application/xml">
             <style-sheets>

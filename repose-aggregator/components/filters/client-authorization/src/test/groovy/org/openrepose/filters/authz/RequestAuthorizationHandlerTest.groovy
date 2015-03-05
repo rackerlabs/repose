@@ -1,9 +1,10 @@
 package org.openrepose.filters.authz
 import com.rackspace.httpdelegation.HttpDelegationHeaderNames
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy
+import org.openrepose.common.auth.AuthServiceOverLimitException
 import org.openrepose.common.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.http.HttpStatusCode
+import org.openrepose.commons.utils.http.HttpDate
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.components.authz.rackspace.config.DelegatingType
@@ -17,11 +18,15 @@ import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import javax.servlet.http.HttpServletResponse
+
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 import static org.openrepose.core.filter.logic.FilterAction.PASS
 import static org.openrepose.core.filter.logic.FilterAction.RETURN
+import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 class RequestAuthorizationHandlerTest extends Specification {
 
@@ -126,7 +131,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         filterDirector.getFilterAction() == filterAction
-        filterDirector.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        filterDirector.getResponseStatusCode() == HttpServletResponse.SC_FORBIDDEN
         isDelegableHeaderAccurateFor delegable, filterDirector, serviceCatalogFailureMessage()
 
         where:
@@ -145,7 +150,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         director.getFilterAction() == filterAction
-        director.getResponseStatus() == HttpStatusCode.UNAUTHORIZED
+        director.getResponseStatusCode() == HttpServletResponse.SC_UNAUTHORIZED
         isDelegableHeaderAccurateFor delegable, director, authTokenNotFoundMessage()
 
         where:
@@ -165,7 +170,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         director.getFilterAction() == filterAction
-        director.getResponseStatus() == HttpStatusCode.FORBIDDEN
+        director.getResponseStatusCode() == HttpServletResponse.SC_FORBIDDEN
         isDelegableHeaderAccurateFor delegable, director, authTokenNotAuthorized()
 
         where:
@@ -204,7 +209,7 @@ class RequestAuthorizationHandlerTest extends Specification {
         final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
 
         then:
-        director.getResponseStatus() == HttpStatusCode.INTERNAL_SERVER_ERROR
+        director.getResponseStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         director.getFilterAction() == filterAction
         isDelegableHeaderAccurateFor delegable, director, authServiceFailure()
 
@@ -212,6 +217,32 @@ class RequestAuthorizationHandlerTest extends Specification {
         desc                                    | filterAction | delegable
         "When delegating is not set, it should" | RETURN       | null
         "When delegating is set, it should not" | PASS         | new DelegatingType()
+    }
+
+    @Unroll
+    def "#desc return a 503 when the auth returns an over limit exception"() {
+        given:
+        def retryCalendar = new GregorianCalendar()
+        retryCalendar.add(Calendar.MINUTE, 5)
+        def retryString = new HttpDate(retryCalendar.getTime()).toRFC1123()
+        mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
+        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new AuthServiceOverLimitException("Unable to get endpoints for token: $AUTHORIZED_TOKEN. Status code: $statusCode".toString(), statusCode, retryString));
+        def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
+
+        when:
+        final FilterDirector director = requestAuthorizationHandler.handleRequest(mockedRequest, null);
+
+        then:
+        director.getResponseStatusCode() == HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        director.getFilterAction() == filterAction
+        isDelegableHeaderAccurateFor delegable, director, authServiceFailure()
+
+        where:
+        desc                                    | filterAction | delegable            | statusCode
+        "When delegating is not set, it should" | RETURN       | null                 | SC_REQUEST_ENTITY_TOO_LARGE
+        "When delegating is not set, it should" | RETURN       | null                 | SC_TOO_MANY_REQUESTS
+        "When delegating is set, it should not" | PASS         | new DelegatingType() | SC_REQUEST_ENTITY_TOO_LARGE
+        "When delegating is set, it should not" | PASS         | new DelegatingType() | SC_TOO_MANY_REQUESTS
     }
 
     def "should Cache Fresh Endpoint Lists"() {

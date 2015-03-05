@@ -1,4 +1,5 @@
 package features.services.datastore
+
 import org.openrepose.commons.utils.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
@@ -8,12 +9,16 @@ import org.rackspace.deproxy.PortFinder
 
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
+    //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
+
     def DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key':'temp-host-key', 'X-TTL':'10']
+    def DD_HEADERS = ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    def KEY_TOO_LARGE = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray() ))
+    def KEY_TOO_LARGE = objectSerializer.writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray()))
     static def distDatastoreEndpoint
+
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -25,12 +30,12 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1' : dataStorePort1,
-                'datastorePort2' : dataStorePort2
+                'datastorePort1': dataStorePort1,
+                'datastorePort2': dataStorePort2
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
-        repose.start()
+        repose.start([clusterId: 'repose', nodeId: 'nofilters'])
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
@@ -44,9 +49,9 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "GET with empty host key returns 401"(){
+    def "GET with empty host key returns 401"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:['X-PP-Host-Key':'', 'X-TTL':'1']])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: ['X-PP-Host-Key': '', 'X-TTL': '1']])
 
         then:
         mc.receivedResponse.code == '401'
@@ -55,7 +60,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     def "GET with no key returns 404 NOT FOUND"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI, headers:DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'
@@ -65,7 +70,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
     def "GET with missing X-PP-Host-Key returns a 401 UNAUTHORIZED"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY])
 
         then:
         mc.receivedResponse.code == '401'
@@ -78,28 +83,28 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         def badKey = "////////" + UUID.randomUUID().toString()
 
         when: "I attempt to get the value from cache"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:distDatastoreEndpoint, path:DD_PATH + badKey, headers:DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + badKey, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'
     }
 
-    def "GET with a really large key returns a 413"(){
+    def "GET with a really large key returns a 413"() {
         when: "I attempt to get the value from cache"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:distDatastoreEndpoint, path:DD_PATH + KEY_TOO_LARGE, headers:DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + KEY_TOO_LARGE, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '413'
     }
 
-    def "GET of key after time to live has expired should return a 404"(){
+    def "GET of key after time to live has expired should return a 404"() {
 
-        def body = ObjectSerializer.instance().writeObject('foo')
+        def body = objectSerializer.writeObject('foo')
         given:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp', 'X-TTL':'2'], requestBody: body])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: ['X-PP-Host-Key': 'temp', 'X-TTL': '2'], requestBody: body])
 
         when:
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
@@ -109,7 +114,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         Thread.sleep(3000)
 
         and: "I get the key again"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'

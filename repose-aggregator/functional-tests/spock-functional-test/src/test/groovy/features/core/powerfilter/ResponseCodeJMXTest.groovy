@@ -7,11 +7,16 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Ignore
+import spock.lang.Unroll
+import spock.util.concurrent.PollingConditions
 
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-org.openrepose.core\":type=\"ResponseCode\",scope=\""
+    //One second timeout, initial delay is 0 and the delay is .1, which is every 100ms
+    final def conditions = new PollingConditions(timeout: 1)
+
+    String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
 
     String NAME_2XX = "\",name=\"2XX\""
     String ALL_2XX = PREFIX + "All Endpoints" + NAME_2XX
@@ -25,6 +30,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
@@ -41,49 +47,55 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     // Greg/Dimitry: Is it expected that all2XX and repose2XX are equal?  It's not the sum of repose responses + origin service
     // responses?
+    @Unroll("When sending requests, the counters should be incremented: iteration #loop")
     def "when sending requests, response code counters should be incremented"() {
         given:
         // the initial values are equivalent the the number of calls made in the when block
-        def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
+        def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
         repose2XXtarget = (repose2XXtarget == null) ? 3 : repose2XXtarget + 3
-        def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
+        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
         all2XXtarget = (all2XXtarget == null) ? 3 : all2XXtarget + 3
-        def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
+        def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
         repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
-        def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
+        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
         all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
         def responses = []
 
         when:
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/cluster"))
 
         then:
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
-        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count").is(null)
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count").is(null)
+        conditions.eventually {
+            assert repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
+            assert repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
+            assert repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count").is(null)
+            assert repose.jmx.quickMBeanAttribute(ALL_5XX, "Count").is(null)
+        }
 
         responses.each { MessageChain mc ->
-            assert(mc.receivedResponse.code == "200")
+            assert (mc.receivedResponse.code == "200")
         }
+
+        where:
+        loop << (1..500).toArray()
     }
 
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
         given:
-        def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
+        def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
         repose2XXtarget = (repose2XXtarget == null) ? 1 : repose2XXtarget + 1
-        def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
+        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
         all2XXtarget = (all2XXtarget == null) ? 1 : all2XXtarget + 1
-        def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
+        def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
         repose5XXtarget = (repose5XXtarget == null) ? 1 : repose5XXtarget + 1
-        def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
+        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
         all5XXtarget = (all5XXtarget == null) ? 1 : all5XXtarget + 1
 
         when:
         MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
-        MessageChain mc2 = deproxy.makeRequest(url:reposeEndpoint + "/cluster")
+        MessageChain mc2 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
         then:
         mc1.receivedResponse.code == "502"
@@ -112,9 +124,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         // NOTE:  We verify that Repose is up and running by sending a GET request in repose.start()
         // This is logged as well, so we need to add this to our count
 
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url:reposeEndpoint + "/cluster");
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
+        deproxy.makeRequest(url: reposeEndpoint + "/cluster");
 
         def reposeCount = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
 

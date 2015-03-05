@@ -1,61 +1,80 @@
 package org.openrepose.core.spring;
 
-import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.domain.ReposeInstanceInfo;
-import java.util.UUID;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.naming.MetadataNamingStrategy;
 import org.springframework.jmx.export.naming.ObjectNamingStrategy;
-import org.springframework.stereotype.Component;
 
-@Component("reposeJmxNamingStrategy")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.UUID;
+
+@Named
 @Lazy(true)
 public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements ObjectNamingStrategy, InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
     private static final String SEPARATOR = "-";
-    private final ReposeInstanceInfo reposeId;
-    private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    private static final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    private final String jmxPrefix;
 
-    @Autowired
-    public ReposeJmxNamingStrategy(@Qualifier("jmxAttributeSource") AnnotationJmxAttributeSource attributeSource, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeId) {
+    //Metrics service needs this guy
+    @Inject
+    public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
         super(attributeSource);
-        this.reposeId = reposeId;
-        
-        LOG.info("Configuring JMX naming strategy for " + reposeId);
+        this.jmxPrefix = ReposeJmxNamingStrategy.bestGuessHostname() + SEPARATOR;
+
+        LOG.info("Configuring JMX naming strategy for {}", jmxPrefix);
     }
 
-    public String getDomainPrefix() {
-        if (reposeId == null) {
-            return defaultDomainPrefix;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        if (StringUtilities.isNotBlank(reposeId.getClusterId())) {
-            sb.append(reposeId.getClusterId());
-        }
-
-        if (StringUtilities.isNotBlank(reposeId.getNodeId())) {
-            if (sb.length() > 0) {
-                sb.append(SEPARATOR);
+    /**
+     * Do some logic to figure out what our local hostname is, or get as close as possible
+     * references: http://stackoverflow.com/a/7800008/423218 and http://stackoverflow.com/a/17958246/423218
+     *
+     * @return a string with either the hostname, or something to ID this host
+     */
+    private static String bestGuessHostname() {
+        String result;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            LOG.debug("Looking up a windows COMPUTERNAME environment var for the JMX name");
+            result = System.getenv("COMPUTERNAME");
+        } else {
+            LOG.debug("Looking up a linux HOSTNAME environment var for the JMX name");
+            //We're probably on linux at this point
+            String envHostname = System.getenv("HOSTNAME");
+            if (envHostname != null) {
+                result = envHostname;
+            } else {
+                LOG.debug("Unable to find a Linux HOSTNAME environment var, trying another tool");
+                //Now we've got to do even more work
+                try {
+                    result = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    //Weren't able to get the local host :(
+                    LOG.warn("Unable to resolve local hostname for JMX", e);
+                    result = defaultDomainPrefix;
+                }
             }
-            sb.append(reposeId.getNodeId());
         }
 
-        return sb.length() > 0? sb.append(SEPARATOR).toString(): defaultDomainPrefix;
+        LOG.info("Setting JMX prefix for this JVM to {}. http://i.imgur.com/1iyYqfv.gif", result);
+        return result;
     }
 
     @Override
     public ObjectName getObjectName(Object managedBean, String beanKey) throws MalformedObjectNameException {
         ObjectName name = super.getObjectName(managedBean, beanKey);
-        return new ObjectName(getDomainPrefix() +  name.getDomain(), name.getKeyPropertyList());
+        return new ObjectName(jmxPrefix + name.getDomain(), name.getKeyPropertyList());
+    }
+
+    public String getJmxPrefix() {
+        return jmxPrefix;
     }
 }

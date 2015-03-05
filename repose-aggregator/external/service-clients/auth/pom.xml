@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <artifactId>service-client-support</artifactId>
-        <groupId>com.rackspace.papi.external.clients</groupId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <groupId>org.openrepose</groupId>
+        <artifactId>service-clients-support</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.cloud.services.clients</groupId>
-    <artifactId>auth</artifactId>
-
     <name>Repose Service Clients - Auth Service</name>
-
+    <artifactId>auth</artifactId>
     <packaging>jar</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -28,14 +28,26 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.external</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>os-auth-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>httpclient-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -55,20 +67,20 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>service-client-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
-           <groupId>commons-codec</groupId>
-           <artifactId>commons-codec</artifactId>
-           <version>1.8</version>
-       </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.8</version>
+        </dependency>
 
         <!--Apache Pool Support-->
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
-       </dependency>
+        </dependency>
     </dependencies>
 </project>

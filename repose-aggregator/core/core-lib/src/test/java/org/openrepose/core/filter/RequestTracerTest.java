@@ -2,6 +2,7 @@ package org.openrepose.core.filter;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.junit.Test;
+import org.openrepose.powerfilter.RequestTracer;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

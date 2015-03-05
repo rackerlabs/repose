@@ -5,7 +5,6 @@ import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -179,4 +178,63 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 1
     }
 
+    def "When a user is cached by repose, and a TRR event comes in, invalidate tokens for that user"() {
+
+        when: "I send a GET request to REPOSE with an X-Auth-Token header for a specific user"
+        fakeIdentityService.resetCounts()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "REPOSE should validate the token and then pass the request to the origin service"
+        mc.receivedResponse.code == '200'
+        mc.handlings.size() == 1
+
+        //Repose is getting an admin token and groups, so the number of
+        //orphaned handlings doesn't necessarily equal the number of times a
+        //token gets validated
+        fakeIdentityService.validateTokenCount == 1
+        mc.handlings[0].endpoint == originEndpoint
+
+
+        when:"I send a GET request to REPOSE with the same X-Auth-Token header"
+        fakeIdentityService.resetCounts()
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
+        mc.receivedResponse.code == '200'
+        mc.handlings.size() == 1
+        fakeIdentityService.validateTokenCount == 0
+        mc.handlings[0].endpoint == originEndpoint
+
+
+        when: "Identity atom feed has a TRR event to invalidate our user"
+
+        //Make identity respond with a 404 every time now.
+        fakeIdentityService.with {
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(404)
+            }
+        }
+        fakeIdentityService.resetCounts()
+        //Configure the fake Atom Feed to hork back a TRR token
+        fakeAtomFeed.hasEntry = true
+        atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityService.client_userid.toString())
+
+        and: "we sleep for 15 seconds so that repose can check the atom feed"
+        sleep(15000)
+
+        and: "I send a GET request to REPOSE with the same X-Auth-Token header"
+        mc = deproxy.makeRequest(
+                [
+                        url:reposeEndpoint,
+                        method:'GET',
+                        headers:['X-Auth-Token': fakeIdentityService.client_token],
+                        defaultHandler:fakeIdentityService.handler
+                ])
+
+        then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
+        mc.receivedResponse.code == '401'
+        mc.handlings.size() == 0
+        fakeIdentityService.validateTokenCount == 1
+    }
 }

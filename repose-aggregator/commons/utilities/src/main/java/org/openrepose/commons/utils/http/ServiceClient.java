@@ -17,12 +17,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.services.httpclient.HttpClientResponse;
-import org.openrepose.services.httpclient.HttpClientService;
+import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
+import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class ServiceClient {
 
         }
 
-        return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+        return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
     }
 
     public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
@@ -179,7 +180,7 @@ public class ServiceClient {
 
             } catch (URISyntaxException e) {
                 LOG.error("Error building request URI", e);
-                return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+                return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
 
             }
 

@@ -16,23 +16,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.domain.Port;
-import org.openrepose.core.domain.ServicePorts;
-import org.openrepose.core.services.ServiceRegistry;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.context.ContextAdapter;
-import org.openrepose.core.services.context.ServletContextHelper;
-import org.openrepose.core.services.headers.request.RequestHeaderService;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.systemmodel.*;
-import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.Severity;
-import org.powermock.api.mockito.PowerMockito;
+import org.openrepose.nodeservice.request.RequestHeaderServiceImpl;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import java.util.Iterator;
 import java.util.List;
@@ -46,18 +38,12 @@ import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
-@PrepareForTest(ServletContextHelper.class)
 public class RequestHeaderServiceContextTest {
     private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContext.xml";
-
-    private final ServicePorts ports = new ServicePorts();
-
-    private RequestHeaderServiceContext requestHeaderServiceContext;
 
     private HealthCheckService healthCheckService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private ConfigurationService configurationService;
-    private ServletContextEvent servletContextEvent;
 
     private static LoggerContext ctx;
     private ListAppender app;
@@ -88,62 +74,58 @@ public class RequestHeaderServiceContextTest {
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
-        servletContextEvent = mock(ServletContextEvent.class);
-        ServiceRegistry serviceRegistry = mock(ServiceRegistry.class);
-        ServletContext servletContext = mock(ServletContext.class);
-        ContextAdapter contextAdapter = mock(ContextAdapter.class);
-        RequestHeaderService requestHeaderService = mock(RequestHeaderService.class);
-
-        ServletContextHelper servletContextHelper = PowerMockito.mock(ServletContextHelper.class);
-
-        when(servletContext.getAttribute(any(String.class))).thenReturn(servletContextHelper);
-        when(servletContextEvent.getServletContext()).thenReturn(servletContext);
-        when(servletContextHelper.getServerPorts()).thenReturn(ports);
-        when(servletContextHelper.getPowerApiContext()).thenReturn(contextAdapter);
-        when(contextAdapter.getReposeVersion()).thenReturn("4.0.0");
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
-
-        requestHeaderServiceContext = new RequestHeaderServiceContext(requestHeaderService, serviceRegistry, configurationService, healthCheckService);
     }
 
     @Test
     public void systemModelListener_configurationUpdated_localhostFound() throws Exception {
+        RequestHeaderServiceImpl requestHeaderService = new RequestHeaderServiceImpl(
+                configurationService,
+                healthCheckService,
+                "cluster1",
+                "node1",
+                "1.0");
+
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
-        ports.clear();
-        ports.add(new Port("http", 8080));
 
-        requestHeaderServiceContext.contextInitialized(servletContextEvent);
+        requestHeaderService.init();
 
         listenerObject = (UpdateListener<SystemModel>)listenerCaptor.getValue();
 
         listenerObject.configurationUpdated(systemModel);
 
-        verify(healthCheckServiceProxy).resolveIssue(eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT));
+        verify(healthCheckServiceProxy).resolveIssue(eq(RequestHeaderServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT));
         assertTrue(listenerObject.isInitialized());
     }
 
     @Test
     public void systemModelListener_configurationUpdated_localhostNotFound() throws Exception {
+        RequestHeaderServiceImpl requestHeaderServiceContext = new RequestHeaderServiceImpl(
+                configurationService,
+                healthCheckService,
+                "clusterId",
+                "nodeId",
+                "1.0");
+
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
-        ports.clear();
 
-        requestHeaderServiceContext.contextInitialized(servletContextEvent);
+        requestHeaderServiceContext.init();
 
         listenerObject = listenerCaptor.getValue();
 
         listenerObject.configurationUpdated(systemModel);
 
-        verify(healthCheckServiceProxy).reportIssue(eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
+        verify(healthCheckServiceProxy).reportIssue(eq(RequestHeaderServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
                 any(Severity.class));
         assertFalse(listenerObject.isInitialized());
         assertThat(app.getEvents(), contains("Unable to identify the local host in the system model"));

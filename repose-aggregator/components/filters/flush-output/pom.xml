@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>flush-output</artifactId>
-
     <name>Repose Components - Flush Output Stream</name>
-    <description>Force repose to write the output stream to the prior filter in the chain
+    <artifactId>flush-output</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        Force repose to write the output stream to the prior filter in the chain
 
         This can be a good idea when using 3rd party filters, when it may be useful to
         force repose to output response data to the output stream.
@@ -27,25 +27,28 @@
         flushes data and passes through the request to the next filter (or origin service if it's the last one)
     </description>
 
-    <packaging>jar</packaging>
-
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
     </dependencies>

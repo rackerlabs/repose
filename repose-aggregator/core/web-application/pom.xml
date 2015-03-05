@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.core</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>core-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.core</groupId>
-    <artifactId>web-application</artifactId>
-
     <name>Repose Core - Root Web Application</name>
+    <artifactId>web-application</artifactId>
+    <packaging>war</packaging>
 
     <description>
         This is the ROOT.war application project for Power API. This is a simple
@@ -21,52 +18,69 @@
         is essential for existing Java API projects only.
     </description>
 
-    <packaging>war</packaging>
-
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>classloader</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
         </dependency>
 
-        <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
+        <!-- core depends on scala, and if we scope this to test, it breaks everything -->
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
-            <artifactId>rate-limiting-service</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
         <finalName>ROOT</finalName>
+        <plugins>
+            <!-- The plugin that gets Scala running -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 </project>

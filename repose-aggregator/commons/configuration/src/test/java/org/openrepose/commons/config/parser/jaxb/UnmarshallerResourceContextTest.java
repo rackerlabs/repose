@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import org.junit.After;
@@ -23,6 +24,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class UnmarshallerResourceContextTest {
+    private static final String CFG_DATA = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "\n" +
+            "<element>\n" +
+            "    <hello>Hi there.</hello>\n" +
+            "    <goodbye>See ya.</goodbye>\n" +
+            "</element>\n";
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -45,7 +52,8 @@ public class UnmarshallerResourceContextTest {
         @Test
         public void shouldPerformUnmarshall() throws IOException, JAXBException, ParserConfigurationException {
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-            when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
+            ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+            when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
             UnmarshallerValidator unmarshaller = new UnmarshallerValidator( jaxbContext );

@@ -1,6 +1,5 @@
 package org.openrepose.core.filter.logic;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
@@ -24,6 +23,18 @@ import java.util.List;
  */
 public interface FilterDirector {
 
+    /**
+     * Status code (-1) indicates that Repose does not support
+     * the action/response requested/received.
+     */
+    public static final int SC_UNSUPPORTED_RESPONSE_CODE = -1;
+
+    /**
+     * Status code (429) indicates that the user has sent too many
+     * requests in a given amount of time ("rate limiting").
+     */
+    public static final int SC_TOO_MANY_REQUESTS = 429;
+
    void setRequestUriQuery(String query);
    
    void setRequestUri(String newUri);
@@ -40,8 +51,6 @@ public interface FilterDirector {
 
    FilterAction getFilterAction();
 
-   HttpStatusCode getResponseStatus();
-
    int getResponseStatusCode();
 
    /**
@@ -52,8 +61,6 @@ public interface FilterDirector {
     * @param action the action to take
     */
    void setFilterAction(FilterAction action);
-
-   void setResponseStatus(HttpStatusCode delegatedStatus);
 
    void setResponseStatusCode(int status);
 

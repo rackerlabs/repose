@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>versioning</artifactId>
-
     <name>Repose Components - Versioning</name>
-    <description>TODO</description>
-
+    <artifactId>versioning</artifactId>
     <packaging>jar</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -22,25 +21,41 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>health-check-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>jetty-container</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
@@ -66,6 +81,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!--Apache Pool Support-->
@@ -73,6 +89,13 @@
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

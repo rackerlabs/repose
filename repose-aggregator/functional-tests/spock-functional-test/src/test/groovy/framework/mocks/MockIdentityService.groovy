@@ -112,7 +112,7 @@ class MockIdentityService {
     def client_tenant = 'this-is-the-tenant';
     def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
-    def client_userid = 12345;
+    def client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
     def client_apikey = 'this-is-the-api-key';
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'

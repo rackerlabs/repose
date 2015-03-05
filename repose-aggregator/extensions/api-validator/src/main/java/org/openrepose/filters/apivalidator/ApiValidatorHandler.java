@@ -3,7 +3,6 @@ package org.openrepose.filters.apivalidator;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.ErrorResult;
 import com.rackspace.com.papi.components.checker.step.Result;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;
@@ -112,8 +111,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         return null;
     }
 
-    //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings("PMD.AvoidCatchingThrowable")
+    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, HttpServletResponse response) {
         try {
             ErrorResult error = getErrorResult(result);
@@ -124,12 +122,11 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         } catch (Throwable t) {
 
             LOG.error("Some error", t);
-            myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+            myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
 
-    //The exceptions thrown by the validator are all custom exceptions which extend throwable
-    @SuppressWarnings("PMD.AvoidCatchingThrowable")
+    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
@@ -149,7 +146,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                     Validator validator = validatorInfo.getValidator();
                     if (validator == null) {
                         LOG.warn("Validator not available for request:", validatorInfo.getUri());
-                        myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+                        myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
                     } else {
                         lastValidatorResult = validator.validate(request, response, chain);
                         isValid = lastValidatorResult.valid();
@@ -171,13 +168,13 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                     }
                 }
             } else {
-                myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-                response.sendError(HttpStatusCode.FORBIDDEN.intValue());
+                myDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
             //TODO: Look back into this to see if we can avoid catching throwable
         } catch (Throwable t) {
             LOG.error("Error processing validation", t);
-            myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+            myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
         }
 
         return myDirector;

@@ -1,10 +1,11 @@
 package org.openrepose.core.filter
+
 import com.google.common.base.Optional
-import org.openrepose.core.domain.Port
-import org.openrepose.core.domain.ServicePorts
-import org.openrepose.core.systemmodel.*
+import org.intellij.lang.annotations.Language
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.Marshaller
+import org.openrepose.core.systemmodel.*
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.instanceOf
@@ -15,11 +16,7 @@ public class SystemModelInterrogatorTest {
 
     @Before
     public void setup() throws Exception {
-        ServicePorts servicePorts = new ServicePorts()
-        servicePorts << new Port("http", 8080)
-        servicePorts << new Port("https", 8181)
-
-        interrogator = new SystemModelInterrogator(servicePorts)
+        interrogator = new SystemModelInterrogator("cluster1", "node1")
     }
 
     @Test
@@ -41,7 +38,7 @@ public class SystemModelInterrogatorTest {
     @Test
     public void "when passed a system model missing a matching cluster, getLocalServiceDomain(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
+        sysModel.getReposeCluster().get(0).setId("nope")
 
         Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
 
@@ -66,7 +63,7 @@ public class SystemModelInterrogatorTest {
     @Test
     public void "when passed a system model missing a matching node, getLocalHost(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
+        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setId("nopes")
 
         Optional<Node> returnedNode = interrogator.getLocalNode(sysModel)
 
@@ -92,7 +89,7 @@ public class SystemModelInterrogatorTest {
     @Test
     public void "when passed a system model missing a matching default destination, getDefaultDestination(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
+        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setId("NOPES")
 
         Optional<Destination> returnedDestination = interrogator.getDefaultDestination(sysModel)
 
@@ -100,31 +97,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when nameResolver.lookupName throws UnknownHostException, cluster should be absent"() throws UnknownHostException {
-        SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("thiswillneverexist")
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertFalse(returnedCluster.isPresent())
-    }
-
-    @Test
-    public void "when no service ports are specified, cluster and destinations both do not exist"(){
-        interrogator = new SystemModelInterrogator(new ServicePorts())
-        SystemModel sysModel = getValidSystemModel()
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertFalse(returnedCluster.isPresent())
-
-        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
-
-        assertFalse(destination.isPresent())
-    }
-
-    @Test
-    public void "when no destinations are present, cluster exists but destinations are absent"(){
+    public void "when no destinations are present, cluster exists but destinations are absent"() {
         SystemModel sysModel = getValidSystemModel()
         sysModel.reposeCluster[0].destinations = new DestinationList()
 
@@ -139,7 +112,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when no clusters are present, cluster and destination are absent"(){
+    public void "when no clusters are present, cluster and destination are absent"() {
         SystemModel sysModel = getValidSystemModel()
         sysModel.reposeCluster = new ArrayList<ReposeCluster>()
 
@@ -153,21 +126,42 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when service ports do not contain BOTH HTTP and HTTPS ports, cluster and destination are absent"(){
-        ServicePorts servicePorts = new ServicePorts()
-        servicePorts << new Port("http", 8080)
+    public void "When having multiple clusters, it should select the right local Cluster"() {
+        @Language("XML")
+        def systemModelXML = """<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="cluster-1">
+    <nodes>
+      <node id="node-1-1" hostname="localhost" http-port="1011"/>
+      <node id="node-1-2" hostname="example.com" http-port="1012"/>
+    </nodes>
+    <filters></filters>
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="801" root-path="/" default="true"/>
+    </destinations>
+  </repose-cluster>
 
-        interrogator = new SystemModelInterrogator(servicePorts)
+  <repose-cluster id="cluster-2">
+    <nodes>
+      <node id="node-2-1" hostname="localhost" http-port="1021"/>
+      <node id="node-2-2" hostname="example.com" http-port="1022"/>
+    </nodes>
+    <filters></filters>
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="802" root-path="/" default="true"/>
+    </destinations>
+  </repose-cluster>
+</system-model>
+"""
 
-        SystemModel sysModel = getValidSystemModel()
+        SystemModel systemModel = Marshaller.systemModelString(systemModelXML)
 
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+        def interrogator = new SystemModelInterrogator("cluster-2", "node-2-1")
+        def localCluster = interrogator.getLocalCluster(systemModel)
+        assertTrue(localCluster.isPresent())
+        def lc = localCluster.get()
+        assertThat(lc.getId(), equalTo("cluster-2"))
 
-        assertFalse(returnedCluster.isPresent())
-
-        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
-
-        assertFalse(destination.isPresent())
     }
 
     /**

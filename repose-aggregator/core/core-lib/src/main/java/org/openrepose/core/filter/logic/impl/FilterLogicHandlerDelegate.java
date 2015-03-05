@@ -1,6 +1,5 @@
 package org.openrepose.core.filter.logic.impl;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterDirector;
@@ -38,7 +37,7 @@ public class FilterLogicHandlerDelegate {
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
       if (handler == null) {
-         mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain, check your configuration files.");
+         mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating filter chain, check your configuration files.");
          LOG.error("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
          
       } else {

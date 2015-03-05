@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.common;
 
 import org.openrepose.common.auth.AuthToken;
-import org.openrepose.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.Datastore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

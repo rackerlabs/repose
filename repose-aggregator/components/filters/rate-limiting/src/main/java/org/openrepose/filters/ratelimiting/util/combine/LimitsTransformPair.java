@@ -1,6 +1,6 @@
 package org.openrepose.filters.ratelimiting.util.combine;
 
-import org.openrepose.services.ratelimit.config.RateLimitList;
+import org.openrepose.core.services.ratelimit.config.RateLimitList;
 
 import java.io.InputStream;
 

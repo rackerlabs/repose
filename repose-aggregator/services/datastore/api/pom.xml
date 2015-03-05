@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>com.rackspace.papi.service</groupId>
-        <artifactId>datastore-service-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>datastoreservice-api</artifactId>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>datastore-service-support</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
+    </parent>
 
     <name>Repose Services - Datastore Service API</name>
+    <artifactId>datastoreservice-api</artifactId>
+    <packaging>jar</packaging>
+
     <description>
         The API that Repose uses to expose a datastore is documented here. This
         allows for if the default implementation provided by Repose is not
         adequate for a given deployment, then a new one can be created that is
         usable by Repose.
     </description>
-    <packaging>jar</packaging>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -25,8 +24,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>datastore-api</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

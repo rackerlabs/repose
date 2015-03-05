@@ -38,7 +38,7 @@ abstract class ReposeLauncher {
 
     def waitForResponseCodeFromUrl(url, timeoutInSeconds, int intervalInSeconds, isResponseAcceptable) {
 
-        print("Waiting for repose to start at ${url} ")
+        print("\n\nWaiting for repose to start at ${url} \n\n")
         waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
                 print(".")

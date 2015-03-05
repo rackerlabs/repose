@@ -2,8 +2,13 @@
 
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
+import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
+import org.openrepose.core.filter.SystemModelInterrogator
+import org.openrepose.core.systemmodel.SystemModel
 import org.rackspace.deproxy.PortFinder
 
+import javax.management.ObjectName
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -24,6 +29,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     def jmxPort = null
     def debugPort = null
     def classPaths = []
+    def additionalEnvironment = [:]
 
     Process process
 
@@ -67,10 +73,18 @@ class ReposeValveLauncher extends ReposeLauncher {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting)
+        String clusterId = params.get('clusterId', "")
+        String nodeId = params.get('nodeId', "")
+
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
     }
 
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
+    /**
+     * TODO: need to know what node in the system model we care about. There might be many, for multiple local node testing...
+     * @param killOthersBeforeStarting
+     * @param waitOnJmxAfterStarting
+     */
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -99,7 +113,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
-            if(doSuspend) {
+            if (doSuspend) {
                 debugProps += "y"
                 println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
             } else {
@@ -120,12 +134,22 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
+        //TODO: possibly add a -Dlog4j.configurationFile to the guy so that we can load a different log4j config for early logging
+
+        //Prepended the JUL logging manager from log4j2 so I can capture JUL logs, which are things in the JVM (like JMX)
+        def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({
-            this.process = cmd.execute()
-            // TODO: This should probably go somewhere else and not just be consumed to the garbage.
+            //Construct a new environment, including all from the previous, and then overriding with our new one
+            def newEnv = new HashMap<String, String>()
+            newEnv.putAll(System.getenv())
+            
+            additionalEnvironment.each { k,v ->
+                newEnv.put(k, v) //Should override anything, if there's anything to override
+            }
+            def envList = newEnv.collect { k,v -> "$k=$v" }
+            this.process = cmd.execute(envList, null)
             this.process.consumeProcessOutput(System.out, System.err)
         });
 
@@ -139,15 +163,16 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (waitOnJmxAfterStarting) {
 
 
-            print("Waiting for repose to start")
+            if (clusterId && nodeId) {
+                print("Waiting for repose node: ${clusterId}:${nodeId} to start: ")
+            } else {
+                print("Waiting for repose auto-guessed node to start: ")
+            }
+
             waitForCondition(clock, '60s', '1s', {
-                isFilterChainInitialized()
+                isReposeNodeUp(clusterId, nodeId)
             })
         }
-
-        // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
-        // ready to receive requests without actually sending a request through (skews the metrics if we do)
-        //sleep(10000)
     }
 
     def connectViaJmxRemote(jmxUrl) {
@@ -179,7 +204,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
-            this.process.destroy()
+            this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
@@ -216,37 +241,61 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     /**
+     * This takes a single string and will append it to the list of environment vars to be set for the .execute() method
+     * Following docs from: http://groovy.codehaus.org/groovy-jdk/java/lang/String.html#execute%28java.util.List,%20java.io.File%29
+     * @param environmentPair
+     */
+    void addToEnvironment(String key, String value) {
+        additionalEnvironment.put(key, value)
+    }
+
+    /**
      * TODO: introspect the system model for expected filters in filter chain and validate that they
      * are all present and accounted for
      * @return
      */
-    private boolean isFilterChainInitialized() {
+    private boolean isReposeNodeUp(String clusterId, String nodeId) {
         print('.')
 
+        //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
+        def systemModelFile = configurationProvider.getSystemModel()
+        def systemModelXSDUrl = getClass().getResource("/META-INF/schema/system-model/system-model.xsd")
+        def parser = JaxbConfigurationParser.getXmlConfigurationParser(SystemModel.class, systemModelXSDUrl, this.getClass().getClassLoader())
+        def systemModel = parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
+
+        //If the systemModel didn't validate, we're going to toss an exception here, which is fine
+
+        //Get the systemModel cluster/node, if there's only one we can guess. If there's many, bad things happen.
+        if (clusterId == "" || nodeId == "") {
+            Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
+
+            if (clusterNodes.size() == 1) {
+                clusterId = clusterNodes.keySet().toList().first()
+                if (clusterNodes.get(clusterId).size() == 1) {
+                    nodeId = clusterNodes.get(clusterId).first()
+                } else {
+                    throw new Exception("Unable to guess what nodeID you want in cluster: " + clusterId)
+                }
+            } else {
+                throw new Exception("Unable to guess what clusterID you want!")
+            }
+        }
+
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = jmx.getMBeans("*org.openrepose.core.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
         def String beanName = cfgBean.iterator().next().name.toString()
 
-        def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
+        //Doing the JMX invocation here, because it's kinda ugly
+        Object[] opParams = [clusterId, nodeId]
+        String[] opSignature = [String.class.getName(), String.class.getName()]
 
-
-        if (filterchain == null || filterchain.size() == 0) {
-            return beanName.contains("nofilters")
-        }
-
-        def initialized = true
-
-        filterchain.each { data ->
-            if (data."successfully initialized" == false) {
-                initialized = false
-            }
-        }
-
-        return initialized
+        //Invoke the 'is repose ready' bit on it
+        def nodeIsReady = jmx.server.invoke(new ObjectName(beanName), "isNodeReady", opParams, opSignature)
+        return nodeIsReady
     }
 
     @Override

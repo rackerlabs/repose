@@ -56,13 +56,9 @@ public final class StringUriUtilities {
                 if (!uri.startsWith("/") && !uri.isEmpty()) {
                     builder.append("/");
                 }
-
-
                     builder.append(uri);
-
             }
         }
-
 
         return builder.toString();
     }

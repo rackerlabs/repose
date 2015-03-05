@@ -6,9 +6,11 @@ import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
+@Ignore
 class Slf4jLoggingIntegrationTest extends Specification {
     ListAppender app
 

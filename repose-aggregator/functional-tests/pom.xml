@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>profile-support</artifactId>
-        <groupId>com.rackspace.papi</groupId>
-        <version>7.0.0.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>profile-support</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
+    </parent>
 
     <name>Repose - Functional Test Support</name>
-    <groupId>com.rackspace.papi.test</groupId>
     <artifactId>functional-test-support</artifactId>
     <packaging>pom</packaging>
 

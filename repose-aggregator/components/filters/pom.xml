@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>components-support</artifactId>
-        <groupId>com.rackspace.papi.components</groupId>
-        <version>7.0.0.0-SNAPSHOT</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>components-support</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
+    </parent>
 
+    <name>filters-support</name>
     <artifactId>filters-support</artifactId>
     <packaging>pom</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <modules>
         <module>filter-bundle</module>
@@ -50,55 +54,49 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.rackspace.papi.service</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>rate-limiting-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.papi.core</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>core-lib</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
+                <groupId>org.openrepose</groupId>
+                <artifactId>core-service-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openrepose</groupId>
                 <artifactId>configuration</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>utilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
-                <artifactId>jetty-container</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>classloader</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.cloud.services.clients</groupId>
-                <artifactId>auth</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.external</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>os-auth-schemas</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.rackspace.papi.external</groupId>
+                <groupId>org.openrepose</groupId>
                 <artifactId>pjl-compressingFilter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -108,6 +106,14 @@
                 <artifactId>commons-codec</artifactId>
                 <version>1.7</version>
             </dependency>
+
+            <!-- many filters are pulling in Guava, probably thanks to core using it -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>14.0.1</version> <!-- same version core is using -->
+            </dependency>
+
 
             <dependency>
                 <groupId>org.openrepose</groupId>

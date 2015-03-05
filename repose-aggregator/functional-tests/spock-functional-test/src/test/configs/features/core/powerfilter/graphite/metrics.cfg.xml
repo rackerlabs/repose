@@ -1,4 +1,4 @@
-<metrics xmlns="http://docs.rackspacecloud.com/repose/metrics/v1.0">
+<metrics xmlns="http://docs.openrepose.org/repose/metrics/v1.0">
     <graphite>
         <server host="localhost"
                 port="${graphitePort}"

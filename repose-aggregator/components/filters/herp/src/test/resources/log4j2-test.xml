@@ -4,7 +4,8 @@
         <Console name="STDOUT">
             <PatternLayout pattern="%-4r [%t] %-5p %c  - %m%n"/>
         </Console>
-        <List name="highly-efficient-record-processor-ListAppender"/>
+        <List name="highly-efficient-record-processor-pre-ListAppender"/>
+        <List name="highly-efficient-record-processor-post-ListAppender"/>
         <LogErrorListener name="ErrorListener"/>
     </Appenders>
     <Loggers>
@@ -19,8 +20,11 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
-        <Logger name="highly-efficient-record-processor-Logger" level="trace">
-            <AppenderRef ref="highly-efficient-record-processor-ListAppender"/>
+        <Logger name="highly-efficient-record-processor-pre-Logger" level="trace">
+            <AppenderRef ref="highly-efficient-record-processor-pre-ListAppender"/>
+        </Logger>
+        <Logger name="highly-efficient-record-processor-post-Logger" level="trace">
+            <AppenderRef ref="highly-efficient-record-processor-post-ListAppender"/>
         </Logger>
     </Loggers>
 </Configuration>

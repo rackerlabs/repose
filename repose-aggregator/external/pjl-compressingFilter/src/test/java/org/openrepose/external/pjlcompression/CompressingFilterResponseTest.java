@@ -216,7 +216,7 @@ public final class CompressingFilterResponseTest {
         MockHttpServletResponse response = factory.getMockResponse();
 
         // Mockrunner doesn't set status 302:
-        //assertEquals(302, response.getStatusCode());
+        //assertEquals(302, response.getStatus());
         assertTrue(response.wasRedirectSent());
         assertFalse(response.wasErrorSent());
         assertTrue(response.containsHeader(CompressingFilter.VARY_HEADER));

@@ -7,16 +7,16 @@ package org.openrepose.filters.clientauth.atomfeed.sax;
 import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.filters.clientauth.atomfeed.*;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -76,7 +76,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
             resp = getFeed();
 
-            if (resp.getStatusCode() == HttpStatusCode.OK.intValue()) {
+            if (resp.getStatus() == HttpServletResponse.SC_OK) {
 
                 try {
                     SAXParser parser = factory.newSAXParser();
@@ -106,10 +106,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         resp = client.get(targetFeed, headers);
 
 
-        switch (HttpStatusCode.fromInt(resp.getStatusCode())) {
-            case OK:
+        switch (resp.getStatus()) {
+            case HttpServletResponse.SC_OK:
                 break;
-            case UNAUTHORIZED:
+            case HttpServletResponse.SC_UNAUTHORIZED:
                 if (isAuthed) {
                     try {
                         adminToken = provider.getFreshAdminToken();
@@ -125,7 +125,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 }
                 break;
             default: // If we receive anything other than a 200 or a 401 there is an error with the atom feed
-                LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatusCode());
+                LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatus());
                 moreData = false;
                 break;
 
@@ -141,7 +141,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-
         if (StringUtilities.nullSafeEquals(uri, "http://www.w3.org/2005/Atom") && StringUtilities.nullSafeEquals(localName, "link")) {
             // Get Prev Link
             if ("previous".equals(attributes.getValue("rel"))) {
@@ -162,20 +161,24 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             } else if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/token")
                     && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TOKEN")) {
                 curType = CacheKeyType.TOKEN;
+            } else if(StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/trr/user")
+                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TRR_USER")) {
+                curType = CacheKeyType.TRR_USER;
             }
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-
         if (StringUtilities.nullSafeEquals(localName, "event")) {
-
             switch (curType) {
                 case TOKEN:
                     resultKeys.addTokenKey(curResource);
                     break;
                 case USER:
+                    resultKeys.addUserKey(curResource);
+                    break;
+                case TRR_USER:
                     resultKeys.addUserKey(curResource);
                     break;
             }

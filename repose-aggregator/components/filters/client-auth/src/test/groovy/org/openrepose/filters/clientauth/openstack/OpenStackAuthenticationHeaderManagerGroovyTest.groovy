@@ -2,11 +2,12 @@ package org.openrepose.filters.clientauth.openstack
 
 import org.openrepose.common.auth.AuthGroup
 import org.openrepose.common.auth.AuthToken
-import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
+
+import javax.servlet.http.HttpServletResponse
 
 class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
 
@@ -24,7 +25,7 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
 
         given:
         filterDirector = new FilterDirectorImpl()
-        filterDirector.setResponseStatus(HttpStatusCode.OK)
+        filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK)
         isDelegatable = false;
         authGroupList = new ArrayList<AuthGroup>()
         wwwAuthHeaderContents = "test URI";

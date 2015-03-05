@@ -1,25 +1,24 @@
 package org.openrepose.filters.clientauth.openstack;
 
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.httpdelegation.HttpDelegationHeaderNames;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.OpenStackGroup;
 import org.openrepose.common.auth.openstack.OpenStackToken;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHeaderManager;
 import org.openstack.docs.identity.api.v2.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -130,7 +129,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         groups.getGroup().add(group);
         authGroupList = new ArrayList<AuthGroup>();
         authGroupList.add(new OpenStackGroup(group));
-        filterDirector.setResponseStatus(HttpStatusCode.OK);
+        filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
        
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",

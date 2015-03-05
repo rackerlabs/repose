@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <uri-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-                   xmlns='http://docs.api.rackspacecloud.com/repose/uri-normalization/v1.0'
-                   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/uri-normalization/v1.0 ../config/uri-normalization-configuration.xsd'>
+                   xmlns='http://docs.openrepose.org/repose/uri-normalization/v1.0'
+                   xsi:schemaLocation='http://docs.openrepose.org/repose/uri-normalization/v1.0 ../config/uri-normalization-configuration.xsd'>
    <media-variants>
       <media-type name="application/json" variant-extension="json" preferred="true"/>
       <media-type name="application/xml" variant-extension="xml"/>

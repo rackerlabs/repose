@@ -1,7 +1,7 @@
 package org.openrepose.filters.slf4jlogging
 
 import org.intellij.lang.annotations.Language
-import org.openrepose.commons.config.parser.ConfigurationParserFactory
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.ByteArrayConfigurationResource
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig
 import spock.lang.Specification
@@ -21,9 +21,10 @@ class AdditionalXSDFormatTest extends Specification {
 
     Slf4JHttpLoggingConfig marshalConfig(String xml) {
         URL xsdURL = getClass().getResource("/META-INF/schema/config/slf4j-http-logging-configuration.xsd");
-        def parser = ConfigurationParserFactory.getXmlConfigurationParser(
+        def parser = JaxbConfigurationParser.getXmlConfigurationParser(
                 Slf4JHttpLoggingConfig.class,
-                xsdURL)
+                xsdURL,
+                this.getClass().getClassLoader())
         def configResource = new ByteArrayConfigurationResource("slf4jConfig", xml.getBytes(StandardCharsets.UTF_8))
         parser.read(configResource)
     }
@@ -32,7 +33,7 @@ class AdditionalXSDFormatTest extends Specification {
     def "original format line validates"() {
         given: "I have an http log with a format attribute"
         @Language("XML") def configXml = """<?xml version="1.0" encoding="UTF-8"?>
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log
             id="my-special-log"
             format="Some kind of format "
@@ -53,7 +54,7 @@ class AdditionalXSDFormatTest extends Specification {
         @Language("XML")
         def configXml = """<?xml version="1.0" encoding="UTF-8"?>
 
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log id="my-special-log" >
             <format>
             [<![CDATA[
@@ -77,7 +78,7 @@ class AdditionalXSDFormatTest extends Specification {
         @Language("XML")
         def configXml = """<?xml version="1.0" encoding="UTF-8"?>
 
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log id="my-special-log" format="derpline">
     <format>
     <![CDATA[
@@ -103,7 +104,7 @@ class AdditionalXSDFormatTest extends Specification {
         @Language("XML")
         def configXml = """<?xml version="1.0" encoding="UTF-8"?>
 
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log id="my-special-log" >
     </slf4j-http-log>
 </slf4j-http-logging>
@@ -122,7 +123,7 @@ class AdditionalXSDFormatTest extends Specification {
         @Language("XML")
         def configXml = """<?xml version="1.0" encoding="UTF-8"?>
 
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log id="my-special-log" >
             <format>
             [<![CDATA[
@@ -146,7 +147,7 @@ class AdditionalXSDFormatTest extends Specification {
         given: "I have an http log with a format element (and no format attribute)"
         @Language("XML")
         def configXml = """<?xml version="1.0" encoding="UTF-8"?>
-<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
     <slf4j-http-log id="my-special-log" >
             <format crush="true">
             [<![CDATA[

@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>com.rackspace.papi.service</groupId>
-        <artifactId>datastore-service-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>datastore-service</artifactId>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>datastore-service-support</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
+    </parent>
 
     <name>Repose Services - Datastore Service Impl</name>
+    <artifactId>datastore-service</artifactId>
+    <packaging>jar</packaging>
+
     <description>
         This is the default implementation of a datastore service used to expose
         a datastore to other services/filters that are running on that node.
@@ -21,27 +22,67 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>datastore-distributed</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>health-check-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>datastore-ehcache</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-ehcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
         </dependency>
 
         <dependency>
@@ -49,6 +90,12 @@
             <artifactId>xerces-xsd11</artifactId>
             <version>2.12.0-rax</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>rate-limiting-service</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>profile-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.commons</groupId>
-    <artifactId>commons-support</artifactId>
-
     <name>Repose Commons - Commons Support</name>
+    <artifactId>commons-support</artifactId>
+    <packaging>pom</packaging>
 
-    <description>Common libraries used by Repose modules.
+    <description>
+        Common libraries used by Repose modules.
         Commons should not have dependencies on other Repose modules.
     </description>
-
-    <packaging>pom</packaging>
 
     <modules>
         <module>utilities</module>
         <module>configuration</module>
-        <module>classloader</module>
-        <module>jetty</module>
     </modules>
 
     <dependencyManagement>

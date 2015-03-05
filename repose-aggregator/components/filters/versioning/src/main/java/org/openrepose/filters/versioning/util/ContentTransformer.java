@@ -7,18 +7,22 @@ import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
 import org.openrepose.commons.utils.transform.xslt.JaxbXsltToStringTransform;
 import org.openrepose.commons.utils.transform.xslt.XsltToStreamTransform;
-import org.openrepose.commons.utils.xslt.TemplatesFactory;
+import org.openrepose.commons.utils.xslt.LogErrorListener;
+import org.openrepose.commons.utils.xslt.LogTemplatesWrapper;
 import org.openrepose.core.servlet.PowerApiContextException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 import java.io.OutputStream;
 
 public class ContentTransformer {
-
     private static final String JSON_XSLT = "/META-INF/transform/xslt/version-json.xsl";
-    
+
     @Deprecated
     private final Transform<JAXBElement, String> jsonTransform;
     @Deprecated
@@ -27,13 +31,30 @@ public class ContentTransformer {
     private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
     private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
+    /**
+     * This is the class that was used in the original repose before having to set the classloader
+     * I don't know if this is the right class, but it does work.
+     */
+    private static final TransformerFactory XSLT_TRANSFORMER_FACTORY =
+            TransformerFactory.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", ContentTransformer.class.getClassLoader());
+
+    static {
+        XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
+    }
+
+    private static Templates parseXslt(Source s) throws TransformerConfigurationException {
+        synchronized (XSLT_TRANSFORMER_FACTORY) {
+            return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
+        }
+    }
+
     public ContentTransformer() {
         try {
             final JAXBContext context = JAXBContext.newInstance(
                     org.openrepose.filters.versioning.schema.ObjectFactory.class,
                     org.openrepose.filters.versioning.config.ObjectFactory.class);
             final Templates jsonXsltTemplates =
-                    TemplatesFactory.instance().parseXslt(getClass().getResourceAsStream(JSON_XSLT));
+                    ContentTransformer.parseXslt(new StreamSource(getClass().getResourceAsStream(JSON_XSLT)));
 
             xmlTransform = new JaxbEntityToXml(context);
             jsonTransform = new JaxbXsltToStringTransform(jsonXsltTemplates, context);

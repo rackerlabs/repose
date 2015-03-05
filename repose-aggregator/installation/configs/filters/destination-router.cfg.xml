@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- http://wiki.openrepose.org/pages/viewpage.action?pageId=328596 -->
-<destination-router xmlns='http://openrepose.org/repose/destination-router/v1.0'>
+<destination-router xmlns='http://docs.openrepose.org/repose/destination-router/v1.0'>
    <target id="openrepose" quality="0.5"/>
 </destination-router>

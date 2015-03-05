@@ -12,7 +12,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
     def static badParamBadBody =  "<a blah=\"something\"><testing>test</testing>Stuff</a>"
     def static contentTypeHeader = ["content-type": "application/xml"]
     def static goodFirstBadSecondElementBody = "<test:element " +
-            "xmlns:test=\"http://docs.openrepose.org/common/api/v1.0\" blah=\"boblaw\">" +
+            "xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\">" +
             "</test:element>"
 
     def setupSpec() {
@@ -70,7 +70,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
         and: "Origin service should receive request"
         sentRequest.getRequest().body.toString().
                 contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<test:element xmlns:test=\"http://docs.openrepose.org/common/api/v1.0\" blah=\"boblaw\"/>")
+                        "<test:element xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\"/>")
     }
 
     @Unroll("Roles of #headers with request body of #requestBody should cause error #errorMessage")

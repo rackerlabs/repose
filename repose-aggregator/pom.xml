@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi</groupId>
-        <artifactId>papi</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <groupId>org.openrepose</groupId>
+        <artifactId>repose</artifactId>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>profile-support</artifactId>
-
     <name>Repose - Build Support Profiles</name>
+    <artifactId>profile-support</artifactId>
+    <packaging>pom</packaging>
 
     <description>
         Aggregator of all Repose source modules. Provides common dependency versions
         used by source modules.
     </description>
 
-    <packaging>pom</packaging>
-
     <properties>
-        <org.springframework.version>3.1.4.RELEASE</org.springframework.version>
+        <org.springframework.version>4.1.4.RELEASE</org.springframework.version>
         <groovy.version>2.1.3</groovy.version>
         <spock.version>0.7-groovy-2.0</spock.version>
         <gmaven.version>1.5</gmaven.version>
@@ -31,6 +27,8 @@
         <jackson.version>1.9.13</jackson.version>
         <yammer.version>2.2.0</yammer.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
+        <!-- NOTE: the saxon version should match that of API-checker, because there is saxon in core :( -->
+        <saxon.version>9.4.0.9</saxon.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.itReportPath>
             ${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec
@@ -135,7 +133,10 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--For JSON support-->
+            <!--
+            For JSON support
+            TODO: codehaus.jackson is super old! We should be using com.fasterxml.jackson stuff. It's different though
+            -->
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-lgpl</artifactId>
@@ -193,6 +194,16 @@
                 <version>${akka.version}</version>
             </dependency>
 
+            <!-- TODO: make sure this doesn't conflict with akka, because it'll be in the same class path -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <!-- not using the same version as akka, as it has bugs that are fixed in 1.2.1 -->
+                <!-- specifically around quoting of strings -->
+                <version>1.2.1</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -227,6 +238,19 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>2.0.2-rax</version>
+            </dependency>
+
+            <!-- saxon keeps sneaking into all the things because xml -->
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon</artifactId>
+                <version>${saxon.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon-ee</artifactId>
+                <version>${saxon.version}</version>
             </dependency>
 
             <dependency>
@@ -279,23 +303,31 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>2.1</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>2.1</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-jul</artifactId>
+                <version>2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-iostreams</artifactId>
+                <version>2.1</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
@@ -324,10 +356,26 @@
                 <scope>test</scope>
             </dependency>
 
+
+            <!-- Handy jetbrains annotations for use in the IDE, doesn't hurt anything else -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>13.0</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+
+        <!-- nearly everything uses slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+
         <!-- We like Spock, test long and prosper -->
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -375,39 +423,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--For SLF4J/Log4J 2.x logging support-->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-
         <!--todo: Ugh utilities really needs these? -->
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -423,6 +438,27 @@
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
         </dependency>
+
+        <!-- because we do test logging in many projects, all projects get the log4j test dependencies -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -515,9 +551,22 @@
                 <plugin>
                     <groupId>net.alchim31.maven</groupId>
                     <artifactId>scala-maven-plugin</artifactId>
-                    <version>3.1.6</version>
+                    <version>3.2.0</version>
                     <configuration>
-                        <recompileMode>incremental</recompileMode>
+                        <!--
+                        Using the zinc compiler seems to break things!
+                         we would get this error:
+                         [ERROR] Failed to execute goal net.alchim31.maven:scala-maven-plugin:3.1.6:compile
+                         (scala-compile-first) on project service-client-akka: Execution scala-compile-first of goal
+                         net.alchim31.maven:scala-maven-plugin:3.1.6:compile failed: An API incompatibility was
+                         encountered while executing net.alchim31.maven:scala-maven-plugin:3.1.6:compile:
+                         java.lang.ClassFormatError: Absent Code attribute in method that is not native or abstract in
+                         class file javax/ws/rs/core/MediaType
+
+                         Turning off incremental compilation and it works again. The speed cost isn't there, because
+                         we generally have to clean install every time anyway, thanks to build problems. :(
+                        -->
+                        <!--<recompileMode>incremental</recompileMode>-->
                     </configuration>
                     <!--
                      http://davidb.github.io/scala-maven-plugin/example_java.html
@@ -552,7 +601,7 @@
                 <version>${gmaven.version}</version>
                 <configuration>
                     <providerSelection>1.8</providerSelection>
-                    <source/>
+                    <source />
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -605,6 +654,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.3.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>de.is24.maven.enforcer.rules</groupId>
+                        <artifactId>illegal-transitive-dependency-check</artifactId>
+                        <version>1.7.2</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>enforce-banned-dependencies</id>
@@ -616,6 +672,12 @@
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>commons-logging:commons-logging</exclude>
+                                        <exclude>com.rackspace.papi.commons:classloader</exclude>
+                                        <exclude>com.rackspace.papi.commons:jetty-container</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-api</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-distributed</exclude>
+                                        <exclude>com.rackspace.papi.components:datastore-ehcache</exclude>
+                                        <exclude>com.rackspace.papi.components:datastores-support</exclude>
                                     </excludes>
                                     <searchTransitive>true</searchTransitive>
                                 </bannedDependencies>
@@ -623,6 +685,49 @@
                             <!-- fail fast makes it bomb after the first failure -->
                             <failFast>true</failFast>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <id>enforce-transitive-dependency-explicitness</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <illegalTransitiveDependencyCheck implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
+                                    <reportOnly>false</reportOnly>
+                                    <useClassesFromLastBuild>true</useClassesFromLastBuild>
+                                    <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
+                                    <regexIgnoredClasses>
+                                        <regexIgnoredClass>org\.apache\.http\..+</regexIgnoredClass>
+                                        <regexIgnoredClass>com\.typesafe\.scalalogging\..+</regexIgnoredClass>
+                                    </regexIgnoredClasses>
+                                </illegalTransitiveDependencyCheck>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+             plugin to let us know about unused dependencies
+             It's not very reliable, not like the enforcer plugin's abilities, so I disabled the fail on Warning,
+             because it was causing too many false positives. The report could still be useful during manual verficiation however.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+
+                <configuration>
+                    <failOnWarning>false</failOnWarning>
+                    <ignoreNonCompile>true</ignoreNonCompile> <!-- don't include non-compile paths for now -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>dependency-analysis</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

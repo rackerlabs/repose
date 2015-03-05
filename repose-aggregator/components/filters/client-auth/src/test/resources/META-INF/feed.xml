@@ -19,7 +19,14 @@
       <atom:name>JUNIT Test Team</atom:name>
     </atom:author>
     <atom:content type="application/xml">
-      <event dataCenter="IDK" environment="JUNIT" eventTime="2012-09-19T11:11:11Z" id="e3cb4606-7b2e-4a8d-82ce-288bc89c2b54" region="IDK" resourceId="834d3be1-c479-11e2-8b8b-0800200c9a66" type="DELETE" version="1">
+      <event dataCenter="IDK"
+             environment="JUNIT"
+             eventTime="2012-09-19T11:11:11Z"
+             id="e3cb4606-7b2e-4a8d-82ce-288bc89c2b54"
+             region="IDK"
+             resourceId="834d3be1-c479-11e2-8b8b-0800200c9a66"
+             type="DELETE"
+             version="1">
         <id:product resourceType="TOKEN" serviceCode="CloudIdentity" tenants="1234 tenant2 3882" version="1"/>
       </event>
     </atom:content>
@@ -38,7 +45,8 @@
       <atom:name>JUNIT Test Team</atom:name>
     </atom:author>
     <atom:content type="application/xml">
-      <event xmlns="http://docs.rackspace.com/core/event" xmlns:id="http://docs.rackspace.com/event/identity/user" dataCenter="IDK" environment="JUNIT" eventTime="2012-09-15T11:51:11Z" id="75c152d2-b7b7-4e0a-86b6-3a5e235af0da" region="IDK" resourceId="224277258" resourceName="junituser3820" type="DELETE" version="1">
+      <event xmlns="http://docs.rackspace.com/core/event"
+             xmlns:id="http://docs.rackspace.com/event/identity/user" dataCenter="IDK" environment="JUNIT" eventTime="2012-09-15T11:51:11Z" id="75c152d2-b7b7-4e0a-86b6-3a5e235af0da" region="IDK" resourceId="224277258" resourceName="junituser3820" type="DELETE" version="1">
         <id:product displayName="unitestUser1" migrated="true" resourceType="USER" serviceCode="CloudIdentity" version="1"/>
       </event>
     </atom:content>
@@ -46,4 +54,28 @@
     <atom:updated>2013-05-16T20:11:48.050Z</atom:updated>
     <atom:published>2013-05-16T20:11:48.050Z</atom:published>
   </atom:entry>
+    <!-- adding the TRR user event -->
+    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns="http://www.w3.org/2001/XMLSchema">
+        <atom:title>CloudIdentity</atom:title>
+        <atom:content type="application/xml">
+            <event xmlns="http://docs.rackspace.com/core/event"
+                   xmlns:id="http://docs.rackspace.com/event/identity/trr/user"
+                   id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+                   version="2"
+                   resourceId="4a2b42f4-6c63-11e1-815b-7fcbcf67f549"
+                   eventTime="2013-03-15T11:51:11Z"
+                   type="DELETE"
+                   dataCenter="DFW1"
+                   region="DFW">
+                <id:product serviceCode="CloudIdentity"
+                                version="1"
+                                resourceType="TRR_USER"
+                                tokenCreationDate="2013-09-26T15:32:00Z">
+                    <id:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
+                </id:product>
+            </event>
+        </atom:content>
+    </atom:entry>
 </feed>

@@ -1,7 +1,7 @@
 package org.openrepose.commons.utils.http
 
-import org.openrepose.services.httpclient.HttpClientResponse
-import org.openrepose.services.httpclient.HttpClientService
+import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient

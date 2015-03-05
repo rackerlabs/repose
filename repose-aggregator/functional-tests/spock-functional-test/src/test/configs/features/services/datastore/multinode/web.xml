@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO: this will not work any longer, because the web.xml is now programmatic!!! -->
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
     <display-name>Repose Root Web Application</display-name>
@@ -19,15 +20,10 @@
         <param-value>${repose.node.id}</param-value>
     </context-param>
 
-    <listener>
-        <display-name>Repose Context Loader</display-name>
-        <listener-class>org.openrepose.core.services.context.impl.PowerApiContextManager</listener-class>
-    </listener>
-
     <!-- Servlets -->
     <servlet id="power-api-servlet">
         <servlet-name>empty-servlet</servlet-name>
-        <servlet-class>org.openrepose.core.EmptyServlet</servlet-class>
+        <servlet-class>org.openrepose.powerfilter.EmptyServlet</servlet-class>
     </servlet>
 
     <servlet-mapping id="power-api-servlet-mapping">
@@ -36,9 +32,10 @@
     </servlet-mapping>
 
     <!-- Filters -->
+    <!-- TODO: this should be the delegating filter used in the prototype when doing the WAR work -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>org.openrepose.core.filter.ValvePowerFilter</filter-class>
+        <filter-class>org.nope.fix.me.kthx</filter-class>
     </filter>
 
     <filter-mapping id="power-api-filter-mapping">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-identity  xmlns='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0'>
+<header-identity  xmlns='http://docs.openrepose.org/repose/header-identity/v1.0'>
 
     <source-headers>
         <header id="X-Header-User" quality="0.2"/>

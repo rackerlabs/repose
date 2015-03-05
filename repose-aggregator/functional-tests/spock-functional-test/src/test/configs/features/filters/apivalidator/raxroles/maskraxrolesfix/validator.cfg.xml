@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
     <validator role="test_user4" default="true" enable-rax-roles="true" mask-rax-roles-403="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="https://test.api.openstack.com">

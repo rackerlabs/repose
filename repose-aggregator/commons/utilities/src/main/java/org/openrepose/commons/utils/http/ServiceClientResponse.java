@@ -32,7 +32,7 @@ public class ServiceClientResponse {
 
    public Header[] getHeaders() { return headers; }
 
-   public int getStatusCode() {
+   public int getStatus() {
       return statusCode;
    }
 }

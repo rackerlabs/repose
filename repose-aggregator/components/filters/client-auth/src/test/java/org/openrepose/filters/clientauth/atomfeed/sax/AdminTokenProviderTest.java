@@ -8,7 +8,7 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.ws.rs.core.MediaType;

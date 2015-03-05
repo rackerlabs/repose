@@ -10,18 +10,22 @@ import org.apache.logging.log4j.core.config.ConfigurationFactory
 import org.apache.logging.log4j.status.StatusLogger
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
+import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class LoggingServiceImplTest extends FunSpec with Matchers {
+class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar{
 
   import scala.collection.JavaConversions._
 
   private val LOG: Logger = LoggerFactory.getLogger(classOf[LoggingServiceImplTest].getName)
+
+  val mockConfigService = mock[ConfigurationService]
 
   /**
    * This is here because the yaml backend in Log4j2 is currently borked.
@@ -52,7 +56,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content1 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List1.$ext")).mkString
             val file1 = File.createTempFile("log4j2-", s".$ext")
@@ -89,7 +93,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content1 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List1.$ext")).mkString
             val file1 = File.createTempFile("log4j2-", s".$ext")
@@ -123,7 +127,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
       }
 
       it("Falls back to known good configuration on failure.") {
-        val loggingService = new LoggingServiceImpl()
+        val loggingService = new LoggingServiceImpl(mockConfigService)
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
 
         loggingService.updateLoggingConfiguration(s"BAD_FILE_NAME.$ext")
@@ -144,7 +148,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content1 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List1.$ext")).mkString
             val file1 = File.createTempFile("log4j2-", s".$ext")
@@ -213,7 +217,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content2 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List2.$ext")).mkString
             val file2 = File.createTempFile("log4j2-", s".$ext")
@@ -241,7 +245,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content2 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List2.$ext")).mkString
             val file2 = File.createTempFile("log4j2-", s".$ext")
@@ -277,7 +281,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
           val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
           try {
             yamlWrapper(ext) {
-              val loggingService = new LoggingServiceImpl()
+              val loggingService = new LoggingServiceImpl(mockConfigService)
 
               val content1 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List1.$ext")).mkString
               val file1 = File.createTempFile("log4j2-", s".$ext")
@@ -309,7 +313,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers {
         val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
         try {
           yamlWrapper(ext) {
-            val loggingService = new LoggingServiceImpl()
+            val loggingService = new LoggingServiceImpl(mockConfigService)
 
             val content1 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List1.$ext")).mkString
             val file1 = File.createTempFile("log4j2-", s".$ext")

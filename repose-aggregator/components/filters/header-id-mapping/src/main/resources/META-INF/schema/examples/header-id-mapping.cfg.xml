@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-id-mapping xmlns='http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0'>
+<header-id-mapping xmlns='http://docs.openrepose.org/repose/header-id-mapping/v1.0'>
    
    <source-headers>
       <header id="header-mapping-1" user-header="X-RAX-USER1" group-header="X-RAX-GROUPS1"/>

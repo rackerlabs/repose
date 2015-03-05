@@ -9,6 +9,8 @@
             </Policies>
             <DefaultRolloverStrategy max="2"/>
         </RollingFile>
+        <List name="highly-efficient-record-processor-pre-ListAppender"/>
+        <List name="highly-efficient-record-processor-post-ListAppender"/>
     </Appenders>
     <Loggers>
         <Root level="info">
@@ -21,8 +23,11 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
-        <Logger name="highly-efficient-record-processor-Logger" level="trace">
-            <AppenderRef ref="highly-efficient-record-processor-ListAppender"/>
+        <Logger name="highly-efficient-record-processor-pre-Logger" level="trace">
+            <AppenderRef ref="highly-efficient-record-processor-pre-ListAppender"/>
+        </Logger>
+        <Logger name="highly-efficient-record-processor-post-Logger" level="trace">
+            <AppenderRef ref="highly-efficient-record-processor-post-ListAppender"/>
         </Logger>
     </Loggers>
 </Configuration>

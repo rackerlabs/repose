@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>client-authorization</artifactId>
-
     <name>Repose Components - Client Authorization</name>
-    <description>TODO</description>
-
+    <groupId>org.openrepose.rackspace</groupId>
+    <artifactId>client-authorization</artifactId>
     <packaging>jar</packaging>
+
+    <description>
+        TODO
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -23,22 +22,56 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.cloud.services.clients</groupId>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>datastoreservice-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>service-client-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>httpclient-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>os-auth-schemas</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>auth</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 

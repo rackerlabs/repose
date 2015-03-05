@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>herp</artifactId>
-
     <name>Repose Components - HERP</name>
+    <artifactId>herp</artifactId>
+    <packaging>jar</packaging>
 
     <description>
         This filter records API access events.
     </description>
-
-    <packaging>jar</packaging>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -40,6 +34,7 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <!-- Scalatest for testing scala -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
@@ -51,19 +46,15 @@
             <artifactId>http-delegation</artifactId>
         </dependency>
 
-        <!-- These three are required because of our coupling between filters and core -->
+        <!-- FilterConfigHelper -->
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
+        <!-- CommonHttpHeader, HttpStatusCode, OpenStackServiceHeader -->
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 
@@ -74,6 +65,19 @@
             <version>2.1.2</version>
         </dependency>
 
+        <!-- @Value -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <!-- HttpStatus -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <!-- MockHttpServletRequest/Response -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -91,6 +95,12 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <!-- Updated listener and configuration service -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
         </dependency>
     </dependencies>
 

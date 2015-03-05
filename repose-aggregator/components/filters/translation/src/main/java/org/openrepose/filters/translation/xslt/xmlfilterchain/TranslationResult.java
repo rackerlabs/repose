@@ -1,16 +1,16 @@
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.io.charset.CharacterSets;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.docs.repose.httpx.v1.*;
 import org.openrepose.filters.translation.httpx.HttpxMarshaller;
 import org.openrepose.filters.translation.xslt.XsltParameter;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.repose.httpx.v1.*;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class TranslationResult {
@@ -83,7 +83,7 @@ public class TranslationResult {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("New request info: " + new String(requestBytes,CharacterSets.UTF_8));
+            LOG.debug("New request info: " + new String(requestBytes,StandardCharsets.UTF_8));
         }
 
         return marshaller.unmarshallRequestInformation(input);
@@ -157,7 +157,7 @@ public class TranslationResult {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("New headers: " + new String(out,CharacterSets.UTF_8));
+            LOG.debug("New headers: " + new String(out, StandardCharsets.UTF_8));
         }
 
         return marshaller.unmarshallHeaders(input);

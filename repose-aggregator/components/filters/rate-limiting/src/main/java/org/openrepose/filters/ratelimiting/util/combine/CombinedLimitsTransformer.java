@@ -4,8 +4,8 @@ import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.transform.StreamTransform;
 import org.openrepose.commons.utils.transform.xslt.AbstractXslTransform;
 import org.openrepose.commons.utils.transform.xslt.XsltTransformationException;
-import org.openrepose.services.ratelimit.config.Limits;
-import org.openrepose.services.ratelimit.config.ObjectFactory;
+import org.openrepose.core.services.ratelimit.config.Limits;
+import org.openrepose.core.services.ratelimit.config.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,6 @@
 package org.openrepose.core.services.reporting.jmx;
 
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.impl.ReportingServiceImpl;
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import javax.management.openmbean.OpenDataException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -29,7 +32,7 @@ public class ReposeReportTest {
          destinationIds.add("id_2");
          destinationIds.add("id_7");
 
-         reportingService = new ReportingServiceImpl();
+         reportingService = new ReportingServiceImpl(mock(ConfigurationService.class));
          reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
 
          report = new ReposeReport(reportingService);
@@ -44,7 +47,7 @@ public class ReposeReportTest {
          reportingService.incrementReposeStatusCodeCount(403, refresh);
          reportingService.incrementReposeStatusCodeCount(404, refresh);
          reportingService.incrementReposeStatusCodeCount(415, refresh);
-         
+
 
 
          assertEquals("5", report.getTotal400sReposeToClient());
@@ -58,11 +61,11 @@ public class ReposeReportTest {
          reportingService.incrementReposeStatusCodeCount(503, refresh);
          reportingService.incrementReposeStatusCodeCount(501, refresh);
 
-         
+
 
          assertEquals("3", report.getTotal500sReposeToClient());
       }
-      
+
       @Test
       public void whenRetrievingDestinationInfo() throws OpenDataException{
          Long refresh = new Long("4333");
@@ -75,7 +78,7 @@ public class ReposeReportTest {
          reportingService.recordServiceResponse("id_7", 503, refresh);
          reportingService.recordServiceResponse("id_7", 501, refresh);
          List<CompositeData> data = report.getDestinationInfo();
-         
+
          assertTrue("Destination info contains total500s",data.get(0).containsKey("total500s"));
          assertTrue("Destination info contains total400s",data.get(0).containsKey("total400s"));
          assertTrue("Destination info contains unique destination id",data.get(0).containsKey("destinationId"));

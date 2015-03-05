@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.rackspace.papi.components.experimental</groupId>
+        <groupId>org.openrepose</groupId>
         <artifactId>experimental-support</artifactId>
-        <version>7.0.0.0-SNAPSHOT</version>
+        <version>7.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tightly-coupled-filter</artifactId>
-
     <name>Tightly Coupled Filter</name>
+    <artifactId>tightly-coupled-filter</artifactId>
+    <packaging>jar</packaging>
+
     <description>
         A tightly coupled filter that uses guts of repose that it shouldn't have to
     </description>
 
-    <packaging>jar</packaging>
-
-
     <dependencies>
         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
             <!-- TODO this would be a solid version -->
             <version>${project.version}</version>

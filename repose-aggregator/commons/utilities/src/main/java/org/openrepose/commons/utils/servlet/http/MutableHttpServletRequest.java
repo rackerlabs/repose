@@ -7,7 +7,6 @@ import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
 import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
-import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,13 +104,16 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
+
+        //Making a terrible horrible assumption that we have mark and reset because of http mutable stupidity.
+        //When we fix the servlet spec we need to rewrite all the filters and this to make it work.
         synchronized (this) {
             if (inputStream == null) {
 
                 if (streamLimit <= 0) {
                     inputStream = new BufferedServletInputStream(super.getInputStream());
                 } else {
-                    inputStream = new ServletInputStreamWrapper(new LimitedReadInputStream(streamLimit, super.getInputStream()));
+                    inputStream = new BufferedServletInputStream(new LimitedReadInputStream(streamLimit, super.getInputStream()));
                 }
             }
             return inputStream;

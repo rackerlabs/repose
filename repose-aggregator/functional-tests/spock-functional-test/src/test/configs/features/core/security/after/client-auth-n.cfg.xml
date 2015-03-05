@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Adding a comment to ensure the config appears to be after -->
-<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+<client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
     <openstack-auth tenanted="false"
                     request-groups="true"
                     token-cache-timeout="30000"

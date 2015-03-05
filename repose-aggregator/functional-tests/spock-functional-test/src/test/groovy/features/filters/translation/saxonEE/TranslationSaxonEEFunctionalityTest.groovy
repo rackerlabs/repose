@@ -32,9 +32,15 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         def saxonHome = System.getenv("SAXON_HOME")
 
-        assert saxonHome != null
+        //If we're the jenkins user, set it, and see if it works
+        if (saxonHome == null && System.getenv("LOGNAME").equals("jenkins")) {
+            //For jenkins, it's going to be in $HOME/saxon_ee
+            def home = System.getenv("HOME")
+            saxonHome = "${home}/saxon_ee"
+            repose.addToEnvironment("SAXON_HOME", saxonHome)
+        }
 
-        repose.addToClassPath(saxonHome)
+        assert saxonHome != null
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)

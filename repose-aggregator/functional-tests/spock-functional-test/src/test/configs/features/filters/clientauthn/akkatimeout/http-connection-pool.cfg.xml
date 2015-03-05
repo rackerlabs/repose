@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<http-connection-pools xmlns="http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0">
+<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
     <pool id="default"
           default="true"
           http.conn-manager.max-total="200"

@@ -36,8 +36,8 @@ public class SchemaTest {
     public void shouldFailIfNonUniqueOriginalName() throws Exception {
         String xml =
             """<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://docs.api.rackspacecloud.com/repose/header-translation/v1.0 ../config/header-translation.xsd"
- xmlns="http://docs.api.rackspacecloud.com/repose/header-translation/v1.0">
+ xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0 ../config/header-translation.xsd"
+ xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 
     <header original-name="Content-Type" new-name="rax-content-type"/>
     <header original-name="content-type" new-name="rax-content-length not-rax-content-length something-else"

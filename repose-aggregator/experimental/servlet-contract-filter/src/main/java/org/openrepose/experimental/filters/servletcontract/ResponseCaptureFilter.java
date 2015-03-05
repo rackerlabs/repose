@@ -3,6 +3,7 @@ package org.openrepose.experimental.filters.servletcontract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,15 +31,16 @@ import java.io.PrintWriter;
  * PS - ServletResponse.getContentType() returns null as well, although the content type can be accessed through the
  * call to ServletResponse.getHeaders()
  */
+@Named
 public class ResponseCaptureFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseCaptureFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
-        System.out.println("Start " + this.getClass().getName());
+        LOG.info("Start {}", this.getClass().getName());
     }
 
+    @SuppressWarnings("squid:S00112")
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -51,17 +53,16 @@ public class ResponseCaptureFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
 
         // Print out info from request & response wrapper
-        System.out.println("URI: " + req.getRequestURI());
-        System.out.println("Status: " + respWrap.getStatus());
-        System.out.println("resp Header 'Content-Type: " + respWrap.getHeader("Content-Type"));
+        LOG.info("URI: {}", req.getRequestURI());
+        LOG.info("Status: {}", respWrap.getStatus());
+        LOG.info("resp Header 'Content-Type: {}", respWrap.getHeader("Content-Type"));
 
         String content = respWrap.getContent();
 
-        System.out.println("Content Body: '" + content + "'");
+        LOG.info("Content Body: '{}'", content);
 
         // verify that the content is not empty.  This fails in repose but works in tomcat
         if (content.isEmpty()) {
-
             throw new RuntimeException("Content is empty");
         }
 
@@ -72,6 +73,7 @@ public class ResponseCaptureFilter implements Filter {
 
     @Override
     public void destroy() {
+        // There are no resources to release.
     }
 
     private class FilterServletOutputStream extends ServletOutputStream {
@@ -110,7 +112,6 @@ public class ResponseCaptureFilter implements Filter {
                 stream.close();
             } catch (IOException e) {
                 LOG.trace("Caught Exception while flushing and closing stream.", e);
-                e.printStackTrace();
             }
             return stream.toString();
         }

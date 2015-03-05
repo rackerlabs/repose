@@ -1,32 +1,70 @@
 package org.openrepose.core.services.reporting.impl;
 
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.container.config.ContainerConfiguration;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.ReportingService;
+import org.openrepose.core.services.reporting.ReposeInfo;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
-import org.openrepose.core.services.reporting.ReposeInfo;
 import org.openrepose.core.services.reporting.repose.ReposeInfoLogic;
-import java.util.*;
-import org.springframework.stereotype.Component;
+import org.openrepose.core.systemmodel.*;
 
-@Component("reportingService")
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.net.URL;
+import java.util.*;
+
+@Named
 public class ReportingServiceImpl implements ReportingService {
 
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
     private static final int ONE_THOUSAND = 1000;
-    private final Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
+    private static final int DEFAULT_JMX_RESET_TIME_SECONDS = 15;
+
+    private final Map<String, DestinationInfo> destinations = new HashMap<>();
+    private final Object jmxResetTimeKey = new Object();
+    private final List<String> destinationIds = new ArrayList<>();
+    private final ConfigurationService configurationService;
+    private final ContainerConfigurationListener containerConfigurationListener;
+    private final SystemModelListener systemModelListener;
+
+    private int jmxResetTime = DEFAULT_JMX_RESET_TIME_SECONDS;
     private ReposeInfo reposeInfo;
     private Date lastReset;
     private Timer timer;
     private ReportingTimerTask reportingTimerTask;
 
-    public ReportingServiceImpl() {
+    @Inject
+    public ReportingServiceImpl(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+        this.containerConfigurationListener = new ContainerConfigurationListener();
+        this.systemModelListener = new SystemModelListener();
+
         timer = new Timer(TIMER_THREAD_NAME);
         reportingTimerTask = new ReportingTimerTask();
     }
 
+    @PostConstruct
+    public void init() {
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+        configurationService.subscribeTo("system-model.cfg.xml", xsdURL, systemModelListener, SystemModel.class);
+        configurationService.subscribeTo("container.cfg.xml", containerXsdURL, containerConfigurationListener, ContainerConfiguration.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        shutdown();
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        configurationService.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
+    }
+
     @Override
     public synchronized Date getLastReset() {
-        return (Date)lastReset.clone();
+        return (Date) lastReset.clone();
     }
 
     @Override
@@ -36,7 +74,6 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized void updateConfiguration(List<String> destinationIds, int seconds) {
-
         destinations.clear();
         for (String id : destinationIds) {
             final DestinationInfo destinationInfo = new DestinationInfoLogic(id);
@@ -48,7 +85,6 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     private void manageTimer(int seconds) {
-
         reportingTimerTask.cancel();
         timer.purge();
 
@@ -91,7 +127,7 @@ public class ReportingServiceImpl implements ReportingService {
             destination.accumulateResponseTime(responseTime);
         }
     }
-    
+
     @Override
     public synchronized ReposeInfo getReposeInfo() {
         return reposeInfo.copy();
@@ -140,10 +176,73 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     private class ReportingTimerTask extends TimerTask {
-
         @Override
         public void run() {
             reset();
+        }
+    }
+
+    /**
+     * Listens for updates to the container.cfg.xml file which holds the jmx-reset-time.
+     */
+    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration configurationObject) {
+            if (configurationObject.getDeploymentConfig() != null) {
+
+                synchronized (jmxResetTimeKey) {
+                    jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
+                }
+
+                updateConfiguration(destinationIds, jmxResetTime);
+            }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    /**
+     * Listens for updates to the system-model.cfg.xml file which holds the destination ids.
+     */
+    private class SystemModelListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(SystemModel systemModel) {
+            final List<String> endpointIds = new ArrayList<String>();
+
+            for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
+                final DestinationList destinations = reposeCluster.getDestinations();
+
+                for (DestinationEndpoint endpoint : destinations.getEndpoint()) {
+                    endpointIds.add(endpoint.getId());
+                }
+
+                for (DestinationCluster destinationCluster : destinations.getTarget()) {
+                    endpointIds.add(destinationCluster.getId());
+                }
+            }
+
+            synchronized (destinationIds) {
+                destinationIds.clear();
+                destinationIds.addAll(endpointIds);
+            }
+
+            updateConfiguration(destinationIds, jmxResetTime);
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 }

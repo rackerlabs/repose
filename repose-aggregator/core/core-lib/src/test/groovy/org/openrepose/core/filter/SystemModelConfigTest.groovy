@@ -80,6 +80,7 @@ class SystemModelConfigTest extends Specification {
         false              | null               | false
         false              | true               | true
         false              | false              | null
+        false              | false              | false
     }
 
     @Unroll("Validate System-Model with Endpoint Destinations default1=#endpointOneDefault, default2=#endpointTwoDefault, and default3=#endpointThreeDefault.")
@@ -111,7 +112,7 @@ class SystemModelConfigTest extends Specification {
             endpointDefaults = [null];
         }
         return xmlBuilder.bind {
-            'system-model'('xmlns': 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
+            'system-model'('xmlns': 'http://docs.openrepose.org/repose/system-model/v2.0') {
                 'repose-cluster'('id': 'repose') {
                     'nodes'() {
                         'node'('id': 'node1', 'hostname': 'localhost', 'http-port': '8080')
@@ -121,7 +122,7 @@ class SystemModelConfigTest extends Specification {
                     }
                     'destinations'() {
                         int counter = 0;
-                        for (Boolean endpointDefault: endpointDefaults) {
+                        for (Boolean endpointDefault : endpointDefaults) {
                             if (endpointDefault == null) {
                                 'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080')
                             } else {

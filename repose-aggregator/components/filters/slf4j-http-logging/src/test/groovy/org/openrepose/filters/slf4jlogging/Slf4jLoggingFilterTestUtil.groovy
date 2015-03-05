@@ -1,16 +1,12 @@
 package org.openrepose.filters.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterConfig
-import com.mockrunner.mock.web.MockServletContext
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.filters.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLog
-import org.openrepose.core.services.context.ServletContextHelper
-import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -21,7 +17,7 @@ class Slf4jLoggingFilterTestUtil {
         def xml = new StreamingMarkupBuilder().bind() {
             mkp.xmlDeclaration()
             "slf4j-http-logging"(
-                    "xmlns": "http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
+                    "xmlns": "http://docs.openrepose.org/repose/slf4j-http-logging/v1.0"
             ) {
                 logEntries.each { le ->
                     if (le.getFormat() != null) {
@@ -34,7 +30,7 @@ class Slf4jLoggingFilterTestUtil {
                                 id: le.getId()
                         ) {
                             //Using yieldUnescaped always wraps it in a CDATA tag, which matters for proving it works
-                            if(le.formatElement.isCrush()) {
+                            if (le.formatElement.isCrush()) {
                                 "format"(
                                         crush: le.formatElement.isCrush()
                                 ) {
@@ -59,7 +55,7 @@ class Slf4jLoggingFilterTestUtil {
         if (useElement) {
             def formatElement = new FormatElement()
             formatElement.value = format
-            if(replaceNewline) {
+            if (replaceNewline) {
                 formatElement.setCrush(replaceNewline)
             }
             hl.setFormatElement(formatElement)
@@ -74,16 +70,9 @@ class Slf4jLoggingFilterTestUtil {
     static Slf4jHttpLoggingFilter configureFilter(List<Slf4JHttpLog> logEntries) {
         Slf4jHttpLoggingFilter filter = new Slf4jHttpLoggingFilter()
 
-        def mockServletContext = new MockServletContext()
         def mockFilterConfig = new MockFilterConfig()
-        mockFilterConfig.setupServletContext(mockServletContext)
 
-        ServletContextHelper.configureInstance(
-                mockServletContext,
-                new AnnotationConfigApplicationContext(SpringConfiguration.class)
-        )
-
-        def configService = ServletContextHelper.getInstance(mockFilterConfig.getServletContext()).getPowerApiContext().configurationService()
+        def configService = null //TODO: this needs to be a mock configService
 
         //Decouple the coupled configs, since I can't replace it
         def mockResourceResolver = mock(ConfigurationResourceResolver.class)

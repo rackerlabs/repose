@@ -1,10 +1,10 @@
 package org.openrepose.commons.utils.test.mocks.providers;
 
 import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
-import org.openrepose.services.ratelimit.config.AbsoluteLimit;
-import org.openrepose.services.ratelimit.config.AbsoluteLimitList;
-import org.openrepose.services.ratelimit.config.Limits;
-import org.openrepose.services.ratelimit.config.ObjectFactory;
+import org.openrepose.core.services.ratelimit.config.AbsoluteLimit;
+import org.openrepose.core.services.ratelimit.config.AbsoluteLimitList;
+import org.openrepose.core.services.ratelimit.config.Limits;
+import org.openrepose.core.services.ratelimit.config.ObjectFactory;
 import org.openstack.docs.identity.api.v2.UnauthorizedFault;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +32,7 @@ public class MockServiceProvider {
       factory = new ObjectFactory();
    }
 
+   @SuppressWarnings("squid:S1166")
    public String getEchoBody(String body, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
       Set<String> headerPairs = headers.getRequestHeaders().keySet();
       Set<String> queryParams = uri.getQueryParameters().keySet();

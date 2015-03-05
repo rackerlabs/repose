@@ -1,8 +1,8 @@
 package org.openrepose.filters.headeridmapping;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HeaderIdMappingConfig;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.config.HeaderIdMappingConfig;
+import org.openrepose.filters.headeridmapping.config.HttpHeader;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;

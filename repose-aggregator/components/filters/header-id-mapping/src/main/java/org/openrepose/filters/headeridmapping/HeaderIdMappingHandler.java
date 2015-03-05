@@ -3,7 +3,7 @@ package org.openrepose.filters.headeridmapping;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.config.HttpHeader;
 import org.openrepose.filters.headeridmapping.extractor.HeaderValueExtractor;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;

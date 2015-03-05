@@ -1,4 +1,4 @@
-<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+<client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
     <delegating quality="0.3" />
     <openstack-auth tenanted="false"
                     request-groups="true"

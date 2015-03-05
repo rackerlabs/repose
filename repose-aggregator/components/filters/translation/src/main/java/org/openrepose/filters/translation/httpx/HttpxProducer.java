@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.servlet.http.HeaderContainer;
 import org.openrepose.commons.utils.servlet.http.RequestHeaderContainer;
 import org.openrepose.commons.utils.servlet.http.ResponseHeaderContainer;
-import org.openrepose.repose.httpx.v1.*;
+import org.openrepose.docs.repose.httpx.v1.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
