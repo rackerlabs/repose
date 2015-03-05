@@ -58,6 +58,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
           "Request" : {
             "Method" : "{{requestMethod}}",
+            "MethodLabel" : "{{methodLabel}}",
             "CadfMethod" : "{{cadfMethod requestMethod}}",
             "URL" : "{{requestURL}}",
             "TargetHost" : "{{targetHost}}",
@@ -452,6 +453,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"UNKNOWN\"")
+    }
+    it("should extract and log the header corresponding to the label of a method") {
+      // given:
+      servletRequest.addHeader("X-METHOD-LABEL", "getServers")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"MethodLabel\" : \"getServers\"")
     }
   }
 
