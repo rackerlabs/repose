@@ -10,15 +10,7 @@ import spock.lang.Unroll
  *  When using with api validator with enable-api-coverage
  *  method name should be moved forward to log
  */
-class HerpMethodLoggerHandlerTest extends ReposeValveTest{
-    String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
-    def static s0_count = 0
-    def S0 = 0
-    def SA = 0
-    def S0_a_admin = 0
-    String s0str = 'name=\"S0\"'
-    String sastr = 'name=\"SA\"'
-    String s0adminstr = 'name=\"S0_a_admin\"'
+class HerpMethodLoggerHandlerTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -28,10 +20,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachine", params)
-        //repose.start()
-        repose.start(waitOnJmxAfterStarting: false)
-
-        repose.waitForNon500FromUrl(reposeEndpoint)
+        repose.start()
     }
 
     def static params
@@ -50,96 +39,32 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest{
     def "when enable-api-coverage is true, validate count at state level"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
-                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
-        def customHandler = ""
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message", "MethodLabel"]
         reposeLogSearch.cleanLog()
 
-        File outputfile = new File("output.dot")
-        if (outputfile.exists())
-            outputfile.delete()
         MessageChain mc
 
         when:
         mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method, headers: headers,
-                defaultHandler: { new Response(responseCode, null, null, null) })
+                defaultHandler: { new Response(200, null, null, null) })
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         println(jsonpart)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
 
-        if(headers != null)
-            s0_count = s0_count + 1
-
-        def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
-
-        getBeanObj.each {
-            //println it.toString()
-            def strIt = it.toString()
-            if (strIt.contains(s0str)){
-                S0 = repose.jmx.getMBeanAttribute(it.toString(), "Count")
-            }
-
-            if (strIt.contains(sastr))
-                SA = repose.jmx.getMBeanAttribute(it.toString(), "Count")
-
-            if (it.toString().contains(s0adminstr))
-                S0_a_admin = repose.jmx.getMBeanAttribute(it.toString(), "Count")
-        }
-
         then:
-        mc.getReceivedResponse().getCode().equals(responseCode)
-        if (responseCode != "200"){
-            assert mc.handlings[0].request.headers.contains("X-Delegated")
-        }
-        mc.handlings[0].request.headers.contains('X-Method-Label')
-        mc.handlings[0].request.headers.getFirstValue('X-Method-Label') == label
         checkAttribute(jsonpart, listattr)
-        result.ServiceCode == "repose"
-        result.Region == "USA"
-        result.DataCenter == "DFW"
-        //result.Request.ProjectID[0] == "123456"
-        //result.Request.UserName == "testuser"
-        //result.Request.ImpersonatorName == "impersonateuser"
+        result.MethodLabel == label
         result.Request.Method == method
-        (result.Request.URL).contains("/resource")
-        result.Response.Code == responseCode.toInteger()
-        //result.Response.Message ==
-        S0 == s0_count
-        SA == SA_count
-        S0_a_admin == S0_a_admin_count
 
         where:
-        method   | label        | headers                                              | responseCode  | SA_count  | S0_a_admin_count
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled, a:observer"]           | "200"         | 1         | 0
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]    | "200"         | 2         | 0
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 3         | 1
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 4         | 2
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled"]                       | "404"         | 4         | 2
-        "GET"    | 'Get Tests'  | ["x-roles": "raxRolesEnabled, a:creator"]            | "404"         | 4         | 2
-        //"GET"    | null                                                | "403"         | 4         | 2
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 5         | 3
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 6         | 4
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled"]                       | "404"         | 6         | 4
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:observer"]           | "405"         | 6         | 4
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 6         | 4
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:bar, a:observer"]    | "405"         | 6         | 4
-        "POST"   | 'Create Test'| ["x-roles": "raxRolesEnabled, a:creator"]            | "404"         | 6         | 4
-        //"POST"   | null                                                | "403"         | 6         | 4//this will not effect config change
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:admin"]              | "200"         | 7         | 5
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:admin, a:bar"]       | "200"         | 8         | 6
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:bar, a:admin"]       | "200"         | 9         | 7
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:observer, a:admin"]  | "200"         | 10        | 8
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 10        | 8
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]     | "404"         | 10        | 8
-        "DELETE" | 'Delete Test'| ["x-roles": "raxRolesEnabled, observer, creator"]    | "404"         | 10        | 8
-        //"DELETE" | null                                                | "403"         | 10        | 8//this will not effect config change
-        // PUT method is not available in wadl should expect to get 405 to whoever rax-role
-        "PUT"    | 'Update Test'| ["x-roles": "raxRolesEnabled"]                       | "404"         | 10        | 8
-        "PUT"    | 'Update Test'| ["x-roles": "raxRolesEnabled, a:bar"]                | "404"         | 10        | 8
-        "PUT"    | 'Update Test'| ["x-roles": "raxRolesEnabled, a:observer, a:bar"]    | "405"         | 10        | 8
-        "PUT"    | 'Update Test'| ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]     | "404"         | 10        | 8
-        "PUT"    | 'Update Test'| ["x-roles": "raxRolesEnabled, a:admin"]              | "405"         | 10        | 9
+        method   | label         | headers
+        "GET"    | 'Get Test'    | ["x-roles": "raxRolesEnabled, a:observer"]
+        "GET"    | ''            | ["x-roles": "raxRolesEnabled"]
+        "POST"   | 'Create Test' | ["x-roles": "raxRolesEnabled, a:admin"]
+        "POST"   | ''            | []
+        "DELETE" | 'Delete Test' | []
     }
 
     // Check all required attributes in the log

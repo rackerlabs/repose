@@ -31,7 +31,8 @@
           "Response" : {
             "Code" : {{responseCode}},
             "Message" : "{{responseMessage}}"
-          }
+          },
+          "MethodLabel" : "{{methodLabel}}"
         }
     </template>
 </highly-efficient-record-processor>
