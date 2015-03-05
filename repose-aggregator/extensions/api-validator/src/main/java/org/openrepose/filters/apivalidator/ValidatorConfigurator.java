@@ -99,6 +99,7 @@ public class ValidatorConfigurator {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
         if (isDelegating) {
+            handlers.add(new MethodLabelHandler());
             handlers.add(new DelegationHandler(delegationQuality));
         } else if (!multiRoleMatch) {
             handlers.add(new ServletResultHandler());

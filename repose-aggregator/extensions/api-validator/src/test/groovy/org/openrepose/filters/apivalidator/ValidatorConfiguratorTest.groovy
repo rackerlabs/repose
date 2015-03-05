@@ -2,6 +2,7 @@ package org.openrepose.filters.apivalidator
 
 import com.rackspace.com.papi.components.checker.handler.DelegationHandler
 import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
+import com.rackspace.com.papi.components.checker.handler.MethodLabelHandler
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
@@ -57,12 +58,13 @@ class ValidatorConfiguratorTest {
     }
 
     @Test
-    void whenIsDelegatingIsTrueThenADelegationHandlerShouldBePresent() {
+    void whenIsDelegatingIsTrueThenADelegationAndMethodLoggerHandlerShouldBePresent() {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
 
         DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
-        assert handlers.handlers[0] instanceof DelegationHandler
+        assert handlers.handlers[0] instanceof MethodLabelHandler
+        assert handlers.handlers[1] instanceof DelegationHandler
     }
 
     static String getFilePath(URL path) {
