@@ -1,17 +1,20 @@
 package org.openrepose.filters.apivalidator;
 
-import org.openrepose.filters.apivalidator.DispatchHandler;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
 import com.rackspace.com.papi.components.checker.step.Result;
-import javax.servlet.FilterChain;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 import scala.Option;
-import static org.mockito.Mockito.*;
+
+import javax.servlet.FilterChain;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(Enclosed.class)
 public class DispatchHandlerTest {
@@ -47,12 +50,25 @@ public class DispatchHandlerTest {
       verify(handler1).handle(request, response, chain, result);
       verify(handler2).handle(request, response, chain, result);
     }
-    
+
+    @Test
+    public void shouldCallHandleWithPreviousStepHandler() {
+      CheckerServletRequest request = mock(CheckerServletRequest.class);
+      CheckerServletResponse response = mock(CheckerServletResponse.class);
+      FilterChain chain = mock(FilterChain.class);
+      Result result = mock(Result.class);
+
+      instance.handle(request, response, chain, result);
+      verify(handler1).handle(request, response, chain, result);
+      verify(handler2).handle(request, response, chain, result);
+    }
+
     @Test
     public void shouldHandleNullHandlerList() {
         DispatchHandler instance = new DispatchHandler(null);
         instance.init(null,null);
         instance.handle(null, null, null, null);
+        instance.inStep(null, null, null, null);
     }
 
     @Test
@@ -60,6 +76,7 @@ public class DispatchHandlerTest {
         DispatchHandler instance = new DispatchHandler(new ResultHandler[0]);
         instance.init(null,null);
         instance.handle(null, null, null, null);
+        instance.inStep(null, null, null, null);
     }
   }
 }
