@@ -84,7 +84,7 @@ public class ValidatorConfigurator {
         config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
         config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
         config.setRemoveDups(validatorItem.isRemoveDups());
-        config.setValidateChecker(true);
+        config.setValidateChecker(validatorItem.isValidateChecker());
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
