@@ -130,8 +130,8 @@ class ReposeValveLauncher extends ReposeLauncher {
             classPath = "-cp " + (classPaths as Set).join(";")
         }
 
-        if (System.getProperty('jacocoArguements')) {
-            jacocoProps = System.getProperty('jacocoArguements')
+        if (System.getProperty('jacocoArguments')) {
+            jacocoProps = System.getProperty('jacocoArguments')
         }
 
         //TODO: possibly add a -Dlog4j.configurationFile to the guy so that we can load a different log4j config for early logging
