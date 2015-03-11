@@ -762,6 +762,8 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>gmaven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
