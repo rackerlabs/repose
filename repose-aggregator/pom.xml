@@ -764,6 +764,19 @@
                     <plugin>
                         <groupId>org.codehaus.gmaven</groupId>
                         <artifactId>gmaven-plugin</artifactId>
+                        <version>${gmaven.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.rackspace.api.clients</groupId>
+                                <artifactId>veracode-client</artifactId>
+                                <version>1.3</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.groovy.modules.http-builder</groupId>
+                                <artifactId>http-builder</artifactId>
+                                <version>0.7</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
@@ -771,6 +784,7 @@
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
+                                    <providerSelection>2.0</providerSelection>
                                     <source>
                                         import com.rackspace.api.clients.veracode.DefaultVeracodeApiClient
                                         import groovy.util.AntBuilder
@@ -779,9 +793,9 @@
 
                                         def client = new DefaultVeracodeApiClient("https://analysiscenter.veracode.com/api/", '${veracode.username}', '${veracode.password}', System.out)
                                         def version = project.version
-                                        def buildVersion = 'core-lib' - version - '-SNAPSHOT'
-                                        buildVersion = buildVersion.replaceAll("\\.","") + '${build.number}'
-                                        def copyFile = new File('${project.basedir}' + "/repose-aggregator/core/valve/target/repose-valve.jar")
+                                        def buildVersion = version - '-SNAPSHOT'
+                                        buildVersion = buildVersion.replaceAll(".","") + '${build.number}'
+                                        def copyFile = new File('${project.basedir}' + "/core/valve/target/repose-valve.jar")
                                         //def warFile = new File('${project.basedir}', "/target/repose-" + version + ".war")
 
                                         // workaround for the veracode-client-java not taking buildVersion as String
