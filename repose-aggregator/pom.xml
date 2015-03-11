@@ -197,12 +197,6 @@
                 <version>4.2.4</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>4.2.4</version>
-            </dependency>
-
             <!-- this replaces all commons-logging, but has to be manually added to each project that wants logging:( -->
             <dependency>
                 <groupId>org.slf4j</groupId>
