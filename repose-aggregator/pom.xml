@@ -795,7 +795,7 @@
                                         def version = project.version
                                         def buildVersion = version - '-SNAPSHOT'
                                         buildVersion = buildVersion.replaceAll(".","") + '${build.number}'
-                                        def copyFile = new File('${project.basedir}' + "/core/valve/target/repose-valve.jar")
+                                        def uploadFile = new File('${project.basedir}' + "/core/valve/target/repose-valve.jar")
                                         //def jarFile = new File('${project.basedir}', "/target/repose-valve-" + version + ".jar")
 
                                         // workaround for the veracode-client-java not taking buildVersion as String
@@ -803,11 +803,12 @@
                                         def buildVersionInt = buildVersion.toInteger()
 
                                         // workaround for veracode wanting the same filename for each scan
-                                        // new AntBuilder().copy(file:jarFile.canonicalPath, tofile:copyFile.canonicalPath)
+                                        // new AntBuilder().copy(file:jarFile.canonicalPath, tofile:uploadFile.canonicalPath)
                                         def appId = client.getAppId("Repose Valve")
                                         print "AppId = " + appId + "\n"
-                                        def buildId = client.scanArtifacts([copyFile].asList(), buildVersionInt, "Repose Valve", "Linux")
-                                        new AntBuilder().delete(file:copyFile.canonicalPath)
+                                        def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, "Repose Valve", "Linux")
+                                        //def buildId = client.scanArtifacts(uploadFile, buildVersionInt, "Repose Valve", "Linux")
+                                        new AntBuilder().delete(file:uploadFile.canonicalPath)
 
                                         // the pre-scan could take 3 - 5 minutes
                                         print "Waiting for pre-scan to complete\n"
