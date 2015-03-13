@@ -1,11 +1,10 @@
 package org.openrepose.common.auth.openstack;
 
-import org.openrepose.common.auth.AuthToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.common.auth.openstack.OpenStackToken;
+import org.openrepose.common.auth.AuthToken;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -13,6 +12,7 @@ import javax.xml.datatype.DatatypeFactory;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -229,6 +229,28 @@ public class OpenStackTokenTest {
             AuthToken info = new OpenStackToken(response);
 
             assertNull(info.getRoles());
+        }
+
+        @Test
+        public void shouldNotStoreNullForMissingTenantIdInRole() throws Exception {
+            RoleList roleList = new RoleList();
+            Role role = new Role();
+            role.setName("name");
+            roleList.getRole().add(role);
+            user.setRoles(roleList);
+            response.setUser(user);
+
+            Token token = new Token();
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
+            response.setToken(token);
+
+            AuthToken info = new OpenStackToken(response);
+
+            assertThat(info.getTenantIds(), not(contains(nullValue())));
         }
     }
 
