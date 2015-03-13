@@ -63,7 +63,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
 
         tenantIds = new HashSet<>();
         for (Role role : response.getUser().getRoles().getRole()) {
-            tenantIds.add(role.getTenantId());
+            String tid = role.getTenantId();
+            if (tid != null) {
+                tenantIds.add(tid);
+            }
         }
     }
 
