@@ -116,20 +116,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public <T> void subscribeTo(String filterName, String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
         final ConfigurationResource resource = resourceResolver.resolve(configurationName);
-        updateManager.registerListener(listener, resource, customParser, filterName);
-        if (sendNotificationNow) {
-            // Initial load of the cfg object
-            try {
+        try {
+            if (sendNotificationNow) {
+                // Initial load of the cfg object
                 listener.configurationUpdated(customParser.read(resource));
-            } catch (Exception ex) {
-                // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
-                if (ex.getCause() instanceof FileNotFoundException) {
-                    LOG.error("An I/O error has occurred while processing resource {} that is used by filter specified in system-model.cfg.xml - Reason: {}", configurationName, ex.getCause().getMessage());
-                } else {
-                    LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
-                    LOG.trace("", ex);
-                }
+                //this marks the file as having been read already. DON'T REMOVE!!!!!!!
+                resource.updated();
             }
+        } catch (Exception ex) {
+            // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
+            if (ex.getCause() instanceof FileNotFoundException) {
+                LOG.error("An I/O error has occurred while processing resource {} that is used by filter specified in system-model.cfg.xml - Reason: {}", configurationName, ex.getCause().getMessage());
+            } else {
+                LOG.error("Configuration update error. Reason: {}", ex.getLocalizedMessage());
+                LOG.trace("", ex);
+            }
+        } finally {
+            updateManager.registerListener(listener, resource, customParser, filterName);
         }
     }
 
