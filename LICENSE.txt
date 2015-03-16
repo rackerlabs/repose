@@ -1,4 +1,4 @@
-Copyright 2014 Rackspace
+Copyright (c) 2015 Rackspace US, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,3 +13,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTE: Saxon EE features require the user to obtain their own commercial license.
+
+See https://repose.atlassian.net/wiki/display/REPOSE/License for a list of Repose dependencies and their licenses.
