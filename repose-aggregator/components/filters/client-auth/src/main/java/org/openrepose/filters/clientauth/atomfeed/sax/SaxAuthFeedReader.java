@@ -32,9 +32,11 @@ import java.util.Map;
 public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SaxAuthFeedReader.class);
-    private ServiceClient client;
+    private final String feedId;
+    private final String feedHead;
     private String targetFeed;
     private String curResource;
+    private ServiceClient client;
     List<String> cacheKeys = new ArrayList<String>();
     private boolean moreData;
     private CacheKeys resultKeys;
@@ -47,13 +49,13 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private boolean isAuthed = false;
     private String adminToken;
     private AdminTokenProvider provider;
-    private String feedId;
 
     private AkkaServiceClient akkaServiceClient;
 
-    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String targetFeed, String feedId) {
+    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId) {
         this.client = client;
-        this.targetFeed = targetFeed;
+        this.feedHead = feedHead;
+        this.targetFeed = feedHead;
         this.feedId = feedId;
         this.akkaServiceClient = akkaClient;
         factory = SAXParserFactory.newInstance();
@@ -123,6 +125,11 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                             + "isAuthed to true");
                     moreData = false;
                 }
+                break;
+            case HttpServletResponse.SC_NOT_FOUND:
+                LOG.warn("Feed " + feedId + " not found at: " + targetFeed + "\nResetting feed target to: " + feedHead);
+                targetFeed = feedHead;
+                moreData = false;
                 break;
             default: // If we receive anything other than a 200 or a 401 there is an error with the atom feed
                 LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatus());
