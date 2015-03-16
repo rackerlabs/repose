@@ -793,24 +793,32 @@
 
                                         def client = new DefaultVeracodeApiClient("https://analysiscenter.veracode.com/api/", '${veracode.username}', '${veracode.password}', System.out)
                                         def version = project.version
+                                        //def upload_file = ${file.upload}
+                                        //def application = ${repose.application}
 
-                                        def uploadFile = new File('${project.basedir}' + "/core/valve/target/repose-valve.jar")
-                                        //def jarFile = new File('${project.basedir}', "/target/repose-valve-" + version + ".jar")
+                                        //def uploadFile = new File('${project.basedir}' + "/core/valve/target/repose-valve.jar")
+                                        def uploadFile = new File('${project.basedir}' + "/extensions/extensions-filter-bundle/target/extensions-filter-bundle.ear")
+                                        //def uploadFile = new File('${project.basedir}' + upload_file)
+                                        //def copyFile = new File('${project.basedir}' + upload_file)
+                                        //if (upload_file.contains(".ear")){
+                                        //    copyFile = new File('${project.basedir}' + upload_file.substring(upload_file.length(),upload_file.indexOf('.ear') - 1) + "-" + version +".ear")
+                                        //}
+                                        copyFile = new File('${project.basedir}'+"/extensions/extensions-filter-bundle/target/extensions-filter-bundle-"+version+".ear")
 
                                         // workaround for the veracode-client-java not taking buildVersion as String
                                         def buildVersion = version - '-SNAPSHOT'
-                                        //buildVersion = buildVersion.replaceAll('\.','') + '${build.number}'
-                                        buildVersion = '${build.number}'
+                                        buildVersion = buildVersion.replaceAll('\.','') //+ '${build.number}'
+                                        //buildVersion = '${build.number}'
                                         print "Uploading artifacts with version: " + buildVersion + "\n"
                                         def buildVersionInt = buildVersion.toInteger()
 
                                         // workaround for veracode wanting the same filename for each scan
-                                        // new AntBuilder().copy(file:jarFile.canonicalPath, tofile:uploadFile.canonicalPath)
-                                        def appId = client.getAppId("Repose Core Valve")
+                                        new AntBuilder().copy(file:copyFile.canonicalPath, tofile:uploadFile.canonicalPath)
+                                        def appId = client.getAppId("Repose Ext Filter Bundle")
                                         print "AppId = " + appId + "\n"
                                         print "build Info: "+buildVersionInt+","+[uploadFile].asList().toString()
 
-                                        def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, "Repose Core Valve", "Linux")
+                                        def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, "Repose Ext Filter Bundle", "Linux")
                                         print "build Info: "+ buildId +","+buildVersionInt+","+[uploadFile].asList().toString()
                                         new AntBuilder().delete(file:uploadFile.canonicalPath)
 
