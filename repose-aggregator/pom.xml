@@ -825,7 +825,7 @@
                                         // the pre-scan could take 3 - 5 minutes
                                         //print "Waiting for pre-scan to complete\n"
                                         //sleep 5 * 60 * 1000
-                                        /
+                                        
                                         // workaround for the java client not making HTTP call to beginscan.do
                                         def http = new HTTPBuilder("https://analysiscenter.veracode.com/api/")
                                         http.auth.basic '${veracode.username}', '${veracode.password}'
