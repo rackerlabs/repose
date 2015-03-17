@@ -818,18 +818,41 @@
                                         print "AppId = " + appId + "\n"
                                         print "build Info: "+buildVersionInt+","+[uploadFile].asList().toString()
 
-                                        def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, application, "Linux")
-                                        print "build Info: "+ buildId +","+buildVersionInt+","+[uploadFile].asList().toString()
-                                        new AntBuilder().delete(file:uploadFile.canonicalPath)
+                                        //def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, application, "Linux")
+                                        //print "build Info: "+ buildId +","+buildVersionInt+","+[uploadFile].asList().toString()
+                                        //new AntBuilder().delete(file:uploadFile.canonicalPath)
+
+                                        // the pre-scan could take 3 - 5 minutes
+                                        //print "Waiting for pre-scan to complete\n"
+                                        //sleep 5 * 60 * 1000
+                                        /
+                                        // workaround for the java client not making HTTP call to beginscan.do
+                                        def http = new HTTPBuilder("https://analysiscenter.veracode.com/api/")
+                                        http.auth.basic '${veracode.username}', '${veracode.password}'
+
+                                        print "Submitting /api/4.0/uploadfile.do\n"
+                                        http.request(POST) {
+                                            uri.path = '/api/4.0/uploadfile.do'
+                                            uri.query = ['app_id': appId, 'file': uploadFile]
+                                        }
+
+                                        print "Submitting /api/4.0/beginprescan.do\n"
+                                        http.request(POST) {
+                                            uri.path = '/api/4.0/beginprescan.do'
+                                            uri.query = ['app_id': appId]
+                                        }
 
                                         // the pre-scan could take 3 - 5 minutes
                                         print "Waiting for pre-scan to complete\n"
                                         sleep 5 * 60 * 1000
 
-                                        // workaround for the java client not making HTTP call to beginscan.do
+                                        print "Submitting /api/4.0/getprescanresults.do\n"
+                                        http.request(GET) {
+                                            uri.path = '/api/4.0/beginprescan.do'
+                                            uri.query = ['app_id': appId]
+                                        }
+
                                         print "Submitting /api/4.0/beginscan.do\n"
-                                        def http = new HTTPBuilder("https://analysiscenter.veracode.com/api/")
-                                        http.auth.basic '${veracode.username}', '${veracode.password}'
                                         http.request(POST) {
                                             uri.path = '/api/4.0/beginscan.do'
                                             uri.query = ['app_id': appId, 'scan_all_top_level_modules': true]
