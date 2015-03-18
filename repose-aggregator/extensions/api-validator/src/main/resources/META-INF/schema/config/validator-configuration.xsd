@@ -263,7 +263,6 @@
                     <html:p>
                         If set to true checks the validity of the generated state machine (e.g. no dead-end
                         paths, there is a single start state, no none connected nodes, etc.)
-                        Deprecated: This attribute is deprecated and will always be considered true.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
