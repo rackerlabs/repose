@@ -558,6 +558,16 @@
                                 <artifactId>http-builder</artifactId>
                                 <version>0.7</version>
                             </dependency>
+                            <dependency>
+                                <groupId>org.apache.httpcomponents</groupId>
+                                <artifactId>httpclient</artifactId>
+                                <version>4.3.3</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.httpcomponents</groupId>
+                                <artifactId>httpcore</artifactId>
+                                <version>4.3.3</version>
+                            </dependency>
                         </dependencies>
                         <executions>
                             <execution>
@@ -599,19 +609,12 @@
                                         def appId = client.getAppId(application)
                                         print "AppId = " + appId + "\n"
                                         print "build Info: "+buildVersionInt+","+[uploadFile].asList().toString()
-
-                                        //def buildId = client.scanArtifacts([uploadFile].asList(), buildVersionInt, application, "Linux")
-                                        //print "build Info: "+ buildId +","+buildVersionInt+","+[uploadFile].asList().toString()
                                         //new AntBuilder().delete(file:uploadFile.canonicalPath)
-
-                                        // the pre-scan could take 3 - 5 minutes
-                                        //print "Waiting for pre-scan to complete\n"
-                                        //sleep 5 * 60 * 1000
 
                                         // workaround for the java client not making HTTP call to beginscan.do
                                         def http = new HTTPBuilder("https://analysiscenter.veracode.com/api/")
                                         http.auth.basic '${veracode.username}', '${veracode.password}'
-                                        /*
+
                                         print "Submitting /api/4.0/uploadfile.do\n"
                                         http.request(POST) {
                                         uri.path = '/api/4.0/uploadfile.do'
@@ -639,7 +642,7 @@
                                         uri.path = '/api/4.0/beginscan.do'
                                         uri.query = ['app_id': appId, 'scan_all_top_level_modules': true]
                                         }
-                                        */
+
                                     </source>
                                 </configuration>
                             </execution>
