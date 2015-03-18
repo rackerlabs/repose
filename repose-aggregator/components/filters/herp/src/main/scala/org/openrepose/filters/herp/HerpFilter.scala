@@ -33,6 +33,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
                            extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
+  private final val X_METHOD_LABEL: String = "X-METHOD-LABEL"
 
   private var config: String = _
   private var initialized = false
@@ -112,6 +113,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.map(stripHeaderParams).toArray,
       "userAgent" -> stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT.toString)),
       "requestMethod" -> httpServletRequest.getMethod,
+      "methodLabel" -> httpServletRequest.getHeader(X_METHOD_LABEL),
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
       "targetHost" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map { requestUrl =>
         Try(new URL(requestUrl.toString).getHost).getOrElse(null)
