@@ -23,7 +23,11 @@ nbactions.xml
 *.iml
 *.ipr
 *.iws
-.idea/
+.idea/*
+!.idea/copyright
+# Accomodate sub-projects
+*/*/.idea/*
+!*/*/.idea/copyright
 
 # Gradle bits from: https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle
