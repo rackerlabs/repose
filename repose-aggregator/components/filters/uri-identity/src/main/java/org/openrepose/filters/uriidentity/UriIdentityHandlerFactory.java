@@ -49,7 +49,7 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
             }
 
             quality = determineQuality();
-            group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
+            group = StringUtilities.getNonBlankValue(config.getGroup(), DEFAULT_GROUP);
 
             isInitialized = true;
         }

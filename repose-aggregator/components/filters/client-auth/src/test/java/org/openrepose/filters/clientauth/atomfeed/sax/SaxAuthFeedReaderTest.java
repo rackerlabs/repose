@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,7 +38,7 @@ public class SaxAuthFeedReaderTest {
     @Before
     public void setUp() throws FileNotFoundException {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
+        app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
 
         client = mock(ServiceClient.class);
         akkaClient = mock(AkkaServiceClient.class);
@@ -61,8 +61,9 @@ public class SaxAuthFeedReaderTest {
         reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
         CacheKeys keys = reader.getCacheKeys();
 
-        String[] users = {"224277258"}; //User from atom feed
-        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"}; //token from atom feed
+        String[] users = {"224277258", //User from atom feed
+                "4a2b42f4-6c63-11e1-815b-7fcbcf67f549"}; //TRR User from feed
+        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"};
 
         assertArrayEquals("Retrieved key should have user from atom feed", keys.getUserKeys().toArray(), users);
         assertArrayEquals("Retrieved keys should have token from atom feed", keys.getTokenKeys().toArray(), tokens);
@@ -92,13 +93,39 @@ public class SaxAuthFeedReaderTest {
         assertThat(app.getEvents(), contains("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503"));
     }
 
+    @Test
+    public void shouldLogFeedNotFoundAndResetTargetToHead() throws Exception {
+        resp3 = new ServiceClientResponse(404, null);
+        when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
+        when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
+                anyMap())).thenReturn(resp2);
+        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
+        CacheKeys keys = reader.getCacheKeys();
+
+        String[] users = {"224277258", //User from atom feed
+                "4a2b42f4-6c63-11e1-815b-7fcbcf67f549"}; //TRR User from feed
+        String[] tokens = {"834d3be1-c479-11e2-8b8b-0800200c9a66"};
+
+        assertArrayEquals("Retrieved key should have user from atom feed", keys.getUserKeys().toArray(), users);
+        assertArrayEquals("Retrieved keys should have token from atom feed", keys.getTokenKeys().toArray(), tokens);
+
+        when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
+                anyMap())).thenReturn(resp3);
+
+        reader.getCacheKeys();
+
+        assertThat(app.getEvents(), contains("Feed atomId not found at: https://test.feed.atomhopper.rackspace.com/some/" +
+                "identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward" +
+                "\nResetting feed target to: http://some.junit.test.feed/at/somepath"));
+    }
+
     private Matcher<List<LogEvent>> contains(final String msg) {
         return new TypeSafeMatcher<List<LogEvent>>() {
             @Override
             protected boolean matchesSafely(final List<LogEvent> events) {
                 boolean rtn = false;
                 LogEvent event;
-                for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+                for (Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext(); ) {
                     event = iterator.next();
                     rtn = event.getMessage().getFormattedMessage().contains(msg);
                 }

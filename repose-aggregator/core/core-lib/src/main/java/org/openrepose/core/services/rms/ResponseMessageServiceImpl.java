@@ -6,7 +6,6 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -26,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Named
@@ -154,7 +154,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
         // TODO:Enhancement - Update formatter logic for streaming
         // TODO:Enhancement - Update getBytes(...) to use requested content encoding
-        response.getOutputStream().write(formattedOutput.getBytes(CharacterSets.UTF_8));
+        response.getOutputStream().write(formattedOutput.getBytes(StandardCharsets.UTF_8));
     }
 
     private boolean configSetToIfEmpty(StatusCodeMatcher matchedCode) {

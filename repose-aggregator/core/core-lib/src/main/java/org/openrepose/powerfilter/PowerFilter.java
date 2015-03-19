@@ -168,6 +168,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
                         "versions of the same artifact exist!", Severity.BROKEN);
                 LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
+                LOG.trace("", exception);
             }
 
             configurationHeartbeat();

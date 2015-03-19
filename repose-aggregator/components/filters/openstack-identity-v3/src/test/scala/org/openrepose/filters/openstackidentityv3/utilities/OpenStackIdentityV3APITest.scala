@@ -1,18 +1,21 @@
 package org.openrepose.filters.openstackidentityv3.utilities
 
 import java.io.ByteArrayInputStream
+import java.util.{Calendar, GregorianCalendar}
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 
 import org.apache.http.message.BasicHeader
+import org.apache.http.Header
 import org.hamcrest.Matchers.{equalTo, is, lessThanOrEqualTo, theInstance}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
+import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
@@ -20,6 +23,7 @@ import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse,
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
+import org.springframework.http.HttpHeaders
 
 import scala.util.{Failure, Success, Try}
 
@@ -97,6 +101,53 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
 
       identityV3API invokePrivate getAdminToken(true) shouldBe a[Failure[_]]
       identityV3API.invokePrivate(getAdminToken(true)).failed.get shouldBe a[InvalidAdminCredentialsException]
+    }
+
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    statusCodes.foreach { statusCode =>
+      describe(s"should return an Exception when receiving $statusCode and") {
+        it("not having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.getAdminToken(true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldNot be(null)
+        }
+
+        it("having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          val mockHeader = mock[Header]
+          val retryCalendar = new GregorianCalendar()
+          retryCalendar.add(Calendar.SECOND, 5)
+          val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+          when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
+          when(mockHeader.getValue).thenReturn(retryString)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.getAdminToken(true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldBe retryString
+        }
+      }
     }
 
     it("should return a Success for a cached admin token") {
@@ -272,6 +323,53 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
     }
+
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    statusCodes.foreach { statusCode =>
+      describe(s"should return an Exception when receiving $statusCode and") {
+        it("not having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.validateToken("test-subject-token", true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldNot be(null)
+        }
+
+        it("having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          val mockHeader = mock[Header]
+          val retryCalendar = new GregorianCalendar()
+          retryCalendar.add(Calendar.SECOND, 5)
+          val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+          when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
+          when(mockHeader.getValue).thenReturn(retryString)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.validateToken("test-subject-token", true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldBe retryString
+        }
+      }
+    }
   }
 
   describe("fetchGroups") {
@@ -285,6 +383,53 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate fetchGroups("test-user-id", true) shouldBe a[Failure[_]]
+    }
+
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    statusCodes.foreach { statusCode =>
+      describe(s"should return an Exception when receiving $statusCode and") {
+        it("not having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.getGroups("test-user-id", true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldNot be(null)
+        }
+
+        it("having headers while retrieving admin token") {
+          val mockServiceClientResponse = mock[ServiceClientResponse]
+
+          when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
+          val mockHeader = mock[Header]
+          val retryCalendar = new GregorianCalendar()
+          retryCalendar.add(Calendar.SECOND, 5)
+          val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+          when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
+          when(mockHeader.getValue).thenReturn(retryString)
+          when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+            thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+          val value = identityV3API.getGroups("test-user-id", true)
+          value shouldBe a[Failure[_]]
+          val throwable = value.failed.get
+          throwable.isInstanceOf[IdentityServiceOverLimitException]
+          val ex = throwable.asInstanceOf[IdentityServiceOverLimitException]
+          ex.getMessage shouldBe "Rate limited by OpenStack Identity service"
+          ex.getStatusCode shouldBe statusCode
+          ex.getRetryAfter shouldBe retryString
+        }
+      }
     }
 
     it("should return a Success for cached groups") {

@@ -1,5 +1,7 @@
 package org.openrepose.filters.herp
 
+import java.util.TimeZone
+
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -34,9 +36,10 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
 
-    herpFilter = new HerpFilter(null)
+    herpFilter = new HerpFilter(null, "cluster", "node")
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
+    servletRequest.setMethod("GET")
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
     herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-pre-Logger")
@@ -48,15 +51,23 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           "ServiceCode" : "{{serviceCode}}",
           "Region" : "{{region}}",
           "DataCenter" : "{{dataCenter}}",
+          "Cluster" : "{{clusterId}}",
+          "Node" : "{{nodeId}}",
+          "RequestorIp" : "{{requestorIp}}",
           "Timestamp" : "{{timestamp}}",
+          "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
           "Request" : {
             "Method" : "{{requestMethod}}",
+            "MethodLabel" : "{{methodLabel}}",
+            "CadfMethod" : "{{cadfMethod requestMethod}}",
             "URL" : "{{requestURL}}",
+            "TargetHost" : "{{targetHost}}",
             "QueryString" : "{{requestQueryString}}",
             "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
                            },
             "UserName" : "{{userName}}",
             "ImpersonatorName" : "{{impersonatorName}}",
+            "DefaultProjectID" : "{{defaultProjectId}}",
             "ProjectID" : [
                             {{#each projectID}}
                             {{#if @index}},{{/if}}"{{.}}"
@@ -71,6 +82,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           },
           "Response" : {
             "Code" : {{responseCode}},
+            "CadfOutcome" : "{{cadfOutcome responseCode}}",
             "Message" : "{{responseMessage}}"
           }
          }
@@ -141,6 +153,56 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"DataCenter\" : \"some-data-center\"")
     }
+    it("should log the parametered cluster") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Cluster\" : \"cluster\"")
+    }
+    it("should log the parametered node") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"Node\" : \"node\"")
+    }
+    it("should extract and log the x-forwarded-for header over the remote address") {
+      // given:
+      servletRequest.addHeader("X-FORWARDED-FOR", "1.2.3.4")
+      servletRequest.setRemoteAddr("4.3.2.1")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"1.2.3.4\"")
+    }
+    it("should extract and log the remote address") {
+      // given:
+      servletRequest.setRemoteAddr("4.3.2.1")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"4.3.2.1\"")
+    }
+    it("should expose the cadf timestamp") {
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfTimestamp\" : \"")
+    }
     it("should extract and log the request method") {
       // given:
       servletRequest.setMethod("POST")
@@ -153,6 +215,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Method\" : \"POST\"")
+    }
+    it("should expose the cadf method") {
+      // given:
+      servletRequest.setMethod("POST")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfMethod\" : \"update/post\"")
     }
     it("should extract and log the request url") {
       // given:
@@ -179,6 +254,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"QueryString\" : \"a=b&amp;c=d%20e\"")
+    }
+    it("should extract and log the target host") {
+      // given:
+      servletRequest.setAttribute("http://openrepose.org/requestUrl", "http://foo.com")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"TargetHost\" : \"foo.com\"")
     }
     it("should extract and log the request parameters") {
       // given:
@@ -244,6 +332,20 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
+    }
+    it("should extract and log the default request tenant id header") {
+      // given:
+      servletRequest.addHeader("X-Tenant-Id", "foo;q=0.5")
+      servletRequest.addHeader("X-Tenant-Id", "bar;q=1.0")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"bar\"")
     }
     it("should extract and log multiple tenant id header values") {
       // given:
@@ -313,6 +415,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Code\" : 418")
     }
+    it("should expose the cadf outcome") {
+      // given:
+      servletResponse.setStatus(I_AM_A_TEAPOT.value)
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfOutcome\" : \"failure\"")
+    }
     it("should extract and log the response message") {
       // given:
       servletResponse.setStatus(I_AM_A_TEAPOT.value)
@@ -338,6 +453,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"UNKNOWN\"")
+    }
+    it("should extract and log the header corresponding to the label of a method") {
+      // given:
+      servletRequest.addHeader("X-METHOD-LABEL", "getServers")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"MethodLabel\" : \"getServers\"")
     }
   }
 
@@ -559,6 +687,65 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should not include "\nLine One\n Line Two"
+    }
+  }
+
+  describe("cadf timestamp") {
+    val timestampFormater = new CadfTimestamp
+    val timeZones: Map[TimeZone, String] = Map(
+      TimeZone.getTimeZone("Etc/GMT-1") -> "1970-01-01T01:00:00.000+01:00",
+      TimeZone.getTimeZone("GMT") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("GMT0") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("UTC") -> "1970-01-01T00:00:00.000+00:00",
+      TimeZone.getTimeZone("US/Eastern") -> "1969-12-31T19:00:00.000-05:00",
+      TimeZone.getTimeZone("US/Central") -> "1969-12-31T18:00:00.000-06:00",
+      TimeZone.getTimeZone("US/Mountain") -> "1969-12-31T17:00:00.000-07:00",
+      TimeZone.getTimeZone("US/Pacific") -> "1969-12-31T16:00:00.000-08:00"
+    )
+    timeZones.foreach { timeZone =>
+      it(s"should convert as expected in ${timeZone._1.getDisplayName}") {
+        TimeZone.setDefault(timeZone._1)
+        timestampFormater(0, null) should equal(timeZone._2)
+      }
+    }
+  }
+
+  describe("cadf method") {
+    val methodFormatter = new CadfMethod
+    val methods: Map[String, String] = Map(
+      "get"    -> "read/get",
+      "head"   -> "read/head",
+      "post"   -> "update/post",
+      "put"    -> "update/put",
+      "delete" -> "update/delete",
+      "patch"  -> "update/patch"
+    )
+    methods.foreach { method =>
+      it(s"should translate ${method._1} into ${method._2}") {
+        methodFormatter(method._1, null) should equal (method._2)
+      }
+    }
+  }
+
+  describe("cadf outcome") {
+    val outcomeFormatter = new CadfOutcome
+    val outcomes: Map[Int, String] = Map(
+      200 -> "success",
+      201 -> "success",
+      204 -> "success",
+      301 -> "failure",
+      301 -> "failure",
+      400 -> "failure",
+      404 -> "failure",
+      412 -> "failure",
+      429 -> "failure",
+      500 -> "failure",
+      503 -> "failure"
+    )
+    outcomes.foreach { outcome =>
+      it(s"should translate status ${outcome._1} into ${outcome._2}") {
+        outcomeFormatter(outcome._1, null) should equal (outcome._2)
+      }
     }
   }
 }

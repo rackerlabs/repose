@@ -3,6 +3,7 @@ package org.openrepose.commons.utils.test.mocks.providers;
 import org.openrepose.commons.utils.test.mocks.util.MocksUtil;
 import org.openrepose.commons.utils.test.mocks.ObjectFactory;
 import org.openrepose.commons.utils.test.mocks.RequestInformation;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 public class MockServiceProvider {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MockServiceProvider.class);
     private final ObjectFactory factory;
 
     public MockServiceProvider() {
@@ -25,9 +27,8 @@ public class MockServiceProvider {
             RequestInformation requestInformation = MocksUtil.servletRequestToRequestInformation(request, body);
             resp = resp.append(MocksUtil.requestInformationToXml(requestInformation));
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JAXBException j) {
+        } catch (IOException|JAXBException e) {
+            LOG.trace("", e);
         }
 
         return resp.toString();

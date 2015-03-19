@@ -1,13 +1,13 @@
 package org.openrepose.cli.command.datastore.distributed;
 
-import org.openrepose.commons.utils.io.charset.CharacterSets;
-import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
-import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
+import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -35,7 +35,7 @@ public class CacheKeyEncoder extends AbstractCommand {
       }
 
       try {
-         final byte[] hashBytes = MD5MessageDigestFactory.getInstance().newMessageDigest().digest(arguments[0].getBytes(CharacterSets.UTF_8));
+         final byte[] hashBytes = MD5MessageDigestFactory.getInstance().newMessageDigest().digest(arguments[0].getBytes(StandardCharsets.UTF_8));
          final String encodedCacheKey = UUIDEncodingProvider.getInstance().encode(hashBytes);
          
          return new MessageResult(encodedCacheKey);

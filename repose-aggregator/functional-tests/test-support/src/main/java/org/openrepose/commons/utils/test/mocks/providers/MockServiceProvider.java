@@ -32,6 +32,7 @@ public class MockServiceProvider {
       factory = new ObjectFactory();
    }
 
+   @SuppressWarnings("squid:S1166")
    public String getEchoBody(String body, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
       Set<String> headerPairs = headers.getRequestHeaders().keySet();
       Set<String> queryParams = uri.getQueryParameters().keySet();

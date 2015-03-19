@@ -1,11 +1,6 @@
 package org.openrepose.core.services.datastore.impl.distributed;
 
 import org.openrepose.commons.utils.encoding.EncodingProvider;
-import org.openrepose.commons.utils.io.charset.CharacterSets;
-import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
-import org.openrepose.core.services.datastore.impl.distributed.remote.command.Delete;
-import org.openrepose.core.services.datastore.impl.distributed.remote.command.Get;
-import org.openrepose.core.services.datastore.impl.distributed.remote.command.Put;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.Patch;
@@ -14,7 +9,11 @@ import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.distributed.SerializablePatch;
 import org.openrepose.core.services.datastore.hash.MessageDigestFactory;
+import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteConnectionException;
+import org.openrepose.core.services.datastore.impl.distributed.remote.command.Delete;
+import org.openrepose.core.services.datastore.impl.distributed.remote.command.Get;
+import org.openrepose.core.services.datastore.impl.distributed.remote.command.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
@@ -134,7 +134,7 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     private byte[] getHash(String key) {
-        final byte[] stringBytes = (datasetPrefix + key).getBytes(CharacterSets.UTF_8);
+        final byte[] stringBytes = (datasetPrefix + key).getBytes(StandardCharsets.UTF_8);
 
         try {
             return hashProvider.newMessageDigest().digest(stringBytes);

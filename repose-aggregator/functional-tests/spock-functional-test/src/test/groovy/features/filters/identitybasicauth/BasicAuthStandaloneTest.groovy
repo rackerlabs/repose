@@ -1,16 +1,19 @@
 package features.filters.identitybasicauth
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
+import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import org.springframework.http.HttpHeaders
 import spock.lang.Ignore
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletResponse
-import javax.ws.rs.core.HttpHeaders
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 /**
  * Created by jennyvo on 9/17/14.
@@ -20,6 +23,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityService fakeIdentityService
+    ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -45,6 +49,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
         }
+        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
     def cleanupSpec() {
@@ -62,7 +67,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
     }
@@ -78,7 +83,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain with out client-aut filter just a pass through"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -96,7 +101,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain NOT processing the HTTP Basic authentication"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -113,7 +118,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request reject if invalid apikey or username"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
@@ -138,7 +143,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -155,7 +160,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -171,7 +176,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName(HttpHeaders.AUTHORIZATION) == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
@@ -183,10 +188,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def "Inject header WWW-authenticate when basicauth or other component failed with 401"() {
         when: "the request sends with invalid key"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
-                defaultHandler: { new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, null) })
+                defaultHandler: { new Response(SC_UNAUTHORIZED, null, null, null) })
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -219,15 +224,46 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        reqTenant | identityStatusCode                           | filterStatusCode
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9502      | HttpServletResponse.SC_BAD_GATEWAY           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        reqTenant | identityStatusCode       | filterStatusCode
+        9400      | SC_BAD_REQUEST           | SC_INTERNAL_SERVER_ERROR
+        9401      | SC_UNAUTHORIZED          | SC_UNAUTHORIZED
+        9403      | SC_FORBIDDEN             | SC_INTERNAL_SERVER_ERROR
+        9404      | SC_NOT_FOUND             | SC_INTERNAL_SERVER_ERROR
+        9500      | SC_INTERNAL_SERVER_ERROR | SC_INTERNAL_SERVER_ERROR
+        9501      | SC_NOT_IMPLEMENTED       | SC_INTERNAL_SERVER_ERROR
+        9502      | SC_BAD_GATEWAY           | SC_INTERNAL_SERVER_ERROR
+        9503      | SC_SERVICE_UNAVAILABLE   | SC_INTERNAL_SERVER_ERROR
+        9504      | SC_GATEWAY_TIMEOUT       | SC_INTERNAL_SERVER_ERROR
+    }
+
+    @Unroll("Sending request with auth admin response set to HTTP #identityStatusCode and a Retry-After header")
+    def "when failing to authenticate admin client with temporary failure"() {
+        given: "the HTTP Basic authentication header containing the User Name and API Key and the Mock Identity Service's generateTokenHandler"
+        def retryCalendar = new GregorianCalendar()
+        retryCalendar.add(Calendar.MINUTE, 5)
+        def retryString = new HttpDate(retryCalendar.getTime()).toRFC1123()
+        fakeIdentityService.with {
+            generateTokenHandler = {
+                request, xml ->
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+            }
+        }
+        def headers = [
+                'content-type'             : 'application/json',
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+        ]
+
+        when: "user passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
+
+        then: "request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
+        mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
+
+        where:
+        reqTenant | identityStatusCode
+        9505      | SC_REQUEST_ENTITY_TOO_LARGE
+        9506      | SC_TOO_MANY_REQUESTS
     }
 }

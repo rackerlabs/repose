@@ -4,4 +4,5 @@
     missingok
     notifempty
     compress
+    copytruncate
 }

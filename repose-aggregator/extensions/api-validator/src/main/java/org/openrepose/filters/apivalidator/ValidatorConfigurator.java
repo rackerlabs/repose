@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class ValidatorConfigurator {
         config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
         config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
         config.setRemoveDups(validatorItem.isRemoveDups());
-        config.setValidateChecker(true);
+        config.setValidateChecker(validatorItem.isValidateChecker());
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
@@ -99,6 +100,7 @@ public class ValidatorConfigurator {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
         if (isDelegating) {
+            handlers.add(new MethodLabelHandler());
             handlers.add(new DelegationHandler(delegationQuality));
         } else if (!multiRoleMatch) {
             handlers.add(new ServletResultHandler());
@@ -135,6 +137,11 @@ public class ValidatorConfigurator {
     }
 
     private String getWadlPath(String uri, String configRoot) {
-        return new File(configRoot, uri).toURI().toString();
+        //If the wadl path is already absolute, just return that rather than prepending the config root
+        if(Paths.get(uri).isAbsolute()) {
+            return new File(uri).toString();
+        } else {
+            return new File(configRoot, uri).toURI().toString();
+        }
     }
 }

@@ -5,9 +5,12 @@ import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
 import com.rackspace.com.papi.components.checker.step.Result;
-import javax.servlet.FilterChain;
+import com.rackspace.com.papi.components.checker.step.Step;
+import com.rackspace.com.papi.components.checker.step.StepContext;
 import org.w3c.dom.Document;
 import scala.Option;
+
+import javax.servlet.FilterChain;
 
 public class DispatchHandler extends ResultHandler {
 
@@ -38,5 +41,15 @@ public class DispatchHandler extends ResultHandler {
         }
     }
 
- 
+    @Override
+    public StepContext inStep(Step currentStep, CheckerServletRequest request, CheckerServletResponse response, StepContext context) {
+        StepContext newContext = context;
+        if(handlers != null) {
+            for (ResultHandler handler : handlers) {
+                newContext = handler.inStep(currentStep, request, response, newContext);
+            }
+        }
+
+        return newContext;
+    }
 }

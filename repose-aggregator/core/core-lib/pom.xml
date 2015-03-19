@@ -17,7 +17,7 @@
 
     <properties>
         <reposeVersion>${project.version}</reposeVersion>
-        <reposeVersionName>CL4P-TP</reposeVersionName>
+        <reposeVersionName>Dirk</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <test.artifact.version>2.1</test.artifact.version>
 
