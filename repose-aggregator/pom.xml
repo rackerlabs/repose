@@ -547,6 +547,7 @@
                         <groupId>org.codehaus.gmaven</groupId>
                         <artifactId>gmaven-plugin</artifactId>
                         <version>${gmaven.version}</version>
+                        <inherited>false</inherited>
                         <dependencies>
                             <dependency>
                                 <groupId>com.rackspace.api.clients</groupId>
@@ -594,32 +595,34 @@
                                         def version = project.version
                                         def upload_file = '${file.upload}'
                                         def application = '${repose.application}'
+                                        def project_dir = '${project.basedir}'
+                                        def copy_file = upload_file - '.ear'
 
-                                        def uploadFile = new File('${project.basedir}' + upload_file)
-                                        def copyFile = new File('${project.basedir}' + upload_file)
+                                        def uploadFile = new File(project_dir + upload_file)
+                                        def copyFile = new File(project_dir + upload_file)
                                         if (upload_file.contains(".ear")){
-                                            copyFile = new File('${project.basedir}' + upload_file.substring(upload_file.length(),upload_file.indexOf('.ear') - 1) + "-" + version +".ear")
+                                            copyFile = new File('${project.basedir}' + copy_file + "-" + version +".ear")
                                         }
                                         print "Actual Upload File: "+copyFile+"\n"
 
                                         // workaround for the veracode-client-java not taking buildVersion as String
                                         def buildVersion = version - '-SNAPSHOT'
                                         buildVersion = buildVersion.replaceAll('\.','') + '${build.number}'
-                                        print "Uploading artifacts with version: " + buildVersion + "\n"
+                                        println "Uploading artifacts with version: " + buildVersion + "\n"
                                         def buildVersionInt = buildVersion.toInteger()
 
                                         // workaround for veracode wanting the same filename for each scan
                                         new AntBuilder().copy(file:copyFile.canonicalPath, tofile:uploadFile.canonicalPath)
                                         def appId = client.getAppId(application)
-                                        print "AppId = " + appId + "\n"
-                                        print "build Info: "+buildVersionInt+","+ uploadFile.toString()
+                                        println "AppId = " + appId
+                                        println "build Info: "+buildVersionInt+","+ uploadFile.toString()
                                         //new AntBuilder().delete(file:uploadFile.canonicalPath)
 
                                         // workaround for the java client not making HTTP call to beginscan.do
                                         def http = new HTTPBuilder("https://analysiscenter.veracode.com/api/")
                                         http.auth.basic '${veracode.username}', '${veracode.password}'
 
-                                        print "Submitting /api/4.0/uploadfile.do\n"
+                                        println "Submitting /api/4.0/uploadfile.do"
                                         http.request(POST) {req ->
                                             uri.path='/api/4.0/uploadfile.do'
                                             requestContentType: "multipart/form-data"
@@ -629,23 +632,23 @@
                                             req.setEntity(multiPartContent)
                                         }
 
-                                        print "Submitting /api/4.0/beginprescan.do\n"
+                                        println "Submitting /api/4.0/beginprescan.do"
                                         http.request(POST) {
                                         uri.path = '/api/4.0/beginprescan.do'
                                         uri.query = ['app_id': appId]
                                         }
 
                                         // the pre-scan could take 3 - 5 minutes
-                                        print "Waiting for pre-scan to complete\n"
+                                        println "Waiting for pre-scan to complete"
                                         sleep 5 * 60 * 1000
 
-                                        print "Submitting /api/4.0/getprescanresults.do\n"
+                                        println "Submitting /api/4.0/getprescanresults.do"
                                         http.request(GET) {
                                         uri.path = '/api/4.0/getprescanresults.do'
                                         uri.query = ['app_id': appId]
                                         }
 
-                                        print "Submitting /api/4.0/beginscan.do\n"
+                                        println "Submitting /api/4.0/beginscan.do"
                                         http.request(POST) {
                                         uri.path = '/api/4.0/beginscan.do'
                                         uri.query = ['app_id': appId, 'scan_all_top_level_modules': true]
