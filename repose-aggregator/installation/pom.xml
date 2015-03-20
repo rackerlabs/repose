@@ -62,6 +62,17 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+
+                <configuration>
+                    <roots>
+                        <root>${basedir}</root>
+                    </roots>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

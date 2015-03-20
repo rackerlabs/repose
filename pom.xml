@@ -18,13 +18,14 @@
     </description>
 
     <organization>
-        <name>Rackspace Cloud Research</name>
-        <url>http://research.rackspace.com/</url>
+        <name>Rackspace US, Inc.</name>
+        <url>http://www.openrepose.com/</url>
     </organization>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.license>apache20</project.license>
+        <project.inceptionYear>2010</project.inceptionYear>
     </properties>
 
     <licenses>
@@ -35,6 +36,8 @@
     </licenses>
 
     <modules>
+        <module>http-delegation</module>
+        <module>repose-support</module>
         <module>repose-aggregator</module>
     </modules>
 
@@ -100,7 +103,62 @@
                         <preparationGoals>clean install</preparationGoals>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.8</version>
+
+                    <configuration>
+                        <projectName>Repose</projectName>
+                        <licenseName>apache_v2</licenseName>
+                        <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                        <canUpdateLicense>false</canUpdateLicense>
+                        <failOnMissingHeader>true</failOnMissingHeader>
+                        <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+                        <ignoreTag>%% Ignore-License</ignoreTag>
+                        <roots>
+                            <root>src/main/java</root>
+                            <root>src/test/java</root>
+                            <root>src/main/scala</root>
+                            <root>src/test/scala</root>
+                            <root>src/main/groovy</root>
+                            <root>src/test/groovy</root>
+                            <root>src/main/resources</root>
+                            <root>src/test/resources</root>
+                        </roots>
+                        <extraExtensions>
+                            <scala>java</scala>
+                            <xjb>xml</xjb>
+                            <xsd>xml</xsd>
+                        </extraExtensions>
+                        <includes>
+                            <include>**/*.java</include>
+                            <include>**/*.scala</include>
+                            <include>**/*.groovy</include>
+                            <include>**/*.sh</include>
+                            <include>**/*.xjb</include>
+                            <include>**/*.xsd</include>
+                        </includes>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>generate-license-headers</id>
+                            <goals>
+                                <goal>check-file-header</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 </project>
