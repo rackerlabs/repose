@@ -54,6 +54,11 @@
                         <group>Rackspace Repose</group>
                         <packager>Rackspace - Cloud Integration Team</packager>
 
+                        <keyname>${gpg.keyname}</keyname>
+                        <keyPassphrase>
+                            <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                        </keyPassphrase>
+
                         <description>
                             Power API is a stack of reusable, software components that can be leveraged by
                             service developers to perform common API processing tasks.
