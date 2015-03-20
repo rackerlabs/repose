@@ -678,6 +678,7 @@ class MockIdentityService {
             }
          ],
          "RAX-AUTH:defaultRegion" : "the-default-region",
+         "RAX-AUTH:contactID" : "the-contactID",
          "name" : "\${username}",
          "id" : "\${userid}"
       },
@@ -709,7 +710,8 @@ class MockIdentityService {
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
           name="\${username}"
-          rax-auth:defaultRegion="the-default-region">
+          rax-auth:defaultRegion="the-default-region"
+          rax-auth:contactID="the-contactID">
         <roles>
             <role id="684"
                   name="compute:default"
@@ -866,7 +868,7 @@ class MockIdentityService {
             <rax-auth:credential>PASSWORD</rax-auth:credential>
         </rax-auth:authenticatedBy>
     </token>
-    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW">
+    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW" rax-auth:contactID="the-contactID">
         <roles>
             <role id="9" name="Racker"
                 description="Defines a user as being a Racker"
