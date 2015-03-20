@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openrepose.filters.translation.httpx.processor.json.elements;
 
 import org.openrepose.filters.translation.httpx.processor.common.Element;

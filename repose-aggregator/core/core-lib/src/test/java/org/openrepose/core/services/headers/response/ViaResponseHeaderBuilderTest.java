@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openrepose.core.services.headers.response;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
