@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openrepose.core.services.routing.robin
 
 import org.openrepose.commons.config.manager.UpdateListener
