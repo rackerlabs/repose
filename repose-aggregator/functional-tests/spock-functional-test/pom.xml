@@ -628,6 +628,26 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- This module needs some additional configuration. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+
+                <configuration>
+                    <roots>
+                        <root>src/main/java</root>
+                        <root>src/test/java</root>
+                        <root>src/main/scala</root>
+                        <root>src/test/scala</root>
+                        <root>src/main/groovy</root>
+                        <root>src/test/groovy</root>
+                        <root>src/main/resources</root>
+                        <root>src/test/resources</root>
+                        <root>src/test/configs/features/filters/apivalidator</root>
+                    </roots>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
