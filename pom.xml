@@ -36,8 +36,6 @@
     </licenses>
 
     <modules>
-        <module>http-delegation</module>
-        <module>repose-support</module>
         <module>repose-aggregator</module>
     </modules>
 
@@ -158,6 +156,21 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <roots>
+                        <root>http-delegation/src/main/scala</root>
+                        <root>http-delegation/src/test/scala</root>
+                        <root>repose-support/classloader-dependency-two/src/main/scala</root>
+                        <root>repose-support/classloader-dependency-one/src/main/scala</root>
+                        <root>repose-support/core-test-filter/src/main/scala</root>
+                        <root>repose-support/filter-one/src/main/scala</root>
+                        <root>repose-support/filter-two/src/main/scala</root>
+                        <root>repose-support/filter-three/src/main/scala</root>
+                        <root>repose-support/filter-four/src/main/scala</root>
+                        <root>repose-support/filter-five/src/main/scala</root>
+                        <root>repose-support/second-filter/src/main/scala</root>
+                    </roots>
+                </configuration>
             </plugin>
         </plugins>
     </build>
