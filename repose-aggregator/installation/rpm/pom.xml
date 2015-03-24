@@ -56,7 +56,7 @@
 
                         <keyname>${gpg.keyname}</keyname>
                         <keyPassphrase>
-                            <passphrase>${gpg.passphrase}</passphrase>
+                            <passphrase>${gpg.passphrase.esc}</passphrase>
                         </keyPassphrase>
 
                         <description>
