@@ -56,7 +56,7 @@
 
                         <keyname>${gpg.keyname}</keyname>
                         <keyPassphrase>
-                            <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                            <passphrase>${gpg.passphrase}</passphrase>
                         </keyPassphrase>
 
                         <description>
