@@ -471,6 +471,7 @@
             <properties>
                 <gpg.keyname>E7C89BBB</gpg.keyname>
                 <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+                <gpg.passphrase.esc>${env.GPG_PASSPHRASE_ESC}</gpg.passphrase.esc>
             </properties>
             <build>
                 <plugins>
