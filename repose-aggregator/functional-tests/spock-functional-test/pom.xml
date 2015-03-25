@@ -646,6 +646,15 @@
                         <root>src/test/resources</root>
                         <root>src/test/configs/features/filters/apivalidator</root>
                     </roots>
+                    <excludes>
+                        <!-- Not exactly sure why this doesn't work, but all the files in this tree with this name are not maintained by Repose. -->
+                        <!--<exclude>src/test/resources/schema/openstack/atom/atom.xsd</exclude>-->
+                        <!--<exclude>src/test/resources/schema/openstack/atom/xml.xsd</exclude>-->
+                        <!--<exclude>src/test/resources/schema/openstack/credentials.xsd</exclude>-->
+                        <exclude>**/atom.xsd</exclude>
+                        <exclude>**/xml.xsd</exclude>
+                        <exclude>**/credentials.xsd</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
