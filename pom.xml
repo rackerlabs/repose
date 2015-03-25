@@ -114,6 +114,9 @@
                         <canUpdateLicense>false</canUpdateLicense>
                         <failOnMissingHeader>true</failOnMissingHeader>
                         <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+                        <processStartTag>_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=</processStartTag>
+                        <sectionDelimiter>_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-</sectionDelimiter>
+                        <processEndTag>=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_</processEndTag>
                         <ignoreTag>%% Ignore-License</ignoreTag>
                         <roots>
                             <root>src/main/java</root>
