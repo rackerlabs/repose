@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  %% Ignore-License
--->
 
 <!-- Would like to eventually use the w3 xproc schema http://www.w3.org/TR/xproc/schemas/xproc.xsd.
      However, it caused several compilation errors in XJC.  Will need debugging if we use the actual

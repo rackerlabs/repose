@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  %% Ignore-License
--->
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://www.w3.org/2005/Atom"
