@@ -1,7 +1,4 @@
 <?xml version='1.0'?>
-<!--
-  %% Ignore-License
--->
 <xs:schema targetNamespace="http://www.w3.org/XML/1998/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
 
  <xs:annotation>

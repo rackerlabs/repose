@@ -1,7 +1,4 @@
 <?xml version='1.0'?>
-<!--
-  %% Ignore-License
--->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
         targetNamespace="http://www.w3.org/ns/xproc"
         elementFormDefault="qualified"
