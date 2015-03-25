@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
 
-
 <schema
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -16,28 +15,29 @@
 >
     <!--Import schema we are extending -->
     <import namespace="http://docs.openstack.org/identity/api/v2.0"
-        schemaLocation="token.xsd"/>
+            schemaLocation="api.xsd"/>
 
-    <import namespace="http://docs.openstack.org/identity/api/v2.0"
-        schemaLocation="api.xsd" />
-    
-    
+    <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
+            schemaLocation="atom/atom.xsd"/>
+
+    <element name="group" type="RAX-KSGRP:Group"/>
     <element name="groups" type="RAX-KSGRP:Groups"/>
-    
+
     <complexType name="Groups">
         <sequence>
             <element name="group" type="RAX-KSGRP:Group" maxOccurs="100"/>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="Group">
         <sequence>
             <element name="description" type="xsd:string" maxOccurs="1"/>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="id" type="xsd:string" use="optional"/>
         <attribute name="name" type="xsd:string" use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
@@ -50,4 +50,3 @@
         </complexContent>
     </complexType>
 </schema>
-

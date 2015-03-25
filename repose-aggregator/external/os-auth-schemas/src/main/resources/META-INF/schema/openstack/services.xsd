@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+<?xml-stylesheet type="text/xsl" href="schema.xsl"?>
 
 <!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
@@ -61,7 +61,7 @@
                     </xsd:documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="image-service">
+            <enumeration value="image">
                 <annotation>
                     <xsd:documentation
                         xml:lang="EN"
@@ -85,7 +85,7 @@
             </enumeration>
         </restriction>
     </simpleType>
-    
+
     <simpleType name="ExtendedService">
         <annotation>
             <xsd:documentation
@@ -97,7 +97,7 @@
             </xsd:documentation>
         </annotation>
         <restriction base="xsd:string">
-            <pattern value="(\w|-)+:\w+"/>
+            <pattern value="(\w|-)+:(\w|-)+"/>
         </restriction>
     </simpleType>
 </schema>
