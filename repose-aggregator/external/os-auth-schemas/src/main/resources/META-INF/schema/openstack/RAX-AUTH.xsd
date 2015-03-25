@@ -22,7 +22,8 @@
     <import namespace="http://docs.openstack.org/identity/api/v2.0" schemaLocation="./api.xsd" />
     <import namespace="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0" schemaLocation="./RAX-KSKEY-credentials.xsd" />
     <import namespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0" schemaLocation="./OS-KSCATALOG.xsd" />
-    
+    <import namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd" />
+
     <attribute name="defaultRegion" type="xsd:string" />
     <attribute name="domainId" type="xsd:string" />
     <attribute name="requirePasswordReset" type="xsd:boolean" />
