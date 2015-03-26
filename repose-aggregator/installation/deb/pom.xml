@@ -46,6 +46,16 @@
                             <goals>
                                 <goal>jdeb</goal>
                             </goals>
+                            <configuration>
+                                <signPackage>true</signPackage>
+                                <!-- Old Debian based distros. -->
+                                <!--<signMethod>debsig-verify</signMethod>-->
+                                <!-- New Debian based distros. -->
+                                <signMethod>dpkg-sig</signMethod>
+                                <verbose>true</verbose>
+                                <key>${gpg.keyname}</key>
+                                <passphrase>${gpg.passphrase}</passphrase>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>default-jdeb</id>
