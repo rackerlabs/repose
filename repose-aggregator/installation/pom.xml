@@ -62,6 +62,30 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+
+                <configuration>
+                    <roots>
+                        <root>${basedir}</root>
+                    </roots>
+                    <includes>
+                        <include>**/*.java</include>
+                        <include>**/*.scala</include>
+                        <include>**/*.groovy</include>
+                        <include>**/*.sh</include>
+                        <include>**/*.xjb</include>
+                        <include>**/*.xsd</include>
+                        <include>**/preinst</include>
+                        <include>**/dd-remove</include>
+                        <include>**/clean-repose-deploy</include>
+                        <include>**/repose-valve</include>
+                        <include>**/repose</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
