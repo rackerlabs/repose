@@ -40,6 +40,7 @@ public abstract class AuthToken implements Serializable {
     public abstract String getTenantName();
     public abstract String getDefaultRegion();
     public abstract Set<String> getTenantIds();
+    public abstract String getContactId();
    
 
     

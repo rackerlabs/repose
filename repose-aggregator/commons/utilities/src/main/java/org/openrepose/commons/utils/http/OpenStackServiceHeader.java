@@ -65,7 +65,8 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     
     DEFAULT_REGION("X-Default-Region"),
     
-    X_EXPIRATION("x-token-expires");
+    X_EXPIRATION("x-token-expires"),
+    CONTACT_ID("X-CONTACT-ID");
 
     
     private final String headerKey;

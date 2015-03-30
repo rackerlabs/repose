@@ -169,10 +169,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             FilterDirector filterDirector,
             String extractedResult,
             List<AuthGroup> groups,
-            String endpointsInBase64, boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+            String endpointsInBase64,
+            String contactId,
+            boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
 
         new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, delegableQuality, delegationMessage,
-                filterDirector, extractedResult, groups, wwwAuthHeaderContents, endpointsInBase64, tenanted, sendAllTenantIds,
+                filterDirector, extractedResult, groups, wwwAuthHeaderContents, endpointsInBase64, contactId, tenanted, sendAllTenantIds,
                 sendTenantIdQuality)
                 .setFilterDirectorValues();
     }
