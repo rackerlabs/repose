@@ -59,8 +59,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
                                                     double delegableQuality, String delegationMessage,
                                                     FilterDirector filterDirector, String extractedResult,
-                                                    List<AuthGroup> groups, String endpointsBase64, boolean tenanted,
-                                                    boolean sendAllTenantIds, boolean sendTenantIdQuality);
+                                                    List<AuthGroup> groups, String endpointsBase64, String contactId,
+                                                    boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality);
 
     private final boolean delegable;
     private final double delegableQuality;
@@ -143,6 +143,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         ExtractorResult<String> account = null;
         AuthToken token = null;
+        String contactId = null;
 
         if (tenanted) {
             account = extractAccountIdentification(request);
@@ -164,6 +165,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
             if (token != null) {
                 groups = getAuthGroups(token, offset);
+                contactId = token.getContactId();
 
                 //getting the encoded endpoints to pass into the header, if the endpoints config is not null
                 if (endpointsConfiguration != null) {
@@ -198,7 +200,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
 
         setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
-                account == null ? "" : account.getResult(), groups, endpointsInBase64, tenanted, sendAllTenantIds,
+                account == null ? "" : account.getResult(), groups, endpointsInBase64, contactId, tenanted, sendAllTenantIds,
                 sendTenantIdQuality);
 
         delegationMessage.remove();

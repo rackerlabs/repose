@@ -39,11 +39,10 @@ import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.DatatypeFactory;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
@@ -73,7 +72,8 @@ public class OpenStackAuthenticationHeaderManagerTest {
        
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
-                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
+                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
+                            true, false, false);
       
         }
 
@@ -152,7 +152,8 @@ public class OpenStackAuthenticationHeaderManagerTest {
        
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
-                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
+                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
+                            true, false, false);
              openStackAuthenticationHeaderManager.setFilterDirectorValues();
       
         }
@@ -184,11 +185,25 @@ public class OpenStackAuthenticationHeaderManagerTest {
         @Test
         public void shouldAddDelegationHeader() {
             OpenStackAuthenticationHeaderManager headerManager =
-                    new OpenStackAuthenticationHeaderManager(null, null, true, 0.7, "test",
-                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true, false, false);
+                    new OpenStackAuthenticationHeaderManager(null, null, true, 0.7, "test", filterDirector, tenantId,
+                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
             headerManager.setFilterDirectorValues();
 
             assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())));
+        }
+
+        @Test
+        public void shouldAddContactIdHeader() throws Exception {
+            OpenStackAuthenticationHeaderManager headerManager =
+                    new OpenStackAuthenticationHeaderManager(null, authToken, true, 0.7, "test",
+                            filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, "butts",
+                            true, false, false);
+            headerManager.setFilterDirectorValues();
+
+
+            Set<String> strings = filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(OpenStackServiceHeader.CONTACT_ID.toString()));
+            assertThat((String) strings.toArray()[0], equalTo("butts"));
+
         }
     }
 }

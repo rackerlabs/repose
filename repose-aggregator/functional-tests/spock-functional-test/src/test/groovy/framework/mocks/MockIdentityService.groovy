@@ -141,6 +141,9 @@ class MockIdentityService {
     def region = "ORD"
     def admin_userid = 67890;
     def sleeptime =0;
+    def contact_id = "my-contactId"
+    def contactIdJson = ""
+    def contactIdXml = ""
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -330,8 +333,14 @@ class MockIdentityService {
                 tenant      : client_tenant,
                 tenanttwo   : client_tenant_file,
                 token       : request_token,
-                serviceadmin: service_admin_role
+                serviceadmin: service_admin_role,
+                contactIdXml : contactIdXml,
+                contactIdJson: contactIdJson
         ];
+        if(contact_id != null && !contact_id.isEmpty()){
+            params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
+            params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+        }
 
         def code;
         def template;
@@ -433,40 +442,59 @@ class MockIdentityService {
                     request.body.contains("apiKey") &&
                     request.body.contains(client_apikey)) {
                 params = [
-                        expires     : getExpires(),
-                        userid      : client_userid,
-                        username    : client_username,
-                        tenant      : client_tenant,
-                        tenanttwo   : client_tenant,
-                        token       : client_token,
-                        serviceadmin: service_admin_role
+                        expires      : getExpires(),
+                        userid       : client_userid,
+                        username     : client_username,
+                        tenant       : client_tenant,
+                        tenanttwo    : client_tenant,
+                        token        : client_token,
+                        serviceadmin : service_admin_role,
+                        contactIdXml : contactIdXml,
+                        contactIdJson: contactIdJson
                 ];
+                if(contact_id != null && !contact_id.isEmpty()){
+                    params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
+                    params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+                }
             } else if (request.body.contains("username") &&
                     request.body.contains(admin_username) /*&&
                 request.body.contains("password") &&
                 request.body.contains(admin_password)*/) {
                 params = [
-                        expires     : getExpires(),
-                        userid      : admin_userid,
-                        username    : admin_username,
-                        tenant      : admin_tenant,
-                        tenanttwo   : admin_tenant,
-                        token       : admin_token,
-                        serviceadmin: service_admin_role
+                        expires      : getExpires(),
+                        userid       : admin_userid,
+                        username     : admin_username,
+                        tenant       : admin_tenant,
+                        tenanttwo    : admin_tenant,
+                        token        : admin_token,
+                        serviceadmin : service_admin_role,
+                        contactIdXml : contactIdXml,
+                        contactIdJson: contactIdJson
                 ];
+                if(contact_id != null && !contact_id.isEmpty()){
+                    params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
+                    params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+                }
             } else {
                 isTokenChecked = false
             }
         } else {
             params = [
-                    expires     : getExpires(),
-                    userid      : admin_userid,
-                    username    : admin_username,
-                    tenant      : admin_tenant,
-                    tenanttwo   : admin_tenant,
-                    token       : admin_token,
-                    serviceadmin: service_admin_role
+                    expires      : getExpires(),
+                    userid       : admin_userid,
+                    username     : admin_username,
+                    tenant       : admin_tenant,
+                    tenanttwo    : admin_tenant,
+                    token        : admin_token,
+                    serviceadmin : service_admin_role,
+                    contactIdXml : contactIdXml,
+                    contactIdJson: contactIdJson
             ];
+            if(contact_id != null && !contact_id.isEmpty()){
+                params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
+                params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+            }
+
         }
 
         def code;
@@ -525,7 +553,10 @@ class MockIdentityService {
                 'tenant'           : this.client_tenant,
                 'originServicePort': this.originServicePort,
                 'endpointUrl'      : this.endpointUrl,
-                'region'           : this.region
+                'region'           : this.region,
+                'contactIdXml'     : this.contactIdXml,
+                'contactIdJson'    : this.contactIdJson
+
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
@@ -678,6 +709,7 @@ class MockIdentityService {
             }
          ],
          "RAX-AUTH:defaultRegion" : "the-default-region",
+         \${contactIdJson}
          "name" : "\${username}",
          "id" : "\${userid}"
       },
@@ -709,7 +741,8 @@ class MockIdentityService {
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
           name="\${username}"
-          rax-auth:defaultRegion="the-default-region">
+          rax-auth:defaultRegion="the-default-region"
+          \${contactIdXml}>
         <roles>
             <role id="684"
                   name="compute:default"
@@ -866,7 +899,7 @@ class MockIdentityService {
             <rax-auth:credential>PASSWORD</rax-auth:credential>
         </rax-auth:authenticatedBy>
     </token>
-    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW">
+    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW" \${contactIdXml}>
         <roles>
             <role id="9" name="Racker"
                 description="Defines a user as being a Racker"

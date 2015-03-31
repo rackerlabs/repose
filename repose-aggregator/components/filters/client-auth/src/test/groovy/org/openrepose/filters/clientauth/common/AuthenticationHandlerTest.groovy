@@ -94,8 +94,8 @@ class AuthenticationHandlerTest extends Specification {
         protected void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
                                                double delegableQuality, String delegationMessage,
                                                FilterDirector filterDirector, String extractedResult,
-                                               List<AuthGroup> groups, String endpointsBase64, boolean tenanted,
-                                               boolean sendAllTenantIds, boolean sendTenantIdQuality) {}
+                                               List<AuthGroup> groups, String endpointsBase64, String contactId,
+                                               boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {}
 
         protected String checkEndpointsCache(String token) {
             super.checkEndpointsCache()

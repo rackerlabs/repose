@@ -57,6 +57,7 @@ public class OpenStackAuthenticationHeaderManager {
     private static final String QUALITY = ";q=1.0";
     private final String wwwAuthHeaderContents;
     private final String endpointsBase64;
+    private final String contactId;
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
 
@@ -64,8 +65,8 @@ public class OpenStackAuthenticationHeaderManager {
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
                                                 double delegableQuality, String delegationMessage,
                                                 FilterDirector filterDirector, String tenantId, List<AuthGroup> groups,
-                                                String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted,
-                                                boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+                                                String wwwAuthHeaderContents, String endpointsBase64, String contactId,
+                                                boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -77,6 +78,7 @@ public class OpenStackAuthenticationHeaderManager {
         this.groups = groups;
         this.wwwAuthHeaderContents = wwwAuthHeaderContents;
         this.endpointsBase64 = endpointsBase64;
+        this.contactId = contactId;
         this.isTenanted = tenanted;
         this.sendAllTenantIds = sendAllTenantIds;
         this.sendTenantIdQuality = sendTenantIdQuality;
@@ -98,6 +100,7 @@ public class OpenStackAuthenticationHeaderManager {
             setEndpoints();
             setExpirationDate();
             setDefaultRegion();
+            setContactId();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -268,5 +271,11 @@ public class OpenStackAuthenticationHeaderManager {
        if(!StringUtilities.isBlank(region)){
           filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
        }
+    }
+
+    private void setContactId() {
+        if(contactId != null) {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.CONTACT_ID.toString(), contactId);
+        }
     }
 }

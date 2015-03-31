@@ -19,6 +19,7 @@
  */
 package org.openrepose.common.auth.openstack;
 
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -33,6 +34,7 @@ import java.util.GregorianCalendar;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.openrepose.common.auth.openstack.OpenStackToken.CONTACT_ID_QNAME;
 
 /**
  * @author fran
@@ -357,5 +359,22 @@ public class OpenStackTokenTest {
             OpenStackToken osToken = new OpenStackToken(response);
         }
 
+    }
+
+    //ugh, do i hate propogating this garbage, but i don't have time to get rid of it in this class
+    public static class WhenPullingOutValues {
+        @Test
+        public void shouldPullOutContactID() throws Exception {
+            AuthenticateResponse authenticateResponse = new AuthenticateResponse();
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.getOtherAttributes().put(CONTACT_ID_QNAME, "butts");
+            user.setRoles(new RoleList());
+            authenticateResponse.setUser(user);
+            Token token = new Token();
+            token.setExpires(new XMLGregorianCalendarImpl());
+            authenticateResponse.setToken(token);
+            OpenStackToken openStackToken = new OpenStackToken(authenticateResponse);
+            assertThat(openStackToken.getContactId(), equalTo("butts"));
+        }
     }
 }

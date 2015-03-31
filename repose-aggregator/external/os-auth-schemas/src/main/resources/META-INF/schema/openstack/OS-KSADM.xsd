@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
 
-<!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
+<!-- (C) 2011-2013 OpenStack Foundation, All Rights Reserved -->
 
 <schema
         elementFormDefault="qualified"
@@ -15,13 +15,26 @@
         xmlns:atom="http://www.w3.org/2005/Atom"
         targetNamespace="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
     >
-    
+
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
 
     <import namespace="http://docs.openstack.org/identity/api/v2.0"
             schemaLocation="api.xsd" />
+
+    <!-- Attribute -->
+    <attribute name="password" type="xsd:string">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A password attribute used when creating users.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </attribute>
 
     <!-- Elements -->
     <element name="services" type="OS-KSADM:ServiceList">
@@ -35,7 +48,7 @@
             </xsd:documentation>
         </annotation>
     </element>
-    
+
     <element name="service" type="OS-KSADM:Service"  >
         <annotation>
             <xsd:documentation
@@ -47,7 +60,7 @@
             </xsd:documentation>
         </annotation>
     </element>
-    
+
     <element name="extensibleCredentialsType" type="OS-KSADM:ExtensibleCredentialsType">
         <annotation>
             <xsd:documentation
@@ -68,29 +81,28 @@
         <attribute name="description" type="xsd:string"  use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="ServiceList">
         <sequence>
             <element name="service" type="OS-KSADM:Service" minOccurs="0" maxOccurs="unbounded"/>
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
-        </sequence>        
-
+        </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <simpleType name="PasswordCredentialsType">
         <restriction base="xsd:string">
             <enumeration value="password"/>
         </restriction>
     </simpleType>
-    
+
     <simpleType name="ExtensionCredentialsType">
         <restriction base="xsd:string">
-            <pattern value="(\w|-)+-\w+"/>
+            <pattern value="(\w|-)+(-|:)\w+"/>
         </restriction>
     </simpleType>
-    
+
     <simpleType name="ExtensibleCredentialsType">
         <union memberTypes="OS-KSADM:PasswordCredentialsType OS-KSADM:ExtensionCredentialsType"/>
     </simpleType>
@@ -99,11 +111,20 @@
     <complexType name="UserWithOnlyEnabled">
         <complexContent>
             <restriction base="identity:User">
-                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="id" type="xsd:string" use="prohibited"/>
                 <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="username" type="xsd:ID" use="prohibited"/>
+                <attribute name="username" type="xsd:string" use="prohibited"/>
                 <attribute name="enabled" type="xsd:boolean" use="required"/>
             </restriction>
         </complexContent>
     </complexType>
+
+    <complexType name="UserForCreate">
+        <complexContent>
+            <extension base="identity:User">
+                <attribute ref="OS-KSADM:password" use="optional"/>
+            </extension>
+        </complexContent>
+    </complexType>
+
 </schema>

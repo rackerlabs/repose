@@ -18,9 +18,10 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package features.filters.clientauthn.regionheader
+package features.filters.clientauthn.userAttributeHeaders
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
@@ -59,7 +60,7 @@ Test Plan
            service
  */
 
-class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
+class PassUserAttributesInHeaderTest extends ReposeValveTest {
 
     def originEndpoint
     def identityEndpoint
@@ -71,7 +72,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/regionheader", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/userAttributeHeaders", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
         repose.start()
 
@@ -91,9 +92,15 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         repose.stop()
     }
 
+
     def "when a token is validated, should pass the default region as X-Default-Region"() {
 
         when: "I send a GET request to Repose with an X-Auth-Token header"
+        fakeIdentityService.with {
+            client_token = "racker456"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+        }
         fakeIdentityService.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
@@ -118,6 +125,75 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         def request2 = mc.handlings[0].request
         request2.headers.contains("X-Default-Region")
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+
+    }
+
+    def "when a token is validated, repose should pass the contactID attribute as X-Contact-ID"() {
+        when: "I send a GET request to Repose with an X-Auth-Token header"
+        fakeIdentityService.with {
+            client_token = "racker457"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "457"
+            contact_id = "the-contactID"
+        }
+        fakeIdentityService.resetCounts()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Repose should validate the token and pass the user's contact ID as the X-ContactID header to the origin service"
+        mc.receivedResponse.code == "200"
+        fakeIdentityService.validateTokenCount == 1
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request = mc.handlings[0].request
+        request.headers.contains("X-Contact-ID")
+        request.headers.getFirstValue("X-Contact-ID") == "the-contactID"
+
+        when: "I send a second GET request to Repose with the same token"
+        fakeIdentityService.resetCounts()
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-ContactID header"
+        mc.receivedResponse.code == "200"
+        fakeIdentityService.validateTokenCount == 0
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request2 = mc.handlings[0].request
+        request2.headers.contains("X-Contact-ID")
+        request2.headers.getFirstValue("X-Contact-ID") == "the-contactID"
+
+    }
+
+    def "when a token is validated and contactID does not exist in response, X-Contact-ID should not be passed in"() {
+
+        when: "I send a GET request to Repose with an X-Auth-Token header"
+        fakeIdentityService.with {
+            client_token = "racker457"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "457"
+            contact_id = null
+        }
+        fakeIdentityService.resetCounts()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Repose should validate the token and pass the user's contact ID as the X-ContactID header to the origin service"
+        mc.receivedResponse.code == "200"
+        fakeIdentityService.validateTokenCount == 1
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request = mc.handlings[0].request
+        !request.headers.contains("X-Contact-ID")
+
+        when: "I send a second GET request to Repose with the same token"
+        fakeIdentityService.resetCounts()
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-ContactID header"
+        mc.receivedResponse.code == "200"
+        fakeIdentityService.validateTokenCount == 0
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request2 = mc.handlings[0].request
+        !request2.headers.contains("X-Contact-ID")
 
     }
 }
