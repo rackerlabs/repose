@@ -23,6 +23,47 @@
         <module>repose-valve</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <!-- this profile works with gnupg 2.0.x NOT with 2.1.x -->
+            <id>release-sign-artifacts</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1.2</version>
+
+                        <configuration>
+                            <!-- _tmppath is not set correctly on all OSes so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+
+                            <group>Rackspace Repose</group>
+                            <packager>Rackspace - Cloud Integration Team</packager>
+
+                            <keyname>${gpg.keyname}</keyname>
+                            <keyPassphrase>
+                                <passphrase>${gpg.passphrase}</passphrase>
+                            </keyPassphrase>
+
+                            <description>
+                                Power API is a stack of reusable, software components that can be leveraged by
+                                service developers to perform common API processing tasks.
+                            </description>
+
+                            <copyright>Apache License, Version 2.0</copyright>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
         <pluginManagement>
@@ -30,7 +71,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>rpm-maven-plugin</artifactId>
-                    <version>2.1-alpha-1</version>
+                    <version>2.1.2</version>
 
                     <executions>
                         <execution>
