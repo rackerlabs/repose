@@ -80,7 +80,7 @@ class StartWithMissingConfigsTest extends Specification {
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
+                waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
 
 

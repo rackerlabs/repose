@@ -39,6 +39,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
 
     conf
   }
+
   def auth2_0Config() = {
     val conf = new RackspaceAuthUserConfig
 

@@ -49,6 +49,15 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
         };
     }
 
+    @Override
+    protected IpIdentityHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new IpIdentityHandler(config, whitelist);
+    }
+
     private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
 
         private boolean isInitialized = false;
@@ -73,14 +82,5 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected IpIdentityHandler buildHandler() {
-
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new IpIdentityHandler(config, whitelist);
     }
 }

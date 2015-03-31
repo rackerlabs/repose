@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.openstackidentityv3
 
-import java.util.{GregorianCalendar, Calendar}
+import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
@@ -235,6 +235,117 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterDirector
   }
 
+  private def authenticate(request: HttpServletRequest): Try[AuthenticateResponse] = {
+    Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
+      case Some(subjectToken) =>
+        identityAPI.validateToken(subjectToken)
+      case None =>
+        logger.error("No X-Subject-Token present -- a subject token was not provided to validate")
+        Failure(new InvalidSubjectTokenException("A subject token was not provided to validate"))
+    }
+  }
+
+  private def isAuthorized(authResponse: AuthenticateResponse) = {
+    configuredServiceEndpoint forall { configuredEndpoint =>
+      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint])
+
+      containsRequiredEndpoint(tokenEndpoints, configuredEndpoint)
+    }
+  }
+
+  private def containsRequiredEndpoint(endpointsList: List[Endpoint], endpointRequirement: Endpoint) =
+    endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
+
+  private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
+                                 writeAll: Boolean, sendQuality: Boolean, headerManager: HeaderManager) {
+    lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
+      roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
+
+    if (writeAll && sendQuality) {
+      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      projectsFromRoles foreach { rolePid =>
+        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
+          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
+        }
+      }
+    } else if (writeAll && !sendQuality) {
+      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
+      projectsFromRoles foreach { rolePid =>
+        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
+          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid)
+        }
+      }
+    } else if (!writeAll && sendQuality) {
+      projectFromUri map {
+        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0)
+      } orElse {
+        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      }
+    } else {
+      projectFromUri map {
+        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _)
+      } orElse {
+        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
+      }
+    }
+  }
+
+  private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
+    projectIdUriRegex match {
+      case Some(regex) =>
+        // Check whether or not this user should bypass project ID validation
+        val userRoles = token.roles.getOrElse(List[Role]()).map(_.name)
+        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List.empty[String]), userRoles)
+
+        if (bypassProjectIdCheck) {
+          true
+        } else {
+          // Extract the project ID from the URI
+          val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
+
+          // Bind the default project ID, if available
+          val defaultProjectId = token.project.map(_.id).getOrElse(None)
+
+          // Attempt to match the extracted project ID against the project IDs in the token
+          extractedProjectId match {
+            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
+            case None => false
+          }
+        }
+      case None => true
+    }
+  }
+
+  private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =
+    userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
+
+  private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
+    val defaultIdMatches = defaultProjectId.exists(_.equals(projectFromUri))
+    val keystoneRolesIdMatches = roles.exists(role =>
+      role.project_id.exists(rolePID =>
+        rolePID.equals(projectFromUri)
+      )
+    )
+    val raxRolesIdMatches = roles.exists(role =>
+      role.rax_project_id.exists(rolePID =>
+        rolePID.equals(projectFromUri)
+      )
+    )
+
+    defaultIdMatches || keystoneRolesIdMatches || raxRolesIdMatches
+  }
+
+  private def extractProjectIdFromUri(projectIdRegex: Regex, uri: String): Option[String] =
+    projectIdRegex.findFirstMatchIn(uri).map(regexMatch => regexMatch.group(1))
+
+  private def base64Encode(s: String) =
+    Base64.encodeBase64String(s.getBytes)
+
+  private def isUriWhitelisted(requestUri: String, whiteList: WhiteList) = {
+    val convertedWhiteList = Option(whiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String])
+    convertedWhiteList.filter(requestUri.matches).nonEmpty
+  }
+
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     logger.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + response.getStatus)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
@@ -278,116 +389,5 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
     logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatusCode)
     filterDirector
-  }
-
-  private def authenticate(request: HttpServletRequest): Try[AuthenticateResponse] = {
-    Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
-      case Some(subjectToken) =>
-        identityAPI.validateToken(subjectToken)
-      case None =>
-        logger.error("No X-Subject-Token present -- a subject token was not provided to validate")
-        Failure(new InvalidSubjectTokenException("A subject token was not provided to validate"))
-    }
-  }
-
-  private def isAuthorized(authResponse: AuthenticateResponse) = {
-    configuredServiceEndpoint forall { configuredEndpoint =>
-      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint])
-
-      containsRequiredEndpoint(tokenEndpoints, configuredEndpoint)
-    }
-  }
-
-  private def containsRequiredEndpoint(endpointsList: List[Endpoint], endpointRequirement: Endpoint) =
-    endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
-
-  private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
-                                 writeAll: Boolean, sendQuality: Boolean, headerManager: HeaderManager) {
-    lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId} :::
-      roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId}).toSet
-
-    if (writeAll && sendQuality) {
-      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
-      projectsFromRoles foreach { rolePid =>
-        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
-        }
-      }
-    } else if (writeAll && !sendQuality) {
-      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
-      projectsFromRoles foreach { rolePid =>
-        if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid)
-        }
-      }
-    } else if (!writeAll && sendQuality) {
-      projectFromUri map {
-        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0)
-      } orElse {
-        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
-      }
-    } else {
-      projectFromUri map {
-        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _)
-      } orElse {
-        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
-      }
-    }
-  }
-
-  private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =
-    userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
-
-  private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
-    projectIdUriRegex match {
-      case Some(regex) =>
-        // Check whether or not this user should bypass project ID validation
-        val userRoles = token.roles.getOrElse(List[Role]()).map(_.name)
-        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List.empty[String]), userRoles)
-
-        if (bypassProjectIdCheck) {
-          true
-        } else {
-          // Extract the project ID from the URI
-          val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
-
-          // Bind the default project ID, if available
-          val defaultProjectId = token.project.map(_.id).getOrElse(None)
-
-          // Attempt to match the extracted project ID against the project IDs in the token
-          extractedProjectId match {
-            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
-            case None => false
-          }
-        }
-      case None => true
-    }
-  }
-
-  private def extractProjectIdFromUri(projectIdRegex: Regex, uri: String): Option[String] =
-    projectIdRegex.findFirstMatchIn(uri).map(regexMatch => regexMatch.group(1))
-
-  private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
-    val defaultIdMatches = defaultProjectId.exists(_.equals(projectFromUri))
-    val keystoneRolesIdMatches = roles.exists(role =>
-      role.project_id.exists(rolePID =>
-        rolePID.equals(projectFromUri)
-      )
-    )
-    val raxRolesIdMatches = roles.exists(role =>
-      role.rax_project_id.exists(rolePID =>
-        rolePID.equals(projectFromUri)
-      )
-    )
-
-    defaultIdMatches || keystoneRolesIdMatches || raxRolesIdMatches
-  }
-
-  private def base64Encode(s: String) =
-    Base64.encodeBase64String(s.getBytes)
-
-  private def isUriWhitelisted(requestUri: String, whiteList: WhiteList) = {
-    val convertedWhiteList = Option(whiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String])
-    convertedWhiteList.filter(requestUri.matches).nonEmpty
   }
 }

@@ -163,11 +163,11 @@ class ReposeValveLauncher extends ReposeLauncher {
             //Construct a new environment, including all from the previous, and then overriding with our new one
             def newEnv = new HashMap<String, String>()
             newEnv.putAll(System.getenv())
-            
-            additionalEnvironment.each { k,v ->
+
+            additionalEnvironment.each { k, v ->
                 newEnv.put(k, v) //Should override anything, if there's anything to override
             }
-            def envList = newEnv.collect { k,v -> "$k=$v" }
+            def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
             this.process.consumeProcessOutput(System.out, System.err)
         });

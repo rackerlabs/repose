@@ -19,8 +19,9 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import java.io.IOException;
 import org.apache.http.client.methods.HttpRequestBase;
+
+import java.io.IOException;
 
 public interface HttpComponentProcessableRequest {
     HttpRequestBase process(HttpComponentRequestProcessor processor) throws IOException;

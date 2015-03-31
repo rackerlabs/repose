@@ -21,14 +21,14 @@ package org.openrepose.commons.utils.servlet;
 
 public enum InitParameter {
 
-   APP_CONTEXT_ADAPTER_CLASS("context-adapter-class");
-   private final String initParameterName;
+    APP_CONTEXT_ADAPTER_CLASS("context-adapter-class");
+    private final String initParameterName;
 
-   private InitParameter(String webXmlName) {
-      this.initParameterName = webXmlName;
-   }
+    private InitParameter(String webXmlName) {
+        this.initParameterName = webXmlName;
+    }
 
-   public String getParameterName() {
-      return initParameterName;
-   }
+    public String getParameterName() {
+        return initParameterName;
+    }
 }

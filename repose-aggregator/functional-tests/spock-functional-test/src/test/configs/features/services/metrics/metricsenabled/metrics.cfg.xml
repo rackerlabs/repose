@@ -3,6 +3,6 @@
         <server host="10.13.75.177"
                 port="2013"
                 period="1"
-                prefix="test.1.metrics" />
+                prefix="test.1.metrics"/>
     </graphite>
 </metrics>

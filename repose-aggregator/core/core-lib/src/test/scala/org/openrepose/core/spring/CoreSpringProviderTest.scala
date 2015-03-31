@@ -23,10 +23,9 @@ import javax.servlet.Filter
 
 import org.junit.runner.RunWith
 import org.openrepose.core.spring.test.foo.FooBean
-import org.openrepose.core.spring.test.{HerpBean, DerpBean}
+import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Ignore, Matchers, FunSpec}
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.ApplicationContext
 
 @RunWith(classOf[JUnitRunner])
@@ -40,7 +39,7 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       coreSpringProvider shouldBe CoreSpringProvider.getInstance()
       //Scala won't even compile with a private constructor access, so don't test it
     }
-    it("provides the core service context"){
+    it("provides the core service context") {
       val coreContext = coreSpringProvider.getCoreContext
       classOf[ApplicationContext].isAssignableFrom(coreContext.getClass) shouldBe true
     }

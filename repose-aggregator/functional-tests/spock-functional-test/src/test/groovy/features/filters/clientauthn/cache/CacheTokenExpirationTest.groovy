@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.cache
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -40,7 +41,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
 
     }

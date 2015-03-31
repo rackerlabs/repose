@@ -19,14 +19,14 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.core.proxy.common.AbstractRequestProcessor;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.core.proxy.common.AbstractRequestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

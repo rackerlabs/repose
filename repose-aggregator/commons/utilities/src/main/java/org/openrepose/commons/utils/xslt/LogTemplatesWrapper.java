@@ -27,22 +27,22 @@ import java.util.Properties;
 
 public final class LogTemplatesWrapper implements Templates {
 
-   private Templates templates;
+    private Templates templates;
 
-   public LogTemplatesWrapper(Templates templates) {
-      this.templates = templates;
-   }
+    public LogTemplatesWrapper(Templates templates) {
+        this.templates = templates;
+    }
 
-   @Override
-   public Properties getOutputProperties() {
-      return templates.getOutputProperties();
-   }
+    @Override
+    public Properties getOutputProperties() {
+        return templates.getOutputProperties();
+    }
 
-   @Override
-   public Transformer newTransformer() 
-      throws TransformerConfigurationException {
-      Transformer tr = templates.newTransformer();
-      tr.setErrorListener (new LogErrorListener());
-      return tr;
-   }
+    @Override
+    public Transformer newTransformer()
+            throws TransformerConfigurationException {
+        Transformer tr = templates.newTransformer();
+        tr.setErrorListener(new LogErrorListener());
+        return tr;
+    }
 }

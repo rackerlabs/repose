@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<rate-limiting datastore-warn-limit="1200"  xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+<rate-limiting datastore-warn-limit="1200" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
 
     <!--
         Defines an endpoint with a matching regex to bind GET requests for
@@ -36,26 +36,26 @@
             that match this regex under the key '53418.' The meaning of the key
             is arbitrary.
         -->
-        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
-        
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3"/>
+
         <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
-        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5"/>
     </limit-group>
 
     <limit-group id="test-limits" groups="user">
-        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
-        
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3"/>
+
         <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
-        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5"/>
     </limit-group>
 
     <limit-group id="standard-ip-limits" groups="IP_Standard">
-        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3"/>
 
         <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="DAY" value="10"/>
-        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="HOUR" value="5" />
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="HOUR" value="5"/>
     </limit-group>
-    
+
     <limit-group id="super-user-limits" groups="IP_Super"/>
 
 </rate-limiting>

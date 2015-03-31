@@ -20,14 +20,14 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
-           xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
 
     <!-- Configuration -->
     <xs:element name="openstack-auth">
@@ -42,8 +42,10 @@
                             maxOccurs="1"/>
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
-                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
-                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0" maxOccurs="1" />
+                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0"
+                            maxOccurs="1"/>
+                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0"
+                            maxOccurs="1"/>
             </xs:all>
 
             <!-- Order matters in 1.0 land :-( -->
@@ -52,8 +54,10 @@
                             maxOccurs="1"/>
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
-                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
-                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0" maxOccurs="1" />
+                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0"
+                            maxOccurs="1"/>
+                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0"
+                            maxOccurs="1"/>
             </xs:sequence>
 
             <xs:attribute name="user-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="60000">
@@ -112,7 +116,8 @@
                     <xs:documentation>
                         <html:p>
                             If set to false, x-tenant-id headers are not sent with qualities.
-                            If set to true, the default x-tenant-id will be given the highest quality, and qualities will
+                            If set to true, the default x-tenant-id will be given the highest quality, and qualities
+                            will
                             be attached to every x-tenant-id header.
                         </html:p>
                     </xs:documentation>
@@ -131,7 +136,9 @@
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells the connection pool service to map to the pool with specified id.
-                                If default is chosen then the default connection pool configurations in connection pool service is used.</html:p>
+                            If default is chosen then the default connection pool configurations in connection pool
+                            service is used.
+                        </html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -250,14 +257,15 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
     <xs:complexType name="ServiceAdminRoles">
         <xs:annotation>
             <xs:documentation>
-                <html:p>A list of roles to be treated as admins. These roles will not be validated against a tenant.</html:p>
+                <html:p>A list of roles to be treated as admins. These roles will not be validated against a tenant.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
             <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -267,7 +275,8 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>A list of roles to bypass the tenant requirement check.
-                    Users with the any of the roles specified will not have the requirement for a tenant.</html:p>
+                    Users with the any of the roles specified will not have the requirement for a tenant.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 

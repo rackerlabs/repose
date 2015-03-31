@@ -26,7 +26,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
 
 @Category(Slow.class)
 class UriNormalizationJMXTest extends ReposeValveTest {
@@ -54,7 +53,6 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         // start deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-
 
         // configure and start repose
         def targetHostname = properties.getTargetHostname()

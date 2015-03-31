@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.uristripper;
 
+import org.jvnet.jaxb2_commons.lang.StringUtils;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -27,7 +28,6 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.jvnet.jaxb2_commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,14 +39,12 @@ import java.util.List;
 
 public class UriStripperHandler extends AbstractFilterLogicHandler {
 
+    public static final String URI_DELIMITER = "/";
+    public static final String QUERY_PARAM_INDICATOR = "?";
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(UriStripperHandler.class);
-
-
     int stripId;
     boolean rewriteLocation;
     String prevToken, nextToken, token;
-    public static final String URI_DELIMITER = "/";
-    public static final String QUERY_PARAM_INDICATOR = "?";
     StringBuilder preText, postText;
     String locationHeader;
 
@@ -104,7 +102,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             locationHeader = response.getHeader(CommonHttpHeader.LOCATION.toString());
 
             //Need to check and see if it contains the three token pattern already in the location header
-            if(locationHeader.contains(prevToken + URI_DELIMITER + token + URI_DELIMITER + nextToken)){
+            if (locationHeader.contains(prevToken + URI_DELIMITER + token + URI_DELIMITER + nextToken)) {
                 LOG.debug("Stripped token already present in Location Header");
                 return filterDirector;
             }
@@ -158,14 +156,14 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         URI uri = new URI(locationUrl);
         locationHeader = uri.getPath();
-        if(uri.getScheme() != null){
+        if (uri.getScheme() != null) {
             extractPreText(uri);
         }
         postText = new StringBuilder(StringUtilities.getNonBlankValue(uri.getQuery(), ""));
 
     }
 
-    private void extractPreText(URI uri){
+    private void extractPreText(URI uri) {
 
         preText = preText.append(uri.getScheme()).append("://").append(uri.getHost());
         if (uri.getPort() != -1) {

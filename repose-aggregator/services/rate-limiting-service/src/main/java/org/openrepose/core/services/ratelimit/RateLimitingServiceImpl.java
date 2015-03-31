@@ -21,10 +21,10 @@ package org.openrepose.core.services.ratelimit;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.core.services.ratelimit.utils.StringUtilities;
-import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -37,11 +37,9 @@ import java.util.regex.Pattern;
 
 
 public class RateLimitingServiceImpl implements RateLimitingService {
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingServiceImpl.class);
-
     public static final String GLOBAL_LIMIT_USER = "GlobalLimitUser";
     public static final String GLOBAL_LIMIT_GROUP = "GlobalLimitGroup";
-
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingServiceImpl.class);
     private final RateLimitCache cache;
     private final GlobalLimitGroup globalLimitGroup;
     private final RateLimitingConfigHelper helper;
@@ -84,7 +82,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
-        final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList<>();
+        final List<Pair<String, ConfiguredRatelimit>> matchingConfiguredLimits = new ArrayList<>();
         TimeUnit largestUnit = TimeUnit.SECOND;
 
         // Go through all of the configured limits for this group
@@ -116,10 +114,10 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
         // Global Limits should be checked after user rate limits to avoid miscounts and DOS
 
-        final List< Pair<String, ConfiguredRatelimit> > matchingGlobalConfiguredLimits = new ArrayList<>();
+        final List<Pair<String, ConfiguredRatelimit>> matchingGlobalConfiguredLimits = new ArrayList<>();
         largestUnit = TimeUnit.SECOND;
         for (ConfiguredRatelimit globalLimit : globalLimitGroup.getLimit()) {
-            Matcher uriMatcher = ((ConfiguredRateLimitWrapper)globalLimit).getRegexPattern().matcher(uri);
+            Matcher uriMatcher = ((ConfiguredRateLimitWrapper) globalLimit).getRegexPattern().matcher(uri);
 
             if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
                 matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(GLOBAL_LIMIT_GROUP,
@@ -151,7 +149,9 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 }
             }
 
-            if (!matchFound) { return false; }
+            if (!matchFound) {
+                return false;
+            }
         }
         return true;
     }

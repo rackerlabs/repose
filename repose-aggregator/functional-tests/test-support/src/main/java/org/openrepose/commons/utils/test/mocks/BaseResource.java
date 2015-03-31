@@ -31,14 +31,14 @@ public class BaseResource {
     private final DataProvider provider;
 
     public BaseResource() throws DatatypeConfigurationException {
-       this(new DataProviderImpl());
+        this(new DataProviderImpl());
     }
-    
+
     public BaseResource(DataProvider provider) throws DatatypeConfigurationException {
         this.provider = provider;
     }
-    
+
     protected <P extends DataProvider> P getProvider() {
-       return (P) provider;
+        return (P) provider;
     }
 }

@@ -24,7 +24,6 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -55,13 +54,13 @@ class DerpAndDelegableQuality extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -78,8 +77,8 @@ class DerpAndDelegableQuality extends ReposeValveTest {
             tokenExpiresAt = (new DateTime()).plusDays(1);
             service_admin_role = "non-admin"
         }
-        Map<String, String> headers = ["X-Roles" : roles,
-                                       "Content-Type" : "application/xml",
+        Map<String, String> headers = ["X-Roles"     : roles,
+                                       "Content-Type": "application/xml",
                                        "X-Auth-Token": fakeIdentityService.client_token]
 
         when: "User passes a request through repose with authN and apiValidator delegable"
@@ -95,13 +94,13 @@ class DerpAndDelegableQuality extends ReposeValveTest {
 
 
         where:
-        method  | path           | roles                 | responseCode   | msgBody                     | component       | quality
-        "GET"   | "servers/"     |"raxRole"              | "403"          | "forbidden"                 | "api-checker"   | 0.6
-        "GET"   | "servers/"     |"raxRole, a:observer"  | "401"          | "Failure in Auth-N filter." | "client-auth-n" | 0.3
-        "POST"  | "servers/1235" |"raxRole, a:observer"  | "404"          | "Resource not found"        | "api-checker"   | 0.6
-        "PUT"   | "servers/"     |"raxRole, a:admin"     | "405"          | "Bad method"                | "api-checker"   | 0.6
-        "DELETE"| "servers/test" |"raxRole, a:observer"  | "404"          | "Resource not found"        | "api-checker"   | 0.6
-        "GET"   | "get/"         |"raxRole"              | "404"          | "Resource not found"        | "api-checker"   | 0.6
+        method   | path           | roles                 | responseCode | msgBody                     | component       | quality
+        "GET"    | "servers/"     | "raxRole"             | "403"        | "forbidden"                 | "api-checker"   | 0.6
+        "GET"    | "servers/"     | "raxRole, a:observer" | "401"        | "Failure in Auth-N filter." | "client-auth-n" | 0.3
+        "POST"   | "servers/1235" | "raxRole, a:observer" | "404"        | "Resource not found"        | "api-checker"   | 0.6
+        "PUT"    | "servers/"     | "raxRole, a:admin"    | "405"        | "Bad method"                | "api-checker"   | 0.6
+        "DELETE" | "servers/test" | "raxRole, a:observer" | "404"        | "Resource not found"        | "api-checker"   | 0.6
+        "GET"    | "get/"         | "raxRole"             | "404"        | "Resource not found"        | "api-checker"   | 0.6
 
     }
 

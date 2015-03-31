@@ -36,28 +36,28 @@ import java.util.List;
 
 public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
 
-   private final List<HttpHeader> sourceHeaders;
+    private final List<HttpHeader> sourceHeaders;
 
-   public HeaderIdentityHandler(List<HttpHeader> sourceHeaders) {
-      this.sourceHeaders = sourceHeaders;
-   }
-   
-   @Override
-   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      
-      final FilterDirector filterDirector = new FilterDirectorImpl();
-      HeaderManager headerManager = filterDirector.requestHeaderManager();
-      filterDirector.setFilterAction(FilterAction.PASS);
+    public HeaderIdentityHandler(List<HttpHeader> sourceHeaders) {
+        this.sourceHeaders = sourceHeaders;
+    }
 
-      List<ExtractorResult<String>> results = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
-      for (ExtractorResult<String> result : results) {
-         if(!result.getResult().isEmpty()){
-            headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
-            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
-         }   
-      }
-      
-      return filterDirector;
-   }
+        final FilterDirector filterDirector = new FilterDirectorImpl();
+        HeaderManager headerManager = filterDirector.requestHeaderManager();
+        filterDirector.setFilterAction(FilterAction.PASS);
+
+        List<ExtractorResult<String>> results = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
+
+        for (ExtractorResult<String> result : results) {
+            if (!result.getResult().isEmpty()) {
+                headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
+                headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
+            }
+        }
+
+        return filterDirector;
+    }
 }

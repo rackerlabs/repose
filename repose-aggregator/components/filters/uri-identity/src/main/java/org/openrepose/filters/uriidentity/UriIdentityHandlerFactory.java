@@ -21,9 +21,9 @@ package org.openrepose.filters.uriidentity;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.uriidentity.config.IdentificationMapping;
 import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +52,28 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
         };
     }
 
+    @Override
+    protected UriIdentityHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new UriIdentityHandler(patterns, group, quality);
+    }
+
+    private Double determineQuality() {
+        Double q = DEFAULT_QUALITY;
+        Double configQuality;
+
+        if (config != null) {
+            configQuality = config.getQuality();
+            if (configQuality != null) {
+                q = configQuality;
+            }
+        }
+
+        return q;
+    }
+
     private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
 
         private boolean isInitialized = false;
@@ -77,27 +99,5 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected UriIdentityHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new UriIdentityHandler(patterns, group, quality);
-    }
-
-    private Double determineQuality() {
-        Double q = DEFAULT_QUALITY;
-        Double configQuality;
-
-        if (config != null) {
-            configQuality = config.getQuality();
-            if (configQuality != null) {
-                q = configQuality;
-            }
-        }
-
-        return q;
     }
 }

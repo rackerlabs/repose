@@ -117,7 +117,7 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
                 assert foundTwo
                 assert foundThree
             }
-        }catch(IllegalArgumentException iae) {
+        } catch (IllegalArgumentException iae) {
             throw new SpockAssertionError("Spock Timeout: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree  :  $foundBeans", iae)
         }
     }
@@ -154,7 +154,7 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
                 assert foundTwo
                 assert foundThree
             }
-        }catch(IllegalArgumentException iae) {
+        } catch (IllegalArgumentException iae) {
             throw new SpockAssertionError("Spock Timeout: With $upperLoopCount tries. Run Assertions: Total Beans:$lastFoundSize foundOne:$foundOne, foundTwo:$foundTwo, foundThree:$foundThree  :  $foundBeans", iae)
         }
 
@@ -177,8 +177,8 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
                 lastSawAfterUpdateBeansCount = afterUpdateBeans.size()
                 assert afterUpdateBeans.size() == 2
                 //Look for the two beans
-                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-a")}
-                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-b")}
+                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-a") }
+                assert afterUpdateBeans.any { bean -> bean.objectName.toString().contains("role-b") }
             }
         } catch (IllegalArgumentException iae) {
             //Stupid spock is stupid and I don't know why

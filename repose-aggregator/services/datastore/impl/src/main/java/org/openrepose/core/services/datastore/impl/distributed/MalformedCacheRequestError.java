@@ -36,11 +36,11 @@ public enum MalformedCacheRequestError {
 
     private final String message;
 
-    private MalformedCacheRequestError(String message){
+    private MalformedCacheRequestError(String message) {
         this.message = message;
     }
 
-    public String message(){
+    public String message() {
         return this.message;
     }
 }

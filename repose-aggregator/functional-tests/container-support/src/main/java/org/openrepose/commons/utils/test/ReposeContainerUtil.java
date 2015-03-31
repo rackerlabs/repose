@@ -23,7 +23,7 @@ import org.apache.commons.cli.*;
 
 public class ReposeContainerUtil {
 
-    private ReposeContainerUtil(){
+    private ReposeContainerUtil() {
     }
 
     public static ReposeContainerProps parseArgs(String[] args) throws ParseException {

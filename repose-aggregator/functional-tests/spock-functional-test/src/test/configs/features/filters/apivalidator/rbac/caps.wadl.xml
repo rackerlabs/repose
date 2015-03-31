@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<application xmlns="http://wadl.dev.java.net/2009/02"
-             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<application xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns="http://wadl.dev.java.net/2009/02">
     <resource_type id="listAttachments">
         <resource path="/widgets/{widgetId}/gizmos">
             <param name="widgetId" style="template" type="xsd:string"/>

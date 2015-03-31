@@ -38,7 +38,7 @@ class CompressionHeaderTest extends ReposeValveTest {
     def static byte[] deflateCompressedContent = compressDeflateContent(content)
     def static byte[] falseZip = content.getBytes()
 
-    def static compressGzipContent(String content)   {
+    def static compressGzipContent(String content) {
         def ByteArrayOutputStream out = new ByteArrayOutputStream(content.length())
         def GZIPOutputStream gzipOut = new GZIPOutputStream(out)
         gzipOut.write(content.getBytes())
@@ -48,7 +48,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         return compressedContent
     }
 
-    def static compressDeflateContent(String content)   {
+    def static compressDeflateContent(String content) {
         Deflater deflater = new Deflater();
         deflater.setInput(content.getBytes());
 
@@ -65,7 +65,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         return output;
     }
 
-    def String convertStreamToString(byte[] input){
+    def String convertStreamToString(byte[] input) {
         return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
     }
 
@@ -86,8 +86,9 @@ class CompressionHeaderTest extends ReposeValveTest {
 
     @Unroll
     def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression (#encoding)"() {
-        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers:["Content-Encoding" : encoding],
+        when:
+        "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["Content-Encoding": encoding],
                 requestBody: zippedContent)
 
 
@@ -96,23 +97,24 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings.size == 1
         !mc.handlings[0].request.headers.contains("Content-Encoding")
         mc.sentRequest.body == zippedContent
-        convertStreamToString((byte[])mc.handlings[0].request.body).equals(unzippedContent)
+        convertStreamToString((byte[]) mc.handlings[0].request.body).equals(unzippedContent)
 
 
         where:
-        encoding    | unzippedContent | zippedContent
-        "gzip"      | content         | gzipCompressedContent
-        "x-gzip"    | content         | gzipCompressedContent
-        "deflate"   | content         | deflateCompressedContent
-        "identity"  | content         | content
+        encoding   | unzippedContent | zippedContent
+        "gzip"     | content         | gzipCompressedContent
+        "x-gzip"   | content         | gzipCompressedContent
+        "deflate"  | content         | deflateCompressedContent
+        "identity" | content         | content
 
     }
 
     @Unroll
     def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails (#encoding, #responseCode, #handlings)"() {
-        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers:["Content-Encoding" : encoding],
-                requestBody:zippedContent)
+        when:
+        "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["Content-Encoding": encoding],
+                requestBody: zippedContent)
 
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
@@ -121,18 +123,19 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        encoding    | unzippedContent | zippedContent | responseCode | handlings
-        "gzip"      | content         | falseZip       | '400'        | 0
-        "x-gzip"    | content         | falseZip       | '400'        | 0
-        "deflate"   | content         | falseZip       | '500'        | 0
-        "identity"  | content         | falseZip       | '200'        | 1
+        encoding   | unzippedContent | zippedContent | responseCode | handlings
+        "gzip"     | content         | falseZip      | '400'        | 0
+        "x-gzip"   | content         | falseZip      | '400'        | 0
+        "deflate"  | content         | falseZip      | '500'        | 0
+        "identity" | content         | falseZip      | '200'        | 1
     }
 
     @Unroll
     def "when an uncompressed request is sent to Repose, Content-Encoding header is never present (#encoding, #responseCode, #handlings)"() {
-        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers:["Content-Encoding" : encoding],
-                requestBody:zippedContent)
+        when:
+        "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["Content-Encoding": encoding],
+                requestBody: zippedContent)
 
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
@@ -141,11 +144,11 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        encoding    | unzippedContent | zippedContent | responseCode | handlings
-        "gzip"      | content         | content       | '400'        | 0
-        "x-gzip"    | content         | content       | '400'        | 0
-        "deflate"   | content         | content       | '500'        | 0
-        "identity"  | content         | content       | '200'        | 1
+        encoding   | unzippedContent | zippedContent | responseCode | handlings
+        "gzip"     | content         | content       | '400'        | 0
+        "x-gzip"   | content         | content       | '400'        | 0
+        "deflate"  | content         | content       | '500'        | 0
+        "identity" | content         | content       | '200'        | 1
     }
 
     def "Should not split request headers according to rfc"() {
@@ -153,11 +156,11 @@ class CompressionHeaderTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
@@ -207,10 +210,10 @@ class CompressionHeaderTest extends ReposeValveTest {
 
         where:
         headerName | headerValue
-        "Accept"           | "text/plain"
-        "ACCEPT"           | "text/PLAIN"
-        "accept"           | "TEXT/plain;q=0.2"
-        "aCCept"           | "text/plain"
+        "Accept"   | "text/plain"
+        "ACCEPT"   | "text/PLAIN"
+        "accept"   | "TEXT/plain;q=0.2"
+        "aCCept"   | "text/plain"
         //"CONTENT-Encoding" | "identity"
         //"Content-ENCODING" | "identity"
         //"content-encoding" | "idENtItY"
@@ -235,7 +238,7 @@ class CompressionHeaderTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"
@@ -248,14 +251,16 @@ class CompressionHeaderTest extends ReposeValveTest {
     /*
         Check Accept-Encoding header is removed from request through compression filter
      */
+
     @Unroll("When request sending #acceptheader header #encoding is removed through compression filter")
     def "Check if Accept-encoding header is removed from request"() {
-        when: "the content is sent to the origin service through Repose with accept-encoding " + encoding
+        when:
+        "the content is sent to the origin service through Repose with accept-encoding " + encoding
         def headers = [
-            acceptheader : encoding
+                acceptheader: encoding
         ]
 
-        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers: headers,
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers,
                 requestBody: content, defaultHandler: { new Response(200, content, headers) })
 
 
@@ -268,24 +273,26 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings[0].response.message.toString() == content
 
         where:
-        acceptheader        |encoding    | unzippedContent
-        "accept-encoding"   |"gzip"      | content
-        "Accept-encoding"   |"x-gzip"    | content
-        "Accept-Encoding"   |"deflate"   | content
-        "accept-Encoding"   |"identity"  | content
+        acceptheader      | encoding   | unzippedContent
+        "accept-encoding" | "gzip"     | content
+        "Accept-encoding" | "x-gzip"   | content
+        "Accept-Encoding" | "deflate"  | content
+        "accept-Encoding" | "identity" | content
     }
     /*
         Check Accept-Encoding header is removed from request through compression filter
      */
+
     @Unroll("When GET request #acceptheader header #encoding is removed through compression filter")
     def "Check if GET request with Accept-encoding header is removed from request"() {
-        when: "the content is sent to the origin service through Repose with accept-encoding " + encoding
+        when:
+        "the content is sent to the origin service through Repose with accept-encoding " + encoding
         def headers = [
                 'Content-Length': '0',
-                acceptheader : encoding
+                acceptheader    : encoding
         ]
 
-        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers: headers,
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers,
                 defaultHandler: { new Response(200, content, headers) })
 
 
@@ -297,10 +304,10 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings[0].response.message.toString() == content
 
         where:
-        acceptheader        |encoding
-        "accept-encoding"   |"gzip"
-        "Accept-encoding"   |"x-gzip"
-        "Accept-Encoding"   |"deflate"
-        "accept-Encoding"   |"identity"
+        acceptheader      | encoding
+        "accept-encoding" | "gzip"
+        "Accept-encoding" | "x-gzip"
+        "Accept-Encoding" | "deflate"
+        "accept-Encoding" | "identity"
     }
 }

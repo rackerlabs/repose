@@ -170,6 +170,54 @@ final class CompressingFilterContext {
 
     }
 
+    private static boolean readBooleanValue(FilterConfig filterConfig, String parameter) {
+        return Boolean.valueOf(filterConfig.getInitParameter(parameter));
+    }
+
+    private static int readCompressionThresholdValue(FilterConfig filterConfig) throws ServletException {
+        String compressionThresholdString = filterConfig.getInitParameter("compressionThreshold");
+        int value;
+        if (compressionThresholdString != null) {
+            try {
+                value = Integer.parseInt(compressionThresholdString);
+            } catch (NumberFormatException nfe) {
+                throw new ServletException("Invalid compression threshold: " + compressionThresholdString, nfe);
+            }
+            if (value < 0) {
+                throw new ServletException("Compression threshold cannot be negative");
+            }
+        } else {
+            value = DEFAULT_COMPRESSION_THRESHOLD;
+        }
+        return value;
+    }
+
+    private static Collection<String> parseContentTypes(String contentTypesString) {
+        if (contentTypesString == null) {
+            return Collections.emptyList();
+        }
+        List<String> contentTypes = new ArrayList<String>(5);
+        for (String contentType : COMMA.split(contentTypesString)) {
+            if (contentType.length() > 0) {
+                contentTypes.add(contentType);
+            }
+        }
+        return Collections.unmodifiableList(contentTypes);
+    }
+
+    private static Collection<Pattern> parsePatterns(String patternsString) {
+        if (patternsString == null) {
+            return Collections.emptyList();
+        }
+        List<Pattern> patterns = new ArrayList<Pattern>(5);
+        for (String pattern : COMMA.split(patternsString)) {
+            if (pattern.length() > 0) {
+                patterns.add(Pattern.compile(pattern));
+            }
+        }
+        return Collections.unmodifiableList(patterns);
+    }
+
     boolean isDebug() {
         return debug;
     }
@@ -229,54 +277,6 @@ final class CompressingFilterContext {
         if (servletContext.getAttribute(CompressingFilterStats.STATS_KEY) == null) {
             servletContext.setAttribute(CompressingFilterStats.STATS_KEY, stats);
         }
-    }
-
-    private static boolean readBooleanValue(FilterConfig filterConfig, String parameter) {
-        return Boolean.valueOf(filterConfig.getInitParameter(parameter));
-    }
-
-    private static int readCompressionThresholdValue(FilterConfig filterConfig) throws ServletException {
-        String compressionThresholdString = filterConfig.getInitParameter("compressionThreshold");
-        int value;
-        if (compressionThresholdString != null) {
-            try {
-                value = Integer.parseInt(compressionThresholdString);
-            } catch (NumberFormatException nfe) {
-                throw new ServletException("Invalid compression threshold: " + compressionThresholdString, nfe);
-            }
-            if (value < 0) {
-                throw new ServletException("Compression threshold cannot be negative");
-            }
-        } else {
-            value = DEFAULT_COMPRESSION_THRESHOLD;
-        }
-        return value;
-    }
-
-    private static Collection<String> parseContentTypes(String contentTypesString) {
-        if (contentTypesString == null) {
-            return Collections.emptyList();
-        }
-        List<String> contentTypes = new ArrayList<String>(5);
-        for (String contentType : COMMA.split(contentTypesString)) {
-            if (contentType.length() > 0) {
-                contentTypes.add(contentType);
-            }
-        }
-        return Collections.unmodifiableList(contentTypes);
-    }
-
-    private static Collection<Pattern> parsePatterns(String patternsString) {
-        if (patternsString == null) {
-            return Collections.emptyList();
-        }
-        List<Pattern> patterns = new ArrayList<Pattern>(5);
-        for (String pattern : COMMA.split(patternsString)) {
-            if (pattern.length() > 0) {
-                patterns.add(Pattern.compile(pattern));
-            }
-        }
-        return Collections.unmodifiableList(patterns);
     }
 
 }

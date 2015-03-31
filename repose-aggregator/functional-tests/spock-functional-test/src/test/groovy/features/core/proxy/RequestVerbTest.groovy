@@ -60,13 +60,13 @@ class RequestVerbTest extends ReposeValveTest {
 
         where:
         verb << ["GET",
-                "PUT",
-                "POST",
-                "PATCH",
-                "OPTIONS",
-                "DELETE",
-                "TRACE",
-                "HEAD"]
+                 "PUT",
+                 "POST",
+                 "PATCH",
+                 "OPTIONS",
+                 "DELETE",
+                 "TRACE",
+                 "HEAD"]
 
 
     }

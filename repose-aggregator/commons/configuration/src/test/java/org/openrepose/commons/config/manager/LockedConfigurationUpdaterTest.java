@@ -19,12 +19,12 @@
  */
 package org.openrepose.commons.config.manager;
 
-import org.openrepose.commons.utils.thread.KeyedStackLock;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.thread.KeyedStackLock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,8 @@ public class LockedConfigurationUpdaterTest {
             configProperties = new ArrayList<String>();
         }
 
-        @Test @Ignore
+        @Test
+        @Ignore
         public void shouldLockWhenUsingUniqueKeys() throws InterruptedException {
             final SampleConfigObject config = new SampleConfigObject(configProperties);
             final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 10);
@@ -74,7 +75,7 @@ public class LockedConfigurationUpdaterTest {
             t2.start();
 
             //Thread.sleep(20);
-            
+
             t1.join();
             t2.join();
 
@@ -103,7 +104,7 @@ public class LockedConfigurationUpdaterTest {
             t2.start();
 
             //Thread.sleep(20);
-            
+
             t1.join();
             t2.join();
 

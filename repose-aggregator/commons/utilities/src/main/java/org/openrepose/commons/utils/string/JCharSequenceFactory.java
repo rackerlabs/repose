@@ -20,10 +20,12 @@
 package org.openrepose.commons.utils.string;
 
 /**
- *
  * @author zinic
  */
 public final class JCharSequenceFactory {
+
+    private JCharSequenceFactory() {
+    }
 
     public static JCharSequence jchars(String st) {
         return new StringWrapper(st);
@@ -35,8 +37,5 @@ public final class JCharSequenceFactory {
 
     public static JCharSequence jchars(StringBuilder sb) {
         return new StringBuilderWrapper(sb);
-    }
-
-    private JCharSequenceFactory() {
     }
 }

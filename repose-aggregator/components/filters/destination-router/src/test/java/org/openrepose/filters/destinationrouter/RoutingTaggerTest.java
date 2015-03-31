@@ -19,24 +19,23 @@
  */
 package org.openrepose.filters.destinationrouter;
 
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.core.systemmodel.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.systemmodel.*;
+import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration;
 import org.openrepose.filters.routing.servlet.config.Target;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
- *
  * @author zinic
  */
 @RunWith(Enclosed.class)
@@ -44,6 +43,7 @@ public class RoutingTaggerTest {
 
     public static class WhenRoutingToServletContexts {
 
+        private final String DST = "dst1";
         private SystemModel powerProxy;
         private NodeList domainNodeList;
         private Node domainNode;
@@ -54,16 +54,15 @@ public class RoutingTaggerTest {
         private HttpServletRequest httpServletRequest;
         private HttpServletResponse httpServletResponse;
         private RoutingTagger routingTagger;
-        private final String DST = "dst1";
         private DestinationRouterHandlerFactory factory;
         private DestinationRouterConfiguration destinationRouterConfig;
 
         @Before
         public void setUp() throws Exception {
-            
+
             destinationRouterConfig = new DestinationRouterConfiguration();
             factory = new DestinationRouterHandlerFactory(null);
-            
+
             powerProxy = new SystemModel();
             serviceDomain = new ReposeCluster();
             target = new Target();
@@ -84,7 +83,7 @@ public class RoutingTaggerTest {
             serviceDomain.setId("repose");
             serviceDomain.setNodes(domainNodeList);
             serviceDomain.setDestinations(destinationList);
-            
+
             destinationRouterConfig.setTarget(target);
             factory.configurationUpdated(destinationRouterConfig);
 

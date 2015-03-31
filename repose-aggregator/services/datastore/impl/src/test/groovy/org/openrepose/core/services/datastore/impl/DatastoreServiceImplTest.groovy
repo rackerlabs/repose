@@ -18,11 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.core.services.datastore.impl
+
+import org.junit.Before
+import org.junit.Test
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.datastore.DatastoreManager
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore
-import org.junit.Before
-import org.junit.Test
 
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertNull

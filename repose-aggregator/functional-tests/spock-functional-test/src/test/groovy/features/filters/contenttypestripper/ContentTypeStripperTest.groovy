@@ -59,15 +59,15 @@ class ContentTypeStripperTest extends ReposeValveTest {
         ((Handling) sentRequest).request.body == (method == "GET" ? "" : requestBody) //We remove the body on a get when finally calling the service
 
         where:
-        desc                     | requestBody  | method
-        "over 8 characters"      | "I like pie" | "GET"
-        "over 8 characters"      | "I like pie" | "PUT"
-        "over 8 characters"      | "I like pie" | "POST"
-        "over 8 characters"      | "I like pie" | "DELETE"
-        "less than 8 characters" | " Pie "      | "GET"
-        "less than 8 characters" | " Pie "      | "PUT"
-        "less than 8 characters" | " Pie "      | "POST"
-        "less than 8 characters" | " Pie "      | "DELETE"
+        desc                     | requestBody       | method
+        "over 8 characters"      | "I like pie"      | "GET"
+        "over 8 characters"      | "I like pie"      | "PUT"
+        "over 8 characters"      | "I like pie"      | "POST"
+        "over 8 characters"      | "I like pie"      | "DELETE"
+        "less than 8 characters" | " Pie "           | "GET"
+        "less than 8 characters" | " Pie "           | "PUT"
+        "less than 8 characters" | " Pie "           | "POST"
+        "less than 8 characters" | " Pie "           | "DELETE"
         "xml body"               | "<tag>test</tag>" | "POST"
     }
 

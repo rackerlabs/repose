@@ -33,7 +33,7 @@ import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.filter.DelegatingFilterProxy
 
 @RunWith(classOf[JUnitRunner])
-class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar{
+class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar {
 
   {
     //NOTE: have to set up these things since the initializer needs this stuff

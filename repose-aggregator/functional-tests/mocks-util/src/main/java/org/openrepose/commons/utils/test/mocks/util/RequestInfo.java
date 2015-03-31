@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class RequestInfo {
 
-    private String url, path, method, queryString, body;
     Map<String, List<String>> headers, queryParams;
+    private String url, path, method, queryString, body;
 
 
     public RequestInfo(String url, String path, String method, String queryString, String body,

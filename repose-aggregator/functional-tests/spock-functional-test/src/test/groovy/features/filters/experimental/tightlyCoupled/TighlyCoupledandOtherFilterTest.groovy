@@ -21,7 +21,6 @@ package features.filters.experimental.tightlyCoupled
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
-import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -31,7 +30,7 @@ import org.rackspace.deproxy.Response
  * Test Custom filter (TighlyCoupled) with other filter (client-auth)
  *  Make sure still get modified response from custom filter
  */
-class TighlyCoupledandOtherFilterTest extends ReposeValveTest{
+class TighlyCoupledandOtherFilterTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -56,14 +55,14 @@ class TighlyCoupledandOtherFilterTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("200", false, true)
     }
 
-    def "Proving that any other filter with a custom filter does in fact work" () {
+    def "Proving that any other filter with a custom filter does in fact work"() {
         when:
         MessageChain mc = null
         mc = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:reposeEndpoint + "/get",
-                        headers:['X-Auth-Token': fakeIdentityService.client_token],
+                        method        : 'GET',
+                        url           : reposeEndpoint + "/get",
+                        headers       : ['X-Auth-Token': fakeIdentityService.client_token],
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }
@@ -76,9 +75,9 @@ class TighlyCoupledandOtherFilterTest extends ReposeValveTest{
         println(mc.receivedResponse.body)
 
         cleanup:
-        if(started)
+        if (started)
             repose.stop()
-        if(deproxy != null)
+        if (deproxy != null)
             deproxy.shutdown()
 
     }

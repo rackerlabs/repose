@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.headertranslation;
 
-import org.openrepose.filters.headertranslation.config.Header;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterAction;
@@ -27,6 +26,7 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.headertranslation.config.Header;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;

@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.*;
 
 /**
- *
  * @author zinic
  */
 @RunWith(Enclosed.class)
@@ -79,14 +78,14 @@ public class HeaderValueImplTest {
             parameters.put("param1", "1");
             parameters.put("param2", "2");
             parameters.put("param3", "3");
-            
+
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
-            
+
             parameters.put("q", "0.5");
             final HeaderValueImpl headerValue2 = new HeaderValueImpl("value", parameters);
-            
+
             assertTrue("Two Header Values should return equivalent even with differing qualiteis", headerValue.equalsTo(headerValue2));
-            
+
         }
     }
 
@@ -146,7 +145,7 @@ public class HeaderValueImplTest {
 
             assertEquals("Header value should only contain value when no parameters are present.", "value", headerValue.toString());
         }
-        
+
         @Test
         public void shouldOutPutEmptyWithNullValue() {
             final HeaderValueImpl headerValue = new HeaderValueImpl(null, Collections.EMPTY_MAP);

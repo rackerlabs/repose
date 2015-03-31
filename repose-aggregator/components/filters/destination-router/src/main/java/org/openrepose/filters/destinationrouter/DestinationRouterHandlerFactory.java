@@ -31,15 +31,30 @@ import java.util.Map;
 
 public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-    private DestinationRouterConfiguration contextRouterConfiguration;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingTagger.class);
+    private static final String DEFAULT_QUALITY = "0.5";
+    private DestinationRouterConfiguration contextRouterConfiguration;
     private double quality;
     private Target target;
-    private static final String DEFAULT_QUALITY = "0.5";
     private MetricsService metricsService;
 
     public DestinationRouterHandlerFactory(MetricsService metricsService) {
         this.metricsService = metricsService;
+    }
+
+    @Override
+    protected RoutingTagger buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new RoutingTagger(target.getId(), quality, metricsService);
+    }
+
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+        updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
+        return updateListeners;
     }
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
@@ -74,20 +89,5 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
             }
 
         }
-    }
-
-    @Override
-    protected RoutingTagger buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new RoutingTagger(target.getId(), quality, metricsService);
-    }
-
-    @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
-        return updateListeners;
     }
 }

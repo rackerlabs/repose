@@ -19,11 +19,11 @@
  */
 package features.services.datastore
 
-import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.core.services.datastore.StringValue
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
+import org.openrepose.commons.utils.io.ObjectSerializer
+import org.openrepose.core.services.datastore.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -46,13 +46,13 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1' : dataStorePort1,
-                'datastorePort2' : dataStorePort2
+                'datastorePort1': dataStorePort1,
+                'datastorePort2': dataStorePort2
         ]
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.start([clusterId: "repose", nodeId:"nofilters"])
+        repose.start([clusterId: "repose", nodeId: "nofilters"])
         waitUntilReadyToServiceRequests()
     }
 
@@ -62,30 +62,30 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "when configured with DD service, repose should start and successfully execute calls" () {
+    def "when configured with DD service, repose should start and successfully execute calls"() {
         when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/cluster", headers: ['x-trace-request': 'true']])
 
         then:
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
     }
 
-    def "PATCH a new cache object should return 200 response" () {
+    def "PATCH a new cache object should return 200 response"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
 
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PATCH',
-                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            requestBody: body
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method     : 'PATCH',
+                                url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers    : headers,
+                                requestBody: body
+                        ])
 
         then:
         mc.receivedResponse.code == '200'
@@ -93,7 +93,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "PATCH a cache object to an existing key should patch the cached value"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue.Patch("original value"))
         def newBody = objectSerializer.writeObject(new StringValue.Patch(" patched on value"))
@@ -101,25 +101,25 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         when: "I make 2 PATCH calls for 2 different values for the same key"
         MessageChain mc1 = deproxy.makeRequest(
                 [
-                        method: 'PATCH',
-                        url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                        headers:headers,
+                        method     : 'PATCH',
+                        url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers    : headers,
                         requestBody: body
                 ])
         MessageChain mc2 = deproxy.makeRequest(
                 [
-                        method: 'PATCH',
-                        url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                        headers:headers,
+                        method     : 'PATCH',
+                        url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers    : headers,
                         requestBody: newBody
                 ])
 
         and: "I get the value for the key"
         MessageChain mc3 = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                        headers:headers
+                        method : 'GET',
+                        url    : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers: headers
                 ])
 
         then: "The body of the get response should be my second request body"
@@ -129,67 +129,67 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         objectSerializer.readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
     }
 
-    def "when putting cache objects" () {
+    def "when putting cache objects"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue("test data"))
 
 
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PUT',
-                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            requestBody: body
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method     : 'PUT',
+                                url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers    : headers,
+                                requestBody: body
+                        ])
 
         then:
         mc.receivedResponse.code == '202'
     }
 
-    def "when checking cache object time to live"(){
+    def "when checking cache object time to live"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue("test data"))
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PUT',
-                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            requestBody: body
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method     : 'PUT',
+                                url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers    : headers,
+                                requestBody: body
+                        ])
         mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'GET',
+                                url    : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers: headers
+                        ])
         mc.receivedResponse.code == '200'
 
         when:
         Thread.sleep(7500)
         mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'GET',
+                                url    : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers: headers
+                        ])
 
         then:
         mc.receivedResponse.code == '404'
 
     }
 
-    def "when deleting cache objects"(){
+    def "when deleting cache objects"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
+        def headers = ['X-PP-Host-Key': 'temp', 'x-ttl': '1000']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue("test data"))
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
@@ -197,13 +197,13 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         when: "Adding the object to the datastore"
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: "PUT",
-                            url:url,
-                            headers:headers,
-                            requestBody: body
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method     : "PUT",
+                                url        : url,
+                                headers    : headers,
+                                requestBody: body
+                        ])
 
         then: "should report success"
         mc.receivedResponse.code == "202"
@@ -213,12 +213,12 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         when: "checking that it's there"
         mc =
-            deproxy.makeRequest(
-                    [
-                            method: "GET",
-                            url:url,
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : "GET",
+                                url    : url,
+                                headers: headers
+                        ])
 
         then: "should report that it is"
         mc.receivedResponse.code == "200"
@@ -228,12 +228,12 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         when: "deleting the object from the datastore"
         mc =
-            deproxy.makeRequest(
-                    [
-                            method: "DELETE",
-                            url:url,
-                            headers:headers,
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : "DELETE",
+                                url    : url,
+                                headers: headers,
+                        ])
 
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "204"
@@ -243,12 +243,12 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         when: "checking that it's gone"
         mc =
-            deproxy.makeRequest(
-                    [
-                            method: "GET",
-                            url:url,
-                            headers:headers,
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : "GET",
+                                url    : url,
+                                headers: headers,
+                        ])
 
         then: "should report it missing"
         mc.receivedResponse.code == "404"
@@ -259,11 +259,11 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/test", method: 'GET', headers: reqHeaders)

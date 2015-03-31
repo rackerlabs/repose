@@ -69,10 +69,6 @@ class ReposeJettyServer(val clusterId: String,
 
   appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))
-
-  private var isShutdown = false
-
-
   /**
    * Create the jetty server for this guy
    */
@@ -106,7 +102,7 @@ class ReposeJettyServer(val clusterId: String,
       }
     }
 
-    val connectors = List(httpConnector, httpsConnector).collect{ case Some(x) => x }.toArray
+    val connectors = List(httpConnector, httpsConnector).collect { case Some(x) => x }.toArray
 
     if (connectors.isEmpty) {
       throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
@@ -141,6 +137,7 @@ class ReposeJettyServer(val clusterId: String,
 
     s
   }
+  private var isShutdown = false
 
   def start() = {
     if (isShutdown) {
@@ -149,8 +146,13 @@ class ReposeJettyServer(val clusterId: String,
     server.start()
   }
 
-  def stop() = {
-    server.stop()
+  /**
+   * Shuts this one down and returns a new one
+   * @return
+   */
+  def restart(): ReposeJettyServer = {
+    shutdown()
+    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig)
   }
 
   /**
@@ -162,12 +164,7 @@ class ReposeJettyServer(val clusterId: String,
     stop()
   }
 
-  /**
-   * Shuts this one down and returns a new one
-   * @return
-   */
-  def restart(): ReposeJettyServer = {
-    shutdown()
-    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig)
+  def stop() = {
+    server.stop()
   }
 }

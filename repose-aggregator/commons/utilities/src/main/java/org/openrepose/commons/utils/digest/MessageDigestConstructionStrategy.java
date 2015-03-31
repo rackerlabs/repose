@@ -27,18 +27,18 @@ import java.security.NoSuchAlgorithmException;
 
 public class MessageDigestConstructionStrategy extends BasePoolableObjectFactory<MessageDigest> {
 
-   private final String digestSpecName;
+    private final String digestSpecName;
 
-   public MessageDigestConstructionStrategy(String digestSpecName) {
-      this.digestSpecName = digestSpecName;
-   }
+    public MessageDigestConstructionStrategy(String digestSpecName) {
+        this.digestSpecName = digestSpecName;
+    }
 
-   @Override
-   public MessageDigest makeObject() {
-      try {
-         return MessageDigest.getInstance(digestSpecName);
-      } catch (NoSuchAlgorithmException nsae) {
-         throw new ResourceConstructionException("Failed to locate digest object for digest " + digestSpecName, nsae);
-      }
-   }
+    @Override
+    public MessageDigest makeObject() {
+        try {
+            return MessageDigest.getInstance(digestSpecName);
+        } catch (NoSuchAlgorithmException nsae) {
+            throw new ResourceConstructionException("Failed to locate digest object for digest " + digestSpecName, nsae);
+        }
+    }
 }

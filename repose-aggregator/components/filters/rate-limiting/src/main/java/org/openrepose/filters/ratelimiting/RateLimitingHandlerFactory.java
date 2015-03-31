@@ -23,8 +23,6 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
-import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
@@ -33,6 +31,8 @@ import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
 import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.DatastoreType;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
+import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -44,13 +44,12 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
     private static final String DEFAULT_DATASTORE_NAME = "local/default";
-
+    private final DatastoreService datastoreService;
     private RateLimitCache rateLimitCache;
     //Volatile
     private Optional<Pattern> describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
     private RateLimitingService service;
-    private final DatastoreService datastoreService;
 
     public RateLimitingHandlerFactory(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
@@ -99,6 +98,25 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         return targetDatastore;
     }
 
+    @Override
+    protected RateLimitingHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
+        final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();
+        final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
+
+        boolean includeAbsoluteLimits = false;
+        if (rateLimitingConfig.getRequestEndpoint() != null) {
+            includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
+        }
+
+        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(), rateLimitingConfig.getDatastoreWarnLimit().intValue());
+    }
+
     private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
 
         private boolean isInitialized = false;
@@ -126,24 +144,5 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected RateLimitingHandler buildHandler() {
-
-        if (!this.isInitialized()) {
-            return null;
-        }
-
-        final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
-        final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();
-        final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
-
-        boolean includeAbsoluteLimits = false;
-        if (rateLimitingConfig.getRequestEndpoint() != null) {
-            includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
-        }
-
-        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(), rateLimitingConfig.getDatastoreWarnLimit().intValue());
     }
 }

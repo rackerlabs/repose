@@ -21,8 +21,6 @@ package features.filters.experimental.helpers
 
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
-import org.junit.Assume
-import org.linkedin.util.clock.Timespan
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

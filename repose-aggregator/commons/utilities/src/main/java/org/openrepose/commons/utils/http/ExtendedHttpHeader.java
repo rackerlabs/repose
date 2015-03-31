@@ -20,27 +20,26 @@
 package org.openrepose.commons.utils.http;
 
 /**
- *
  * @author zinic
  */
 public enum ExtendedHttpHeader implements HeaderConstant {
 
-   //Caching specific
-   X_TTL("X-TTL");
-   
-   private final String headerKey;
+    //Caching specific
+    X_TTL("X-TTL");
 
-   private ExtendedHttpHeader(String headerKey) {
-      this.headerKey = headerKey.toLowerCase();
-   }
+    private final String headerKey;
 
-   @Override
-   public String toString() {
-      return headerKey;
-   }
+    private ExtendedHttpHeader(String headerKey) {
+        this.headerKey = headerKey.toLowerCase();
+    }
 
-   @Override
-   public boolean matches(String st) {
-      return headerKey.equalsIgnoreCase(st);
-   }
+    @Override
+    public String toString() {
+        return headerKey;
+    }
+
+    @Override
+    public boolean matches(String st) {
+        return headerKey.equalsIgnoreCase(st);
+    }
 }

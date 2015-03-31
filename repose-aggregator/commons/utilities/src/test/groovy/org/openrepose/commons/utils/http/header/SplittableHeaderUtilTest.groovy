@@ -19,10 +19,10 @@
  */
 package org.openrepose.commons.utils.http.header
 
+import org.junit.Test
 import org.openrepose.commons.utils.http.ExtendedHttpHeader
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.commons.utils.http.PowerApiHeader
-import org.junit.Test
 
 class SplittableHeaderUtilTest {
 
@@ -38,7 +38,7 @@ class SplittableHeaderUtilTest {
     }
 
     @Test
-    void testUnSplitable(){
+    void testUnSplitable() {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
@@ -47,7 +47,7 @@ class SplittableHeaderUtilTest {
     }
 
     @Test
-    void testLargSplitableList(){
+    void testLargSplitableList() {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values())
 
@@ -56,7 +56,7 @@ class SplittableHeaderUtilTest {
     }
 
     @Test
-    void testSplitableList(){
+    void testSplitableList() {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.USER)
 
@@ -64,11 +64,11 @@ class SplittableHeaderUtilTest {
 
     }
 
-        @Test
-    void testLargerSplitableList(){
+    @Test
+    void testLargerSplitableList() {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-        ExtendedHttpHeader.values())
+                ExtendedHttpHeader.values())
 
         assert splitable.isSplitable("x-pp-user")
         assert splitable.isSplitable("X-Tenant-Name")

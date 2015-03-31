@@ -23,10 +23,10 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,17 +46,17 @@ import java.util.Map;
  */
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
-    private ValidatorConfiguration validatorConfiguration;
-    private ValidatorInfo defaultValidator;
-    private List<ValidatorInfo> validators;
-    private volatile boolean initialized = false;
     private final ConfigurationService configurationService;
     private final ApiValidatorWadlListener wadlListener;
     private final Object lock = new Object();
     private final String configRoot;
-    private boolean multiRoleMatch = false;
     private final String config;
     private final MetricsService metricsService;
+    private ValidatorConfiguration validatorConfiguration;
+    private ValidatorInfo defaultValidator;
+    private List<ValidatorInfo> validators;
+    private volatile boolean initialized = false;
+    private boolean multiRoleMatch = false;
 
     public ApiValidatorHandlerFactory(ConfigurationService configurationService, String configurationRoot, String config,
                                       MetricsService metricsService) {

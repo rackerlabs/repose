@@ -19,10 +19,10 @@
  */
 package org.openrepose.commons.utils.test.glassfish;
 
-import org.openrepose.commons.utils.test.ReposeContainerProps;
-import org.openrepose.commons.utils.test.ReposeContainerUtil;
 import org.apache.commons.cli.ParseException;
 import org.glassfish.embeddable.GlassFishException;
+import org.openrepose.commons.utils.test.ReposeContainerProps;
+import org.openrepose.commons.utils.test.ReposeContainerUtil;
 
 public class ReposeGlassfishServer {
 

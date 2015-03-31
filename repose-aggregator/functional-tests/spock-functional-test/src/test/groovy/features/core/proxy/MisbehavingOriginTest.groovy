@@ -85,13 +85,13 @@ class MisbehavingOriginTest extends ReposeValveTest {
             serverSocket = new ServerSocket(0)
             port = serverSocket.getLocalPort()
 
-            while(running) {
+            while (running) {
                 try {
-                    Socket server =serverSocket.accept()
+                    Socket server = serverSocket.accept()
                     println("OPERATING")
                     new PrintStream(server.outputStream).println("null")
                     server.close()
-                } catch(Exception e) {
+                } catch (Exception e) {
                     println("OH NOES SOMETHING: $e")
                 }
             }

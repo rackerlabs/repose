@@ -37,9 +37,9 @@ public class ContentNormalizationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentNormalizationFilter.class);
     private static final String DEFAULT_CONFIG = "content-normalization.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private ContentNormalizationHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public ContentNormalizationFilter(ConfigurationService configurationService) {

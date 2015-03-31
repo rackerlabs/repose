@@ -24,4 +24,5 @@ package framework.category
  *
  * A test is considered a bug test if it is expected to fail when validating desired behavior.
  */
+
 public interface Bug {}

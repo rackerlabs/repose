@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class UrlRequestedHandler implements FormatterLogic {
 
-   @Override
-   public String handle(HttpServletRequest request, HttpServletResponse response) {
-      return request.getRequestURL().toString();
-   }
+    @Override
+    public String handle(HttpServletRequest request, HttpServletResponse response) {
+        return request.getRequestURL().toString();
+    }
 }

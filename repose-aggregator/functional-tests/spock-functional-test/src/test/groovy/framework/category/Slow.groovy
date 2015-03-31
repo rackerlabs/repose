@@ -24,4 +24,5 @@ package framework.category
  *
  * A test is considered slow if it requires >= 1 minute to run.
  */
+
 public interface Slow {}

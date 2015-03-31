@@ -31,17 +31,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *
  * @author zinic
  */
 public class StreamToXsltTransform extends AbstractXslTransform implements StreamTransform<InputStream, OutputStream> {
 
-   public StreamToXsltTransform(Templates transformationTemplates) {
-      super(transformationTemplates);
-   }
+    public StreamToXsltTransform(Templates transformationTemplates) {
+        super(transformationTemplates);
+    }
 
-   @Override
-   public void transform(final InputStream source, final OutputStream target) {
+    @Override
+    public void transform(final InputStream source, final OutputStream target) {
         Transformer pooledObject;
         final ObjectPool<Transformer> objectPool = getXslTransformerPool();
         try {
@@ -51,7 +50,7 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
             } catch (TransformerException te) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
-               throw new XsltTransformationException("Failed while attempting XSLT transformation.", te);
+                throw new XsltTransformationException("Failed while attempting XSLT transformation.", te);
             } catch (Exception e) {
                 objectPool.invalidateObject(pooledObject);
                 pooledObject = null;
@@ -66,5 +65,5 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
         } catch (Exception e) {
             throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
         }
-   }
+    }
 }

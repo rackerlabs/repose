@@ -54,8 +54,8 @@ class PatternsPAndSTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-0"        | "403"        | 0
+        roles    | responseCode | numHandlings
+        "role-0" | "403"        | 0
     }
 
     def "When multi-role-match is false and a single validator is configured and matches, it should pass (P\\1 -> P -> P)"() {
@@ -70,8 +70,8 @@ class PatternsPAndSTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-1"        | "200"        | 1
+        roles    | responseCode | numHandlings
+        "role-1" | "200"        | 1
     }
 
     def cleanupSpec() {

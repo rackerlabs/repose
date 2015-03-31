@@ -32,7 +32,7 @@ import static framework.TestUtils.timedSearch
  * Created by jennyvo on 4/9/14.
  */
 @Category(Slow)
-class DistDataStoreMisConfigTest extends ReposeValveTest{
+class DistDataStoreMisConfigTest extends ReposeValveTest {
     static def datastoreEndpoint
 
 
@@ -49,11 +49,11 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort' : dataStorePort
+                'datastorePort': dataStorePort
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/"+configuration, params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/" + configuration, params)
 
         when:
         repose.start([waitOnJmxAfterStarting: false])
@@ -69,11 +69,11 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         }
 
         where:
-        configuration                   |searchMsg
-        "noportconfig"                  |"port-config"
-        "noportelement"                 |"The content of element 'port-config' is not complete"
-        "noportattribute"               |"Attribute 'port' must appear on element 'port'"
-        "noclusterattribute"            |"Attribute 'cluster' must appear on element 'port'"
+        configuration        | searchMsg
+        "noportconfig"       | "port-config"
+        "noportelement"      | "The content of element 'port-config' is not complete"
+        "noportattribute"    | "Attribute 'port' must appear on element 'port'"
+        "noclusterattribute" | "Attribute 'cluster' must appear on element 'port'"
 
     }
 
@@ -90,11 +90,11 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort' : dataStorePort
+                'datastorePort': dataStorePort
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/"+configuration, params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/" + configuration, params)
 
         when:
         repose.start([waitOnJmxAfterStarting: false])
@@ -107,7 +107,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         }
 
         where:
-        configuration << ["clustermismatch","nodemismatch"]
+        configuration << ["clustermismatch", "nodemismatch"]
 
     }
 
@@ -124,7 +124,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort' : dataStorePort
+                'datastorePort': dataStorePort
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
@@ -140,7 +140,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         }
 
         where:
-        port    << [65536, -3] //-1 is used internally as "I can't find the port"
+        port << [65536, -3] //-1 is used internally as "I can't find the port"
     }
 
     @Unroll("When start data store with reserved: #port")

@@ -68,7 +68,6 @@ class AuthZConnectionPoolingTest extends Specification {
         identityEndpoint = deproxy.addEndpoint(identityServicePort,
                 "identity", "localhost", identityService.handler)
 
-
         // configure and start repose
 
         def targetHostname = properties.targetHostname

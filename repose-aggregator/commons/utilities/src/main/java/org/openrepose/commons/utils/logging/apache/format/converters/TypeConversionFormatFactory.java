@@ -47,8 +47,8 @@ public enum TypeConversionFormatFactory {
 final class ConverterMap {
 
     private static final Map<String, FormatConverter> CONVERSION_MAP = new HashMap<String, FormatConverter>();
-    
-    private ConverterMap(){
+
+    private ConverterMap() {
     }
 
     public static void addConverter(String name, FormatConverter converter) {

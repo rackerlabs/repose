@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.tenantvalidation
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -57,7 +58,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -73,9 +74,9 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -96,11 +97,11 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | clientToken       | delegatedMsg
-        300           | 301             | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=client-auth-n.message=.*;q=0.7"
-        302           | 303             | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
-        304           | 305             | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
-        306           | 306             | 200              | "200"        | ""                | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        requestTenant | responseTenant | authResponseCode | responseCode | clientToken       | delegatedMsg
+        300           | 301            | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=client-auth-n.message=.*;q=0.7"
+        302           | 303            | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        304           | 305            | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        306           | 306            | 200              | "200"        | ""                | "status_code=401.component=client-auth-n.message=.*;q=0.7"
 
     }
 
@@ -129,35 +130,36 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         and: "If request made it to origin service"
         if (identityStatus == "Confirmed") {
             def request2 = mc.handlings[0].request
-            assert(mc.handlings[0].endpoint == originEndpoint)
-            assert(request2.headers.contains("x-auth-token"))
-            assert(request2.headers.contains("x-identity-status"))
-            assert(request2.headers.contains("x-authorization"))
-            assert(request2.headers.getFirstValue("x-identity-status") == identityStatus)
-            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+            assert (mc.handlings[0].endpoint == originEndpoint)
+            assert (request2.headers.contains("x-auth-token"))
+            assert (request2.headers.contains("x-identity-status"))
+            assert (request2.headers.contains("x-authorization"))
+            assert (request2.headers.getFirstValue("x-identity-status") == identityStatus)
+            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         and: "If identityStatus was Indeterminate"
         if (identityStatus == "Indeterminate") {
 
             def request2 = mc.handlings[0].request
-            assert(request2.headers.getFirstValue("x-identity-status") == identityStatus)
-            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+            assert (request2.headers.getFirstValue("x-identity-status") == identityStatus)
+            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | responseCode | identityStatus  | clientToken
-        307           | 307             | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID()
-        308           | 308             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
-        309           | 310             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
-        ""            | 312             | "not-admin"           | "200"        | "Indeterminate" | ""
+        requestTenant | responseTenant | serviceAdminRole      | responseCode | identityStatus  | clientToken
+        307           | 307            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID()
+        308           | 308            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
+        309           | 310            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
+        ""            | 312            | "not-admin"           | "200"        | "Indeterminate" | ""
     }
 
     /*
         This test verify delegated message to service origin with tenanted
      */
-    @Unroll ("Tenant: #requestTenant, response #responseTenant and #delegatedMsg")
-    def "When req with tenanted config fail delegable option forward failed message to origin" (){
+
+    @Unroll("Tenant: #requestTenant, response #responseTenant and #delegatedMsg")
+    def "When req with tenanted config fail delegable option forward failed message to origin"() {
         given:
         fakeIdentityService.with {
             client_token = clientToken

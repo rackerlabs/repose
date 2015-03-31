@@ -33,7 +33,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.util.*;
@@ -84,11 +83,11 @@ public class FilterContextFactory {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
 
-        Iterator<EarClassLoaderContext> classLoaderContextIterator  = loadedApplications.iterator();
-        while(classLoaderContextIterator.hasNext() && filterType == null) {
+        Iterator<EarClassLoaderContext> classLoaderContextIterator = loadedApplications.iterator();
+        while (classLoaderContextIterator.hasNext() && filterType == null) {
             EarClassLoaderContext classLoaderContext = classLoaderContextIterator.next();
             filterType = classLoaderContext.getEarDescriptor().getRegisteredFilters().get(filter.getName());
-            if(filterType != null) {
+            if (filterType != null) {
                 filterClassLoader = classLoaderContext.getClassLoader();
             }
         }

@@ -28,7 +28,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.github.jknack.handlebars.{Options, Helper, Handlebars, Template}
+import com.github.jknack.handlebars.{Handlebars, Helper, Options, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -49,7 +49,7 @@ import scala.util.matching.Regex
 class HerpFilter @Inject()(configurationService: ConfigurationService,
                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
-                           extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+  extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
   private final val X_METHOD_LABEL: String = "X-METHOD-LABEL"
@@ -104,7 +104,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
         case Some(parameters) =>
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
-          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value))}).toMap
+          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value)) }).toMap
         case None => Map[String, Array[String]]()
       }
     }
@@ -178,7 +178,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
                 // Retrieve the Scala version of the Map.
                 valuesMap.get(keySplit(0) + "_SCALA") match {
                   case Some(scalaValue: Map[String, Array[String]]) =>
-                    scalaValue.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined}.nonEmpty
+                    scalaValue.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined }.nonEmpty
                   case _ => false
                 }
               } else {
@@ -235,8 +235,8 @@ class CadfTimestamp extends Helper[Long] {
     // "For formatting, if the offset value from GMT is 0, 'Z' is produced."
     // This only manipulates the Time Zones that produce a 'Z'.
     val formattedString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(context))
-    if(formattedString.endsWith("Z")) {
-      formattedString.substring(0, formattedString.length()-1) + "+00:00"
+    if (formattedString.endsWith("Z")) {
+      formattedString.substring(0, formattedString.length() - 1) + "+00:00"
     } else {
       formattedString
     }
@@ -246,12 +246,12 @@ class CadfTimestamp extends Helper[Long] {
 class CadfMethod extends Helper[String] {
   override def apply(context: String, options: Options): CharSequence = {
     context.toLowerCase match {
-      case "get"    => "read/get"
-      case "head"   => "read/head"
-      case "post"   => "update/post"
-      case "put"    => "update/put"
+      case "get" => "read/get"
+      case "head" => "read/head"
+      case "post" => "update/post"
+      case "put" => "update/put"
       case "delete" => "update/delete"
-      case "patch"  => "update/patch"
+      case "patch" => "update/patch"
     }
   }
 }

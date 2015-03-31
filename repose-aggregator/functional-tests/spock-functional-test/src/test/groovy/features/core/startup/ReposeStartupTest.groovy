@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.startup
+
 import framework.ReposeValveTest
 import framework.category.Release
 import org.apache.commons.io.FileUtils
@@ -31,10 +32,10 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Unroll
 
-import java.nio.file.Path
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+
 /**
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.
  */
@@ -51,7 +52,7 @@ class ReposeStartupTest extends ReposeValveTest {
 
     static def params
 
-    def "repose should start with installation configs"(){
+    def "repose should start with installation configs"() {
         setup:
         def params = properties.getDefaultTemplateParams()
         def nextPort = PortFinder.Singleton.getNextOpenPort()
@@ -67,10 +68,10 @@ class ReposeStartupTest extends ReposeValveTest {
         String systemModelSource = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml"
         new File(systemModelTemp).withWriter {
             out ->
-            new File(systemModelSource).eachLine {
-                line ->
-                    out << line.replaceAll("http-port=\"8080\"", "http-port=\"${nextPort}\"")
-            }
+                new File(systemModelSource).eachLine {
+                    line ->
+                        out << line.replaceAll("http-port=\"8080\"", "http-port=\"${nextPort}\"")
+                }
         }
         FileUtils.copyFile(new File(systemModelTemp), new File(systemModelSource))
 
@@ -164,7 +165,7 @@ class ReposeStartupTest extends ReposeValveTest {
         ]
     }
 
-    static def deployDeb(){
+    static def deployDeb() {
         return [
                 'sudo apt-get update -y',
                 'sudo apt-get install openjdk-7-jdk -y',
@@ -176,7 +177,7 @@ class ReposeStartupTest extends ReposeValveTest {
         ]
     }
 
-    static def deployRpm(){
+    static def deployRpm() {
         return [
                 'sudo yum update -y',
                 'sudo yum install java-1.7.0-openjdk -y',
@@ -190,7 +191,7 @@ class ReposeStartupTest extends ReposeValveTest {
         ]
     }
 
-    static def cleanupDeb(){
+    static def cleanupDeb() {
         return [
                 'sudo killall java',
                 'sudo apt-get -y purge repose-valve',
@@ -199,7 +200,7 @@ class ReposeStartupTest extends ReposeValveTest {
         ]
     }
 
-    static def cleanupRpm(){
+    static def cleanupRpm() {
         return [
                 'sudo killall java',
                 'sudo yum -y remove repose-valve',
@@ -213,6 +214,6 @@ class ReposeStartupTest extends ReposeValveTest {
 
 }
 
-class Server{
+class Server {
     def name, ip, deploymentSteps, cleanupSteps
 }

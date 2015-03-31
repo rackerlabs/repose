@@ -64,7 +64,7 @@ public class ReflectionToolsTest {
             assertNotNull(ReflectionTools.construct(String.class));
         }
 
-        @Test(expected=ReflectionException.class)
+        @Test(expected = ReflectionException.class)
         public void shouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
             ReflectionTools.construct(SimpleClass.class, 42, "won't work");
         }
@@ -80,16 +80,16 @@ public class ReflectionToolsTest {
 
         @Test
         public void shouldReturnConstructorsWithMatchingSignature() throws NoSuchMethodException {
-            Class<?>[] typeArray = { String.class, Integer.class };
+            Class<?>[] typeArray = {String.class, Integer.class};
 
             simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
 
             assertTrue(simpleClassConstructor.toString().contains("SimpleClass(java.lang.String,java.lang.Integer)"));
         }
 
-        @Test(expected=NoSuchMethodException.class)
+        @Test(expected = NoSuchMethodException.class)
         public void shouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
-            Class<?>[] typeArray = { Integer.class, String.class };
+            Class<?>[] typeArray = {Integer.class, String.class};
 
             ReflectionTools.getConstructor(SimpleClass.class, typeArray);
         }

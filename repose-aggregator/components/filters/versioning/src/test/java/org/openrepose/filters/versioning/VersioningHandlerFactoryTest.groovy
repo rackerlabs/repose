@@ -33,7 +33,7 @@ class VersioningHandlerFactoryTest extends Specification {
 
     def metricsService, healthService
 
-    def setup(){
+    def setup() {
         metricsService = Mockito.mock(MetricsService)
         healthService = Mockito.mock(HealthCheckService)
         Mockito.when(healthService.register(VersioningHandlerFactory)).thenReturn("1234")
@@ -44,7 +44,7 @@ class VersioningHandlerFactoryTest extends Specification {
     def "GetListeners"() {
 
         when:
-        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService) {
             //this overrides isInitialized method on the inner class listener to set isInitialized to true
             @Override
             boolean isInitialized() {
@@ -62,7 +62,7 @@ class VersioningHandlerFactoryTest extends Specification {
     def "BuildHandler - handler factory not initialized"() {
 
         when:
-        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService) {
             @Override
             boolean isInitialized() {
                 return false
@@ -74,10 +74,10 @@ class VersioningHandlerFactoryTest extends Specification {
         !handler
     }
 
-    def "BuildHandler -  - happy path"(){
+    def "BuildHandler -  - happy path"() {
 
         when:
-        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService){
+        def factory = new VersioningHandlerFactory("cluster", "node", metricsService, healthService) {
             @Override
             boolean isInitialized() {
                 return true

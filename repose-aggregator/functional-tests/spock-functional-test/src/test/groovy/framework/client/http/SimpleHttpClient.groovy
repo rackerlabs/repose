@@ -108,16 +108,15 @@ class SimpleHttpClient {
     def doDelete(String path, Map headers, String payload) {
         def requestPath = endpoint + path
 
-         EntityEnclosingDelete httpDelete = new EntityEnclosingDelete()
-         URI uri = URI.create(requestPath)
-         httpDelete.setURI(uri)
+        EntityEnclosingDelete httpDelete = new EntityEnclosingDelete()
+        URI uri = URI.create(requestPath)
+        httpDelete.setURI(uri)
         if (payload) {
             httpDelete.setEntity(new StringEntity(payload, Charset.forName("UTF-8")))
         }
 
         makeCall(httpDelete, headers, requestPath)
     }
-
 
 
     def doPost(String path, Map headers, String payload) {
@@ -169,7 +168,7 @@ class SimpleHttpClient {
 
 class RequestState {
     String requestPath
-    Map<String,String> requestHeaders
+    Map<String, String> requestHeaders
     SimpleHttpResponse response
     String method
 }

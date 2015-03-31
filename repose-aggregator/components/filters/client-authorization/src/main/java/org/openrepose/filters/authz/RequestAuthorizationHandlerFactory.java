@@ -27,11 +27,11 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.filters.authz.cache.EndpointListCache;
-import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.filters.authz.cache.EndpointListCache;
+import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,42 +47,10 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
     private HttpClientService httpClientService;
     private AkkaServiceClient akkaServiceClient;
 
-    public RequestAuthorizationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
+    public RequestAuthorizationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
         this.datastore = datastore;
         this.httpClientService = httpClientService;
         this.akkaServiceClient = akkaServiceClient;
-    }
-
-    private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
-
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(RackspaceAuthorization configurationObject) throws UpdateFailedException {
-            authorizationConfiguration = configurationObject;
-
-            final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
-
-            if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-                try {
-                    authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(),
-                            serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),
-                            configurationObject.getAuthenticationServer().getConnectionPoolId(),httpClientService,
-                            akkaServiceClient);
-                } catch (AuthServiceException e) {
-                    throw new UpdateFailedException("Failed to authorize.", e);
-                }
-            } else {
-                LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
-            }
-
-            isInitialized = true;
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
-        }
     }
 
     @Override
@@ -108,5 +76,37 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
         updateListeners.put(RackspaceAuthorization.class, new RoutingConfigurationListener());
 
         return updateListeners;
+    }
+
+    private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(RackspaceAuthorization configurationObject) throws UpdateFailedException {
+            authorizationConfiguration = configurationObject;
+
+            final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
+
+            if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
+                try {
+                    authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(),
+                            serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),
+                            configurationObject.getAuthenticationServer().getConnectionPoolId(), httpClientService,
+                            akkaServiceClient);
+                } catch (AuthServiceException e) {
+                    throw new UpdateFailedException("Failed to authorize.", e);
+                }
+            } else {
+                LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
+            }
+
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
     }
 }

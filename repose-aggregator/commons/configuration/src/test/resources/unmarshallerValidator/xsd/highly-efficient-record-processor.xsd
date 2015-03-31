@@ -20,11 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified"
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
            targetNamespace="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
-           xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0">
 
     <!-- Elements -->
     <xs:element name="highly-efficient-record-processor" type="HerpConfig"/>
@@ -44,7 +44,8 @@
             <xs:element name="template" type="Template"/>
         </xs:sequence>
 
-        <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional" default="org.openrepose.herp.pre.filter">
+        <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional"
+                      default="org.openrepose.herp.pre.filter">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

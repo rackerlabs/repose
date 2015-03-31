@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.config.resource.impl;
 
-import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.config.resource.ConfigurationResource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +39,7 @@ public class ByteArrayConfigurationResourceTest {
 
         @Before
         public void setup() {
-            byte[] bytes = {1, 2 ,3};
+            byte[] bytes = {1, 2, 3};
             String name = "my_byte_array";
 
             byteArrayConfigurationResource = new ByteArrayConfigurationResource(name, bytes);

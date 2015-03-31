@@ -31,74 +31,73 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
  * @author zinic
  */
 @RunWith(Enclosed.class)
 public class MultiInstanceWhiteListTest {
 
-   @Ignore
-   public static class TestParent {
+    @Ignore
+    public static class TestParent {
 
-      protected MultiInstanceWhiteList whiteList;
+        protected MultiInstanceWhiteList whiteList;
 
-      @Before
-      public void beforeAll() {
-         final HttpUriParameterList parameterList = new HttpUriParameterList();
+        @Before
+        public void beforeAll() {
+            final HttpUriParameterList parameterList = new HttpUriParameterList();
 
-         final UriParameter parameterA = new UriParameter();
-         parameterA.setName("a");
-         parameterA.setCaseSensitive(false);
-         parameterA.setMultiplicity(2);
+            final UriParameter parameterA = new UriParameter();
+            parameterA.setName("a");
+            parameterA.setCaseSensitive(false);
+            parameterA.setMultiplicity(2);
 
-         parameterList.getParameter().add(parameterA);
+            parameterList.getParameter().add(parameterA);
 
-         final UriParameter parameterB = new UriParameter();
-         parameterB.setName("b");
-         parameterB.setCaseSensitive(true);
-         parameterB.setMultiplicity(4);
+            final UriParameter parameterB = new UriParameter();
+            parameterB.setName("b");
+            parameterB.setCaseSensitive(true);
+            parameterB.setMultiplicity(4);
 
-         parameterList.getParameter().add(parameterB);
+            parameterList.getParameter().add(parameterB);
 
-         final UriParameter parameterC = new UriParameter();
-         parameterC.setName("c");
-         parameterC.setCaseSensitive(true);
-         parameterC.setMultiplicity(0);
+            final UriParameter parameterC = new UriParameter();
+            parameterC.setName("c");
+            parameterC.setCaseSensitive(true);
+            parameterC.setMultiplicity(0);
 
-         parameterList.getParameter().add(parameterC);
+            parameterList.getParameter().add(parameterC);
 
-         whiteList = new MultiInstanceWhiteList(parameterList);
-      }
-   }
+            whiteList = new MultiInstanceWhiteList(parameterList);
+        }
+    }
 
-   public static class WhenFilteringParameterMultiplicity extends TestParent {
+    public static class WhenFilteringParameterMultiplicity extends TestParent {
 
-      @Test
-      public void shouldFilterParametersInWhiteList() {
-         assertTrue("Should accept 'a'", whiteList.shouldAccept("a"));
-         assertTrue("Should accept 'A'", whiteList.shouldAccept("A"));
-         
-         assertFalse("Should not accept third 'a'", whiteList.shouldAccept("a"));
-         assertFalse("Should not accept 'test'", whiteList.shouldAccept("test"));
-         assertFalse("Should not accept 'format'", whiteList.shouldAccept("format"));
-         assertFalse("Should not accept 'B'", whiteList.shouldAccept("B"));
-      }
+        @Test
+        public void shouldFilterParametersInWhiteList() {
+            assertTrue("Should accept 'a'", whiteList.shouldAccept("a"));
+            assertTrue("Should accept 'A'", whiteList.shouldAccept("A"));
 
-      @Test
-      public void shouldHonorUnlimitedMultiplicity() {
-         for (int i = 0; i < 5000; i++) {
-            assertTrue("Should accept 'a'", whiteList.shouldAccept("c"));
-         }
-      }
-      
-      @Test
-      public void shouldNotAcceptAnythingWithNullParameter(){
-         
-         MultiInstanceWhiteList emptyWhiteList= new MultiInstanceWhiteList(null);
-         
-         assertFalse("Should not accept 'a'", emptyWhiteList.shouldAccept("a"));
-         assertFalse("Should not accept 'test'", emptyWhiteList.shouldAccept("test"));
-         assertFalse("Should not accept 'format'", emptyWhiteList.shouldAccept("format"));
-      }
-   }
+            assertFalse("Should not accept third 'a'", whiteList.shouldAccept("a"));
+            assertFalse("Should not accept 'test'", whiteList.shouldAccept("test"));
+            assertFalse("Should not accept 'format'", whiteList.shouldAccept("format"));
+            assertFalse("Should not accept 'B'", whiteList.shouldAccept("B"));
+        }
+
+        @Test
+        public void shouldHonorUnlimitedMultiplicity() {
+            for (int i = 0; i < 5000; i++) {
+                assertTrue("Should accept 'a'", whiteList.shouldAccept("c"));
+            }
+        }
+
+        @Test
+        public void shouldNotAcceptAnythingWithNullParameter() {
+
+            MultiInstanceWhiteList emptyWhiteList = new MultiInstanceWhiteList(null);
+
+            assertFalse("Should not accept 'a'", emptyWhiteList.shouldAccept("a"));
+            assertFalse("Should not accept 'test'", emptyWhiteList.shouldAccept("test"));
+            assertFalse("Should not accept 'format'", emptyWhiteList.shouldAccept("format"));
+        }
+    }
 }

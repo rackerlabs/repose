@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class AuthenticationServiceFactoryTest {
-    HttpClientService  httpClientService;
+    HttpClientService httpClientService;
     AkkaServiceClient akkaServiceClient;
 
     /**
@@ -36,9 +36,9 @@ public class AuthenticationServiceFactoryTest {
      */
     @Test
     public void testBuild() throws Exception {
-       AuthenticationServiceFactory instance = new AuthenticationServiceFactory();
-       httpClientService=mock(HttpClientService.class);
-       AuthenticationService result = instance.build("/some/host/uri", "username", "password",null,null,httpClientService, akkaServiceClient);
-       assertNotNull(result);
+        AuthenticationServiceFactory instance = new AuthenticationServiceFactory();
+        httpClientService = mock(HttpClientService.class);
+        AuthenticationService result = instance.build("/some/host/uri", "username", "password", null, null, httpClientService, akkaServiceClient);
+        assertNotNull(result);
     }
 }

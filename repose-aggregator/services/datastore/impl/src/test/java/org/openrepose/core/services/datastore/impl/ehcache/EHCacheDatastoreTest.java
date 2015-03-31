@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.datastore.impl.ehcache;
 
-import org.openrepose.core.services.datastore.StringValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -31,24 +30,24 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.openrepose.core.services.datastore.StringValue;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class EHCacheDatastoreTest {
 
+    private static final String CACHE_NAME = "TEST";
     private static CacheManager cacheManager;
     private Cache cache;
     private EHCacheDatastore datastore;
-    private static final String CACHE_NAME = "TEST";
 
     @BeforeClass
     public static void setUpClass() {
@@ -161,35 +160,35 @@ public class EHCacheDatastoreTest {
     }
 
     @Test
-    public void shouldPatchNewElementWithTTL(){
+    public void shouldPatchNewElementWithTTL() {
         String key = "my element";
         String value = "1, 2, 3";
         datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
-        StringValue element = (StringValue)datastore.get(key);
+        StringValue element = (StringValue) datastore.get(key);
         assertNotNull(element);
         assertEquals(value, element.getValue());
     }
 
     @Test
-    public void shouldPatchExistingElement(){
+    public void shouldPatchExistingElement() {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
         datastore.patch(key, new StringValue.Patch(value));
         datastore.patch(key, new StringValue.Patch(newValue));
-        StringValue element = (StringValue)datastore.get(key);
+        StringValue element = (StringValue) datastore.get(key);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
     }
 
     @Test
-    public void shouldPatchExistingElementWithTTL(){
+    public void shouldPatchExistingElementWithTTL() {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
         datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
         datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
-        StringValue element = (StringValue)datastore.get(key);
+        StringValue element = (StringValue) datastore.get(key);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
     }
@@ -200,7 +199,7 @@ public class EHCacheDatastoreTest {
         String value = "1, 2, 3";
         String newValue = ", 4";
         datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
-        StringValue element = (StringValue)datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
+        StringValue element = (StringValue) datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
     }

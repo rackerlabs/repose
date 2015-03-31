@@ -34,10 +34,10 @@ import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 
 @Named
-class OpenStackIdentityV3Filter @Inject() (configurationService: ConfigurationService,
-                                           datastoreService: DatastoreService,
-                                           httpClientService: HttpClientService,
-                                           akkaServiceClient: AkkaServiceClient) extends Filter with LazyLogging {
+class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationService,
+                                          datastoreService: DatastoreService,
+                                          httpClientService: HttpClientService,
+                                          akkaServiceClient: AkkaServiceClient) extends Filter with LazyLogging {
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
 

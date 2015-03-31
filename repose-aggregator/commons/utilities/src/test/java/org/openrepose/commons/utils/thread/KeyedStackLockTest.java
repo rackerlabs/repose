@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  *
- * 
+ *
  */
 @RunWith(Enclosed.class)
 public class KeyedStackLockTest {

@@ -30,7 +30,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 8/27/14.
  * Test Identity v3 filter with whitelist config
  */
-class IdentityV3WhitelistTest extends ReposeValveTest{
+class IdentityV3WhitelistTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -39,26 +39,26 @@ class IdentityV3WhitelistTest extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3",params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/whitelist",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/whitelist", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null,fakeIdentityV3Service.handler)
+                'identity service', null, fakeIdentityV3Service.handler)
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    @Unroll ("#uriPattern expect #responseCode")
-    def "Test request with uri in whitelist pattern req should pass without authenticate" (){
+    @Unroll("#uriPattern expect #responseCode")
+    def "Test request with uri in whitelist pattern req should pass without authenticate"() {
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/$uriPattern",
@@ -74,14 +74,14 @@ class IdentityV3WhitelistTest extends ReposeValveTest{
         mc.orphanedHandlings.size() == 0
 
         where:
-        uriPattern          | responseCode
-        "public-info"       | "200"
-        "test-info"         | "200"
-        ""                  | "401"
-        "servers-info"      | "401"
+        uriPattern     | responseCode
+        "public-info"  | "200"
+        "test-info"    | "200"
+        ""             | "401"
+        "servers-info" | "401"
     }
 
-    def "Test send request with user token" () {
+    def "Test send request with user token"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
         def reqUserId = fakeIdentityV3Service.client_userid
@@ -98,7 +98,7 @@ class IdentityV3WhitelistTest extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )

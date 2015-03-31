@@ -21,15 +21,15 @@ package org.openrepose.commons.utils.test.mocks;
 
 import org.openrepose.commons.utils.test.mocks.providers.MockServiceProvider;
 
-import java.io.*;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author malconis
@@ -42,22 +42,21 @@ public class MockServiceResource {
     public MockServiceResource() {
         provider = new MockServiceProvider();
     }
-    
+
     @DELETE
     @Path("/deleteme")
     public Response delete(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
-        return echoBody(body == null || body.trim().isEmpty()? "no body": body, headers, uriInfo);
+        return echoBody(body == null || body.trim().isEmpty() ? "no body" : body, headers, uriInfo);
     }
-    
-    
-    
+
+
     @POST
     @Path("/emptyresponsebody")
     public Response emptyResponseBody(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         Response.ResponseBuilder response = Response.ok();
         return response.build();
     }
-    
+
 
     @POST
     @Path("/echobody")
@@ -179,9 +178,7 @@ public class MockServiceResource {
         final String data = provider.getEchoBody(body, headers, uri, request);
         return streamBytes(data.getBytes());
     }
-    
 
-    
 
     @GET
     @Path("/responsesize/{size}")

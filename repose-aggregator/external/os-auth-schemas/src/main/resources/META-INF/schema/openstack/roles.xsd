@@ -4,23 +4,22 @@
 <!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
 <schema
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
-    xmlns:atom="http://www.w3.org/2005/Atom"
-    targetNamespace="http://docs.openstack.org/identity/api/v2.0"
->
+        xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+        xmlns:atom="http://www.w3.org/2005/Atom"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://docs.openstack.org/identity/api/v2.0"
+        >
 
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
-            schemaLocation="atom/atom.xsd" />
+            schemaLocation="atom/atom.xsd"/>
 
     <!-- Elements -->
-    <element name="roles" type="identity:RoleList" >
+    <element name="roles" type="identity:RoleList">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -31,8 +30,8 @@
             </xsd:documentation>
         </annotation>
     </element>
-    
-    <element name="role" type="identity:Role" >
+
+    <element name="role" type="identity:Role">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -48,8 +47,8 @@
     <!-- Complex Types -->
     <complexType name="Role">
         <sequence>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:string" use="optional"/>
         <attribute name="name" type="xsd:string" use="required"/>
@@ -58,12 +57,12 @@
         <attribute name="tenantId" type="xsd:string" use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="RoleList">
         <sequence>
             <element name="role" type="identity:Role" minOccurs="0" maxOccurs="unbounded"/>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>

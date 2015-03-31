@@ -19,12 +19,12 @@
  */
 package org.openrepose.core.services.datastore.impl;
 
-import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.slf4j.LoggerFactory;
 

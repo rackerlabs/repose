@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rate-limiting datastore="distributed/hash-ring" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
 
-  <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
+    <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
 
     <global-limit-group>
         <limit id="globallimit" uri="all" uri-regex="/service/.*" http-methods="ALL" value="5" unit="MINUTE"/>

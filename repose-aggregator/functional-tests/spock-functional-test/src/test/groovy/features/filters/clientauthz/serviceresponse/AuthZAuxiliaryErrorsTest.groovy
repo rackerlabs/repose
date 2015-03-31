@@ -31,7 +31,8 @@ import org.rackspace.deproxy.Response
 import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.*
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 @Category(Slow.class)
@@ -70,7 +71,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
     }
 
     @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Endpoints Call: #endpointsBroken Error Code: #errorCode")
-    def "When Auxiliary service is broken for Service Endpoints call"(){
+    def "When Auxiliary service is broken for Service Endpoints call"() {
 
         given: "When Calls to Auth Return bad responses"
         def clientToken = UUID.randomUUID().toString()
@@ -85,36 +86,37 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
             fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
         }
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "User should receive a " + expectedCode + "response"
+        then:
+        "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
 
         where:
         adminBroken | endpointsBroken | errorCode | expectedCode
-        true        | false          | 400       | "500"
-        true        | false          | 401       | "500"
-        true        | false          | 402       | "500"
-        true        | false          | 403       | "500"
-        true        | false          | 404       | "500"
-        true        | false          | 413       | "503"
-        true        | false          | 429       | "503"
-        true        | false          | 500       | "500"
-        true        | false          | 501       | "500"
-        true        | false          | 502       | "500"
-        true        | false          | 503       | "500"
+        true        | false           | 400       | "500"
+        true        | false           | 401       | "500"
+        true        | false           | 402       | "500"
+        true        | false           | 403       | "500"
+        true        | false           | 404       | "500"
+        true        | false           | 413       | "503"
+        true        | false           | 429       | "503"
+        true        | false           | 500       | "500"
+        true        | false           | 501       | "500"
+        true        | false           | 502       | "500"
+        true        | false           | 503       | "500"
 
-        false       | true           | 400       | "500"
-        false       | true           | 401       | "500"
-        false       | true           | 402       | "500"
-        false       | true           | 403       | "500"
-        false       | true           | 404       | "500"
-        false       | true           | 413       | "503"
-        false       | true           | 429       | "503"
-        false       | true           | 500       | "500"
-        false       | true           | 501       | "500"
-        false       | true           | 502       | "500"
-        false       | true           | 503       | "500"
+        false       | true            | 400       | "500"
+        false       | true            | 401       | "500"
+        false       | true            | 402       | "500"
+        false       | true            | 403       | "500"
+        false       | true            | 404       | "500"
+        false       | true            | 413       | "503"
+        false       | true            | 429       | "503"
+        false       | true            | 500       | "500"
+        false       | true            | 501       | "500"
+        false       | true            | 502       | "500"
+        false       | true            | 503       | "500"
     }
 
     @Unroll("Sending request with mock identity response set to HTTP #identityStatusCode and Retry-After header")
@@ -128,7 +130,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             getEndpointsHandler = {
                 tokenId, request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
             }
         }
 

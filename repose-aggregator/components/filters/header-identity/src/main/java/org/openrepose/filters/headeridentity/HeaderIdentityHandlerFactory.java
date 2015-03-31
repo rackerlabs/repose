@@ -46,6 +46,14 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
         };
     }
 
+    @Override
+    protected HeaderIdentityHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderIdentityHandler(sourceHeaders);
+    }
+
     private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
 
         private boolean isInitialized = false;
@@ -60,13 +68,5 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected HeaderIdentityHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new HeaderIdentityHandler(sourceHeaders);
     }
 }

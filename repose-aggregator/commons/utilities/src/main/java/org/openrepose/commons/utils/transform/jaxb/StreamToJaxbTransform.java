@@ -33,14 +33,14 @@ import java.io.InputStream;
 
 public class StreamToJaxbTransform<T> extends AbstractJaxbTransform implements Transform<InputStream, JAXBElement<T>> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(JaxbEntityToXml.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JaxbEntityToXml.class);
 
-   public StreamToJaxbTransform(JAXBContext jc) {
-      super(jc);
-   }
+    public StreamToJaxbTransform(JAXBContext jc) {
+        super(jc);
+    }
 
-   @Override
-   public JAXBElement<T> transform(final InputStream source) {
+    @Override
+    public JAXBElement<T> transform(final InputStream source) {
         JAXBElement<T> rtn = null;
         Unmarshaller pooledObject;
         final ObjectPool<Unmarshaller> objectPool = getUnmarshallerPool();

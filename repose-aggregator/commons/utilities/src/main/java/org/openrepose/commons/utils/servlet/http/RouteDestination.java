@@ -21,10 +21,22 @@ package org.openrepose.commons.utils.servlet.http;
 
 public class RouteDestination implements Comparable {
 
+    private static final int BASE_HASH = 3;
+    private static final int PRIME = 79;
     private final String destinationId;
     private final String uri;
-    private String contextRemoved;
     private final double quality;
+    private String contextRemoved;
+
+    public RouteDestination(String destinationId, String uri, double quality) {
+        if (destinationId == null) {
+            throw new IllegalArgumentException("destinationId cannot be null");
+        }
+
+        this.destinationId = destinationId;
+        this.uri = uri != null ? uri : "";
+        this.quality = quality;
+    }
 
     @Override
     public int compareTo(Object o) {
@@ -52,11 +64,9 @@ public class RouteDestination implements Comparable {
         if (!(o instanceof RouteDestination)) {
             return false;
         }
-        
+
         return compareTo(o) == 0;
     }
-    private static final int BASE_HASH = 3;
-    private static final int PRIME = 79;
 
     @Override
     public int hashCode() {
@@ -64,18 +74,8 @@ public class RouteDestination implements Comparable {
         int hash = BASE_HASH;
         hash = PRIME * hash + (this.destinationId != null ? this.destinationId.hashCode() : 0);
         hash = PRIME * hash + (this.uri != null ? this.uri.hashCode() : 0);
-        hash = PRIME * hash + (int)Double.doubleToLongBits(this.quality);
+        hash = PRIME * hash + (int) Double.doubleToLongBits(this.quality);
         return hash;
-    }
-
-    public RouteDestination(String destinationId, String uri, double quality) {
-        if (destinationId == null) {
-            throw new IllegalArgumentException("destinationId cannot be null");
-        }
-
-        this.destinationId = destinationId;
-        this.uri = uri != null ? uri : "";
-        this.quality = quality;
     }
 
     public String getDestinationId() {

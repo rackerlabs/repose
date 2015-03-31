@@ -64,9 +64,9 @@ public class PowerFilterChain implements FilterChain {
 
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
+    private final PowerFilterRouter router;
     private List<FilterContext> currentFilters;
     private int position;
-    private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private TimerByCategory filterTimer;
@@ -98,7 +98,7 @@ public class PowerFilterChain implements FilterChain {
         currentFilters = getFilterChainForRequest(request.getRequestURI());
         filterChainAvailable = isCurrentFilterChainAvailable();
         servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
-        servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest)servletRequest).getRequestURL().toString());
+        servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest) servletRequest).getRequestURL().toString());
         servletRequest.setAttribute("http://openrepose.org/queryParams", servletRequest.getParameterMap());
 
         doFilter(servletRequest, servletResponse);

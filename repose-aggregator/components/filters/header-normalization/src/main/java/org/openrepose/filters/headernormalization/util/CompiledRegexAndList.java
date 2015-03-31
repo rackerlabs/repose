@@ -32,20 +32,20 @@ import java.util.regex.Pattern;
 
 // TODO Find a better name for this
 public class CompiledRegexAndList {
-    
+
     private Pattern pattern;
     private List<HttpMethod> methodList;
     private Boolean isBlackList;
     private Set<HeaderName> filterList;
-    
-    public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList){
+
+    public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList) {
         //sets this as the catch-all
-        this.pattern = pattern==null ? Pattern.compile(".*") : Pattern.compile(pattern); 
+        this.pattern = pattern == null ? Pattern.compile(".*") : Pattern.compile(pattern);
         //this will default to all if they do not provide it in the config
-        this.methodList = methodList; 
+        this.methodList = methodList;
         this.isBlackList = isBlackList;
-        
-        if(methodList.isEmpty()){
+
+        if (methodList.isEmpty()) {
             methodList.add(HttpMethod.ALL);
         }
         setFilterList(headerList);
@@ -59,7 +59,6 @@ public class CompiledRegexAndList {
         return isBlackList;
     }
 
-    
 
     public Pattern getPattern() {
         return pattern;
@@ -68,11 +67,11 @@ public class CompiledRegexAndList {
     public Set<HeaderName> getFilterList() {
         return filterList;
     }
-    
-    private void setFilterList(List<HttpHeader> headerList){
-        
+
+    private void setFilterList(List<HttpHeader> headerList) {
+
         filterList = new HashSet<HeaderName>();
-        for(HttpHeader header : headerList){
+        for (HttpHeader header : headerList) {
             filterList.add(HeaderName.wrap(header.getId()));
         }
     }

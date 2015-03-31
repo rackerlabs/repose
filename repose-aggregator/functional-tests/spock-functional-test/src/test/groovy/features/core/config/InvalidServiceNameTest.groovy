@@ -26,8 +26,8 @@ import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class InvalidServiceNameTest extends Specification {
 
@@ -54,7 +54,7 @@ class InvalidServiceNameTest extends Specification {
         params = properties.getDefaultTemplateParams()
 
         params += [
-                'datastorePort' : dataStorePort,
+                'datastorePort': dataStorePort,
         ]
 
         // start a deproxy
@@ -96,7 +96,7 @@ class InvalidServiceNameTest extends Specification {
         waitForCondition(repose.clock, "30s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s"){
+        waitForCondition(repose.clock, "20s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 

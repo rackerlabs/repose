@@ -46,15 +46,17 @@ class HeaderParserTest extends ReposeValveTest {
 
     def "when expecting a comma-separated location header"() {
         given: "Origin service returns a comma-separated location header"
-        def headerResp = {request -> return new Response(200, "OK",
-                ["Location" : locations], "")}
+        def headerResp = { request ->
+            return new Response(200, "OK",
+                    ["Location": locations], "")
+        }
 
         when: "User sends a request through repose"
         def resp = deproxy.makeRequest(url: (String) reposeEndpoint,
                 method: "GET",
-                headers: ["x-test" : "test"],
+                headers: ["x-test": "test"],
                 requestBody: "",
-                defaultHandler:headerResp)
+                defaultHandler: headerResp)
 
         then: "Repose returns a comma-separated location header"
         resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(locations)
@@ -62,14 +64,16 @@ class HeaderParserTest extends ReposeValveTest {
 
     def "when expecting a comma-separated header to be split"() {
         given: "Origin service returns a comma-separated header"
-        def headerResp = {request -> return new Response(200, "OK",
-                ["Allow" : "GET,POST"], "")}
+        def headerResp = { request ->
+            return new Response(200, "OK",
+                    ["Allow": "GET,POST"], "")
+        }
 
         when: "User sends a request through repose"
         def resp = deproxy.makeRequest(
-                url:(String) reposeEndpoint,
+                url: (String) reposeEndpoint,
                 method: "GET",
-                headers: ["x-test" : "test"],
+                headers: ["x-test": "test"],
                 requestBody: "",
                 defaultHandler: headerResp)
 

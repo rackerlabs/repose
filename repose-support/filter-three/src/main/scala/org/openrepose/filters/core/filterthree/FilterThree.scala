@@ -19,14 +19,6 @@
  */
 package org.openrepose.filters.core.filterthree
 
-import javax.inject.Named
-import javax.servlet._
-import javax.servlet.http.HttpServletRequest
-
-import org.openrepose.others.SimplicityDivine
-
-import scala.util.{Failure, Success}
-
 @Named
 class FilterThree extends Filter {
   override def init(p1: FilterConfig): Unit = {
@@ -54,7 +46,7 @@ class FilterThree extends Filter {
       }
     }
 
-    if(didItWork.isFailure) {
+    if (didItWork.isFailure) {
       println("Throwing encapsulated exception")
       throw didItWork.failed.get
     }

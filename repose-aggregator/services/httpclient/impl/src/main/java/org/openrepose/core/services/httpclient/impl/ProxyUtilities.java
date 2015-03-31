@@ -30,10 +30,24 @@ import java.security.cert.X509Certificate;
 
 public final class ProxyUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyUtilities.class);
-    
-    private ProxyUtilities(){
+
+    private ProxyUtilities() {
     }
-    
+
+    public static SSLContext getTrustingSslContext() {
+        TrustManager[] trustAllCerts = new TrustManager[]{new AllTrustingManager()};
+
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            return sc;
+        } catch (Exception e) {
+            LOG.error("Problem creating SSL context: ", e);
+        }
+
+        return null;
+    }
+
     public static class AllTrustingManager implements X509TrustManager {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
@@ -47,20 +61,6 @@ public final class ProxyUtilities {
         @Override
         public void checkServerTrusted(X509Certificate[] certs, String authType) {
         }
-        
-    }
-    
-    public static SSLContext getTrustingSslContext() {
-        TrustManager[] trustAllCerts = new TrustManager[]{new AllTrustingManager()};
 
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new SecureRandom());
-            return sc;
-        } catch (Exception e) {
-            LOG.error("Problem creating SSL context: ", e);
-        }
-
-        return null;
     }
 }

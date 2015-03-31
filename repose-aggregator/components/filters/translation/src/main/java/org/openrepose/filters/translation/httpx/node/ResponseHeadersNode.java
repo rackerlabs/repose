@@ -53,7 +53,7 @@ public class ResponseHeadersNode extends ObjectFactoryUser implements Node {
 
             for (String headerName : response.getHeaderNames()) {
 
-                if (fidelityValidator.hasStarFidelity()){
+                if (fidelityValidator.hasStarFidelity()) {
                     ComplexParameter complexParameter = getObjectFactory().createComplexParameter();
                     complexParameter.setName(headerName);
 

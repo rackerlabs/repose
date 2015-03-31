@@ -43,7 +43,7 @@ public class AcceptFidelityValidator {
     }
 
     public boolean hasAcceptFidelity() {
-        return hasAcceptFidelity;    
+        return hasAcceptFidelity;
     }
 
     public boolean hasStarFidelity() {

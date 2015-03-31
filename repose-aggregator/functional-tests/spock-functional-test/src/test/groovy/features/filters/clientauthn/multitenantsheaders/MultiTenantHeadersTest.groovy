@@ -31,7 +31,7 @@ import spock.lang.Unroll
  * This test verify when user token having multi-tenant client-auth filter will retrieve
  * all tenants and put in multi x-tenant-id in headers
  */
-class MultiTenantHeadersTest extends ReposeValveTest{
+class MultiTenantHeadersTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -62,12 +62,12 @@ class MultiTenantHeadersTest extends ReposeValveTest{
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
     @Unroll("#defaultTenant, #secondTenant, #requestTenant ")
-    def "When user token have multi-tenant will retrieve all tenants in the header" () {
+    def "When user token have multi-tenant will retrieve all tenants in the header"() {
         given:
         fakeIdentityService.with {
             client_token = clientToken
@@ -77,7 +77,8 @@ class MultiTenantHeadersTest extends ReposeValveTest{
             service_admin_role = "not-admin"
         }
 
-        when: "User passes a request through repose with $requestTenant"
+        when:
+        "User passes a request through repose with $requestTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
@@ -96,10 +97,10 @@ class MultiTenantHeadersTest extends ReposeValveTest{
         }
 
         where:
-        defaultTenant   | secondTenant  |requestTenant  |clientToken        |serviceRespCode    | numberTenants
-        "123456"        | "nast-id"     | "123456"      |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "nast-id"     | "nast-id"     |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"      | "123456"      |UUID.randomUUID()  | "200"             | 1
-        "123456"        | "nast-id"     | "223456"      |UUID.randomUUID()  | "401"             | 0
+        defaultTenant | secondTenant | requestTenant | clientToken       | serviceRespCode | numberTenants
+        "123456"      | "nast-id"    | "123456"      | UUID.randomUUID() | "200"           | 2
+        "123456"      | "nast-id"    | "nast-id"     | UUID.randomUUID() | "200"           | 2
+        "123456"      | "123456"     | "123456"      | UUID.randomUUID() | "200"           | 1
+        "123456"      | "nast-id"    | "223456"      | UUID.randomUUID() | "401"           | 0
     }
 }

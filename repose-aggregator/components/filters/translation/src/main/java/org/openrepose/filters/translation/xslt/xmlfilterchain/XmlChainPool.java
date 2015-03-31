@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
+import org.apache.commons.pool.ObjectPool;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.filters.translation.config.HttpMethod;
 import org.openrepose.filters.translation.xslt.XsltException;
 import org.openrepose.filters.translation.xslt.XsltParameter;
-import org.apache.commons.pool.ObjectPool;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -36,65 +36,65 @@ import java.util.regex.Pattern;
 
 public class XmlChainPool {
 
-  private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlChainPool.class);
-  private final String contentType;
-  private final boolean acceptAllContentTypes;
-  private final String accept;
-  private final boolean acceptAll;
-  private final ObjectPool<XmlFilterChain> objectPool;
-  private final String resultContentType;
-  private final Pattern statusRegex;
-  private boolean allMethods;
-  private final List<HttpMethod> httpMethods;
-  private final List<XsltParameter> params;
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlChainPool.class);
+    private final String contentType;
+    private final boolean acceptAllContentTypes;
+    private final String accept;
+    private final boolean acceptAll;
+    private final ObjectPool<XmlFilterChain> objectPool;
+    private final String resultContentType;
+    private final Pattern statusRegex;
+    private final List<HttpMethod> httpMethods;
+    private final List<XsltParameter> params;
+    private boolean allMethods;
 
-  public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, ObjectPool<XmlFilterChain> pool) {
-    this.contentType = contentType;
-    this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
-    this.accept = accept;
-    this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
-    this.resultContentType = resultContentType;
-    this.objectPool = pool;
-    this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<HttpMethod>();
-    this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
-    this.params = params;
-    if (this.httpMethods.isEmpty()) {
-      this.allMethods = true;
-    } else {
-      for (HttpMethod method : this.httpMethods) {
-        this.allMethods |= "ALL".equalsIgnoreCase(method.name());
-      }
-    }
-  }
-
-  private boolean matchesMethod(String requestMethod) {
-    boolean result = false;
-    for (HttpMethod method : httpMethods) {
-      result |= method.name().equalsIgnoreCase(requestMethod);
+    public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, ObjectPool<XmlFilterChain> pool) {
+        this.contentType = contentType;
+        this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
+        this.accept = accept;
+        this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
+        this.resultContentType = resultContentType;
+        this.objectPool = pool;
+        this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<HttpMethod>();
+        this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
+        this.params = params;
+        if (this.httpMethods.isEmpty()) {
+            this.allMethods = true;
+        } else {
+            for (HttpMethod method : this.httpMethods) {
+                this.allMethods |= "ALL".equalsIgnoreCase(method.name());
+            }
+        }
     }
 
-    return result;
-  }
+    private boolean matchesMethod(String requestMethod) {
+        boolean result = false;
+        for (HttpMethod method : httpMethods) {
+            result |= method.name().equalsIgnoreCase(requestMethod);
+        }
 
-  public boolean accepts(String method, MediaType contentType, MediaType accept, String statusCode) {
-    boolean matchesAccept = acceptAll || StringUtilities.nullSafeEqualsIgnoreCase(this.accept, accept.getValue());
-    boolean matchesContentType = acceptAllContentTypes || StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, contentType.getValue());
-    boolean matchesStatusCode = statusRegex != null && StringUtilities.isNotBlank(statusCode) ? statusRegex.matcher(statusCode).matches() : true;
-    boolean matchesMethod = StringUtilities.isNotBlank(method) ? allMethods || matchesMethod(method) : true;
+        return result;
+    }
 
-    return matchesAccept && matchesContentType && matchesStatusCode && matchesMethod;
-  }
+    public boolean accepts(String method, MediaType contentType, MediaType accept, String statusCode) {
+        boolean matchesAccept = acceptAll || StringUtilities.nullSafeEqualsIgnoreCase(this.accept, accept.getValue());
+        boolean matchesContentType = acceptAllContentTypes || StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, contentType.getValue());
+        boolean matchesStatusCode = statusRegex != null && StringUtilities.isNotBlank(statusCode) ? statusRegex.matcher(statusCode).matches() : true;
+        boolean matchesMethod = StringUtilities.isNotBlank(method) ? allMethods || matchesMethod(method) : true;
 
-  private List<XsltParameter<? extends OutputStream>> getOutputParameters() {
-    List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
-    outputs.add(new XsltParameter<OutputStream>(TranslationResult.HEADERS_OUTPUT, new ByteArrayOutputStream()));
-    outputs.add(new XsltParameter<OutputStream>(TranslationResult.QUERY_OUTPUT, new ByteArrayOutputStream()));
-    outputs.add(new XsltParameter<OutputStream>(TranslationResult.REQUEST_OUTPUT, new ByteArrayOutputStream()));
+        return matchesAccept && matchesContentType && matchesStatusCode && matchesMethod;
+    }
 
-    return outputs;
-  }
+    private List<XsltParameter<? extends OutputStream>> getOutputParameters() {
+        List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
+        outputs.add(new XsltParameter<OutputStream>(TranslationResult.HEADERS_OUTPUT, new ByteArrayOutputStream()));
+        outputs.add(new XsltParameter<OutputStream>(TranslationResult.QUERY_OUTPUT, new ByteArrayOutputStream()));
+        outputs.add(new XsltParameter<OutputStream>(TranslationResult.REQUEST_OUTPUT, new ByteArrayOutputStream()));
 
-  public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
+        return outputs;
+    }
+
+    public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
         TranslationResult rtn = new TranslationResult(false);
         XmlFilterChain pooledObject;
         try {
@@ -124,9 +124,9 @@ public class XmlChainPool {
         }
 
         return rtn;
-  }
+    }
 
-  public String getResultContentType() {
-    return resultContentType;
-  }
+    public String getResultContentType() {
+        return resultContentType;
+    }
 }

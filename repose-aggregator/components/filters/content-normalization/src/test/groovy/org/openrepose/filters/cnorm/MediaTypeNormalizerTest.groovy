@@ -71,7 +71,7 @@ class MediaTypeNormalizerTest extends Specification {
         director.getRequestUrl().toString() == url.replace(".xml", "")
 
         where:
-        desc | uri | url
+        desc                                         | uri                                             | url
         "captures variant extensions"                | "/a/request/uri.xml"                            | "http://localhost/a/request/uri.xml"
         "ignores query parameters"                   | "/a/request/uri.xml?name=name&value=1"          | "http://localhost/a/request/uri.xml?name=name&value=1"
         "ignores URI fragments"                      | "/a/request/uri.xml#fragment"                   | "http://localhost/a/request/uri.xml#fragment"

@@ -41,7 +41,7 @@ public class RateLimiter {
         this.cache = cache;
     }
 
-    public void handleRateLimit(String user, List< Pair<String, ConfiguredRatelimit> > matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws OverLimitException {
+    public void handleRateLimit(String user, List<Pair<String, ConfiguredRatelimit>> matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws OverLimitException {
 
         // Get the next, shortest available time that a user has to wait for
         try {

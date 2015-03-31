@@ -24,8 +24,8 @@ import java.security.NoSuchAlgorithmException;
 
 public interface MessageDigestFactory {
 
-   String algorithmName();
-   
-   MessageDigest newMessageDigest() throws NoSuchAlgorithmException;
+    String algorithmName();
+
+    MessageDigest newMessageDigest() throws NoSuchAlgorithmException;
 
 }

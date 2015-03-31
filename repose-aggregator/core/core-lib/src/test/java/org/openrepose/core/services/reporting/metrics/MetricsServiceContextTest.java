@@ -26,11 +26,11 @@ import org.junit.runner.RunWith;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
-import org.openrepose.core.spring.ReposeJmxNamingStrategy;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl;
+import org.openrepose.core.spring.ReposeJmxNamingStrategy;
 
 import javax.servlet.ServletContextEvent;
 import java.io.IOException;

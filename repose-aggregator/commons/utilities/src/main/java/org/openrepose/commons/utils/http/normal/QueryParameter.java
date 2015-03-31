@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
  * @author zinic
  */
 public class QueryParameter implements Comparable<QueryParameter> {
@@ -53,13 +52,13 @@ public class QueryParameter implements Comparable<QueryParameter> {
     public int compareTo(QueryParameter o) {
         return getName().compareTo(o.getName());
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof QueryParameter)) {
             return false;
         }
-        
+
         return compareTo((QueryParameter) o) == 0;
     }
 

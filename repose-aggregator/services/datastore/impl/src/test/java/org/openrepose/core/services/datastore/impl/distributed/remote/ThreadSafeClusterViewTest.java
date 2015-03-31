@@ -19,13 +19,13 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote;
 
-import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.core.services.datastore.impl.distributed.ThreadSafeClusterView;
+import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
 import org.openrepose.core.services.datastore.impl.distributed.ClusterMember;
+import org.openrepose.core.services.datastore.impl.distributed.ThreadSafeClusterView;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;

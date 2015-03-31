@@ -67,7 +67,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -84,9 +84,9 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -97,7 +97,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token+requestTenant
+                        'X-Auth-Token': fakeIdentityService.client_token + requestTenant
                 ]
         )
 
@@ -106,10 +106,10 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | delegatingMsg
-        200           | 201             | 500              | "200"        | "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
-        202           | 203             | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
-        204           | 205             | 200              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        requestTenant | responseTenant | authResponseCode | responseCode | delegatingMsg
+        200           | 201            | 500              | "200"        | "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        202           | 203            | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        204           | 205            | 200              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
     }
 
     @Unroll("tenant: #requestTenant with identity returning HTTP 200 response with tenant id (#responseTenant), role (#serviceAdminRole)")
@@ -148,11 +148,11 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy " + requestTenant
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | responseCode
-        206           | 206             | "not-admin"           | "200"
-        207           | 207             | "not-admin"           | "200"
-        208           | 208             | "service:admin-role1" | "200"
-        208           | 209             | "service:admin-role1" | "200"
+        requestTenant | responseTenant | serviceAdminRole      | responseCode
+        206           | 206            | "not-admin"           | "200"
+        207           | 207            | "not-admin"           | "200"
+        208           | 208            | "service:admin-role1" | "200"
+        208           | 209            | "service:admin-role1" | "200"
     }
 
 }

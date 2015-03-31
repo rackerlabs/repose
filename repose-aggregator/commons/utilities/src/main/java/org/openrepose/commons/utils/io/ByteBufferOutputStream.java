@@ -26,7 +26,7 @@ import java.io.IOException;
 public class ByteBufferOutputStream extends OneTimeUseOutputStream {
 
     private final ByteBuffer sharedBuffer;
-    
+
     public ByteBufferOutputStream(ByteBuffer sharedBuffer) {
         this.sharedBuffer = sharedBuffer;
     }

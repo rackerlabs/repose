@@ -48,24 +48,13 @@ import java.util.UUID;
 @SuppressWarnings("com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
 public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     private static final Logger LOG = LoggerFactory.getLogger(MutableHttpServletRequest.class);
-
-    public static MutableHttpServletRequest wrap(HttpServletRequest request) {
-        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
-    }
-
-    public static MutableHttpServletRequest wrap(HttpServletRequest request, long streamLimit) {
-        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
-    }
-
     private static final String REQUEST_ID = "requestId";
-    private ServletInputStream inputStream;
     private final RequestValues values;
     private final long streamLimit;
-
+    private ServletInputStream inputStream;
     private MutableHttpServletRequest(HttpServletRequest request) {
         this(request, -1);
     }
-
     private MutableHttpServletRequest(HttpServletRequest request, long streamLimit) {
         super(request);
 
@@ -74,6 +63,14 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         }
         this.values = new RequestValuesImpl(request);
         this.streamLimit = streamLimit;
+    }
+
+    public static MutableHttpServletRequest wrap(HttpServletRequest request) {
+        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
+    }
+
+    public static MutableHttpServletRequest wrap(HttpServletRequest request, long streamLimit) {
+        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
     }
 
     public String getRequestId() {
@@ -149,6 +146,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
      * Returns the size of the content body by reading through the input stream.
      * WARNING: This will cause some performance degradation as the request body will be read and
      * not just streamed through repose.
+     *
      * @return Size of content body based off of content within the request servletinputstream
      * @throws IOException
      */

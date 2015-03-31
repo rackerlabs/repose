@@ -19,14 +19,14 @@
  */
 package org.openrepose.nodeservice.request;
 
-import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 
 import static org.mockito.Mockito.*;

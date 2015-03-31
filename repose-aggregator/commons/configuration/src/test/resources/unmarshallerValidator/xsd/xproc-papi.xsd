@@ -4,61 +4,61 @@
      However, it caused several compilation errors in XJC.  Will need debugging if we use the actual
      w3 xproc schema. -->
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://www.w3.org/ns/xproc"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://www.w3.org/ns/xproc">
 
     <!--<xs:complexType name="pipeline">-->
-        <!--<xs:sequence>-->
-            <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
-            <!--<xs:element name="xslt" type="p:xslt" minOccurs="1" maxOccurs="unbounded" />-->
-        <!--</xs:sequence>-->
+    <!--<xs:sequence>-->
+    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
+    <!--<xs:element name="xslt" type="p:xslt" minOccurs="1" maxOccurs="unbounded" />-->
+    <!--</xs:sequence>-->
 
-        <!--<xs:attribute name="name" type="xs:string">-->
-            <!--<xs:annotation>-->
-                <!--<xs:documentation>-->
-                    <!--<html:p>The name of the pipeline.</html:p>-->
-                <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-        <!--</xs:attribute>-->
+    <!--<xs:attribute name="name" type="xs:string">-->
+    <!--<xs:annotation>-->
+    <!--<xs:documentation>-->
+    <!--<html:p>The name of the pipeline.</html:p>-->
+    <!--</xs:documentation>-->
+    <!--</xs:annotation>-->
+    <!--</xs:attribute>-->
     <!--</xs:complexType>-->
 
     <!--<xs:complexType name="xslt">-->
-        <!--<xs:sequence>-->
-            <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
-        <!--</xs:sequence>-->
+    <!--<xs:sequence>-->
+    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
+    <!--</xs:sequence>-->
 
-        <!--<xs:attribute name="name" type="xs:string">-->
-            <!--<xs:annotation>-->
-                <!--<xs:documentation>-->
-                    <!--<html:p>The name of the xslt translation.</html:p>-->
-                <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-        <!--</xs:attribute>-->
+    <!--<xs:attribute name="name" type="xs:string">-->
+    <!--<xs:annotation>-->
+    <!--<xs:documentation>-->
+    <!--<html:p>The name of the xslt translation.</html:p>-->
+    <!--</xs:documentation>-->
+    <!--</xs:annotation>-->
+    <!--</xs:attribute>-->
     <!--</xs:complexType>-->
 
     <!--<xs:complexType name="input">-->
-        <!--<xs:sequence>-->
-            <!--<xs:element name="document" type="p:document" minOccurs="1" maxOccurs="1" />-->
-        <!--</xs:sequence>-->
+    <!--<xs:sequence>-->
+    <!--<xs:element name="document" type="p:document" minOccurs="1" maxOccurs="1" />-->
+    <!--</xs:sequence>-->
 
-        <!--<xs:attribute name="port" type="xs:string">-->
-            <!--<xs:annotation>-->
-                <!--<xs:documentation>-->
-                    <!--<html:p>The port from which the incoming xml with come.</html:p>-->
-                <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-        <!--</xs:attribute>-->
+    <!--<xs:attribute name="port" type="xs:string">-->
+    <!--<xs:annotation>-->
+    <!--<xs:documentation>-->
+    <!--<html:p>The port from which the incoming xml with come.</html:p>-->
+    <!--</xs:documentation>-->
+    <!--</xs:annotation>-->
+    <!--</xs:attribute>-->
     <!--</xs:complexType>-->
 
     <!--<xs:complexType name="document">-->
-        <!--<xs:attribute name="href" type="xs:anyURI">-->
-            <!--<xs:annotation>-->
-                <!--<xs:documentation>-->
-                    <!--<html:p>The location of the translation file.</html:p>-->
-                <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-        <!--</xs:attribute>-->
+    <!--<xs:attribute name="href" type="xs:anyURI">-->
+    <!--<xs:annotation>-->
+    <!--<xs:documentation>-->
+    <!--<html:p>The location of the translation file.</html:p>-->
+    <!--</xs:documentation>-->
+    <!--</xs:annotation>-->
+    <!--</xs:attribute>-->
     <!--</xs:complexType>-->
 
 </xs:schema>

@@ -23,10 +23,8 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Request
-import org.rackspace.deproxy.Response
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Shared
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
@@ -35,9 +33,9 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
     def static identityEndpoint
     def static headersCommon = [
             'X-Default-Region': 'the-default-region',
-            'x-auth-token': 'token',
-            'x-forwarded-for': '127.0.0.1',
-            'x-pp-user': 'username;q=1.0'
+            'x-auth-token'    : 'token',
+            'x-forwarded-for' : '127.0.0.1',
+            'x-pp-user'       : 'username;q=1.0'
     ]
 
     def static MockIdentityService fakeIdentityService
@@ -63,7 +61,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -87,21 +85,22 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
-        if(groupResponseCode != 200){
+        if (groupResponseCode != 200) {
             fakeIdentityService.getGroupsHandler = {
-                userId, request,xml ->
+                userId, request, xml ->
                     new Response(groupResponseCode)
             }
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -116,12 +115,12 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        113           | 113             | 500              | "500"        | 200               | false
-        114           | 114             | 404              | "401"        | 200               | true
-        115           | 115             | 200              | "200"        | 404               | false
-        116           | 116             | 200              | "200"        | 500               | false
-        111           | 112             | 200              | "401"        | 200               | true
+        requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        113           | 113            | 500              | "500"        | 200               | false
+        114           | 114            | 404              | "401"        | 200               | true
+        115           | 115            | 200              | "200"        | 404               | false
+        116           | 116            | 200              | "200"        | 500               | false
+        111           | 112            | 200              | "401"        | 200               | true
     }
 
     /**
@@ -144,7 +143,8 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
+        when:
+        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -172,8 +172,8 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == false
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | responseCode
-        117           | 117             | "not-admin"           | "200"
-        118           | 119             | "service:admin-role1" | "200"
+        requestTenant | responseTenant | serviceAdminRole      | responseCode
+        117           | 117            | "not-admin"           | "200"
+        118           | 119            | "service:admin-role1" | "200"
     }
 }

@@ -3,14 +3,15 @@
 <translation xmlns="http://docs.openrepose.org/repose/translation/v1.0" allow-doctype-decl="true"
              multi-match="true">
     <response-translations>
-        <response-translation content-type="application/atom+xml" accept="*/*" translated-content-type="application/atom+xml">
+        <response-translation content-type="application/atom+xml" accept="*/*"
+                              translated-content-type="application/atom+xml">
             <style-sheets>
-                <style id="ss1" href="remove-element.xsl" />
+                <style id="ss1" href="remove-element.xsl"/>
             </style-sheets>
         </response-translation>
         <response-translation content-type="application/xml" accept="*/*" translated-content-type="application/xml">
             <style-sheets>
-                <style id="ss2" href="remove-element.xsl" />
+                <style id="ss2" href="remove-element.xsl"/>
             </style-sheets>
         </response-translation>
     </response-translations>

@@ -2,16 +2,18 @@
 
 <translation xmlns="http://docs.openrepose.org/repose/translation/v1.0" allow-doctype-decl="true" xsl-engine="SaxonEE">
     <request-translations>
-        <request-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+        <request-translation content-type="application/xml" accept="application/xml"
+                             translated-content-type="application/xml">
             <style-sheets>
-                <style id="json1" href="request-json.xsl" />
+                <style id="json1" href="request-json.xsl"/>
             </style-sheets>
         </request-translation>
     </request-translations>
     <response-translations>
-        <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+        <response-translation content-type="application/xml" accept="application/xml"
+                              translated-content-type="application/xml">
             <style-sheets>
-                <style id="json2" href="response-json.xsl" />
+                <style id="json2" href="response-json.xsl"/>
             </style-sheets>
         </response-translation>
     </response-translations>

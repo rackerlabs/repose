@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException
 
 /* Checks to see if having Unstable filter chain on startup due to configuration errors will log errors into the log file */
 
-class FilterChainUnstableTest extends ReposeValveTest{
+class FilterChainUnstableTest extends ReposeValveTest {
     static int requestCount = 1
     def handler5XX = { request -> return new Response(503, 'SERVICE UNAVAILABLE') }
 
@@ -37,7 +37,7 @@ class FilterChainUnstableTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/core/powerfilter/badconfigs", params)
         try {
             repose.start()
-        } catch(TimeoutException e){
+        } catch (TimeoutException e) {
 
         }
 
@@ -57,27 +57,25 @@ class FilterChainUnstableTest extends ReposeValveTest{
 
         given:
         def List<String> logMatches = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
-        def existingWarningNumber= logMatches.size()
+        def existingWarningNumber = logMatches.size()
 
         when:
         for (int i = 0; i < totalRequests; i++) {
-            deproxy.makeRequest( [url: reposeEndpoint + "/limits", defaultHandler: handler5XX] )
+            deproxy.makeRequest([url: reposeEndpoint + "/limits", defaultHandler: handler5XX])
         }
 
         then:
 
         def List<String> logMatchesAfterRequests = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
-        logMatchesAfterRequests.size() == (expectedWarnings+existingWarningNumber)
+        logMatchesAfterRequests.size() == (expectedWarnings + existingWarningNumber)
 
         where:
 
-        totalRequests | expectedWarnings
-        requestCount | 1
-        requestCount+ 2 | 3
+        totalRequests    | expectedWarnings
+        requestCount     | 1
+        requestCount + 2 | 3
 
     }
-
-
 
 
 }

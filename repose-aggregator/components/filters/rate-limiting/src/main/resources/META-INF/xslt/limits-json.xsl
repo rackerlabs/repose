@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<transform xmlns="http://www.w3.org/1999/XSL/Transform"
-           xmlns:lim="http://docs.openstack.org/common/api/v1.0"
+<transform xmlns:lim="http://docs.openstack.org/common/api/v1.0"
+           xmlns="http://www.w3.org/1999/XSL/Transform"
            version="1.0">
     <output method="text" encoding="UTF-8"/>
 
     <template match="lim:limits">
         <text>{ "limits" : {</text>
-        <apply-templates />
+        <apply-templates/>
         <text>}}</text>
     </template>
 
@@ -104,7 +104,7 @@
     </template>
 
     <template name="escape-out">
-        <param name="in" />
+        <param name="in"/>
         <param name="char"/>
         <variable name="before" select="substring-before($in, $char)"/>
         <variable name="after" select="substring-after($in, $char)"/>

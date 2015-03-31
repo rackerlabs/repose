@@ -27,13 +27,13 @@ import org.openstack.docs.identity.api.v2.UnauthorizedFault;
 
 public interface ResponseWrapper {
 
-   Object wrapElement(UnauthorizedFault fault);
+    Object wrapElement(UnauthorizedFault fault);
 
-   Object wrapElement(ItemNotFoundFault fault);
+    Object wrapElement(ItemNotFoundFault fault);
 
-   Object wrapElement(Groups groups);
+    Object wrapElement(Groups groups);
 
-   Object wrapElement(AuthenticateResponse response);
-   
-   Object wrapElement(EndpointList endpointList);
+    Object wrapElement(AuthenticateResponse response);
+
+    Object wrapElement(EndpointList endpointList);
 }

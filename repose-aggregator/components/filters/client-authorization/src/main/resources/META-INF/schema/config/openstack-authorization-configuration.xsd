@@ -20,11 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0"
-           xmlns:rs-auth-z="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:rs-auth-z="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0">
 
     <!-- Configuration -->
     <xs:element name="rackspace-authorization">

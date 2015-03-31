@@ -25,7 +25,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class ConnectionManagementTest extends ReposeValveTest{
+class ConnectionManagementTest extends ReposeValveTest {
 
     String charset = (('A'..'Z') + ('0'..'9')).join()
 
@@ -53,7 +53,7 @@ class ConnectionManagementTest extends ReposeValveTest{
     }
 
     @Unroll("When sending a #reqMethod with a huge body through repose returns a 413")
-    def "should return 413 on request body that is too large"(){
+    def "should return 413 on request body that is too large"() {
         given: "I have a request body that exceed the header size limit"
         def body = makeLargeString(32100)
 
@@ -73,7 +73,7 @@ class ConnectionManagementTest extends ReposeValveTest{
         "PATCH"   | _
     }
 
-    def "Should return response body configured in response-messaging.cfg.xml file"(){
+    def "Should return response body configured in response-messaging.cfg.xml file"() {
 
         given:
         def handler401 = { request -> return new Response(401, "Unauthorized", [], "Original Message") }
@@ -88,7 +88,7 @@ class ConnectionManagementTest extends ReposeValveTest{
 
     }
 
-    def "Should not change response body when nothing in rms config matches response code"(){
+    def "Should not change response body when nothing in rms config matches response code"() {
 
         given:
         def handler301 = { request -> return new Response(301, "Moved Permanently", [], "Original Message") }
@@ -103,10 +103,10 @@ class ConnectionManagementTest extends ReposeValveTest{
 
     }
 
-    def "Should pass content-encoding header"(){
+    def "Should pass content-encoding header"() {
 
         when: "Request goes through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["content-encoding" : "gzip"])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["content-encoding": "gzip"])
 
         then: "repose should not remove header"
         mc.handlings.size() == 1
@@ -114,7 +114,6 @@ class ConnectionManagementTest extends ReposeValveTest{
         mc.handlings[0].request.headers["content-encoding"] == "gzip"
 
     }
-
 
     //Stolen from: http://stackoverflow.com/a/2474496/423218
     def makeLargeString(int size) {

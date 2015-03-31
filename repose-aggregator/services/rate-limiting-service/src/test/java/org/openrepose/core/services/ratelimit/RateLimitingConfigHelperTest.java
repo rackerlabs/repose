@@ -21,10 +21,10 @@ package org.openrepose.core.services.ratelimit;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.core.services.ratelimit.config.ConfiguredLimitGroup;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRateLimitWrapper;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfigHelper;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
-import org.openrepose.core.services.ratelimit.config.ConfiguredLimitGroup;
 
 import java.util.ArrayList;
 import java.util.List;

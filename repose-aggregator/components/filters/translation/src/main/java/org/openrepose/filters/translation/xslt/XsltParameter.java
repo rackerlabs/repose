@@ -28,7 +28,7 @@ public class XsltParameter<T> {
     public XsltParameter(String name, T value) {
         this("*", name, value);
     }
-    
+
     public XsltParameter(String style, String name, T value) {
         this.styleId = style;
         this.name = name;
@@ -38,7 +38,7 @@ public class XsltParameter<T> {
     public String getName() {
         return name;
     }
-    
+
     public String getStyleId() {
         return styleId;
     }

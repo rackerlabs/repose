@@ -40,8 +40,8 @@ import java.io.ByteArrayOutputStream;
  * Time: 12:51 PM
  */
 public class XmlTestHelper {
+    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
     private static final Logger LOG = LoggerFactory.getLogger(XmlTestHelper.class);
-    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
 
     public static Schema getVersioningSchemaInfo() {
         Schema schema = null;
@@ -53,7 +53,7 @@ public class XmlTestHelper {
                             new StreamSource(VersioningFilter.class.getResourceAsStream("/META-INF/schema/atom/atom.xsd")),
                             new StreamSource(VersioningFilter.class.getResourceAsStream("/META-INF/schema/versioning/versioning.xsd"))
                     });
-        } catch(SAXException e) {
+        } catch (SAXException e) {
             LOG.error("Failed to create schema object!", e);
         }
 

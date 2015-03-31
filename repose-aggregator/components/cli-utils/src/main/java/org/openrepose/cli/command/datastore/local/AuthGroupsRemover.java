@@ -19,9 +19,9 @@
  */
 package org.openrepose.cli.command.datastore.local;
 
-import org.openrepose.core.services.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.openrepose.core.services.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class AuthGroupsRemover extends AbstractCommand {
         } catch (Exception e) {
             LOG.trace("Unable to connect to Repose MBean Server", e);
             result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
-                        "Unable to connect to Repose MBean Server: " + e.getMessage());
+                    "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
 
         return result;

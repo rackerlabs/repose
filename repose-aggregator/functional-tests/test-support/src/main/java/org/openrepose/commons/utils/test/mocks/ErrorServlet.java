@@ -19,14 +19,14 @@
  */
 package org.openrepose.commons.utils.test.mocks;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ErrorServlet extends HttpServlet {
     private Pattern pattern = Pattern.compile(".*/([\\d]+)");
@@ -36,42 +36,43 @@ public class ErrorServlet extends HttpServlet {
         if (matcher.matches() && matcher.groupCount() > 0) {
             return matcher.group(1);
         }
-        
+
         return "";
     }
-    
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String code = getCode(request.getRequestURI());
-        
+
         if (code != null) {
             response.sendError(Integer.parseInt(code), "Error Message");
         }
-        
+
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ErrorServlet</title>");            
+            out.println("<title>Servlet ErrorServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ErrorServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
-        } finally {            
+        } finally {
             out.close();
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /**
      * Handles the HTTP
      * <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -83,10 +84,10 @@ public class ErrorServlet extends HttpServlet {
      * Handles the HTTP
      * <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.services.rms;
 
-import org.openrepose.commons.utils.StringUtilities;
 import org.apache.commons.io.FileUtils;
+import org.openrepose.commons.utils.StringUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,40 +36,40 @@ import java.util.regex.Pattern;
  * @author fran
  */
 public class HrefFileReader {
-   private static final Logger LOG = LoggerFactory.getLogger(HrefFileReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HrefFileReader.class);
 
-   private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
+    private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
 
-   //TODO:Enhancement Update the service to use a uri resolver
-   public String read(String href, String hrefId) {
-                  
-      final File f = validateHref(href, hrefId);
+    //TODO:Enhancement Update the service to use a uri resolver
+    public String read(String href, String hrefId) {
 
-      String stringMessage = "";
-      if (f != null) {
-         try {
-            stringMessage = FileUtils.readFileToString(f, Charset.defaultCharset());
-         } catch (IOException ioe) {
-            LOG.error(StringUtilities.join("Failed to read file: ", f.getAbsolutePath(), " - Reason: ", ioe.getMessage()), ioe);
-         }
-      }
+        final File f = validateHref(href, hrefId);
 
-      return stringMessage;
-   }
+        String stringMessage = "";
+        if (f != null) {
+            try {
+                stringMessage = FileUtils.readFileToString(f, Charset.defaultCharset());
+            } catch (IOException ioe) {
+                LOG.error(StringUtilities.join("Failed to read file: ", f.getAbsolutePath(), " - Reason: ", ioe.getMessage()), ioe);
+            }
+        }
 
-   public File validateHref(String href, String hrefId) {
-      
-      final Matcher m = URI_PATTERN.matcher(href);
-      File f = null;
+        return stringMessage;
+    }
 
-      if (m.find() && href.startsWith("file://")) {
-         try {
-            f = new File(new URI(href));
-         } catch (URISyntaxException urise) {
-            LOG.error("Bad URI syntax in message href for status code: " + hrefId, urise);
-         }
-      }
+    public File validateHref(String href, String hrefId) {
 
-      return f;
-   }
+        final Matcher m = URI_PATTERN.matcher(href);
+        File f = null;
+
+        if (m.find() && href.startsWith("file://")) {
+            try {
+                f = new File(new URI(href));
+            } catch (URISyntaxException urise) {
+                LOG.error("Bad URI syntax in message href for status code: " + hrefId, urise);
+            }
+        }
+
+        return f;
+    }
 }

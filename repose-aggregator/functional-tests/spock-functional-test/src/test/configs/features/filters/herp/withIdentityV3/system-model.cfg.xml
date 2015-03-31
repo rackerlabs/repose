@@ -8,12 +8,13 @@
         </nodes>
 
         <filters>
-            <filter name="openstack-identity-v3" />
-            <filter name="herp" />
+            <filter name="openstack-identity-v3"/>
+            <filter name="herp"/>
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
+            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

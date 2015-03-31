@@ -60,7 +60,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         List<AuthGroup> authGroupList;
         String wwwAuthHeaderContents;
         String endpointsBase64;
-    
+
 
         @Before
         public void setUp() throws Exception {
@@ -68,13 +68,13 @@ public class OpenStackAuthenticationHeaderManagerTest {
             isDelegatable = false;
             wwwAuthHeaderContents = "test URI";
             endpointsBase64 = "";
-          
-       
+
+
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
                             true, false, false);
-      
+
         }
 
         @Test
@@ -83,13 +83,13 @@ public class OpenStackAuthenticationHeaderManagerTest {
             openStackAuthenticationHeaderManager.setFilterDirectorValues();
             assertTrue(filterDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("www-authenticate")));
         }
-        
- 
+
+
     }
-    
+
     public static class TestParentHeaders {
 
-      
+
         FilterDirector filterDirector;
         OpenStackAuthenticationHeaderManager openStackAuthenticationHeaderManager;
         String authTokenString;
@@ -100,7 +100,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         String wwwAuthHeaderContents;
         String endpointsBase64;
         private AuthenticateResponse response;
-         private UserForAuthenticateResponse user;
+        private UserForAuthenticateResponse user;
 
         @Before
         public void setUp() throws Exception {
@@ -110,57 +110,57 @@ public class OpenStackAuthenticationHeaderManagerTest {
             endpointsBase64 = "";
             response = new AuthenticateResponse();
 
-         Token token = new Token();
-         token.setId("518f323d-505a-4475-9cba-bc43cd1790-A");
-         
-         Calendar expires = getCalendarWithOffset(1000);
-         token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) expires));
-         
-         TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-         tenant.setId("tenantId");
-         tenant.setName("tenantName");
-         token.setTenant(tenant);
-         response.setToken(token);
-         user = new UserForAuthenticateResponse();
-         user.setId("104772");
-         user.setName("user2");
-         
-         RoleList roleList = new RoleList();
-         Role roleOne = new Role();
-         roleOne.setName("default role 1");
+            Token token = new Token();
+            token.setId("518f323d-505a-4475-9cba-bc43cd1790-A");
 
-         Role roleTwo = new Role();
-         roleTwo.setName("default role 2");
+            Calendar expires = getCalendarWithOffset(1000);
+            token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) expires));
 
-         roleList.getRole().add(roleOne);
-         roleList.getRole().add(roleTwo);
-         user.setRoles(roleList);
-         response.setUser(user);
-         authToken = new OpenStackToken(response);
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            response.setToken(token);
+            user = new UserForAuthenticateResponse();
+            user.setId("104772");
+            user.setName("user2");
 
-        Groups groups;
-        Group group;
-        groups = new Groups();
-        group = new Group();
-        group.setId("groupId");
-        group.setDescription("Group Description");
-        group.setName("Group Name");
-        groups.getGroup().add(group);
-        authGroupList = new ArrayList<AuthGroup>();
-        authGroupList.add(new OpenStackGroup(group));
-        filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
-       
+            RoleList roleList = new RoleList();
+            Role roleOne = new Role();
+            roleOne.setName("default role 1");
+
+            Role roleTwo = new Role();
+            roleTwo.setName("default role 2");
+
+            roleList.getRole().add(roleOne);
+            roleList.getRole().add(roleTwo);
+            user.setRoles(roleList);
+            response.setUser(user);
+            authToken = new OpenStackToken(response);
+
+            Groups groups;
+            Group group;
+            groups = new Groups();
+            group = new Group();
+            group.setId("groupId");
+            group.setDescription("Group Description");
+            group.setName("Group Name");
+            groups.getGroup().add(group);
+            authGroupList = new ArrayList<AuthGroup>();
+            authGroupList.add(new OpenStackGroup(group));
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
+
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
                             true, false, false);
-             openStackAuthenticationHeaderManager.setFilterDirectorValues();
-      
+            openStackAuthenticationHeaderManager.setFilterDirectorValues();
+
         }
-        
+
         private Calendar getCalendarWithOffset(int millis) {
             return getCalendarWithOffset(Calendar.MILLISECOND, millis);
-         }
+        }
 
         private Calendar getCalendarWithOffset(int field, int millis) {
             Calendar cal = GregorianCalendar.getInstance();
@@ -168,18 +168,18 @@ public class OpenStackAuthenticationHeaderManagerTest {
             cal.add(field, millis);
 
             return cal;
-         }
-      
-          
-       @Test
+        }
+
+
+        @Test
         public void shouldAddHeaders() {
-           
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.TENANT_NAME.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.TENANT_ID.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.USER_NAME.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.USER_ID.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(PowerApiHeader.GROUPS.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.X_EXPIRATION.toString())));
+
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.TENANT_NAME.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.TENANT_ID.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.USER_NAME.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.USER_ID.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(PowerApiHeader.GROUPS.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.X_EXPIRATION.toString())));
         }
 
         @Test

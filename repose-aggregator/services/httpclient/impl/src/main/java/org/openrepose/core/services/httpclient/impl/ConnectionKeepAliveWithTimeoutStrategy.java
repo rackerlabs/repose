@@ -28,7 +28,7 @@ import org.apache.http.protocol.HttpContext;
  * period of time in seconds they intend to keep the connection alive on the server side.  If this
  * header is present in the response, the value in this header will be used to determine the maximum
  * length of time to keep a persistent connection open for.
- *
+ * <p/>
  * If the Keep-Alive header is NOT present in the response, the value of keepalive.timeout is
  * evaluated.  If this value is 0, the connection will be kept alive indefinitely.  If the value is
  * greater than 0, the connection will be kept alive for the number of milliseconds specified.

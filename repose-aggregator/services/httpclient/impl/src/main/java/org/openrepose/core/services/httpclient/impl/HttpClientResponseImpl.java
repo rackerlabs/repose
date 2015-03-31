@@ -19,11 +19,11 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.openrepose.core.services.httpclient.HttpClientResponse;
 import org.apache.http.client.HttpClient;
+import org.openrepose.core.services.httpclient.HttpClientResponse;
 
 /**
- *  An HttpClientResponse that generates a unique UUID
+ * An HttpClientResponse that generates a unique UUID
  */
 public class HttpClientResponseImpl implements HttpClientResponse {
 

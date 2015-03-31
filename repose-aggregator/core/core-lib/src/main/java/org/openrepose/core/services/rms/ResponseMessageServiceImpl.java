@@ -98,7 +98,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
         MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
 
-        if(!isInitialized()) {
+        if (!isInitialized()) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating Response Messaging service.");
         } else {
             if (matchedCode != null) {

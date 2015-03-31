@@ -27,7 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class ProjectIdUriTest extends ReposeValveTest{
+class ProjectIdUriTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -36,7 +36,7 @@ class ProjectIdUriTest extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/projectidinuri/serviceroles", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
@@ -48,13 +48,13 @@ class ProjectIdUriTest extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityV3Service.resetHandlers()
     }
 
@@ -89,7 +89,7 @@ class ProjectIdUriTest extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/$requestProject/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
@@ -118,12 +118,13 @@ class ProjectIdUriTest extends ReposeValveTest{
             client_userid = requestProject
         }
 
-        when: "User passes a request through repose with request tenant: $requestProject, response tenant: $responseProject in a bypassed role = $serviceAdminRole"
+        when:
+        "User passes a request through repose with request tenant: $requestProject, response tenant: $responseProject in a bypassed role = $serviceAdminRole"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestProject/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
@@ -144,17 +145,17 @@ class ProjectIdUriTest extends ReposeValveTest{
         mc.receivedResponse.headers.contains("www-authenticate") == false
 
         where:
-        requestProject | responseProject  | serviceAdminRole      | responseCode
-        717            | 717              | "not-admin"           | "200"
-        718            | 718              | "service:admin-role1" | "200"
-        720            | 720              | "service:admin-role1" | "200"
+        requestProject | responseProject | serviceAdminRole      | responseCode
+        717            | 717             | "not-admin"           | "200"
+        718            | 718             | "service:admin-role1" | "200"
+        720            | 720             | "service:admin-role1" | "200"
     }
 
     def "Should not split request headers according to rfc"() {
         given:
-        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+        def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
-                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
+                "usertest2, usertest3", "accept"                                                       : "application/xml;q=1 , application/json;q=0.5"]
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
@@ -164,7 +165,7 @@ class ProjectIdUriTest extends ReposeValveTest{
         }
 
         when: "User passes a request through repose"
-        def mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/720/", method:'GET', headers:['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token] + reqHeaders)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/720/", method: 'GET', headers: ['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token] + reqHeaders)
 
         then:
         mc.handlings.size() == 1

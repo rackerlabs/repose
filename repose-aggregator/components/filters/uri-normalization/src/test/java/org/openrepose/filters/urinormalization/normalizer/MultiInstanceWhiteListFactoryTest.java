@@ -63,9 +63,9 @@ public class MultiInstanceWhiteListFactoryTest {
         public void shouldPassOurParameterList() {
             MultiInstanceWhiteList filter = (MultiInstanceWhiteList) instance.newInstance();
             assertEquals(params.getParameter().size(), filter.getParameterList().getParameter().size());
-            
+
             int i = 0;
-            for (UriParameter param: params.getParameter()) {
+            for (UriParameter param : params.getParameter()) {
                 assertEquals(param.getName(), filter.getParameterList().getParameter().get(i++).getName());
             }
         }

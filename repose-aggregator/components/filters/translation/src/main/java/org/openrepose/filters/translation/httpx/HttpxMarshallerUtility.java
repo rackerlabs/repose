@@ -41,9 +41,9 @@ import java.net.URL;
 public class HttpxMarshallerUtility {
     private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
     private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
+    public static final Schema schema = getSchemaSource();
     private static final String HTTPX_PACKAGE = "org.openrepose.docs.repose.httpx.v1";
     private static final JAXBContext jaxbContext = getContext();
-    public static final Schema schema = getSchemaSource();
     public static final ObjectPool<Marshaller> marshallerPool = new SoftReferenceObjectPool<>(
             new BasePoolableObjectFactory<Marshaller>() {
                 @Override
@@ -74,6 +74,9 @@ public class HttpxMarshallerUtility {
             }
     );
 
+    private HttpxMarshallerUtility() {
+    }
+
     private static Schema getSchemaSource() {
         SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
         InputStream inputStream = HttpxMarshaller.class.getResourceAsStream(HTTPX_SCHEMA);
@@ -93,6 +96,4 @@ public class HttpxMarshallerUtility {
             throw new HttpxException("Error creating JAXBContext for HTTPX", ex);
         }
     }
-
-    private HttpxMarshallerUtility() {  }
 }

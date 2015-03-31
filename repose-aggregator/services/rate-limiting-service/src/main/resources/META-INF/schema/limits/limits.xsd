@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openstack.org/common/api/v1.0"
-           xmlns:limits="http://docs.openstack.org/common/api/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:limits="http://docs.openstack.org/common/api/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openstack.org/common/api/v1.0">
 
     <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="HttpMethod">
@@ -12,25 +12,27 @@
             <xs:documentation>
                 <html:p>
                     The HttpMethod simple type defines a string
-                    enumeration of HTTP method verbs as outlined in <a
-                    href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
+                    enumeration of HTTP method verbs as outlined in
+                    <a
+                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                    </a>
                     section 9.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:restriction base="xs:string">
-            <xs:enumeration value="GET" />
-            <xs:enumeration value="DELETE" />
-            <xs:enumeration value="POST" />
-            <xs:enumeration value="PUT" />
-            <xs:enumeration value="PATCH" />
-            <xs:enumeration value="HEAD" />
-            <xs:enumeration value="OPTIONS" />
-            <xs:enumeration value="CONNECT" />
-            <xs:enumeration value="TRACE" />
-            
-            <xs:enumeration value="ALL" />
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+
+            <xs:enumeration value="ALL"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -45,18 +47,18 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:restriction base="xs:string">
-            <xs:enumeration value="SECOND" />
-            <xs:enumeration value="MINUTE" />
-            <xs:enumeration value="HOUR" />
-            <xs:enumeration value="DAY" />
+            <xs:enumeration value="SECOND"/>
+            <xs:enumeration value="MINUTE"/>
+            <xs:enumeration value="HOUR"/>
+            <xs:enumeration value="DAY"/>
         </xs:restriction>
     </xs:simpleType>
-    
-    
+
+
     <!-- Live limit definitions -->
-    <xs:element name="limits" type="limits:Limits" />
+    <xs:element name="limits" type="limits:Limits"/>
 
     <xs:complexType name="Limits">
         <xs:annotation>
@@ -66,11 +68,11 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
-            <xs:element name="rates" type="limits:RateLimitList" minOccurs="0" maxOccurs="1" />
-            <xs:element name="absolute" type="limits:AbsoluteLimitList" minOccurs="0" maxOccurs="1"  />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="rates" type="limits:RateLimitList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="absolute" type="limits:AbsoluteLimitList" minOccurs="0" maxOccurs="1"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:anyAttribute namespace="##other" processContents="lax"/>
     </xs:complexType>
@@ -79,14 +81,14 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                  An AbsoluteLimitList type defines a list of absolute limits
+                    An AbsoluteLimitList type defines a list of absolute limits
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="limit" type="limits:AbsoluteLimit" minOccurs="1" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="limit" type="limits:AbsoluteLimit" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:anyAttribute namespace="##other" processContents="lax"/>
     </xs:complexType>
@@ -95,15 +97,15 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                  A RateLimitList type defines a list of resource
-                  scoped limit collections.
+                    A RateLimitList type defines a list of resource
+                    scoped limit collections.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
-            <xs:element name="rate" type="limits:ResourceRateLimits" minOccurs="1" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="rate" type="limits:ResourceRateLimits" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:anyAttribute namespace="##other" processContents="lax"/>
     </xs:complexType>
@@ -112,18 +114,18 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                  A ResourceLimitCollection type represents a
-                  collection of limits that are scoped to a single
-                  resource variant.
+                    A ResourceLimitCollection type represents a
+                    collection of limits that are scoped to a single
+                    resource variant.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
-            <xs:element name="limit" type="limits:RateLimit" minOccurs="1" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="limit" type="limits:RateLimit" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-    
+
         <xs:attribute name="uri" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -143,15 +145,19 @@
                     <html:p>
                         A collection of limits are scoped to a
                         resource by a regular expression.
-                        
+
                         <html:div class="note">
-                            <html:strong>Note:</html:strong> the
+                            <html:strong>Note:</html:strong>
+                            the
                             regular expressions are only guaranteed to
                             work with the Java Standard Edition 6
                             Regular Expression Engine. Please see the
                             <html:a
-                            href="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">JAPI
-                            documentation</html:a> for more
+                                    href="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">
+                                JAPI
+                                documentation
+                            </html:a>
+                            for more
                             information.
                         </html:div>
                     </html:p>
@@ -174,7 +180,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
@@ -215,7 +221,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="verb" type="limits:HttpMethod" use="required">
             <xs:annotation>
@@ -269,10 +275,12 @@
                         The next-available attribute of a Limit tells
                         the user when a limited request will become
                         available for consumption.
-                        
+
                         <html:div class="note">
-                            <html:strong>Note:</html:strong> this attribute uses the 
-                            <html:a href="http://www.iso.org/iso/date_and_time_format">ISO 8601</html:a> date standard.
+                            <html:strong>Note:</html:strong>
+                            this attribute uses the
+                            <html:a href="http://www.iso.org/iso/date_and_time_format">ISO 8601</html:a>
+                            date standard.
                         </html:div>
                     </html:p>
                 </xs:documentation>

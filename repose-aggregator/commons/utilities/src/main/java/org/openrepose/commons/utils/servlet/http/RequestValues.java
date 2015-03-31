@@ -20,7 +20,6 @@
 package org.openrepose.commons.utils.servlet.http;
 
 /**
- *
  * @author Dan Daley
  */
 public interface RequestValues {
@@ -33,10 +32,10 @@ public interface RequestValues {
 
     String getRequestURI();
 
-    StringBuffer getRequestURL();
-
     void setRequestURI(String uri);
 
+    StringBuffer getRequestURL();
+
     void setRequestURL(StringBuffer url);
-    
+
 }

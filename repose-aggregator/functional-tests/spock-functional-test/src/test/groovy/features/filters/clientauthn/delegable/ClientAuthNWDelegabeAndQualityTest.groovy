@@ -61,13 +61,14 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
     /*
     This test to verify the forward fail reason and default quality for authn
  */
+
     @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
@@ -79,7 +80,8 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
@@ -95,16 +97,16 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
-        request2.headers.getFirstValue("x-delegated")=~ delegatedMsg
+        request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
-        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
-        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
+        requestTenant | responseTenant | serviceAdminRole | identityStatus  | delegatedMsg
+        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
+        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
     }
 
-    @Unroll ("Req with auth resp: #authRespCode")
-    def "When req with invalid token using delegable mode with quality" () {
+    @Unroll("Req with auth resp: #authRespCode")
+    def "When req with invalid token using delegable mode with quality"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID()
@@ -112,7 +114,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, request,xml ->
+            tokenId, request, xml ->
                 new Response(authRespCode)
         }
 

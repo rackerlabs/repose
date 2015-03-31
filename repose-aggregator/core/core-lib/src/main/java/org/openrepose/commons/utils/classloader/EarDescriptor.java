@@ -27,23 +27,23 @@ import java.util.Map;
 
 public class EarDescriptor {
 
-   private final Map<String, FilterType> registeredFilters;
-   private String applicationName;
+    private final Map<String, FilterType> registeredFilters;
+    private String applicationName;
 
-   public EarDescriptor() {
-      this("", new HashMap<String, FilterType>());
-   }
+    public EarDescriptor() {
+        this("", new HashMap<String, FilterType>());
+    }
 
-   public EarDescriptor(String applicationName, Map<String, FilterType> registeredFilters){
-      this.applicationName = applicationName;
-      this.registeredFilters = registeredFilters;
-   }
+    public EarDescriptor(String applicationName, Map<String, FilterType> registeredFilters) {
+        this.applicationName = applicationName;
+        this.registeredFilters = registeredFilters;
+    }
 
-   public String getApplicationName() {
-      return applicationName;
-   }
+    public String getApplicationName() {
+        return applicationName;
+    }
 
-   public Map<String, FilterType> getRegisteredFilters() {
-      return Collections.unmodifiableMap(registeredFilters);
-   }
+    public Map<String, FilterType> getRegisteredFilters() {
+        return Collections.unmodifiableMap(registeredFilters);
+    }
 }

@@ -19,15 +19,16 @@
  */
 package org.openrepose.core.services.reporting.destinations;
 
-import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
-import org.openrepose.core.services.reporting.StatusCodeResponseStore;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.reporting.StatusCodeResponseStore;
+import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 @RunWith(Enclosed.class)
@@ -37,6 +38,7 @@ public class DestinationInfoLogicTest {
 
         private static final String destinationId = "my_destination";
         private DestinationInfoLogic destinationInfoLogic;
+
         @Before
         public void setup() {
             destinationInfoLogic = new DestinationInfoLogic(destinationId);
@@ -77,6 +79,7 @@ public class DestinationInfoLogicTest {
 
         private static final String destinationId = "my_destination";
         private DestinationInfoLogic destinationInfoLogic;
+
         @Before
         public void setup() {
             destinationInfoLogic = new DestinationInfoLogic(destinationId);
@@ -96,7 +99,7 @@ public class DestinationInfoLogicTest {
         public void shouldGetAverageResponseTime() {
             long totalResponses = 1000l;
             long responseTime = 2l;
-            double expectedAverageResponseTime = totalResponses/responseTime;
+            double expectedAverageResponseTime = totalResponses / responseTime;
 
             for (int i = 0; i < 1000; i++) {
                 destinationInfoLogic.incrementResponseCount();
@@ -120,7 +123,7 @@ public class DestinationInfoLogicTest {
                 destinationInfoLogic.incrementResponseCount();
             }
 
-            double expectedThroughput = totalResponses/destinationInfoLogic.elapsedTimeInSeconds();
+            double expectedThroughput = totalResponses / destinationInfoLogic.elapsedTimeInSeconds();
             double actualThroughput = destinationInfoLogic.getThroughput();
 
             assertEquals(expectedThroughput, actualThroughput, 0.1);
@@ -135,6 +138,7 @@ public class DestinationInfoLogicTest {
     public static class WhenCopying {
         private static final String destinationId = "my_destination";
         private DestinationInfoLogic destinationInfoLogic;
+
         @Before
         public void setup() {
             destinationInfoLogic = new DestinationInfoLogic(destinationId);
@@ -155,6 +159,7 @@ public class DestinationInfoLogicTest {
     public static class WhenComparing {
         private static final String destinationId = "my_destination";
         private DestinationInfoLogic destinationInfoLogic;
+
         @Before
         public void setup() {
             destinationInfoLogic = new DestinationInfoLogic(destinationId);

@@ -21,11 +21,7 @@ package framework
 
 import org.slf4j.LoggerFactory
 
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.*
 
 /**
  * Responsible for searching log file for an instance of Repose
@@ -86,7 +82,7 @@ class ReposeLogSearch {
                             stopSearching = true
                             return foundMatches
                         }
-                    } catch(InterruptedException e) {
+                    } catch (InterruptedException e) {
                         LOG.trace("Interrupted, so being terminated")
                         stopSearching = true
                     } catch (Exception e) {
@@ -103,7 +99,7 @@ class ReposeLogSearch {
             def result = logSearchFuture.get(duration, timeUnit)
 
             return result
-        } catch(Exception e) {
+        } catch (Exception e) {
             logSearchFuture.cancel(true)
             throw e
         }

@@ -21,11 +21,12 @@ package org.openrepose.core.services.headers.response;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.proxy.TargetHostInfo;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.servlet.http.HttpServletRequest;
 
 public class LocationHeaderBuilder {
 
@@ -36,11 +37,11 @@ public class LocationHeaderBuilder {
 
     public void setLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
         final URL locationUrl = getLocationUrl(servletResponse);
-        
+
         if (locationUrl == null) {
             return;
         }
-        
+
         final URL requestedHostUrl = extractHostPath(originalRequest);
         final URL proxiedHostUrl = new TargetHostInfo(destinationUri).getProxiedHostUrl();
 

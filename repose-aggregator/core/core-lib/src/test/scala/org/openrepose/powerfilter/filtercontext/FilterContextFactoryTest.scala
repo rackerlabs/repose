@@ -19,7 +19,7 @@
  */
 package org.openrepose.powerfilter.filtercontext
 
-import javax.servlet.{ServletContext, FilterConfig}
+import javax.servlet.ServletContext
 
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
@@ -38,19 +38,13 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
 
   import org.mockito.Mockito.when
 
-import scala.collection.JavaConverters._
+  import scala.collection.JavaConverters._
 
   CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false);
 
   val appContext = CoreSpringProvider.getInstance().getCoreContext
 
   val mockServletContext = mock[ServletContext]
-
-  def reposeEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
-    //Use the new ear provider to get the classloader for the tests
-    val earProvider = new EarClassProvider(testFilterBundleFile, testFilterBundleRoot)
-    new ReallySimpleEarClassLoaderContext(earProvider.getEarDescriptor(), earProvider.getClassLoader())
-  }
 
   def mockClassloaderManagerService(classMapping: Map[String, String]): ClassLoaderManagerService = {
     import org.mockito.Matchers.anyString
@@ -68,6 +62,12 @@ import scala.collection.JavaConverters._
     })
 
     clms
+  }
+
+  def reposeEarClassLoader(classMapping: Map[String, String]): EarClassLoaderContext = {
+    //Use the new ear provider to get the classloader for the tests
+    val earProvider = new EarClassProvider(testFilterBundleFile, testFilterBundleRoot)
+    new ReallySimpleEarClassLoaderContext(earProvider.getEarDescriptor(), earProvider.getClassLoader())
   }
 
   it("loads a filter context") {
@@ -215,7 +215,7 @@ import scala.collection.JavaConverters._
       }
     }
     it("when there is no artifact to satisfy the filter request") {
-      val clms = mockClassloaderManagerService(Map.empty[String,String])
+      val clms = mockClassloaderManagerService(Map.empty[String, String])
 
       val fcm = new FilterContextFactory(appContext, clms)
 

@@ -23,10 +23,10 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Bug
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
 
 class CaptureGroupsTest extends Specification {
 

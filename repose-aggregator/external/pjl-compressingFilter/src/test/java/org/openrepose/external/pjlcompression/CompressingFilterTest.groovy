@@ -26,7 +26,6 @@ import com.mockrunner.mock.web.MockServletContext
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.openrepose.external.pjlcompression.CompressingFilter
 
 import javax.servlet.FilterChain
 import javax.servlet.ServletRequest

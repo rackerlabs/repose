@@ -29,9 +29,9 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     EXTENDED_AUTHORIZATION("X-Authorization"),
 
     /**
-     *  'Confirmed' or 'Invalid'
-     *   The underlying service will only see a value of 'Invalid' if PAPI
-     *   is configured to run in 'delegable' mode
+     * 'Confirmed' or 'Invalid'
+     * The underlying service will only see a value of 'Invalid' if PAPI
+     * is configured to run in 'delegable' mode
      */
     IDENTITY_STATUS("X-Identity-Status"),
 
@@ -52,23 +52,23 @@ public enum OpenStackServiceHeader implements HeaderConstant {
 
     /**
      * Identity service managed unique identifier, string
-     */    
+     */
     TENANT_ID("X-Tenant-Id"),
 
     /**
      * Comma delimited list of case-sensitive Roles
      */
     ROLES("X-Roles"),
-    
+
     IMPERSONATOR_ID("X-Impersonator-Id"),
     IMPERSONATOR_NAME("X-Impersonator-Name"),
-    
+
     DEFAULT_REGION("X-Default-Region"),
-    
+
     X_EXPIRATION("x-token-expires"),
     CONTACT_ID("X-CONTACT-ID");
 
-    
+
     private final String headerKey;
 
     private OpenStackServiceHeader(String headerKey) {
@@ -79,7 +79,7 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     public String toString() {
         return headerKey;
     }
-    
+
     @Override
     public boolean matches(String st) {
         return headerKey.equalsIgnoreCase(st);

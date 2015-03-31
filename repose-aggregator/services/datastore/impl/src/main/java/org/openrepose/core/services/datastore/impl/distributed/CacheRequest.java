@@ -37,6 +37,22 @@ public class CacheRequest {
     public static final int TWO_MEGABYTES_IN_BYTES = 2097152, EXPECTED_UUID_STRING_LENGTH = 36, DEFAULT_TTL_IN_SECONDS = 60;
     public static final HeaderConstant TTL_HEADER = ExtendedHttpHeader.X_TTL;
     public static final String TEMP_HOST_KEY = "temp-host-key";
+    private final RemoteBehavior requestedRemoteBehavior;
+    private final String cacheKey, hostKey;
+    private final int ttlInSeconds;
+    private final byte[] payload;
+
+    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload) {
+        this(cacheKey, hostKey, ttlInSeconds, payload, RemoteBehavior.ALLOW_FORWARDING);
+    }
+
+    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload, RemoteBehavior requestedRemoteBehavior) {
+        this.cacheKey = cacheKey;
+        this.hostKey = hostKey;
+        this.ttlInSeconds = ttlInSeconds;
+        this.payload = ArrayUtilities.nullSafeCopy(payload);
+        this.requestedRemoteBehavior = requestedRemoteBehavior;
+    }
 
     private static String getCacheKey(HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
@@ -112,23 +128,6 @@ public class CacheRequest {
         } catch (IOException ioe) {
             throw new MalformedCacheRequestException(MalformedCacheRequestError.UNABLE_TO_READ_CONTENT, ioe);
         }
-    }
-
-    private final RemoteBehavior requestedRemoteBehavior;
-    private final String cacheKey, hostKey;
-    private final int ttlInSeconds;
-    private final byte[] payload;
-
-    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload) {
-        this(cacheKey, hostKey, ttlInSeconds, payload, RemoteBehavior.ALLOW_FORWARDING);
-    }
-
-    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload, RemoteBehavior requestedRemoteBehavior) {
-        this.cacheKey = cacheKey;
-        this.hostKey = hostKey;
-        this.ttlInSeconds = ttlInSeconds;
-        this.payload = ArrayUtilities.nullSafeCopy(payload);
-        this.requestedRemoteBehavior = requestedRemoteBehavior;
     }
 
     public int getTtlInSeconds() {

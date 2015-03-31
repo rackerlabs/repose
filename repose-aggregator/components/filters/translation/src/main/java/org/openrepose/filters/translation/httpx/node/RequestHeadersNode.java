@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.translation.httpx.node;
 
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.core.httpx.ComplexParameter;
 import org.openrepose.core.httpx.RequestHead;
 import org.openrepose.core.httpx.RequestHeaders;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +41,7 @@ public class RequestHeadersNode extends ObjectFactoryUser implements Node {
         this.request = request;
         this.requestHead = requestHead;
         this.fidelity = fidelity;
-        this.fidelityValidator = new AcceptFidelityValidator(fidelity);    
+        this.fidelityValidator = new AcceptFidelityValidator(fidelity);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class RequestHeadersNode extends ObjectFactoryUser implements Node {
 
                 if (CommonHttpHeader.ACCEPT.matches(headerName) && fidelityValidator.hasAcceptFidelity()) {
                     new AcceptHeaderNode(request.getHeader(CommonHttpHeader.ACCEPT.toString()), requestHeaders).build();
-                } else if (fidelityValidator.hasStarFidelity()){
+                } else if (fidelityValidator.hasStarFidelity()) {
                     ComplexParameter complexParameter = getObjectFactory().createComplexParameter();
                     complexParameter.setName(headerName);
 

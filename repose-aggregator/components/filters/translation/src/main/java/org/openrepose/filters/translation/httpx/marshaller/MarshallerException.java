@@ -24,6 +24,6 @@ package org.openrepose.filters.translation.httpx.marshaller;
  */
 public class MarshallerException extends RuntimeException {
     public MarshallerException(String message, Throwable throwable) {
-        super(message, throwable);        
+        super(message, throwable);
     }
 }

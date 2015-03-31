@@ -19,14 +19,14 @@
  */
 package org.openrepose.core.services.datastore.impl.ehcache;
 
-import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreManager;
 import com.yammer.metrics.ehcache.InstrumentedEhcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreManager;
 import org.slf4j.Logger;
 
 import java.util.UUID;

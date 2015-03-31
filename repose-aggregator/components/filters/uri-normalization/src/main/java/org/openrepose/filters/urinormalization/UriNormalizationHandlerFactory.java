@@ -43,6 +43,24 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
         this.metricsService = metricsService;
     }
 
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
+        listenerMap.put(UriNormalizationConfig.class, new UriNormalizationConfigurationListener());
+
+        return listenerMap;
+    }
+
+    @Override
+    protected UriNormalizationHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer, metricsService);
+
+    }
+
     private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
         private boolean isInitialized = false;
 
@@ -83,23 +101,5 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
-        listenerMap.put(UriNormalizationConfig.class, new UriNormalizationConfigurationListener());
-
-        return listenerMap;
-    }
-
-    @Override
-    protected UriNormalizationHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-
-        return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer, metricsService);
-
     }
 }

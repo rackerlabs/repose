@@ -37,10 +37,10 @@ import java.net.URL;
 public class HeaderNormalizationFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderNormalizationFilter.class);
     private static final String DEFAULT_CONFIG = "header-normalization.cfg.xml";
-    private String config;
-    private HeaderNormalizationHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
+    private String config;
+    private HeaderNormalizationHandlerFactory handlerFactory;
 
     @Inject
     public HeaderNormalizationFilter(ConfigurationService configurationService,

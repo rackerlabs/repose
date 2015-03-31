@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.services.datastore;
 
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
@@ -34,6 +34,7 @@ public interface DatastoreService {
 
     /**
      * Get a datastore associated with the provided datastore name
+     *
      * @param datastoreName
      * @return
      * @throws DatastoreUnavailableException if no datastore exists with the given datastoreName
@@ -42,6 +43,7 @@ public interface DatastoreService {
 
     /**
      * Get the distributed datastore managed by the service.
+     *
      * @return
      * @throws DatastoreUnavailableException if no distributed datastore exists
      */
@@ -49,6 +51,7 @@ public interface DatastoreService {
 
     /**
      * Shutdown the datastore associated with the datastore name
+     *
      * @param datastoreName
      */
     void destroyDatastore(String datastoreName);
@@ -56,6 +59,7 @@ public interface DatastoreService {
     /**
      * Create and return a distributed datastore using the provided configuration.  The created
      * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     *
      * @param datastoreName
      * @param configuration
      * @return

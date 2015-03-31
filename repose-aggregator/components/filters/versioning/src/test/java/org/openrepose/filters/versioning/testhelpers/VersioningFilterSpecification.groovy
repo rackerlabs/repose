@@ -53,8 +53,8 @@ class VersioningFilterSpecification extends Specification {
                             "pp-dest-id": le.ppDestId,
                             id: le.id,
                             status: le.status
-                    ){
-                        "media-types"{
+                    ) {
+                        "media-types" {
                             le.mediaTypes.mediaType.each {
                                 "media-type"(
                                         type: it.type,
@@ -78,20 +78,20 @@ class VersioningFilterSpecification extends Specification {
             ) {
                 "repose-cluster"(
                         id: "repose-cluster"
-                ){
-                    "nodes"{
+                ) {
+                    "nodes" {
                         "node"(
                                 id: "config-test",
                                 hostname: "localhost",
                                 "http-port": "12345"
-                            )
+                        )
                     }
-                    "filters"{
+                    "filters" {
                         "filter"(
                                 name: "versioning"
                         )
                     }
-                    "destinations"{
+                    "destinations" {
                         endpoints.each {
                             "endpoint"(
                                     id: it.id,

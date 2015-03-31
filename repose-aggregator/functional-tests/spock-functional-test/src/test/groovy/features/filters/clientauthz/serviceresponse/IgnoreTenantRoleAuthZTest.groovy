@@ -29,7 +29,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 10/21/14.
  */
-class IgnoreTenantRoleAuthZTest extends ReposeValveTest{
+class IgnoreTenantRoleAuthZTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
@@ -70,7 +70,7 @@ class IgnoreTenantRoleAuthZTest extends ReposeValveTest{
                 [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-roles': roles
+                        'x-roles'     : roles
                 ]
         when: "User passes a request through repose with role #roles"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
@@ -80,17 +80,17 @@ class IgnoreTenantRoleAuthZTest extends ReposeValveTest{
         mc.receivedResponse.code == respcode
 
         where: "User with #roles expect response code #respcode"
-        roles                       |respcode
-        'user-admin'                |"403"
-        'non-admin'                 |"403"
-        'admin'                     |"200"
-        'openstack:admin'           |"200"
-        null                        |"403"
-        ''                          |"403"
-        'openstack,admin'           |"200"
-        'openstack:admin,default'   |"200"
-        'openstack%2Cadmin'         |'403'
-        'admin%20'                  |'403'
-        'admin '                    |'200'
+        roles | respcode
+        'user-admin' | "403"
+        'non-admin' | "403"
+        'admin' | "200"
+        'openstack:admin' | "200"
+        null | "403"
+        '' | "403"
+        'openstack,admin' | "200"
+        'openstack:admin,default' | "200"
+        'openstack%2Cadmin' | '403'
+        'admin%20' | '403'
+        'admin ' | '200'
     }
 }

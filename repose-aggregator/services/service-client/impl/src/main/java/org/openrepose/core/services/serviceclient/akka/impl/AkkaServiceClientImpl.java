@@ -29,8 +29,8 @@ import com.typesafe.config.ConfigFactory;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.httpclient.HttpClientService;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -50,15 +50,14 @@ import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 @Named
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
-    private final ServiceClient serviceClient;
-    private ActorSystem actorSystem;
-    private ActorRef tokenActorRef;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
-    private final Cache<Object, Future> quickFutureCache;
-
     private static final long FUTURE_CACHE_TTL = 500;
     private static final TimeUnit FUTURE_CACHE_UNIT = TimeUnit.MILLISECONDS;
     private static final int CONNECTION_TIMEOUT_BUFFER_MILLIS = 1000;
+    private final ServiceClient serviceClient;
+    private final Cache<Object, Future> quickFutureCache;
+    private ActorSystem actorSystem;
+    private ActorRef tokenActorRef;
 
     @Inject
     public AkkaServiceClientImpl(HttpClientService httpClientService) {

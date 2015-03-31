@@ -23,15 +23,15 @@ import org.openrepose.common.auth.AuthServiceException;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.filters.clientauth.common.*;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.filters.clientauth.openstack.config.IgnoreTenantRoles;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.httpclient.HttpClientService;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +52,19 @@ public final class OpenStackAuthenticationHandlerFactory {
         final OpenStackIdentityService ids = authConfig.getIdentityService();
         final EndpointsConfiguration endpointsConfiguration;
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(),
-                                                                                           ids.getUsername(),
-                                                                                           ids.getPassword(),
-                                                                                           ids.getTenantId(),
-                                                                                           authConfig.getConnectionPoolId(),
-                                                                                           httpClientService,
+                ids.getUsername(),
+                ids.getPassword(),
+                ids.getTenantId(),
+                authConfig.getConnectionPoolId(),
+                httpClientService,
                 akkaServiceClient);
 
         //null check to prevent NPE when accessing config element attributes
         if (authConfig.getEndpointsInHeader() != null) {
             endpointsConfiguration = new EndpointsConfiguration(authConfig.getEndpointsInHeader().getFormat().toString(),
-                                                                authConfig.getEndpointsInHeader().getCacheTimeout(),
-                                                                authConfig.getEndpointsInHeader()
-                                                                        .getIdentityContractVersion().intValue());
+                    authConfig.getEndpointsInHeader().getCacheTimeout(),
+                    authConfig.getEndpointsInHeader()
+                            .getIdentityContractVersion().intValue());
         } else {
             endpointsConfiguration = null;
         }
@@ -73,7 +73,7 @@ public final class OpenStackAuthenticationHandlerFactory {
                 config.getDelegating() != null ? config.getDelegating().getQuality() : 0.0,
                 ids.getUri(),
                 accountRegexExtractor,
-                authConfig.isTenanted(), 
+                authConfig.isTenanted(),
                 authConfig.getGroupCacheTimeout(),
                 authConfig.getTokenCacheTimeout(),
                 authConfig.getUserCacheTimeout(),
@@ -88,12 +88,12 @@ public final class OpenStackAuthenticationHandlerFactory {
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
     }
 
-    private static List<String> getServiceAdminRoles(ServiceAdminRoles roles){
+    private static List<String> getServiceAdminRoles(ServiceAdminRoles roles) {
         return roles == null ? new ArrayList<String>() : roles.getRole();
     }
 
-    private static List<String> getIgnoreTenantRoles(IgnoreTenantRoles roles){
-        if(roles == null) {
+    private static List<String> getIgnoreTenantRoles(IgnoreTenantRoles roles) {
+        if (roles == null) {
             return new ArrayList<String>();
         } else {
             return roles.getRole();

@@ -40,7 +40,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
         if (!this.isInitialized()) {
             return null;
         }
-        return new UriStripperHandler(stripId,rewriteLocation);
+        return new UriStripperHandler(stripId, rewriteLocation);
     }
 
     @Override
@@ -64,6 +64,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
             isInitialized = true;
 
         }
+
         @Override
         public boolean isInitialized() {
             return isInitialized;

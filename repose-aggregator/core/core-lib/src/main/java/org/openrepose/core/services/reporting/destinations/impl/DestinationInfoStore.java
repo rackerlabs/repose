@@ -21,6 +21,7 @@ package org.openrepose.core.services.reporting.destinations.impl;
 
 import com.google.common.base.Objects;
 import org.openrepose.core.services.reporting.StatusCodeResponseStore;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +42,8 @@ public class DestinationInfoStore {
 
     public DestinationInfoStore(DestinationInfoStore destinationInfoStore) {
         this(destinationInfoStore.destinationId, destinationInfoStore.startTime,
-             destinationInfoStore.totalRequests, destinationInfoStore.totalResponses,
-             destinationInfoStore.statusCodeCounts, destinationInfoStore.accumulatedResponseTime);
+                destinationInfoStore.totalRequests, destinationInfoStore.totalResponses,
+                destinationInfoStore.statusCodeCounts, destinationInfoStore.accumulatedResponseTime);
     }
 
     private DestinationInfoStore(String destinationId, long startTime, long totalRequests, long totalResponses,
@@ -54,13 +55,13 @@ public class DestinationInfoStore {
         this.statusCodeCounts = deepCopyStatusCodeCounts(statusCodeCounts);
         this.accumulatedResponseTime = accumulatedResponseTime;
     }
-    
+
     private static Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
         Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
-        for (Map.Entry<Integer, StatusCodeResponseStore> entry: statusCodeCounts.entrySet()) {
+        for (Map.Entry<Integer, StatusCodeResponseStore> entry : statusCodeCounts.entrySet()) {
             copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
         }
-        
+
         return copy;
     }
 
@@ -76,29 +77,29 @@ public class DestinationInfoStore {
         return totalRequests;
     }
 
-    public long getTotalResponses() {
-        return totalResponses;
+    protected void setTotalRequests(long totalRequests) {
+        this.totalRequests = totalRequests;
     }
 
-    public long getAccumulatedResponseTime() {
-        return accumulatedResponseTime;
+    public long getTotalResponses() {
+        return totalResponses;
     }
 
     protected void setTotalResponses(long totalResponses) {
         this.totalResponses = totalResponses;
     }
 
-    protected Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
-        return statusCodeCounts;
-    }
-
-    protected void setTotalRequests(long totalRequests) {
-        this.totalRequests = totalRequests;
+    public long getAccumulatedResponseTime() {
+        return accumulatedResponseTime;
     }
 
     protected void setAccumulatedResponseTime(long accumulatedResponseTime) {
         this.accumulatedResponseTime = accumulatedResponseTime;
-    }    
+    }
+
+    protected Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
+        return statusCodeCounts;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -111,11 +112,11 @@ public class DestinationInfoStore {
             DestinationInfoStore other = (DestinationInfoStore) o;
 
             return Objects.equal(this.destinationId, other.destinationId) &&
-                   Objects.equal(this.accumulatedResponseTime, other.accumulatedResponseTime) &&
-                   Objects.equal(this.startTime, other.startTime) &&
-                   Objects.equal(this.totalRequests, other.totalRequests) &&
-                   Objects.equal(this.totalResponses, other.totalResponses) &&
-                   Objects.equal(this.statusCodeCounts, other.statusCodeCounts);
+                    Objects.equal(this.accumulatedResponseTime, other.accumulatedResponseTime) &&
+                    Objects.equal(this.startTime, other.startTime) &&
+                    Objects.equal(this.totalRequests, other.totalRequests) &&
+                    Objects.equal(this.totalResponses, other.totalResponses) &&
+                    Objects.equal(this.statusCodeCounts, other.statusCodeCounts);
         }
 
         return false;

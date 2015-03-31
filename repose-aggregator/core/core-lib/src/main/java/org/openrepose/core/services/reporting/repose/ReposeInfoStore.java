@@ -20,6 +20,7 @@
 package org.openrepose.core.services.reporting.repose;
 
 import org.openrepose.core.services.reporting.StatusCodeResponseStore;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,10 +46,10 @@ public class ReposeInfoStore {
 
     private Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
         Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
-        for (Map.Entry<Integer, StatusCodeResponseStore> entry: statusCodeCounts.entrySet()) {
+        for (Map.Entry<Integer, StatusCodeResponseStore> entry : statusCodeCounts.entrySet()) {
             copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
         }
-        
+
         return copy;
     }
 
@@ -60,8 +61,16 @@ public class ReposeInfoStore {
         return totalRequests;
     }
 
+    protected void setTotalRequests(long totalRequests) {
+        this.totalRequests = totalRequests;
+    }
+
     public long getTotalResponses() {
         return totalResponses;
+    }
+
+    protected void setTotalResponses(long totalResponses) {
+        this.totalResponses = totalResponses;
     }
 
     public long getAccumulatedRequestSize() {
@@ -88,14 +97,6 @@ public class ReposeInfoStore {
         return maxResponseSize;
     }
 
-    protected void setTotalRequests(long totalRequests) {
-        this.totalRequests = totalRequests;
-    }
-
-    protected void setTotalResponses(long totalResponses) {
-        this.totalResponses = totalResponses;
-    }
-    
     protected void processRequestSize(long requestSize) {
         this.accumulatedRequestSize += requestSize;
         if (requestSize < minRequestSize || minRequestSize == 0) {

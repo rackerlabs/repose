@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.cache
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
@@ -56,7 +57,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
         MockIdentityService fauxIdentityService
-        def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
+        def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 5000, 3000]
         fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fauxIdentityService.resetCounts()
         fauxIdentityService.with {
@@ -72,7 +73,8 @@ class CacheOffsetTest extends ReposeValveTest {
         and: "All users have unique X-Auth-Token"
         def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
-        when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
+        when:
+        "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
         fauxIdentityService.resetCounts()
 
         DateTime initialTokenValidation = DateTime.now()

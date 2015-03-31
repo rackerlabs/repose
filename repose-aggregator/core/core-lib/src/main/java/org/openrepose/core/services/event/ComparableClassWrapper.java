@@ -36,13 +36,13 @@ public class ComparableClassWrapper<T> implements Comparable<ComparableClassWrap
     public int hashCode() {
         return HASH + (this.wrappedClass != null ? this.wrappedClass.hashCode() : 0);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ComparableClassWrapper)) {
             return false;
         }
-        
+
         return compareTo((ComparableClassWrapper<T>) o) == 0;
     }
 }

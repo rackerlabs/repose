@@ -27,7 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
+class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -36,7 +36,7 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/projectidinuri/noserviceroles", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
@@ -48,13 +48,13 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityV3Service.resetHandlers()
     }
 
@@ -71,14 +71,14 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityV3Service.validateTokenHandler = {
                 tokenId, request ->
                     new Response(authResponseCode)
             }
         }
 
-        if(groupResponseCode != 200){
+        if (groupResponseCode != 200) {
             fakeIdentityV3Service.getGroupsHandler = {
                 userId, request ->
                     new Response(groupResponseCode)
@@ -90,7 +90,7 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/$requestProject/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
@@ -100,12 +100,12 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
         mc.handlings.size() == 0
 
         where:
-        requestProject | responseProject  | authResponseCode | groupResponseCode | x_www_auth | responseCode
-        813            | 813              | 500              | 200               | false      | "500"
-        814            | 814              | 404              | 200               | true       | "401"
-        815            | 815              | 200              | 404               | false      | "500"
-        816            | 816              | 200              | 500               | false      | "500"
-        811            | 812              | 200              | 200               | true       | "401"
+        requestProject | responseProject | authResponseCode | groupResponseCode | x_www_auth | responseCode
+        813            | 813             | 500              | 200               | false      | "500"
+        814            | 814             | 404              | 200               | true       | "401"
+        815            | 815             | 200              | 404               | false      | "500"
+        816            | 816             | 200              | 500               | false      | "500"
+        811            | 812             | 200              | 200               | true       | "401"
 
 
     }
@@ -122,9 +122,9 @@ class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url:"$reposeEndpoint/servers/999/",
-                method:'GET',
-                headers:['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token])
+                url: "$reposeEndpoint/servers/999/",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

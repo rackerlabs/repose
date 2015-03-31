@@ -76,7 +76,7 @@ class HeaderNormalizerTest extends Specification {
 
     def "properly handles whitelist and blacklist"() {
         when:
-        headerNormalizer.normalizeHeaders(request,director)
+        headerNormalizer.normalizeHeaders(request, director)
 
         def headersToRemove = director.requestHeaderManager().headersToRemove()
 

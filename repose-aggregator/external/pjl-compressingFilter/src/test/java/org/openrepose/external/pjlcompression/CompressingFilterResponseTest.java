@@ -43,8 +43,6 @@ import com.mockrunner.servlet.ServletTestModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.external.pjlcompression.CompressingFilter;
-import org.openrepose.external.pjlcompression.CompressingFilterStats;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,11 +54,7 @@ import java.util.Random;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests {@link CompressingFilter} compressing responses.
@@ -69,10 +63,9 @@ import static org.junit.Assert.assertTrue;
  */
 public final class CompressingFilterResponseTest {
 
-    private static final String TEST_ENCODING = "ISO-8859-1";
-
     static final String SMALL_DOCUMENT = "Test";
     static final String BIG_DOCUMENT;
+    private static final String TEST_ENCODING = "ISO-8859-1";
     private static final String EMPTY = "";
 
     static {
@@ -91,6 +84,15 @@ public final class CompressingFilterResponseTest {
 
     private WebMockObjectFactory factory;
     private ServletTestModule module;
+
+    private static byte[] getCompressedOutput(byte[] output) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
+        gzipOut.write(output);
+        gzipOut.finish();
+        gzipOut.close();
+        return baos.toByteArray();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -390,15 +392,6 @@ public final class CompressingFilterResponseTest {
         }
 
 
-    }
-
-    private static byte[] getCompressedOutput(byte[] output) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
-        gzipOut.write(output);
-        gzipOut.finish();
-        gzipOut.close();
-        return baos.toByteArray();
     }
 
 }

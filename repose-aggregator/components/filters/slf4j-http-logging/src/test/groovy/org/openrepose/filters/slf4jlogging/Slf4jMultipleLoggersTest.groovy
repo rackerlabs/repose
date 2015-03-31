@@ -51,12 +51,12 @@ class Slf4jMultipleLoggersTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app1 = ((ListAppender)(ctx.getConfiguration().getAppender("List1"))).clear()
-        app2 = ((ListAppender)(ctx.getConfiguration().getAppender("List2"))).clear()
-        app3 = ((ListAppender)(ctx.getConfiguration().getAppender("List3"))).clear()
+        app1 = ((ListAppender) (ctx.getConfiguration().getAppender("List1"))).clear()
+        app2 = ((ListAppender) (ctx.getConfiguration().getAppender("List2"))).clear()
+        app3 = ((ListAppender) (ctx.getConfiguration().getAppender("List3"))).clear()
     }
 
-    def "The SLF4j logging filter logs to the named loggers"(){
+    def "The SLF4j logging filter logs to the named loggers"() {
         given:
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()
@@ -77,7 +77,7 @@ class Slf4jMultipleLoggersTest extends Specification {
 
         def responseBody = "HEY A BODY"
         response.setContentLength(10)// size of responseBody .. but no
-        response.setStatus(200,"OK")
+        response.setStatus(200, "OK")
         response.addHeader("X-Derp-header", "lolwut")
         response.getWriter().print(responseBody)
         response.getWriter().flush()
@@ -90,7 +90,9 @@ class Slf4jMultipleLoggersTest extends Specification {
         chain.getRequestList().size() == 1
 
         app1.getEvents().size() == 1
-        app1.getEvents().find { it.getMessage().getFormattedMessage() == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1" }
+        app1.getEvents().find {
+            it.getMessage().getFormattedMessage() == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1"
+        }
 
         app2.getEvents().size() == 1
         app2.getEvents().find { it.getMessage().getFormattedMessage() == "GET" }

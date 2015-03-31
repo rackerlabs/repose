@@ -37,7 +37,7 @@ public class MessageEnvelopeMarshaller extends ObjectFactoryUser implements org.
     @Override
     public InputStream marshall(MessageEnvelope messageEnvelope) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
+
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance("org.openrepose.core.httpx", this.getClass().getClassLoader());
 

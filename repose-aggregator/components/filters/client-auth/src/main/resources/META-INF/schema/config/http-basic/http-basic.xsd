@@ -20,11 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0"
-           xmlns:auth-http-basic="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:auth-http-basic="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/client-auth/http-basic/v1.0">
 
     <!-- Configuration -->
     <xs:element name="http-basic-auth">
@@ -36,7 +36,7 @@
             </xs:annotation>
 
             <xs:sequence>
-                <xs:element name="credentials" type="auth-http-basic:credentials" minOccurs="1" maxOccurs="1" />
+                <xs:element name="credentials" type="auth-http-basic:credentials" minOccurs="1" maxOccurs="1"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -20,15 +20,14 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/common/api/v1.0"
-           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:test="http://docs.openrepose.org/common/api/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:test="http://docs.openrepose.org/common/api/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/common/api/v1.0">
 
     <!-- XML Element that can be anything with any attributes -->
-    <xs:element name="element" type="test:myElement" />
+    <xs:element name="element" type="test:myElement"/>
 
     <xs:complexType name="myElement">
         <xs:annotation>
@@ -40,7 +39,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
-        </xs:sequence> 
+        </xs:sequence>
         <xs:anyAttribute namespace="##other" processContents="lax"/>
     </xs:complexType>
 

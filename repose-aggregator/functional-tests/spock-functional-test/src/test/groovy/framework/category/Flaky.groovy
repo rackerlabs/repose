@@ -25,4 +25,5 @@ package framework.category
  * A test is considered flaky if, given the same input (i.e., project files), it cannot be
  * determined whether the test will pass or fail.
  */
+
 public interface Flaky {}

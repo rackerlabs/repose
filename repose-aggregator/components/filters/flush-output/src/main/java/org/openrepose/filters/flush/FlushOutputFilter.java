@@ -40,7 +40,7 @@ public class FlushOutputFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {        
+    public void init(FilterConfig filterConfig) throws ServletException {
         handlerFactory = new FlushOutputHandlerFactory();
     }
 }

@@ -28,15 +28,15 @@ import java.util.regex.Pattern;
 public abstract class VariantParser {
 
     static final Pattern VARIANT_REGEX = Pattern.compile("[^\\?]*\\.([^\\?]+).*");
-    
+
     private VariantParser() {
-        
+
     }
 
     public static MimeType getMediaTypeFromVariant(String variant) {
         final Matcher matcher = VARIANT_REGEX.matcher(variant);
         MimeType mediaType = null;
-        
+
         if (matcher.matches()) {
             if (variant.toLowerCase().contains("xml")) {
                 mediaType = MimeType.APPLICATION_XML;

@@ -28,9 +28,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -45,7 +43,7 @@ public class ClassPathUriResolverTest {
             parent = mock(URIResolver.class);
             resolver = new ClassPathUriResolver(parent);
         }
-        
+
         @Test
         public void shouldFindResource() throws TransformerException {
             Source resource = resolver.resolve(ClassPathUriResolver.CLASSPATH_PREFIX + "/style.xsl", "");
@@ -53,19 +51,19 @@ public class ClassPathUriResolverTest {
             assertNotNull("Resource should contain the source path", resource.getSystemId());
             assertFalse("Resource path should not be empty", resource.getSystemId().isEmpty());
         }
-        
+
         @Test
         public void shouldReturnNullWhenResourceNotFound() throws TransformerException {
             Source resource = resolver.resolve(ClassPathUriResolver.CLASSPATH_PREFIX + "/blah.xsl", "");
             assertNull("Should return null for non-existent resource", resource);
         }
-        
+
         @Test
         public void shouldHandleNullHref() throws TransformerException {
             Source resource = resolver.resolve(null, "");
             assertNull("Should handle null href", resource);
         }
-        
+
         @Test
         public void shouldCallParentResolverForNonClassPathResources() throws TransformerException {
             String href = "/style.xsl";

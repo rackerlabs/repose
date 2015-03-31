@@ -19,14 +19,14 @@
  */
 package org.openrepose.filters.versioning;
 
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -40,20 +40,20 @@ import java.net.URL;
 public class VersioningFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
     private static final String DEFAULT_CONFIG = "versioning.cfg.xml";
-    private String config;
-    private VersioningHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
     private final HealthCheckService healthCheckService;
     private final String clusterId;
     private final String nodeId;
+    private String config;
+    private VersioningHandlerFactory handlerFactory;
 
     @Inject
     public VersioningFilter(ConfigurationService configurationService,
                             MetricsService metricsService,
                             HealthCheckService healthCheckService,
-                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID)String clusterId,
-                            @Value(ReposeSpringProperties.NODE.NODE_ID)String nodeId) {
+                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+                            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.healthCheckService = healthCheckService;
@@ -77,7 +77,7 @@ public class VersioningFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new VersioningHandlerFactory(clusterId, nodeId, metricsService, healthCheckService);
-        configurationService.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
+        configurationService.subscribeTo(filterConfig.getFilterName(), "system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, ServiceVersionMappingList.class);
     }

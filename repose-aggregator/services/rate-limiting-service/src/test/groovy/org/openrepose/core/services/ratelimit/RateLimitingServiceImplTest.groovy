@@ -212,7 +212,7 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         RateLimitingServiceImpl rateLimitingService = new RateLimitingServiceImpl(null, config)
         rateLimitingService.rateLimiter = limiter
 
-        rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", ["index" : ["0"] as String[]], "GET", 1000)
+        rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", ["index": ["0"] as String[]], "GET", 1000)
 
         verify(limiter, times(2)).handleRateLimit(any(String.class), any(List.class), any(TimeUnit.class), anyInt())
     }
