@@ -98,14 +98,17 @@
     </status-code>
 
     <status-code id="311" code-regex="311" overwrite="ALWAYS">
-        <message media-type="*/*" content-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
+        <message media-type="*/*" content-type="application/xml">
+            <![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>
     </status-code>
 
     <status-code id="333" code-regex="333" overwrite="ALWAYS">
-        <message media-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
+        <message media-type="application/xml">
+            <![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>
-        <message media-type="application/json"><![CDATA[{ "groups": "%{X-PP-Groups}i", "mydate": "%{MYDATE DATE ISO_8601 RFC_1123}i" }]]>
+        <message media-type="application/json">
+            <![CDATA[{ "groups": "%{X-PP-Groups}i", "mydate": "%{MYDATE DATE ISO_8601 RFC_1123}i" }]]>
         </message>
         <message media-type="*/*">
             X-PP-Groups: %{X-PP-Groups}i
@@ -117,7 +120,7 @@
         <message media-type="application/xml">
             XML Not Authorized... Syntax highlighting is magical.
         </message>
-        <message  media-type="application/json">
+        <message media-type="application/json">
             JSON Not Authorized... The brackets are too confusing.
         </message>
         <message media-type="*/*">
@@ -126,7 +129,7 @@
     </status-code>
 
     <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
-        <message media-type="*/*" href="file://${repose.config.directory}/responsefor5xx" />
+        <message media-type="*/*" href="file://${repose.config.directory}/responsefor5xx"/>
 
     </status-code>
 

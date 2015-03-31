@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
-<!ENTITY PRODNAME "Repose">
-<!ENTITY PRODABBREV "Repose">
-<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
-]>
-<chapter xmlns="http://docbook.org/ns/docbook"
-    xmlns:xi="http://www.w3.org/2001/XInclude"
-    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"
-    xml:id="Afterword-d1e990">
+        <!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+        <!ENTITY PRODNAME "Repose">
+        <!ENTITY PRODABBREV "Repose">
+        <!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+        ]>
+<chapter xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns="http://docbook.org/ns/docbook" version="5.0"
+         xml:id="Afterword-d1e990">
     <title>Afterword</title>
     <para>
         The information in this document is provided in good faith but without any warranty.
@@ -20,27 +19,34 @@
     <section xml:id="Feedback-d1e992">
         <title>Feedback</title>
         <annotation>
-            <remark>synch human-readable contact info here with feedbackemail in pom.xml, telling Disqus whom to notify about comments</remark>
+            <remark>synch human-readable contact info here with feedbackemail in pom.xml, telling Disqus whom to notify
+                about comments
+            </remark>
         </annotation>
-        <para> If you find errors in this document or have suggestions
+        <para>If you find errors in this document or have suggestions
             about how to improve it, please let us know. You can
             contact the document maintainer directly at
-                <emphasis>rose.coste@rackspace.com</emphasis>. </para>
-    </section> 
+            <emphasis>rose.coste@rackspace.com</emphasis>.
+        </para>
+    </section>
     <section xml:id="References-d1e994">
         <title>References</title>
         <para>
-            These external documents are referenced in one or more &PRODNAME; documents and are relevant to all &PRODNAME; documents.
-            Please <link linkend="Feedback-d1e992">contact us</link> if you discover that any of these links are invalid.
+            These external documents are referenced in one or more &PRODNAME; documents and are relevant to
+            all &PRODNAME; documents.
+            Please
+            <link linkend="Feedback-d1e992">contact us</link>
+            if you discover that any of these links are invalid.
         </para>
         <para>Because the individual authors and editors of this material are sometimes unnamed, the
-            bibliography is alphabetized according to the title of the document.</para>
+            bibliography is alphabetized according to the title of the document.
+        </para>
         <!-- (This section is in the wiki. I have saved the information
             here in case we decide to add it back to the docs. I have
             been told that the Bibliography section does not work
             right and needs repair in the doc books.) -->
-            
-            <bibliography>
+
+        <bibliography>
             <title>Bibliography</title>
             <biblioentry xml:id="APACHELOG">
                 <author>
@@ -53,10 +59,12 @@
                 <orgname>
                     The Apache Software Foundation
                 </orgname>
-                <title>Apache Module mod_log_config <link
-                    xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html"
-                    >http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>
-                </title>   
+                <title>Apache Module mod_log_config
+                    <link
+                            xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html"
+                            >http://httpd.apache.org/docs/2.2/mod/mod_log_config.html
+                    </link>
+                </title>
                 <abstract>
                     <para>
                         The HTTP logging component is based on the Apache HTTPD Logging Standard, defined here.
@@ -81,13 +89,16 @@
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>Atom Syndication Format, The <link
-                    xlink:href="http://tools.ietf.org/html/rfc4287/"
-                    >http://tools.ietf.org/html/rfc4287/</link>
-                </title>   
+                <title>Atom Syndication Format, The
+                    <link
+                            xlink:href="http://tools.ietf.org/html/rfc4287/"
+                            >http://tools.ietf.org/html/rfc4287/
+                    </link>
+                </title>
                 <abstract>
                     <para>
-                        The versioning component uses Atom links to richly describe any links that are identified in any returned service version.
+                        The versioning component uses Atom links to richly describe any links that are identified in any
+                        returned service version.
                     </para>
                 </abstract>
             </biblioentry>
@@ -117,11 +128,14 @@
                     OpenStack
                 </orgname>
                 <title>Authentication in OpenStack
-                    <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>
-                </title>   
+                    <link xlink:href="http://wiki.openstack.org/openstack-authn">
+                        http://wiki.openstack.org/openstack-authn
+                    </link>
+                </title>
                 <abstract>
                     <para> &PRODNAME;'s authentication component
-                        complies with this specification. </para>
+                        complies with this specification.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="EAIPATTERNS">
@@ -134,7 +148,7 @@
                 </author>
                 <orgname>
                 </orgname>
-                <title>Enterprise Integration Patterns 
+                <title>Enterprise Integration Patterns
                     <link xlink:href="http://www.eaipatterns.com/toc.html">http://www.eaipatterns.com/toc.html</link>
                 </title>
                 <abstract>
@@ -153,12 +167,13 @@
                 </author>
                 <orgname>
                 </orgname>
-                <title>Extensible Stylesheet Language Family (XSL), The 
+                <title>Extensible Stylesheet Language Family (XSL), The
                     <link xlink:href="http://www.w3.org/Style/XSL/">http://www.w3.org/Style/XSL/</link>
                 </title>
                 <abstract>
-                    <para> The rate limiting component uses this
-                        method to convert between XML and JSON. </para>
+                    <para>The rate limiting component uses this
+                        method to convert between XML and JSON.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RFC2616">
@@ -172,8 +187,10 @@
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>Hypertext Transfer Protocol HTTP/1.1: Status Code Definitions 
-                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link>
+                <title>Hypertext Transfer Protocol HTTP/1.1: Status Code Definitions
+                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">
+                        http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+                    </link>
                 </title>
                 <abstract>
                     <para>
@@ -192,15 +209,19 @@
                 <orgname>
                     IBM
                 </orgname>
-                <title>JSONx conversion rules<link
-                    xlink:href="http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm"
-                    >http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm</link>
-                </title>   
+                <title>JSONx conversion rules
+                    <link
+                            xlink:href="http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm"
+                            >
+                        http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm
+                    </link>
+                </title>
                 <abstract>
-                    <para> The translation component converts messages
+                    <para>The translation component converts messages
                         from XML to JSON and from JSON to
                         JSONx-flavored XML. The rules for conversion
-                        from JSON to JSONx are defined here. </para>
+                        from JSON to JSONx are defined here.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="JEE6">
@@ -219,11 +240,12 @@
                 </title>
                 <abstract>
                     <para>
-                        All consumable artifacts meant for deployment through &PRODNAME; must conform to this specification.
+                        All consumable artifacts meant for deployment through &PRODNAME; must conform to this
+                        specification.
                     </para>
                 </abstract>
             </biblioentry>
-              <biblioentry xml:id="RFC2046">
+            <biblioentry xml:id="RFC2046">
                 <author>
                     <personname>
                         <firstname>R.</firstname>
@@ -234,13 +256,14 @@
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types 
+                <title>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types
                     <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>
                 </title>
                 <abstract>
-                    <para> The versioning component uses MIME types to
+                    <para>The versioning component uses MIME types to
                         describe the media types associated with
-                        version mappings. </para>
+                        version mappings.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="OSLIMIT">
@@ -255,12 +278,15 @@
                     OpenStack
                 </orgname>
                 <title>OpenStack Compute Developer Guide: Determining Limits Programmatically
-                    <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>
+                    <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">
+                        http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html
+                    </link>
                 </title>
                 <abstract>
-                    <para> The rate limiting component can use
+                    <para>The rate limiting component can use
                         absolute limits provided by an origin service,
-                        such as the absolute limits shown here. </para>
+                        such as the absolute limits shown here.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="REGEX">
@@ -275,13 +301,17 @@
                     Oracle Corporation
                 </orgname>
                 <title>Pattern (Java Platform SE 7)
-                    <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>
+                    <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">
+                        http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
+                    </link>
                 </title>
                 <abstract>
-                    <para> &PRODNAME; uses <code>java.util.regex.Pattern</code>,
+                    <para> &PRODNAME; uses<code>java.util.regex.Pattern</code>,
                         defined here, to match character sequences
                         against patterns specified by regular
-                        expressions. The rate limiting and translation components match against regular expressions to determine what actions to take. </para>
+                        expressions. The rate limiting and translation components match against regular expressions to
+                        determine what actions to take.
+                    </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RAXCAUTH">
@@ -296,11 +326,14 @@
                     Rackspace Hosting
                 </orgname>
                 <title>Rackspace Cloud Authentication Service Client API Developer Guide
-                    <link xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf</link>
+                    <link xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">
+                        http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf
+                    </link>
                 </title>
-                    <abstract>
+                <abstract>
                     <para>
-                        This is an example of documentation describing a specific authentication service; consult the equivalent documentation describing the authentication service you use.
+                        This is an example of documentation describing a specific authentication service; consult the
+                        equivalent documentation describing the authentication service you use.
                     </para>
                 </abstract>
             </biblioentry>
@@ -317,10 +350,10 @@
                 </orgname>
                 <title>Repose - The REstful PrOxy Service Engine
                     <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
-                </title>    
+                </title>
                 <abstract>
                     <para>
-                        This website is maintained by the Repose project team. 
+                        This website is maintained by the Repose project team.
                         Its contents include links to documentation, mailing lists, and downloads.
                     </para>
                 </abstract>
@@ -338,11 +371,12 @@
                 </orgname>
                 <title>Repose GitHub Repository
                     <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
-                </title>    
+                </title>
                 <abstract>
                     <para>
-                        This software repository is maintained by the Repose project team. 
-                        Its contents include source code for Repose itself as well as Repose's supporting automation, documentation, and testing.
+                        This software repository is maintained by the Repose project team.
+                        Its contents include source code for Repose itself as well as Repose's supporting automation,
+                        documentation, and testing.
                     </para>
                 </abstract>
             </biblioentry>
@@ -359,15 +393,17 @@
                 </orgname>
                 <title>Repose Wiki
                     <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>
-                </title>    
+                </title>
                 <abstract>
                     <para>
-                        This knowledge base is maintained by the Repose project team. 
-                        Its contents include release notes, an FAQ, 
-                        notes on components and utilities, general background information, and instructions to contributors. 
-                        Wiki pages are informal source material for 
-                        <link xlink:href="http://openrepose.org/documentation.html">formal documentation</link>; 
-                        the wiki is most likely to include recent changes while the formal documentation is most likely to include expanded explanations and examples.
+                        This knowledge base is maintained by the Repose project team.
+                        Its contents include release notes, an FAQ,
+                        notes on components and utilities, general background information, and instructions to
+                        contributors.
+                        Wiki pages are informal source material for
+                        <link xlink:href="http://openrepose.org/documentation.html">formal documentation</link>;
+                        the wiki is most likely to include recent changes while the formal documentation is most likely
+                        to include expanded explanations and examples.
                     </para>
                 </abstract>
             </biblioentry>
@@ -384,7 +420,7 @@
                 </orgname>
                 <title>SAXON: The XSLT and XQuery Processor
                     <link xlink:href="http://saxon.sourceforge.net/">http://saxon.sourceforge.net/</link>
-                </title>    
+                </title>
                 <abstract>
                     <para>
                         The translation component uses Saxon 9.3, and open-source tool, to process XSLT 2.0 stylesheets.
@@ -404,7 +440,7 @@
                 </orgname>
                 <title>XSL Transformations (XSLT) Version 2.0
                     <link xlink:href="http://www.w3.org/TR/xslt20/">http://www.w3.org/TR/xslt20/</link>
-                </title>    
+                </title>
                 <abstract>
                     <para>
                         The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
@@ -423,8 +459,10 @@
                     W3 Schools
                 </orgname>
                 <title>XSLT Elements Reference
-                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">http://www.w3schools.com/xsl/xsl_w3celementref.asp</link>
-                </title>    
+                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">
+                        http://www.w3schools.com/xsl/xsl_w3celementref.asp
+                    </link>
+                </title>
                 <abstract>
                     <para>
                         The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
@@ -432,7 +470,7 @@
                     </para>
                 </abstract>
             </biblioentry>
-                
+
             <!-- this link is bad and I don't remember why it is here; commenting it out pending investigation
             <biblioentry xml:id="OSXSD">
                 <author>
@@ -455,6 +493,6 @@
                 </abstract>
             </biblioentry>
             -->
-        </bibliography>  
+        </bibliography>
     </section>
 </chapter>

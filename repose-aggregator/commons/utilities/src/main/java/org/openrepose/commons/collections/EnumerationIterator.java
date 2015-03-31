@@ -24,33 +24,32 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- *
  * @author zinic
  */
 public class EnumerationIterator<T> implements Iterator<T> {
 
-   private final Enumeration<T> enumeration;
+    private final Enumeration<T> enumeration;
 
-   public EnumerationIterator(Enumeration<T> enumeration) {
-      this.enumeration = enumeration;
-   }
+    public EnumerationIterator(Enumeration<T> enumeration) {
+        this.enumeration = enumeration;
+    }
 
-   @Override
-   public boolean hasNext() {
-      return enumeration.hasMoreElements();
-   }
+    @Override
+    public boolean hasNext() {
+        return enumeration.hasMoreElements();
+    }
 
-   @Override
-   public T next() {
-      if (!enumeration.hasMoreElements()) {
-         throw new NoSuchElementException();
-      }
+    @Override
+    public T next() {
+        if (!enumeration.hasMoreElements()) {
+            throw new NoSuchElementException();
+        }
 
-      return enumeration.nextElement();
-   }
+        return enumeration.nextElement();
+    }
 
-   @Override
-   public void remove() {
-      throw new UnsupportedOperationException("Enumerations do not support element removal.");
-   }
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("Enumerations do not support element removal.");
+    }
 }

@@ -35,16 +35,14 @@ import java.net.URL;
 /**
  * This uses the { @link http://en.wikipedia.org/wiki/Strategy_pattern  Strategy } pattern to parameterize the creation
  * of  { @link org.openrepose.commons.config.parser.jaxb.UnmarshallerValidator UnmarshallerValidator}.
- *
+ * <p/>
  * TODO: do we really need a pool of objects for JAXB unmarshalling for only one XSD? This seems excessive...
  * TODO: Especially since the JAXBContext is passed in anyway! There's probably no reason for this
  */
 public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory<UnmarshallerValidator> {
 
-    private final JAXBContext context;
-
     private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerPoolableObjectFactory.class);
-
+    private final JAXBContext context;
     private final URL xsdStreamSource;
     private final ClassLoader classLoader;
 

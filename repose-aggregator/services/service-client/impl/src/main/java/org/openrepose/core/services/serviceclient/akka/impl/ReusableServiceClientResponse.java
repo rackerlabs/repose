@@ -20,9 +20,9 @@
 package org.openrepose.core.services.serviceclient.akka.impl;
 
 
-import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -32,8 +32,8 @@ import java.io.InputStream;
 
 public class ReusableServiceClientResponse extends ServiceClientResponse {
 
-    private byte[] dataArray;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ReusableServiceClientResponse.class);
+    private byte[] dataArray;
 
     public ReusableServiceClientResponse(int code, InputStream data) {
         super(code, data);

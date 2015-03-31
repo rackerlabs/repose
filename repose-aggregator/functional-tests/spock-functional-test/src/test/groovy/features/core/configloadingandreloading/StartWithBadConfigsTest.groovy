@@ -125,7 +125,7 @@ class StartWithBadConfigsTest extends Specification {
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
+                waitOnJmxAfterStarting: false)
         sleep 35000
 
 
@@ -136,9 +136,9 @@ class StartWithBadConfigsTest extends Specification {
         thrown(ConnectException)
 
         where:
-        componentLabel            | _
-        "system-model"            | _
-        "container"               | _
+        componentLabel | _
+        "system-model" | _
+        "container"    | _
     }
 
     def cleanup() {

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An interface for a Datastore.
- *
+ * <p/>
  * A Datastore is used to store and retrieve data.
  */
 public interface Datastore {
@@ -36,7 +36,7 @@ public interface Datastore {
      * @param key Key provided when the data was stored
      * @return stored value or null
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
-     * stored value
+     *                                     stored value
      */
     Serializable get(String key) throws DatastoreOperationException;
 
@@ -45,7 +45,7 @@ public interface Datastore {
      * If the element already exists in the datastore, then it should be replaced with the
      * value provided.
      *
-     * @param key Identifier for the value being stored
+     * @param key   Identifier for the value being stored
      * @param value The value being stored
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
@@ -54,13 +54,13 @@ public interface Datastore {
     /**
      * Put an element in the datastore for a duration of time not to exceed the TimeUnit and duration
      * specified.
-     *
+     * <p/>
      * If the element already exists in the datastore, then it should be replaced with the
      * value provided.
      *
-     * @param key Identifier for the value being stored
-     * @param value The value being stored
-     * @param ttl Duration (time to live) to store the value for
+     * @param key      Identifier for the value being stored
+     * @param value    The value being stored
+     * @param ttl      Duration (time to live) to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
@@ -71,7 +71,7 @@ public interface Datastore {
      * If the element already exists in the datastore, then it should be updated with the new value (not a full
      * replacement).
      *
-     * @param key Identifier for the value being patched
+     * @param key   Identifier for the value being patched
      * @param patch The patch to apply to the existing value
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
@@ -81,13 +81,13 @@ public interface Datastore {
     /**
      * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
      * specified.
-     *
+     * <p/>
      * If the element already exists in the datastore, then it should be updated with the new value (not a full
      * replacement).
      *
-     * @param key Identifier for the value being patched (updated)
-     * @param patch The patch to apply to the existing value
-     * @param ttl Duration (time to live) to store the value for
+     * @param key      Identifier for the value being patched (updated)
+     * @param patch    The patch to apply to the existing value
+     * @param ttl      Duration (time to live) to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
@@ -100,7 +100,7 @@ public interface Datastore {
      * @param key
      * @return true if the element was removed, false if it was not found in the Datastore
      * @throws DatastoreOperationException if an exception occurs when attempting to remove the
-     * stored value
+     *                                     stored value
      */
     boolean remove(String key) throws DatastoreOperationException;
 

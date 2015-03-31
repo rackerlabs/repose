@@ -31,56 +31,55 @@ import java.util.List;
  */
 public final class MessageFilter {
 
-   private MessageFilter() {      
-   }
+    private MessageFilter() {
+    }
 
-   public static Message filterByMediaType(List<Message> messages, MediaType mediaType) {
-      Message wildcard = null;
+    public static Message filterByMediaType(List<Message> messages, MediaType mediaType) {
+        Message wildcard = null;
 
-      if (messages != null && mediaType != null) {
-         for (Message message : messages) {
-            final String messageMediaType = message.getMediaType();
+        if (messages != null && mediaType != null) {
+            for (Message message : messages) {
+                final String messageMediaType = message.getMediaType();
 
-            if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
-               return message;
+                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
+                    return message;
+                }
+
+                // A configured wildcard (*/*) will be returned if an exact match is not found
+                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
+                    wildcard = message;
+                }
             }
+        }
 
-            // A configured wildcard (*/*) will be returned if an exact match is not found
-            if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
-               wildcard = message;
+        return wildcard;
+    }
+
+    public static Message filterByMediaType(List<Message> messages, List<MediaType> mediaTypes) {
+        Message wildcard = null;
+
+        if (messages != null && mediaTypes != null) {
+
+            for (MediaType mediaType : mediaTypes) {
+
+                for (Message message : messages) {
+                    final String messageMediaType = message.getMediaType();
+
+
+                    if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
+                        return message;
+                    }
+
+                    // A configured wildcard (*/*) will be returned if an exact match is not found
+                    if (wildcard == null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
+                        wildcard = message;
+                    }
+
+                }
             }
-         }
-      }
+        }
 
-      return wildcard;
-   }
-   
-     public static Message filterByMediaType(List<Message> messages,List<MediaType> mediaTypes) {
-      Message wildcard = null;
+        return wildcard;
 
-      if (messages != null && mediaTypes != null) {
-         
-         for(MediaType mediaType: mediaTypes) {
-         
-          for (Message message : messages) {
-            final String messageMediaType = message.getMediaType();
-            
-           
-            
-            if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
-               return message;
-            }
-
-            // A configured wildcard (*/*) will be returned if an exact match is not found
-            if (wildcard==null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType()) ) {
-               wildcard = message;
-            }
-                
-         }
-      }
-      }    
-   
-      return wildcard;
-  
-   }
+    }
 }

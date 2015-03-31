@@ -26,4 +26,5 @@ package framework.category
  * In other words, a benchmark test introduces load into a system and quantitatively measures
  * the impact (e.g., throughput, response time, number of errors, etc.).
  */
+
 public interface Benchmark extends Slow {}

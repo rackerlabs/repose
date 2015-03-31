@@ -30,9 +30,12 @@ class TranslationRequestTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"
     def static String rssPayload = "<a>test body</a>"
-    def static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
-    def static String xmlPayloadWithExtEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [  <!ENTITY license_agreement SYSTEM \"http://www.mydomain.com/license.xml\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&license_agreement;</a>"
-    def static String xmlPayloadWithXmlBomb = "<?xml version=\"1.0\"?> <!DOCTYPE lolz [   <!ENTITY lol \"lol\">   <!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">   <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">   <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">   <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">   <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">   <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">   <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">   <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\"> ]> <lolz>&lol9;</lolz>"
+    def
+    static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
+    def
+    static String xmlPayloadWithExtEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [  <!ENTITY license_agreement SYSTEM \"http://www.mydomain.com/license.xml\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&license_agreement;</a>"
+    def
+    static String xmlPayloadWithXmlBomb = "<?xml version=\"1.0\"?> <!DOCTYPE lolz [   <!ENTITY lol \"lol\">   <!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">   <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">   <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">   <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">   <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">   <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">   <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">   <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\"> ]> <lolz>&lol9;</lolz>"
     def static String jsonPayload = "{\"field1\": \"value1\", \"field2\": \"value2\"}"
     def static String invalidXml = "<a><remove-me>test</remove-me>somebody"
     def static String invalidJson = "{{'field1': \"value1\", \"field2\": \"value2\"]}"
@@ -45,15 +48,15 @@ class TranslationRequestTest extends ReposeValveTest {
     def static Map contentOther = ["content-type": "application/other"]
     def static Map contentRss = ["content-type": "application/rss+xml"]
 
-    def static ArrayList<String> xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
+    def
+    static ArrayList<String> xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
     def static String remove = "remove-me"
     def static String add = "add-me"
 
 
-    def String convertStreamToString(byte[] input){
+    def String convertStreamToString(byte[] input) {
         return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
     }
-
 
     //Start repose once for this particular translation test
     def setupSpec() {
@@ -69,9 +72,9 @@ class TranslationRequestTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
@@ -83,44 +86,44 @@ class TranslationRequestTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders, requestBody:reqBody, defaultHandler: xmlResp)
+        def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders, requestBody: reqBody, defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).handlings[0]
 
         then: "Request body sent from repose to the origin service should contain"
 
         resp.receivedResponse.code == responseCode
 
-        if(responseCode != "400"){
+        if (responseCode != "400") {
             for (String st : shouldContain) {
-                if(sentRequest.request.body instanceof byte[])
-                    assert(convertStreamToString(sentRequest.request.body).contains(st))
+                if (sentRequest.request.body instanceof byte[])
+                    assert (convertStreamToString(sentRequest.request.body).contains(st))
                 else
-                    assert(sentRequest.request.body.contains(st))
+                    assert (sentRequest.request.body.contains(st))
             }
         }
 
 
         and: "Request body sent from repose to the origin service should not contain"
 
-        if(responseCode != "400"){
+        if (responseCode != "400") {
             for (String st : shouldNotContain) {
-                if(sentRequest.request.body instanceof byte[])
-                    assert(!convertStreamToString(sentRequest.request.body).contains(st))
+                if (sentRequest.request.body instanceof byte[])
+                    assert (!convertStreamToString(sentRequest.request.body).contains(st))
                 else
-                    assert(!sentRequest.request.body.contains(st))
+                    assert (!sentRequest.request.body.contains(st))
             }
         }
 
         where:
-        reqHeaders                 | reqBody                   | shouldContain  | shouldNotContain | method | responseCode
-        acceptXML + contentXML     | xmlPayLoad                | ["somebody"]   | [remove]         | "POST" | '200'
-        acceptXML + contentXML     | xmlPayloadWithEntities    | ["\"somebody"] | [remove]         | "POST" | '200'
-        acceptXML + contentXML     | xmlPayloadWithXmlBomb     | ["\"somebody"] | [remove]         | "POST" | '400'
-        acceptXML + contentXMLHTML | xmlPayLoad                | [add]          | []               | "POST" | '200'
-        acceptXML + contentXMLHTML | xmlPayLoad                | [xmlPayLoad]   | [add]            | "PUT"  | '200'
-        acceptXML + contentJSON    | jsonPayload               | [add]+ xmlJSON | []               | "POST" | '200'
-        acceptXML + contentOther   | jsonPayload               | [jsonPayload]  | [add]            | "POST" | '200'
-        acceptXML + contentXML     | xmlPayloadWithExtEntities | ["\"somebody"] | [remove]         | "POST" | "200"
+        reqHeaders                 | reqBody                   | shouldContain   | shouldNotContain | method | responseCode
+        acceptXML + contentXML     | xmlPayLoad                | ["somebody"]    | [remove]         | "POST" | '200'
+        acceptXML + contentXML     | xmlPayloadWithEntities    | ["\"somebody"]  | [remove]         | "POST" | '200'
+        acceptXML + contentXML     | xmlPayloadWithXmlBomb     | ["\"somebody"]  | [remove]         | "POST" | '400'
+        acceptXML + contentXMLHTML | xmlPayLoad                | [add]           | []               | "POST" | '200'
+        acceptXML + contentXMLHTML | xmlPayLoad                | [xmlPayLoad]    | [add]            | "PUT"  | '200'
+        acceptXML + contentJSON    | jsonPayload               | [add] + xmlJSON | []               | "POST" | '200'
+        acceptXML + contentOther   | jsonPayload               | [jsonPayload]   | [add]            | "POST" | '200'
+        acceptXML + contentXML     | xmlPayloadWithExtEntities | ["\"somebody"]  | [remove]         | "POST" | "200"
 
 
     }
@@ -129,12 +132,12 @@ class TranslationRequestTest extends ReposeValveTest {
 
         given: "Repose is configured to translate request headers"
         def respHeaders = ["content-type": "application/xml"]
-        def testHeaders = ['test':'x', 'other': 'y']
+        def testHeaders = ['test': 'x', 'other': 'y']
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, rssPayload) }
 
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest(url:(String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", method:"POST", headers:contentRss + acceptXML + testHeaders, requestBody:rssPayload, defaultHandler:xmlResp)
+        def resp = deproxy.makeRequest(url: (String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", method: "POST", headers: contentRss + acceptXML + testHeaders, requestBody: rssPayload, defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body sent from repose to the origin service should contain"
@@ -154,7 +157,7 @@ class TranslationRequestTest extends ReposeValveTest {
     def "when attempting to translate an invalid xml/json request"() {
 
         when: "User passes invalid json/xml through repose"
-        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"POST", headers:reqHeaders, requestBody:reqBody, defaultHandler:"")
+        def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: reqHeaders, requestBody: reqBody, defaultHandler: "")
 
         then: "Repose will send back 400s as the requests are invalid"
         resp.receivedResponse.code.equals(respCode)
@@ -170,11 +173,11 @@ class TranslationRequestTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
@@ -205,7 +208,7 @@ class TranslationRequestTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"

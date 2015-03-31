@@ -7,18 +7,18 @@
 
     <status-code id="413" code-regex="413">
         <message media-type="*/*" content-type="application/json">
-{
-    "overLimit" : {
-        "code" : 413,
-        "message" : "OverLimit Retry...",
-        "details" : "Error Details...",
-	    "retryAfter" : "%{Retry-After DATE ISO_8601}o"
-    }
-}
+            {
+            "overLimit" : {
+            "code" : 413,
+            "message" : "OverLimit Retry...",
+            "details" : "Error Details...",
+            "retryAfter" : "%{Retry-After DATE ISO_8601}o"
+            }
+            }
         </message>
 
         <message media-type="application/xml" content-type="application/xml">
-<![CDATA[
+            <![CDATA[
 <overLimit
     xmlns="http://docs.openstack.org/compute/api/v1.1"
     code="413"

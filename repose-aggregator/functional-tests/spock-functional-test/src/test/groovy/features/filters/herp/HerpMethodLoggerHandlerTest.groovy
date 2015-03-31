@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.herp
+
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 2/3/15.
  *  When using with api validator with enable-api-coverage
@@ -43,6 +45,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest {
     }
 
     def static params
+
     def cleanupSpec() {
         if (repose)
             repose.stop()
@@ -54,6 +57,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest {
         certain user roles will allow to access certain methods according to config in the wadl.
         i.e. 'GET' method only be available to access by a:observer and a:admin role
     */
+
     @Unroll("method=#method,headers=#headers,expected S0_a_admin:#S0_a_admin_count, SA:#SA_count")
     def "when enable-api-coverage is true, validate count at state level"() {
         setup: "declare messageChain to be of type MessageChain"

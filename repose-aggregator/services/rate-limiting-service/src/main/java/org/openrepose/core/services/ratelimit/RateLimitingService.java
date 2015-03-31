@@ -27,7 +27,7 @@ import java.util.Map;
 
 public interface RateLimitingService {
 
-   RateLimitList queryLimits(String user, List<String> groups);
+    RateLimitList queryLimits(String user, List<String> groups);
 
-   void trackLimits(String user, List<String> groups, String uri, Map<String, String[]> parameterMap, String httpMethod, int datastoreWarnLimit) throws OverLimitException;
+    void trackLimits(String user, List<String> groups, String uri, Map<String, String[]> parameterMap, String httpMethod, int datastoreWarnLimit) throws OverLimitException;
 }

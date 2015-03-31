@@ -34,7 +34,6 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 
 /**
- *
  * @author zinic
  */
 public final class TransformHelper {
@@ -52,16 +51,16 @@ public final class TransformHelper {
         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
     }
 
+    private TransformHelper() {
+
+    }
+
     private static Templates parseXslt(Source s) throws TransformerConfigurationException {
         synchronized (XSLT_TRANSFORMER_FACTORY) {
             return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
         }
     }
 
-    private TransformHelper() {
-        
-    }
-    
     public static JAXBContext buildJaxbContext(Class... objectFactories) {
         try {
             return JAXBContext.newInstance(objectFactories);
@@ -73,10 +72,10 @@ public final class TransformHelper {
 
     public static Templates getTemplatesFromInputStream(InputStream iStream) {
         try {
-           return TransformHelper.parseXslt(new StreamSource(iStream));
+            return TransformHelper.parseXslt(new StreamSource(iStream));
         } catch (TransformerConfigurationException tce) {
             throw EXCEPTION_LOG.newException("Failed to generate new transform templates",
                     tce, RuntimeException.class);
         }
-    }    
+    }
 }

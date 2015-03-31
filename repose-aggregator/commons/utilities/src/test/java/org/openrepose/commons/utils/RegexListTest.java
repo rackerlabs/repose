@@ -23,14 +23,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.RegexList;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
  *
- * 
+ *
  */
 @RunWith(Enclosed.class)
 public class RegexListTest {
@@ -82,7 +81,7 @@ public class RegexListTest {
             regexList = new RegexList();
             regexList.add(MATCH_REGEX);
         }
-        
+
         @Test
         public void shouldFind() {
             assertNotNull(regexList.find(MATCH_AGAINST));

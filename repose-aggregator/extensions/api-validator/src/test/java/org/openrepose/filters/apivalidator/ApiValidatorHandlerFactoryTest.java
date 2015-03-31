@@ -19,17 +19,17 @@
  */
 package org.openrepose.filters.apivalidator;
 
-import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
-import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.core.services.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
+import org.openrepose.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.openrepose.core.services.config.ConfigurationService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,28 +45,28 @@ import static org.mockito.Mockito.*;
 public class ApiValidatorHandlerFactoryTest {
 
     public static class WhenCreatingHandlers {
-        private ConfigurationService configService;
         private final String wadl = "default.wadl";
         private final String dot = "default.dot";
         private final String role = "testRole";
         private final String defaultRole = "defaultRole";
+        private ConfigurationService configService;
         private ApiValidatorHandlerFactory instance;
         private List<HeaderValue> roles;
-        
+
         @Before
         public void setup() throws Exception {
             ValidatorConfiguration config = new ValidatorConfiguration();
             ValidatorItem item = new ValidatorItem();
             item.setWadl(wadl);
-            List<String> role1=item.getRole();
+            List<String> role1 = item.getRole();
             role1.add(role);
             config.getValidator().add(item);
 
             ValidatorItem defaultItem = new ValidatorItem();
             defaultItem.setWadl(wadl);
-            List<String> role2=defaultItem.getRole();
+            List<String> role2 = defaultItem.getRole();
             role2.add(defaultRole);
-        
+
             defaultItem.setDefault(Boolean.TRUE);
             defaultItem.setDotOutput(dot);
             config.getValidator().add(defaultItem);
@@ -76,12 +76,12 @@ public class ApiValidatorHandlerFactoryTest {
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "", null);
 
             instance.configurationUpdated(config);
-            
+
             roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl(role));
-            
+
         }
-        
+
         @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
             ApiValidatorHandler handler = instance.buildHandler();
@@ -89,13 +89,13 @@ public class ApiValidatorHandlerFactoryTest {
 
             List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(roles);
             assertNotNull(validatorsForRole);
-            
-            for(ValidatorInfo validatorForRole : validatorsForRole){
-             assertEquals("Should get validator for role", role, validatorForRole.getRoles().get(0));
+
+            for (ValidatorInfo validatorForRole : validatorsForRole) {
+                assertEquals("Should get validator for role", role, validatorForRole.getRoles().get(0));
             }
-            verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)),
-                                                        any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class),
-                                                        any(GenericResourceConfigurationParser.class));
+            verify(configService, times(2)).subscribeTo(eq("api-validator"), eq(instance.getWadlPath(wadl)),
+                    any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class),
+                    any(GenericResourceConfigurationParser.class));
         }
 
         @Test
@@ -107,18 +107,18 @@ public class ApiValidatorHandlerFactoryTest {
             assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRoles().get(0));
         }
     }
-    
+
     public static class WhenWadlChanges {
-        private ConfigurationService configService;
         private final String wadl = "default.wadl";
         private final String wadl1 = "default1.wadl";
         private final String role1 = "role1";
         private final String wadl2 = "default2.wadl";
         private final String role2 = "role2";
+        private ConfigurationService configService;
         private ApiValidatorHandlerFactory instance;
         private ValidatorInfo info1;
         private ValidatorInfo info2;
-        
+
         @Before
         public void setup() {
             configService = mock(ConfigurationService.class);
@@ -130,7 +130,7 @@ public class ApiValidatorHandlerFactoryTest {
             when(info1.getUri()).thenReturn(instance.getWadlPath(wadl1));
             when(info1.getRoles()).thenReturn(Arrays.asList(role1));
             validators.add(info1);
-            
+
             info2 = mock(ValidatorInfo.class);
             when(info2.getUri()).thenReturn(instance.getWadlPath(wadl2));
             when(info2.getRoles()).thenReturn(Arrays.asList(role2));
@@ -138,27 +138,27 @@ public class ApiValidatorHandlerFactoryTest {
 
             instance.setValidators(validators);
         }
-        
+
         @Test
         public void shouldClearMatchedValidator() throws MalformedURLException {
             String wadl2Path = new URL(instance.getWadlPath(wadl2)).toString();
             ConfigurationResource resource = mock(ConfigurationResource.class);
             when(resource.name()).thenReturn(wadl2Path);
-            
+
             instance.getWadlListener().configurationUpdated(resource);
-            
+
             verify(info1, times(0)).reinitValidator();
             verify(info2).reinitValidator();
         }
-        
+
         @Test
         public void shouldClearAllValidatorsIfNoMatch() throws MalformedURLException {
             String wadl2Path = new URL(instance.getWadlPath("doesn'texist.wadl")).toString();
             ConfigurationResource resource = mock(ConfigurationResource.class);
             when(resource.name()).thenReturn(wadl2Path);
-            
+
             instance.getWadlListener().configurationUpdated(resource);
-            
+
             verify(info1).reinitValidator();
             verify(info2).reinitValidator();
         }

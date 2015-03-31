@@ -45,7 +45,7 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "When using add-header filter the expect header(s) in config is added to request/response" () {
+    def "When using add-header filter the expect header(s) in config is added to request/response"() {
         given:
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1", "repose-test": "no-overwrite", "overwrite-test": "will-be-overwrite"]
 
@@ -66,9 +66,9 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("response-header") == "foooo;q=0.9"
     }
 
-    def "Add-header filter test with overwrite and quality" () {
+    def "Add-header filter test with overwrite and quality"() {
         given:
-        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1","overwrite-quality-test": "not-overwrite;q=0.5"]
+        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1", "overwrite-quality-test": "not-overwrite;q=0.5"]
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers])
@@ -87,10 +87,10 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         reposehandling.request.headers.getFirstValue("overwrite-quality-test") == "this-is-overwrite-value;q=0.2"
     }
 
-    def "When add response header with overwrite true" () {
+    def "When add response header with overwrite true"() {
         given:
         def Map headers = ["response-header": "will-be-overwrite;q=0.5"]
-        def customeHandler = {return new Response(200, "OK", headers, "this is add header test")}
+        def customeHandler = { return new Response(200, "OK", headers, "this is add header test") }
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers, defaultHandler: customeHandler])

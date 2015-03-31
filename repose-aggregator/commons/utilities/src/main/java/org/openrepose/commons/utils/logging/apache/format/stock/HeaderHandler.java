@@ -28,63 +28,63 @@ import java.util.Enumeration;
 import java.util.List;
 
 public abstract class HeaderHandler {
-   private final String headerName;
-   private final List<String> arguments;
-   private String outputFormat;
-   private String inputFormat;
-   private FormatConverter converter;
-   
-   public HeaderHandler(String headerName, List<String> arguments) {
-      this.headerName = headerName;
-      this.arguments = arguments;
-      checkArguments();
-   }
-   
-   private void checkArguments() {
-      if (arguments.size() > 0) {
-         this.converter = TypeConversionFormatFactory.getConverter(arguments.get(0));
-      }
-      
-      if (arguments.size() > 1) {
-         this.outputFormat = arguments.get(1);
-      }
-      
-      if (arguments.size() > 2) {
-         this.inputFormat = arguments.get(2);
-      }
-   }
+    private final String headerName;
+    private final List<String> arguments;
+    private String outputFormat;
+    private String inputFormat;
+    private FormatConverter converter;
 
-   protected String convert(String value) {
-      if (converter != null) {
-         // TODO handle quality?
-         return converter.convert(value, inputFormat, outputFormat);
-      }
-      return value;
-   }
+    public HeaderHandler(String headerName, List<String> arguments) {
+        this.headerName = headerName;
+        this.arguments = arguments;
+        checkArguments();
+    }
 
-   protected String getValues(Enumeration<String> values) {
-      StringBuilder builder = new StringBuilder();
-      boolean first = true;
+    private void checkArguments() {
+        if (arguments.size() > 0) {
+            this.converter = TypeConversionFormatFactory.getConverter(arguments.get(0));
+        }
 
-      while (values != null && values.hasMoreElements()) {
-         if (!first) {
-            builder.append(",");
-         }
-         builder.append(convert(values.nextElement()));
-         first = false;
-      }
-      return builder.toString();
-   }
+        if (arguments.size() > 1) {
+            this.outputFormat = arguments.get(1);
+        }
 
-   protected String getValues(Collection<String> values) {
-      return getValues(Collections.enumeration(values));
-   }
+        if (arguments.size() > 2) {
+            this.inputFormat = arguments.get(2);
+        }
+    }
 
-   public String getHeaderName() {
-      return headerName;
-   }
+    protected String convert(String value) {
+        if (converter != null) {
+            // TODO handle quality?
+            return converter.convert(value, inputFormat, outputFormat);
+        }
+        return value;
+    }
 
-   public List<String> getArguments() {
-      return arguments;
-   }
+    protected String getValues(Enumeration<String> values) {
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+
+        while (values != null && values.hasMoreElements()) {
+            if (!first) {
+                builder.append(",");
+            }
+            builder.append(convert(values.nextElement()));
+            first = false;
+        }
+        return builder.toString();
+    }
+
+    protected String getValues(Collection<String> values) {
+        return getValues(Collections.enumeration(values));
+    }
+
+    public String getHeaderName() {
+        return headerName;
+    }
+
+    public List<String> getArguments() {
+        return arguments;
+    }
 }

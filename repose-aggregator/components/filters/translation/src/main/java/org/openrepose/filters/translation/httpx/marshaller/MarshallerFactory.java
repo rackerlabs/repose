@@ -23,10 +23,10 @@ package org.openrepose.filters.translation.httpx.marshaller;
  * @author fran
  */
 public final class MarshallerFactory {
-    
-    private MarshallerFactory(){
+
+    private MarshallerFactory() {
     }
-    
+
     public static Marshaller newInstance() {
         return new MessageEnvelopeMarshaller();
     }

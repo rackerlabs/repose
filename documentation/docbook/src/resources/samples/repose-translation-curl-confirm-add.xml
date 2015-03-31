@@ -1,1 +1,2 @@
-curl -X POST -H "content-type: application/xhtml+xml" -H "accept: application/xml" -d "<a>Stuff</a>" http://localhost:8088/echobody -v
+curl -X POST -H "content-type: application/xhtml+xml" -H "accept: application/xml" -d "
+<a>Stuff</a>" http://localhost:8088/echobody -v

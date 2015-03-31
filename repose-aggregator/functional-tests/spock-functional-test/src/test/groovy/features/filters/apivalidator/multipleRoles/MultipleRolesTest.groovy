@@ -23,7 +23,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class MultipleRolesTest extends ReposeValveTest{
+class MultipleRolesTest extends ReposeValveTest {
 
     def setupSpec() {
 
@@ -51,8 +51,8 @@ class MultipleRolesTest extends ReposeValveTest{
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings | Description
-        "role-0"        | "403"        | 0            | "test_neither_role"
+        roles    | responseCode | numHandlings | Description
+        "role-0" | "403"        | 0            | "test_neither_role"
     }
 
     def "When the first role is given in the request, it should match (p{1,2}\\1 -> p)"() {
@@ -67,8 +67,8 @@ class MultipleRolesTest extends ReposeValveTest{
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings | Description
-        "role-1"        | "200"        | 1            | "test_first_role"
+        roles    | responseCode | numHandlings | Description
+        "role-1" | "200"        | 1            | "test_first_role"
     }
 
     def "When the second role is given in the request, it should match (p{1,2}\\2 -> p)"() {
@@ -83,8 +83,8 @@ class MultipleRolesTest extends ReposeValveTest{
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings | Description
-        "role-2"        | "200"        | 1            | "test_second_role"
+        roles    | responseCode | numHandlings | Description
+        "role-2" | "200"        | 1            | "test_second_role"
     }
 
     def "When both roles are given in the request, it should match (p{1,2}\\1,2 -> p)"() {

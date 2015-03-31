@@ -24,7 +24,6 @@ import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import java.io.InputStream;
 
 /**
- *
  * @author zinic
  */
 public class LimitsTransformPair {

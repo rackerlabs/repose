@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Element {
     @XmlElement(name = "hello")
     public String hello;
-    
+
     @XmlElement(name = "goodbye")
     public String goodbye;
 }

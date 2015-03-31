@@ -19,11 +19,7 @@
  */
 package org.openrepose.filters.translation.httpx.node;
 
-import org.openrepose.core.httpx.MessageDetail;
-import org.openrepose.core.httpx.MessageEnvelope;
-import org.openrepose.core.httpx.Method;
-import org.openrepose.core.httpx.Request;
-import org.openrepose.core.httpx.RequestHeadDetail;
+import org.openrepose.core.httpx.*;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +64,7 @@ public class RequestNode extends ObjectFactoryUser implements ComplexNode {
                 case HEAD:
                     this.addChildNode(new RequestHeadNode(request, messageRequest, headFidelity, headersFidelity));
                     break;
-                case BODY :
+                case BODY:
                     this.addChildNode(new RequestBodyNode(request, messageRequest, jsonProcessing));
                     break;
             }

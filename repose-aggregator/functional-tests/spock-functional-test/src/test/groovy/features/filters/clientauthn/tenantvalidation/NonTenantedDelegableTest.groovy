@@ -58,7 +58,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -73,9 +73,9 @@ class NonTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -91,9 +91,9 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | delegatedMsg
-        500           | 501             | 500              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
-        502           | 503             | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
+        requestTenant | responseTenant | authResponseCode | responseCode | delegatedMsg
+        500           | 501            | 500              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
+        502           | 503            | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
@@ -107,7 +107,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -126,11 +127,11 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | identityStatus  | clientToken        | default_region
-        504           | 505             | "not-admin"           | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        507           | 507             | "not-admin"           | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        508           | 508             | "service:admin-role1" | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        509           | 510             | "service:admin-role1" | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
+        requestTenant | responseTenant | serviceAdminRole      | identityStatus | clientToken       | default_region
+        504           | 505            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "the-default-region"
+        507           | 507            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "the-default-region"
+        508           | 508            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "the-default-region"
+        509           | 510            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "the-default-region"
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
@@ -144,7 +145,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -162,14 +164,15 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | identityStatus  | clientToken        | default_region
-        506           | 506             | "not-admin"           | "Indeterminate" | ""                 | null
-        ""            | 512             | "not-admin"           | "Indeterminate" | ""                 | null
+        requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken | default_region
+        506           | 506            | "not-admin"      | "Indeterminate" | ""          | null
+        ""            | 512            | "not-admin"      | "Indeterminate" | ""          | null
     }
 
     /*
         This test to verify the forward fail reason and default quality for authn
      */
+
     @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
     def "when non tenanted and delegable mode with client-mapping matching - fail"() {
 
@@ -180,7 +183,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
@@ -196,12 +200,12 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
-        request2.headers.getFirstValue("x-delegated")=~ delegatedMsg
+        request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | identityStatus  | delegatedMsg
-        506           | 506             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
-        ""            | 512             | "not-admin"       | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        requestTenant | responseTenant | serviceAdminRole | identityStatus  | delegatedMsg
+        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
     }
 
 }

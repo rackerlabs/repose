@@ -44,14 +44,18 @@
         <xs:attribute name="rackspace-identity-service-uri" type="xs:anyURI" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The target Rackspace Identity endpoint URI for credential requests including host, port, and path to service.</html:p>
+                    <html:p>The target Rackspace Identity endpoint URI for credential requests including host, port, and
+                        path to service.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="token-cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="600000">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Time in milliseconds to cache auth token. The default is 10 minutes. A value of Zero (0) is disabled.</html:p>
+                    <html:p>Time in milliseconds to cache auth token. The default is 10 minutes. A value of Zero (0) is
+                        disabled.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -60,7 +64,9 @@
     <xs:complexType name="DelegatingType">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
+                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means
+                    you do.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
         <xs:attribute name="quality" type="QualityType" use="optional" default="0.9">
@@ -68,7 +74,8 @@
                 <xs:documentation>
                     <html:p>
                         What quality you want any output headers to be.
-                        When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is
+                        eventually output.
                         Default is 0.9
                     </html:p>
                 </xs:documentation>

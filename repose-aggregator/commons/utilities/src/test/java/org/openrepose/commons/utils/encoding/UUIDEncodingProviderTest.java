@@ -19,8 +19,8 @@
  */
 package org.openrepose.commons.utils.encoding;
 
-import org.openrepose.commons.utils.arrays.ByteArrayComparator;
 import org.junit.Test;
+import org.openrepose.commons.utils.arrays.ByteArrayComparator;
 
 import java.security.MessageDigest;
 import java.util.UUID;

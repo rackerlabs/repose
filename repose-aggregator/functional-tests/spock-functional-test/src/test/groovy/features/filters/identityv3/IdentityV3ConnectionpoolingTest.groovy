@@ -33,25 +33,37 @@ import spock.lang.Specification
  * Created by jennyvo on 9/5/14.
  * Test Repose re-use connection to identity service
  */
-class IdentityV3ConnectionpoolingTest extends Specification{
+class IdentityV3ConnectionpoolingTest extends Specification {
 
-    @Shared int reposePort
-    @Shared int originServicePort
-    @Shared int identityServicePort
-    @Shared String urlBase
+    @Shared
+    int reposePort
+    @Shared
+    int originServicePort
+    @Shared
+    int identityServicePort
+    @Shared
+    String urlBase
 
-    @Shared MockIdentityV3Service fakeIdentityV3Service
+    @Shared
+    MockIdentityV3Service fakeIdentityV3Service
 
-    @Shared Deproxy deproxy
-    @Shared Endpoint originEndpoint
-    @Shared Endpoint identityEndpoint
+    @Shared
+    Deproxy deproxy
+    @Shared
+    Endpoint originEndpoint
+    @Shared
+    Endpoint identityEndpoint
 
-    @Shared TestProperties properties
-    @Shared def logFile
-    @Shared ReposeConfigurationProvider reposeConfigProvider
-    @Shared ReposeValveLauncher repose
+    @Shared
+    TestProperties properties
+    @Shared
+    def logFile
+    @Shared
+    ReposeConfigurationProvider reposeConfigProvider
+    @Shared
+    ReposeValveLauncher repose
 
-    def setupSpec () {
+    def setupSpec() {
         // get ports
         properties = new TestProperties()
         reposePort = properties.reposePort
@@ -91,11 +103,11 @@ class IdentityV3ConnectionpoolingTest extends Specification{
         repose.start()
     }
 
-    def cleanup(){
-        if(deproxy)
+    def cleanup() {
+        if (deproxy)
             deproxy.shutdown()
 
-        if(repose)
+        if (repose)
             repose.stop()
     }
 

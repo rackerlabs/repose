@@ -48,9 +48,9 @@ public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManage
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, ParserListenerPair>> listenerMap;
     private final Object listenerLock = new Object(); //AUGH
     private final EventService eventManager;
+    private final ThreadingService threadingService;
     private ConfigurationResourceWatcher resourceWatcher;
     private DestroyableThreadWrapper resourceWatcherThread;
-    private final ThreadingService threadingService;
 
     @Inject
     public ConfigurationUpdateManagerImpl(

@@ -59,7 +59,7 @@ public class ClassPathUriResolver extends SourceUriResolver {
                 return new StreamSource(resource);
             }
         }
-        
+
         return super.resolve(href, base);
     }
 }

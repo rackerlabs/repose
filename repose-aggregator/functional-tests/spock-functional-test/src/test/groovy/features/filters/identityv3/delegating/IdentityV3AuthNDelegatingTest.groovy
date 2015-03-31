@@ -31,7 +31,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 11/17/14.
  * Identity V3 with Delegating option
  */
-class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
+class IdentityV3AuthNDelegatingTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -56,18 +56,18 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep(500)
         fakeIdentityV3Service.resetHandlers()
     }
 
-    @Unroll ("When #method req without credential")
+    @Unroll("When #method req without credential")
     def "when send req without credential with delegating option repose forward req and failure msg to origin service"() {
         given:
         def delegatingmsg = "status_code=401.component=openstack-identity-v3.message=A subject token was not provided to validate;q=0.7"
@@ -86,7 +86,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingmsg
 
         where:
-        method << ["GET","POST","PUT","PATCH","DELETE"]
+        method << ["GET", "POST", "PUT", "PATCH", "DELETE"]
     }
 
     @Unroll("#authResponseCode, #responseCode")
@@ -98,7 +98,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityV3Service.validateTokenHandler = {
                 tokenId, request ->
                     new Response(authResponseCode, null, null, responseBody)
@@ -109,7 +109,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject/",
                 method: 'GET',
-                headers: ['content-type': 'application/json',
+                headers: ['content-type'   : 'application/json',
                           'X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
@@ -121,13 +121,13 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        reqProject  | authResponseCode | responseCode   |responseBody                                           | delegatingMsg
-        "p500"      | 401              | "200"          |"Unauthorized"                                         | "status_code=500.component=openstack-identity-v3.message=Valid admin token could not be fetched;q=0.7"
-        "p501"      | 403              | "200"          |"Unauthorized"                                         | "status_code=500.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
-        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate  | "status_code=401.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
+        reqProject | authResponseCode | responseCode | responseBody                                          | delegatingMsg
+        "p500"     | 401              | "200"        | "Unauthorized"                                        | "status_code=500.component=openstack-identity-v3.message=Valid admin token could not be fetched;q=0.7"
+        "p501"     | 403              | "200"        | "Unauthorized"                                        | "status_code=500.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
+        "p502"     | 404              | "200"        | fakeIdentityV3Service.identityFailureJsonRespTemplate | "status_code=401.component=openstack-identity-v3.message=Failed to validate subject token;q=0.7"
     }
 
-    def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected" () {
+    def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected"() {
         given:
         fakeIdentityV3Service.validateTokenHandler = {
             tokenId, request ->
@@ -142,7 +142,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest{
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ],
                 defaultHandler: {
-                    new Response(401, "", ["www-authenticate":"delegated"], "")
+                    new Response(401, "", ["www-authenticate": "delegated"], "")
                 }
         )
 

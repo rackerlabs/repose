@@ -39,7 +39,6 @@ class ClassLoaderTest extends ReposeValveTest {
      */
     def splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1)
 
-
     /**
      * copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-one/target/
      * and copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-two/target/
@@ -64,7 +63,7 @@ class ClassLoaderTest extends ReposeValveTest {
      * 8. That contains a FOO header with a value other than "BAR"
      *
      */
-    def "An ear file can access a dependency that is not present in another ear"(){
+    def "An ear file can access a dependency that is not present in another ear"() {
         Assume.assumeTrue(new Date() > splodeDate.getTime())
 
         deproxy = new Deproxy()
@@ -137,7 +136,7 @@ class ClassLoaderTest extends ReposeValveTest {
      * 3. Send a request
      * 4. Expected result is ClassNotFound
      */
-    def "Ensure filter three (in filter-bundle-three) cannot reach a dependency in filter-bundle-one"(){
+    def "Ensure filter three (in filter-bundle-three) cannot reach a dependency in filter-bundle-one"() {
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
@@ -189,7 +188,7 @@ class ClassLoaderTest extends ReposeValveTest {
      * validate that BARRR is logged in repose.log
      */
 
-    def "test class loader three"(){
+    def "test class loader three"() {
         Assume.assumeTrue(new Date() > splodeDate.getTime())
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
@@ -234,7 +233,7 @@ class ClassLoaderTest extends ReposeValveTest {
         reposeLogSearch.searchByString("BARRR").size() == 1
     }
 
-    def cleanup(){
+    def cleanup() {
         if (repose) {
             repose.stop()
         }

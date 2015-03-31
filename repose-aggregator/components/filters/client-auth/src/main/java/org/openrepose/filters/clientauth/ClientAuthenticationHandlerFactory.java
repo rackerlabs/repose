@@ -25,10 +25,10 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
@@ -38,8 +38,8 @@ import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.filters.clientauth.config.RackspaceIdentityFeed;
 import org.openrepose.filters.clientauth.config.URIPattern;
 import org.openrepose.filters.clientauth.config.WhiteList;
-import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandlerFactory;
+import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -58,19 +58,19 @@ import java.util.regex.Pattern;
 public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthenticationHandler> {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
+    private static final Long MINIMUM_INTERVAL = new Long("10000");
+    private final Datastore datastore;
+    private final HttpClientService httpClientService;
     private AuthenticationHandler authenticationModule;
     private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
     private UriMatcher uriMatcher;
-    private final Datastore datastore;
     private FeedListenerManager manager;
-    private final  HttpClientService  httpClientService;
-    private static final Long MINIMUM_INTERVAL = new Long("10000");
     private AkkaServiceClient akkaServiceClient;
 
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
+    public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
         this.datastore = datastore;
-        this.httpClientService= httpClientService;
+        this.httpClientService = httpClientService;
         this.akkaServiceClient = akkaServiceClient;
     }
 
@@ -80,6 +80,36 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         listenerMap.put(ClientAuthConfig.class, new ClientAuthConfigurationListener());
 
         return listenerMap;
+    }
+
+    public void stopFeeds() {
+        if (manager != null) {
+            manager.stopReading();
+        }
+    }
+
+    private void updateUriMatcher(WhiteList whiteList) {
+        final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
+
+        if (whiteList != null) {
+            for (URIPattern pattern : whiteList.getUriPattern()) {
+                whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
+            }
+        }
+
+        uriMatcher = new UriMatcher(whiteListRegexPatterns);
+    }
+
+    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) throws AuthServiceException {
+        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher, httpClientService, akkaServiceClient);
+    }
+
+    @Override
+    protected AuthenticationHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return authenticationModule;
     }
 
     private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
@@ -135,7 +165,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             for (RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()) {
 
                 SaxAuthFeedReader rdr = new SaxAuthFeedReader(
-                        new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService),
+                        new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(), httpClientService),
                         akkaServiceClient,
                         feed.getUri(),
                         feed.getId());
@@ -149,7 +179,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                                 modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
                     }
                 }
-                    listeners.add(rdr);
+                listeners.add(rdr);
             }
 
             manager = new FeedListenerManager(datastore, listeners, getMinimumCheckInterval(modifiedConfig.getAtomFeeds().getCheckInterval()));
@@ -173,35 +203,5 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 return MINIMUM_INTERVAL;
             }
         }
-    }
-
-    public void stopFeeds() {
-        if(manager != null){
-            manager.stopReading();
-        }
-    }
-
-    private void updateUriMatcher(WhiteList whiteList) {
-        final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
-
-        if (whiteList != null) {
-            for (URIPattern pattern : whiteList.getUriPattern()) {
-                whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
-            }
-        }
-
-        uriMatcher = new UriMatcher(whiteListRegexPatterns);
-    }
-
-    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) throws AuthServiceException {
-        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaServiceClient);
-    }
-
-    @Override
-    protected AuthenticationHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return authenticationModule;
     }
 }

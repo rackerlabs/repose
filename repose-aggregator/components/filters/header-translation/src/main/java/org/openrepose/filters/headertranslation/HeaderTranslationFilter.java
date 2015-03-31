@@ -20,10 +20,10 @@
 package org.openrepose.filters.headertranslation;
 
 
-import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +37,9 @@ import java.net.URL;
 public class HeaderTranslationFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderTranslationFilter.class);
     private static final String DEFAULT_CONFIG = "header-translation.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private HeaderTranslationHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public HeaderTranslationFilter(ConfigurationService configurationService) {

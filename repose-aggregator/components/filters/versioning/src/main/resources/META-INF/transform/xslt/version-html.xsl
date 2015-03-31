@@ -37,7 +37,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th colspan="4" class="heading"><xsl:value-of select="$title"/></th>
+                        <th colspan="4" class="heading">
+                            <xsl:value-of select="$title"/>
+                        </th>
                     </tr>
                     <tr>
                         <th>Link</th>
@@ -62,7 +64,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th colspan="4" class="heading"><xsl:value-of select="$title"/></th>
+                        <th colspan="4" class="heading">
+                            <xsl:value-of select="$title"/>
+                        </th>
                     </tr>
                     <tr>
                         <th>Version</th>
@@ -73,8 +77,12 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class='center'><xsl:call-template name="version"/></td>
-                        <td class='center'><xsl:value-of select="@status"/></td>
+                        <td class='center'>
+                            <xsl:call-template name="version"/>
+                        </td>
+                        <td class='center'>
+                            <xsl:value-of select="@status"/>
+                        </td>
                         <td>
                             <ul>
                                 <xsl:apply-templates select="atom:link[@rel='describedby']" mode="single"/>
@@ -94,8 +102,10 @@
     <xsl:template name="httpHead">
         <xsl:param name="title"/>
         <head>
-            <title><xsl:value-of select="$title"/></title>
-            <meta charset="UTF-8" />
+            <title>
+                <xsl:value-of select="$title"/>
+            </title>
+            <meta charset="UTF-8"/>
             <style type="text/css">
                 body { background-color: #D3D3D3; }
                 table {text-align: center; margin-left:auto; margin-right:auto;
@@ -110,10 +120,10 @@
                 th.last {border-right: 1px solid black;}
                 td.last {text-align:left;}
                 th.heading {border-right: 1px solid black;
-                            border-bottom: 1px solid white;
-                            font-size: xx-large;}
+                border-bottom: 1px solid white;
+                font-size: xx-large;}
                 a:link, a:visited, a:active {color:black; background-color:white;
-                                             text-decoration:none;}
+                text-decoration:none;}
                 a:hover {color:black; background-color:white; text-decoration:underline;}
             </style>
         </head>
@@ -126,7 +136,7 @@
                 <xsl:if test="$endpoint">
                     <xsl:call-template name="link">
                         <xsl:with-param name="in">
-                            <xsl:value-of select="$endpoint/@href" />
+                            <xsl:value-of select="$endpoint/@href"/>
                         </xsl:with-param>
                     </xsl:call-template>
                 </xsl:if>
@@ -134,7 +144,9 @@
             <td class="center">
                 <xsl:call-template name="version"/>
             </td>
-            <td class="center"><xsl:value-of select="@status"/></td>
+            <td class="center">
+                <xsl:value-of select="@status"/>
+            </td>
             <td class="last">
                 <ul>
                     <xsl:apply-templates/>
@@ -146,27 +158,29 @@
     <xsl:template match="atom:link[@rel='describedby']" mode="single">
         <xsl:variable name="href" select="@href"/>
         <xsl:variable name="type" select="@type"/>
-        <li><a href="{$href}">
-        <xsl:choose>
-            <xsl:when test="$type = 'application/pdf'">
-                <xsl:text>Developer Guide</xsl:text>
-            </xsl:when>
-            <xsl:when test="$type = 'application/vnd.sun.wadl+xml'">
-                <xsl:text>WADL</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:text>Other (</xsl:text>
-                <xsl:value-of select="$type"/>
-                <xsl:text>)</xsl:text>
-            </xsl:otherwise>
-        </xsl:choose>
-        </a></li>
+        <li>
+            <a href="{$href}">
+                <xsl:choose>
+                    <xsl:when test="$type = 'application/pdf'">
+                        <xsl:text>Developer Guide</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$type = 'application/vnd.sun.wadl+xml'">
+                        <xsl:text>WADL</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>Other (</xsl:text>
+                        <xsl:value-of select="$type"/>
+                        <xsl:text>)</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </a>
+        </li>
     </xsl:template>
 
     <xsl:template name="version">
         <xsl:value-of select="@id"/>
         <xsl:if test="@updated">
-            <br />
+            <br/>
             <xsl:text> (</xsl:text>
             <xsl:choose>
                 <xsl:when test="contains(string(@updated),'T')">
@@ -182,11 +196,15 @@
 
     <xsl:template name="link">
         <xsl:param name="in"/>
-        <a href="{$in}"><xsl:value-of select="$in"/></a>
+        <a href="{$in}">
+            <xsl:value-of select="$in"/>
+        </a>
     </xsl:template>
 
     <xsl:template match="ver:media-type">
-        <li><xsl:value-of select="@base"/>, <xsl:value-of select="@type"/></li>
+        <li><xsl:value-of select="@base"/>,
+            <xsl:value-of select="@type"/>
+        </li>
     </xsl:template>
 
     <xsl:template match="text()" mode="multiple">

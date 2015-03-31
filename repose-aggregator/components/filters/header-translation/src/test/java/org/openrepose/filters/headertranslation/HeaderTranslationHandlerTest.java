@@ -19,8 +19,6 @@
  */
 package org.openrepose.filters.headertranslation;
 
-import org.openrepose.filters.headertranslation.config.Header;
-import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -28,6 +26,8 @@ import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.headertranslation.config.Header;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
@@ -43,6 +43,29 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(Enclosed.class)
 public class HeaderTranslationHandlerTest {
+
+    private static Enumeration<String> getEnumeration(String[] values) {
+
+        final String[] val = values;
+        Enumeration<String> b = new Enumeration<String>() {
+
+            int size = Array.getLength(val);
+            int cursor;
+
+            @Override
+            public boolean hasMoreElements() {
+                return (cursor < size);
+            }
+
+            @Override
+            public String nextElement() {
+                return (String) Array.get(val, cursor++);
+            }
+        };
+
+        return b;
+
+    }
 
     public static class WhenAddingRequestRemoveOriginalHeaders {
 
@@ -159,7 +182,7 @@ public class HeaderTranslationHandlerTest {
             the order of these field values when a message is forwarded.
          */
         @Test
-        public void shouldPreserveHeaderOrderWhenTranslatingHeaderValues(){
+        public void shouldPreserveHeaderOrderWhenTranslatingHeaderValues() {
 
             FilterDirector myDirector = new FilterDirectorImpl();
             when(request.getRequestURI()).thenReturn(requestUri1);
@@ -177,20 +200,20 @@ public class HeaderTranslationHandlerTest {
 
             Iterator<String> itr1 = myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("new-header1")).iterator();
 
-            int counter=0;
+            int counter = 0;
 
-            while(itr1.hasNext()){
-                String headerValue= itr1.next();
+            while (itr1.hasNext()) {
+                String headerValue = itr1.next();
                 assertTrue("Filter Director should be set to add headers while preserving order", headerValue.equals(requestHeaderValues[counter]));
                 counter++;
             }
 
             Iterator<String> itr2 = myDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("new-header2")).iterator();
 
-            counter=0;
+            counter = 0;
 
-            while(itr1.hasNext()){
-                String headerValue= itr1.next();
+            while (itr1.hasNext()) {
+                String headerValue = itr1.next();
                 assertTrue("Filter Director should be set to add headers while preserving order", headerValue.equals(requestHeaderValues[counter]));
                 counter++;
             }
@@ -303,29 +326,6 @@ public class HeaderTranslationHandlerTest {
 
         }
 
-
-    }
-
-    private static Enumeration<String> getEnumeration(String[] values) {
-
-        final String[] val = values;
-        Enumeration<String> b = new Enumeration<String>() {
-
-            int size = Array.getLength(val);
-            int cursor;
-
-            @Override
-            public boolean hasMoreElements() {
-                return (cursor < size);
-            }
-
-            @Override
-            public String nextElement() {
-                return (String) Array.get(val, cursor++);
-            }
-        };
-
-        return b;
 
     }
 }

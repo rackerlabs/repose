@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
- *
  * @author zinic
  */
 public class Delete extends AbstractRemoteCommand {

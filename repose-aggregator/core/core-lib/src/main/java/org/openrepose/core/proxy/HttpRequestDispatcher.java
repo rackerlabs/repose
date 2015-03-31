@@ -53,7 +53,7 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         }
         int status = proxyService.proxyRequest(targetHost, (HttpServletRequest) request, (HttpServletResponse) response);
         if (status < 0) {
-            HttpServletResponse httpResponse = (HttpServletResponse)response;
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

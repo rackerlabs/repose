@@ -41,15 +41,6 @@ import java.io.OutputStream;
 
 public class ContentTransformer {
     private static final String JSON_XSLT = "/META-INF/transform/xslt/version-json.xsl";
-
-    @Deprecated
-    private final Transform<JAXBElement, String> jsonTransform;
-    @Deprecated
-    private final Transform<JAXBElement, String> xmlTransform;
-    
-    private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
-    private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
-
     /**
      * This is the class that was used in the original repose before having to set the classloader
      * I don't know if this is the right class, but it does work.
@@ -61,11 +52,12 @@ public class ContentTransformer {
         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
     }
 
-    private static Templates parseXslt(Source s) throws TransformerConfigurationException {
-        synchronized (XSLT_TRANSFORMER_FACTORY) {
-            return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
-        }
-    }
+    @Deprecated
+    private final Transform<JAXBElement, String> jsonTransform;
+    @Deprecated
+    private final Transform<JAXBElement, String> xmlTransform;
+    private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
+    private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
     public ContentTransformer() {
         try {
@@ -77,13 +69,19 @@ public class ContentTransformer {
 
             xmlTransform = new JaxbEntityToXml(context);
             jsonTransform = new JaxbXsltToStringTransform(jsonXsltTemplates, context);
-            
+
             xmlStreamTransform = new JaxbToStreamTransform<OutputStream>(context);
             jsonStreamTransform = new XsltToStreamTransform<OutputStream>(jsonXsltTemplates, context);
         } catch (Exception ex) {
             throw new PowerApiContextException(
                     "Failed to build transformation processors for response marshalling. Reason: "
-                    + ex.getMessage(), ex);
+                            + ex.getMessage(), ex);
+        }
+    }
+
+    private static Templates parseXslt(Source s) throws TransformerConfigurationException {
+        synchronized (XSLT_TRANSFORMER_FACTORY) {
+            return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
         }
     }
 

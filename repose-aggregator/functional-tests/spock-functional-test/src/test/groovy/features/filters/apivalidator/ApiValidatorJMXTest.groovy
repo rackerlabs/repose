@@ -21,8 +21,8 @@ package features.filters.apivalidator
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
+import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 
 @Category(Slow.class)

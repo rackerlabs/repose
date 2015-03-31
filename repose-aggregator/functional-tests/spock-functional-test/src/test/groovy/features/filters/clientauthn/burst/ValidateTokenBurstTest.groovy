@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.burst
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone
@@ -53,10 +54,10 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         def missingResponseErrorHandler = { Request request ->
             def headers = request.getHeaders()
 
-            if (!headers.contains("X-Auth-Token") ) {
+            if (!headers.contains("X-Auth-Token")) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
-            return new Response(200, "OK",header1+acceptXML)
+            return new Response(200, "OK", header1 + acceptXML)
 
         }
 
@@ -70,9 +71,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         }
         repose.stop()
     }
-
-
-
 
 
     def "under heavy load should not drop validate token response"() {
@@ -92,22 +90,22 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         def missingAuthHeader = false
         (1..numClients).each {
             threadNum ->
-            def thread = Thread.start {
-                (1..callsPerClient).each {
-                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
+                def thread = Thread.start {
+                    (1..callsPerClient).each {
+                        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
-                        missingAuthResponse = true
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                            missingAuthResponse = true
+                        }
+                        def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
+
+                        if (sentToOrigin.request.headers.findAll("x-roles").empty) {
+                            missingAuthHeader = true
+                        }
+
                     }
-                    def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
-
-                    if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                        missingAuthHeader = true
-                    }
-
                 }
-            }
-            clientThreads.add(thread)
+                clientThreads.add(thread)
         }
 
         when:

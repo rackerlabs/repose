@@ -31,33 +31,32 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author zinic
  */
 @RunWith(Enclosed.class)
 public class LimitedReadInputStreamTest {
 
-   public static class WhenReading {
+    public static class WhenReading {
 
-      protected InputStream mockedInputStream;
-      
-      @Before
-      public void standUp() throws Exception {
-         mockedInputStream = mock(InputStream.class);
-         when(mockedInputStream.read()).thenReturn(1);
-      }
+        protected InputStream mockedInputStream;
 
-      @Test
-      public void shouldAllowReading() throws Exception {
-         final LimitedReadInputStream stream = new LimitedReadInputStream(10, mockedInputStream);
-         
-         assertEquals("LimitedReadInputStream must delegate reads to the wrapped InputStream", 1, stream.read());
-      }
+        @Before
+        public void standUp() throws Exception {
+            mockedInputStream = mock(InputStream.class);
+            when(mockedInputStream.read()).thenReturn(1);
+        }
 
-      @Test(expected = ReadLimitReachedException.class)
-      public void shouldHaltReadingWhenLimitIsBreached() throws Exception {
-         final LimitedReadInputStream stream = new LimitedReadInputStream(0, mockedInputStream);
-         stream.read();
-      }
-   }
+        @Test
+        public void shouldAllowReading() throws Exception {
+            final LimitedReadInputStream stream = new LimitedReadInputStream(10, mockedInputStream);
+
+            assertEquals("LimitedReadInputStream must delegate reads to the wrapped InputStream", 1, stream.read());
+        }
+
+        @Test(expected = ReadLimitReachedException.class)
+        public void shouldHaltReadingWhenLimitIsBreached() throws Exception {
+            final LimitedReadInputStream stream = new LimitedReadInputStream(0, mockedInputStream);
+            stream.read();
+        }
+    }
 }

@@ -50,28 +50,26 @@ import java.util.*;
  */
 public class AuthenticationServiceClient implements AuthenticationService {
 
+    public static final String ENDPOINTS = "/endpoints";
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceClient.class);
     private static final String AUTH_TOKEN_HEADER = "X-Auth-Token";
     private static final String ACCEPT_HEADER = "Accept";
     private static final String TOKENS = "/tokens/";
-    public static final String ENDPOINTS = "/endpoints";
-    private final String targetHostUri;
-    private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
-    private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
     private static final String TOKEN_PREFIX = "TOKEN:";
     private static final String GROUPS_PREFIX = "GROUPS:";
     private static final String ENDPOINTS_PREFIX = "ENDPOINTS";
-
-    private AdminToken currentAdminToken;
-    private final String requestBody;
-    private final AkkaServiceClient akkaServiceClient;
-
     private static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
         @Override
         protected String initialValue() {
             return "Authentication Service Client failure.";
         }
     };
+    private final String targetHostUri;
+    private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
+    private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
+    private final String requestBody;
+    private final AkkaServiceClient akkaServiceClient;
+    private AdminToken currentAdminToken;
 
     public AuthenticationServiceClient(String targetHostUri, String username, String password, String tenantId,
                                        ResponseUnmarshaller openStackCoreResponseUnmarshaller,
@@ -102,6 +100,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
         requestBody = jaxbToString.transform(jaxbRequest);
     }
 
+    public static String getDelegationMessage() {
+        return delegationMessage.get();
+    }
+
+    public static void removeDelegationMessage() {
+        delegationMessage.remove();
+    }
+
     @Override
     public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException { //this is where we ask auth service if token is valid
 
@@ -120,7 +126,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 break;
 
             case HttpServletResponse.SC_UNAUTHORIZED:
-                LOG.error("Unable to validate token: " + userToken + " due to status code: " + serviceResponse.getStatus()  + " :admin token expired. Retrieving new admin token and retrying token validation...");
+                LOG.error("Unable to validate token: " + userToken + " due to status code: " + serviceResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying token validation...");
 
                 serviceResponse = validateUser(userToken, tenant, true);
 
@@ -149,9 +155,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AuthServiceException {
-            final Map<String, String> headers = new HashMap<>();
-            headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-            headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
+        final Map<String, String> headers = new HashMap<>();
+        headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
         try {
             return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
         } catch (AkkaServiceClientException e) {
@@ -388,26 +394,18 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return adminToken;
     }
 
-    public static String getDelegationMessage() {
-        return delegationMessage.get();
-    }
-
-    public static void removeDelegationMessage() {
-        delegationMessage.remove();
-    }
-
     private AuthServiceOverLimitException buildAuthServiceOverLimitException(ServiceClientResponse serviceClientResponse) {
         LOG.error(delegationMessage.get());
         String retryValue = null;
         int statusCode = serviceClientResponse.getStatus();
         Header[] headers = serviceClientResponse.getHeaders();
-        if(headers != null)
-        for (Header header : headers) {
-            if (header.getName().equals(HttpHeaders.RETRY_AFTER)) {
-                retryValue = header.getValue();
-                break;
+        if (headers != null)
+            for (Header header : headers) {
+                if (header.getName().equals(HttpHeaders.RETRY_AFTER)) {
+                    retryValue = header.getValue();
+                    break;
+                }
             }
-        }
         if (retryValue == null) {
             LOG.info("Missing {} header on Auth Response status code: {}", HttpHeaders.RETRY_AFTER, statusCode);
             Calendar retryCalendar = new GregorianCalendar();

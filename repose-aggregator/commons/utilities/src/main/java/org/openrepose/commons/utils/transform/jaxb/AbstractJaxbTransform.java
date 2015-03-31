@@ -30,46 +30,45 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 /**
- *
  * @author zinic
  */
 public abstract class AbstractJaxbTransform {
 
-   private final ObjectPool<Marshaller> marshallerPool;
-   private final ObjectPool<Unmarshaller> unmarshallerPool;
-   private final JAXBContext jaxbContext;
+    private final ObjectPool<Marshaller> marshallerPool;
+    private final ObjectPool<Unmarshaller> unmarshallerPool;
+    private final JAXBContext jaxbContext;
 
-   public AbstractJaxbTransform(JAXBContext ctx) {
-      jaxbContext = ctx;
+    public AbstractJaxbTransform(JAXBContext ctx) {
+        jaxbContext = ctx;
 
-      marshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Marshaller>() {
-         @Override
-         public Marshaller makeObject() {
-            try {
-               return jaxbContext.createMarshaller();
-            } catch (JAXBException jaxbe) {
-               throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
+        marshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Marshaller>() {
+            @Override
+            public Marshaller makeObject() {
+                try {
+                    return jaxbContext.createMarshaller();
+                } catch (JAXBException jaxbe) {
+                    throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
+                }
             }
-         }
-      });
+        });
 
-      unmarshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
-         @Override
-         public Unmarshaller makeObject() {
-            try {
-               return jaxbContext.createUnmarshaller();
-            } catch (JAXBException jaxbe) {
-               throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
+        unmarshallerPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
+            @Override
+            public Unmarshaller makeObject() {
+                try {
+                    return jaxbContext.createUnmarshaller();
+                } catch (JAXBException jaxbe) {
+                    throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
+                }
             }
-         }
-      });
-   }
+        });
+    }
 
-   protected ObjectPool<Marshaller> getMarshallerPool() {
-      return marshallerPool;
-   }
+    protected ObjectPool<Marshaller> getMarshallerPool() {
+        return marshallerPool;
+    }
 
-   protected ObjectPool<Unmarshaller> getUnmarshallerPool() {
-      return unmarshallerPool;
-   }
+    protected ObjectPool<Unmarshaller> getUnmarshallerPool() {
+        return unmarshallerPool;
+    }
 }

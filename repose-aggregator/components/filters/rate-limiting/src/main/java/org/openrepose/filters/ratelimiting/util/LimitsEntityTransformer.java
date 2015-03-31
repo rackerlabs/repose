@@ -30,14 +30,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.transform.Templates;
 
 /**
- *
  * @author jhopper
  */
 public class LimitsEntityTransformer {
-    private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
-
     public static final String XSLT_LOCATION = "/META-INF/xslt/limits-json.xsl";
-    
+    private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
     private final Transform<JAXBElement, String> jsonTransform;
     private final Transform<JAXBElement, String> xmlTransform;
 

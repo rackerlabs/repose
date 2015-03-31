@@ -20,6 +20,7 @@
 package org.openrepose.filters.rackspaceidentitybasicauth
 
 import org.apache.commons.codec.binary.Base64
+
 import scala.collection.JavaConverters._
 
 trait BasicAuthUtils {
@@ -43,6 +44,6 @@ trait BasicAuthUtils {
    * @return an Iterator of the Authentication header values that match the desired auth method
    */
   def getBasicAuthHeaders(headers: java.util.Enumeration[String], method: String): Iterator[String] = {
-      headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase()))
+    headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase()))
   }
 }

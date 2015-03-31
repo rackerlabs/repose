@@ -24,8 +24,8 @@ import org.xml.sax.ContentHandler;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+
 /**
- *
  * @author kush5342
  */
 public class StartElementTest {
@@ -34,9 +34,9 @@ public class StartElementTest {
      */
     @Test
     public void testOutputElement() throws Exception {
-       ContentHandler handler = mock(ContentHandler.class);
-        StartElement instance = new StartElement(BaseElement.JSONX_URI,"fid");
+        ContentHandler handler = mock(ContentHandler.class);
+        StartElement instance = new StartElement(BaseElement.JSONX_URI, "fid");
         instance.outputElement(handler);
         assertEquals("fid", instance.getAttributes().getValue(0));
-    } 
+    }
 }

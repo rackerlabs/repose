@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -308,15 +309,21 @@
                                     # ELSE since it is a new install create the user and group.
                                     if [ -f $SYSTEM_MODEL ]
                                     then
-                                    # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
-                                    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
+                                    # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file.
+                                    If the filter is an active component then this installation will fail.
+                                    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep
+                                    'filter.*dist-datastore'
                                     then
-                                    echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
+                                    echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated
+                                    dist-datastore filter. Please remove and re-run upgrade. For more information on the
+                                    upgrade:
+                                    https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
                                     exit 1
                                     fi
                                     else
-                                    getent group  repose &gt;&gt; /dev/null 2&gt;&amp;1 || groupadd -r repose
-                                    getent passwd repose &gt;&gt; /dev/null 2&gt;&amp;1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
+                                    getent group repose &gt;&gt; /dev/null 2&gt;&amp;1 || groupadd -r repose
+                                    getent passwd repose &gt;&gt; /dev/null 2&gt;&amp;1 || useradd -r -g repose -s
+                                    /sbin/nologin -d /usr/share/repose -c "Repose" repose
                                     fi
                                     exit 0
                                 </script>

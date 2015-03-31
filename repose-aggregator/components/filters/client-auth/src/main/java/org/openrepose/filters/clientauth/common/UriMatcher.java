@@ -27,23 +27,23 @@ import java.util.regex.Pattern;
  */
 public class UriMatcher {
 
-   private final List<Pattern> whiteListRegexPatterns;
+    private final List<Pattern> whiteListRegexPatterns;
 
-   public UriMatcher(List<Pattern> whiteListRegexPatterns) {
-      this.whiteListRegexPatterns = whiteListRegexPatterns;
-   }
+    public UriMatcher(List<Pattern> whiteListRegexPatterns) {
+        this.whiteListRegexPatterns = whiteListRegexPatterns;
+    }
 
-   public boolean isUriOnWhiteList(String requestUri) {
-      boolean matches = false;
+    public boolean isUriOnWhiteList(String requestUri) {
+        boolean matches = false;
 
-      for (Pattern pattern : whiteListRegexPatterns) {
-         if (pattern.matcher(requestUri).matches()) {
-            matches = true;
-            break;
-         }
-      }
+        for (Pattern pattern : whiteListRegexPatterns) {
+            if (pattern.matcher(requestUri).matches()) {
+                matches = true;
+                break;
+            }
+        }
 
-      return matches;
-   }
+        return matches;
+    }
 
 }

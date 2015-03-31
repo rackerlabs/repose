@@ -19,19 +19,19 @@
  */
 package org.openrepose.filters.translation;
 
-import org.openrepose.commons.utils.io.BufferedServletInputStream;
-import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.filters.translation.config.*;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.services.config.ConfigurationService;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.io.BufferedServletInputStream;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.translation.config.*;
 import org.xml.sax.SAXException;
 
 import javax.servlet.ServletInputStream;
@@ -44,10 +44,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {
@@ -77,7 +77,7 @@ public class TranslationHandlerTest {
             sheet.setId("sheet1");
             sheet.setHref("classpath:///identity.xsl");
             sheets.getStyle().add(sheet);
-            
+
             sheet = new StyleSheet();
             sheet.setId("sheet2");
             sheet.setHref("classpath:///add-element.xsl");
@@ -87,15 +87,15 @@ public class TranslationHandlerTest {
             sheet.setId("sheet2");
             sheet.setHref("classpath:///remove-element.xsl");
             sheets.getStyle().add(sheet);
-            
+
             trans2.setAccept(xml);
             trans2.setContentType(xml);
             trans2.setCodeRegex("[\\d]{3}");
             trans2.setTranslatedContentType(xml);
             trans2.setStyleSheets(sheets);
-            
+
             responseTranslations.getResponseTranslation().add(trans2);
-            
+
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
             factory.configurationUpdated(config);
@@ -138,7 +138,7 @@ public class TranslationHandlerTest {
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
             assertTrue(diff1.similar());
-        }        
+        }
 
         @Test
         public void shouldTranslateNonEmptyResponseBody() throws IOException, SAXException {
@@ -196,12 +196,12 @@ public class TranslationHandlerTest {
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpResponse.getInputStream()));
             //String actual = director.getResponseMessageBody();
             String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
-            
+
             Diff diff1 = new Diff(expected, actual);
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
             assertTrue(diff1.similar());
-        }        
+        }
     }
 
     public static class WhenHandlingRequests {
@@ -229,7 +229,7 @@ public class TranslationHandlerTest {
             sheet.setId("sheet1");
             sheet.setHref("classpath:///identity.xsl");
             sheets.getStyle().add(sheet);
-            
+
             sheet = new StyleSheet();
             sheet.setId("sheet2");
             sheet.setHref("classpath:///add-element.xsl");
@@ -239,16 +239,16 @@ public class TranslationHandlerTest {
             sheet.setId("sheet2");
             sheet.setHref("classpath:///remove-element.xsl");
             sheets.getStyle().add(sheet);
-            
+
             trans1.setAccept(xml);
             trans1.setContentType(xml);
             trans1.setTranslatedContentType(xml);
             trans1.setStyleSheets(sheets);
             trans1.getHttpMethods().add(HttpMethod.ALL);
-            
+
             ResponseTranslations responseTranslations = new ResponseTranslations();
             responseTranslations.getResponseTranslation().add(new ResponseTranslation());
-            
+
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
             factory.configurationUpdated(config);
@@ -292,7 +292,7 @@ public class TranslationHandlerTest {
 
             assertEquals(director.getFilterAction(), FilterAction.PROCESS_RESPONSE);
             assertTrue(diff1.similar());
-        }        
+        }
 
         @Test
         public void shouldTranslateNonEmptyRequestBody() throws IOException, SAXException {
@@ -331,11 +331,11 @@ public class TranslationHandlerTest {
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
             //String actual = director.getResponseMessageBody();
             String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
-            
+
             Diff diff1 = new Diff(expected, actual);
 
             assertEquals(director.getFilterAction(), FilterAction.PROCESS_RESPONSE);
             assertTrue(diff1.similar());
-        }        
+        }
     }
 }

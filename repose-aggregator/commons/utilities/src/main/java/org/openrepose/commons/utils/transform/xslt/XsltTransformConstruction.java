@@ -39,8 +39,8 @@ public class XsltTransformConstruction {
                             return transformationTemplates.newTransformer();
                         } catch (TransformerConfigurationException configurationException) {
                             throw new XsltTransformationException("Failed to generate XSLT transformer. Reason: " +
-                                                                          configurationException.getMessage(),
-                                                                  configurationException);
+                                    configurationException.getMessage(),
+                                    configurationException);
                         }
                     }
                 });

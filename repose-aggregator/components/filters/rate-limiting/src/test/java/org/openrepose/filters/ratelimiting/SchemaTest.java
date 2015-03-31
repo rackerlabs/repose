@@ -27,10 +27,10 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.transform.Transform;
 import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
-import org.openrepose.core.services.ratelimit.config.ObjectFactory;
-import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 import org.openrepose.core.services.ratelimit.config.Limits;
+import org.openrepose.core.services.ratelimit.config.ObjectFactory;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -44,13 +44,13 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * TODO: Write JSON validation tests, you dummy
- * 
+ *
  * @author jhopper
  */
 @RunWith(Enclosed.class)
 public class SchemaTest {
 
-    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
+    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
 
     public static class WhenValidating {
 
@@ -66,8 +66,8 @@ public class SchemaTest {
 
             jaxbUnmarshaller.setSchema(SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/limits/limits.xsd")),
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rate-limiting-configuration.xsd"))
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/limits/limits.xsd")),
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rate-limiting-configuration.xsd"))
                     }));
         }
 
@@ -87,13 +87,14 @@ public class SchemaTest {
                     jaxbUnmarshaller.unmarshal(sampleSource, Limits.class).getValue().getRates().getRate().size() > 0);
         }
 
-        @Test @Ignore
+        @Test
+        @Ignore
         public void output() throws Exception {
             final LimitsEntityTransformer transformer = new LimitsEntityTransformer(jaxbContext);
 
             final Transform<InputStream, JAXBElement<Limits>> limitsTransformer = new StreamToJaxbTransform(jaxbContext);
-            
-            final JAXBElement<Limits> limitsElement = 
+
+            final JAXBElement<Limits> limitsElement =
                     limitsTransformer.transform(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/limits.xml"));
 
             System.out.println(transformer.entityAsXml(limitsElement.getValue()));

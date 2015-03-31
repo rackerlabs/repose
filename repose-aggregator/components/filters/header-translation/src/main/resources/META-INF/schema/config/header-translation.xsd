@@ -19,14 +19,14 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
-           targetNamespace="http://docs.openrepose.org/repose/header-translation/v1.0"
-           xmlns:header-translation="http://docs.openrepose.org/repose/header-translation/v1.0"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns:header-translation="http://docs.openrepose.org/repose/header-translation/v1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:html="http://www.w3.org/1999/xhtml">
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/header-translation/v1.0">
 
     <xs:element name="header-translation" type="header-translation:header-translationType"/>
 

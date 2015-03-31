@@ -8,15 +8,15 @@
     -->
     <host id="proxy-n02" hostname="power-proxy-n02.wc1.dfw1.stabletransit.com">
         <filters>
-            <filter name="rate-limiting" />
-            <filter name="versioning" />
+            <filter name="rate-limiting"/>
+            <filter name="versioning"/>
         </filters>
     </host>
-    
+
     <host id="proxy-n03" hostname="power-proxy-n03.wc1.dfw1.stabletransit.com">
         <filters>
-            <filter name="rate-limiting" />
-            <filter name="versioning" />
+            <filter name="rate-limiting"/>
+            <filter name="versioning"/>
         </filters>
     </host>
 </power-proxy>

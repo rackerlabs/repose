@@ -48,11 +48,11 @@ public class StyleSheetInfo {
     public String getUri() {
         return uri;
     }
-    
+
     public Node getXsl() {
         return xsl;
     }
-    
+
     public String getSystemId() {
         return systemId;
     }

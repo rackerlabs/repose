@@ -19,11 +19,11 @@
  */
 package org.openrepose.filters.translation.resolvers;
 
-import org.openrepose.filters.translation.httpx.HttpxMarshaller;
-import org.openrepose.filters.translation.httpx.HttpxProducer;
 import org.openrepose.docs.repose.httpx.v1.Headers;
 import org.openrepose.docs.repose.httpx.v1.QueryParameters;
 import org.openrepose.docs.repose.httpx.v1.RequestInformation;
+import org.openrepose.filters.translation.httpx.HttpxMarshaller;
+import org.openrepose.filters.translation.httpx.HttpxProducer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,78 +34,75 @@ import javax.xml.transform.stream.StreamSource;
 
 public class HttpxUriInputParameterResolver extends SourceUriResolver {
 
-  public static final String HEADERS_PREFIX = "repose:input:headers";
-  public static final String PARAMS_PREFIX = "repose:input:query";
-  public static final String REQUEST_INFO_PREFIX = "repose:input:request";
-  private HttpServletRequest request;
-  private HttpServletResponse response;
-  private HttpxProducer producer;
-  private Headers headers;
+    public static final String HEADERS_PREFIX = "repose:input:headers";
+    public static final String PARAMS_PREFIX = "repose:input:query";
+    public static final String REQUEST_INFO_PREFIX = "repose:input:request";
+    private final HttpxMarshaller marshaller;
+    private HttpServletRequest request;
+    private HttpServletResponse response;
+    private HttpxProducer producer;
+    private Headers headers;
+    private QueryParameters params;
+    private RequestInformation info;
 
-  public void setHeaders(Headers headers) {
-    this.headers = headers;
-  }
+    public HttpxUriInputParameterResolver() {
+        super();
 
-  public void setParams(QueryParameters params) {
-    this.params = params;
-  }
+        marshaller = new HttpxMarshaller();
+    }
+    public HttpxUriInputParameterResolver(URIResolver parent) {
+        super(parent);
+        marshaller = new HttpxMarshaller();
+    }
 
-  public void setRequestInformation(RequestInformation info) {
-    this.info = info;
-  }
+    public void setParams(QueryParameters params) {
+        this.params = params;
+    }
 
-  private QueryParameters params;
-  private RequestInformation info;
-  private final HttpxMarshaller marshaller;
- 
+    public void reset() {
+        request = null;
+        response = null;
+        producer = null;
+        headers = null;
+        params = null;
+        info = null;
+    }
 
-  public HttpxUriInputParameterResolver() {
-    super();
-  
-    marshaller = new HttpxMarshaller();
-  }
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
-  public HttpxUriInputParameterResolver(URIResolver parent) {
-    super(parent);
-    marshaller = new HttpxMarshaller();
-  }
-  
-  public void reset() {
-    request = null;
-    response = null;
-    producer = null;
-    headers = null;
-    params = null;
-    info = null;
-  }
+    public void setResponse(HttpServletResponse response) {
+        this.response = response;
+    }
 
-  public void setRequest(HttpServletRequest request) {
-    this.request = request;
-  }
+    private HttpxProducer getProducer() {
+        if (producer == null) {
+            producer = new HttpxProducer(request, response);
+        }
 
-  public void setResponse(HttpServletResponse response) {
-    this.response = response;
-  }
+        return producer;
+    }
 
-  private HttpxProducer getProducer() {
-      if (producer == null) {
-        producer = new HttpxProducer(request, response);
-      }
-      
-      return producer;
-  }
+    private Headers getHeaders() {
+        return headers != null ? headers : getProducer().getHeaders();
+    }
 
-  private Headers getHeaders() {
-    return headers != null? headers :  getProducer().getHeaders();
-  }
+    public void setHeaders(Headers headers) {
+        this.headers = headers;
+    }
 
-  private RequestInformation getRequestInformation() {
-    return info != null? info :  getProducer().getRequestInformation();
-  }
+    private RequestInformation getRequestInformation() {
+        return info != null ? info : getProducer().getRequestInformation();
+    }
 
-  private QueryParameters getRequestParameters() {
-    return params != null? params :  getProducer().getRequestParameters();
-  }
+    public void setRequestInformation(RequestInformation info) {
+        this.info = info;
+    }
+
+    private QueryParameters getRequestParameters() {
+        return params != null ? params : getProducer().getRequestParameters();
+    }
 
     @Override
     public Source resolve(String href, String base) throws TransformerException {

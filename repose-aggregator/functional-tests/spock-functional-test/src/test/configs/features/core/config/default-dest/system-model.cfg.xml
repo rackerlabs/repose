@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
     <repose-cluster id="repose">
 
@@ -17,9 +16,12 @@
         </services>
 
         <destinations>
-            <endpoint id="mock-service-1" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="${default1}"/>
-            <endpoint id="mock-service-2" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="${default2}"/>
-            <endpoint id="mock-service-3" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="${default3}"/>
+            <endpoint id="mock-service-1" protocol="http" hostname="${targetHostname}" port="${targetPort}"
+                      root-path="/" default="${default1}"/>
+            <endpoint id="mock-service-2" protocol="http" hostname="${targetHostname}" port="${targetPort}"
+                      root-path="/" default="${default2}"/>
+            <endpoint id="mock-service-3" protocol="http" hostname="${targetHostname}" port="${targetPort}"
+                      root-path="/" default="${default3}"/>
         </destinations>
 
     </repose-cluster>

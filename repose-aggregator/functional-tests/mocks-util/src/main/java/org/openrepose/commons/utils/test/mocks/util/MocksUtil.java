@@ -19,8 +19,8 @@
  */
 package org.openrepose.commons.utils.test.mocks.util;
 
-import org.openrepose.commons.utils.test.mocks.*;
 import org.apache.commons.io.IOUtils;
+import org.openrepose.commons.utils.test.mocks.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.*;
@@ -122,12 +122,12 @@ public final class MocksUtil {
         return new RequestInfo(xmlStringToRequestInformation(xml));
     }
 
-    public static String getServletPath(String filePath){
+    public static String getServletPath(String filePath) {
 
         int dot = filePath.lastIndexOf('.');
         int slash = filePath.lastIndexOf('/');
 
-        return filePath.substring(slash+1, dot);
+        return filePath.substring(slash + 1, dot);
 
     }
 }

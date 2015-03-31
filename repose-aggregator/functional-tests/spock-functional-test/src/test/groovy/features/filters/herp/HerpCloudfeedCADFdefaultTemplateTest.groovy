@@ -18,12 +18,15 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.herp
+
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 import java.text.SimpleDateFormat
+
 /**
  * Created by jennyvo on 2/23/15.
  */
@@ -49,6 +52,7 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
             repose.stop()
         }
     }
+
     @Unroll("Test filterout for Herp with method #method, username #username and origin service respCode #responseCode")
     def "Events match filterout condition will not go to post filter log"() {
         setup: "declare messageChain to be of type MessageChain"
@@ -64,15 +68,15 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
-                'Accept'           : 'application/xml',
-                'Host'             : 'LocalHost',
-                'User-agent'       : 'gdeproxy',
-                'x-tenant-id'      : '123456',
-                'x-roles'          : 'default',
-                'x-user-name'      : username,
-                'x-user-id'        : username,
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-tenant-id'        : '123456',
+                'x-roles'            : 'default',
+                'x-user-name'        : username,
+                'x-user-id'          : username,
                 'x-impersonator-name': 'impersonateuser',
-                'x-impersonator-id': '123456'
+                'x-impersonator-id'  : '123456'
         ]
         def customHandler = { return new Response(responseCode, "Resource Not Fount", [], reqBody) }
 
@@ -89,14 +93,14 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
         // "For formatting, if the offset value from GMT is 0offset value from GMT is 0, 'Z' is produced."
         // This only manipulates the Time Zones that produce a 'Z'.
-        if(now.endsWith("Z")) {
-            now.substring(0, now.length()-1) + "+00:00"
+        if (now.endsWith("Z")) {
+            now.substring(0, now.length() - 1) + "+00:00"
         }
 
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
-        String eventxml = logLine.substring(logLine.indexOf("<?xml"),logLine.size() - 1)
-        println (eventxml)
-        def event = new XmlSlurper().parseText(eventxml).declareNamespace(au:"http://feeds.api.rackspacecloud.com/cadf/user-access-event")
+        String eventxml = logLine.substring(logLine.indexOf("<?xml"), logLine.size() - 1)
+        println(eventxml)
+        def event = new XmlSlurper().parseText(eventxml).declareNamespace(au: "http://feeds.api.rackspacecloud.com/cadf/user-access-event")
 
         then:
         "result should be " + responseCode
@@ -124,12 +128,12 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         event.attachments.attachment.content."au:auditData"."au:roles" == "default"
 
         where:
-        responseCode | username     | request                      | method  | reqBody     | respMsg
-        "404"        | "User"       | "/resource1/id/aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
-        "405"        | "testUser"   | "/resource1/id"              | "POST"  | ""          | "METHOD_NOT_ALLOWED"
-        "400"        | "reposeUser" | "/resource1/id/cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
-        "415"        | "reposeUser1"| "/resource1/id/dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "reposeTest" | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
-        "500"        | "reposeTest1"| "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
+        responseCode | username      | request                      | method  | reqBody     | respMsg
+        "404"        | "User"        | "/resource1/id/aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
+        "405"        | "testUser"    | "/resource1/id"              | "POST"  | ""          | "METHOD_NOT_ALLOWED"
+        "400"        | "reposeUser"  | "/resource1/id/cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
+        "415"        | "reposeUser1" | "/resource1/id/dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "reposeTest"  | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
+        "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 }

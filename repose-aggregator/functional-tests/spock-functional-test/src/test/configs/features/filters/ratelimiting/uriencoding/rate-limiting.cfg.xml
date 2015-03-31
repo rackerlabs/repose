@@ -5,15 +5,18 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="servers-instances" groups="test1" default="false">
-        <limit id="test1" uri="/servers/abc/instances/123" uri-regex="/servers/.+/instances/(.+)" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="test1" uri="/servers/abc/instances/123" uri-regex="/servers/.+/instances/(.+)" http-methods="ALL"
+               unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="object" groups="test2" default="false">
-        <limit id="test2" uri="/objects/jkl/things/*" uri-regex="/objects/(.+)/things/.+" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="test2" uri="/objects/jkl/things/*" uri-regex="/objects/(.+)/things/.+" http-methods="ALL"
+               unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="method" groups="test3" default="false">
-        <limit id="test2" uri="/method/jkl/test/*" uri-regex="/method/(.+)/test/.+" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="test2" uri="/method/jkl/test/*" uri-regex="/method/(.+)/test/.+" http-methods="GET" unit="MINUTE"
+               value="3"/>
     </limit-group>
 
 </rate-limiting>

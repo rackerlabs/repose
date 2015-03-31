@@ -27,21 +27,20 @@ import static org.mockito.Mockito.mock;
 
 
 /**
- *
  * @author kush5342
  */
 public class EndElementTest {
-    
-   /**
+
+    /**
      * Test of outputElement method, of class EndElement.
      */
     @Test
     public void testOutputElement() throws Exception {
-     
+
         ContentHandler handler = mock(ContentHandler.class);
-        EndElement instance = new EndElement(BaseElement.JSONX_URI,"nid");
+        EndElement instance = new EndElement(BaseElement.JSONX_URI, "nid");
         instance.outputElement(handler);
         assertEquals(BaseElement.JSONX_URI, instance.getElement());
-        
+
     }
 }

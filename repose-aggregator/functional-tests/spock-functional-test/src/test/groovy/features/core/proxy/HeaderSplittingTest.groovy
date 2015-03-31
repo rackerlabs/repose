@@ -48,9 +48,9 @@ class HeaderSplittingTest extends ReposeValveTest {
 
     def "Should not split request headers according to rfc"() {
         given:
-        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+        def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
-                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
+                "usertest2, usertest3", "accept"                                                       : "application/xml;q=1 , application/json;q=0.5"]
 
         when: "client passes a request through repose with headers"
         def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint, headers: reqHeaders])

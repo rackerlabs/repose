@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.slf4jlogging;
 
-import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +37,8 @@ public class Slf4jHttpLoggingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(Slf4jHttpLoggingFilter.class);
     private static final String DEFAULT_CONFIG = "slf4j-http-logging.cfg.xml";
-    private String config;
     private final ConfigurationService configurationService;
+    private String config;
     private Slf4jHttpLoggingHandlerFactory handlerFactory;
 
     @Inject

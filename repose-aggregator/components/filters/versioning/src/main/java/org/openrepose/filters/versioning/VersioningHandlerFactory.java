@@ -23,6 +23,9 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.Node;
@@ -32,9 +35,6 @@ import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.openrepose.filters.versioning.domain.ConfigurationData;
 import org.openrepose.filters.versioning.util.ContentTransformer;
-import org.openrepose.core.services.healthcheck.HealthCheckService;
-import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFactory<VersioningHandler> {
-    private static final Logger LOG = LoggerFactory.getLogger(VersioningHandlerFactory.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
-
+    private static final Logger LOG = LoggerFactory.getLogger(VersioningHandlerFactory.class);
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
     private final String clusterId;
@@ -74,6 +73,20 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
                 put(SystemModel.class, new SystemModelConfigurationListener());
             }
         };
+    }
+
+    @Override
+    protected VersioningHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<>(configuredMappings);
+        final Map<String, Destination> copiedHostDefinitions = new HashMap<>(configuredHosts);
+
+        final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
+
+        return new VersioningHandler(configData, contentTransformer, metricsService);
     }
 
     private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
@@ -133,19 +146,5 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected VersioningHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-
-        final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<>(configuredMappings);
-        final Map<String, Destination> copiedHostDefinitions = new HashMap<>(configuredHosts);
-
-        final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
-
-        return new VersioningHandler(configData, contentTransformer, metricsService);
     }
 }

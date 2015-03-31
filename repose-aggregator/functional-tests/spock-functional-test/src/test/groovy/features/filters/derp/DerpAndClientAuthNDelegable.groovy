@@ -56,13 +56,13 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -82,7 +82,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
             service_admin_role = serviceAdminRole
         }
 
-        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        when:
+        "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
@@ -99,14 +100,14 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         */
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole  | responseCode   | msgBody
-        506           | 506             | "not-admin"       | "401"         | "Failure in Auth-N filter."
-        ""            | 512             | "not-admin"       | "401"         | "Failure in Auth-N filter."
+        requestTenant | responseTenant | serviceAdminRole | responseCode | msgBody
+        506           | 506            | "not-admin"      | "401"        | "Failure in Auth-N filter."
+        ""            | 512            | "not-admin"      | "401"        | "Failure in Auth-N filter."
     }
 
 
-    @Unroll ("Req with auth resp: #authRespCode")
-    def "When req with invalid token using delegable mode with quality" () {
+    @Unroll("Req with auth resp: #authRespCode")
+    def "When req with invalid token using delegable mode with quality"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID()
@@ -114,7 +115,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, request,xml ->
+            tokenId, request, xml ->
                 new Response(authRespCode)
         }
 
@@ -136,8 +137,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
             "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
         */
         where:
-        authRespCode | responseCode   | msgBody
-        404          | "401"          | "Unable to validate token"
-        401          | "500"          | "Failure in Auth-N filter."
+        authRespCode | responseCode | msgBody
+        404          | "401"        | "Unable to validate token"
+        401          | "500"        | "Failure in Auth-N filter."
     }
 }

@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.http
 
 import org.junit.Test
+
 /**
  * Some groovy tests as an experiment.
  */

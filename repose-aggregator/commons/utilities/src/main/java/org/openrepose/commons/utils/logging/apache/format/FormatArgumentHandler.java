@@ -24,5 +24,5 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface FormatArgumentHandler {
 
-   String format(HttpServletRequest request, HttpServletResponse response);
+    String format(HttpServletRequest request, HttpServletResponse response);
 }

@@ -33,12 +33,13 @@ import javax.xml.parsers.DocumentBuilderFactory
 /*
  * Rate limiting tests ported over from python and JMeter
  */
-class RateLimitingTwoNodeTest extends ReposeValveTest {
-    final handler = {return new Response(200, "OK")}
 
-    final Map<String, String> userHeaderDefault = ["X-PP-User" : "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups" : "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
+class RateLimitingTwoNodeTest extends ReposeValveTest {
+    final handler = { return new Response(200, "OK") }
+
+    final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
+    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
+    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
 
     static int reposePort2
     static int distDatastorePort
@@ -49,6 +50,7 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
     }
 
     static int userCount = 0;
+
     String getNewUniqueUser() {
 
         String name = "user-${userCount}"
@@ -68,8 +70,8 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                reposePort2: reposePort2,
-                distDatastorePort: distDatastorePort,
+                reposePort2       : reposePort2,
+                distDatastorePort : distDatastorePort,
                 distDatastorePort2: distDatastorePort2
         ]
 
@@ -78,7 +80,7 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
         // Doesn't matter which node is given, just need one from the config to prevent:
         //    Unable to guess what nodeID you want in cluster: repose
-        repose.start([clusterId: "repose", nodeId:"dd-node-1"])
+        repose.start([clusterId: "repose", nodeId: "dd-node-1"])
         //repose.start([clusterId: "repose", nodeId:"dd-node-2"])
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -127,19 +129,17 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
                 callsPerClient.times { i ->
                     requests.add("spock-thread-$threadNum-request-$i")
                     def messageChain = null
-                    if((i+x) % 2 == 0){
+                    if ((i + x) % 2 == 0) {
                         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
                         println reposeEndpoint
-                    }
-                    else{
+                    } else {
                         messageChain = deproxy.makeRequest(url: reposeEndpoint2, method: "GET", headers: headers)
                         println reposeEndpoint2
                     }
                     println messageChain.receivedResponse.code
-                    if(messageChain.receivedResponse.code.equals("200")){
+                    if (messageChain.receivedResponse.code.equals("200")) {
                         totalSuccessfulCount = totalSuccessfulCount + 1
-                    }
-                    else   {
+                    } else {
                         totalFailedCount = totalFailedCount + 1
                     }
 
@@ -200,7 +200,7 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
 
-        while(!messageChain.receivedResponse.code.equals("413")) {
+        while (!messageChain.receivedResponse.code.equals("413")) {
             messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                     headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
         }

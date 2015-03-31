@@ -20,12 +20,12 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0"
-           xmlns:slf4jlog="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:slf4jlog="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
 
     <xs:element name="slf4j-http-logging" type="slf4jlog:slf4j-http-logging-config"/>
 

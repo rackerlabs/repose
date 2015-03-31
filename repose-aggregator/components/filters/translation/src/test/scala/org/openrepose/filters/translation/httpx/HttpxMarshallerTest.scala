@@ -87,7 +87,7 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       stringify(httpxMarshaller.marshall(headers)) shouldBe
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
           "<headers xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
-            "<request><header quality=\"0.25\" name=\"header1\" value=\"value1\"/></request>" +
+          "<request><header quality=\"0.25\" name=\"header1\" value=\"value1\"/></request>" +
           "</headers>"
     }
     it("should turn QueryParameters into an input stream") {
@@ -100,7 +100,7 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       stringify(httpxMarshaller.marshall(queryParameters)) shouldBe
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
           "<parameters xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
-            "<parameter name=\"name1\" value=\"paramValue\"/>" +
+          "<parameter name=\"name1\" value=\"paramValue\"/>" +
           "</parameters>"
     }
     it("should throw an exception when it cant marshall the object") {

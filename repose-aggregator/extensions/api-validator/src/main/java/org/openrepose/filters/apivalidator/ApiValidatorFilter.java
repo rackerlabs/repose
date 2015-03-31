@@ -39,16 +39,16 @@ import java.net.URL;
 public class ApiValidatorFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorFilter.class);
     private static final String DEFAULT_CONFIG = "validator.cfg.xml";
-    private String config;
-    private ApiValidatorHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
+    private String config;
+    private ApiValidatorHandlerFactory handlerFactory;
     private String configurationRoot;
 
     @Inject
     public ApiValidatorFilter(ConfigurationService configurationService,
                               MetricsService metricsService,
-                              @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configurationRoot) {
+                              @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configurationRoot) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.configurationRoot = configurationRoot;

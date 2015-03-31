@@ -54,7 +54,7 @@ class TransitionGoodToBadConfigsTest extends Specification {
         params = properties.getDefaultTemplateParams()
 
         params += [
-                'datastorePort' : dataStorePort,
+                'datastorePort': dataStorePort,
         ]
 
         // start a deproxy
@@ -85,7 +85,7 @@ class TransitionGoodToBadConfigsTest extends Specification {
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
+                waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
 
 

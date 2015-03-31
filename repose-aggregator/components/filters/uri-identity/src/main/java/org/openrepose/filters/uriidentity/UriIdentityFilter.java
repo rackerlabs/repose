@@ -20,27 +20,27 @@
 package org.openrepose.filters.uriidentity;
 
 
-import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Named
 public class UriIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(UriIdentityFilter.class);
     private static final String DEFAULT_CONFIG = "uri-identity.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private UriIdentityHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public UriIdentityFilter(ConfigurationService configurationService) {

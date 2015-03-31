@@ -19,13 +19,7 @@
  */
 package framework
 
-import org.linkedin.util.clock.SystemClock
-import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
-
 import java.util.concurrent.TimeUnit
-
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class TestUtils {
 
@@ -52,12 +46,12 @@ class TestUtils {
         def startTime = System.currentTimeMillis()
         boolean foundIt = false
 
-        while(System.currentTimeMillis() < startTime + timeUnit.toMillis(timeout) && !foundIt) {
+        while (System.currentTimeMillis() < startTime + timeUnit.toMillis(timeout) && !foundIt) {
             foundIt = block.call()
             Thread.sleep(500)
         }
 
-        if(!foundIt) {
+        if (!foundIt) {
             throw new Exception("Unable to satisfy condition within ${timeout} seconds")
         }
         foundIt

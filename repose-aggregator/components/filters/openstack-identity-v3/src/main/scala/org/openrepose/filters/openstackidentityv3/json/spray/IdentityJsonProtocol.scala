@@ -36,7 +36,7 @@ object IdentityJsonProtocol extends DefaultJsonProtocol {
   implicit val projectForAuthenticateResponseFormat = jsonFormat4(ProjectForAuthenticateResponse)
   implicit val roleFormat = jsonFormat(Role, "id", "name", "project_id", "RAX-AUTH:project_id", "domain_id", "description")
   implicit val tokenCredentialsFormat = jsonFormat1(TokenCredentials)
-  implicit val userForAuthenticateResponse = jsonFormat(UserForAuthenticateResponse, "domain","id","name", "description", "default_project_id", "RAX-AUTH:defaultRegion")
+  implicit val userForAuthenticateResponse = jsonFormat(UserForAuthenticateResponse, "domain", "id", "name", "description", "default_project_id", "RAX-AUTH:defaultRegion")
   implicit val impersonatorForAuthenticationResponse = jsonFormat2(ImpersonatorForAuthenticationResponse)
   implicit val authenticateResponseFormat = jsonFormat(AuthenticateResponse, "expires_at", "issued_at", "methods", "domain", "project", "catalog", "roles", "user", "RAX-AUTH:impersonator")
   implicit val authIdentityRequestFormat = jsonFormat3(AuthIdentityRequest)

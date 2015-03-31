@@ -30,7 +30,7 @@ import spock.lang.Specification
 /**
  * Created by jennyvo on 7/15/14.
  */
-class CheckRemoveDeprecatedWarningTest extends Specification{
+class CheckRemoveDeprecatedWarningTest extends Specification {
 
     int reposePort
     int targetPort
@@ -55,7 +55,7 @@ class CheckRemoveDeprecatedWarningTest extends Specification{
         params = properties.getDefaultTemplateParams()
 
         params += [
-                'datastorePort' : dataStorePort,
+                'datastorePort': dataStorePort,
         ]
 
         deproxy = new Deproxy()

@@ -27,11 +27,11 @@ public final class EarFilenameFilter implements FilenameFilter {
     private static final EarFilenameFilter INSTANCE = new EarFilenameFilter();
     private static final int EAR_EXTENSION_LENGTH = 4;
 
-    public static FilenameFilter getInstance() {
-        return INSTANCE;
+    private EarFilenameFilter() {
     }
 
-    private EarFilenameFilter() {
+    public static FilenameFilter getInstance() {
+        return INSTANCE;
     }
 
     @Override

@@ -30,39 +30,11 @@ public final class UUIDEncodingProvider implements EncodingProvider {
 
     private static final UUIDEncodingProvider INSTANCE = new UUIDEncodingProvider();
 
-    public static EncodingProvider getInstance() {
-        return INSTANCE;
-    }
-
     private UUIDEncodingProvider() {
     }
 
-
-    @Override
-    public byte[] decode(String hash) {
-        final UUID uuid = UUID.fromString(hash);
-
-        final byte[] buffer = new byte[UUID_BYTE_SIZE];
-
-        System.arraycopy(longToQword(uuid.getMostSignificantBits()), 0, buffer, 0, BYTE_BIT_LENGTH);
-        System.arraycopy(longToQword(uuid.getLeastSignificantBits()), 0, buffer, BYTE_BIT_LENGTH, BYTE_BIT_LENGTH);
-
-        return buffer;
-    }
-
-    @Override
-    public String encode(byte[] hash) {
-        final byte[] buffer = new byte[UUID_BUFFER_SIZE];
-
-        System.arraycopy(hash, 0, buffer, 0, BYTE_BIT_LENGTH);
-
-        final long msb = qwordToLong(buffer);
-
-        System.arraycopy(hash, BYTE_BIT_LENGTH, buffer, 0, BYTE_BIT_LENGTH);
-
-        final long lsb = qwordToLong(buffer);
-
-        return new UUID(msb, lsb).toString();
+    public static EncodingProvider getInstance() {
+        return INSTANCE;
     }
 
     private static byte[] longToQword(long l) {
@@ -97,6 +69,33 @@ public final class UUIDEncodingProvider implements EncodingProvider {
         final long lsb = qwordToLong(buffer);
 
         return new UUID(msb, lsb);
+    }
+
+    @Override
+    public byte[] decode(String hash) {
+        final UUID uuid = UUID.fromString(hash);
+
+        final byte[] buffer = new byte[UUID_BYTE_SIZE];
+
+        System.arraycopy(longToQword(uuid.getMostSignificantBits()), 0, buffer, 0, BYTE_BIT_LENGTH);
+        System.arraycopy(longToQword(uuid.getLeastSignificantBits()), 0, buffer, BYTE_BIT_LENGTH, BYTE_BIT_LENGTH);
+
+        return buffer;
+    }
+
+    @Override
+    public String encode(byte[] hash) {
+        final byte[] buffer = new byte[UUID_BUFFER_SIZE];
+
+        System.arraycopy(hash, 0, buffer, 0, BYTE_BIT_LENGTH);
+
+        final long msb = qwordToLong(buffer);
+
+        System.arraycopy(hash, BYTE_BIT_LENGTH, buffer, 0, BYTE_BIT_LENGTH);
+
+        final long lsb = qwordToLong(buffer);
+
+        return new UUID(msb, lsb).toString();
     }
 
 }

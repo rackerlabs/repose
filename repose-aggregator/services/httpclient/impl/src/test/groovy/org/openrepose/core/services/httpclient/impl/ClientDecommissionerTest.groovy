@@ -39,7 +39,6 @@ class ClientDecommissionerTest {
     URI uri1, uri2;
 
 
-
     @Before
     void setUp() {
 
@@ -93,11 +92,11 @@ class ClientDecommissionerTest {
                 PrintWriter writer = new PrintWriter(outToClient, true)
                 String strresponse = "HTTP/1.1 200 OK"
 
-                writer.write( strresponse)
+                writer.write(strresponse)
                 writer.write("\r\n")
 
                 //headers
-                writer.write( "server:myown\r\ncontent-length:6\r\ncontent-type:text/plain")
+                writer.write("server:myown\r\ncontent-length:6\r\ncontent-type:text/plain")
 
                 writer.write("sample")
                 outToClient.flush()
@@ -131,11 +130,11 @@ class ClientDecommissionerTest {
             String strresponse = "HTTP/1.1 200 OK"
             PrintWriter writer = new PrintWriter(outToClient, true)
 
-            writer.write( strresponse)
+            writer.write(strresponse)
             writer.write("\r\n")
 
             //headers
-            writer.write( "server:myown\r\ncontent-length:6\r\ncontent-type:text/plain")
+            writer.write("server:myown\r\ncontent-length:6\r\ncontent-type:text/plain")
 
             writer.write("sample")
             outToClient.flush()

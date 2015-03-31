@@ -19,14 +19,14 @@
  */
 package org.openrepose.filters.headernormalization;
 
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.filters.headernormalization.config.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.headernormalization.config.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
@@ -38,7 +38,6 @@ import static org.mockito.Mockito.when;
 
 
 /**
- *
  * @author malconis
  */
 @RunWith(Enclosed.class)
@@ -290,8 +289,8 @@ public class HeaderNormalizationHandlerTest {
         private HttpServletRequest request;
         private HeaderNormalizationConfig config;
         private HeaderFilterList headerFilterList;
-        private Target target1,target2;
-        private HttpHeaderList whitelist1,whitelist2;
+        private Target target1, target2;
+        private HttpHeaderList whitelist1, whitelist2;
         private HttpHeader header1, header2, header3, header4, header5;
         private String hv1 = "X-Auth-Token";
         private String hv2 = "X-User-Header";
@@ -330,13 +329,13 @@ public class HeaderNormalizationHandlerTest {
 
             target1.getWhitelist().add(whitelist1);
             target1.setUriRegex(uriRegex);
-            
+
             header4.setId(hv4);
             whitelist2.getHeader().add(header4);
-            
+
             header5.setId(hv5);
             whitelist2.getHeader().add(header5);
-            
+
             target2.getWhitelist().add(whitelist2);
             target2.getHttpMethods().add(HttpMethod.GET);
 
@@ -390,6 +389,6 @@ public class HeaderNormalizationHandlerTest {
         }
 
     }
-    
-    
+
+
 }

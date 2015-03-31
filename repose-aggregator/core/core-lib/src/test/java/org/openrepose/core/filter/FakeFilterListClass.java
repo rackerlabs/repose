@@ -34,6 +34,6 @@ public class FakeFilterListClass extends FilterList {
     }
 
     public void addFilter(Filter filter) {
-        super.filter.add(filter);        
+        super.filter.add(filter);
     }
 }

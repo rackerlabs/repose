@@ -22,9 +22,9 @@ package features.core.powerfilter
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-import org.rackspace.deproxy.Header
 
 /**
  * Setup: the configuration for this test has a container.cfg.xml with a content-body-read-limit="32000"
@@ -75,7 +75,7 @@ class RequestSizeTest extends ReposeValveTest {
         //Get the headers that go through normally, so we can do maths to figure out the size limit...
         int defaultHeadersSize = 0
         MessageChain fmc = deproxy.makeRequest(url: reposeEndpoint)
-        for(Header hdr : fmc.sentRequest.headers._headers){
+        for (Header hdr : fmc.sentRequest.headers._headers) {
             defaultHeadersSize += hdr.value.length()
         }
         int largeHeaderSize = headerSize - defaultHeadersSize

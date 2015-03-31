@@ -18,13 +18,10 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.embedded
+
+import framework.*
 import org.openrepose.commons.utils.test.mocks.util.MocksUtil
 import org.openrepose.commons.utils.test.mocks.util.RequestInfo
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.ReposeLogSearch
-import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Specification
@@ -57,12 +54,12 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'reposePort': reposePort,
-                'targetPort': originServicePort,
+                'reposePort'             : reposePort,
+                'targetPort'             : originServicePort,
                 'repose.config.directory': configDirectory,
-                'repose.cluster.id': "repose1",
-                'repose.node.id': 'node1',
-                'appPath':  mocksPath
+                'repose.cluster.id'      : "repose1",
+                'repose.node.id'         : 'node1',
+                'appPath'                : mocksPath
         ]
         config.cleanConfigDirectory()
         config.applyConfigs("common", params)
@@ -88,7 +85,7 @@ class EmbeddedTomcatProxyTest extends Specification {
     def "Should Pass Requests through repose"() {
 
         when: "Request is sent through Repose/Tomcat"
-        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder' : 'value2'])
+        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder': 'value2'])
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
 
         then: "Repose Should Forward Response"

@@ -30,12 +30,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 class Valve {
 
-  case class ValveConfig(configDirectory: File = new File("/etc/repose"),
-                         insecure: Boolean = false,
-                         showVersion: Boolean = false,
-                         showUsage: Boolean = false
-                          )
-
   lazy val valveContext = new AnnotationConfigApplicationContext()
 
   def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config: Config): Int = {
@@ -136,10 +130,16 @@ class Valve {
       //Unable to shut stuff down nicely, maybe because it's not been fired up yet...
     }
 
-    if(valveContext.isActive && valveContext.isRunning) {
+    if (valveContext.isActive && valveContext.isRunning) {
       //Shutdown the spring context, which should kill everything
       valveContext.stop()
     }
 
   }
+
+  case class ValveConfig(configDirectory: File = new File("/etc/repose"),
+                         insecure: Boolean = false,
+                         showVersion: Boolean = false,
+                         showUsage: Boolean = false
+                          )
 }

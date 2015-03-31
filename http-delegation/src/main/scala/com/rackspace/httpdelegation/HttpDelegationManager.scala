@@ -21,8 +21,6 @@ package com.rackspace.httpdelegation
 
 import java.text.ParseException
 
-import scala.util.{Failure, Try}
-
 /** The API for the HTTP delegation library. */
 trait HttpDelegationManager {
 

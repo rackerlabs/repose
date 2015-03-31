@@ -19,17 +19,17 @@
  */
 package org.openrepose.external.testing.mocks
 
+import org.junit.Test
 import org.openrepose.commons.utils.test.mocks.HeaderList
 import org.openrepose.commons.utils.test.mocks.NameValuePair
 import org.openrepose.commons.utils.test.mocks.ObjectFactory
 import org.openrepose.commons.utils.test.mocks.RequestInformation
 import org.openrepose.commons.utils.test.mocks.util.RequestInfo
-import org.junit.Test
 
 class RequestInfoTest {
 
     @Test
-    void testGettingAllHeaders(){
+    void testGettingAllHeaders() {
 
         ObjectFactory factory = new ObjectFactory();
         RequestInformation req = factory.createRequestInformation();

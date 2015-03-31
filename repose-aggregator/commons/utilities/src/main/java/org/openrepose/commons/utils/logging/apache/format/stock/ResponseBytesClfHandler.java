@@ -32,6 +32,6 @@ public class ResponseBytesClfHandler implements FormatterLogic {
     public String handle(HttpServletRequest request, HttpServletResponse response) {
         MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(request, response);
         long size = mutableResponse.getResponseSize();
-        return size == 0? NO_DATA: String.valueOf(size);
+        return size == 0 ? NO_DATA : String.valueOf(size);
     }
 }

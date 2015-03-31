@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.services.datastore
+
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.junit.experimental.categories.Category
@@ -38,7 +39,7 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1' : dataStorePort1
+                'datastorePort1': dataStorePort1
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/burst/", params)
@@ -73,7 +74,7 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-' + threadNum + '-request-' + i)
                     def messageChain = deproxy.makeRequest(url: (String) reposeEndpoint, method: "GET", headers: headers)
-                    if(messageChain.receivedResponse.code.equals("200"))
+                    if (messageChain.receivedResponse.code.equals("200"))
                         totalSuccessfulCount = totalSuccessfulCount + 1
                     else
                         totalFailedCount = totalFailedCount + 1
@@ -94,7 +95,7 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        30        | 20
+        30         | 20
 
     }
 }

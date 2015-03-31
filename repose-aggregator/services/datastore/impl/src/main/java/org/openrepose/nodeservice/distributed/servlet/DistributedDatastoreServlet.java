@@ -47,13 +47,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
-
+    private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
     private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
     private final AtomicReference<DatastoreAccessControl> hostAcl;
-    private Datastore localDatastore;
     private final DatastoreService datastoreService;
     private final ClusterConfiguration clusterConfiguration;
-    private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
+    private Datastore localDatastore;
 
     public DistributedDatastoreServlet(
             DatastoreService datastore,

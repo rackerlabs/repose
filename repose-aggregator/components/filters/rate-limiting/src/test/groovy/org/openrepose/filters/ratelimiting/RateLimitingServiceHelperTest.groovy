@@ -20,9 +20,9 @@
 package org.openrepose.filters.ratelimiting
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import org.openrepose.core.services.ratelimit.RateLimitingService
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
+import org.openrepose.core.services.ratelimit.RateLimitingService
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -30,15 +30,18 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MediaType
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceHelperTest extends Specification {
     private static final String MOST_QUALIFIED_USER = "the best user of them all"
     private static final String MOST_QUALIFIED_GROUP = "the best group of them all"
 
-    @Shared private RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null)
+    @Shared
+    private RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null)
 
-    @Shared private HttpServletRequest mockedRequest
+    @Shared
+    private HttpServletRequest mockedRequest
 
     def setupSpec() {
         List<String> headerNames = new LinkedList<String>()

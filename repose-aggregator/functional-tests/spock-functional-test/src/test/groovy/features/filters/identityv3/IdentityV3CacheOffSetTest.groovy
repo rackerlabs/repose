@@ -29,23 +29,23 @@ import org.rackspace.deproxy.MessageChain
  * Created by jennyvo on 8/26/14.
  * Test with Identity v3 with cache-offset option
  */
-class IdentityV3CacheOffSetTest extends ReposeValveTest{
+class IdentityV3CacheOffSetTest extends ReposeValveTest {
     def identityEndpoint
 
     def setupSpec() {
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset", params)
         repose.start()
         waitUntilReadyToServiceRequests("401")
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
@@ -58,7 +58,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
     def "should cache tokens using cache offset"() {
         given: "Identity Service returns cache tokens with 1 day expiration"
         MockIdentityV3Service fakeIdentityV3Service
-        def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
+        def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 5000, 3000]
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.with {
@@ -66,14 +66,15 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
             tokenExpiresAt = (new DateTime()).plusDays(1)
         }
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null,fakeIdentityV3Service.handler)
+                'identity service', null, fakeIdentityV3Service.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         and: "All users have unique X-Subject-Token"
         def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
-        when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Subject-Token"
+        when:
+        "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Subject-Token"
         fakeIdentityV3Service.resetCounts()
 
         DateTime initialTokenValidation = DateTime.now()
@@ -85,9 +86,9 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
                             headers: [
-                                    'content-type': 'application/json',
+                                    'content-type'   : 'application/json',
                                     'X-Subject-Token': token,
-                                    'TEST_THREAD': "User-$index-Call-$it"
+                                    'TEST_THREAD'    : "User-$index-Call-$it"
                             ])
                     mc.receivedResponse.code.equals("200")
                     lastTokenValidation = DateTime.now()
@@ -111,7 +112,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
                             headers: [
-                                    'content-type': 'application/json',
+                                    'content-type'   : 'application/json',
                                     'X-Subject-Token': token
                             ])
                     mc.receivedResponse.code.equals("200")
@@ -139,7 +140,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
                 MessageChain mc = deproxy.makeRequest(
                         url: reposeEndpoint, method: 'GET',
                         headers: [
-                                'content-type': 'application/json',
+                                'content-type'   : 'application/json',
                                 'X-Subject-Token': token
                         ])
                 mc.receivedResponse.code.equals("200")
@@ -153,7 +154,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest{
         fakeIdentityV3Service.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers     |initialCallsPerUser
-        50              | 1
+        uniqueUsers | initialCallsPerUser
+        50          | 1
     }
 }

@@ -34,7 +34,7 @@ public class SourceUriResolver implements URIResolver {
     public SourceUriResolver(URIResolver parent) {
         this.parent = parent;
     }
-    
+
     public URIResolver getParent() {
         return parent;
     }

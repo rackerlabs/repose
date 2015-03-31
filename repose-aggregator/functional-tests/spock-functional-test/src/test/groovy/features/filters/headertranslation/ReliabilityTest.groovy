@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.headertranslation
+
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.apache.http.HttpResponse
@@ -77,13 +78,13 @@ class ReliabilityTest extends ReposeValveTest {
                     def HttpClient client = new DefaultHttpClient()
 
                     HttpGet httpGet = new HttpGet(reposeEndpoint)
-                    httpGet.addHeader('X-OneToMany-A','lisa.rocks')
-                    httpGet.addHeader('thread-name', 'spock-thread-'+threadNum+'-request-'+i)
+                    httpGet.addHeader('X-OneToMany-A', 'lisa.rocks')
+                    httpGet.addHeader('thread-name', 'spock-thread-' + threadNum + '-request-' + i)
 
                     HttpResponse response = client.execute(httpGet)
                     if (response.getStatusLine().getStatusCode() == 500) {
                         missingHeader = true
-                        badRequests.add('spock-thread-'+threadNum+'-request-'+i)
+                        badRequests.add('spock-thread-' + threadNum + '-request-' + i)
                         break
                     }
                 }
@@ -99,7 +100,7 @@ class ReliabilityTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        200 | 100
+        200        | 100
     }
 
 }

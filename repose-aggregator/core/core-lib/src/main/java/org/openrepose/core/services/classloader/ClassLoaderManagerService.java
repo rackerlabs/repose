@@ -27,5 +27,6 @@ import java.util.Collection;
 public interface ClassLoaderManagerService extends Destroyable {
 
     boolean hasFilter(String contextName);
+
     Collection<EarClassLoaderContext> getLoadedApplications();
 }

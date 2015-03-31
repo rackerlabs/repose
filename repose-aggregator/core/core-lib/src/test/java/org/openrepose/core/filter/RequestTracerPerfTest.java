@@ -19,9 +19,9 @@
  */
 package org.openrepose.core.filter;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.powerfilter.RequestTracer;
 
 import static org.mockito.Mockito.mock;
@@ -105,13 +105,14 @@ public class RequestTracerPerfTest {
         for (Thread t : threads) {
             try {
                 t.join();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         for (long l : times) {
             totalTime += l;
         }
 
         // Average time (ms) delay per trace
-        double avg = (double)totalTime / (double)(NUM_HITS * NUM_THREADS);
+        double avg = (double) totalTime / (double) (NUM_HITS * NUM_THREADS);
     }
 }

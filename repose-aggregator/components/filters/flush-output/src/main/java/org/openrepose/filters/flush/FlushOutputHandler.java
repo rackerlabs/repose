@@ -25,10 +25,10 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
-import java.io.IOException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class FlushOutputHandler extends AbstractFilterLogicHandler {
 

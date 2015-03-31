@@ -59,6 +59,45 @@ public class CoreSpringProvider {
     }
 
     /**
+     * Provides an application context for a filter, given a classloader as to where that filter is.
+     * The application context will have that classloader set to it.
+     *
+     * @param loader      the classloader from where to find the filter
+     * @param className   the class of the filter
+     * @param contextName the given name of the context
+     * @return the application context for that filter
+     * @throws ClassNotFoundException
+     */
+    public static AbstractApplicationContext getContextForFilter(ApplicationContext parentContext, ClassLoader loader, String className, String contextName) throws ClassNotFoundException {
+        AnnotationConfigApplicationContext filterContext = new AnnotationConfigApplicationContext();
+        filterContext.setClassLoader(loader);
+        filterContext.setParent(parentContext);
+        filterContext.setDisplayName(contextName);
+
+        LOG.debug("Creating Filter Context using parent context: {}", parentContext.getDisplayName());
+
+        Class tehFilter = loader.loadClass(className);
+
+        String packageToScan = tehFilter.getPackage().getName();
+        LOG.debug("Filter Context scan package: {}", packageToScan);
+
+        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+        propConfig.setEnvironment(filterContext.getEnvironment());
+        filterContext.addBeanFactoryPostProcessor(propConfig);
+
+        filterContext.scan(packageToScan);
+        filterContext.refresh();
+
+        if (LOG.isTraceEnabled()) {
+            for (String s : filterContext.getBeanDefinitionNames()) {
+                LOG.trace("FilterContext bean: {}", s);
+            }
+        }
+
+        return filterContext;
+    }
+
+    /**
      * Intended to be called once by Valve or the War file on startup to configure the core context.
      * Create a core spring provider with the core properties available to all of the spring contexts.
      * The params to this constructor are the things that need to be in the core spring context for all anything to access
@@ -203,45 +242,6 @@ public class CoreSpringProvider {
         nodeContext.refresh();
 
         return nodeContext;
-    }
-
-    /**
-     * Provides an application context for a filter, given a classloader as to where that filter is.
-     * The application context will have that classloader set to it.
-     *
-     * @param loader      the classloader from where to find the filter
-     * @param className   the class of the filter
-     * @param contextName the given name of the context
-     * @return the application context for that filter
-     * @throws ClassNotFoundException
-     */
-    public static AbstractApplicationContext getContextForFilter(ApplicationContext parentContext, ClassLoader loader, String className, String contextName) throws ClassNotFoundException {
-        AnnotationConfigApplicationContext filterContext = new AnnotationConfigApplicationContext();
-        filterContext.setClassLoader(loader);
-        filterContext.setParent(parentContext);
-        filterContext.setDisplayName(contextName);
-
-        LOG.debug("Creating Filter Context using parent context: {}", parentContext.getDisplayName());
-
-        Class tehFilter = loader.loadClass(className);
-
-        String packageToScan = tehFilter.getPackage().getName();
-        LOG.debug("Filter Context scan package: {}", packageToScan);
-
-        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
-        propConfig.setEnvironment(filterContext.getEnvironment());
-        filterContext.addBeanFactoryPostProcessor(propConfig);
-
-        filterContext.scan(packageToScan);
-        filterContext.refresh();
-
-        if (LOG.isTraceEnabled()) {
-            for (String s : filterContext.getBeanDefinitionNames()) {
-                LOG.trace("FilterContext bean: {}", s);
-            }
-        }
-
-        return filterContext;
     }
 
 }

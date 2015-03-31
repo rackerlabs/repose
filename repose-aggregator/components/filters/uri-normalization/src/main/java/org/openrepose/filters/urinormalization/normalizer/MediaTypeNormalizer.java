@@ -46,6 +46,10 @@ public class MediaTypeNormalizer {
         configuredPreferredMediaType = getPreferredMediaType(configuredMediaTypes);
     }
 
+    public static String formatVariant(String variant) {
+        return variant == null ? null : variant.startsWith(".") ? variant : "." + variant;
+    }
+
     private MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
         MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
 
@@ -104,9 +108,5 @@ public class MediaTypeNormalizer {
         }
 
         return null;
-    }
-
-    public static String formatVariant(String variant) {
-        return variant == null ? null : variant.startsWith(".") ? variant : "." + variant;
     }
 }

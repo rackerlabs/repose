@@ -34,8 +34,8 @@ import java.net.URL;
  */
 public class FileDirectoryResourceResolver implements ConfigurationResourceResolver {
 
-    private final String configRoot;
     private static final Logger LOG = LoggerFactory.getLogger(FileDirectoryResourceResolver.class);
+    private final String configRoot;
 
     public FileDirectoryResourceResolver(String configRoot) {
 

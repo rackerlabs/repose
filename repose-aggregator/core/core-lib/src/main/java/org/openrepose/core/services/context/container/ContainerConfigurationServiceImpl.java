@@ -72,12 +72,12 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
         }
     }
 
-    private void setViaValue(String via) {
-        viaValue = via;
-    }
-
     private void setContentBodyReadLimit(Long readLimit) {
         contentBodyReadLimit = readLimit;
+    }
+
+    private void setViaValue(String via) {
+        viaValue = via;
     }
 
     /**

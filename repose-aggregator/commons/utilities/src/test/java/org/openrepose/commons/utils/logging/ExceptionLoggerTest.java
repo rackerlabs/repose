@@ -54,7 +54,7 @@ public class ExceptionLoggerTest {
         @Test
         public void shouldUseMessage() {
             RuntimeException actual =
-                    exceptionLogger.newException(TEST_MESSAGE,  RuntimeException.class);
+                    exceptionLogger.newException(TEST_MESSAGE, RuntimeException.class);
 
             assertEquals(TEST_MESSAGE, actual.getMessage());
         }
@@ -62,14 +62,14 @@ public class ExceptionLoggerTest {
         @Test
         public void shouldLeaveCauseNull() {
             RuntimeException actual =
-                    exceptionLogger.newException(TEST_MESSAGE,  RuntimeException.class);
+                    exceptionLogger.newException(TEST_MESSAGE, RuntimeException.class);
 
             assertNull(actual.getCause());
         }
 
         @Test
         public void shouldLogError() {
-            exceptionLogger.newException(TEST_MESSAGE,  RuntimeException.class);
+            exceptionLogger.newException(TEST_MESSAGE, RuntimeException.class);
 
             Throwable t = null;
 
@@ -92,7 +92,7 @@ public class ExceptionLoggerTest {
         public void shouldSetCause() {
             RuntimeException actual =
                     new ExceptionLogger(loggerRef).newException(
-                            TEST_MESSAGE,  cause, RuntimeException.class);
+                            TEST_MESSAGE, cause, RuntimeException.class);
 
             assertEquals(cause, actual.getCause());
         }
@@ -100,7 +100,7 @@ public class ExceptionLoggerTest {
         @Test
         public void shouldLogError() {
             new ExceptionLogger(loggerRef)
-                    .newException(TEST_MESSAGE,  cause, RuntimeException.class);
+                    .newException(TEST_MESSAGE, cause, RuntimeException.class);
 
             verify(loggerRef).error(TEST_MESSAGE, cause);
         }

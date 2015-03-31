@@ -21,9 +21,9 @@ package org.openrepose.core.services.routing.robin;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.core.services.routing.RoutingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

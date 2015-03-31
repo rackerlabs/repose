@@ -49,7 +49,7 @@ class PoolTypeHelper {
             poolType.setHttpSocketBufferSize(SOC_BUFF_SZ);
             poolType.setHttpSocketTimeout(SOC_TIMEOUT);
             poolType.setHttpTcpNodelay(TCP_NODELAY);
-            poolType.setId("pool"+ i);
+            poolType.setId("pool" + i);
 
             if (i == defaultPool) {
                 poolType.setDefault(true)

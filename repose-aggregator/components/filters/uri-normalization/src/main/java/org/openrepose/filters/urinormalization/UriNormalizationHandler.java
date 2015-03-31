@@ -21,7 +21,6 @@ package org.openrepose.filters.urinormalization;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
@@ -29,13 +28,13 @@ import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.filters.UriNormalization;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * @author Dan Daley
  */
 public class UriNormalizationHandler extends AbstractFilterLogicHandler {

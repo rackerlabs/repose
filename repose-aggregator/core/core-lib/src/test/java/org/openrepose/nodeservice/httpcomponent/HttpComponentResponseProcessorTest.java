@@ -19,14 +19,6 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -34,6 +26,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -48,18 +50,18 @@ public class HttpComponentResponseProcessorTest {
         private List<Header> headers;
         private HttpEntity entity;
         private ServletOutputStream out;
-        
+
         @Before
         public void setUp() throws IOException {
             final String[] headerNames = {"header1", "header2"};
             headerValues = new HashMap<String, String>();
             headerValues.put("header1", "value1");
             headerValues.put("header2", "value21,value22");
-            
+
             headers = new ArrayList<Header>();
             for (String header : headerNames) {
                 String values = headerValues.get(header);
-                for (String value: values.split(",")) {
+                for (String value : values.split(",")) {
                     Header header1 = mock(Header.class);
                     when(header1.getName()).thenReturn(header);
                     when(header1.getValue()).thenReturn(value);
@@ -86,9 +88,9 @@ public class HttpComponentResponseProcessorTest {
         @Test
         public void shouldSetHeaders() throws IOException {
             processor.process();
-            
+
             verify(servletResponse).setStatus(eq(200));
-            for (Header header: headers) {
+            for (Header header : headers) {
                 verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
         }
@@ -96,12 +98,12 @@ public class HttpComponentResponseProcessorTest {
         @Test
         public void shouldWriteResponse() throws IOException {
             processor.process();
-            
+
             verify(servletResponse).setStatus(eq(200));
-            for (Header header: headers) {
+            for (Header header : headers) {
                 verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
-            
+
             verify(entity).writeTo(out);
             verify(out).flush();
         }
@@ -116,18 +118,18 @@ public class HttpComponentResponseProcessorTest {
         private List<Header> headers;
         private HttpEntity entity;
         private ServletOutputStream out;
-        
+
         @Before
         public void setUp() throws IOException {
             final String[] headerNames = {"header1", "header2"};
             headerValues = new HashMap<String, String>();
             headerValues.put("header1", "value1");
             headerValues.put("header2", "value21,value22");
-            
+
             headers = new ArrayList<Header>();
             for (String header : headerNames) {
                 String values = headerValues.get(header);
-                for (String value: values.split(",")) {
+                for (String value : values.split(",")) {
                     Header header1 = mock(Header.class);
                     when(header1.getName()).thenReturn(header);
                     when(header1.getValue()).thenReturn(value);
@@ -154,9 +156,9 @@ public class HttpComponentResponseProcessorTest {
         @Test
         public void shouldSetHeaders() throws IOException {
             processor.process();
-            
+
             verify(servletResponse).setStatus(eq(200));
-            for (Header header: headers) {
+            for (Header header : headers) {
                 verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
         }
@@ -164,12 +166,12 @@ public class HttpComponentResponseProcessorTest {
         @Test
         public void shouldWriteResponse() throws IOException {
             processor.process();
-            
+
             verify(servletResponse).setStatus(eq(200));
-            for (Header header: headers) {
+            for (Header header : headers) {
                 verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
-            
+
             verify(servletResponse).setInputStream(any(HttpComponentInputStream.class));
         }
     }

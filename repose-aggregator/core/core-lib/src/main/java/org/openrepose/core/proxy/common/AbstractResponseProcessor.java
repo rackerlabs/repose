@@ -19,13 +19,15 @@
  */
 package org.openrepose.core.proxy.common;
 
-import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
 import org.openrepose.core.proxy.HttpException;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.servlet.http.HttpServletResponse;
+
+import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
 
 public abstract class AbstractResponseProcessor {
 

@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author jhopper
  */
 public interface RateLimitCache {
 
     Map<String, CachedRateLimit> getUserRateLimits(String key);
 
-    NextAvailableResponse updateLimit(String account, List< Pair<String, ConfiguredRatelimit> > matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws IOException;
+    NextAvailableResponse updateLimit(String account, List<Pair<String, ConfiguredRatelimit>> matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws IOException;
 }

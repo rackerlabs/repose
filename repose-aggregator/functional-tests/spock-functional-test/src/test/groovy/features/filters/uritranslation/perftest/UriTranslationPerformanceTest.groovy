@@ -64,7 +64,7 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
     }
 
 
-    def makeRequests(int numThreads=10, numRequests=100) {
+    def makeRequests(int numThreads = 10, numRequests = 100) {
         def resp = { request -> return new Response(301, "Moved Permanently") }
 
         // warm up, ignore response times
@@ -103,7 +103,7 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
 
         // now let's capture response times
 
-        return total / (numThreads*numRequests)
+        return total / (numThreads * numRequests)
     }
 
 }

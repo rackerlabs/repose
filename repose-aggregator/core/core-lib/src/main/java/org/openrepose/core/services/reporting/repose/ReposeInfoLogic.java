@@ -63,16 +63,16 @@ public class ReposeInfoLogic implements ReposeInfo {
     @Override
     public long getTotalStatusCode(int statusCode) {
 
-       Long count = LONG_ZERO;
-       
-       for(Integer code: dataStore.getStatusCodeCounts().keySet()){
-          
-          if(code%statusCode < RESPONSE_CODE_SEPERATOR){
-             count += dataStore.getStatusCodeCounts().get(code).getTotalCount();
-          }
-       }
-       
-       return count;
+        Long count = LONG_ZERO;
+
+        for (Integer code : dataStore.getStatusCodeCounts().keySet()) {
+
+            if (code % statusCode < RESPONSE_CODE_SEPERATOR) {
+                count += dataStore.getStatusCodeCounts().get(code).getTotalCount();
+            }
+        }
+
+        return count;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ReposeInfoLogic implements ReposeInfo {
     public void incrementResponseCount() {
         dataStore.setTotalResponses(dataStore.getTotalResponses() + INT_ONE);
     }
-    
+
     @Override
     public void processRequestSize(long requestSize) {
         dataStore.processRequestSize(requestSize);
@@ -128,7 +128,7 @@ public class ReposeInfoLogic implements ReposeInfo {
 
     @Override
     public double getAverageRequestSize() {
-        double averageRequestSize = (double)dataStore.getAccumulatedResponseSize()/(double)dataStore.getTotalRequests();
+        double averageRequestSize = (double) dataStore.getAccumulatedResponseSize() / (double) dataStore.getTotalRequests();
 
         if (Double.isNaN(averageRequestSize)) {
             return DOUBLE_ZERO;
@@ -139,7 +139,7 @@ public class ReposeInfoLogic implements ReposeInfo {
 
     @Override
     public double getAverageResponseSize() {
-        double averageResponseSize = (double)dataStore.getAccumulatedResponseSize()/(double)dataStore.getTotalResponses();
+        double averageResponseSize = (double) dataStore.getAccumulatedResponseSize() / (double) dataStore.getTotalResponses();
 
         if (Double.isNaN(averageResponseSize)) {
             return DOUBLE_ZERO;

@@ -40,82 +40,83 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 public class AdminTokenProviderTest {
 
-   AkkaServiceClient client;
-   AdminTokenProvider provider;
+    AkkaServiceClient client;
+    AdminTokenProvider provider;
 
-   @Before
-   public void setUp() {
-      client = mock(AkkaServiceClient.class);
-   }
+    private static AuthenticateResponse getServiceResponse() {
+        AuthenticateResponse rsp = new AuthenticateResponse();
 
-   @Test
-   public void shouldRetrieveAdminToken() throws Exception {
-      
-      
-      JAXBContext coreJaxbContext = JAXBContext.newInstance(
-                 org.openstack.docs.identity.api.v2.ObjectFactory.class,
-                 com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
+        Token token = new Token();
+        token.setId("tokenid");
+        GregorianCalendar cal = new GregorianCalendar(2013, 11, 12);
+        token.setExpires(new XMLGregorianCalendarImpl(cal));
+        TenantForAuthenticateResponse tenantForAuthenticateResponse = new TenantForAuthenticateResponse();
+        tenantForAuthenticateResponse.setId("tenantId");
+        tenantForAuthenticateResponse.setName("tenantName");
+        token.setTenant(tenantForAuthenticateResponse);
+        rsp.setToken(token);
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      AuthenticateResponse response = getServiceResponse();
-      ObjectFactory factory = new ObjectFactory();
-      Marshaller marshaller = coreJaxbContext.createMarshaller();
-      marshaller.marshal(factory.createAccess(response), baos);
+        ServiceCatalog catalog = new ServiceCatalog();
+        List<ServiceForCatalog> serviceCatalogList = new ArrayList<>();
+        ServiceForCatalog serviceForCatalog = new ServiceForCatalog();
+        serviceForCatalog.setName("catName");
+        serviceForCatalog.setType("type");
+        serviceCatalogList.add(serviceForCatalog);
+        catalog.getService().addAll(serviceCatalogList);
 
-      baos.flush();
-      baos.close();
-      
-      InputStream is = new ByteArrayInputStream(baos.toByteArray());
-      ServiceClientResponse resp = new ServiceClientResponse(200, is);
-      when(client.post(anyString(),anyString(),  anyMapOf(String.class, String.class), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
-      provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
+        rsp.setServiceCatalog(catalog);
 
-      String adminToken = provider.getAdminToken();
-      assertTrue(adminToken.equals("tokenid"));
-   }
+        UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+        user.setId("userId");
+        user.setName("userName");
+        RoleList roles = new RoleList();
 
-   private static AuthenticateResponse getServiceResponse() {
-      AuthenticateResponse rsp = new AuthenticateResponse();
+        Role role = new Role();
+        role.setDescription("role description");
+        role.setId("roleId");
+        role.setName("roleName");
+        role.setServiceId("serviceId");
+        role.setTenantId("roleTenantId");
+        roles.getRole().add(role);
 
-      Token token = new Token();
-      token.setId("tokenid");
-      GregorianCalendar cal = new GregorianCalendar(2013, 11, 12);
-      token.setExpires(new XMLGregorianCalendarImpl(cal));
-      TenantForAuthenticateResponse tenantForAuthenticateResponse = new TenantForAuthenticateResponse();
-      tenantForAuthenticateResponse.setId("tenantId");
-      tenantForAuthenticateResponse.setName("tenantName");
-      token.setTenant(tenantForAuthenticateResponse);
-      rsp.setToken(token);
+        user.setRoles(roles);
 
-      ServiceCatalog catalog = new ServiceCatalog();
-      List<ServiceForCatalog> serviceCatalogList = new ArrayList<>();
-      ServiceForCatalog serviceForCatalog = new ServiceForCatalog();
-      serviceForCatalog.setName("catName");
-      serviceForCatalog.setType("type");
-      serviceCatalogList.add(serviceForCatalog);
-      catalog.getService().addAll(serviceCatalogList);
+        rsp.setUser(user);
 
-      rsp.setServiceCatalog(catalog);
+        return rsp;
+    }
 
-      UserForAuthenticateResponse user = new UserForAuthenticateResponse();
-      user.setId("userId");
-      user.setName("userName");
-      RoleList roles = new RoleList();
+    @Before
+    public void setUp() {
+        client = mock(AkkaServiceClient.class);
+    }
 
-      Role role = new Role();
-      role.setDescription("role description");
-      role.setId("roleId");
-      role.setName("roleName");
-      role.setServiceId("serviceId");
-      role.setTenantId("roleTenantId");
-      roles.getRole().add(role);
+    @Test
+    public void shouldRetrieveAdminToken() throws Exception {
 
-      user.setRoles(roles);
 
-      rsp.setUser(user);
+        JAXBContext coreJaxbContext = JAXBContext.newInstance(
+                org.openstack.docs.identity.api.v2.ObjectFactory.class,
+                com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
 
-      return rsp;
-   }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        AuthenticateResponse response = getServiceResponse();
+        ObjectFactory factory = new ObjectFactory();
+        Marshaller marshaller = coreJaxbContext.createMarshaller();
+        marshaller.marshal(factory.createAccess(response), baos);
+
+        baos.flush();
+        baos.close();
+
+        InputStream is = new ByteArrayInputStream(baos.toByteArray());
+        ServiceClientResponse resp = new ServiceClientResponse(200, is);
+        when(client.post(anyString(), anyString(), anyMapOf(String.class, String.class), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
+        provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
+
+        String adminToken = provider.getAdminToken();
+        assertTrue(adminToken.equals("tokenid"));
+    }
 }

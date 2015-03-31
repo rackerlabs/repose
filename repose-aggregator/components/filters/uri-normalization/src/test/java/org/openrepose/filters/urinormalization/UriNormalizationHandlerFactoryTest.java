@@ -28,28 +28,28 @@ import static org.junit.Assert.assertNotNull;
 
 
 public class UriNormalizationHandlerFactoryTest {
-    
+
     private UriNormalizationHandlerFactory instance;
+
     @Before
     public void setUp() {
         instance = new UriNormalizationHandlerFactory(null);
     }
-    
 
-    
+
     @Test
     public void shouldCreateNewConfigListener() {
         int expected = 1;
-         assertEquals("Should have a config listener", expected, instance.getListeners().size());
+        assertEquals("Should have a config listener", expected, instance.getListeners().size());
     }
 
-    
+
     @Test
     public void shouldCreateNewInstanceOfContentNormalizationHandler() throws Exception {
-     
-       UriNormalizationConfig config=new UriNormalizationConfig();
-       instance.configurationUpdated(config);
-       
+
+        UriNormalizationConfig config = new UriNormalizationConfig();
+        instance.configurationUpdated(config);
+
         UriNormalizationHandler handler = instance.buildHandler();
         assertNotNull("Instance of Content Normalization Handler should not be null", handler);
     }

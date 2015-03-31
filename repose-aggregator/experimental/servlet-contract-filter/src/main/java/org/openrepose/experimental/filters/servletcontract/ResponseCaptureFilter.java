@@ -125,6 +125,10 @@ public class ResponseCaptureFilter implements Filter {
         private PrintWriter writer = new PrintWriter(stream);
         private ServletOutputStream soStream = new FilterServletOutputStream(stream);
 
+        public ResponseWrapper(HttpServletResponse resp) {
+            super(resp);
+        }
+
         public String getContent() {
             try {
                 stream.flush();
@@ -133,10 +137,6 @@ public class ResponseCaptureFilter implements Filter {
                 LOG.trace("Caught Exception while flushing and closing stream.", e);
             }
             return stream.toString();
-        }
-
-        public ResponseWrapper(HttpServletResponse resp) {
-            super(resp);
         }
 
         @Override

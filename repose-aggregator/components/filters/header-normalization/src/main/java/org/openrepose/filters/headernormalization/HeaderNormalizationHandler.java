@@ -20,8 +20,6 @@
 package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
-import org.openrepose.filters.headernormalization.util.HeaderNormalizer;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
@@ -30,6 +28,8 @@ import org.openrepose.core.filters.HeaderNormalization;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 import org.openrepose.filters.headernormalization.config.HttpMethod;
+import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
+import org.openrepose.filters.headernormalization.util.HeaderNormalizer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

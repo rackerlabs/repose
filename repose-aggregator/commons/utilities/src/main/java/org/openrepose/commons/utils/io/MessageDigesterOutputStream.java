@@ -19,16 +19,16 @@
  */
 package org.openrepose.commons.utils.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author zinic
  */
 public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
@@ -54,7 +54,7 @@ public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
                 while ((read = urlInput.read(buffer)) > -1) {
                     mdos.write(buffer, 0, read);
                 }
-                
+
                 mdos.close();
 
                 return mdos.getDigest();
@@ -78,7 +78,7 @@ public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
     }
 
     public byte[] getDigest() {
-        return (byte[])digestBytes.clone();
+        return (byte[]) digestBytes.clone();
     }
 
     @Override

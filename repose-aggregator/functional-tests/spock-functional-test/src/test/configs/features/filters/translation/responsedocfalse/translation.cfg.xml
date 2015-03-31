@@ -2,26 +2,28 @@
 
 <translation xmlns="http://docs.openrepose.org/repose/translation/v1.0" allow-doctype-decl="false">
     <response-translations>
-        <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+        <response-translation content-type="application/xml" accept="application/xml"
+                              translated-content-type="application/xml">
             <style-sheets>
-                <style id="id11" href="identity.xsl" />
-                <style id="id2" href="remove-element.xsl" />
+                <style id="id11" href="identity.xsl"/>
+                <style id="id2" href="remove-element.xsl"/>
             </style-sheets>
         </response-translation>
-        <response-translation content-type="application/xhtml+xml" accept="application/xml" translated-content-type="application/xml">
+        <response-translation content-type="application/xhtml+xml" accept="application/xml"
+                              translated-content-type="application/xml">
             <style-sheets>
-                <style id="id3" href="identity.xsl" />
-                <style id="id4" href="add-element.xsl" />
+                <style id="id3" href="identity.xsl"/>
+                <style id="id4" href="add-element.xsl"/>
             </style-sheets>
         </response-translation>
-        <response-translation content-type="application/json" accept="application/xml" translated-content-type="application/xml">
+        <response-translation content-type="application/json" accept="application/xml"
+                              translated-content-type="application/xml">
             <style-sheets>
-                <style id="id5" href="identity.xsl" />
+                <style id="id5" href="identity.xsl"/>
                 <style id="id6">
                     <xsl>
-                        <xsl:stylesheet version="1.0"
-                                        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                                        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                                        version="1.0"
                                 >
                             <xsl:output method="xml"/>
 

@@ -30,23 +30,23 @@ import java.nio.charset.StandardCharsets;
 
 public class ReposeEntityResolver implements EntityResolver {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ReposeEntityResolver.class);
-   private final EntityResolver parent;
-   private final boolean allowEntities;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ReposeEntityResolver.class);
+    private final EntityResolver parent;
+    private final boolean allowEntities;
 
-   ReposeEntityResolver(EntityResolver parent, boolean allowEntities) {
-      this.parent = parent;
-      this.allowEntities = allowEntities;
-   }
+    ReposeEntityResolver(EntityResolver parent, boolean allowEntities) {
+        this.parent = parent;
+        this.allowEntities = allowEntities;
+    }
 
-   @Override
-   public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-      LOG.warn((allowEntities ? "Resolving" : "Removing") + " Entity[publicId='" + (publicId != null ? publicId : "") + "', systemId='" + (systemId != null ? systemId : "") + "']");
+    @Override
+    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        LOG.warn((allowEntities ? "Resolving" : "Removing") + " Entity[publicId='" + (publicId != null ? publicId : "") + "', systemId='" + (systemId != null ? systemId : "") + "']");
 
-      if (allowEntities && parent != null) {
-         return parent.resolveEntity(publicId, systemId);
-      }
+        if (allowEntities && parent != null) {
+            return parent.resolveEntity(publicId, systemId);
+        }
 
-      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
-   }
+        return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
+    }
 }

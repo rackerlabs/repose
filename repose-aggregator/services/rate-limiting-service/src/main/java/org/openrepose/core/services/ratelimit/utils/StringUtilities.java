@@ -23,16 +23,16 @@ import java.util.regex.Pattern;
 
 public final class StringUtilities {
 
-   private StringUtilities() {
-   }
+    private static final Pattern IS_BLANK_PATTERN = Pattern.compile("[\\s]*");
 
-   private static final Pattern IS_BLANK_PATTERN = Pattern.compile("[\\s]*");
+    private StringUtilities() {
+    }
 
-   public static boolean isEmpty(String st) {
-      return st == null || st.length() == 0;
-   }
+    public static boolean isEmpty(String st) {
+        return st == null || st.length() == 0;
+    }
 
-   public static boolean isBlank(String st) {
-      return isEmpty(st) || IS_BLANK_PATTERN.matcher(st).matches();
-   }
+    public static boolean isBlank(String st) {
+        return isEmpty(st) || IS_BLANK_PATTERN.matcher(st).matches();
+    }
 }

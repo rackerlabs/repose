@@ -60,13 +60,13 @@ public class FilterDirectorImpl implements FilterDirector {
         destinations = new ArrayList<RouteDestination>();
     }
 
+    public String getRequestUriQuery() {
+        return requestUriQuery;
+    }
+
     @Override
     public void setRequestUriQuery(String query) {
         requestUriQuery = query;
-    }
-
-    public String getRequestUriQuery() {
-        return requestUriQuery;
     }
 
     @Override
@@ -132,13 +132,13 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public StringBuffer getRequestUrl() {
-        return requestUrl;
+    public void setRequestUri(String newUri) {
+        this.requestUri = newUri;
     }
 
     @Override
-    public void setRequestUri(String newUri) {
-        this.requestUri = newUri;
+    public StringBuffer getRequestUrl() {
+        return requestUrl;
     }
 
     @Override

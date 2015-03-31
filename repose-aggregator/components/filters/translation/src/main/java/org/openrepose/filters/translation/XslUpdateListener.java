@@ -78,5 +78,5 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     public boolean isInitialized() {
         return isInitialized;
     }
-  
+
 }

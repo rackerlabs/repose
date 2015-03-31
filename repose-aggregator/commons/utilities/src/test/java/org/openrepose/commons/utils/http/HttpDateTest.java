@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  *
- * 
+ *
  */
 @RunWith(Enclosed.class)
 public class HttpDateTest {

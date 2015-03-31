@@ -19,6 +19,10 @@
  */
 package org.openrepose.filters.translation.resolvers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriUtils;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -31,10 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriUtils;
 
 public class InputStreamUriParameterResolver extends SourceUriResolver {
 
@@ -89,9 +89,9 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     public String getHref(String name) {
         return PREFIX + name;
     }
-    
+
     public void clearStreams() {
-      streams.clear();
+        streams.clear();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
             }
 
         }
-        
+
         return super.resolve(href, base);
     }
 }

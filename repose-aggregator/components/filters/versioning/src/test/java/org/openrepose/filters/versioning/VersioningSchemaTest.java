@@ -35,13 +35,12 @@ import java.io.ByteArrayInputStream;
 import static org.junit.Assert.*;
 
 /**
- *
  * @author kush5342
  */
 @RunWith(Enclosed.class)
 public class VersioningSchemaTest {
-    
-     public static class WhenValidatingVersioningConfiguration {
+
+    public static class WhenValidatingVersioningConfiguration {
 
         private Validator validator;
 
@@ -52,7 +51,7 @@ public class VersioningSchemaTest {
 
             Schema schema = factory.newSchema(
                     new StreamSource[]{
-                           new StreamSource(VersioningSchemaTest.class.getResourceAsStream("/META-INF/schema/config/versioning-configuration.xsd"))
+                            new StreamSource(VersioningSchemaTest.class.getResourceAsStream("/META-INF/schema/config/versioning-configuration.xsd"))
                     });
 
             validator = schema.newValidator();
@@ -64,41 +63,39 @@ public class VersioningSchemaTest {
             validator.validate(sampleSource);
         }
 
-   
-
 
         @Test
         public void shouldFailIfMutipleVersionMappingHasSameID() throws Exception {
             String xml =
                     "<versioning xmlns=\"http://docs.openrepose.org/repose/versioning/v2.0\"> " +
-                    "  <service-root href=\"http://localhost:8080/\"/> " +
-                    "   <version-mapping id=\"v1\" pp-dest-id=\"service-v0\" status=\"DEPRECATED\"/>" +
-                    " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">"+
-                    " <media-types>\n" +
-                    " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>"+
-                    " </media-types>\n" +
-                    " </version-mapping>"+
-                    "</versioning>";
+                            "  <service-root href=\"http://localhost:8080/\"/> " +
+                            "   <version-mapping id=\"v1\" pp-dest-id=\"service-v0\" status=\"DEPRECATED\"/>" +
+                            " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">" +
+                            " <media-types>\n" +
+                            " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>" +
+                            " </media-types>\n" +
+                            " </version-mapping>" +
+                            "</versioning>";
             assertInvalidConfig(xml, "Version mapping must have ids unique within their containing filter list");
         }
-        
+
 
         @Ignore
         @Test
         public void shouldFailIfMediatypeNotUniqueInOneVersionMapping() throws Exception {
             String xml =
                     "<versioning xmlns=\"http://docs.openrepose.org/repose/versioning/v2.0\"> " +
-                    "  <service-root href=\"http://localhost:8080/\"/> " +
-                    " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">"+
-                    " <media-types>\n" +
-                    " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>"+
-                    " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>"+
-                    " </media-types>\n" +
-                    " </version-mapping>"+
-                    "</versioning>";
+                            "  <service-root href=\"http://localhost:8080/\"/> " +
+                            " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">" +
+                            " <media-types>\n" +
+                            " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>" +
+                            " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>" +
+                            " </media-types>\n" +
+                            " </version-mapping>" +
+                            "</versioning>";
             assertInvalidConfig(xml, "MediaTypes should be unique within a version-mapping.");
         }
-       
+
 
         private void assertInvalidConfig(String xml, String errorMessage) {
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
@@ -116,5 +113,5 @@ public class VersioningSchemaTest {
         }
 
     }
-    
+
 }

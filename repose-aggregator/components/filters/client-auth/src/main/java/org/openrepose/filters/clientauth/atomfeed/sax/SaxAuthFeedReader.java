@@ -49,10 +49,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SaxAuthFeedReader.class);
     private final String feedId;
     private final String feedHead;
+    List<String> cacheKeys = new ArrayList<String>();
     private String targetFeed;
     private String curResource;
     private ServiceClient client;
-    List<String> cacheKeys = new ArrayList<String>();
     private boolean moreData;
     private CacheKeys resultKeys;
     private SAXParserFactory factory;
@@ -183,7 +183,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             } else if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/token")
                     && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TOKEN")) {
                 curType = CacheKeyType.TOKEN;
-            } else if(StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/trr/user")
+            } else if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/trr/user")
                     && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TRR_USER")) {
                 curType = CacheKeyType.TRR_USER;
             }

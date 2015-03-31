@@ -19,16 +19,16 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
-import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientResponse
-import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
-import org.openrepose.core.service.httpclient.config.PoolType
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
+import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.HttpClientResponse
 
 import static org.junit.Assert.assertEquals
 import static org.mockito.Mockito.mock

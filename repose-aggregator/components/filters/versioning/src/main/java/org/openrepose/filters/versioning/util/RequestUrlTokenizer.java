@@ -84,7 +84,7 @@ public final class RequestUrlTokenizer {
     public static boolean hasVersionInfo(String versionToken, Set<String> versionIds) {
         boolean found = false;
 
-        for (String versionId: versionIds) {
+        for (String versionId : versionIds) {
             if (versionId.equals(versionToken)) {
                 found = true;
                 break;

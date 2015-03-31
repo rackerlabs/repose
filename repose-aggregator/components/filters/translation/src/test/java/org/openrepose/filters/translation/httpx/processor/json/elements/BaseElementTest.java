@@ -28,26 +28,25 @@ import org.xml.sax.helpers.AttributesImpl;
 import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author kush5342
  */
 public class BaseElementTest {
-    
+
     static BaseElement instance;
-    
+
     @BeforeClass
     public static void setUpClass() {
-        
+
         AttributesImpl atts = new AttributesImpl();
         atts.addAttribute("", "date", "date", "java.lang.String", "25-dec-05");
-        instance = new BaseElement("id:TestID",atts);
-        
+        instance = new BaseElement("id:TestID", atts);
+
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
-        
-        instance=null;
+
+        instance = null;
     }
 
     /**
@@ -58,7 +57,7 @@ public class BaseElementTest {
         String expResult = "id:TestID";
         String result = instance.getElement();
         assertEquals(expResult, result);
-        
+
     }
 
     /**
@@ -66,11 +65,11 @@ public class BaseElementTest {
      */
     @Test
     public void testGetLocalName_0args() {
-   
+
         String expResult = "TestID";
         String result = instance.getLocalName();
         assertEquals(expResult, result);
-        
+
     }
 
     /**
@@ -78,11 +77,11 @@ public class BaseElementTest {
      */
     @Test
     public void testGetQname_0args() {
-   
+
         String expResult = "json:TestID";
         String result = instance.getQname();
         assertEquals(expResult, result);
-       
+
     }
 
     /**
@@ -90,12 +89,12 @@ public class BaseElementTest {
      */
     @Test
     public void testGetAttributes() {
-       
+
         AttributesImpl expResult = new AttributesImpl();
         expResult.addAttribute("", "date", "date", "java.lang.String", "25-dec-05");
         AttributesImpl result = instance.getAttributes();
         assertEquals(expResult.getQName(1), result.getQName(1));
-    
+
     }
 
     /**
@@ -103,12 +102,12 @@ public class BaseElementTest {
      */
     @Test
     public void testGetLocalName_String() {
-       
+
         String name = "id:TestID";
         String expResult = "TestID";
         String result = BaseElement.getLocalName(name);
         assertEquals(expResult, result);
-      
+
     }
 
     /**
@@ -116,11 +115,11 @@ public class BaseElementTest {
      */
     @Test
     public void testGetQname_String() {
-    
+
         String name = "id:TestID";
         String expResult = "json:TestID";
         String result = BaseElement.getQname(name);
         assertEquals(expResult, result);
-   
+
     }
 }

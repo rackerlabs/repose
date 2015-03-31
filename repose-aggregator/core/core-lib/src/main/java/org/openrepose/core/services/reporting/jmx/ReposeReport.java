@@ -23,21 +23,19 @@ import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.management.openmbean.*;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Named("reposeReport")
-@ManagedResource(objectName = "org.openrepose.core.services.reporting:type=ReposeReport", description="Repose report MBean.")
+@ManagedResource(objectName = "org.openrepose.core.services.reporting:type=ReposeReport", description = "Repose report MBean.")
 public class ReposeReport implements ReposeReportMBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeReport.class);

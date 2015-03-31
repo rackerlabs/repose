@@ -85,16 +85,16 @@ public class PowerFilterRouterFactory {
                                                   ServletContext servletContext,
                                                   String defaultDestination) throws PowerFilterChainException {
         LOG.info("{}:{} -- Reticulating Splines - Building Power Filter Router", clusterId, nodeId);
-        if(LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             String cluster = domain.getId();
             //Build a list of the nodes in this cluster, just so we know what we're doing
             List<String> clusterNodes = new LinkedList<>();
-            for(Node n : domain.getNodes().getNode()){
+            for (Node n : domain.getNodes().getNode()) {
                 clusterNodes.add(n.getId() + "-" + n.getHostname());
             }
             LOG.debug("{}:{} - Cluster nodes from cluster {} for this router: {}", clusterId, nodeId, cluster, clusterNodes);
             List<String> destinations = new LinkedList<>();
-            for(DestinationEndpoint endpoint : domain.getDestinations().getEndpoint()) {
+            for (DestinationEndpoint endpoint : domain.getDestinations().getEndpoint()) {
                 destinations.add(endpoint.getId() + "-" + endpoint.getHostname() + ":" + endpoint.getPort());
             }
             LOG.debug("{}:{} - Cluster destinations from cluster {} for this router: {}", clusterId, nodeId, cluster, destinations);

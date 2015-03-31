@@ -29,8 +29,6 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-import java.util.concurrent.atomic.AtomicInteger
-
 class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
@@ -90,19 +88,19 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
             def thread = Thread.start {
                 threadNum ->
-                (1..callsPerClient).each {
-                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
+                    (1..callsPerClient).each {
+                        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
-                        missingAuthResponse = true
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                            missingAuthResponse = true
+                        }
+                        def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
+
+                        if (sentToOrigin.request.headers.findAll("x-roles").empty) {
+                            missingAuthHeader = true
+                        }
+
                     }
-                    def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
-
-                    if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                        missingAuthHeader = true
-                    }
-
-                }
             }
             clientThreads.add(thread)
         }

@@ -25,7 +25,7 @@ public class HttpClientNotFoundException extends Exception {
         super(message);
     }
 
-    public HttpClientNotFoundException(String message, Throwable cause){
+    public HttpClientNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 }

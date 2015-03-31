@@ -21,16 +21,16 @@ package features.filters.apivalidator
 
 import framework.ReposeValveTest
 import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 6/12/14.
  */
 @Category(Slow.class)
-class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
+class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
     String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
 
     def setupSpec() {
@@ -57,6 +57,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
         certain user roles will allow to access certain methods according to config in the wadl.
         i.e. 'GET' method only be available to access by a:observer and a:admin role
     */
+
     @Unroll("enableapicoverage false:headers=#headers")
     def "when enable-api-coverage is false, validate count at state level"() {
         given:
@@ -78,7 +79,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
 
         def strIt = getMBeanObj[0].toString()
         //println(strIt)
-        if(strIt.contains(checkstrscope))
+        if (strIt.contains(checkstrscope))
             check = true
 
         then:
@@ -87,13 +88,13 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
         check == true
 
         where:
-        method   | headers                                             | responseCode
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled"]                      | "404"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"
-        "GET"    | null                                                | "403"
+        method | headers                                           | responseCode
+        "GET"  | ["x-roles": "raxRolesEnabled, a:observer"]        | "200"
+        "GET"  | ["x-roles": "raxRolesEnabled, a:observer, a:bar"] | "200"
+        "GET"  | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]    | "200"
+        "GET"  | ["x-roles": "raxRolesEnabled, a:admin"]           | "200"
+        "GET"  | ["x-roles": "raxRolesEnabled"]                    | "404"
+        "GET"  | ["x-roles": "raxRolesEnabled, a:creator"]         | "404"
+        "GET"  | null                                              | "403"
     }
 }

@@ -37,9 +37,9 @@ public class IpIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(IpIdentityFilter.class);
     private static final String DEFAULT_CONFIG = "ip-identity.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private IpIdentityHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public IpIdentityFilter(ConfigurationService configurationService) {

@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.headertranslation;
 
-import org.openrepose.filters.headertranslation.config.Header;
-import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.filters.headertranslation.config.Header;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

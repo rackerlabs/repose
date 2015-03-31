@@ -47,13 +47,13 @@ public class InputStreamUriParameterResolverTest {
             resolver = new InputStreamUriParameterResolver(parent);
             input = mock(InputStream.class);
         }
-        
+
         @Test
         public void shouldAddStream() throws TransformerException {
             String name = "data";
             String href = resolver.getHref(name);
             String actualHref = resolver.addStream(input, name);
-            
+
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
             assertNotNull("Should find source stream", source);
@@ -61,13 +61,13 @@ public class InputStreamUriParameterResolverTest {
             assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
             assertTrue("Streams should be the same", input == source.getInputStream());
         }
-        
+
         @Test
         public void shouldRemoveStreamByName() throws TransformerException {
             String name = "data";
             String href = resolver.getHref(name);
             String actualHref = resolver.addStream(input, name);
-            
+
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
             assertNotNull("Should find source stream", source);
@@ -76,15 +76,15 @@ public class InputStreamUriParameterResolverTest {
             assertTrue("Streams should be the same", input == source.getInputStream());
             resolver.removeStream(href);
             source = (StreamSource) resolver.resolve(href, "base");
-            
+
             assertNull(source);
         }
-        
+
         @Test
         public void shouldRemoveStream() throws TransformerException {
             String href = resolver.getHref(input);
             String actualHref = resolver.addStream(input);
-            
+
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
             assertNotNull("Should find source stream", source);
             assertNotNull("Source stream should include a path", source.getSystemId());
@@ -92,10 +92,10 @@ public class InputStreamUriParameterResolverTest {
             assertTrue("Streams should be the same", input == source.getInputStream());
             resolver.removeStream(input);
             source = (StreamSource) resolver.resolve(href, "base");
-            
+
             assertNull(source);
         }
-        
+
         @Test
         public void shouldCallParentResolver() throws TransformerException {
             String href = "otherdata";
@@ -110,7 +110,7 @@ public class InputStreamUriParameterResolverTest {
             String base = "base";
             URIResolver additional = mock(URIResolver.class);
             resolver.addResolver(additional);
-            
+
             resolver.resolve(href, base);
             verify(parent).resolve(href, base);
             verify(additional).resolve(href, base);
@@ -124,7 +124,7 @@ public class InputStreamUriParameterResolverTest {
             Source source = mock(Source.class);
             when(additional.resolve(anyString(), anyString())).thenReturn(source);
             resolver.addResolver(additional);
-            
+
             Source actual = resolver.resolve(href, base);
             assertTrue("Should return our additional source", actual == source);
         }

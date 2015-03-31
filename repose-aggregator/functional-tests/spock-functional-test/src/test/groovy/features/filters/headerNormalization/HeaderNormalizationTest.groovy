@@ -33,13 +33,13 @@ import spock.lang.Unroll
 class HeaderNormalizationTest extends ReposeValveTest {
 
     def headers = [
-            'user1':'usertest1',
-            'X-Auth-Token':'358484212:99493',
-            'X-First-Filter':'firstValue',
-            'X-SeCoND-Filter':'secondValue',
-            'X-third-filter':'thirdValue',
-            'X-last-Filter':'lastValue',
-            'X-User-Token':'something'
+            'user1'          : 'usertest1',
+            'X-Auth-Token'   : '358484212:99493',
+            'X-First-Filter' : 'firstValue',
+            'X-SeCoND-Filter': 'secondValue',
+            'X-third-filter' : 'thirdValue',
+            'X-last-Filter'  : 'lastValue',
+            'X-User-Token'   : 'something'
     ]
 
     def setupSpec() {
@@ -57,15 +57,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "When Filtering Based on URI and Method" () {
+    def "When Filtering Based on URI and Method"() {
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:reposeEndpoint + "/v1/usertest1/servers/something",
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'GET',
+                                url    : reposeEndpoint + "/v1/usertest1/servers/something",
+                                headers: headers
+                        ])
 
         then:
         mc.handlings.size() == 0
@@ -79,15 +79,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
     }
 
-    def "When Filtering Based on URI"(){
+    def "When Filtering Based on URI"() {
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'POST',
-                            url:reposeEndpoint + "/v1/usertest1/servers/something",
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'POST',
+                                url    : reposeEndpoint + "/v1/usertest1/servers/something",
+                                headers: headers
+                        ])
 
         then:
         mc.handlings.size() == 0
@@ -102,15 +102,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
 
     }
 
-    def "When Filtering Based on Method"(){
+    def "When Filtering Based on Method"() {
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'POST',
-                            url:reposeEndpoint + "/v1/usertest1/resources/something",
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'POST',
+                                url    : reposeEndpoint + "/v1/usertest1/resources/something",
+                                headers: headers
+                        ])
         then:
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == 1
@@ -123,15 +123,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
     }
 
-    def "When Filtering using catch all"(){
+    def "When Filtering using catch all"() {
         when:
         MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:reposeEndpoint + "/v1/usertest1/resources/something",
-                            headers:headers
-                    ])
+                deproxy.makeRequest(
+                        [
+                                method : 'GET',
+                                url    : reposeEndpoint + "/v1/usertest1/resources/something",
+                                headers: headers
+                        ])
         then:
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
@@ -151,11 +151,11 @@ class HeaderNormalizationTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
@@ -203,7 +203,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -232,7 +232,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"

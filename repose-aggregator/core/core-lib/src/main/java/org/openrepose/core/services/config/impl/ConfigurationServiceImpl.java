@@ -53,9 +53,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
     private final ConcurrentMap<ParserPoolKey, WeakReference<ConfigurationParser>> parserPoolCache;
+    private final String configRoot;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
-    private final String configRoot;
 
     @Inject
     public ConfigurationServiceImpl(
@@ -86,14 +86,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         updateManager.destroy();
     }
 
-    //Should not be part of the public facing interface.
-    public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
-        this.resourceResolver = resourceResolver;
-    }
-
     @Override
     public ConfigurationResourceResolver getResourceResolver() {
         return this.resourceResolver;
+    }
+
+    //Should not be part of the public facing interface.
+    public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
     }
 
     public void setUpdateManager(ConfigurationUpdateManager updateManager) {
@@ -202,7 +202,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private final Class clazz;
         private final URL xsdUrl;
 
-        public ParserPoolKey(Class clazz, URL xsdUrl){
+        public ParserPoolKey(Class clazz, URL xsdUrl) {
 
             this.clazz = clazz;
             this.xsdUrl = xsdUrl;

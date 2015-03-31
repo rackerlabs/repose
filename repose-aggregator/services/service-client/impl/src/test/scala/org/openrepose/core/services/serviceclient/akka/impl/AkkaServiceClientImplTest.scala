@@ -38,8 +38,8 @@ import org.mockito.AdditionalMatchers.or
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.core.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -55,9 +55,9 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
   val LIST_APPENDER_REF = "List0"
   val httpClientService = mock[HttpClientService]
   val httpClientResponse = mock[HttpClientResponse]
-  var request: HttpGet = _
   val originServer = new Server(0)
   val hashKey = "hashKey"
+  var request: HttpGet = _
   var app: ListAppender = _
   var uri: String = _
 

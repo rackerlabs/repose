@@ -4,44 +4,51 @@
 <!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
 <schema
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
-    xmlns:atom="http://www.w3.org/2005/Atom"
-    targetNamespace="http://docs.openstack.org/identity/api/v2.0"
->
+        xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        xmlns:atom="http://www.w3.org/2005/Atom"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://docs.openstack.org/identity/api/v2.0"
+        >
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
-            schemaLocation="atom/atom.xsd" />
+            schemaLocation="atom/atom.xsd"/>
 
     <!-- Elements -->
     <element name="tenant" type="identity:Tenant">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                  A container used to group or isolate resources and/or identity
-                  objects. Depending on the service operator, a tenant may map to a customer,
-                  account, organization, or project.
+                    A container used to group or isolate resources and/or identity
+                    objects. Depending on the service operator, a tenant may map to a customer,
+                    account, organization, or project.
                 </p>
             </xsd:documentation>
             <xsd:appinfo>
-              <xsdxt:samples>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/xml" href="../samples/tenant.xml" />
-                </xsdxt:sample>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/json" href="../samples/tenant.json" />
-                </xsdxt:sample>
-              </xsdxt:samples>
+                <xsdxt:samples>
+                             
+                    <xsdxt:sample>
+                                   
+                        <xsdxt:code type="application/xml" href="../samples/tenant.xml"/>
+                                 
+                    </xsdxt:sample>
+                             
+                    <xsdxt:sample>
+                                   
+                        <xsdxt:code type="application/json" href="../samples/tenant.json"/>
+                                 
+                    </xsdxt:sample>
+                           
+                </xsdxt:samples>
             </xsd:appinfo>
         </annotation>
-    </element>  
+    </element>
     <element name="tenants" type="identity:Tenants">
-       <annotation>
+        <annotation>
             <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
@@ -50,14 +57,14 @@
                 </p>
             </xsd:documentation>
         </annotation>
-    </element>  
+    </element>
 
     <!-- Complex Types -->
     <complexType name="Tenants">
         <sequence>
             <element name="tenant" type="identity:Tenant" maxOccurs="100"/>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
@@ -67,21 +74,21 @@
             <element name="description" type="xsd:string">
                 <annotation>
                     <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
                         <p>
                             An free text description of the tenant.
                         </p>
                     </xsd:documentation>
                 </annotation>
             </element>
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:ID" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         An ID uniquely identifying the tenant. This usually comes from the back-end store.
                         This value is guaranteed to be unique and immutable (it will never change).
@@ -92,8 +99,8 @@
         <attribute name="name" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The name of the tenant. This is guaranteed to be unique, but may change.
                     </p>
@@ -115,8 +122,8 @@
         <attribute name="display-name" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         A human-readable, friendly name for use in user interfaces.
                     </p>
@@ -126,8 +133,8 @@
         <attribute type="xsd:dateTime" name="updated" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         A time-stamp identifying the modification time of the
                         tenant.
@@ -138,8 +145,8 @@
         <attribute type="xsd:dateTime" name="created" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         A creation time-stamp for the tenant.
                     </p>

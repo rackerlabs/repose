@@ -27,7 +27,6 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
-
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -48,7 +47,7 @@ class DefaultDestinationTest extends Specification {
     Deproxy deproxy
     boolean expectCleanShutdown
 
-    String errorMessage="There should only be one default destination."
+    String errorMessage = "There should only be one default destination."
 
     def setup() {
 
@@ -61,7 +60,7 @@ class DefaultDestinationTest extends Specification {
         params = properties.getDefaultTemplateParams()
 
         params += [
-                'datastorePort' : dataStorePort,
+                'datastorePort': dataStorePort,
         ]
 
         // start a deproxy
@@ -82,7 +81,7 @@ class DefaultDestinationTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1":default1, "default2":default2, "default3":default3
+                "default1": default1, "default2": default2, "default3": default3
 
         ]
         reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
@@ -107,7 +106,7 @@ class DefaultDestinationTest extends Specification {
         waitForCondition(repose.clock, "30s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s"){
+        waitForCondition(repose.clock, "20s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
@@ -136,7 +135,7 @@ class DefaultDestinationTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1":default1, "default2":default2, "default3":default3
+                "default1": default1, "default2": default2, "default3": default3
 
         ]
         reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
@@ -163,10 +162,10 @@ class DefaultDestinationTest extends Specification {
         deproxy.makeRequest(url: url).receivedResponse.code == "200"
 
         where:
-        default1  | default2  | default3
-        true      | false     | false
-        false     | true      | false
-        false     | false     | true
+        default1 | default2 | default3
+        true     | false    | false
+        false    | true     | false
+        false    | false    | true
 
     }
 
@@ -179,9 +178,9 @@ class DefaultDestinationTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1":defaultParamWrapper(default1),
-                "default2":defaultParamWrapper(default2),
-                "default3":defaultParamWrapper(default3)
+                "default1": defaultParamWrapper(default1),
+                "default2": defaultParamWrapper(default2),
+                "default3": defaultParamWrapper(default3)
         ]
         reposeConfigProvider.applyConfigs("features/core/config/default-dest-null", params)
 
@@ -205,7 +204,7 @@ class DefaultDestinationTest extends Specification {
         waitForCondition(repose.clock, "30s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s"){
+        waitForCondition(repose.clock, "20s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
@@ -229,8 +228,8 @@ class DefaultDestinationTest extends Specification {
         false    | false    | null
     }
 
-    private def defaultParamWrapper(Object value){
-        return value==null ? '' :  '\" default=\"'+value
+    private def defaultParamWrapper(Object value) {
+        return value == null ? '' : '\" default=\"' + value
     }
 
 

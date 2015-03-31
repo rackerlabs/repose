@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.filters.headertranslation
+
 import org.junit.Before
 import org.junit.Test
 import org.xml.sax.SAXParseException
@@ -54,7 +55,7 @@ public class SchemaTest {
     @Test
     public void shouldFailIfNonUniqueOriginalName() throws Exception {
         String xml =
-            """<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                """<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0 ../config/header-translation.xsd"
  xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 

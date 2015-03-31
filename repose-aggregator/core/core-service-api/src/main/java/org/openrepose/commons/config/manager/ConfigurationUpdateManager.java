@@ -25,8 +25,8 @@ import org.openrepose.commons.utils.Destroyable;
 
 public interface ConfigurationUpdateManager extends Destroyable {
 
-     <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName);
+    <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName);
 
-     <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource);
-     
+    <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource);
+
 }

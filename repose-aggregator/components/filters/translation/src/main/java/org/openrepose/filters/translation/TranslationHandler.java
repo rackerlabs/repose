@@ -92,11 +92,6 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         return chains;
     }
 
-    private enum TranslationType {
-        REQUEST,
-        RESPONSE
-    }
-
     private List<XsltParameter> getInputParameters(final TranslationType type, final MutableHttpServletRequest request, final MutableHttpServletResponse response, final TranslationResult lastResult) {
         List<XsltParameter> inputs = new ArrayList<XsltParameter>();
         inputs.add(new XsltParameter("request", request));
@@ -250,5 +245,10 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
 
         return filterDirector;
+    }
+
+    private enum TranslationType {
+        REQUEST,
+        RESPONSE
     }
 }

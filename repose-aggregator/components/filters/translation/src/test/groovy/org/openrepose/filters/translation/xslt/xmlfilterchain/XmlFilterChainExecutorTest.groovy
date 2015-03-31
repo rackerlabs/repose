@@ -18,12 +18,13 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain
-import org.openrepose.filters.translation.TranslationHandler
-import org.openrepose.filters.translation.xslt.XsltParameter
+
 import net.sf.saxon.Configuration
 import net.sf.saxon.Controller
 import net.sf.saxon.Filter
 import net.sf.saxon.value.TextFragmentValue
+import org.openrepose.filters.translation.TranslationHandler
+import org.openrepose.filters.translation.xslt.XsltParameter
 import spock.lang.Specification
 
 import javax.xml.transform.Transformer
@@ -31,6 +32,7 @@ import javax.xml.transform.sax.SAXTransformerFactory
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
+
 /**
  * Created by dimi5963 on 9/8/14.
  */
@@ -47,7 +49,7 @@ class XmlFilterChainExecutorTest extends Specification {
     Controller controller;
     Configuration configuration;
 
-    def setup(){
+    def setup() {
 
         factory = mock(SAXTransformerFactory.class)
 

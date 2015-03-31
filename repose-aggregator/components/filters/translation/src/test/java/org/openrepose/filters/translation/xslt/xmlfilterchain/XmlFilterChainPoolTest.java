@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
-import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.filters.translation.config.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.filters.translation.config.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.List;

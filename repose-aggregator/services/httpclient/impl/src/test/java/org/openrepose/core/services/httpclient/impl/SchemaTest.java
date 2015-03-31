@@ -96,8 +96,8 @@ public class SchemaTest {
         public void shouldFailIfMaxPerRouteGreaterThanMaxTotal() throws Exception {
             String xml =
                     "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
-                    "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
-                    "</http-connection-pools>";
+                            "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
+                            "</http-connection-pools>";
             assertInvalidConfig(xml, "Max connections per route must be less than or equal to total max connections");
         }
 
@@ -119,7 +119,6 @@ public class SchemaTest {
                             "</http-connection-pools>";
             assertInvalidConfig(xml, "'blah' is not a valid value for 'boolean'");
         }
-
 
 
         private void assertInvalidConfig(String xml, String errorMessage) {

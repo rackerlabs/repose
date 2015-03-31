@@ -28,7 +28,7 @@ import org.rackspace.deproxy.MessageChain
 /**
  * Created by jennyvo on 8/25/14.
  */
-class IdentityV3Test extends ReposeValveTest{
+class IdentityV3Test extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -37,7 +37,7 @@ class IdentityV3Test extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -48,13 +48,13 @@ class IdentityV3Test extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def "Test send request with user token" () {
+    def "Test send request with user token"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
         def reqUserId = fakeIdentityV3Service.client_userid
@@ -71,7 +71,7 @@ class IdentityV3Test extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )

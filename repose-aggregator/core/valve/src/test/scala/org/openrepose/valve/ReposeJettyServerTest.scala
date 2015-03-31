@@ -183,8 +183,8 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
       None,
       None
     )
-    import ReposeSpringProperties.NODE._
     import ReposeSpringProperties.CORE._
+    import ReposeSpringProperties.NODE._
 
 
     val expectedProperties = Map(
@@ -192,7 +192,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
       NODE_ID -> "le_node_id",
       CONFIG_ROOT -> "/config/root",
       INSECURE -> "false" //Spring puts this into a string for us
-    ).map { case (k, v) => ReposeSpringProperties.stripSpringValueStupidity(k) -> v}
+    ).map { case (k, v) => ReposeSpringProperties.stripSpringValueStupidity(k) -> v }
 
     expectedProperties.foreach { case (k, v) =>
       server.appContext.getEnvironment.getProperty(k) shouldBe v

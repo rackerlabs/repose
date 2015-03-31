@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.filter;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.junit.Test;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.powerfilter.RequestTracer;
 
 import static org.junit.Assert.assertFalse;
@@ -46,7 +46,8 @@ public class RequestTracerTest {
         rt = new RequestTracer(trace, addHeader);
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceEnter();
 
         assertFalse("The returned time should not be 0", time == 0);
@@ -57,7 +58,8 @@ public class RequestTracerTest {
         rt = new RequestTracer(trace, addHeader);
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceEnter();
 
         assertFalse("The returned time should not be 0", time == 0);
@@ -74,7 +76,8 @@ public class RequestTracerTest {
         rt = new RequestTracer(trace, addHeader);
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceEnter();
 
         assertTrue("The returned time should be 0", time == 0);
@@ -85,7 +88,8 @@ public class RequestTracerTest {
         rt = new RequestTracer(trace, addHeader);
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceEnter();
 
         assertTrue("The returned time should be 0", time == 0);
@@ -105,7 +109,8 @@ public class RequestTracerTest {
         rt.traceEnter();
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceExit(response, "myFilter");
 
         assertFalse("The returned time should not be 0", time == 0);
@@ -127,7 +132,8 @@ public class RequestTracerTest {
         rt.traceEnter();
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceExit(response, "myFilter");
 
         assertFalse("The returned time should not be 0", time == 0);
@@ -149,7 +155,8 @@ public class RequestTracerTest {
         rt.traceEnter();
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceExit(response, "myFilter");
 
         assertTrue("The returned time should be 0", time == 0);
@@ -165,7 +172,8 @@ public class RequestTracerTest {
         rt.traceEnter();
         try {
             Thread.sleep(1000L);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         time = rt.traceExit(response, "myFilter");
 
         assertTrue("The returned time should be 0", time == 0);

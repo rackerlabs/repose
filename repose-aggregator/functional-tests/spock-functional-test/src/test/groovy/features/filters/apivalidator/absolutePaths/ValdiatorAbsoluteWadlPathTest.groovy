@@ -21,9 +21,7 @@ package features.filters.apivalidator.absolutePaths
 
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
-import framework.category.Slow
 import org.apache.commons.io.FileUtils
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
 import java.nio.file.Files

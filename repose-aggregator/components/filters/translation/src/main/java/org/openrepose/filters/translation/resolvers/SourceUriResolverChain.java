@@ -40,14 +40,14 @@ public class SourceUriResolverChain extends SourceUriResolver {
     public void addResolver(URIResolver resolver) {
         resolvers.add(resolver);
     }
-    
+
     public <T extends URIResolver> T getResolverOfType(Class<T> type) {
         for (URIResolver resolver : resolvers) {
             if (type.isAssignableFrom(resolver.getClass())) {
-                return (T)resolver;
+                return (T) resolver;
             }
         }
-        
+
         return null;
     }
 

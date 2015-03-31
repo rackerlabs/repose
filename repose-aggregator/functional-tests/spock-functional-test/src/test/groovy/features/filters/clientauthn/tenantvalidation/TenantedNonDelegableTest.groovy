@@ -58,7 +58,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -73,21 +73,22 @@ class TenantedNonDelegableTest extends ReposeValveTest {
             client_userid = requestTenant
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
-        if(groupResponseCode != 200){
+        if (groupResponseCode != 200) {
             fakeIdentityService.getGroupsHandler = {
-                userId, request,xml ->
+                userId, request, xml ->
                     new Response(groupResponseCode)
             }
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in non-admin service role"
+        when:
+        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in non-admin service role"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -102,12 +103,12 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        713           | 713             | 500              | "500"        | 200               | false
-        714           | 714             | 404              | "401"        | 200               | true
-        715           | 715             | 200              | "500"        | 404               | false
-        716           | 716             | 200              | "500"        | 500               | false
-        711           | 712             | 200              | "401"        | 200               | true
+        requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        713           | 713            | 500              | "500"        | 200               | false
+        714           | 714            | 404              | "401"        | 200               | true
+        715           | 715            | 200              | "500"        | 404               | false
+        716           | 716            | 200              | "500"        | 500               | false
+        711           | 712            | 200              | "401"        | 200               | true
     }
 
     /**
@@ -131,7 +132,8 @@ class TenantedNonDelegableTest extends ReposeValveTest {
             client_userid = requestTenant
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
+        when:
+        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -158,16 +160,16 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == false
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | responseCode
-        717           | 717             | "not-admin"           | "200"
-        718           | 719             | "service:admin-role1" | "200"
+        requestTenant | responseTenant | serviceAdminRole      | responseCode
+        717           | 717            | "not-admin"           | "200"
+        718           | 719            | "service:admin-role1" | "200"
     }
 
     def "Should not split request headers according to rfc"() {
         given:
-        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+        def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
-                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
+                "usertest2, usertest3", "accept"                                                       : "application/xml;q=1 , application/json;q=0.5"]
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -177,7 +179,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        def mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/123/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
 
         then:
         mc.handlings.size() == 1
@@ -199,12 +201,12 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         def mc =
-            deproxy.makeRequest(
-                    url: reposeEndpoint + "/servers/123/",
-                    method: 'GET',
-                    headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
-                    defaultHandler: xmlResp
-            )
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/123/",
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+                        defaultHandler: xmlResp
+                )
 
         then:
         mc.receivedResponse.code == "201"

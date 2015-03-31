@@ -30,7 +30,8 @@ public interface ReposeReportMBean {
     Date getLastReset();
 
     String getTotal400sReposeToClient();
+
     String getTotal500sReposeToClient();
 
-    List<CompositeData> getDestinationInfo() throws OpenDataException;        
+    List<CompositeData> getDestinationInfo() throws OpenDataException;
 }

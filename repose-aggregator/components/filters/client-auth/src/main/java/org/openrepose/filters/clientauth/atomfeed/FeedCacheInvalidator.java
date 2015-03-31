@@ -19,11 +19,11 @@
  */
 package org.openrepose.filters.clientauth.atomfeed;
 
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
-import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +37,13 @@ import java.util.Set;
 public class FeedCacheInvalidator implements Runnable {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(FeedCacheInvalidator.class);
+    private static final long DEFAULT_CHECK_INTERVAL = 5000;
     private boolean done = false;
     private List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
     private AuthTokenCache tknCache;
     private AuthGroupCache grpCache;
     private AuthUserCache usrCache;
     private EndpointsCache endpntsCache;
-    private static final long DEFAULT_CHECK_INTERVAL = 5000;
     private long checkInterval;
 
     private FeedCacheInvalidator(AuthTokenCache tknCache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpntsCache, long checkInterval) {
@@ -136,7 +136,7 @@ public class FeedCacheInvalidator implements Runnable {
     private void deleteFromTokenGroupCache(String id) {
         tknCache.deleteCacheItem(id);
         grpCache.deleteCacheItem(id);
-        if(endpntsCache != null){
+        if (endpntsCache != null) {
             endpntsCache.deleteCacheItem(id);
         }
     }

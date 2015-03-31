@@ -43,7 +43,7 @@ class AddHeaderTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "When using add-header filter the expect header(s) in config is added to request/response" () {
+    def "When using add-header filter the expect header(s) in config is added to request/response"() {
         given:
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 

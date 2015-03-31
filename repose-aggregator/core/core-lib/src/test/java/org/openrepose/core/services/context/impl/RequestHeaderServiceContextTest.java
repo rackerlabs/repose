@@ -44,7 +44,6 @@ import org.openrepose.nodeservice.request.RequestHeaderServiceImpl;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.servlet.ServletContextEvent;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,12 +58,10 @@ import static org.mockito.Mockito.*;
 @PowerMockIgnore("javax.management.*")
 public class RequestHeaderServiceContextTest {
     private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContext.xml";
-
+    private static LoggerContext ctx;
     private HealthCheckService healthCheckService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private ConfigurationService configurationService;
-
-    private static LoggerContext ctx;
     private ListAppender app;
 
     /*
@@ -87,9 +84,39 @@ public class RequestHeaderServiceContextTest {
         StatusLogger.getLogger().reset();
     }
 
+    /**
+     * @return a valid system model
+     */
+    private static SystemModel getValidSystemModel() {
+        Node node = new Node();
+        DestinationEndpoint dest = new DestinationEndpoint();
+        ReposeCluster cluster = new ReposeCluster();
+        SystemModel sysModel = new SystemModel();
+
+        node.setId("node1");
+        node.setHostname("localhost");
+        node.setHttpPort(8080);
+
+        dest.setHostname("localhost");
+        dest.setPort(9090);
+        dest.setDefault(true);
+        dest.setId("dest1");
+        dest.setProtocol("http");
+
+        cluster.setId("cluster1");
+        cluster.setNodes(new NodeList());
+        cluster.getNodes().getNode().add(node);
+        cluster.setDestinations(new DestinationList());
+        cluster.getDestinations().getEndpoint().add(dest);
+
+        sysModel.getReposeCluster().add(cluster);
+
+        return sysModel;
+    }
+
     @Before
     public void setUp() throws Exception {
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
+        app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
@@ -114,7 +141,7 @@ public class RequestHeaderServiceContextTest {
 
         requestHeaderService.init();
 
-        listenerObject = (UpdateListener<SystemModel>)listenerCaptor.getValue();
+        listenerObject = (UpdateListener<SystemModel>) listenerCaptor.getValue();
 
         listenerObject.configurationUpdated(systemModel);
 
@@ -156,7 +183,7 @@ public class RequestHeaderServiceContextTest {
             protected boolean matchesSafely(final List<LogEvent> events) {
                 boolean rtn = false;
                 LogEvent event;
-                for(Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext();) {
+                for (Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext(); ) {
                     event = iterator.next();
                     rtn = event.getMessage().getFormattedMessage().contains(msg);
                 }
@@ -168,35 +195,5 @@ public class RequestHeaderServiceContextTest {
                 description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
             }
         };
-    }
-
-    /**
-     * @return a valid system model
-     */
-    private static SystemModel getValidSystemModel() {
-        Node node = new Node();
-        DestinationEndpoint dest = new DestinationEndpoint();
-        ReposeCluster cluster = new ReposeCluster();
-        SystemModel sysModel = new SystemModel();
-
-        node.setId("node1");
-        node.setHostname("localhost");
-        node.setHttpPort(8080);
-
-        dest.setHostname("localhost");
-        dest.setPort(9090);
-        dest.setDefault(true);
-        dest.setId("dest1");
-        dest.setProtocol("http");
-
-        cluster.setId("cluster1");
-        cluster.setNodes(new NodeList());
-        cluster.getNodes().getNode().add(node);
-        cluster.setDestinations(new DestinationList());
-        cluster.getDestinations().getEndpoint().add(dest);
-
-        sysModel.getReposeCluster().add(cluster);
-
-        return sysModel;
     }
 }

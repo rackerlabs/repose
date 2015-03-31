@@ -37,6 +37,10 @@ import static org.openrepose.commons.utils.string.JCharSequenceFactory.jchars;
 public final class StringUriUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(StringUriUtilities.class);
 
+    private StringUriUtilities() {
+        // Empty constructor for utility class.
+    }
+
     public static int indexOfUriFragment(String st, String uriFragment) {
         return indexOfUriFragment(jchars(st), uriFragment);
     }
@@ -75,7 +79,7 @@ public final class StringUriUtilities {
                 if (!uri.startsWith("/") && !uri.isEmpty()) {
                     builder.append("/");
                 }
-                    builder.append(uri);
+                builder.append(uri);
             }
         }
 
@@ -85,7 +89,7 @@ public final class StringUriUtilities {
     /**
      * Formats a URI by adding a forward slash and removing the last forward
      * slash from the URI.
-     *
+     * <p/>
      * e.g. some/random/uri/ -> /some/random/uri e.g. some/random/uri ->
      * /some/random/uri e.g. /some/random/uri/ -> /some/random/uri e.g. / -> /
      * e.g. ////// -> /
@@ -123,15 +127,14 @@ public final class StringUriUtilities {
         }
 
 
-
         return externalName.toString();
     }
 
-    public static String formatUriNoLead(String uri){
+    public static String formatUriNoLead(String uri) {
 
         StringBuilder externalName = new StringBuilder(formatUri(uri));
 
-        if(externalName.charAt(0) == '/'){
+        if (externalName.charAt(0) == '/') {
             externalName.deleteCharAt(0);
         }
 
@@ -149,9 +152,5 @@ public final class StringUriUtilities {
         }
 
         return encodedUri;
-    }
-
-    private StringUriUtilities() {
-        // Empty constructor for utility class.
     }
 }

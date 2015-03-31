@@ -54,8 +54,8 @@ class PatternSfnTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-2"        | "404"        | 0
+        roles    | responseCode | numHandlings
+        "role-2" | "404"        | 0
     }
 
     def cleanupSpec() {

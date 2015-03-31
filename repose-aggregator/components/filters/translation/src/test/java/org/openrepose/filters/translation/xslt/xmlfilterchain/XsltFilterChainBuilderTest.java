@@ -19,14 +19,14 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
-import org.openrepose.filters.translation.TranslationHandlerFactory;
-import org.openrepose.filters.translation.xslt.StyleSheetInfo;
-import org.openrepose.filters.translation.xslt.XsltParameter;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.translation.TranslationHandlerFactory;
+import org.openrepose.filters.translation.xslt.StyleSheetInfo;
+import org.openrepose.filters.translation.xslt.XsltParameter;
 
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -73,7 +73,7 @@ public class XsltFilterChainBuilderTest {
         }
 
     }
-    
+
     public static class WhenExecutingChains {
         private static SAXTransformerFactory factory;
         private XmlFilterChainBuilder builder;
@@ -98,16 +98,16 @@ public class XsltFilterChainBuilderTest {
             List<XsltParameter> inputs = new ArrayList<XsltParameter>();
 
             List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
-            
+
             XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
             chain.executeChain(body, output, inputs, null);
-            
+
             String outResult = output.toString();
-            
+
             assertTrue("Shoudl have main output", outResult.length() > 0);
-            
+
         }
-        
+
     }
-    
+
 }

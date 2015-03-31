@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.thread;
 
 /**
  *
- * 
+ *
  */
 public class TurnKeyLockingThread extends Thread implements KeyedStackLockTestThread {
 

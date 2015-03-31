@@ -101,7 +101,6 @@ class MockIdentityService {
 
     }
 
-
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
      * this class should set to a particular DateTime (for example, to test
@@ -140,7 +139,7 @@ class MockIdentityService {
     def endpointUrl = "localhost"
     def region = "ORD"
     def admin_userid = 67890;
-    def sleeptime =0;
+    def sleeptime = 0;
     def contact_id = "my-contactId"
     def contactIdJson = ""
     def contactIdXml = ""
@@ -327,17 +326,17 @@ class MockIdentityService {
         def request_token = tokenId
 
         def params = [
-                expires     : getExpires(),
-                userid      : client_userid,
-                username    : client_username,
-                tenant      : client_tenant,
-                tenanttwo   : client_tenant_file,
-                token       : request_token,
-                serviceadmin: service_admin_role,
+                expires      : getExpires(),
+                userid       : client_userid,
+                username     : client_username,
+                tenant       : client_tenant,
+                tenanttwo    : client_tenant_file,
+                token        : request_token,
+                serviceadmin : service_admin_role,
                 contactIdXml : contactIdXml,
                 contactIdJson: contactIdJson
         ];
-        if(contact_id != null && !contact_id.isEmpty()){
+        if (contact_id != null && !contact_id.isEmpty()) {
             params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
             params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
         }
@@ -375,7 +374,7 @@ class MockIdentityService {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-        if(sleeptime > 0) {
+        if (sleeptime > 0) {
             sleep(sleeptime)
         }
         return new Response(code, null, headers, body)
@@ -417,7 +416,7 @@ class MockIdentityService {
 
         // Since the SchemaFactory does not appear to import parent XSD's,
         // the validation is skipped for the API Key Credentials that are defined externally.
-        if(xml && !(request.body.toString().contains("apiKeyCredentials"))) {
+        if (xml && !(request.body.toString().contains("apiKeyCredentials"))) {
             try {
                 final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
                 validator.validate(sampleSource);
@@ -432,7 +431,7 @@ class MockIdentityService {
         def isTokenChecked = true
         // IF the body of the request should be evaluated to determine the validity of the Token, THEN ...
         // ELSE the just use the isTokenValid value.
-        if(checkTokenValid) {
+        if (checkTokenValid) {
             // IF the body is a Client userName/apiKey request,
             // THEN return the Client token response;
             // ELSE /*IF the body is userName/passWord request*/,
@@ -452,7 +451,7 @@ class MockIdentityService {
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
                 ];
-                if(contact_id != null && !contact_id.isEmpty()){
+                if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
                     params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
                 }
@@ -471,7 +470,7 @@ class MockIdentityService {
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
                 ];
-                if(contact_id != null && !contact_id.isEmpty()){
+                if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
                     params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
                 }
@@ -490,7 +489,7 @@ class MockIdentityService {
                     contactIdXml : contactIdXml,
                     contactIdJson: contactIdJson
             ];
-            if(contact_id != null && !contact_id.isEmpty()){
+            if (contact_id != null && !contact_id.isEmpty()) {
                 params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
                 params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
             }
@@ -524,7 +523,7 @@ class MockIdentityService {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-        if(sleeptime > 0) {
+        if (sleeptime > 0) {
             sleep(sleeptime)
         }
         return new Response(code, null, headers, body)
@@ -581,7 +580,6 @@ class MockIdentityService {
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
     }
-
 
     // TODO: Replace this with builder
     def groupsJsonTemplate =

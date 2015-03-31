@@ -26,8 +26,8 @@ import org.junit.runner.RunWith;
 
 import java.util.Set;
 
-import static org.openrepose.filters.versioning.testhelpers.ConfigurationDataCreator.createVersionIds;
 import static org.junit.Assert.*;
+import static org.openrepose.filters.versioning.testhelpers.ConfigurationDataCreator.createVersionIds;
 
 /**
  * Created by IntelliJ IDEA.

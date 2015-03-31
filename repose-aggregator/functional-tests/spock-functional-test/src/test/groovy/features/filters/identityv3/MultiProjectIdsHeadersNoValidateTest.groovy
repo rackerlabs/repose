@@ -30,7 +30,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 10/3/14.
  * Return all project ids to headers but not validate project id from uri
  */
-class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
+class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -60,12 +60,12 @@ class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityV3Service.resetHandlers()
     }
 
-    @Unroll ("#defaultProject, #secondProject, request project #reqProject")
-    def "When user have multi-projects will retrieve all projects to headers" () {
+    @Unroll("#defaultProject, #secondProject, request project #reqProject")
+    def "When user have multi-projects will retrieve all projects to headers"() {
         given:
         fakeIdentityV3Service.with {
             client_token = clientToken
@@ -74,7 +74,8 @@ class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
             client_projectid2 = secondProject
         }
 
-        when: "User passes a request through repose with $reqProject"
+        when:
+        "User passes a request through repose with $reqProject"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
                 method: 'GET',
@@ -93,17 +94,17 @@ class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
         }
 
         where:
-        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
-        "test-project"  | "12345"         | "12345"         |UUID.randomUUID()  | "200"             | 2
-        "test-project"  | "12345"         | "test-project"  |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 1
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 2
+        defaultProject | secondProject  | reqProject     | clientToken       | serviceRespCode | numberProjects
+        "123456"       | "test-project" | "123456"       | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "12345"        | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "test-project" | UUID.randomUUID() | "200"           | 2
+        "123456"       | "123456"       | "test-proj-id" | UUID.randomUUID() | "200"           | 1
+        "123456"       | "test-project" | "openstack"    | UUID.randomUUID() | "200"           | 2
+        "123456"       | "test-project" | ""             | UUID.randomUUID() | "200"           | 2
     }
 
-    @Unroll ("No project id form token object: request project #reqProject")
-    def "when no project id form token object" () {
+    @Unroll("No project id form token object: request project #reqProject")
+    def "when no project id form token object"() {
         given:
         fakeIdentityV3Service.with {
             identitySuccessJsonRespTemplate = identitySuccessJsonRespShortTemplate
@@ -113,7 +114,8 @@ class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
             client_projectid2 = secondProject
         }
 
-        when: "User passes a request through repose with $reqProject"
+        when:
+        "User passes a request through repose with $reqProject"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
                 method: 'GET',
@@ -131,10 +133,10 @@ class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
         }
 
         where:
-        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 0
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 0
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 0
-        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 0
+        defaultProject | secondProject  | reqProject     | clientToken       | serviceRespCode | numberProjects
+        "123456"       | "test-project" | "123456"       | UUID.randomUUID() | "200"           | 0
+        "123456"       | "123456"       | "test-proj-id" | UUID.randomUUID() | "200"           | 0
+        "123456"       | "test-project" | "openstack"    | UUID.randomUUID() | "200"           | 0
+        "123456"       | "test-project" | ""             | UUID.randomUUID() | "200"           | 0
     }
 }

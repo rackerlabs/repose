@@ -27,12 +27,12 @@ import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.Node;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,10 +45,8 @@ import javax.inject.Named;
 @Named
 public class RequestHeaderServiceImpl implements RequestHeaderService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
-
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
-
+    private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
     private final ContainerConfigurationListener containerConfigurationListener;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationService;

@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.herp
+
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 2/10/15.
  */
@@ -59,15 +61,15 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
-                'Accept'           : 'application/xml',
-                'Host'             : 'LocalHost',
-                'User-agent'       : 'gdeproxy',
-                'x-tenant-id'      : '123456',
-                'x-roles'          : 'default',
-                'x-user-name'      : username,
-                'x-user-id'        : username,
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-tenant-id'        : '123456',
+                'x-roles'            : 'default',
+                'x-user-name'        : username,
+                'x-user-id'          : username,
                 'x-impersonator-name': 'impersonateuser',
-                'x-impersonator-id': '123456'
+                'x-impersonator-id'  : '123456'
         ]
         def customHandler = { return new Response(responseCode, "Resource Not Fount", [], reqBody) }
 
@@ -101,13 +103,13 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         reposeLogSearch.searchByString("INFO  org.openrepose.herp.post.filter").size() == 0
 
         where:
-        responseCode | username     | request                      | method  | reqBody     | respMsg
-        "404"        | "User"       | "/resource1/id/aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
-        "405"        | "testUser"   | "/resource1/id"              | "POST"  | ""          | "METHOD_NOT_ALLOWED"
-        "400"        | "reposeUser" | "/resource1/id/cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
-        "415"        | "reposeUser1"| "/resource1/id/dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "reposeTest" | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
-        "500"        | "reposeTest1"| "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
+        responseCode | username      | request                      | method  | reqBody     | respMsg
+        "404"        | "User"        | "/resource1/id/aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
+        "405"        | "testUser"    | "/resource1/id"              | "POST"  | ""          | "METHOD_NOT_ALLOWED"
+        "400"        | "reposeUser"  | "/resource1/id/cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
+        "415"        | "reposeUser1" | "/resource1/id/dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "reposeTest"  | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
+        "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
     @Unroll("Test not match condition from filterout: method #method, tenantId #tenantid, parameters #parameters, origin service respCode #responseCode")
@@ -120,24 +122,24 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
-                'Accept'           : 'application/xml',
-                'Host'             : 'LocalHost',
-                'User-agent'       : 'gdeproxy',
-                'x-tenant-id'      : tenantid,
-                'x-roles'          : 'default',
-                'x-user-name'      : 'randomuser',
-                'x-user-id'        : 'randomuser',
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-tenant-id'        : tenantid,
+                'x-roles'            : 'default',
+                'x-user-name'        : 'randomuser',
+                'x-user-id'          : 'randomuser',
                 'x-impersonator-name': 'impersonateuser',
-                'x-impersonator-id': '123456'
+                'x-impersonator-id'  : '123456'
         ]
-        if (responseCode != "200"){
+        if (responseCode != "200") {
             customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
         }
 
         when:
         "When Requesting " + method + "server/abcd"
         mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource?"+parameters, method: method, headers: headers,
+                "/resource?" + parameters, method: method, headers: headers,
                 requestBody: "some data", defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
@@ -201,24 +203,24 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
         MessageChain mc
         def Map<String, String> headers = [
-                'Accept'           : 'application/xml',
-                'Host'             : 'LocalHost',
-                'User-agent'       : 'gdeproxy',
-                'x-project-id'     : projectid,
-                'x-roles'          : 'default',
-                'x-user-name'      : username,
-                'x-user-id'        : username,
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-project-id'       : projectid,
+                'x-roles'            : 'default',
+                'x-user-name'        : username,
+                'x-user-id'          : username,
                 'x-impersonator-name': 'impersonateuser',
-                'x-impersonator-id': '123456'
+                'x-impersonator-id'  : '123456'
         ]
-        if (responseCode != "200"){
+        if (responseCode != "200") {
             customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
         }
 
         when:
         "When Requesting " + method + "server/abcd"
         mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource?"+parameters, method: method, headers: headers,
+                "/resource?" + parameters, method: method, headers: headers,
                 requestBody: "some data", defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
@@ -248,14 +250,14 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
 
 
         where:
-        responseCode | username | projectid | parameters              | method  | respMsg
-        "200"        | "User"   | "123456"  | "username=test"         | "POST"  | "OK"
-        "200"        | "admin"  | "-123456" | "tenantId=12345"        | "PUT"   | "OK"
-        "415"        | "repose" | "-123456" | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "testUser"| "123456" | "resourceId=test123"    | "PUT"   | "PAYLOAD_TOO_LARGE"
-        "500"        | "Test"   | "000456"  | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
-        "500"        | "test"   | "-123456" | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
-        "200"        | "admin"  | "123456"  | "tenantId=-123456"      | "POST"  | "OK"
+        responseCode | username   | projectid | parameters              | method  | respMsg
+        "200"        | "User"     | "123456"  | "username=test"         | "POST"  | "OK"
+        "200"        | "admin"    | "-123456" | "tenantId=12345"        | "PUT"   | "OK"
+        "415"        | "repose"   | "-123456" | "id=12345&tenandId=123" | "PATCH" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "testUser" | "123456"  | "resourceId=test123"    | "PUT"   | "PAYLOAD_TOO_LARGE"
+        "500"        | "Test"     | "000456"  | "id=test123&id=123"     | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "500"        | "test"     | "-123456" | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
+        "200"        | "admin"    | "123456"  | "tenantId=-123456"      | "POST"  | "OK"
     }
 
     // Check all required attributes in the log
@@ -274,17 +276,16 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
 
     // Build map for query parameters from request
     private Map<String, List> buildParamList(String parameters) {
-        Map <String, List> params = [:]
-        List <String> list = parameters.split("&")
-        List <String> av = []
+        Map<String, List> params = [:]
+        List<String> list = parameters.split("&")
+        List<String> av = []
         for (e in list) {
             def (k, v) = e.split("=")
             av.add(v)
-            if (params[k]==null) {
+            if (params[k] == null) {
                 params[k] = av
                 av = []
-            }
-            else {
+            } else {
                 List ov = params[k]
                 ov.add(v)
                 params[k] = ov
@@ -294,7 +295,7 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
     }
 
     // Check if all parameters include in Parameters tag
-    private boolean checkParams(String jsonpart, Map <String, List> map) {
+    private boolean checkParams(String jsonpart, Map<String, List> map) {
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
         boolean check = true
@@ -302,7 +303,7 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         for (e in map) {
             List iv = e.value
             for (v in iv) {
-                if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v,"UTF-8")))) {
+                if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v, "UTF-8")))) {
                     check = false
                     break
                 }

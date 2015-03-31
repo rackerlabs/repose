@@ -38,13 +38,13 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar{
+class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
   import scala.collection.JavaConversions._
 
-  private val LOG: Logger = LoggerFactory.getLogger(classOf[LoggingServiceImplTest].getName)
-
   val mockConfigService = mock[ConfigurationService]
+  val validExtensions = List("xml", "json", "yaml")
+  private val LOG: Logger = LoggerFactory.getLogger(classOf[LoggingServiceImplTest].getName)
 
   /**
    * This is here because the yaml backend in Log4j2 is currently borked.
@@ -67,8 +67,6 @@ class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar{
     context.reconfigure
     StatusLogger.getLogger.reset
   }
-
-  val validExtensions = List("xml", "json", "yaml")
   validExtensions.foreach { ext =>
     describe(s"On Startup with extension $ext, the system") {
       it("Loads a fully qualified URL.") {

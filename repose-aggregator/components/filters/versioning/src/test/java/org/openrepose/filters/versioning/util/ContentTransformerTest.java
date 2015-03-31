@@ -44,9 +44,8 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
-*
-* @author jhopper
-*/
+ * @author jhopper
+ */
 @RunWith(Enclosed.class)
 public class ContentTransformerTest {
 
@@ -56,8 +55,8 @@ public class ContentTransformerTest {
         try {
             xmlTransformer = new StreamToJaxbTransform(
                     JAXBContext.newInstance(
-                    org.openrepose.filters.versioning.schema.ObjectFactory.class,
-                    org.openrepose.filters.versioning.config.ObjectFactory.class));
+                            org.openrepose.filters.versioning.schema.ObjectFactory.class,
+                            org.openrepose.filters.versioning.config.ObjectFactory.class));
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create JAXBContext for test", ex);
         }

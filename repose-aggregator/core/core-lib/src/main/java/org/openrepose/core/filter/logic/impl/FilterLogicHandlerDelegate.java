@@ -35,55 +35,54 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *
- * Responsible for calling the specific file logic based on filter actions 
+ * Responsible for calling the specific file logic based on filter actions
  */
 public class FilterLogicHandlerDelegate {
 
-   private static final Logger LOG = LoggerFactory.getLogger(FilterLogicHandlerDelegate.class);
-   private final ServletRequest request;
-   private final ServletResponse response;
-   private final FilterChain chain;
+    private static final Logger LOG = LoggerFactory.getLogger(FilterLogicHandlerDelegate.class);
+    private final ServletRequest request;
+    private final ServletResponse response;
+    private final FilterChain chain;
 
-   public FilterLogicHandlerDelegate(ServletRequest request, ServletResponse response, FilterChain chain) {
-      this.request = request;
-      this.response = response;
-      this.chain = chain;
-   }
+    public FilterLogicHandlerDelegate(ServletRequest request, ServletResponse response, FilterChain chain) {
+        this.request = request;
+        this.response = response;
+        this.chain = chain;
+    }
 
-   public void doFilter(FilterLogicHandler handler) throws IOException, ServletException {
-      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+    public void doFilter(FilterLogicHandler handler) throws IOException, ServletException {
+        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
-      if (handler == null) {
-         mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating filter chain, check your configuration files.");
-         LOG.error("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
-         
-      } else {
-         final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        if (handler == null) {
+            mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating filter chain, check your configuration files.");
+            LOG.error("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
 
-         switch (requestFilterDirector.getFilterAction()) {
-            case NOT_SET:
-               chain.doFilter(request, response);
-               break;
+        } else {
+            final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-            case PASS:
-               requestFilterDirector.applyTo(mutableHttpRequest);
-               chain.doFilter(mutableHttpRequest, mutableHttpResponse);
-               break;
+            switch (requestFilterDirector.getFilterAction()) {
+                case NOT_SET:
+                    chain.doFilter(request, response);
+                    break;
 
-            case PROCESS_RESPONSE:
-               requestFilterDirector.applyTo(mutableHttpRequest);
-               chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+                case PASS:
+                    requestFilterDirector.applyTo(mutableHttpRequest);
+                    chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+                    break;
 
-               final FilterDirector responseDirector = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
-               responseDirector.applyTo(mutableHttpResponse);
-               break;
+                case PROCESS_RESPONSE:
+                    requestFilterDirector.applyTo(mutableHttpRequest);
+                    chain.doFilter(mutableHttpRequest, mutableHttpResponse);
 
-            case RETURN:
-               requestFilterDirector.applyTo(mutableHttpResponse);
-               break;
-         }
-      }
-   }
+                    final FilterDirector responseDirector = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+                    responseDirector.applyTo(mutableHttpResponse);
+                    break;
+
+                case RETURN:
+                    requestFilterDirector.applyTo(mutableHttpResponse);
+                    break;
+            }
+        }
+    }
 }

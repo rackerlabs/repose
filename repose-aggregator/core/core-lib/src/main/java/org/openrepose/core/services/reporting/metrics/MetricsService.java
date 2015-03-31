@@ -19,13 +19,12 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import org.openrepose.commons.utils.Destroyable;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
+import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
