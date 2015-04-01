@@ -45,6 +45,7 @@
         <module>forwarded-proto</module>
         <module>iri-validator</module>
         <module>herp</module>
+        <module>valkyrie-authorization</module>
     </modules>
 
     <properties>
