@@ -50,12 +50,12 @@ for i in $( seq 13 22 ); do
 	cd api-checker/core/ &&
 	git checkout "api-checker-1.0.$i" &&
 	mvn -DskipTests clean package &&
-	mv -u "target/checker-core-1.0.$i-SNAPSHOT.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
 	cd ../.. &&
 
 	echo "Extracting JAR files for version 1.0.$i..." &&
 	mkdir -p "workspace/api-checker/built/1.0.$i/src" &&
 	mkdir -p "workspace/api-checker/published/1.0.$i/src" &&
+	mv -u "api-checker/core/target/checker-core-1.0.$i-SNAPSHOT.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
 	cd "workspace/api-checker/built/1.0.$i/src" &&
 	jar xf "../checker-core-1.0.$i.jar" &> /dev/null &&
 	cd "../../../published/1.0.$i/src" &&
