@@ -35,7 +35,7 @@ import org.springframework.web.filter.DelegatingFilterProxy
 @RunWith(classOf[JUnitRunner])
 class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar {
 
-  {
+  /*IGNORE: Brace on a newline line.*/{
     //NOTE: have to set up these things since the initializer needs this stuff
     import ReposeSpringProperties._
     System.setProperty(stripSpringValueStupidity(CORE.CONFIG_ROOT), "/config/root")
