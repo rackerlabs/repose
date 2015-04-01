@@ -8,21 +8,21 @@ import org.junit.runner.RunWith
 import org.mockito.{ArgumentCaptor, Mockito, Matchers}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.valkyrieauthorization.config.ValkyrieAuthorizationConfig
+import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieServer, DelegatingType, ValkyrieAuthorizationConfig}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with MockitoSugar with LazyLogging {
+class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
 
-  describe("the init method") {
+  describe("when initializing the filter") {
     it("should initialize the configuration to a given configuration") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
       val mockConfigService = mock[ConfigurationService]
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, mockAkkaServiceClient)
 
-      val config: MockFilterConfig = new MockFilterConfig()
+      val config: MockFilterConfig = new MockFilterConfig
       config.setFilterName("ValkyrieFilter")
 
       filter.init(config)
@@ -31,7 +31,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterAll wit
       Mockito.verify(mockConfigService).subscribeTo(
         Matchers.eq("ValkyrieFilter"),
         Matchers.eq("valkyrie-authorization.cfg.xml"),
-        resourceCaptor.capture(),
+        resourceCaptor.capture,
         Matchers.eq(filter),
         Matchers.eq(classOf[ValkyrieAuthorizationConfig]))
 
@@ -41,18 +41,30 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterAll wit
       val mockConfigService = mock[ConfigurationService]
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, mock[AkkaServiceClient])
 
-      val config: MockFilterConfig = new MockFilterConfig()
-      config.setFilterName("ValkyrieFilter")
+      val config: MockFilterConfig = new MockFilterConfig
       config.setInitParameter("filter-config", "another-name.cfg.xml")
 
       filter.init(config)
 
       Mockito.verify(mockConfigService).subscribeTo(
-        Matchers.anyString(),
+        Matchers.anyString,
         Matchers.eq("another-name.cfg.xml"),
         Matchers.any(classOf[URL]),
         Matchers.any(classOf[ValkyrieAuthorizationFilter]),
         Matchers.eq(classOf[ValkyrieAuthorizationConfig]))
+    }
+  }
+
+  describe("when destroying the filter") {
+    it("should deregister the configuration from the configuration service") {
+      val mockConfigService = mock[ConfigurationService]
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, mock[AkkaServiceClient])
+
+      val config: MockFilterConfig = new MockFilterConfig
+      filter.init(config)
+      filter.destroy
+
+      Mockito.verify(mockConfigService).unsubscribeFrom("valkyrie-authorization.cfg.xml", filter)
     }
   }
 }
