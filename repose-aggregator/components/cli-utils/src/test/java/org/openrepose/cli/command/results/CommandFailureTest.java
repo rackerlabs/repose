@@ -17,17 +17,14 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.cli.command.results
+package org.openrepose.cli.command.results;
 
-import org.junit.Test
+import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.junit.Assert.assertThat
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-/**
- * Created by eric7500 on 7/1/14.
- */
-class CommandFailureTest {
+public final class CommandFailureTest {
 
     @Test
     public void testMessage() {
@@ -38,8 +35,6 @@ class CommandFailureTest {
     @Test
     public void testStatus() {
         CommandFailure testFailure = new CommandFailure(0, "testMessage");
-        assertThat(testFailure.getStatusCode().toInteger(), equalTo(new Integer(0)));
+        assertThat(testFailure.getStatusCode(), equalTo(0));
     }
-
 }
-
