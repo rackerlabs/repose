@@ -67,4 +67,48 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
       Mockito.verify(mockConfigService).unsubscribeFrom("valkyrie-authorization.cfg.xml", filter)
     }
   }
+  
+  describe("when the configuration is updated") {
+    it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient])
+
+      assert(!filter.isInitialized)
+
+      val configuration = new ValkyrieAuthorizationConfig
+      filter.configurationUpdated(configuration)
+
+      assert(filter.configuration == configuration)
+      assert(filter.configuration.getDelegating == null)
+      assert(filter.configuration.getCacheTimeoutMillis == 300000)
+      assert(filter.isInitialized)
+    }
+    it("should set the default delegation quality to .1") {
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient])
+
+      assert(filter.configuration == null)
+
+      val configuration = new ValkyrieAuthorizationConfig
+      val delegation = new DelegatingType
+      configuration.setDelegating(delegation)
+      filter.configurationUpdated(configuration)
+
+      assert(filter.configuration.getDelegating.getQuality == .1)
+    }
+    it("should set the configuration to current") {
+      val mockConfigService = mock[ConfigurationService]
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, mock[AkkaServiceClient])
+
+      val configuration = new ValkyrieAuthorizationConfig
+      filter.configurationUpdated(configuration)
+
+      assert(filter.configuration == configuration)
+      assert(filter.isInitialized)
+
+      val newConfiguration = new ValkyrieAuthorizationConfig
+      filter.configurationUpdated(newConfiguration)
+
+      assert(filter.configuration == newConfiguration)
+      assert(filter.isInitialized)
+    }
+  }
 }
