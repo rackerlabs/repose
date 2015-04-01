@@ -37,6 +37,7 @@
     </licenses>
 
     <modules>
+        <module>build-tools</module>
         <module>repose-aggregator</module>
     </modules>
 
@@ -162,43 +163,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>2.12.1</version>
-                    <executions>
-                        <execution>
-                            <id>verify-style</id>
-                            <phase>process-classes</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <configLocation>checkstyle.xml</configLocation>
-                        <consoleOutput>true</consoleOutput>
-                    </configuration>
                 </plugin>
 
                 <plugin>
                     <groupId>org.scalastyle</groupId>
                     <artifactId>scalastyle-maven-plugin</artifactId>
                     <version>0.6.0</version>
-                    <configuration>
-                        <verbose>false</verbose>
-                        <failOnViolation>true</failOnViolation>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        <failOnWarning>true</failOnWarning>
-                        <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
-                        <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                        <configLocation>scalastyle_config.xml</configLocation>
-                        <outputEncoding>UTF-8</outputEncoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
 
                 <!-- this is working now that doxygen is commented out-->
@@ -206,48 +176,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
-                    <executions>
-                        <execution>
-                            <id>codenarc</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask"
-                                             classpathref="maven.plugin.classpath"/>
-                                    <codenarc
-                                            ruleSetFiles="file:ruleset.xml"
-                                            maxPriority1Violations="0"
-                                            maxPriority2Violations="0"
-                                            maxPriority3Violations="0"
-                                            >
-                                        <report type="xml">
-                                            <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
-                                            <option name="title" value="${project.name}"/>
-                                        </report>
-                                        <fileset dir="${basedir}/src">
-                                            <include name="**/*.groovy"/>
-                                        </fileset>
-                                    </codenarc>
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codenarc</groupId>
-                            <artifactId>CodeNarc</artifactId>
-                            <version>0.21</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>ant</groupId>
-                                    <artifactId>ant</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -275,7 +203,12 @@
             <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.6.0</version>
                 <configuration>
+                    <verbose>false</verbose>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failOnWarning>true</failOnWarning>
                     <sourceDirectories>
                         <dir>http-delegation/src/main/scala</dir>
                         <dir>repose-support/classloader-dependency-two/src/main/scala</dir>
@@ -291,7 +224,17 @@
                     <testSourceDirectories>
                         <dir>http-delegation/src/test/scala</dir>
                     </testSourceDirectories>
+                    <configLocation>build-tools/src/main/resources/repose-style-configs/scalastyle_config.xml</configLocation>
+                    <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
