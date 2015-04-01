@@ -21,20 +21,24 @@ class ValkyrieAuthorizationFilter @Inject() (configurationService: Configuration
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
 
+  var configurationFile: String = _
+
   override def init(filterConfig: FilterConfig): Unit = {
-    val config = Option(filterConfig.getInitParameter(FilterConfigHelper.FILTER_CONFIG)).getOrElse(DEFAULT_CONFIG)
-    logger.info("Initializing filter using config " + config)
+    configurationFile = Option(filterConfig.getInitParameter(FilterConfigHelper.FILTER_CONFIG)).getOrElse(DEFAULT_CONFIG)
+    logger.info("Initializing filter using config " + configurationFile)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/valkyrie-authorization.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,
-      config,
+      configurationFile,
       xsdURL,
       this,
       classOf[ValkyrieAuthorizationConfig]
     )
   }
 
-  override def destroy(): Unit = ???
+  override def destroy(): Unit = {
+    configurationService.unsubscribeFrom(configurationFile, this)
+  }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
