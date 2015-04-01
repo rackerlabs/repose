@@ -138,7 +138,7 @@ public class DistributedDatastoreLauncherService {
                 //extract data and do things with it?
                 int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, clusterId, nodeId);
                 if (ddPort == -1) {
-                    LOG.error("Unable to determine Distributed Datastore port for {}:{}", clusterId, nodeId);
+                    LOG.error("Unable to determine Distributed Datastore port for {} : {}", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
                     return;
                 }

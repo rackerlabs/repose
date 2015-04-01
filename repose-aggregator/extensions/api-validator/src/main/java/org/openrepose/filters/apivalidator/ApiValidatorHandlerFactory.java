@@ -122,7 +122,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             validators = validatorConfigurator.getValidators();
 
             for (ValidatorInfo validator : validators) {
-                LOG.debug("Adding listener for {}:{}", validator.getName(), validator.getUri());
+                LOG.debug("Adding listener for {} : {}", validator.getName(), validator.getUri());
                 addListener(validator.getUri());
             }
 
