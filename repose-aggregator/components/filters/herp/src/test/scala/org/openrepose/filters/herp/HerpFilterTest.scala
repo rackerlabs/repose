@@ -64,48 +64,47 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-pre-Logger")
     herpConfig.setPostFilterLoggerName("highly-efficient-record-processor-post-Logger")
     val templateText =
-      """
-         {
-          "GUID" : "{{guid}}",
-          "ServiceCode" : "{{serviceCode}}",
-          "Region" : "{{region}}",
-          "DataCenter" : "{{dataCenter}}",
-          "Cluster" : "{{clusterId}}",
-          "Node" : "{{nodeId}}",
-          "RequestorIp" : "{{requestorIp}}",
-          "Timestamp" : "{{timestamp}}",
-          "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
-          "Request" : {
-            "Method" : "{{requestMethod}}",
-            "MethodLabel" : "{{methodLabel}}",
-            "CadfMethod" : "{{cadfMethod requestMethod}}",
-            "URL" : "{{requestURL}}",
-            "TargetHost" : "{{targetHost}}",
-            "QueryString" : "{{requestQueryString}}",
-            "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
-                           },
-            "UserName" : "{{userName}}",
-            "ImpersonatorName" : "{{impersonatorName}}",
-            "DefaultProjectID" : "{{defaultProjectId}}",
-            "ProjectID" : [
-                            {{#each projectID}}
-                            {{#if @index}},{{/if}}"{{.}}"
-                            {{/each}}
-                          ],
-            "Roles" : [
-                        {{#each roles}}
-                        {{#if @index}},{{/if}}"{{.}}"
-                        {{/each}}
-                      ],
-            "UserAgent" : "{{userAgent}}"
-          },
-          "Response" : {
-            "Code" : {{responseCode}},
-            "CadfOutcome" : "{{cadfOutcome responseCode}}",
-            "Message" : "{{responseMessage}}"
-          }
-         }
-      """.stripMargin
+      """{
+        |  "GUID" : "{{guid}}",
+        |  "ServiceCode" : "{{serviceCode}}",
+        |  "Region" : "{{region}}",
+        |  "DataCenter" : "{{dataCenter}}",
+        |  "Cluster" : "{{clusterId}}",
+        |  "Node" : "{{nodeId}}",
+        |  "RequestorIp" : "{{requestorIp}}",
+        |  "Timestamp" : "{{timestamp}}",
+        |  "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
+        |  "Request" : {
+        |    "Method" : "{{requestMethod}}",
+        |    "MethodLabel" : "{{methodLabel}}",
+        |    "CadfMethod" : "{{cadfMethod requestMethod}}",
+        |    "URL" : "{{requestURL}}",
+        |    "TargetHost" : "{{targetHost}}",
+        |    "QueryString" : "{{requestQueryString}}",
+        |    "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
+        |                   },
+        |    "UserName" : "{{userName}}",
+        |    "ImpersonatorName" : "{{impersonatorName}}",
+        |    "DefaultProjectID" : "{{defaultProjectId}}",
+        |    "ProjectID" : [
+        |                    {{#each projectID}}
+        |                    {{#if @index}},{{/if}}"{{.}}"
+        |                    {{/each}}
+        |                  ],
+        |    "Roles" : [
+        |                {{#each roles}}
+        |                {{#if @index}},{{/if}}"{{.}}"
+        |                {{/each}}
+        |              ],
+        |    "UserAgent" : "{{userAgent}}"
+        |  },
+        |  "Response" : {
+        |    "Code" : {{responseCode}},
+        |    "CadfOutcome" : "{{cadfOutcome responseCode}}",
+        |    "Message" : "{{responseMessage}}"
+        |  }
+        |}
+        |""".stripMargin
     val template = new Template
     template.setValue(templateText)
     template.setCrush(true)
