@@ -71,7 +71,7 @@ for i in $( seq 13 22 ); do
 	sed -i '' 's/built\///g' "workspace/api-checker/built/1.0.$i/built.md5" &&
 	find "workspace/api-checker/published/1.0.$i/src" -type f ! -iname '*.class' | sort | xargs md5 > "workspace/api-checker/published/1.0.$i/published.md5" &&
 	sed -i '' 's/published\///g' "workspace/api-checker/published/1.0.$i/published.md5" &&
-	diff "workspace/api-checker/built/1.0.$i/built.md5" "workspace/api-checker/published/1.0.$i/published.md5" &&
+	diff "workspace/api-checker/built/1.0.$i/built.md5" "workspace/api-checker/published/1.0.$i/published.md5" > "workspace/api-checker/report-1.0.$i.diff" &&
 
 	echo ''
 done
