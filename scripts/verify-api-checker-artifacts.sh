@@ -28,7 +28,7 @@ apt-get install -y maven &&
 echo 'Installing JAD...'
 curl -O "http://varaneckas.com/jad/$JAD_FILE" &&
 mkdir -p '/opt/jad/bin' &&
-unzip $JAD_FILE -dof '/opt/jad/bin' &&
+unzip -f $JAD_FILE -d '/opt/jad/bin/' &&
 rm -f $JAD_FILE &&
 
 echo 'Creating working directories...'
