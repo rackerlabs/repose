@@ -73,7 +73,7 @@ for i in $( seq 13 22 ); do
 	sed -i '' 's/published\///g' "workspace/api-checker/published/1.0.$i/published.md5" &&
 	diff "workspace/api-checker/built/1.0.$i/built.md5" "workspace/api-checker/published/1.0.$i/published.md5" &&
 
-	echo '' &&
+	echo ''
 done
 
 echo 'Done'
