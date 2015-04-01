@@ -22,6 +22,8 @@ class ValkyrieAuthorizationFilter @Inject() (configurationService: Configuration
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
 
   var configurationFile: String = _
+  var configuration: ValkyrieAuthorizationConfig = _
+  var initialized = false
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = Option(filterConfig.getInitParameter(FilterConfigHelper.FILTER_CONFIG)).getOrElse(DEFAULT_CONFIG)
@@ -42,7 +44,10 @@ class ValkyrieAuthorizationFilter @Inject() (configurationService: Configuration
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
-  override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = ???
+  override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = {
+    configuration = configurationObject
+    initialized = true
+  }
 
-  override def isInitialized: Boolean = ???
+  override def isInitialized: Boolean = initialized
 }
