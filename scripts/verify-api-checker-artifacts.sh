@@ -28,7 +28,7 @@ apt-get install -y maven &&
 echo 'Installing JAD...'
 curl -O "http://varaneckas.com/jad/$JAD_FILE" &&
 mkdir -p '/opt/jad/bin' &&
-unzip $JAD_FILE -d '/opt/jad/bin' &&
+unzip $JAD_FILE -dof '/opt/jad/bin' &&
 rm -f $JAD_FILE &&
 
 echo 'Creating working directories...'
@@ -38,6 +38,7 @@ mkdir -p workspace/api-checker/built &&
 mkdir -p workspace/api-checker/published &&
 
 echo 'Cloning api-checker project...'
+rm -rf api-checker &&
 git clone 'https://github.com/rackerlabs/api-checker.git' &&
 
 for i in $( seq 13 22 ); do
