@@ -68,7 +68,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         messageChain.receivedResponse.code == expectedResponseCode
 
         and: "Repose should return the expected response body"
-        messageChain.receivedResponse.body == expectedResponseBody
+        messageChain.receivedResponse.body.replaceAll("\\s", "") == expectedResponseBody.replaceAll("\\s", "")
 
         where:
         acceptType         | originServiceResponseCode | originServiceResponseBody | expectedResponseCode | expectedResponseBody
@@ -100,7 +100,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         messageChain.receivedResponse.code == expectedResponseCode
 
         and: "Repose should return the expected response body"
-        messageChain.receivedResponse.body == expectedResponseBody
+        messageChain.receivedResponse.body.replaceAll("\\s", "") == expectedResponseBody.replaceAll("\\s", "")
 
         where:
         acceptType         | originServiceResponseCode | originServiceResponseBody | expectedResponseCode | expectedResponseBody
