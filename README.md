@@ -158,9 +158,11 @@ This will build the documentation pdfs in the generated "target/docbkx/" directo
 ##Notes Regarding Licensing##
 
 
-All files contained with this distribution of Repose are licensed
-under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
-You must agree to the terms of this license and abide by it before
-viewing, utilizing, modifying, or distributing the source code contained
-within this distribution.
-
+Original files contained with this distribution of Repose are licensed under the Apache License v2.0
+(http://www.apache.org/licenses/LICENSE-2.0).
+You must agree to the terms of this license and abide by them before using, modifying, or distributing
+Repose or the Repose source code contained within this distribution.
+Some dependencies are under other licenses.
+By using, modifying, or distributing Repose you may also be subject to the terms of those licenses.
+See the full list of dependencies in DEPENDENCIES.txt.
+By contributing to this project, you agree to abide to the terms and conditions outlined in CONTRIBUTORS.txt.
