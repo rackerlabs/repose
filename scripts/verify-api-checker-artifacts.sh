@@ -46,7 +46,7 @@ for i in $( seq 13 22 ); do
 	curl -o "workspace/api-checker/published/1.0.$i/checker-core-1.0.$i.jar" --create-dirs \
 		"$NEXUS_HOST/service/local/artifact/maven/content?r=releases&g=com.rackspace.papi.components.api-checker&a=checker-core&v=1.0.$i" &&
 
-	echo "Building api-checker-1.0.$1 jar..." &&
+	echo "Building api-checker-1.0.$i jar..." &&
 	cd api-checker/core/ &&
 	git checkout "api-checker-1.0.$i" &&
 	mvn -DskipTests clean package &&
