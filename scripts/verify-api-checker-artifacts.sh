@@ -2,7 +2,7 @@
 #This script will download and build artifacts for the api-checker library, extract them, decompile all class files, and compare the results.
 
 #Constants
-JAD_FILE='jad158e.linux.intel.zip' #JAD file to download
+JAD_FILE='jad158e.linux.static.zip' #JAD file to download
 NEXUS_HOST='https://maven.research.rackspacecloud.com' #Nexus repository hostname and protocol
 #End of constants
 
