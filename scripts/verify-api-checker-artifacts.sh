@@ -1,5 +1,5 @@
 #!/bin/bash
-#This script will take download and build artifacts for the api-checker library, extract them, decompile all class files, and compare the results.
+#This script will download and build artifacts for the api-checker library, extract them, decompile all class files, and compare the results.
 
 #Constants
 JAD_FILE='jad158e.linux.intel.zip' #JAD file to download
@@ -57,14 +57,14 @@ for i in $( seq 13 22 ); do
 	mkdir -p "workspace/api-checker/published/1.0.$i/src" &&
 	mv -u "api-checker/core/target/checker-core-1.0.$i-SNAPSHOT.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
 	cd "workspace/api-checker/built/1.0.$i/src" &&
-	jar xf "../checker-core-1.0.$i.jar" &> /dev/null &&
+	jar xf "../checker-core-1.0.$i.jar" &&
 	cd "../../../published/1.0.$i/src" &&
-	jar xf "../checker-core-1.0.$i.jar" &> /dev/null &&
+	jar xf "../checker-core-1.0.$i.jar" &&
 	cd ../../../../.. &&
 
 	echo "Decompiling class files for version 1.0.$i..." &&
-	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/built/1.0.$i/src" "workspace/api-checker/built/1.0.$i/src/**.class" &> /dev/null &&
-	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/published/1.0.$i/src" "workspace/api-checker/published/1.0.$i/src/**.class" &> /dev/null &&
+	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/built/1.0.$i/src" "workspace/api-checker/built/1.0.$i/src/**.class" &&
+	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/published/1.0.$i/src" "workspace/api-checker/published/1.0.$i/src/**.class" &&
 
 	echo "Comparing files for version 1.0.$i..." &&
 	find "workspace/api-checker/built/1.0.$i/src" -type f ! -iname '*.class' | sort | xargs md5 > "workspace/api-checker/built/1.0.$i/built.md5" &&
