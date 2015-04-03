@@ -55,7 +55,7 @@ for i in $( seq 13 22 ); do
 	echo "Extracting JAR files for version 1.0.$i..." &&
 	mkdir -p "workspace/api-checker/built/1.0.$i/src" &&
 	mkdir -p "workspace/api-checker/published/1.0.$i/src" &&
-	mv -u "api-checker/core/target/checker-core-1.0.$i-SNAPSHOT.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
+	mv -u "api-checker/core/target/checker-core-1.0.$i.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
 	cd "workspace/api-checker/built/1.0.$i/src" &&
 	jar xf "../checker-core-1.0.$i.jar" &&
 	cd "../../../published/1.0.$i/src" &&
