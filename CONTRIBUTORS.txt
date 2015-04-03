@@ -1,0 +1,15 @@
+Contributions to this project are only accepted under the terms of the Apache License, v2.
+By contributing, you are agreeing that:
+
+ * All original copyrightable portions of your contribution are licensed under the Apache License, v2.
+ * Any portions of your contribution copyrighted by third parties are compatible
+   with the Apache license, v2 being used by the Repose project.
+ * You have the legal right to make the contribution.
+
+If any part of this contribution was made using your employer's time or resources,
+an authorized person from your employer will need to affirm your right to make contributions to Repose.
+Please contact the maintainers at reposecore@rackspace.com if you need help.
+
+In addition, the project maintainers may require additional administrative steps for some contributions,
+such as adding yourself to the CONTRIBUTORS.txt file, documenting any dependencies in DEPENDENCIES.txt, etc.
+Refusal to perform these additional administrative steps may result in your contribution being refused.
