@@ -28,7 +28,7 @@ API Checker             1.0.22              com.rackspace.papi.components.api-ch
 CGLib                   2.2.2               cglib                                       Apache License Version 1.1                                              http://cglib.sourceforge.net/license.html
 DeProxy                 0.21                org.rackspace                               MIT License                                                             https://github.com/rackerlabs/deproxy/blob/master/LICENSE
 EHCache                 2.6.0               net.sf.ehcache                              Apache License Version 2.0                                              http://ehcache.org/about/license
-Glassfish               3.1                 org.glassfish                               COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL - Version 1.1)        https://glassfish.java.net/license.html
+Glassfish               3.1                 org.glassfish                               Common Development and Distribution License (CDDL - Version 1.1)        https://glassfish.java.net/license.html
                                                                                         GNU General Public License, version 2 with the "Classpath Exception"
 Groovy                  2.1.3               org.codehaus.groovy                         Apache License Version 2.0                                              http://groovy.codehaus.org/License+Information
 Groovy                  2.1.3               org.codehaus.groovy                         Apache License Version 2.0                                              http://groovy.codehaus.org/License+Information
@@ -39,12 +39,12 @@ Jackson                 1.9.13              org.codehaus.jackson                
                                                                                         GNU Lesser General Public License, version 2.1
 Java EE                 6                   javax                                       Oracle Specific License                                                 http://www.oracle.com/technetwork/java/javase/downloads/366879
 Java Transaction API    1.1                 javax.transaction                           Oracle Specific License                                                 http://download.oracle.com/otndocs/jcp/jta-1.1-spec-oth-JSpec/jta-1.1-spec-oth-JSpec-license.html
-JavaMail                1.4.4               javax.mail                                  COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL - Version 1.1)        https://java.net/projects/javamail/pages/License
+JavaMail                1.4.4               javax.mail                                  Common Development and Distribution License (CDDL - Version 1.1)        https://java.net/projects/javamail/pages/License
                                                                                         GNU General Public License, version 2 with the "Classpath Exception"
 JaxB                    0.6.3               org.jvnet.jaxb2_commons                     CDDL v1.1 and GPL v2.                                                   https://jaxb.java.net/
 JBoss Java EE 6         1.0.0.Final         org.jboss.spec                              None listed for this specific version, future versions use              http://repo1.maven.org/maven2/org/jboss/spec/jboss-javaee-6.0/3.0.1.Final/jboss-javaee-6.0-3.0.1.Final.pom
 Specification APIs                                                                      GNU Lesser General Public License, Version 2.1
-Jersey                  1.16                com.sun.jersey                              COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL - Version 1.1)        https://jersey.java.net/license.html
+Jersey                  1.16                com.sun.jersey                              Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
                                                                                         GNU General Public License, version 2 with the “Classpath Exception"
 Jetty                   9.2.0.v20140526     org.eclipse.jetty                           Apache License 2.0                                                      http://www.eclipse.org/jetty/licenses.php
                                                                                         Eclipse Public License 1.0
