@@ -23,15 +23,4 @@
         <module>filters</module>
         <module>cli-utils</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.7</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>
-
