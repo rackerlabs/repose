@@ -22,16 +22,6 @@
         <module>configuration</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.5</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
         <plugins>
             <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
