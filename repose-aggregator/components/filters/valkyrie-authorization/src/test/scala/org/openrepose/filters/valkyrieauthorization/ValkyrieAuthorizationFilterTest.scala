@@ -122,11 +122,15 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
     List((RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //With colon in tenant
          (RequestProcessor("GET", "someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //Without colon in tenant
          (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), 403), //Non matching device
+         (RequestProcessor("PUT", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 403), //Non matching role
+         (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product")), 200), //Edit role
+         (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product")), 200), //Admin role
          (RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(403, ""), 502), //Bad Permissions to Valkyrie
          (RequestProcessor("GET", "", "123456", "123456"), ValkyrieResponse(404, ""), 502), //Missing Tenant
          (RequestProcessor("GET", "hybrid:someTenant", "", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 502), //Missing Device
-         (RequestProcessor("GET", "hybrid:someTenant", "123456", ""), ValkyrieResponse(404, ""), 502),  //Missing Contact
-         (RequestProcessor("GET", "hybrid:someTenant", "123456", ""), ValkyrieResponse(200, createValkyrieResponse("", "view_product")), 502)  //Malformed Valkyrie Response - Missing Device
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", ""), ValkyrieResponse(404, ""), 403),  //Missing Contact
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("", "view_product")), 502),  //Malformed Valkyrie Response - Missing Device
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(200, "I'm not really json"), 502)  //Malformed Valkyrie Response - Bad Json
     ).foreach { case (request, valkyrie, result) =>
       it(s"should be $result for $request with Valkyrie response of $valkyrie") {
         val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
@@ -179,7 +183,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
              "account_number":862323,
              "contact_id": 818029,
              "id": 0,
-             "item_id": $deviceId,
+             ${ if(deviceId != "") "\"item_id\": " + deviceId + "," else "" }
              "item_type_id" : 1,
              "item_type_name" : "devices",
              "permission_name" : "$permissionName",
