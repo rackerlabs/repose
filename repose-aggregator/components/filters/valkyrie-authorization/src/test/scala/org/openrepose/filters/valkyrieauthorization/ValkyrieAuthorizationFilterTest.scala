@@ -1,17 +1,22 @@
 package org.openrepose.filters.valkyrieauthorization
 
+import java.io.ByteArrayInputStream
 import java.net.URL
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.{FilterChain, ServletRequest}
 
-import com.mockrunner.mock.web.MockFilterConfig
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
-import org.mockito.{ArgumentCaptor, Mockito, Matchers}
+import org.mockito.{ArgumentCaptor, Matchers, Mockito}
+import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieServer, DelegatingType, ValkyrieAuthorizationConfig}
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpec}
+import org.scalatest.FunSpec
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
@@ -67,7 +72,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
       Mockito.verify(mockConfigService).unsubscribeFrom("valkyrie-authorization.cfg.xml", filter)
     }
   }
-  
+
   describe("when the configuration is updated") {
     it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient])
@@ -95,8 +100,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
       assert(filter.configuration.getDelegating.getQuality == .1)
     }
     it("should set the configuration to current") {
-      val mockConfigService = mock[ConfigurationService]
-      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, mock[AkkaServiceClient])
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient])
 
       val configuration = new ValkyrieAuthorizationConfig
       filter.configurationUpdated(configuration)
@@ -110,5 +114,82 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
       assert(filter.configuration == newConfiguration)
       assert(filter.isInitialized)
     }
+  }
+
+  describe("when a request to authorize occurs") {
+    case class RequestProcessor(method: String, tenantHeader: String, deviceHeader: String, contactHeader: String)
+    case class ValkyrieResponse(code: Int, payload: String)
+    List((RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //With colon in tenant
+         (RequestProcessor("GET", "someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //Without colon in tenant
+         (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), 403) //Non matching device
+    ).foreach { case (request, valkyrie, result) =>
+      it(s"should be $result for $request with Valkyrie response of $valkyrie") {
+        val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
+        val modifiedTenant: String = "someTenant"
+        Mockito.when(akkaServiceClient.get(
+          modifiedTenant + request.contactHeader,
+          s"http://foo.com:8080/account/$modifiedTenant/permissions/contacts/devices/by_contact/${request.contactHeader}/effective",
+          Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
+          .thenReturn(new ServiceClientResponse(valkyrie.code, new ByteArrayInputStream(valkyrie.payload.getBytes)))
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient)
+
+        val configuration = new ValkyrieAuthorizationConfig
+        val server = new ValkyrieServer
+        server.setUri("http://foo.com:8080")
+        server.setUsername("someUser")
+        server.setPassword("somePassword")
+        configuration.setValkyrieServer(server)
+        filter.configurationUpdated(configuration)
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod(request.method)
+        mockServletRequest.addHeader("X-Tenant-Id", request.tenantHeader)
+        mockServletRequest.addHeader("X-Device-Id", request.deviceHeader)
+        mockServletRequest.addHeader("X-Contact-Id", request.contactHeader)
+        val mockServletResponse = new MockHttpServletResponse
+        val mockFilterChain = mock[FilterChain]
+
+        filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+        if (result == 200) {
+          val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
+          Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
+          assert(responseCaptor.getValue.getStatus == result)
+        } else {
+          assert(mockServletResponse.getStatusCode == result)
+        }
+      }
+    }
+
+//    it("should be able to delegate failures"){}
+    //    it("should be able to cache"){}
+    //    it("should be able to mask"){}
+  }
+
+  def createValkyrieResponse(deviceId: String, permissionName: String): String = {
+    s"""{
+         "contact_permissions" :[
+           {
+             "account_number":862323,
+             "contact_id": 818029,
+             "id": 0,
+             "item_id": $deviceId,
+             "item_type_id" : 1,
+             "item_type_name" : "devices",
+             "permission_name" : "$permissionName",
+             "permission_type_id" : 12
+           },
+           {
+             "account_number":862323,
+             "contact_id": 818029,
+             "id": 0,
+             "item_id": ${deviceId}1,
+             "item_type_id" : 1,
+             "item_type_name" : "devices",
+             "permission_name" : "${permissionName}1",
+             "permission_type_id" : 12
+           }
+         ]
+       }"""
   }
 }
