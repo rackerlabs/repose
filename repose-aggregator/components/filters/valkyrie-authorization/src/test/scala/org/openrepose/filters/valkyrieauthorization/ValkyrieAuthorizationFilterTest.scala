@@ -121,7 +121,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
     case class ValkyrieResponse(code: Int, payload: String)
     List((RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //With colon in tenant
          (RequestProcessor("GET", "someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 200), //Without colon in tenant
-         (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), 403) //Non matching device
+         (RequestProcessor("GET", "application:someTenant", "123456", "123456"), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), 403), //Non matching device
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", "123456"), ValkyrieResponse(403, ""), 502), //Bad Permissions to Valkyrie
+         (RequestProcessor("GET", "", "123456", "123456"), ValkyrieResponse(404, ""), 502), //Missing Tenant
+         (RequestProcessor("GET", "hybrid:someTenant", "", "123456"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), 502), //Missing Device
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", ""), ValkyrieResponse(404, ""), 502),  //Missing Contact
+         (RequestProcessor("GET", "hybrid:someTenant", "123456", ""), ValkyrieResponse(200, createValkyrieResponse("", "view_product")), 502)  //Malformed Valkyrie Response - Missing Device
     ).foreach { case (request, valkyrie, result) =>
       it(s"should be $result for $request with Valkyrie response of $valkyrie") {
         val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
@@ -143,9 +148,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar {
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
-        mockServletRequest.addHeader("X-Tenant-Id", request.tenantHeader)
-        mockServletRequest.addHeader("X-Device-Id", request.deviceHeader)
-        mockServletRequest.addHeader("X-Contact-Id", request.contactHeader)
+        if(!request.tenantHeader.isEmpty) mockServletRequest.addHeader("X-Tenant-Id", request.tenantHeader)
+        if(!request.deviceHeader.isEmpty) mockServletRequest.addHeader("X-Device-Id", request.deviceHeader)
+        if(!request.contactHeader.isEmpty) mockServletRequest.addHeader("X-Contact-Id", request.contactHeader)
+
         val mockServletResponse = new MockHttpServletResponse
         val mockFilterChain = mock[FilterChain]
 
