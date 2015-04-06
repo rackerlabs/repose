@@ -21,9 +21,6 @@
         <reposeVersionName>Dirk</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <test.artifact.version>2.1</test.artifact.version>
-
-        <!-- The fasterXML Jackson deps aren't in managed dependencies, because they're only in core right now -->
-        <fasterxml.jackson.version>2.2.2</fasterxml.jackson.version>
     </properties>
 
     <dependencies>
@@ -240,19 +237,16 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${fasterxml.jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${fasterxml.jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <!-- END OF json Support for log4j2 configuration files -->
 
