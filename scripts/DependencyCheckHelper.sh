@@ -16,7 +16,7 @@ GROUP_IDS=(
     commons-cli
     commons-codec
     commons-io
-    commons-lang
+    commons-lang3
     org.apache.tomcat.embed
     xerces
     com.rackspace.papi.components.api-checker
@@ -28,7 +28,7 @@ GROUP_IDS=(
     com.google.guava
     org.hamcrest
     org.apache.httpcomponents
-    org.codehaus.jackson
+    com.fasterxml.jackson.core
     javax
     javax.transaction
     javax.mail
@@ -49,7 +49,6 @@ GROUP_IDS=(
     org.spockframework
     org.springframework
     xalan
-#    xml-apis # Removed as per below.
     xmlunit
     com.yammer.metrics
 )
@@ -60,20 +59,20 @@ echo "All of the known direct dependencies that need the"
 echo "version numbers confirmed against what is documented:"
 echo "--------------------------------------------------------------------------------"
 for groupId in ${GROUP_IDS[*]} ; do
-    egrep "\[INFO\] \\+\\- " $TARGET_DIR/mvn_dependency_tree.out | cut -d' ' -f3 | sort -u | grep $groupId
+    egrep "\[INFO\] \\+\\- " $TARGET_DIR/mvn_dependency_tree.out | cut -d' ' -f3 | cut -d':' -f1-4 | sort -u | grep "${groupId}:"
 done
 
 # Build the exclusion set based on all known direct dependencies.
 EXCLUDE=
 for groupId in ${GROUP_IDS[*]} ; do
-    EXCLUDE="$EXCLUDE -e $groupId"
+    EXCLUDE="$EXCLUDE -e ${groupId}:"
 done
 
 echo ""
 echo "================================================================================"
 echo "All direct dependencies that are not currently documented:"
 echo "--------------------------------------------------------------------------------"
-egrep "\[INFO\] \\+\\- " $TARGET_DIR/mvn_dependency_tree.out | cut -d' ' -f3 | sort -u | grep -v -e org.openrepose $EXCLUDE
+egrep "\[INFO\] \\+\\- " $TARGET_DIR/mvn_dependency_tree.out | cut -d' ' -f3 | cut -d':' -f1-4 | sort -u | grep -v -e org.openrepose $EXCLUDE
 
 # All of the UN-known and UN-documented direct dependencies.
 GROUP_IDS_TOO=`egrep "\[INFO\] \\+\\- " $TARGET_DIR/mvn_dependency_tree.out | cut -d' ' -f3 | sort -u | grep -v -e org.openrepose $EXCLUDE | cut -d":" -f1 | sort -u`
@@ -83,14 +82,9 @@ for groupId in ${GROUP_IDS_TOO[*]} ; do
     EXCLUDE_TOO="$EXCLUDE_TOO -e $groupId"
 done
 
-echo ""
-echo "================================================================================"
-echo "This is documented as a direct dependency, but currently is only a transient:"
-echo "--------------------------------------------------------------------------------"
-grep xml-apis $TARGET_DIR/mvn_dependency_tree.out
-
-echo ""
-echo "================================================================================"
-echo "All transient dependencies that are not already documented as direct dependencies:"
-echo "--------------------------------------------------------------------------------"
-egrep "\[INFO\] \|" $TARGET_DIR/mvn_dependency_tree.out | cut -d'-' -f2- | cut -d' ' -f2- | sort -u | grep -v -e org.openrepose $EXCLUDE $EXCLUDE_TOO
+# These were determined to not be of importance at this time.
+#echo ""
+#echo "================================================================================"
+#echo "All transient dependencies that are not already documented as direct dependencies:"
+#echo "--------------------------------------------------------------------------------"
+#egrep "\[INFO\] \|" $TARGET_DIR/mvn_dependency_tree.out | cut -d'-' -f2- | cut -d' ' -f2- | sort -u | grep -v -e org.openrepose $EXCLUDE $EXCLUDE_TOO
