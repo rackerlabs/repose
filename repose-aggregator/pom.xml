@@ -25,7 +25,7 @@
         <akka.version>2.2.3</akka.version>
         <powermock.version>1.5.4</powermock.version>
         <jersey.version>1.19</jersey.version>
-        <jackson.version>1.9.13</jackson.version>
+        <jackson.version>2.4.0</jackson.version>
         <yammer.version>2.2.0</yammer.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
         <!-- NOTE: the saxon version should match that of API-checker, because there is saxon in core :( -->
@@ -139,23 +139,18 @@
             TODO: codehaus.jackson is super old! We should be using com.fasterxml.jackson stuff. It's different though
             -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-lgpl</artifactId>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-lgpl</artifactId>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-xc</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
