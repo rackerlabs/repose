@@ -20,6 +20,14 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -41,11 +49,11 @@
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
 
+        <!-- going to use play-json, so we can lense, rather than object -->
         <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_2.10</artifactId>
+            <version>2.3.4</version>
         </dependency>
 
         <dependency>
@@ -89,6 +97,13 @@
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
