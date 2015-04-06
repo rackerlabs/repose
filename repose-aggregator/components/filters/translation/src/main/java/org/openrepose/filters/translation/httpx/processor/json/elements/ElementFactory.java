@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.translation.httpx.processor.json.elements;
 
-import org.codehaus.jackson.JsonToken;
+import com.fasterxml.jackson.core.JsonToken;
 import org.openrepose.filters.translation.httpx.processor.common.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
