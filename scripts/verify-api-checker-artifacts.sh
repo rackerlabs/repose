@@ -2,7 +2,6 @@
 #This script will download and build artifacts for the api-checker library, extract them, decompile all class files, and compare the results.
 
 #Constants
-JAD_FILE='jad158e.linux.static.zip' #JAD file to download
 NEXUS_HOST='https://maven.research.rackspacecloud.com' #Nexus repository hostname and protocol
 #End of constants
 
@@ -14,12 +13,10 @@ apt-get upgrade &&
 echo 'Installing git...' &&
 apt-get install -y git &&
 
-echo 'Installing zip...' &&
-apt-get install -y zip &&
-
 echo 'Installing java7...' &&
 apt-get install -y openjdk-7-jdk &&
 update-alternatives --set java '/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java' &&
+update-alternatives --set javac '/usr/lib/jvm/java-7-openjdk-amd64/bin/javac' &&
 export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::") &&
 
 echo 'Installing maven...' &&
