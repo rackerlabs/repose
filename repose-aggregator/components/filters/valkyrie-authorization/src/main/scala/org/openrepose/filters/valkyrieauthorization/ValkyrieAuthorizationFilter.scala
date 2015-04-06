@@ -54,28 +54,40 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
-    val tenant = mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)
-    val transformedTenant = tenant.substring(tenant.indexOf(":")+1, tenant.length)
+    val tenant = Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString))
     val device = mutableHttpRequest.getHeader("X-Device-Id")
-    val contact = mutableHttpRequest.getHeader("X-Contact-Id")
-
+    val contact = Option(mutableHttpRequest.getHeader("X-Contact-Id"))
     val valkyrieServer = configuration.getValkyrieServer
-    val uri =  valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contact/effective"
-    val clientResponse = akkaServiceClient.get(transformedTenant + contact, uri, Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword))
-    val valkyrieResponse = parseDevices(clientResponse.getData)
-    println(valkyrieResponse)
-    val accept = valkyrieResponse.find(_.device == device.toInt) match {
-      case Some(deviceToPermission) => deviceToPermission.permission match {
-        case "view_product" if List("GET", "HEAD").contains(mutableHttpRequest.getMethod) => true
-        case "edit_product" => true
-        case "admin_product" => true
-        case _ => false
-      }
-      case None => false
+
+    val clientResponse = (tenant, contact) match {
+      case (Some(tenantId), Some(contactId)) =>
+        val transformedTenant = tenantId.substring(tenantId.indexOf(":")+1, tenantId.length)
+        val uri =  valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contactId/effective"
+        Option(akkaServiceClient.get(transformedTenant + contactId, uri, Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword)))
+      case (_,_) => None
     }
-    if(accept) {
-      println("foo")
+
+    val valkyrieResponse = clientResponse.map { response =>
+      if(response.getStatus == 200) {
+        parseDevices(response.getData)
+      } else {
+        Seq.empty[DeviceToPermission]
+      }
+    }.getOrElse(Seq.empty[DeviceToPermission])
+
+    val accept = valkyrieResponse.find(_.device.toString == device).map { deviceToPermission =>
+      deviceToPermission.permission match {
+        case "view_product" if List("GET", "HEAD").contains(mutableHttpRequest.getMethod) => Some
+        case "edit_product" => Some
+        case "admin_product" => Some
+        case _ => None
+      }
+    }
+
+    if (accept.isDefined) {
       filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+    } else if (clientResponse.isEmpty || clientResponse.get.getStatus != 200 || device == null) {
+      mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY)
     } else {
       mutableHttpResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
     }
