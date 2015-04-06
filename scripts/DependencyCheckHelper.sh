@@ -12,11 +12,13 @@ mvn dependency:tree > $TARGET_DIR/mvn_dependency_tree.out
 
 # All of the known and documented direct dependencies.
 GROUP_IDS=(
-    com.typesafe.akka
     commons-cli
     commons-codec
     commons-io
     commons-lang3
+    commons-pool
+    org.apache.jena
+    org.apache.tomcat
     org.apache.tomcat.embed
     xerces
     com.rackspace.papi.components.api-checker
@@ -24,20 +26,27 @@ GROUP_IDS=(
     org.rackspace
     net.sf.ehcache
     org.glassfish
+    org.glassfish.main.extras
     org.codehaus.groovy
     com.google.guava
     org.hamcrest
+    com.github.jknack
     org.apache.httpcomponents
     com.fasterxml.jackson.core
     javax
-    javax.transaction
-    javax.mail
     org.jvnet.jaxb2_commons
+    javax.inject
+    javax.mail
+    javax.ws.rs
+    javax.transaction
     org.jboss.spec
     com.sun.jersey
+    org.glassfish.jersey.core
+    com.sun.jersey.test.framework
+    org.jetbrains
     org.eclipse.jetty
+    org.joda
     joda-time
-    com.github.fge
     junit
     org.linkedin
     log4j
@@ -46,9 +55,19 @@ GROUP_IDS=(
     net.sourceforge.pjl-comp-filter
     org.powermock
     org.slf4j
+    net.sf.saxon
+    org.scala-lang
+    org.scalatest
+    com.github.scopt
     org.spockframework
+    io.spray
     org.springframework
+    com.typesafe.akka
+    com.typesafe
+    com.typesafe.play
+    com.typesafe.scala-logging
     xalan
+    com.xmlcalabash
     xmlunit
     com.yammer.metrics
 )
