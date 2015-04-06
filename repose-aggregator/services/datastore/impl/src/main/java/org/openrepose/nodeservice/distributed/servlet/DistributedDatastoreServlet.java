@@ -93,7 +93,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         if (isRequestValid(request, response)) {
             if ("PATCH".equals(request.getMethod())) {
                 doPatch(request, response);
@@ -101,6 +100,12 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 super.service(request, response);
             }
         }
+    }
+
+    @Override
+    protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     @Override

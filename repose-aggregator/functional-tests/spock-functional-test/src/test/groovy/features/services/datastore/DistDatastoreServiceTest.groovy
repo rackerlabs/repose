@@ -71,7 +71,27 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "PATCH a new cache object should return 200 response"() {
+    def "TRACE should return 405 response" () {
+        given:
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def objectkey = UUID.randomUUID().toString();
+        def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
+
+        when:
+        MessageChain mc =
+                deproxy.makeRequest(
+                        [
+                                method: 'TRACE',
+                                url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers:headers,
+                                requestBody: body
+                        ])
+
+        then:
+        mc.receivedResponse.code == '405'
+    }
+
+    def "PATCH a new cache object should return 200 response" () {
         given:
         def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
