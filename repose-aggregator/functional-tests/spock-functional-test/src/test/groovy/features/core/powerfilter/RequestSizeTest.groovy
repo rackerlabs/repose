@@ -20,7 +20,7 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
-import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang3.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain

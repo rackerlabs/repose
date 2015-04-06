@@ -21,7 +21,7 @@ package framework
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang.text.StrSubstitutor
+import org.apache.commons.lang3.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
 
 /**
