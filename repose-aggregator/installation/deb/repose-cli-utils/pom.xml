@@ -142,6 +142,21 @@
                                                 ${basedir}/../../../../LICENSE.txt
                                             </src>
                                         </data>
+
+                                        <!--This adds the dependencies file on installation.-->
+                                        <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>
+                                                    /usr/share/doc/${artifactName}
+                                                </prefix>
+                                                <filemode>444</filemode>
+                                            </mapper>
+                                            <src>
+                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                            </src>
+                                        </data>
                                     </dataSet>
                                 </configuration>
                             </execution>
