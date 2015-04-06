@@ -79,7 +79,7 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        [endpointResponse, method] << [["myhost.com","test.com"],["GET","POST","PUT","PATCH","DELETE"]].combinations()
+        [endpointResponse, method] << [["myhost.com", "test.com"], ["GET", "POST", "PUT", "PATCH", "DELETE"]].combinations()
     }
 
     def "When request send to invalid auth service port delegating will forward the failure to origin service"() {
@@ -104,8 +104,8 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
     }
 
-    @Unroll ("Identity broken admin call with: #errorCode")
-    def "When req failed with auth admin service broken with delegating mode req is forwarded to service endpoint with failure message" () {
+    @Unroll("Identity broken admin call with: #errorCode")
+    def "When req failed with auth admin service broken with delegating mode req is forwarded to service endpoint with failure message"() {
         given:
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
@@ -115,7 +115,7 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         def delegatingMsg = "status_code=403.component=openstack-identity-v3.message=.*;q=0.5"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Subject-Token': fakeIdentityV3Service.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -124,11 +124,11 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        errorCode << ["400","401","403","404","500","503"]
+        errorCode << ["400", "401", "403", "404", "500", "503"]
     }
 
-    @Unroll ("Identity broken endpoint with: #errorCode")
-    def "When req failed with auth service endpoint broken with delegating mode req is forwarded to service endpoint with failure message" () {
+    @Unroll("Identity broken endpoint with: #errorCode")
+    def "When req failed with auth service endpoint broken with delegating mode req is forwarded to service endpoint with failure message"() {
         given:
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
@@ -138,7 +138,7 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         def delegatingMsg = "status_code=403.component=openstack-identity-v3.message=.*;q=0.5"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Subject-Token': fakeIdentityV3Service.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -147,6 +147,6 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        errorCode << ["400","401","403","404","500","503"]
+        errorCode << ["400", "401", "403", "404", "500", "503"]
     }
 }

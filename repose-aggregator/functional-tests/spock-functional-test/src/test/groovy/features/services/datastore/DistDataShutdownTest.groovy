@@ -46,7 +46,7 @@ class DistDataShutdownTest extends ReposeValveTest {
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.start([clusterId:"repose", nodeId: "nofilters"])
+        repose.start([clusterId: "repose", nodeId: "nofilters"])
         waitUntilReadyToServiceRequests()
 
         when: "i ask repose to stop"

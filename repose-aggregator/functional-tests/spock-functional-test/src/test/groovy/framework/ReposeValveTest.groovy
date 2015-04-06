@@ -22,6 +22,7 @@ package framework
 import org.apache.commons.io.FileUtils
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -29,7 +30,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-import org.rackspace.deproxy.MessageChain
 
 abstract class ReposeValveTest extends Specification {
 
@@ -114,23 +114,24 @@ abstract class ReposeValveTest extends Specification {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
         def logSearch = new ReposeLogSearch(properties.logFile)
-        if(checkLogMessage)
+        if (checkLogMessage)
             logSearch.cleanLog()
         MessageChain mc
-        try{
+        try {
             waitForCondition(clock, '35s', '1s', {
-                if(checkLogMessage &&
+                if (checkLogMessage &&
                         //TODO: this will not work, because of clusterID/NodeId awareness
                         //This needs to do a bit more regexp
                         // ClusterId and NodeID need to be known for what node we expect to be alive
                         // .*PowerFilter.* clusterId-nodeId: Repose Ready
                         logSearch.awaitByString(
-                                "Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0){
+                                "Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0) {
                     return true
                 }
                 try {
                     mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 if (mc != null) {
                     println mc.receivedResponse.code
                     return mc.receivedResponse.code.equals(responseCode)
@@ -138,10 +139,10 @@ abstract class ReposeValveTest extends Specification {
                     return false
                 }
             })
-        } catch (TimeoutException exc){
-            if(throwException){
+        } catch (TimeoutException exc) {
+            if (throwException) {
                 throw exc
-            }else{
+            } else {
                 return false
             }
         }

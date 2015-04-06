@@ -19,14 +19,14 @@
  */
 package org.openrepose.commons.utils.servlet.http;
 
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueImpl;
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;

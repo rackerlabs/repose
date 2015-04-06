@@ -20,9 +20,9 @@
 package org.openrepose.core.services.healthcheck.impl;
 
 import org.openrepose.core.services.healthcheck.HealthCheckReport;
-import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

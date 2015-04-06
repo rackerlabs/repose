@@ -19,10 +19,10 @@
  */
 package org.openrepose.core.services.datastore.impl.ehcache;
 
-import org.openrepose.core.services.datastore.Datastore;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.apache.commons.lang3.SerializationUtils;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.Patchable;
@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
 
+    private static final String NAME = "local/default";
     private final Ehcache ehCacheInstance;
-    private static final  String NAME = "local/default";
 
     public EHCacheDatastore(Ehcache ehCacheInstance) {
         this.ehCacheInstance = ehCacheInstance;
@@ -52,7 +52,7 @@ public class EHCacheDatastore implements Datastore {
     @Override
     public Serializable get(String key) {
         Element element = ehCacheInstance.get(key);
-        if(element != null) {
+        if (element != null) {
             return element.getValue();
         } else {
             return null;
@@ -80,16 +80,16 @@ public class EHCacheDatastore implements Datastore {
 
     @Override
     public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        Serializable potentialNewValue = (Serializable)patch.newFromPatch();
+        Serializable potentialNewValue = (Serializable) patch.newFromPatch();
         Element element = new Element(key, potentialNewValue);
         Element currentElement = ehCacheInstance.putIfAbsent(element);
         Serializable returnValue;
 
-        if(currentElement == null) {
+        if (currentElement == null) {
             returnValue = SerializationUtils.clone(potentialNewValue);
             currentElement = element;
         } else {
-            returnValue = (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
+            returnValue = (Serializable) ((Patchable) currentElement.getValue()).applyPatch(patch);
         }
 
         //todo: setting ttl can die once we move to tti
@@ -97,12 +97,12 @@ public class EHCacheDatastore implements Datastore {
             currentElement.setTimeToLive(0);
             currentElement.setTimeToIdle(0);
         } else if (ttl > 0) {
-            int convertedTtl = (int)TimeUnit.SECONDS.convert(ttl, timeUnit);
-            int currentLifeSpan = (int)TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
-            if((currentLifeSpan + convertedTtl) > currentElement.getTimeToLive()) {
+            int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
+            int currentLifeSpan = (int) TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
+            if ((currentLifeSpan + convertedTtl) > currentElement.getTimeToLive()) {
                 currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
             }
-            if(convertedTtl > currentElement.getTimeToIdle()) {
+            if (convertedTtl > currentElement.getTimeToIdle()) {
                 currentElement.setTimeToIdle(convertedTtl);
             }
         }

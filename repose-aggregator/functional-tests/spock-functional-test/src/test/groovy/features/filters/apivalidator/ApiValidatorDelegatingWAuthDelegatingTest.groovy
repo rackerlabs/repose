@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.apivalidator
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -25,6 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 11/4/14.
  *  Multiple filters with delegable option:
@@ -63,7 +65,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep 500
         fakeIdentityService.resetHandlers()
     }
@@ -84,7 +86,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
                 url: "$reposeEndpoint/a/$reqtenant",
                 method: method,
                 headers: [
-                        'x-roles': roles,
+                        'x-roles'     : roles,
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token
                 ]
@@ -98,28 +100,28 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
         and: "If request made it to origin service"
         if (identitystatus == "Confirmed") {
             def request2 = mc.handlings[0].request
-            assert(mc.handlings[0].endpoint == originEndpoint)
-            assert(request2.headers.contains("x-auth-token"))
-            assert(request2.headers.contains("x-identity-status"))
-            assert(request2.headers.contains("x-authorization"))
-            assert(request2.headers.getFirstValue("x-identity-status") == identitystatus)
-            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+            assert (mc.handlings[0].endpoint == originEndpoint)
+            assert (request2.headers.contains("x-auth-token"))
+            assert (request2.headers.contains("x-identity-status"))
+            assert (request2.headers.contains("x-authorization"))
+            assert (request2.headers.getFirstValue("x-identity-status") == identitystatus)
+            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         and: "If identityStatus was Indeterminate"
         if (identitystatus == "Indeterminate") {
 
             def request2 = mc.handlings[0].request
-            assert(request2.headers.getFirstValue("x-identity-status") == identitystatus)
-            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+            assert (request2.headers.getFirstValue("x-identity-status") == identitystatus)
+            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         where:
-        reqtenant| adminrole | clienttoken     | roles                      | method   | responseCode | identitystatus | delegateMsg
-        ""       | "regular" |""               | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate"| "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
-        "test"   | "admin1"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"    | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
-        "test"   | "admin2"  |UUID.randomUUID()| "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"    | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
-        12345    | "default" |UUID.randomUUID()| "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"    | "status_code=404`component=api-checker`message=Resource not found: /a/{12345};q=0.5"
+        reqtenant | adminrole | clienttoken       | roles                      | method   | responseCode | identitystatus  | delegateMsg
+        ""        | "regular" | ""                | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate" | "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
+        "test"    | "admin1"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
+        "test"    | "admin2"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
+        12345     | "default" | UUID.randomUUID() | "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{12345};q=0.5"
     }
 
     @Unroll("Sending request with roles: #roles and admin resp: #authresp")
@@ -132,9 +134,9 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
             client_tenant = 123
         }
 
-        if(authresp != 200){
+        if (authresp != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authresp)
             }
         }
@@ -143,7 +145,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
                 url: "$reposeEndpoint/a/123",
                 method: method,
                 headers: [
-                        'x-roles': roles,
+                        'x-roles'     : roles,
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token
                 ]
@@ -155,8 +157,8 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
 
         where:
-        roles                       | method     | authresp     | responseCode | delegatingMsg
-        "raxrole-test1"             | "GET"      | 401          |"200"         | "status_code=401"
-        "raxrole-test1,a:observer"  | "POST"     | 404          |"200"         | "status_code=404"
+        roles                      | method | authresp | responseCode | delegatingMsg
+        "raxrole-test1"            | "GET"  | 401      | "200"        | "status_code=401"
+        "raxrole-test1,a:observer" | "POST" | 404      | "200"        | "status_code=404"
     }
 }

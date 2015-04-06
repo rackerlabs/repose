@@ -21,7 +21,7 @@ package org.openrepose.core.services.datastore;
 
 /**
  * An interface for a Patch (of T).
- *
+ * <p/>
  * T - this is the abstraction of the data that gets stored in the datastore
  */
 public interface Patch<T> {

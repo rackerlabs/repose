@@ -20,23 +20,24 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
-import static org.junit.Assert.*
-import framework.category.Slow
-import org.junit.experimental.categories.Category
+
+import static org.junit.Assert.assertTrue
 
 /**
  * Created by jennyvo on 7/30/14.
  */
 class GlobalRateLimiting2NodesTest extends ReposeValveTest {
-    final handler = {return new Response(200, "OK")}
+    final handler = { return new Response(200, "OK") }
 
-    final Map<String, String> userHeaderDefault = ["X-PP-User" : "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups" : "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
+    final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
+    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
+    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
 
     static int reposePort2
     static int distDatastorePort
@@ -47,6 +48,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
     }
 
     static int userCount = 0;
+
     String getNewUniqueUser() {
 
         String name = "user-${userCount}"
@@ -66,8 +68,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                reposePort2: reposePort2,
-                distDatastorePort: distDatastorePort,
+                reposePort2       : reposePort2,
+                distDatastorePort : distDatastorePort,
                 distDatastorePort2: distDatastorePort2
         ]
 
@@ -100,8 +102,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
     }
 
     @Category(Slow.class)
-    def "When Run with different users, hit the same resource, global limit share between users" () {
-        given:"the rate-limit has not been reached"
+    def "When Run with different users, hit the same resource, global limit share between users"() {
+        given: "the rate-limit has not been reached"
         //waitForLimitReset
         sleep(60000)
         def user1 = getNewUniqueUser()

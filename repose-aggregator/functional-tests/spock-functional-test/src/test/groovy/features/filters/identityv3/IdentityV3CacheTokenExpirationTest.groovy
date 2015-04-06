@@ -30,14 +30,14 @@ import spock.lang.Ignore
  * Created by jennyvo on 9/4/14.
  * test token max expired
  */
-@Ignore ("Ignore this test for now since we haven't explicitly logged the WARN message to client")
-class IdentityV3CacheTokenExpirationTest extends ReposeValveTest{
+@Ignore("Ignore this test for now since we haven't explicitly logged the WARN message to client")
+class IdentityV3CacheTokenExpirationTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
     MockIdentityV3Service fakeIdentityV3Service
 
-    def setup () {
+    def setup() {
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -46,13 +46,13 @@ class IdentityV3CacheTokenExpirationTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("/features/filters/identityv3/connectionpooling", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 

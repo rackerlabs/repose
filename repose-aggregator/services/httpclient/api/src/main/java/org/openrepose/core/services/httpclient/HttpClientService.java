@@ -48,6 +48,7 @@ public interface HttpClientService {
     /**
      * Used to release a client when the client is no longer in use.  Users of the HttpClientService users should
      * release a client immediately after retrieving it in case the client has been decommissioned.
+     *
      * @param httpClientResponse Response received by the user from the getClient() call
      */
     void releaseClient(HttpClientResponse httpClientResponse);

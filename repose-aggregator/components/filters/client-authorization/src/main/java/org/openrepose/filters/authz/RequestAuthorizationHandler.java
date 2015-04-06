@@ -38,9 +38,9 @@ import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openrepose.filters.authz.cache.CachedEndpoint;
 import org.openrepose.filters.authz.cache.EndpointListCache;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private List<String> getListOfRoles(IgnoreTenantRoles ignoreTenantRoles) {
         List<String> roles = new ArrayList<>();
-        if(ignoreTenantRoles != null) {
+        if (ignoreTenantRoles != null) {
             roles.addAll(ignoreTenantRoles.getIgnoreTenantRole());
             roles.addAll(ignoreTenantRoles.getRole());
         }
@@ -95,7 +95,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.debug(message);
                 myDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
             } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
-                            isEndpointAuthorizedForToken(authenticationToken)) {
+                    isEndpointAuthorizedForToken(authenticationToken)) {
                 myDirector.setFilterAction(FilterAction.PASS);
             } else {
                 message = "User token: " + authenticationToken +
@@ -110,7 +110,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             LOG.trace("", ex);
             myDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE); // (503)
             String retry = ex.getRetryAfter();
-            if(retry == null) {
+            if (retry == null) {
                 Calendar retryCalendar = new GregorianCalendar();
                 retryCalendar.add(Calendar.SECOND, 5);
                 retry = new HttpDate(retryCalendar.getTime()).toRFC1123();
@@ -119,7 +119,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         } catch (AuthServiceException ex) {
             LOG.error(message);
             LOG.trace("", ex);
-            if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
+            if (ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
                 myDirector.setResponseStatusCode(HttpServletResponse.SC_GATEWAY_TIMEOUT);
             } else {
                 myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -130,9 +130,9 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        if(delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {
+        if (delegating != null && myDirector.getFilterAction() != FilterAction.PASS) {
             myDirector.setFilterAction(FilterAction.PASS);
-            for(Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), CLIENT_AUTHORIZATION, message, delegating.getQuality()).entrySet()) {
+            for (Map.Entry<String, List<String>> mapHeaders : JavaDelegationManagerProxy.buildDelegationHeaders(myDirector.getResponseStatusCode(), CLIENT_AUTHORIZATION, message, delegating.getQuality()).entrySet()) {
                 List<String> value = mapHeaders.getValue();
                 myDirector.requestHeaderManager().appendHeader(mapHeaders.getKey(), value.toArray(new String[value.size()]));
             }
@@ -142,7 +142,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private boolean adminRoleMatchIgnoringCase(Enumeration<String> roleStringList) {
         List<String> roles = Collections.list(roleStringList);
-        if(!roles.isEmpty()) {
+        if (!roles.isEmpty()) {
             for (String ignoreTenantRole : ignoreTenantRoles) {
                 for (String role : roles) {
                     if (ignoreTenantRole.equalsIgnoreCase(role)) {
@@ -156,7 +156,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private boolean isEndpointAuthorizedForToken(String userToken) throws AuthServiceException {
         List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
-        if(cachedEndpoints != null) {
+        if (cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
         }
         return false;
@@ -167,7 +167,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             @Override
             public boolean apply(CachedEndpoint input) {
                 return matchesUrl(input.getPublicUrl()) && matchesRegion(input.getRegion()) &&
-                       matchesName(input.getName()) && matchesType(input.getType());
+                        matchesName(input.getName()) && matchesType(input.getType());
             }
 
             private boolean matchesUrl(String publicUrl) {
@@ -199,7 +199,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
             List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
-            if(authorizedEndpoints != null) {
+            if (authorizedEndpoints != null) {
                 cachedEndpoints = new LinkedList<>();
                 for (Endpoint ep : authorizedEndpoints) {
                     cachedEndpoints.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));

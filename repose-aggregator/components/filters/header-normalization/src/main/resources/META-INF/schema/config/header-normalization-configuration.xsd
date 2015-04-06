@@ -20,12 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/header-normalization/v1.0"
-           xmlns:hnorm="http://docs.openrepose.org/repose/header-normalization/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:atom="http://www.w3.org/2005/Atom"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:hnorm="http://docs.openrepose.org/repose/header-normalization/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/header-normalization/v1.0">
 
     <!-- Header Normalization Configuration -->
     <xs:element name="header-normalization" type="hnorm:HeaderNormalizationConfig"/>

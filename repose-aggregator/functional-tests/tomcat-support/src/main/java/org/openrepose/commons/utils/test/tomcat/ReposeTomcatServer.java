@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.test.tomcat;
 
+import org.apache.commons.cli.ParseException;
 import org.openrepose.commons.utils.test.ReposeContainerProps;
 import org.openrepose.commons.utils.test.ReposeContainerUtil;
-import org.apache.commons.cli.ParseException;
 
 import javax.servlet.ServletException;
 

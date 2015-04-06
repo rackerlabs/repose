@@ -27,6 +27,6 @@ public interface RequestHeaderInfo {
     MediaType getPreferedMediaRange();
 
     boolean hasMediaRange(MediaType targetRange);
-    
+
     String getHost();
 }

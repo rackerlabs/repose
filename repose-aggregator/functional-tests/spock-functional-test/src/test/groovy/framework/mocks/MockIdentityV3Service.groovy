@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package framework.mocks
+
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -31,6 +32,7 @@ import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * Created by jennyvo on 8/8/14
  * Simulates responses from an Identity V3 Service.
@@ -256,7 +258,7 @@ class MockIdentityV3Service {
                 }
             }
 
-            if (isGetUserProjectsCallPath(nonQueryPath)){
+            if (isGetUserProjectsCallPath(nonQueryPath)) {
                 if (method == "GET") {
                     _getProjectsCount.incrementAndGet()
                     def match = (nonQueryPath =~ getGroupsCallPathRegex)
@@ -331,6 +333,7 @@ class MockIdentityV3Service {
     String getIssued() {
         return new DateTime()
     }
+
     String getExpires() {
         if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
             return this.tokenExpiresAt
@@ -345,6 +348,7 @@ class MockIdentityV3Service {
             return nowPlusOneDay
         }
     }
+
     Response validateToken(String tokenId, Request request) {
         def path = request.getPath()
         def request_token = tokenId
@@ -440,11 +444,11 @@ class MockIdentityV3Service {
     //get catalog associate with token
     Response getCatalog(String tokenId, Request request) {
         def params = [
-                identityPort    : this.port,
-                endpointurl     : this.endpointUrl,
-                servicePort     : this.servicePort,
-                token           : request.getHeaders().getFirstValue("X-Subject-Token"),
-                serviceadmin    : service_admin_role
+                identityPort: this.port,
+                endpointurl : this.endpointUrl,
+                servicePort : this.servicePort,
+                token       : request.getHeaders().getFirstValue("X-Subject-Token"),
+                serviceadmin: service_admin_role
         ]
 
         def template

@@ -31,7 +31,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 8/27/14.
  * Test with redirect url from header keep query params
  */
-class RedirectKeepQueryParamsTest extends ReposeValveTest{
+class RedirectKeepQueryParamsTest extends ReposeValveTest {
 
     static int originServicePort
     static int reposePort
@@ -69,22 +69,24 @@ class RedirectKeepQueryParamsTest extends ReposeValveTest{
     }
 
     @Unroll("#newlocation")
-    def "When endpoint using resp with 302 redirect a new location the query params should be kept" () {
+    def "When endpoint using resp with 302 redirect a new location the query params should be kept"() {
         when: "make a request with the given header and value"
         def headers = [
                 'Content-Length': '0',
-                'Location' : newlocation
+                'Location'      : newlocation
         ]
 
-        MessageChain mc = deproxy.makeRequest(url: url+queryparam, defaultHandler: {new Response(302, null, headers) })
+        MessageChain mc = deproxy.makeRequest(url: url + queryparam, defaultHandler: {
+            new Response(302, null, headers)
+        })
 
         then:
         mc.handlings.size() == 1
         mc.handlings[0].response.headers.getFirstValue("Location") == newlocation
 
         where:
-        newlocation                                     | queryparam
-        "${url}/test/test?query=info"        | "/test?query=info"
-        "${url}/details/details?query=all"   | "/details?query=all"
+        newlocation                        | queryparam
+        "${url}/test/test?query=info"      | "/test?query=info"
+        "${url}/details/details?query=all" | "/details?query=all"
     }
 }

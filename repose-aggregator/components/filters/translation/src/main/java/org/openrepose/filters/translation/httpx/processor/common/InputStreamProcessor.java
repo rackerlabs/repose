@@ -23,6 +23,6 @@ import java.io.InputStream;
 
 public interface InputStreamProcessor {
 
-   InputStream process(InputStream sourceStream) throws PreProcessorException;
-   
+    InputStream process(InputStream sourceStream) throws PreProcessorException;
+
 }

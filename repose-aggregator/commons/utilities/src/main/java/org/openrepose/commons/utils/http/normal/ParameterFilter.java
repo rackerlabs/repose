@@ -20,10 +20,9 @@
 package org.openrepose.commons.utils.http.normal;
 
 /**
- *
  * @author zinic
  */
 public interface ParameterFilter {
 
-   boolean shouldAccept(String name);
+    boolean shouldAccept(String name);
 }

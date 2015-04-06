@@ -87,7 +87,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     def "when attempting to identity user by content and passed bad content"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method:"POST"])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will not send x-pp-user"

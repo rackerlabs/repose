@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.config.resource.impl;
 
-import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

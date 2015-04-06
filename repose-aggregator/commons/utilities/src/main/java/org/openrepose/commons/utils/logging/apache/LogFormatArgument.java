@@ -46,16 +46,16 @@ public enum LogFormatArgument {
     RESPONSE_TIME_MICROSECONDS("D"),
     RESPONSE_TIME_SECONDS("T");
 
-    public static LogFormatArgument fromString(String st) {
-        return ReverseLookup.LOOKUP_MAP.get(st);
-    }
-
     private final String argument;
 
     private LogFormatArgument(String argument) {
         this.argument = argument;
 
         ReverseLookup.addLookup(argument, this);
+    }
+
+    public static LogFormatArgument fromString(String st) {
+        return ReverseLookup.LOOKUP_MAP.get(st);
     }
 
     @Override

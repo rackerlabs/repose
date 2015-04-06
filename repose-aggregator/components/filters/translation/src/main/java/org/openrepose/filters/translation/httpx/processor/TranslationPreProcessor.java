@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.translation.httpx.processor;
 
+import org.codehaus.jackson.JsonFactory;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.filters.translation.httpx.processor.cdata.UnknownContentStreamProcessor;
 import org.openrepose.filters.translation.httpx.processor.common.InputStreamProcessor;
 import org.openrepose.filters.translation.httpx.processor.json.JsonxStreamProcessor;
 import org.openrepose.filters.translation.httpx.processor.util.BodyContentMediaType;
-import org.codehaus.jackson.JsonFactory;
 
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;

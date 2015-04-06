@@ -36,7 +36,7 @@
     -->
     <bindings node="//xs:complexType[@name='slf4j-http-log']">
         <bindings node=".//xs:element[@name='format']">
-            <property name="formatElement" />
+            <property name="formatElement"/>
         </bindings>
     </bindings>
 </bindings>

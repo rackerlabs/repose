@@ -22,7 +22,6 @@ package org.openrepose.commons.utils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.SetUtilities;
 
 import java.util.HashSet;
 import java.util.Set;

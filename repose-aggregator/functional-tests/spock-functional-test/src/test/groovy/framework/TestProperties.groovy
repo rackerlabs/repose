@@ -55,9 +55,11 @@ class TestProperties {
     TestProperties() {
         this("test.properties")
     }
+
     TestProperties(String resourceName) {
         this(ClassLoader.getSystemResource(resourceName).openStream())
     }
+
     TestProperties(InputStream propertiesStream) {
 
         try {
@@ -102,21 +104,21 @@ class TestProperties {
 
     def getDefaultTemplateParams() {
         return [
-                reposePort: reposePort,
-                targetPort: targetPort,
-                targetPort1: targetPort,
-                targetPort2: targetPort2,
-                identityPort: identityPort,
-                atomPort: atomPort,
-                targetHostname: targetHostname,
-                logFile: logFile,
-                logFileName: logFile,
-                reposeLog: logFile,
-                'repose.log.name': logFile,
-                'repose.log.pattern': logFilePattern,
-                reposeHome: reposeHome,
-                'repose.home': reposeHome,
-                configDirectory: configDirectory,
+                reposePort               : reposePort,
+                targetPort               : targetPort,
+                targetPort1              : targetPort,
+                targetPort2              : targetPort2,
+                identityPort             : identityPort,
+                atomPort                 : atomPort,
+                targetHostname           : targetHostname,
+                logFile                  : logFile,
+                logFileName              : logFile,
+                reposeLog                : logFile,
+                'repose.log.name'        : logFile,
+                'repose.log.pattern'     : logFilePattern,
+                reposeHome               : reposeHome,
+                'repose.home'            : reposeHome,
+                configDirectory          : configDirectory,
                 'repose.config.directory': configDirectory,
                 'project.build.directory': projectBuildDirectory,
         ]

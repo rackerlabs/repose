@@ -20,14 +20,14 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/header-id-mapping/v1.0"
-           xmlns:header-identity="http://docs.openrepose.org/repose/header-id-mapping/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:header-identity="http://docs.openrepose.org/repose/header-id-mapping/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/header-id-mapping/v1.0">
 
     <!-- Client IP Identity Configuration -->
     <xs:element name="header-id-mapping" type="header-identity:HeaderIdMappingConfig"/>

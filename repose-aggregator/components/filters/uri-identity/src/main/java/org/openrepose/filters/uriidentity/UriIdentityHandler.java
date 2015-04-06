@@ -26,11 +26,11 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
 
 public class UriIdentityHandler extends AbstractFilterLogicHandler {
 

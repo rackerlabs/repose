@@ -34,10 +34,10 @@ import java.util.List;
 
 public class TranslationResult {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationResult.class);
     public static final String HEADERS_OUTPUT = "headers.xml";
     public static final String QUERY_OUTPUT = "query.xml";
     public static final String REQUEST_OUTPUT = "request.xml";
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationResult.class);
     private final boolean success;
     private final List<XsltParameter<? extends OutputStream>> outputs;
     private final HttpxMarshaller marshaller;
@@ -102,7 +102,7 @@ public class TranslationResult {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("New request info: " + new String(requestBytes,StandardCharsets.UTF_8));
+            LOG.debug("New request info: " + new String(requestBytes, StandardCharsets.UTF_8));
         }
 
         return marshaller.unmarshallRequestInformation(input);

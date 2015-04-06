@@ -19,15 +19,15 @@
  */
 package org.openrepose.core.servlet.boot.event;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.core.services.event.EventServiceImpl;
 import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventDispatcher;
 import org.openrepose.core.services.event.common.EventListener;
 import org.openrepose.core.services.event.common.EventService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
@@ -35,10 +35,6 @@ import static org.junit.Assert.*;
 public class EventServiceImplTest {
 
     public static class WhenAddingEventListeners {
-
-        public static enum TestEvent {
-            ONE, TWO, THREE
-        }
 
         private EventService manager;
         private boolean eventFiredTracker;
@@ -94,12 +90,12 @@ public class EventServiceImplTest {
                 public void onEvent(Event<TestEvent, String> e) {
                 }
             }, TestEvent.class);
-            
+
             manager.listen(listener, TestEvent.TWO);
 
             manager.newEvent(TestEvent.TWO, expected);
             manager.nextDispatcher().dispatch();
-            
+
             manager.newEvent(TestEvent.ONE, expected);
             manager.nextDispatcher().dispatch();
         }
@@ -183,13 +179,13 @@ public class EventServiceImplTest {
         public void shouldNotFailWhenRemovingNonExistentListener() {
             manager.squelch(null, TestEvent.ONE);
         }
+
+        public static enum TestEvent {
+            ONE, TWO, THREE
+        }
     }
 
     public static class WhenHandlingMulithreadedManagement {
-        public static enum TestEvent {
-            ONE
-        }
-
         private EventService manager;
 
         @Before
@@ -229,6 +225,10 @@ public class EventServiceImplTest {
             }
 
             assertEquals("Dispatcher thread must exit successfully", Thread.State.TERMINATED, myThread.getState());
+        }
+
+        public static enum TestEvent {
+            ONE
         }
     }
 }

@@ -20,8 +20,9 @@
 package org.openrepose.core.services.reporting.destinations.impl;
 
 import com.google.common.base.Objects;
-import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.openrepose.core.services.reporting.StatusCodeResponseStore;
+import org.openrepose.core.services.reporting.destinations.DestinationInfo;
+
 import java.util.Map;
 
 
@@ -43,7 +44,7 @@ public class DestinationInfoLogic implements DestinationInfo {
     }
 
     public double elapsedTimeInSeconds() {
-        return (System.currentTimeMillis() - dataStore.getStartTime())/DOUBLE_THOUSAND;
+        return (System.currentTimeMillis() - dataStore.getStartTime()) / DOUBLE_THOUSAND;
     }
 
     public Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
@@ -85,7 +86,7 @@ public class DestinationInfoLogic implements DestinationInfo {
     }
 
     @Override
-    public String getDestinationId(){
+    public String getDestinationId() {
         return dataStore.getDestinationId();
     }
 
@@ -118,24 +119,24 @@ public class DestinationInfoLogic implements DestinationInfo {
 
     @Override
     public double getAverageResponseTime() {
-        double averageResponseTime = (double)dataStore.getTotalResponses()/dataStore.getAccumulatedResponseTime();
+        double averageResponseTime = (double) dataStore.getTotalResponses() / dataStore.getAccumulatedResponseTime();
 
         if (Double.isNaN(averageResponseTime)) {
             return DOUBLE_ZERO;
         } else {
             return averageResponseTime;
-        }        
+        }
     }
 
     @Override
     public double getThroughput() {
-        double throughput = (double)dataStore.getTotalResponses()/elapsedTimeInSeconds();
+        double throughput = (double) dataStore.getTotalResponses() / elapsedTimeInSeconds();
 
         if (Double.isNaN(throughput)) {
             return DOUBLE_ZERO;
         } else {
             return throughput;
-        }        
+        }
     }
 
     @Override

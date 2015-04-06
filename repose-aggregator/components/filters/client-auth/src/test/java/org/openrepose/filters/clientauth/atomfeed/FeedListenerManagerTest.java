@@ -29,16 +29,15 @@ import org.junit.Test;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.OpenStackToken;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastore;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
-import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastore;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.openstack.docs.identity.api.v2.*;
 
-import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
@@ -47,132 +46,131 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author malconis
  */
 public class FeedListenerManagerTest {
-   
-   private Datastore datastore;
-   private AuthFeedReader rdr;
-   private AuthTokenCache tkn;
-   private AuthUserCache usr;
-   private AuthGroupCache grp;
 
-   @Before
-   public void setUp() throws Exception {
+    private Datastore datastore;
+    private AuthFeedReader rdr;
+    private AuthTokenCache tkn;
+    private AuthUserCache usr;
+    private AuthGroupCache grp;
 
-      Configuration defaultConfiguration = new Configuration();
-      defaultConfiguration.setName("TestCacheManager");
-      defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
-      defaultConfiguration.setUpdateCheck(false);
+    private static AuthenticateResponse getServiceResponse() {
+        AuthenticateResponse rsp = new AuthenticateResponse();
 
-      CacheManager cacheManager = CacheManager.newInstance(defaultConfiguration);
-      Cache cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
-      cacheManager.addCache(cache);
+        Token token = new Token();
+        token.setId("tokenid");
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.add(Calendar.MONTH, 1);
+        token.setExpires(new XMLGregorianCalendarImpl(cal));
+        TenantForAuthenticateResponse tenantForAuthenticateResponse = new TenantForAuthenticateResponse();
+        tenantForAuthenticateResponse.setId("tenantId");
+        tenantForAuthenticateResponse.setName("tenantName");
+        token.setTenant(tenantForAuthenticateResponse);
+        rsp.setToken(token);
 
-      datastore = new EHCacheDatastore(cache);
+        ServiceCatalog catalog = new ServiceCatalog();
+        List<ServiceForCatalog> serviceCatalogList = new ArrayList<ServiceForCatalog>();
+        ServiceForCatalog serviceForCatalog = new ServiceForCatalog();
+        serviceForCatalog.setName("catName");
+        serviceForCatalog.setType("type");
+        serviceCatalogList.add(serviceForCatalog);
+        catalog.getService().addAll(serviceCatalogList);
 
-      tkn = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
-      grp = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
-      usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
+        rsp.setServiceCatalog(catalog);
 
-      AuthToken token1 = new OpenStackToken(getServiceResponse());
-      tkn.storeToken("token1", token1, 1000000);
+        UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+        user.setId("userId");
+        user.setName("userName");
+        RoleList roles = new RoleList();
 
-      AuthGroups group = mock(AuthGroups.class);
-      grp.storeGroups("group1", group, 1000000);
+        Role role = new Role();
+        role.setDescription("role description");
+        role.setId("roleId");
+        role.setName("roleName");
+        role.setServiceId("serviceId");
+        role.setTenantId("roleTenantId");
+        roles.getRole().add(role);
 
-      Set<String> tokens = new HashSet<String>();
-      tokens.add("token2");
+        user.setRoles(roles);
 
-      AuthToken token2 = new OpenStackToken(getServiceResponse());
-      tkn.storeToken("token2", token2, 1000000);
+        rsp.setUser(user);
 
-      usr.storeUserTokenList("user1", tokens, 1000000);
+        return rsp;
+    }
 
-      FeedCacheInvalidator.openStackInstance(datastore);
+    @Before
+    public void setUp() throws Exception {
 
-      rdr = mock(SaxAuthFeedReader.class);
+        Configuration defaultConfiguration = new Configuration();
+        defaultConfiguration.setName("TestCacheManager");
+        defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+        defaultConfiguration.setUpdateCheck(false);
 
-      CacheKeys keys = new FeedCacheKeys();
+        CacheManager cacheManager = CacheManager.newInstance(defaultConfiguration);
+        Cache cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
+        cacheManager.addCache(cache);
 
-      keys.addTokenKey("token1");
-      keys.addUserKey("user1");
+        datastore = new EHCacheDatastore(cache);
 
-      when(rdr.getCacheKeys()).thenReturn(keys);
+        tkn = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
+        grp = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
+        usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
 
-   }
+        AuthToken token1 = new OpenStackToken(getServiceResponse());
+        tkn.storeToken("token1", token1, 1000000);
 
-   private static AuthenticateResponse getServiceResponse() {
-      AuthenticateResponse rsp = new AuthenticateResponse();
+        AuthGroups group = mock(AuthGroups.class);
+        grp.storeGroups("group1", group, 1000000);
 
-      Token token = new Token();
-      token.setId("tokenid");
-      GregorianCalendar cal = new GregorianCalendar();
-      cal.add(Calendar.MONTH, 1);
-      token.setExpires(new XMLGregorianCalendarImpl(cal));
-      TenantForAuthenticateResponse tenantForAuthenticateResponse = new TenantForAuthenticateResponse();
-      tenantForAuthenticateResponse.setId("tenantId");
-      tenantForAuthenticateResponse.setName("tenantName");
-      token.setTenant(tenantForAuthenticateResponse);
-      rsp.setToken(token);
+        Set<String> tokens = new HashSet<String>();
+        tokens.add("token2");
 
-      ServiceCatalog catalog = new ServiceCatalog();
-      List<ServiceForCatalog> serviceCatalogList = new ArrayList<ServiceForCatalog>();
-      ServiceForCatalog serviceForCatalog = new ServiceForCatalog();
-      serviceForCatalog.setName("catName");
-      serviceForCatalog.setType("type");
-      serviceCatalogList.add(serviceForCatalog);
-      catalog.getService().addAll(serviceCatalogList);
+        AuthToken token2 = new OpenStackToken(getServiceResponse());
+        tkn.storeToken("token2", token2, 1000000);
 
-      rsp.setServiceCatalog(catalog);
+        usr.storeUserTokenList("user1", tokens, 1000000);
 
-      UserForAuthenticateResponse user = new UserForAuthenticateResponse();
-      user.setId("userId");
-      user.setName("userName");
-      RoleList roles = new RoleList();
+        FeedCacheInvalidator.openStackInstance(datastore);
 
-      Role role = new Role();
-      role.setDescription("role description");
-      role.setId("roleId");
-      role.setName("roleName");
-      role.setServiceId("serviceId");
-      role.setTenantId("roleTenantId");
-      roles.getRole().add(role);
+        rdr = mock(SaxAuthFeedReader.class);
 
-      user.setRoles(roles);
+        CacheKeys keys = new FeedCacheKeys();
 
-      rsp.setUser(user);
+        keys.addTokenKey("token1");
+        keys.addUserKey("user1");
 
-      return rsp;
-   }
-   
-   @Test
-   public void shouldStartAndStopFeedListener(){
-      
-      assertNotNull("Token1 should be present in cache", tkn.getUserToken("token1"));
-      assertNotNull("Token2 should be present in cache", tkn.getUserToken("token2"));
-      List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
-      feeds.add(rdr);
-      
-      Long checkInterval = new Long("1000");
-      FeedListenerManager manager = new FeedListenerManager(datastore, feeds, checkInterval);
-      
-      manager.startReading();
-      
-      try {
-         Thread.sleep(1000);
-      } catch (InterruptedException e) {
-      }
-      
-      manager.stopReading();
-      
-      tkn = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
-      grp = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
-      usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
+        when(rdr.getCacheKeys()).thenReturn(keys);
+
+    }
+
+    @Test
+    public void shouldStartAndStopFeedListener() {
+
+        assertNotNull("Token1 should be present in cache", tkn.getUserToken("token1"));
+        assertNotNull("Token2 should be present in cache", tkn.getUserToken("token2"));
+        List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
+        feeds.add(rdr);
+
+        Long checkInterval = new Long("1000");
+        FeedListenerManager manager = new FeedListenerManager(datastore, feeds, checkInterval);
+
+        manager.startReading();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+
+        manager.stopReading();
+
+        tkn = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
+        grp = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
+        usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
 
 
-      assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1"));
-      assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2"));
-   }
+        assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1"));
+        assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2"));
+    }
 }

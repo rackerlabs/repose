@@ -4,7 +4,7 @@
     <request-translations>
         <request-translation http-methods="ALL" content-type="*/*" accept="*/*" translated-content-type="">
             <style-sheets>
-                <style id="request-3" href="uri-translation.xsl" />
+                <style id="request-3" href="uri-translation.xsl"/>
             </style-sheets>
         </request-translation>
     </request-translations>

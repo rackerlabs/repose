@@ -20,15 +20,14 @@
 package org.openrepose.filters.uriidentity;
 
 
-
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterDirector;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -45,9 +44,7 @@ public class UriIdentityHandlerTest {
 
     public static class WhenHandlingRequests {
 
-        private List<Pattern> patterns;
         private static String GROUP = "DEFAULT_GROUP";
-
         private static Double QUALITY = 0.5;
         private static String QUALITY_VALUE = ";q=0.5";
         private static String URI1 = "/someuri/1234/morestuff";
@@ -57,6 +54,7 @@ public class UriIdentityHandlerTest {
         private static String REGEX2 = ".*/[^\\d]*/abc/(.*)";
         private static String USER2 = "someuser";
         private static String URIFAIL = "/nouserinformation";
+        private List<Pattern> patterns;
         private HttpServletRequest request;
         private ReadableHttpServletResponse response;
         private UriIdentityHandler handler;

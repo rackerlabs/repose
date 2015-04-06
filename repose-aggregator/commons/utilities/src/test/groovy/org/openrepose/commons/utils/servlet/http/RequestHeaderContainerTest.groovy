@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import org.openrepose.commons.utils.http.header.HeaderName
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.commons.utils.http.header.HeaderName
 
 import javax.servlet.http.HttpServletRequest
 

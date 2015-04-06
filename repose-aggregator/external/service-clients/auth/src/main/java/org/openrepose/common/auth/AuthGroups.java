@@ -28,7 +28,7 @@ public class AuthGroups implements Serializable {
     private final List<AuthGroup> groups;
 
     public AuthGroups(List<AuthGroup> groups) {
-        
+
         if (groups != null) {
             this.groups = groups;
         } else {

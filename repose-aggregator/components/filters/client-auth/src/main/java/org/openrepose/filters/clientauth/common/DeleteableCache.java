@@ -20,9 +20,8 @@
 package org.openrepose.filters.clientauth.common;
 
 
+public interface DeleteableCache {
 
-public interface DeleteableCache{
+    boolean deleteCacheItem(String userId);
 
-   boolean deleteCacheItem(String userId);
-   
 }

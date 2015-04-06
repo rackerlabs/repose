@@ -26,17 +26,17 @@ import org.rackspace.deproxy.MessageChain
 
 class HttpClientServiceTest extends ReposeValveTest {
 
-    def setup(){
+    def setup() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanup(){
+    def cleanup() {
         if (deproxy)
             deproxy.shutdown()
     }
 
-    def "repose should use http conn pool service for origin service" () {
+    def "repose should use http conn pool service for origin service"() {
         given:
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -46,7 +46,7 @@ class HttpClientServiceTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
 
         when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/cluster", headers: ['x-trace-request': 'true']])
 
         then:
         mc.receivedResponse.code == '200'

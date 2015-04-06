@@ -24,51 +24,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * Because I don't like Java Timer =/
  *
  * @author zinic
  */
 public class Poller implements Runnable, Destroyable {
 
-   private static final Logger LOG = LoggerFactory.getLogger(Poller.class);
-   private volatile boolean shouldContinue;
-   private final long interval;
-   private final RecurringTask task;
-   private Thread taskThread;
+    private static final Logger LOG = LoggerFactory.getLogger(Poller.class);
+    private final long interval;
+    private final RecurringTask task;
+    private volatile boolean shouldContinue;
+    private Thread taskThread;
 
-   public Poller(RecurringTask task, long interval) {
-      this.interval = interval;
-      this.task = task;
+    public Poller(RecurringTask task, long interval) {
+        this.interval = interval;
+        this.task = task;
 
-      shouldContinue = true;
-   }
+        shouldContinue = true;
+    }
 
-   @Override
-   public void run() {
-      taskThread = Thread.currentThread();
+    @Override
+    public void run() {
+        taskThread = Thread.currentThread();
 
-      while (shouldContinue && !taskThread.isInterrupted()) {
-         try {
-            task.run();
+        while (shouldContinue && !taskThread.isInterrupted()) {
+            try {
+                task.run();
 
-            // Lock on our monitor
-            synchronized (this) {
-               wait(interval);
+                // Lock on our monitor
+                synchronized (this) {
+                    wait(interval);
+                }
+            } catch (InterruptedException ie) {
+                LOG.warn("Poller interrupted.", ie);
+                shouldContinue = false;
             }
-         } catch (InterruptedException ie) {
-            LOG.warn("Poller interrupted.", ie);
-            shouldContinue = false;
-         }
-      }
-   }
+        }
+    }
 
-   @Override
-   public synchronized void destroy() {
-      shouldContinue = false;
+    @Override
+    public synchronized void destroy() {
+        shouldContinue = false;
 
-      // Notify and interrupt the task thread
-      notify();
-      taskThread.interrupt();
-   }
+        // Notify and interrupt the task thread
+        notify();
+        taskThread.interrupt();
+    }
 }

@@ -31,30 +31,30 @@ import java.util.List;
 
 public abstract class RequestMediaRangeInterrogator {
 
-   private RequestMediaRangeInterrogator() {
-   }
+    private RequestMediaRangeInterrogator() {
+    }
 
-   public static List<MediaType> interrogate(String requestUri, HeaderValue acceptHeader) {
-      List<HeaderValue> accepts = new ArrayList<HeaderValue>();
-      accepts.add(acceptHeader);
-      return interrogate(requestUri, accepts);
-   }
-   
-   public static List<MediaType> interrogate(String requestUri, List<? extends HeaderValue> acceptHeader) {
-      final List<MediaType> ranges = new LinkedList<MediaType>();
+    public static List<MediaType> interrogate(String requestUri, HeaderValue acceptHeader) {
+        List<HeaderValue> accepts = new ArrayList<HeaderValue>();
+        accepts.add(acceptHeader);
+        return interrogate(requestUri, accepts);
+    }
 
-      final MimeType mediaType = VariantParser.getMediaTypeFromVariant(requestUri);
+    public static List<MediaType> interrogate(String requestUri, List<? extends HeaderValue> acceptHeader) {
+        final List<MediaType> ranges = new LinkedList<MediaType>();
 
-      if (mediaType == null) {
-         ranges.addAll(new MediaRangeProcessor(acceptHeader).process());
-      } else {
-         ranges.add(new MediaType(mediaType.getMimeType(), mediaType, 1));
-      }
+        final MimeType mediaType = VariantParser.getMediaTypeFromVariant(requestUri);
 
-      if (ranges.isEmpty()) {
-         ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED, -1));
-      }
+        if (mediaType == null) {
+            ranges.addAll(new MediaRangeProcessor(acceptHeader).process());
+        } else {
+            ranges.add(new MediaType(mediaType.getMimeType(), mediaType, 1));
+        }
 
-      return ranges;
-   }
+        if (ranges.isEmpty()) {
+            ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED, -1));
+        }
+
+        return ranges;
+    }
 }

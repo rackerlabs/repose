@@ -51,7 +51,7 @@ public class VersionChoiceFactory {
         if (serviceVersionMapping.getMediaTypes() != null) {
             mediaTypeList = new MediaTypeList();
 
-            for (MediaType configuredMediaType : serviceVersionMapping.getMediaTypes().getMediaType()){
+            for (MediaType configuredMediaType : serviceVersionMapping.getMediaTypes().getMediaType()) {
                 org.openrepose.filters.versioning.schema.MediaType responseMediaType = new org.openrepose.filters.versioning.schema.MediaType();
 
                 responseMediaType.setBase(configuredMediaType.getBase());

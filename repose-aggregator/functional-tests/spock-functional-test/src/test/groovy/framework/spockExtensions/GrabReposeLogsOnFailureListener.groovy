@@ -37,7 +37,7 @@ class GrabReposeLogsOnFailureListener extends AbstractRunListener {
         println("===================== Cleaning repose log file! =====================")
         def properties = new TestProperties()
         def logFile = new File(properties.logFile)
-        if(logFile.exists() && logFile.canWrite()) {
+        if (logFile.exists() && logFile.canWrite()) {
             new FileOutputStream(logFile).getChannel().truncate(0).close()
             System.out.println("Truncated ${logFile}")
         }
@@ -51,7 +51,7 @@ class GrabReposeLogsOnFailureListener extends AbstractRunListener {
         def properties = new TestProperties()
 
         def logFile = new File(properties.logFile)
-        if(logFile.exists() && logFile.canRead()) {
+        if (logFile.exists() && logFile.canRead()) {
             //Cat the contents of the log file?
             println("==================== REPOSE LOG FILE CONTENTS ====================")
             println(logFile.text)

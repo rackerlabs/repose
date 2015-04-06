@@ -37,7 +37,6 @@ package org.openrepose.external.pjlcompression;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.external.pjlcompression.StatsInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

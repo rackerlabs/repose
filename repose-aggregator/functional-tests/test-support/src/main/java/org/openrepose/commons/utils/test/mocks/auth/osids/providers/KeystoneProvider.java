@@ -26,34 +26,34 @@ import org.openstack.docs.identity.api.v2.*;
 
 public interface KeystoneProvider extends UserDataProvider {
 
-   ItemNotFoundFault createItemNotFound();
+    ItemNotFoundFault createItemNotFound();
 
-   TenantForAuthenticateResponse createTenant(String userName);
+    TenantForAuthenticateResponse createTenant(String userName);
 
-   Token createToken(String tokenId);
+    Token createToken(String tokenId);
 
-   Token createToken(CredentialType credentialType);
+    Token createToken(CredentialType credentialType);
 
-   UnauthorizedFault createUnauthorized(String message);
-   
-   Group getGroup(String userName, String groupId);
+    UnauthorizedFault createUnauthorized(String message);
 
-   Groups getGroups(String userName);
+    Group getGroup(String userName, String groupId);
 
-   Role getRole(String userName, String roleId);
+    Groups getGroups(String userName);
 
-   RoleList getRoles(String userName);
+    Role getRole(String userName, String roleId);
 
-   UserForAuthenticateResponse getUser(String userName);
+    RoleList getRoles(String userName);
 
-   ServiceCatalog getServiceCatalog(String userName);
-   
-   String getUsernameFromToken(String token);
+    UserForAuthenticateResponse getUser(String userName);
 
-   boolean isValidToken(String token);
-   
-   AuthenticateResponse newAuthenticateResponse();
-   
-   EndpointList getEndpoints(String token);
+    ServiceCatalog getServiceCatalog(String userName);
+
+    String getUsernameFromToken(String token);
+
+    boolean isValidToken(String token);
+
+    AuthenticateResponse newAuthenticateResponse();
+
+    EndpointList getEndpoints(String token);
 
 }

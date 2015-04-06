@@ -34,12 +34,13 @@ import static org.hamcrest.CoreMatchers.sameInstance
 import static org.hamcrest.core.IsNot.not
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertThat
+
 /**
-* Created with IntelliJ IDEA.
-* User: adrian
-* Date: 1/28/14
-* Time: 3:48 PM
-*/
+ * Created with IntelliJ IDEA.
+ * User: adrian
+ * Date: 1/28/14
+ * Time: 3:48 PM
+ */
 class UserRateLimitTest {
 
     @Test
@@ -189,8 +190,8 @@ class UserRateLimitTest {
                 boolean expiration = limitMap.get(limitId).getNextExpirationTime() >= (startTime) &&
                         limitMap.get(limitId).getNextExpirationTime() <= (startTime + timeUnit.toMillis(1))
                 return containsKey &&
-                       containsConfigLimitKey &&
-                       expiration;
+                        containsConfigLimitKey &&
+                        expiration;
             }
 
             @Override

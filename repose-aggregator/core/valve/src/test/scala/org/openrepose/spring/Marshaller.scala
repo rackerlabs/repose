@@ -38,10 +38,6 @@ object Marshaller {
     configResource[SystemModel](resource, systemModelXSD)
   }
 
-  def containerConfig(resource: String): ContainerConfiguration = {
-    configResource[ContainerConfiguration](resource, containerConfigXSD)
-  }
-
   def configResource[T: ClassTag](resource: String, xsdURL: URL): T = {
     import scala.reflect._
     val ct: ClassTag[T] = classTag[T]
@@ -53,6 +49,10 @@ object Marshaller {
     val configResource = new BufferedURLConfigurationResource(this.getClass.getResource(resource))
 
     parser.read(configResource)
+  }
+
+  def containerConfig(resource: String): ContainerConfiguration = {
+    configResource[ContainerConfiguration](resource, containerConfigXSD)
   }
 
 }

@@ -24,23 +24,21 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author kush5342
  */
 public class JCharSequenceFactoryTest {
-    
-   
+
 
     /**
      * Test of jchars method, of class JCharSequenceFactory.
      */
     @Test
     public void testJchars_String() {
-         String st = "test";
-      
-         JCharSequence result = JCharSequenceFactory.jchars(st);
-         assertEquals("test", result.toString());
-       
+        String st = "test";
+
+        JCharSequence result = JCharSequenceFactory.jchars(st);
+        assertEquals("test", result.toString());
+
     }
 
     /**
@@ -48,11 +46,11 @@ public class JCharSequenceFactoryTest {
      */
     @Test
     public void testJchars_StringBuffer() {
-        
-        StringBuffer sb = new StringBuffer("test");        
+
+        StringBuffer sb = new StringBuffer("test");
         JCharSequence result = JCharSequenceFactory.jchars(sb);
         assertEquals("test", result.asCharSequence().toString());
-        
+
     }
 
     /**
@@ -60,11 +58,11 @@ public class JCharSequenceFactoryTest {
      */
     @Test
     public void testJchars_StringBuilder() {
-       
+
         StringBuilder sb = new StringBuilder("Test");
         JCharSequence expResult = null;
         JCharSequence result = JCharSequenceFactory.jchars(sb);
         assertEquals("Test", result.asCharSequence().toString());
-        
+
     }
 }

@@ -23,10 +23,10 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Bug
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
 
 class CaptureGroupsTest extends Specification {
 
@@ -453,9 +453,10 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
-    @Category(Bug) // DEFECT: D-16373
+    @Category(Bug)
     def "Requests to an url and a percent-encoded equivalent form of that url should go into the same bucket"() {
 
+        // DEFECT: D-16373
         // rfc 3986 § 2.3: "URIs that differ in the replacement of an
         // unreserved character with its corresponding percent-encoded
         // US-ASCII octet are equivalent: they identify the same resource."
@@ -497,9 +498,10 @@ class CaptureGroupsTest extends Specification {
 
     }
 
-    @Category(Bug) // DEFECT: D-16373
+    @Category(Bug)
     def "Capitalization of hex digits in percent-encoded octets should be treated as equivalent"() {
 
+        // DEFECT: D-16373
         // rfc 3986 § 2.1: "The uppercase hexadecimal digits 'A' through 'F'
         // are equivalent to the lowercase digits 'a' through 'f',
         // respectively.  If two URIs differ only in the case of hexadecimal

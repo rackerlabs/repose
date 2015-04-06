@@ -93,8 +93,8 @@ public class KeystoneResource extends BaseResource {
         }
 
         String userName = p.getUsernameFromToken(userToken);
-        
-        if(!StringUtilities.isBlank(belongsTo) && !StringUtilities.nullSafeEquals(belongsTo, userName)){
+
+        if (!StringUtilities.isBlank(belongsTo) && !StringUtilities.nullSafeEquals(belongsTo, userName)) {
             return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
         }
 
@@ -103,14 +103,14 @@ public class KeystoneResource extends BaseResource {
         Token token = p.createToken(userToken);
         response.setToken(token);
         response.setUser(p.getUser(userName));
-        
+
         if ("impersonated".equalsIgnoreCase(userName)) {
             response.getAny().add(getImpersonator("impersonator-id", "impersonator"));
         }
 
         return Response.ok(wrapper.wrapElement(response)).build();
     }
-    
+
     private JAXBElement<UserForAuthenticateResponse> getImpersonator(String id, String name) {
         UserForAuthenticateResponse impersonator = new UserForAuthenticateResponse();
         impersonator.setId(id);

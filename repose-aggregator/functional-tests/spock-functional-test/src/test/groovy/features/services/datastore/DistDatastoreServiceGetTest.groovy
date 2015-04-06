@@ -19,9 +19,9 @@
  */
 package features.services.datastore
 
-import org.openrepose.commons.utils.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
+import org.openrepose.commons.utils.io.ObjectSerializer
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder

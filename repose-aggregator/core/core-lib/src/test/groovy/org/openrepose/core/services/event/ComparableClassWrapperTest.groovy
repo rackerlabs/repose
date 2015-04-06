@@ -18,11 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.core.services.event
+
 import org.junit.Test
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.not
-import static org.junit.Assert.*
+import static org.junit.Assert.assertThat
 
 public class ComparableClassWrapperTest {
 
@@ -31,13 +32,13 @@ public class ComparableClassWrapperTest {
         Integer num = new Integer(5);
         ComparableClassWrapper<Number> wrap = new ComparableClassWrapper<Number>(num.getClass());
 
-        assertThat(wrap.hashCode(), equalTo((7 *89) + num.getClass().hashCode()))
+        assertThat(wrap.hashCode(), equalTo((7 * 89) + num.getClass().hashCode()))
     }
 
     @Test
     public void testNullWrappedHash() {
         ComparableClassWrapper<Enum> wrap = new ComparableClassWrapper<Enum>(null);
-        assertThat(wrap.hashCode(), equalTo(7 *89));
+        assertThat(wrap.hashCode(), equalTo(7 * 89));
     }
 
     @Test

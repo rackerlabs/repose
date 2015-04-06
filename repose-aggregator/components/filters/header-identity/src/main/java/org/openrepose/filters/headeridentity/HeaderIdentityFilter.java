@@ -22,6 +22,9 @@ package org.openrepose.filters.headeridentity;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.headeridentity.config.HeaderIdentityConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,18 +32,14 @@ import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
-import org.openrepose.filters.headeridentity.config.HeaderIdentityConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Named
 public class HeaderIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderIdentityFilter.class);
     private static final String DEFAULT_CONFIG = "header-identity.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private HeaderIdentityHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public HeaderIdentityFilter(ConfigurationService configurationService) {

@@ -19,13 +19,13 @@
  */
 package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 
-import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -75,7 +75,7 @@ public class ReposeLocalCacheTest {
             String value = "1, 2, 3";
 
             datastore = datastoreService.getDefaultDatastore();
-            datastore.put(key,value);
+            datastore.put(key, value);
 
             assertNotNull(datastoreService.getDefaultDatastore().get(key));
 

@@ -25,6 +25,10 @@ package org.openrepose.core.spring;
  */
 public class ReposeSpringProperties {
 
+    public static String stripSpringValueStupidity(String atValue) {
+        return atValue.substring(2, atValue.length() - 1);
+    }
+
     /**
      * Properties available in the core context, and to all child contexts
      */
@@ -40,10 +44,6 @@ public class ReposeSpringProperties {
     public static class NODE {
         public static final String NODE_ID = "${repose-node-id}";
         public static final String CLUSTER_ID = "${repose-cluster-id}";
-    }
-
-    public static String stripSpringValueStupidity(String atValue) {
-        return atValue.substring(2, atValue.length() - 1);
     }
 
 }

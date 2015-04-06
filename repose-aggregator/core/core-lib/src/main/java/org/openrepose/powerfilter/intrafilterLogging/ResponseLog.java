@@ -19,15 +19,15 @@
  */
 package org.openrepose.powerfilter.intrafilterLogging;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ResponseLog {

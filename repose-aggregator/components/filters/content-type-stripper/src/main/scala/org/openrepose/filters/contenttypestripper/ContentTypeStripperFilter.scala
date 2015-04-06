@@ -38,14 +38,14 @@ class ContentTypeStripperFilter extends Filter {
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     val pushBackRequest = MutableHttpServletRequest.wrap(request.asInstanceOf[HttpServletRequest])
-    if(pushBackRequest.getHeaderNames exists ( _.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE))) {
-      val byteArray:Array[Byte] = new Array[Byte](8)
+    if (pushBackRequest.getHeaderNames exists (_.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE))) {
+      val byteArray: Array[Byte] = new Array[Byte](8)
       val pushbackStream = new PushbackInputStream(pushBackRequest.getInputStream, 8)
       val bytesRead: Int = pushbackStream.read(byteArray, 0, 8)
-      if (bytesRead == -1 || StringUtils.isBlank(new String(byteArray.slice(0,bytesRead)))) {
+      if (bytesRead == -1 || StringUtils.isBlank(new String(byteArray.slice(0, bytesRead)))) {
         pushBackRequest.removeHeader(HttpHeaders.CONTENT_TYPE)
       }
-      pushbackStream.unread(byteArray.slice(0,bytesRead))
+      pushbackStream.unread(byteArray.slice(0, bytesRead))
       pushBackRequest.setInputStream(new ServletInputStreamWrapper(pushbackStream))
     }
     chain.doFilter(pushBackRequest, response)

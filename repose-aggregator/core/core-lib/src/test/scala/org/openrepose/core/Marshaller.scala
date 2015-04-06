@@ -23,7 +23,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
-import org.openrepose.commons.config.resource.impl.{ByteArrayConfigurationResource, BufferedURLConfigurationResource}
+import org.openrepose.commons.config.resource.impl.{BufferedURLConfigurationResource, ByteArrayConfigurationResource}
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.systemmodel.SystemModel
 
@@ -43,6 +43,19 @@ object Marshaller {
     configResource[ContainerConfiguration](resource, containerConfigXSD)
   }
 
+  def configResource[T: ClassTag](resource: String, xsdURL: URL): T = {
+    import scala.reflect._
+    val ct: ClassTag[T] = classTag[T]
+    val parser = JaxbConfigurationParser.getXmlConfigurationParser(
+      ct.runtimeClass.asInstanceOf[Class[T]],
+      xsdURL,
+      this.getClass.getClassLoader)
+
+    val configResource = new BufferedURLConfigurationResource(this.getClass.getResource(resource))
+
+    parser.read(configResource)
+  }
+
   def systemModelString(content: String): SystemModel = {
     configFromString[SystemModel](content, systemModelXSD)
   }
@@ -56,19 +69,6 @@ object Marshaller {
       this.getClass.getClassLoader)
 
     val configResource = new ByteArrayConfigurationResource("", content.getBytes(StandardCharsets.UTF_8))
-
-    parser.read(configResource)
-  }
-
-  def configResource[T: ClassTag](resource: String, xsdURL: URL): T = {
-    import scala.reflect._
-    val ct: ClassTag[T] = classTag[T]
-    val parser = JaxbConfigurationParser.getXmlConfigurationParser(
-      ct.runtimeClass.asInstanceOf[Class[T]],
-      xsdURL,
-      this.getClass.getClassLoader)
-
-    val configResource = new BufferedURLConfigurationResource(this.getClass.getResource(resource))
 
     parser.read(configResource)
   }

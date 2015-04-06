@@ -71,18 +71,17 @@ import java.util.Set;
 @Lazy
 public class RequestProxyServiceImpl implements RequestProxyService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+    private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private final ConfigurationService configurationService;
     private final SystemModelListener systemModelListener;
     private final String clusterId;
     private final String nodeId;
-
-    private boolean rewriteHostHeader = false;
     private final HttpClientService httpClientService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
+    private boolean rewriteHostHeader = false;
 
     @Inject
     public RequestProxyServiceImpl(ConfigurationService configurationService,
@@ -173,7 +172,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             return responseCode.getCode();
         } catch (ClientProtocolException ex) {
-            if(Throwables.getRootCause(ex) instanceof ReadLimitReachedException){
+            if (Throwables.getRootCause(ex) instanceof ReadLimitReachedException) {
                 LOG.error("Error reading request content", ex);
                 response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
             } else {

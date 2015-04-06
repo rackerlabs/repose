@@ -82,14 +82,12 @@ public class MetricsServiceImpl implements MetricsService {
     private static final String metricsServiceConfigReport = "MetricsServiceReport";
 
     private final ConfigurationService configurationService;
+    private final HealthCheckServiceProxy healthCheckServiceProxy;
+    private final MetricsCfgListener metricsCfgListener = new MetricsCfgListener();
     private MetricsRegistry metrics;
     private JmxReporter jmx;
     private List<GraphiteReporter> listGraphite = new ArrayList<>();
     private ReposeJmxNamingStrategy reposeStrat;
-
-    private final HealthCheckServiceProxy healthCheckServiceProxy;
-    private final MetricsCfgListener metricsCfgListener = new MetricsCfgListener();
-
     private boolean enabled;
 
     @Inject
@@ -130,48 +128,6 @@ public class MetricsServiceImpl implements MetricsService {
         }
     }
 
-    private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
-
-        private boolean initialized = false;
-
-        @Override
-        public void configurationUpdated(MetricsConfiguration metricsC) {
-            // we are reinitializing the graphite servers
-            shutdownGraphite();
-
-            //We're going to reset the JMX stuff
-            jmx.shutdown();
-
-            if (metricsC.getGraphite() != null) {
-                for (GraphiteServer gs : metricsC.getGraphite().getServer()) {
-                    try {
-                        addGraphiteServer(gs.getHost(),
-                                gs.getPort().intValue(),
-                                gs.getPeriod(),
-                                gs.getPrefix());
-                    } catch (IOException e) {
-                        LOG.error("Error adding a Graphite server: {}", gs.getHost(), e);
-                    }
-                }
-            }
-
-            healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
-            setEnabled(metricsC.isEnabled());
-
-            //Only start JMX if it's enabled...
-            if(metricsC.isEnabled()) {
-                jmx.start();
-            }
-            initialized = true;
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return initialized;
-        }
-    }
-
-
     public void addGraphiteServer(String host, int port, long period, String prefix)
             throws IOException {
         GraphiteReporter graphite = new GraphiteReporter(metrics,
@@ -195,12 +151,12 @@ public class MetricsServiceImpl implements MetricsService {
         }
     }
 
-    public void setEnabled(boolean b) {
-        this.enabled = b;
-    }
-
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public void setEnabled(boolean b) {
+        this.enabled = b;
     }
 
     @Override
@@ -257,5 +213,46 @@ public class MetricsServiceImpl implements MetricsService {
         return new MetricName(reposeStrat.getJmxPrefix() + klass.getPackage().getName(),
                 klass.getSimpleName(),
                 name, scope);
+    }
+
+    private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
+
+        private boolean initialized = false;
+
+        @Override
+        public void configurationUpdated(MetricsConfiguration metricsC) {
+            // we are reinitializing the graphite servers
+            shutdownGraphite();
+
+            //We're going to reset the JMX stuff
+            jmx.shutdown();
+
+            if (metricsC.getGraphite() != null) {
+                for (GraphiteServer gs : metricsC.getGraphite().getServer()) {
+                    try {
+                        addGraphiteServer(gs.getHost(),
+                                gs.getPort().intValue(),
+                                gs.getPeriod(),
+                                gs.getPrefix());
+                    } catch (IOException e) {
+                        LOG.error("Error adding a Graphite server: {}", gs.getHost(), e);
+                    }
+                }
+            }
+
+            healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
+            setEnabled(metricsC.isEnabled());
+
+            //Only start JMX if it's enabled...
+            if (metricsC.isEnabled()) {
+                jmx.start();
+            }
+            initialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return initialized;
+        }
     }
 }

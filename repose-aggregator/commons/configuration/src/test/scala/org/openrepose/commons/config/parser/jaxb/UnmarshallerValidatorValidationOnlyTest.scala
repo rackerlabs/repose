@@ -47,7 +47,7 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   val expectedLogMessage = "DEPRECATION WARNING: One of your config files contains an old namespace"
 
   val LIST_APPENDER_REF = "List0"
-  var app: ListAppender = _
+  val oldXmlFiles = pathedFiles("unmarshallerValidator/oldXmlConfigs/")
 
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -58,22 +58,11 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   /////////////////////////////////////////////////////////////////////////////////////
   // This is a Time-Bomb to remind us to remove the backwards compatible hack.       //
   new Date() should be < new GregorianCalendar(2015, Calendar.SEPTEMBER, 1).getTime()
+
   //
   /////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Construct myself a list of files to do work on!
-   */
-  def pathedFiles(path:String): List[String] = {
-    Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path)).getLines().toList.map { file =>
-      path + file
-    }
-  }
-
-  val oldXmlFiles = pathedFiles("unmarshallerValidator/oldXmlConfigs/")
   val badNamespaceFiles = pathedFiles("unmarshallerValidator/badNamespace/")
   val correctNamespaceFiles = pathedFiles("unmarshallerValidator/correctNamespace/")
-
   //oldXmlFiles contains the largest list of the files, I should probably combine them.
   val xsdUrlMap: Map[String, URL] = oldXmlFiles.map { file =>
     val fileName = file.split("/").last
@@ -83,26 +72,21 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     //Return a map of the config file to the schema location
     fileName -> this.getClass.getResource(s"/unmarshallerValidator/xsd/$xsdSchemaName")
   }.toMap
-
   //Since this test isn't doing any actual unmarshalling, we'll give it a fake JAXB context
   val mockContext = mock[JAXBContext]
   val uv = new UnmarshallerValidator(mockContext)
-
-  import scala.collection.JavaConversions._
-
+  var app: ListAppender = _
 
   /**
-   * Get a schema based on the configuration file name. Much easier to deal with
-   * @param configFile
-   * @return
+   * Construct myself a list of files to do work on!
    */
-  def getSchemaForFile(configFile: String): Schema = {
-    val xsdURL = xsdUrlMap(configFile.split("/").last)
-    //Build the schema thingy
-    val factory: SchemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-    factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-    factory.newSchema(xsdURL)
+  def pathedFiles(path: String): List[String] = {
+    Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path)).getLines().toList.map { file =>
+      path + file
+    }
   }
+
+  import scala.collection.JavaConversions._
 
   /**
    * Do the actual validation
@@ -117,6 +101,19 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     val db = dbf.newDocumentBuilder
     //It's nice that java doesn't reference things the same way always :(
     uv.validate(db.parse(this.getClass.getResourceAsStream("/" + configFile)))
+  }
+
+  /**
+   * Get a schema based on the configuration file name. Much easier to deal with
+   * @param configFile
+   * @return
+   */
+  def getSchemaForFile(configFile: String): Schema = {
+    val xsdURL = xsdUrlMap(configFile.split("/").last)
+    //Build the schema thingy
+    val factory: SchemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
+    factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
+    factory.newSchema(xsdURL)
   }
 
   describe("Validating oldXmlConfigs") {

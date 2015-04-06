@@ -23,8 +23,8 @@ import org.openrepose.commons.utils.digest.AbstractMessageDigester;
 
 public class SHA1MessageDigester extends AbstractMessageDigester {
 
-   @Override
-   protected String digestSpecName() {
-      return "SHA-1";
-   }
+    @Override
+    protected String digestSpecName() {
+        return "SHA-1";
+    }
 }

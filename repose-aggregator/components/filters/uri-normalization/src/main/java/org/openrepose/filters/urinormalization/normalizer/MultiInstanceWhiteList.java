@@ -27,54 +27,53 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author zinic
  */
 public class MultiInstanceWhiteList implements ParameterFilter {
 
-   private final HttpUriParameterList parameterList;
-   private final Map<String, Long> instanceMap;
+    private final HttpUriParameterList parameterList;
+    private final Map<String, Long> instanceMap;
 
-   public MultiInstanceWhiteList(HttpUriParameterList parameterList) {
-      this.parameterList = parameterList;
+    public MultiInstanceWhiteList(HttpUriParameterList parameterList) {
+        this.parameterList = parameterList;
 
-      instanceMap = new HashMap<String, Long>();
-   }
-   
-   HttpUriParameterList getParameterList() {
-       return parameterList;
-   }
+        instanceMap = new HashMap<String, Long>();
+    }
 
-   @Override
-   public boolean shouldAccept(String name) {
-      
-      if(parameterList==null){
-         return false;
-      }
-      for (UriParameter parameter : parameterList.getParameter()) {
-         final boolean matches = parameter.isCaseSensitive() ? name.equals(parameter.getName()) : name.equalsIgnoreCase(parameter.getName());
+    HttpUriParameterList getParameterList() {
+        return parameterList;
+    }
 
-         if (matches) {
-            return logHit(parameter);
-         }
-      }
+    @Override
+    public boolean shouldAccept(String name) {
 
-      return false;
-   }
+        if (parameterList == null) {
+            return false;
+        }
+        for (UriParameter parameter : parameterList.getParameter()) {
+            final boolean matches = parameter.isCaseSensitive() ? name.equals(parameter.getName()) : name.equalsIgnoreCase(parameter.getName());
 
-   private boolean logHit(UriParameter parameter) {
-      if (parameter.getMultiplicity() <= 0) {
-         return true;
-      }
+            if (matches) {
+                return logHit(parameter);
+            }
+        }
 
-      final Long hitCount = instanceMap.get(parameter.getName());
-      final Long nextHitCount = hitCount != null ? hitCount + 1 : 1;
+        return false;
+    }
 
-      if (nextHitCount <= parameter.getMultiplicity()) {
-         instanceMap.put(parameter.getName(), nextHitCount);
-         return true;
-      }
+    private boolean logHit(UriParameter parameter) {
+        if (parameter.getMultiplicity() <= 0) {
+            return true;
+        }
 
-      return false;
-   }
+        final Long hitCount = instanceMap.get(parameter.getName());
+        final Long nextHitCount = hitCount != null ? hitCount + 1 : 1;
+
+        if (nextHitCount <= parameter.getMultiplicity()) {
+            instanceMap.put(parameter.getName(), nextHitCount);
+            return true;
+        }
+
+        return false;
+    }
 }

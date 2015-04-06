@@ -24,13 +24,13 @@ import java.util.regex.Pattern;
 /**
  * Local StringUtils implementation...this is written because we don't want a dependency on
  * apache commons...it's too big for what we need.
- * 
  */
 public final class StringUtilities {
 
+    private static final Pattern IS_BLANK_PATTERN = Pattern.compile("[\\s]*");
+
     private StringUtilities() {
     }
-    private static final Pattern IS_BLANK_PATTERN = Pattern.compile("[\\s]*");
 
     public static boolean isEmpty(String st) {
         return st == null || st.length() == 0;

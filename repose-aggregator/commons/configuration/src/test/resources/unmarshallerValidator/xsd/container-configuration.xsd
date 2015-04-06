@@ -20,14 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/container/v2.0"
-           xmlns:papic="http://docs.openrepose.org/repose/container/v2.0"
-           xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/container/v2.0">
 
     <xs:element name="repose-container" type="papic:ContainerConfiguration"/>
 
@@ -62,7 +59,8 @@
                 <xs:documentation>
                     <html:p>
                         <html:strong>This attribute is depricated it and will be ignored.
-                                     Use the system model to set ports.</html:strong>
+                            Use the system model to set ports.
+                        </html:strong>
                     </html:p>
                     <html:p>Http port number on which Repose listens for requests.</html:p>
                 </xs:documentation>
@@ -74,7 +72,8 @@
                 <xs:documentation>
                     <html:p>
                         <html:strong>This attribute is depricated it and will be ignored.
-                            Use the system model to set ports.</html:strong>
+                            Use the system model to set ports.
+                        </html:strong>
                     </html:p>
                     <html:p>Https port number on which Repose listens for requests</html:p>
                 </xs:documentation>
@@ -88,14 +87,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-         <xs:attribute  name="content-body-read-limit" type="papic:longGTZero" use="optional">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Maximum size for request content in bytes.</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
+
+        <xs:attribute name="content-body-read-limit" type="papic:longGTZero" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Maximum size for request content in bytes.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:attribute name="connection-timeout" type="papic:intGTZero" use="optional" default="30000">
             <xs:annotation>
@@ -133,7 +132,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The number of seconds the JMX reporting service keeps data.
-                             The data will be reset after this amount of time.</html:p>
+                        The data will be reset after this amount of time.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

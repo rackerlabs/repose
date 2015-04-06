@@ -39,7 +39,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- *
  * @author jhopper
  */
 @RunWith(Enclosed.class)

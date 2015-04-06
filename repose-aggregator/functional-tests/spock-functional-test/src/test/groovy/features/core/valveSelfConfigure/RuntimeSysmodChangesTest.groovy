@@ -23,11 +23,11 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
 
 @Category(Slow.class)
 class RuntimeSysmodChangesTest extends Specification {
@@ -63,11 +63,11 @@ class RuntimeSysmodChangesTest extends Specification {
 
         def params = properties.defaultTemplateParams
         params += [
-                'port1': port1,
-                'port2': port2,
-                'port3': port3,
+                'port1'     : port1,
+                'port2'     : port2,
+                'port3'     : port3,
 
-                'proto': 'http',
+                'proto'     : 'http',
                 'targetPort': targetPort,
                 'sysmodPort': port1,
 
@@ -116,11 +116,11 @@ class RuntimeSysmodChangesTest extends Specification {
         when: "change the configs while it's running - two nodes"
         def params = properties.getDefaultTemplateParams()
         params += [
-            'targetPort': targetPort,
-            'node1host': 'localhost',
-            'node2host': 'localhost',
-            'node1port': port1,
-            'node2port': port2,
+                'targetPort': targetPort,
+                'node1host' : 'localhost',
+                'node2host' : 'localhost',
+                'node1port' : port1,
+                'node2port' : port2,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/two-nodes', params)
         println("Change config to two-nodes")
@@ -129,7 +129,6 @@ class RuntimeSysmodChangesTest extends Specification {
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
         1 == 1 //WAT
-
 
 
         when: "configs have changed"
@@ -154,9 +153,9 @@ class RuntimeSysmodChangesTest extends Specification {
         when: "change the configs while it's running - one node on port 2"
         params = properties.getDefaultTemplateParams()
         params += [
-            'proto': 'http',
-            'targetPort': targetPort,
-            'sysmodPort': port2,
+                'proto'     : 'http',
+                'targetPort': targetPort,
+                'sysmodPort': port2,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/single-node-with-proto', params)
         println("changed configs to single-node-with-proto")
@@ -188,13 +187,13 @@ class RuntimeSysmodChangesTest extends Specification {
         when: "change the configs while it's running - two of three nodes"
         params = properties.getDefaultTemplateParams()
         params += [
-            'targetPort': targetPort,
-            'node1host': 'localhost',
-            'node2host': 'localhost',
-            'node3host': 'example.com',
-            'node1port': port1,
-            'node2port': port2,
-            'node3port': port3,
+                'targetPort': targetPort,
+                'node1host' : 'localhost',
+                'node2host' : 'localhost',
+                'node3host' : 'example.com',
+                'node1port' : port1,
+                'node2port' : port2,
+                'node3port' : port3,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
         println("changed to three-nodes config")
@@ -227,13 +226,13 @@ class RuntimeSysmodChangesTest extends Specification {
         when: "change the configs while it's running - two of three nodes again, but different hostnames"
         params = properties.getDefaultTemplateParams()
         params += [
-            'targetPort': targetPort,
-            'node1host': 'example.com',
-            'node2host': 'localhost',
-            'node3host': 'localhost',
-            'node1port': port1,
-            'node2port': port2,
-            'node3port': port3,
+                'targetPort': targetPort,
+                'node1host' : 'example.com',
+                'node2host' : 'localhost',
+                'node3host' : 'localhost',
+                'node1port' : port1,
+                'node2port' : port2,
+                'node3port' : port3,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
         println("changed to three-nodes config again, but a different hostname")

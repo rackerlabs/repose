@@ -20,17 +20,17 @@
 package org.openrepose.core.services.datastore.impl.distributed.remote;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.core.services.RequestProxyService;
-import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
-import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
+import org.openrepose.core.services.RequestProxyService;
+import org.openrepose.core.services.datastore.DatastoreOperationException;
+import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 
 import java.io.IOException;
 
 public class RemoteCommandExecutor {
 
-    private String hostKey;
     private final RequestProxyService proxyService;
+    private String hostKey;
 
     public RemoteCommandExecutor(RequestProxyService proxyService, String hostKey) {
         this.proxyService = proxyService;

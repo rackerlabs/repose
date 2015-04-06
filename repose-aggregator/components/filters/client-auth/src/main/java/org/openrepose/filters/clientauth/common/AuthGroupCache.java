@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 
-public class AuthGroupCache implements DeleteableCache{
+public class AuthGroupCache implements DeleteableCache {
 
     private final Datastore store;
     private final String cachePrefix;
@@ -37,7 +37,7 @@ public class AuthGroupCache implements DeleteableCache{
     }
 
     public AuthGroups getUserGroup(String tenantId) {
-        AuthGroups candidate = (AuthGroups)store.get(cachePrefix + "." + tenantId);
+        AuthGroups candidate = (AuthGroups) store.get(cachePrefix + "." + tenantId);
 
         return validateGroup(candidate) ? candidate : null;
     }
@@ -50,10 +50,10 @@ public class AuthGroupCache implements DeleteableCache{
 
         store.put(cachePrefix + "." + tenantId, groups, ttl, TimeUnit.MILLISECONDS);
     }
-    
+
     @Override
-    public boolean deleteCacheItem(String tenantId){
-       return store.remove(cachePrefix + tenantId);
+    public boolean deleteCacheItem(String tenantId) {
+        return store.remove(cachePrefix + tenantId);
     }
 
     public boolean validateGroup(AuthGroups cachedValue) {

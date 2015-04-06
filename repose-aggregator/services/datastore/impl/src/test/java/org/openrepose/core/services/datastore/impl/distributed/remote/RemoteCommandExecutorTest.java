@@ -19,18 +19,17 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 public class RemoteCommandExecutorTest {
@@ -66,7 +65,8 @@ public class RemoteCommandExecutorTest {
         RuntimeException exception;
         boolean throwsIOException = false;
 
-        private TestableRemoteCommand() {}
+        private TestableRemoteCommand() {
+        }
 
         private TestableRemoteCommand(RuntimeException exception) {
             this.exception = exception;

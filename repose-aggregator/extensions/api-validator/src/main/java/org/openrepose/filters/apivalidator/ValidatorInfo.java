@@ -22,7 +22,6 @@ package org.openrepose.filters.apivalidator;
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
 import org.openrepose.commons.utils.StringUtilities;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -31,6 +30,7 @@ import org.xml.sax.InputSource;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import java.util.List;
 
 /**
  * TODO this thing shouldn't contain mutable state :(
@@ -42,11 +42,11 @@ public class ValidatorInfo {
     private final String uri;
     private final List<String> roles;
     private final Config config;
-    private Validator validator;
     private final Object validatorLock = new Object();
     private final Node wadl;
     private final String systemId;
     private final String name;
+    private Validator validator;
 
     public ValidatorInfo(List<String> roles, String wadlUri, Config config, String name) {
         this.uri = wadlUri;
@@ -54,9 +54,9 @@ public class ValidatorInfo {
         this.config = config;
         this.wadl = null;
         this.systemId = null;
-       
+
         if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-             this.name =getNameFromRoles(roles);
+            this.name = getNameFromRoles(roles);
         } else {
             this.name = name;
         }
@@ -69,7 +69,7 @@ public class ValidatorInfo {
         this.systemId = systemId;
         this.uri = null;
         if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-            this.name =getNameFromRoles(roles);
+            this.name = getNameFromRoles(roles);
         } else {
             this.name = name;
         }
@@ -94,7 +94,7 @@ public class ValidatorInfo {
         //TODO: I bet this is the cause of our thread bugs, I suspect another thread is asking for a validator,
         // and so it's getting initialized and never cleaned up! SUPER TERRIBLE
         //MUTABLE STATE IS REAL BAD
-        synchronized(validatorLock) {
+        synchronized (validatorLock) {
             if (validator != null) {
                 return true;
             }
@@ -111,7 +111,7 @@ public class ValidatorInfo {
     }
 
     public void clearValidator() {
-        synchronized(validatorLock) {
+        synchronized (validatorLock) {
             if (validator != null) {
                 validator.destroy();
                 validator = null;
@@ -120,7 +120,7 @@ public class ValidatorInfo {
     }
 
     public boolean reinitValidator() {
-        synchronized(validatorLock) {
+        synchronized (validatorLock) {
             if (validator != null) {
                 LOG.debug("in reInitValidator Destroying: {}", validator);
                 validator.destroy();
@@ -130,6 +130,11 @@ public class ValidatorInfo {
         return initValidator();
     }
 
+    public Validator getValidator() {
+        initValidator();
+        return validator;
+    }
+
     /**
      * This method is to simplify testing.
      *
@@ -137,11 +142,6 @@ public class ValidatorInfo {
      */
     void setValidator(Validator validator) {
         this.validator = validator;
-    }
-
-    public Validator getValidator() {
-        initValidator();
-        return validator;
     }
 
     public List<String> getRoles() {
@@ -155,11 +155,11 @@ public class ValidatorInfo {
     public String getName() {
         return name;
     }
-    
-    String getNameFromRoles(List<String> roles){
-        StringBuilder name=new StringBuilder();
-        for(String role:roles){
-            name.append(role+"_");
+
+    String getNameFromRoles(List<String> roles) {
+        StringBuilder name = new StringBuilder();
+        for (String role : roles) {
+            name.append(role + "_");
         }
         return name.toString();
     }

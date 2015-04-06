@@ -33,7 +33,7 @@ import spock.lang.Unroll
  * Acceptance Criteria
  * - When a request is unverified set X-Identity-Status: Indeterminate
  */
-class ForwardUnauthorizedReqTest extends ReposeValveTest{
+class ForwardUnauthorizedReqTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -58,13 +58,13 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep(500)
         fakeIdentityV3Service.resetHandlers()
     }
@@ -93,7 +93,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityV3Service.validateTokenHandler = {
                 tokenId, request ->
                     new Response(authResponseCode, null, null, responseBody)
@@ -104,7 +104,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject/",
                 method: 'GET',
-                headers: ['content-type': 'application/json',
+                headers: ['content-type'   : 'application/json',
                           'X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
@@ -114,13 +114,13 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
 
         where:
-        reqProject  | authResponseCode | responseCode   |responseBody
-        "p500"      | 401              | "200"          |"Unauthorized"
-        "p501"      | 403              | "200"          |"Unauthorized"
-        "p502"      | 404              | "200"          |fakeIdentityV3Service.identityFailureJsonRespTemplate
+        reqProject | authResponseCode | responseCode | responseBody
+        "p500"     | 401              | "200"        | "Unauthorized"
+        "p501"     | 403              | "200"        | "Unauthorized"
+        "p502"     | 404              | "200"        | fakeIdentityV3Service.identityFailureJsonRespTemplate
     }
 
-    def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected" () {
+    def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected"() {
         given:
         fakeIdentityV3Service.validateTokenHandler = {
             tokenId, request ->
@@ -135,7 +135,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ],
                 defaultHandler: {
-                    new Response(401, "", ["www-authenticate":"delegated"], "")
+                    new Response(401, "", ["www-authenticate": "delegated"], "")
                 }
         )
 

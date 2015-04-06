@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.services.httpconnectionpool
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -35,6 +36,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     def setup() {
         reposeLogSearch.cleanLog()
     }
+
     def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
@@ -139,7 +141,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
             println("Starting client: " + x)
             def thread = Thread.start {
                 for (y in 1..5) {
-                    MessageChain messageChain = deproxy.makeRequest(url:reposeEndpoint, defaultHandler: Handlers.Delay(250 + rand.nextInt(500)))
+                    MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: Handlers.Delay(250 + rand.nextInt(500)))
                     if (messageChain.receivedResponse.code != "200") {
                         println("ERROR: call received an error response")
                         println("RESPONSE CODE: ${messageChain.receivedResponse.code}")

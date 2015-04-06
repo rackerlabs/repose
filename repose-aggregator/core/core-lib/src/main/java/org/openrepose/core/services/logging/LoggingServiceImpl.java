@@ -36,7 +36,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 

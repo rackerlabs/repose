@@ -20,22 +20,19 @@
 package features.filters.clientauthn.cache
 
 import framework.ReposeValveTest
-import framework.category.Flaky
 import framework.mocks.MockIdentityService
-import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import java.util.concurrent.atomic.AtomicInteger
-
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
-    @Shared def identityEndpoint
-    @Shared def MockIdentityService fauxIdentityService
+    @Shared
+    def identityEndpoint
+    @Shared
+    def MockIdentityService fauxIdentityService
 
     def cleanup() {
         deproxy.shutdown()
@@ -134,9 +131,9 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 MessageChain mc = deproxy.makeRequest(
-                    url: reposeEndpoint,
-                    method: 'GET',
-                    headers: ['X-Auth-Token': token])
+                        url: reposeEndpoint,
+                        method: 'GET',
+                        headers: ['X-Auth-Token': token])
                 mc.receivedResponse.code.equals('200')
             }
             clientThreads.add(thread)

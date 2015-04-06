@@ -22,10 +22,7 @@ package org.openrepose.commons.config.parser.jaxb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -33,19 +30,16 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This object executes Schema 1.1 validation (if schema provided) & JAXB unmarshalling for a JAXBContext & XML Schema.
@@ -55,12 +49,12 @@ import java.util.regex.Pattern;
  */
 public class UnmarshallerValidator {
 
+    //The transformer we'll use for translating our configuration xmls
+    public static final String XALAN_FACTORY_NAME = "org.apache.xalan.processor.TransformerFactoryImpl";
     private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerValidator.class);
     private Schema schema;
     private Unmarshaller unmarshaller;
     private DocumentBuilder db;
-    //The transformer we'll use for translating our configuration xmls
-    public static final String XALAN_FACTORY_NAME = "org.apache.xalan.processor.TransformerFactoryImpl";
 
     public UnmarshallerValidator(JAXBContext context) throws JAXBException, ParserConfigurationException {
 

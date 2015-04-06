@@ -18,21 +18,22 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.services.datastore
+
+import framework.ReposeValveTest
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.StringValue
-import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
-import static org.junit.Assert.*
+import static org.junit.Assert.assertTrue
 
 class DistDatastoreServicePatchTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     String DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
+    def DD_HEADERS = ['X-PP-Host-Key': 'temp', 'X-TTL': '10']
     def BODY = objectSerializer.writeObject(new StringValue.Patch("test data"))
     def INVALID_BODY = objectSerializer.writeObject("test data")
     static def KEY
@@ -49,13 +50,13 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1' : dataStorePort1,
-                'datastorePort2' : dataStorePort2
+                'datastorePort1': dataStorePort1,
+                'datastorePort2': dataStorePort2
         ]
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
-        repose.start([clusterId:"repose", nodeId: "nofilters"])
+        repose.start([clusterId: "repose", nodeId: "nofilters"])
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
@@ -69,17 +70,17 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "PATCH a new cache object should return 200 response" () {
+    def "PATCH a new cache object should return 200 response"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '200'
     }
 
-    def "PATCH a new cache object with invalid Patch should return 400 response" () {
+    def "PATCH a new cache object with invalid Patch should return 400 response"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: INVALID_BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: INVALID_BODY])
 
         then:
         mc.receivedResponse.code == '400'
@@ -87,13 +88,13 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with query parameters should ignore query params and return 200"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY + "?foo=bar", headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY + "?foo=bar", headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '200'
 
         when:
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         objectSerializer.readObject(mc.receivedResponse.body as byte[]).value == "test data"
@@ -104,11 +105,11 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
         def newBody = objectSerializer.writeObject(new StringValue.Patch("MY NEW VALUE"))
-        deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
-        deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
+        deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])
+        deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: newBody])
 
         and: "I get the value for the key"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then: "The body of the get response should be the appended value"
         objectSerializer.readObject(mc.receivedResponse.body as byte[]).value == "test dataMY NEW VALUE"
@@ -116,13 +117,13 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with missing X-TTL is allowed"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: ['X-PP-Host-Key': 'temp'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '200'
 
         when: "I get the value for the key"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         objectSerializer.readObject(mc.receivedResponse.body as byte[]).value == "test data"
@@ -130,13 +131,13 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with empty string as body is allowed, and GET will return it"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: objectSerializer.writeObject(new StringValue.Patch(""))])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: objectSerializer.writeObject(new StringValue.Patch(""))])
 
         then:
         mc.receivedResponse.code == '200'
 
         when: "I get the value from cache with the empty body"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
@@ -145,7 +146,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with no key should return 400 Bad Request"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI, headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
@@ -155,14 +156,14 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
     def "PATCH with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: ['X-TTL': '10'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '401'
         mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then: "The key is valid but does not exist, so should return a 404 NOT FOUND"
         mc.receivedResponse.code == '404'
@@ -171,15 +172,15 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
     def "PATCH of invalid key should fail with 400 Bad Request"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers: DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method : 'PATCH', url: distDatastoreEndpoint, path: DD_PATH + key,
+                                               headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method : 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
+                                  headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'
@@ -187,7 +188,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         where:
         key                                       | scenario
-        UUID.randomUUID().toString() +"///"       | "unnecessary slashes on path"
+        UUID.randomUUID().toString() + "///"      | "unnecessary slashes on path"
         "foo/bar/?assd=adff"                      | "includes query parameters"
         "foo"                                     | "less than 36 chars"
         UUID.randomUUID().toString() + "a"        | "more than 36 chars"
@@ -225,11 +226,11 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == "200"
-        assertTrue("Equals",largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body as byte[]).value.size())
+        assertTrue("Equals", largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body as byte[]).value.size())
     }
 
     def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
@@ -244,7 +245,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == "404"

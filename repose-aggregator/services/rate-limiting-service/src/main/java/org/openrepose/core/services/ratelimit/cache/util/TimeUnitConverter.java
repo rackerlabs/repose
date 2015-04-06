@@ -25,7 +25,8 @@ import java.util.concurrent.TimeUnit;
  * @author jhopper
  */
 public final class TimeUnitConverter {
-    private TimeUnitConverter() {}
+    private TimeUnitConverter() {
+    }
 
     public static TimeUnit fromSchemaTypeToConcurrent(org.openrepose.core.services.ratelimit.config.TimeUnit unit) {
         switch (unit) {

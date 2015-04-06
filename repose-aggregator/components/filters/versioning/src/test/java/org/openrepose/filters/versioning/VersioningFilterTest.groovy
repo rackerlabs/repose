@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest
 class VersioningFilterTest extends VersioningFilterSpecification {
     def configurationManager, request, response, chain, handlerFactory, handler, filterDirector, filterConfig
 
-    def setup(){
+    def setup() {
         /*configurationService = mock(ConfigurationService)
         request = mock(HttpServletRequest)
         response = mock(HttpServletResponse)
@@ -95,7 +95,7 @@ class VersioningFilterTest extends VersioningFilterSpecification {
 
         def responseBody = "HEY A BODY"
         response.setContentLength(10)// size of responseBody .. but no
-        response.setStatus(200,"OK")
+        response.setStatus(200, "OK")
         response.addHeader("X-Derp-header", "lolwut")
         response.getWriter().print(responseBody)
         response.getWriter().flush()
@@ -103,12 +103,12 @@ class VersioningFilterTest extends VersioningFilterSpecification {
 
         when:
         def mediaTypes = new MediaTypeList()
-        mediaTypes.mediaType << new MediaType(type: "application/vnd.vendor.service-v1+xml", base: "application/xml" )
-        mediaTypes.mediaType << new MediaType(type: "application/vnd.vendor.service+xml; version=1", base: "application/xml" )
-        mediaTypes.mediaType << new MediaType(type: "application/v1+xml", base: "application/xml" )
-        mediaTypes.mediaType << new MediaType(type: "application/vnd.rackspace; x=v1, y=xml", base: "application/xml" )
+        mediaTypes.mediaType << new MediaType(type: "application/vnd.vendor.service-v1+xml", base: "application/xml")
+        mediaTypes.mediaType << new MediaType(type: "application/vnd.vendor.service+xml; version=1", base: "application/xml")
+        mediaTypes.mediaType << new MediaType(type: "application/v1+xml", base: "application/xml")
+        mediaTypes.mediaType << new MediaType(type: "application/vnd.rackspace; x=v1, y=xml", base: "application/xml")
         def filter = configureFilter([
-                serviceVersionMapping("target1","/v1","DEPRECATED", mediaTypes)
+                serviceVersionMapping("target1", "/v1", "DEPRECATED", mediaTypes)
         ], [
                 new DestinationEndpoint(id: "target1", hostname: "localhost", protocol: "http", port: 8080, rootPath: "/", default: true),
                 new DestinationEndpoint(id: "target2", hostname: "localhost", protocol: "http", port: 8080, rootPath: "/", default: false)

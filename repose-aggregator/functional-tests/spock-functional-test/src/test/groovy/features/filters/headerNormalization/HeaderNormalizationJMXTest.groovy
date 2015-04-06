@@ -26,7 +26,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
 
 @Category(Slow.class)
 class HeaderNormalizationJMXTest extends ReposeValveTest {
@@ -62,7 +61,6 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
         // start deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
-
 
         // configure and start repose
 

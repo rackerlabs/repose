@@ -43,21 +43,26 @@ import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AuthenticationServiceClientTest extends Specification {
-    @Shared def objectFactory = new ObjectFactory()
-    @Shared def coreJaxbContext = JAXBContext.newInstance(
-                org.openstack.docs.identity.api.v2.ObjectFactory.class,
-                com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class)
-    @Shared def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
-    @Shared def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
+    @Shared
+    def objectFactory = new ObjectFactory()
+    @Shared
+    def coreJaxbContext = JAXBContext.newInstance(
+            org.openstack.docs.identity.api.v2.ObjectFactory.class,
+            com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class)
+    @Shared
+    def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
+    @Shared
+    def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
 
     ListAppender app;
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear();
+        app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
     }
 
     def 'can make a call to an auth service to validate a token'() {
@@ -93,7 +98,9 @@ class AuthenticationServiceClientTest extends Specification {
         then:
         def e = thrown(AuthServiceException)
         e.getMessage() =~ "Unable to retrieve admin token"
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token.  Verify admin credentials. 401" }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to get admin token.  Verify admin credentials. 401"
+        }
     }
 
     @Unroll
@@ -111,10 +118,12 @@ class AuthenticationServiceClientTest extends Specification {
         then:
         def e = thrown(AuthServiceOverLimitException)
         e.getMessage() =~ "Rate limited by identity service"
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get admin token. Status code: $statusCode" }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to get admin token. Status code: $statusCode"
+        }
 
         where:
-        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
     }
 
     def 'reuses the admin token if it is still valid'() {
@@ -148,7 +157,7 @@ class AuthenticationServiceClientTest extends Specification {
         def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
         when(akkaServiceClient.post(eq("ADMIN_TOKEN"), eq("http://some/uri/tokens"), any(Map), eq(adminAuthRequest), eq(MediaType.APPLICATION_XML_TYPE)))
                 .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes())),
-                            new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())))
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())))
         mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, 401)
         mockUserAuthenticationRequest(akkaServiceClient, "newAdminToken", userToValidate, 200)
 
@@ -158,7 +167,9 @@ class AuthenticationServiceClientTest extends Specification {
         def response = client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token: normalToken due to status code: 401 :admin token expired. Retrieving new admin token and retrying token validation..." }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to validate token: normalToken due to status code: 401 :admin token expired. Retrieving new admin token and retrying token validation..."
+        }
         response.token.id == userToValidate.token
     }
 
@@ -175,6 +186,7 @@ class AuthenticationServiceClientTest extends Specification {
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
+
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
                 return new ServiceClientResponse(codes[increment++], new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
@@ -186,7 +198,9 @@ class AuthenticationServiceClientTest extends Specification {
         client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to validate token.  Invalid token. ${userAuthCalls.last()}" }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to validate token.  Invalid token. ${userAuthCalls.last()}"
+        }
 
         where:
         desc                                | adminTokenCalls | userAuthCalls
@@ -207,6 +221,7 @@ class AuthenticationServiceClientTest extends Specification {
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
+
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
                 return new ServiceClientResponse(codes[increment++], new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
@@ -225,15 +240,15 @@ class AuthenticationServiceClientTest extends Specification {
 
         where:
         statusMap << getStatusList().collect { code ->
-            [statusCode: code,
+            [statusCode   : code,
              userAuthCalls: [code],
-             errorMessage: "Unable to validate token. Response from http://some/uri: $code",
-             logMessage: "Authentication Service returned an unexpected response status code: $code",]
+             errorMessage : "Unable to validate token. Response from http://some/uri: $code",
+             logMessage   : "Authentication Service returned an unexpected response status code: $code",]
         } + getStatusList().collect { code ->
-            [statusCode: code,
-             userAuthCalls: [401,code],
-             errorMessage: "Unable to authenticate user with configured Admin credentials",
-             logMessage: "Still unable to validate token: $code",]
+            [statusCode   : code,
+             userAuthCalls: [401, code],
+             errorMessage : "Unable to authenticate user with configured Admin credentials",
+             logMessage   : "Still unable to validate token: $code",]
         }
     }
 
@@ -269,7 +284,7 @@ class AuthenticationServiceClientTest extends Specification {
         def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
         when(akkaServiceClient.post(eq("ADMIN_TOKEN"), eq("http://some/uri/tokens"), any(Map), eq(adminAuthRequest), eq(MediaType.APPLICATION_XML_TYPE)))
                 .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes())),
-                            new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())))
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())))
         mockUserEndpointRequest(akkaServiceClient, admin.token, userToValidate, 401)
         mockUserEndpointRequest(akkaServiceClient, "newAdminToken", userToValidate, 200)
 
@@ -279,7 +294,9 @@ class AuthenticationServiceClientTest extends Specification {
         def response = client.getEndpointsForToken(userToValidate.token)
 
         then:
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..." }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..."
+        }
         response[0].id == 12345
         response[0].publicURL == "http://foo.com"
     }
@@ -302,10 +319,12 @@ class AuthenticationServiceClientTest extends Specification {
         then:
         def e = thrown(AuthServiceOverLimitException)
         e.getMessage() =~ "Rate limited by identity service"
-        app.getEvents().find { it.getMessage().getFormattedMessage() == "Unable to get endpoints for token: ${userToValidate.token}. Status code: $statusCode" }
+        app.getEvents().find {
+            it.getMessage().getFormattedMessage() == "Unable to get endpoints for token: ${userToValidate.token}. Status code: $statusCode"
+        }
 
         where:
-        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,  FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
+        statusCode << [HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS] // [413, 429]
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {
@@ -328,7 +347,7 @@ class AuthenticationServiceClientTest extends Specification {
 
     private void mockUserAuthenticationRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200) {
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", headersForUserAuthentication(adminToken)))
-            .thenAnswer(new Answer() {
+                .thenAnswer(new Answer() {
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
                 return new ServiceClientResponse(responseCode, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
@@ -339,7 +358,7 @@ class AuthenticationServiceClientTest extends Specification {
     void mockAdminTokenRequest(AkkaServiceClient akkaServiceClient, LinkedHashMap<String, String> admin, int responseCode = 200) {
         def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
         when(akkaServiceClient.post(eq("ADMIN_TOKEN"), eq("http://some/uri/tokens"), any(Map), eq(adminAuthRequest), eq(MediaType.APPLICATION_XML_TYPE)))
-                .thenAnswer(new Answer(){
+                .thenAnswer(new Answer() {
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
                 return new ServiceClientResponse(responseCode, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))

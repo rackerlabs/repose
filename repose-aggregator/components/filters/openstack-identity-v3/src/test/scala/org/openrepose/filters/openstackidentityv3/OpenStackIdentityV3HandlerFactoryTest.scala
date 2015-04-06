@@ -31,10 +31,9 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
-  var handlerFactory: OpenStackIdentityV3HandlerFactory = _
-
   val mockAkkaServiceClient = mock[AkkaServiceClient]
   val mockDatastoreService = mock[DatastoreService]
+  var handlerFactory: OpenStackIdentityV3HandlerFactory = _
 
   before {
     when(mockDatastoreService.getDefaultDatastore).thenReturn(null)

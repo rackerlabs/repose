@@ -46,7 +46,7 @@ public class ResponseHeadNode extends ObjectFactoryUser implements ComplexNode {
     }
 
     @Override
-    public void build() {                
+    public void build() {
         ResponseHead head = getObjectFactory().createResponseHead();
 
         head.getFidelity().addAll(headFidelity);

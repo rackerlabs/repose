@@ -26,6 +26,7 @@ public interface DatastoreManager {
 
     /**
      * Get the datastore that is being managed.
+     *
      * @return
      * @throws DatastoreUnavailableException if no datastore is available
      */
@@ -33,6 +34,7 @@ public interface DatastoreManager {
 
     /**
      * Returns true if the datastore being managed is distributed, false if the datastore support local storage only.
+     *
      * @return
      */
     boolean isDistributed();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -151,6 +152,59 @@
                     <verbose>false</verbose>
 
                 </configuration>
+            </plugin>
+            <!-- this is working now that doxygen is commented out-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codenarc</groupId>
+                        <artifactId>CodeNarc</artifactId>
+                        <version>0.21</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrepose</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>codenarc</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask"
+                                         classpathref="maven.plugin.classpath"/>
+                                <codenarc
+                                        ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
+                                        maxPriority1Violations="0"
+                                        maxPriority2Violations="0"
+                                        maxPriority3Violations="0"
+                                        >
+                                    <report type="xml">
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
+                                        <option name="title" value="${project.name}"/>
+                                    </report>
+                                    <!--fileset dir="${basedir}/src/test/groovy"-->
+                                    <fileset dir="${basedir}/src/test/java">
+                                        <include name="**/*.groovy"/>
+                                    </fileset>
+                                </codenarc>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

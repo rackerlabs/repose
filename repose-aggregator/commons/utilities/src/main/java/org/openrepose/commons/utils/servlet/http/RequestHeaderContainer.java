@@ -75,7 +75,7 @@ public class RequestHeaderContainer implements HeaderContainer {
         return valueMap;
     }
 
-    private List<HeaderValue> extractValues(HeaderName name){
+    private List<HeaderValue> extractValues(HeaderName name) {
 
         List<HeaderValue> values = new ArrayList<HeaderValue>();
 

@@ -24,13 +24,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
  * @author zinic
  */
 public class QueryStringNormalizer implements Normalizer<String> {
 
     private final ParameterFilterFactory parameterFilterFactory;
-    private final boolean alphabetize; 
+    private final boolean alphabetize;
 
     public QueryStringNormalizer(ParameterFilterFactory parameterFilterFactory, boolean alphabetize) {
         this.parameterFilterFactory = parameterFilterFactory;
@@ -54,7 +53,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
 
         final StringBuilder queryStringBuilder = new StringBuilder();
 
-        for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext();) {
+        for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext(); ) {
             final QueryParameter nextParameter = paramIterator.next();
 
             writeParameter(queryStringBuilder, nextParameter);
@@ -66,7 +65,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
     // TODO:Refactor - Consider returning a string value
     public void writeParameter(StringBuilder queryStringBuilder, QueryParameter queryParameter) {
         final ParameterFilter parameterFilter = parameterFilterFactory.newInstance();
-        for (Iterator<String> valueIterator = queryParameter.getValues().iterator(); valueIterator.hasNext();) {
+        for (Iterator<String> valueIterator = queryParameter.getValues().iterator(); valueIterator.hasNext(); ) {
             final String value = valueIterator.next();
 
             if (parameterFilter.shouldAccept(queryParameter.getName())) {

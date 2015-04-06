@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+
+    <module name="FileTabCharacter"/>
+
+
+    <module name="TreeWalker">
+
+
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="\n\n\n\n"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Maximum 2 blank lines"/>
+        </module>
+
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, TYPECAST, SEMI"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens"
+                      value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LE, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, SL, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" class.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before class left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="\(.*\)[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before left brace after paren misc. (methods, etc)"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" if.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before if left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" else.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before else left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" for.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before for left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" while.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before while left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" do.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before do left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" switch.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before switch left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" try.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before try left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" catch.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before catch left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" finally.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before finally left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value=" synchronized.*[^\s-\n]\{"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space required before synchronized left brace"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format"
+                      value=" if\(| for\(| while\(| switch\(| try\(| catch\(| syncrhonized\("/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space before paren of if, for, while, switch, try, catch, synchronized"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="if.*[^\s-]else|try.*[^\s-]else|try.*[^\s-]finally"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space before else, catch, or finally"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="package .*;\n[^\n]"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Missing blank line after package"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="^(?!import ).*[^\s-].*\nimport "/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Missing blank line before import"/>
+        </module>
+
+        <module name="Regexp">
+            <property name="format" value="import .*\n(?!import )[^\n]*[^\s-]"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Missing blank line after import"/>
+        </module>
+
+    </module>
+</module>

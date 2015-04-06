@@ -38,6 +38,7 @@ public interface ClusterView {
 
     /**
      * Evaluate whether the given address represents a local datastore.
+     *
      * @param addr
      * @return true if local, false if remote
      * @throws SocketException
@@ -48,6 +49,7 @@ public interface ClusterView {
      * Mark a member of the cluster as damaged.  A member of a cluster should be marked
      * as damaged if an attempt to perform a DistributedDatastore action to the
      * cluster fails for any reason.
+     *
      * @param address
      * @param reason
      */
@@ -56,24 +58,28 @@ public interface ClusterView {
     /**
      * Update the ClusterView with the provided members.  Existing members and their
      * states should be replaced with the new member list.
+     *
      * @param newMembers
      */
     void updateMembers(InetSocketAddress[] newMembers);
 
     /**
      * Should delegate up to the updateMembers method that takes an array
+     *
      * @param newMembers
      */
     void updateMembers(List<InetSocketAddress> newMembers);
 
     /**
      * Return a copy of this ClusterView
+     *
      * @return
      */
     ClusterView copy();
 
     /**
      * Return true if any members are marked as damaged, false if all members are undamaged.
+     *
      * @return
      */
     boolean hasDamagedMembers();

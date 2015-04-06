@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -458,7 +459,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <profiles>
@@ -665,7 +665,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
 
@@ -676,7 +675,7 @@
                 <version>${gmaven.version}</version>
                 <configuration>
                     <providerSelection>1.8</providerSelection>
-                    <source />
+                    <source/>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -769,7 +768,8 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <illegalTransitiveDependencyCheck implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
+                                <illegalTransitiveDependencyCheck
+                                        implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
                                     <reportOnly>false</reportOnly>
                                     <useClassesFromLastBuild>true</useClassesFromLastBuild>
                                     <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
@@ -794,7 +794,8 @@
 
                 <configuration>
                     <failOnWarning>false</failOnWarning>
-                    <ignoreNonCompile>true</ignoreNonCompile> <!-- don't include non-compile paths for now -->
+                    <ignoreNonCompile>true</ignoreNonCompile>
+                    <!-- don't include non-compile paths for now -->
                 </configuration>
                 <executions>
                     <execution>
@@ -803,6 +804,122 @@
                         <goals>
                             <goal>analyze-only</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrepose</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>verify-style</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>repose-style-configs/checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrepose</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <verbose>false</verbose>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failOnWarning>true</failOnWarning>
+                    <sourceDirectories>
+                        <dir>${basedir}/src/main/scala</dir>
+                    </sourceDirectories>
+                    <testSourceDirectories>
+                        <dir>${basedir}/src/test/scala</dir>
+                    </testSourceDirectories>
+                    <configLocation>repose-style-configs/scalastyle_config.xml</configLocation>
+                    <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- this is working now that doxygen is commented out-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codenarc</groupId>
+                        <artifactId>CodeNarc</artifactId>
+                        <version>0.21</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrepose</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>codenarc</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask"
+                                         classpathref="maven.plugin.classpath"/>
+                                <codenarc
+                                        ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
+                                        maxPriority1Violations="0"
+                                        maxPriority2Violations="0"
+                                        maxPriority3Violations="0"
+                                        >
+                                    <report type="xml">
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
+                                        <option name="title" value="${project.name}"/>
+                                    </report>
+                                    <fileset dir="${basedir}/src/test/groovy" erroronmissingdir="false">
+                                        <include name="**/*.groovy"/>
+                                    </fileset>
+                                </codenarc>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

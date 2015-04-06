@@ -31,9 +31,11 @@ import spock.lang.Unroll
  * Created by jennyvo on 8/27/14.
  * Test token cached with no cache-offset attr or set to 0
  */
-class IdentityV3NoCacheOffSetTest extends ReposeValveTest{
-    @Shared def identityEndpoint
-    @Shared def MockIdentityV3Service fakeIdentityV3Service
+class IdentityV3NoCacheOffSetTest extends ReposeValveTest {
+    @Shared
+    def identityEndpoint
+    @Shared
+    def MockIdentityV3Service fakeIdentityV3Service
 
     def cleanup() {
         if (deproxy)
@@ -59,7 +61,7 @@ class IdentityV3NoCacheOffSetTest extends ReposeValveTest{
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset/"+additionalConfigs, params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset/" + additionalConfigs, params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -148,8 +150,8 @@ class IdentityV3NoCacheOffSetTest extends ReposeValveTest{
         fakeIdentityV3Service.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser | additionalConfigs   | id   | tokenTimeout
-        10          | 4                   | "notset"            | 100  | 5000
-        15          | 4                   | "defaultzero"       | 200  | 5000
+        uniqueUsers | initialCallsPerUser | additionalConfigs | id  | tokenTimeout
+        10          | 4                   | "notset"          | 100 | 5000
+        15          | 4                   | "defaultzero"     | 200 | 5000
     }
 }

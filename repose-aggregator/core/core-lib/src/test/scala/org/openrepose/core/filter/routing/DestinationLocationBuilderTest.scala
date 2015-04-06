@@ -22,13 +22,13 @@ package org.openrepose.core.filter.routing
 import javax.servlet.http.HttpServletRequest
 
 import org.junit.runner.RunWith
+import org.mockito.Matchers.anyString
+import org.mockito.Mockito.when
 import org.openrepose.core.services.routing.RoutingService
 import org.openrepose.core.systemmodel._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Ignore, Matchers, FunSpec}
-import org.mockito.Mockito.when
-import org.mockito.Matchers.anyString
+import org.scalatest.{FunSpec, Matchers}
 
 /**
  * TODO: something is missing in here!
@@ -143,7 +143,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
         //So Repose creates this, but it's handled outside repose, and so this test case will fail
         // It's delegated to the endpoint, and it is not our problem to handle "//"
         val instance = new DestinationLocationBuilder(routingService, localhost)
-        val result = instance.build(destinationEndpoint(id="destId", port=8080, protocol="http", rootPath = "/", default= true), "/", request)
+        val result = instance.build(destinationEndpoint(id = "destId", port = 8080, protocol = "http", rootPath = "/", default = true), "/", request)
         val expectedUri = "/"
         val expectedUrl = "http://localhost:8080" + expectedUri
 

@@ -19,34 +19,31 @@
  */
 package org.openrepose.common.auth.openstack;
 
-import org.openrepose.common.auth.AuthGroup;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openrepose.common.auth.openstack.OpenStackGroup;
+import org.junit.Before;
+import org.junit.Test;
+import org.openrepose.common.auth.AuthGroup;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 
 import javax.xml.datatype.DatatypeFactory;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author kush5342
  */
 public class OpenStackGroupTest {
-    
-    private DatatypeFactory dataTypeFactory;
+
     AuthenticateResponse authResponse;
     Groups groups;
     Group group;
     AuthGroup authGroup;
-    
-      
+    private DatatypeFactory dataTypeFactory;
+
     @Before
     public void setUp() {
-        
+
         groups = new Groups();
         group = new Group();
         group.setId("groupId");
@@ -56,8 +53,8 @@ public class OpenStackGroupTest {
         authGroup = new OpenStackGroup(group);
 
     }
-    
-     /**
+
+    /**
      * Test of getId method, of class OpenStackGroup.
      */
     @Test
@@ -65,7 +62,7 @@ public class OpenStackGroupTest {
         String expResult = "groupId";
         String result = authGroup.getId();
         assertEquals(expResult, result);
-        
+
     }
 
     /**
@@ -73,11 +70,11 @@ public class OpenStackGroupTest {
      */
     @Test
     public void testGetName() {
-    
+
         String expResult = "Group Name";
         String result = authGroup.getName();
         assertEquals(expResult, result);
-        
+
     }
 
     /**
@@ -85,10 +82,10 @@ public class OpenStackGroupTest {
      */
     @Test
     public void testGetDescription() {
-        
+
         String expResult = "Group Description";
         String result = authGroup.getDescription();
         assertEquals(expResult, result);
-      
+
     }
 }

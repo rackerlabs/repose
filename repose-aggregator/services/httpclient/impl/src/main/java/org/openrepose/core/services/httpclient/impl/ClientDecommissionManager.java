@@ -28,9 +28,9 @@ import java.util.Set;
 
 public class ClientDecommissionManager {
 
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissionManager.class);
     private final Thread decommThread;
     private final ClientDecommissioner decommissioner;
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissionManager.class);
 
     public ClientDecommissionManager(HttpClientUserManager userManager) {
         this.decommissioner = new ClientDecommissioner(userManager);

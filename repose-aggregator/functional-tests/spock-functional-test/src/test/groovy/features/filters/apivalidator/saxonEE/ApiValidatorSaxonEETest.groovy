@@ -18,25 +18,26 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.apivalidator.saxonEE
+
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Unroll
+
 /*
  * Api validator tests ported over from and JMeter
  */
 
-class ApiValidatorSaxonEETest extends ReposeValveTest{
+class ApiValidatorSaxonEETest extends ReposeValveTest {
 
     private final String baseGroupPath = "/wadl/group1"
     private final String baseDefaultPath = "/wadl/default"
 
     private final Map<String, String> defaultHeaders = [
-            "Accept" : "application/xml",
-            "Host"   : "localhost",
-            "Accept-Encoding" : "identity",
-            "User-Agent" : "gdeproxy"
+            "Accept"         : "application/xml",
+            "Host"           : "localhost",
+            "Accept-Encoding": "identity",
+            "User-Agent"     : "gdeproxy"
     ]
 
     def setupSpec() {
@@ -73,26 +74,28 @@ class ApiValidatorSaxonEETest extends ReposeValveTest{
     def "Happy path: when no role passed, should get default wadl"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        def customHandler = {return new Response(200, "OK", [], reqBody)}
+        def customHandler = { return new Response(200, "OK", [], reqBody) }
 
-        when: "When Requesting " + method + " " + request
+        when:
+        "When Requesting " + method + " " + request
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 request, method: method, headers: defaultHeaders,
                 requestBody: reqBody, defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
 
-        then: "result should be " + responseCode
+        then:
+        "result should be " + responseCode
         messageChain.receivedResponse.code.equals(responseCode)
 
 //        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
         where:
-        responseCode | request                                                | method | reqBody
-        "200"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""
-        "404"        | "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "GET"  | ""
-        "405"        | "/resource1/id"                                        | "POST" | ""
-        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "PUT"  | "some data"
+        responseCode | request                                               | method | reqBody
+        "200"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "GET"  | ""
+        "404"        | "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" | "GET"  | ""
+        "405"        | "/resource1/id"                                       | "POST" | ""
+        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "PUT"  | "some data"
 
     }
 
@@ -100,7 +103,7 @@ class ApiValidatorSaxonEETest extends ReposeValveTest{
     def "Happy path: when Group Passed, Should Get Role Specific WADL"() {
         setup: "declare messageChain to be of type MessageChain, additional headers"
         MessageChain messageChain
-        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
 
         when: "When Requesting resource with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
@@ -139,7 +142,7 @@ class ApiValidatorSaxonEETest extends ReposeValveTest{
     def "Happy path: when Ignore XSD Extension enabled"() {
         setup: "declare messageChain to be of type MessageChain, additional headers"
         MessageChain messageChain
-        Map<String, String> headers = ["X-Roles" : "default", "Content-Type" : "application/xml"]
+        Map<String, String> headers = ["X-Roles": "default", "Content-Type": "application/xml"]
 
         when: "When Requesting with valid content"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
@@ -182,9 +185,9 @@ class ApiValidatorSaxonEETest extends ReposeValveTest{
         def reqHeaders =
                 [
                         "user-agent": userAgentValue,
-                        "x-pp-user": "usertest1, usertest2, usertest3",
-                        "accept": "application/xml;q=1 , application/json;q=0.5",
-                        "X-Roles" : "group1"
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5",
+                        "X-Roles"   : "group1"
                 ]
 
         when: "When Requesting resource with x-roles"

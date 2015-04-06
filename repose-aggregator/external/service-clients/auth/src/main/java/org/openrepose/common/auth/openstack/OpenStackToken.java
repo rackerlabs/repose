@@ -38,6 +38,9 @@ import java.util.Set;
  */
 public class OpenStackToken extends AuthToken implements Serializable {
 
+    public static final QName CONTACT_ID_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "contactId", "prefix");
+    private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
+    private static final QName REGION_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
     private final String tenantId;
     private final String tenantName;
     private final long expires;
@@ -48,11 +51,8 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String impersonatorTenantId;
     private final String impersonatorUsername;
     private final String defaultRegion;
-    private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
-    private static final QName REGION_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
     private final Set<String> tenantIds;
     private final String contactId;
-    public static final QName CONTACT_ID_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "contactId", "prefix");
 
     public OpenStackToken(AuthenticateResponse response) {
 
@@ -163,7 +163,9 @@ public class OpenStackToken extends AuthToken implements Serializable {
     }
 
     @Override
-    public Set<String> getTenantIds() { return tenantIds; }
+    public Set<String> getTenantIds() {
+        return tenantIds;
+    }
 
     private UserForAuthenticateResponse getImpersonator(AuthenticateResponse response) {
         if (response.getAny() == null) {

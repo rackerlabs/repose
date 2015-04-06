@@ -26,7 +26,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
 
 /**
  * This test ensures that the versioning filter provides metrics via JMX,
@@ -47,6 +46,7 @@ class VersioningJMXTest extends ReposeValveTest {
 
     Map params
     ReposeConfigurationProvider reposeConfigProvider
+
     def setup() {
         properties = new TestProperties()
 
@@ -54,7 +54,6 @@ class VersioningJMXTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         deproxy.addEndpoint(properties.targetPort2)
-
 
         // configure and start repose
         reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)

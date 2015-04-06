@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class HeaderIdentityHandlerTest {
 
     public static class WhenHandlingRequests {
-        
+
         private static String IP_HEADER_NAME_1 = "IP1";
         private static String IP_HEADER_NAME_2 = "IP2";
         private static String IP_HEADER_1 = "127.0.0.1";
@@ -60,7 +60,7 @@ public class HeaderIdentityHandlerTest {
 
         @Before
         public void setUp() throws Exception {
-            
+
             factory = new HeaderIdentityHandlerFactory();
             config = new HeaderIdentityConfig();
             HttpHeaderList headerList = new HttpHeaderList();
@@ -78,9 +78,9 @@ public class HeaderIdentityHandlerTest {
 
             config.setSourceHeaders(headerList);
             factory.configurationUpdated(config);
-            
+
             handler = factory.buildHandler();
-            
+
             request = mock(HttpServletRequest.class);
             response = mock(ReadableHttpServletResponse.class);
 

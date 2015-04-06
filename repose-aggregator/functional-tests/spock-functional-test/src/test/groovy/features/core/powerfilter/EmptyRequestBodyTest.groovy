@@ -64,7 +64,7 @@ class EmptyRequestBodyTest extends ReposeValveTest {
         given:
         String requestBody = "request body"
         def headers = [
-                "Content-Type":"plain/text"
+                "Content-Type": "plain/text"
         ]
 
         when:

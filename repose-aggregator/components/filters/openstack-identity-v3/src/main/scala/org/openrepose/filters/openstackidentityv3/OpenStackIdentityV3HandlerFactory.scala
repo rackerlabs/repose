@@ -21,8 +21,8 @@ package org.openrepose.filters.openstackidentityv3
 
 import java.util
 
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config

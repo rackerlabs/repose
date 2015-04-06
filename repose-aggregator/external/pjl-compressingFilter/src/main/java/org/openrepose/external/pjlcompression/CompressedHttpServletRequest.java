@@ -69,6 +69,13 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
         this.context = context;
     }
 
+    private static boolean isFilteredHeader(String headerName) {
+        // Filter Content-Encoding since we're handing decompression ourselves
+        // OR
+        // Filter Accept-Encoding so that downstream services don't try to compress too
+        return CompressingHttpServletResponse.CONTENT_ENCODING_HEADER.equalsIgnoreCase(headerName) ||
+                CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER.equalsIgnoreCase(headerName);
+    }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
@@ -92,6 +99,9 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
         return bufferedReader;
     }
 
+    // Header-related methods -- need to make sure we consume and hide the
+    // Content-Encoding header. What a lot of work to get that done:
+
     private CompressingServletInputStream getCompressingServletInputStream() throws IOException {
         if (compressedSIS == null) {
             compressedSIS = new CompressingServletInputStream(httpRequest.getInputStream(),
@@ -99,17 +109,6 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
                     context);
         }
         return compressedSIS;
-    }
-
-    // Header-related methods -- need to make sure we consume and hide the
-    // Content-Encoding header. What a lot of work to get that done:
-
-    private static boolean isFilteredHeader(String headerName) {
-        // Filter Content-Encoding since we're handing decompression ourselves
-        // OR
-        // Filter Accept-Encoding so that downstream services don't try to compress too
-        return CompressingHttpServletResponse.CONTENT_ENCODING_HEADER.equalsIgnoreCase(headerName) ||
-                CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER.equalsIgnoreCase(headerName);
     }
 
     @Override

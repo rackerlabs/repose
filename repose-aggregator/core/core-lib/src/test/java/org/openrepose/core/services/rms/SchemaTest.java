@@ -19,11 +19,11 @@
  */
 package org.openrepose.core.services.rms;
 
-import org.openrepose.core.services.rms.config.ResponseMessagingConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.rms.config.ResponseMessagingConfiguration;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,20 +58,20 @@ public class SchemaTest {
         public void standUp() throws Exception {
 
             dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware( true );
+            dbf.setNamespaceAware(true);
 
-            SchemaFactory sf = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
-            sf.setFeature( "http://apache.org/xml/features/validation/cta-full-xpath-checking", true );
+            SchemaFactory sf = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+            sf.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
 
             Schema schema = sf.newSchema(
-                  new StreamSource[]{
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/response-messaging/response-messaging.xsd")),
-                  });
+                    new StreamSource[]{
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/response-messaging/response-messaging.xsd")),
+                    });
 
             validator = schema.newValidator();
 
             jaxbUnmarshaller = JAXBContext.newInstance(
-                  ResponseMessagingConfiguration.class.getPackage().getName() ).createUnmarshaller();
+                    ResponseMessagingConfiguration.class.getPackage().getName()).createUnmarshaller();
 
 
         }
@@ -86,30 +86,30 @@ public class SchemaTest {
         public void shouldUnmarshall() throws SAXException, JAXBException, ParserConfigurationException, IOException {
             Document doc = dbf.newDocumentBuilder().parse(new InputSource(getClass().getResourceAsStream("/META-INF/service/rms/response-messaging.cfg.xml")));
 
-            validator.validate( new DOMSource( doc ) );
+            validator.validate(new DOMSource(doc));
 
-            ResponseMessagingConfiguration config = jaxbUnmarshaller.unmarshal( doc, ResponseMessagingConfiguration.class).getValue();
+            ResponseMessagingConfiguration config = jaxbUnmarshaller.unmarshal(doc, ResponseMessagingConfiguration.class).getValue();
 
-            assertNotNull( "Expected element should not be null",
-                           config.getStatusCode() );
+            assertNotNull("Expected element should not be null",
+                    config.getStatusCode());
         }
 
 
-        @Test( expected = SAXParseException.class )
+        @Test(expected = SAXParseException.class)
         public void shouldNotValidateDueToAssert() throws IOException, SAXException {
             validator.validate(new StreamSource(getClass().getResourceAsStream("/META-INF/service/rms/response-messaging-assert.cfg.xml")));
         }
 
 
-        @Test( expected = SAXParseException.class )
+        @Test(expected = SAXParseException.class)
         public void shouldNotUnmarshallDueToAssert() throws SAXException, JAXBException, ParserConfigurationException, IOException {
             DocumentBuilder db = dbf.newDocumentBuilder();
 
             Document doc = db.parse(new InputSource(getClass().getResourceAsStream("/META-INF/service/rms/response-messaging-assert.cfg.xml")));
 
-            validator.validate( new DOMSource( doc ) );
+            validator.validate(new DOMSource(doc));
 
-            ResponseMessagingConfiguration config = jaxbUnmarshaller.unmarshal( doc.getDocumentElement(), ResponseMessagingConfiguration.class).getValue();
+            ResponseMessagingConfiguration config = jaxbUnmarshaller.unmarshal(doc.getDocumentElement(), ResponseMessagingConfiguration.class).getValue();
 
         }
     }

@@ -2,17 +2,17 @@
 <?xml-stylesheet type="text/xsl" href="schema.xsl"?>
 
 <schema
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:policy="http://docs.rackspace.com/identity/policy/v1.0"
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
         xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns:policy="http://docs.rackspace.com/identity/policy/v1.0"
         targetNamespace="http://docs.rackspace.com/identity/policy/v1.0">
-    
-    <element name="policy" type="policy:Policy" />
-    <element name="capabilities" type="policy:Capabilities" />
-    <element name="attribute" type="policy:Attribute" />
-    
+
+    <element name="policy" type="policy:Policy"/>
+    <element name="capabilities" type="policy:Capabilities"/>
+    <element name="attribute" type="policy:Attribute"/>
+
     <attribute name="serviceType" type="xsd:string">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -22,7 +22,7 @@
             </xsd:documentation>
         </annotation>
     </attribute>
-    
+
     <attribute name="version" type="xsd:string">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -32,7 +32,7 @@
             </xsd:documentation>
         </annotation>
     </attribute>
-    
+
     <complexType name="Policy">
         <sequence>
             <element name="rule" type="policy:Rule" minOccurs="1" maxOccurs="unbounded"/>
@@ -41,23 +41,23 @@
 
     <complexType name="Rule">
         <sequence>
-            <element name="subject" type="policy:Subject" minOccurs="1" maxOccurs="1" />
-            <element name="capabilities" type="policy:Capabilities" minOccurs="1" maxOccurs="unbounded" />
+            <element name="subject" type="policy:Subject" minOccurs="1" maxOccurs="1"/>
+            <element name="capabilities" type="policy:Capabilities" minOccurs="1" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
-    
+
     <complexType name="Subject">
         <annotation>
             <xsd:documentation>
                 <p>A subject is the entity that requires access.</p>
             </xsd:documentation>
         </annotation>
-        <sequence />
+        <sequence/>
         <attribute name="id" type="xsd:string">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the subject. This could be username, userid, ... 
+                        An ID uniquely identifying the subject. This could be username, userid, ...
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -81,14 +81,14 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="Capabilities">
         <sequence>
-            <element name="attribute" type="policy:Attribute" minOccurs="0" maxOccurs="unbounded" />
-            <element name="capability" type="policy:Capability" minOccurs="1" maxOccurs="unbounded" />
+            <element name="attribute" type="policy:Attribute" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="capability" type="policy:Capability" minOccurs="1" maxOccurs="unbounded"/>
         </sequence>
-        <attribute ref="policy:serviceType"  use="required" />
-        <attribute ref="policy:version"  use="required"/> 
+        <attribute ref="policy:serviceType" use="required"/>
+        <attribute ref="policy:version" use="required"/>
         <attribute name="href" type="xsd:string">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -99,11 +99,11 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="Capability">
         <sequence>
-            <element name="ns" type="policy:Namespace" minOccurs="0" maxOccurs="unbounded" />
-            <element name="attribute" type="policy:Attribute" minOccurs="0" maxOccurs="unbounded" />
+            <element name="ns" type="policy:Namespace" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="attribute" type="policy:Attribute" minOccurs="0" maxOccurs="unbounded"/>
             <element name="description" type="xsd:string">
                 <annotation>
                     <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -123,8 +123,8 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute ref="policy:serviceType" />
-        <attribute ref="policy:version" /> 
+        <attribute ref="policy:serviceType"/>
+        <attribute ref="policy:version"/>
         <attribute name="name" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -171,50 +171,51 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="Attribute">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    Arbitrary key value pairs. Can be attached to capabilities or any other 
+                    Arbitrary key value pairs. Can be attached to capabilities or any other
                     entities defined in this policy.
                 </p>
             </xsd:documentation>
         </annotation>
-        <sequence />
-        <attribute name="name" type="xsd:string" use="required" />
-        <attribute name="value" type="xsd:string" use="required" />
+        <sequence/>
+        <attribute name="name" type="xsd:string" use="required"/>
+        <attribute name="value" type="xsd:string" use="required"/>
     </complexType>
 
     <complexType name="Namespace">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    A place to define prefixes and their namespace bindings. Helps add more details for the xpath property
+                    A place to define prefixes and their namespace bindings. Helps add more details for the xpath
+                    property
                 </p>
             </xsd:documentation>
         </annotation>
-        <sequence />
-        <attribute name="prefix" type="xsd:string" use="required" />
-        <attribute name="namespace" type="xsd:string" use="required" />
+        <sequence/>
+        <attribute name="prefix" type="xsd:string" use="required"/>
+        <attribute name="namespace" type="xsd:string" use="required"/>
     </complexType>
-    
-    <simpleType name="Action"> 
+
+    <simpleType name="Action">
         <union memberTypes="policy:WebMethods xsd:string"/>
     </simpleType>
-    
-    <simpleType name="WebMethods"> 
+
+    <simpleType name="WebMethods">
         <restriction base="xsd:string">
             <enumeration value="GET"/>
-            <enumeration value="POST"/> 
+            <enumeration value="POST"/>
             <enumeration value="PUT"/>
             <enumeration value="DELETE"/>
             <enumeration value="PATCH"/>
             <enumeration value="HEAD"/>
-            <enumeration value="*" />
+            <enumeration value="*"/>
         </restriction>
     </simpleType>
-    
+
     <simpleType name="StringList">
         <list itemType="xsd:string"/>
     </simpleType>

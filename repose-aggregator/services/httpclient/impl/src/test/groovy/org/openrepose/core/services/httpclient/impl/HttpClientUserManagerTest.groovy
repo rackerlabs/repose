@@ -56,32 +56,32 @@ class HttpClientUserManagerTest {
     }
 
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenAddingNullUsers() {
         clientUserManager.addUser(null)
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenAddingEmptyUsers() {
         clientUserManager.addUser("")
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenRemovingNullUsers() {
         clientUserManager.removeUser("clientInstanceId", null)
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenRemovingEmptyUsers() {
         clientUserManager.removeUser("clientInstanceId", "")
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenRemovingNullClient() {
         clientUserManager.removeUser(null, "userId")
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     void whenAddingEmptyClient() {
         clientUserManager.removeUser("", "userId")
     }

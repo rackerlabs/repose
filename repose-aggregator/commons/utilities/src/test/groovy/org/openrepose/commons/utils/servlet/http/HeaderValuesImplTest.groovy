@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
+import org.junit.Before
+import org.junit.Test
 import org.openrepose.commons.utils.http.HttpDate
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.http.header.HeaderValue
-import org.junit.Before
-import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 

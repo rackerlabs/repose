@@ -19,11 +19,11 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed;
 
+import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
-import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreManager;
 
 public class HashRingDatastoreManager implements DatastoreManager {
 

@@ -24,12 +24,13 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Response
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.*
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
@@ -84,9 +85,10 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token+tokenId])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token + tokenId])
 
-        then: "User should receive a " + expectedCode + "response"
+        then:
+        "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
         sleep(500)
 
@@ -141,7 +143,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             validateTokenHandler = {
                 tokenId, request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
             }
         }
         reposeLogSearch.cleanLog()

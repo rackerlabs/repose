@@ -27,15 +27,13 @@ import org.slf4j.Logger;
 
 public class EndpointsConfiguration {
 
-    private enum Formats { XML, JSON };
-
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
-    private static final long TEN_MINUTES_MILLIS = 600000L;
 
+    ;
+    private static final long TEN_MINUTES_MILLIS = 600000L;
     private Formats format; //xml or json
     private Long cacheTimeout; //default is 1 hour
     private Integer identityContractVersion; //not used yet
-
     public EndpointsConfiguration(String format, Long cacheTimeout, Integer identityContractVersion) {
         this.format = determineFormat(format);
         this.cacheTimeout = cacheTimeout;
@@ -78,8 +76,10 @@ public class EndpointsConfiguration {
         this.identityContractVersion = value;
     }
 
-    private Formats determineFormat(String input){
+    private Formats determineFormat(String input) {
 
         return input == null || !input.equalsIgnoreCase(Formats.XML.toString()) ? Formats.JSON : Formats.XML;
     }
+
+    private enum Formats {XML, JSON}
 }

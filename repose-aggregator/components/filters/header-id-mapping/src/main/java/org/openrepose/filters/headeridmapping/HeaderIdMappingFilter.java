@@ -37,9 +37,9 @@ public class HeaderIdMappingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderIdMappingFilter.class);
     private static final String DEFAULT_CONFIG = "header-id-mapping.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private HeaderIdMappingHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public HeaderIdMappingFilter(ConfigurationService configurationService) {

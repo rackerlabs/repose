@@ -47,6 +47,16 @@ public class ContentNormalizationHandlerFactory extends AbstractConfiguredFilter
         };
     }
 
+    @Override
+    protected ContentNormalizationHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        return new ContentNormalizationHandler(headerNormalizer, mediaTypeNormalizer);
+    }
+
     private class ContentNormalizationConfigurationListener implements UpdateListener<ContentNormalizationConfig> {
 
         private boolean isInitialized = false;
@@ -71,15 +81,5 @@ public class ContentNormalizationHandlerFactory extends AbstractConfiguredFilter
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected ContentNormalizationHandler buildHandler() {
-
-        if (!this.isInitialized()) {
-            return null;
-        }
-
-        return new ContentNormalizationHandler(headerNormalizer, mediaTypeNormalizer);
     }
 }

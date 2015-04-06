@@ -40,51 +40,52 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class PutTest {
-   static final ObjectSerializer objectSerializer = new ObjectSerializer(PutTest.class.getClassLoader());
-   public static class WhenCreatingHttpRequestBase {
+    static final ObjectSerializer objectSerializer = new ObjectSerializer(PutTest.class.getClassLoader());
 
-      @Test
-      public void shouldTargetCorrectPutUrl() throws UnknownHostException {
-         //final Put putCommand = new Put("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
-         final String putData = "Put data";
-         final int ttl = 30;
-         final String key = "someKey";
-         final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, key, new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+    public static class WhenCreatingHttpRequestBase {
 
-         Assert.assertEquals("Put command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + key, putCommand.getUrl());
-      }
-   }
+        @Test
+        public void shouldTargetCorrectPutUrl() throws UnknownHostException {
+            //final Put putCommand = new Put("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+            final String putData = "Put data";
+            final int ttl = 30;
+            final String key = "someKey";
+            final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, key, new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
-   public static class WhenProcessingResponse {
+            Assert.assertEquals("Put command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + key, putCommand.getUrl());
+        }
+    }
 
-      @Test
-      public void shouldReturnTrueOnSuccess() throws Exception {
-         final String putData = "Put data";
-         final int ttl = 30;
-         final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+    public static class WhenProcessingResponse {
 
-         // RemoteBehavior.ALLOW_FORWARDING
-         final ServiceClientResponse response = mock(ServiceClientResponse.class);
-         final String responseData = "Response Data";
+        @Test
+        public void shouldReturnTrueOnSuccess() throws Exception {
+            final String putData = "Put data";
+            final int ttl = 30;
+            final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
-         ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
+            // RemoteBehavior.ALLOW_FORWARDING
+            final ServiceClientResponse response = mock(ServiceClientResponse.class);
+            final String responseData = "Response Data";
 
-         when(response.getData()).thenReturn(bt);
-         when(response.getStatus()).thenReturn(202);
+            ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
 
-         Assert.assertEquals("Put command must communicate success on 202", Boolean.TRUE, putCommand.handleResponse(response));
-      }
+            when(response.getData()).thenReturn(bt);
+            when(response.getStatus()).thenReturn(202);
 
-      
-      @Test(expected = DatastoreOperationException.class)
-      public void shouldThrowExeptionOnUnauthorized() throws Exception {
-         final String putData = "Put data";
-         final int ttl = 30;
-         final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
-         final ServiceClientResponse response = mock(ServiceClientResponse.class);
-         when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
+            Assert.assertEquals("Put command must communicate success on 202", Boolean.TRUE, putCommand.handleResponse(response));
+        }
 
-         putCommand.handleResponse(response);
-      }
-   }
+
+        @Test(expected = DatastoreOperationException.class)
+        public void shouldThrowExeptionOnUnauthorized() throws Exception {
+            final String putData = "Put data";
+            final int ttl = 30;
+            final Put putCommand = new Put(TimeUnit.MINUTES, putData, ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+            final ServiceClientResponse response = mock(ServiceClientResponse.class);
+            when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
+
+            putCommand.handleResponse(response);
+        }
+    }
 }

@@ -22,7 +22,7 @@ package org.openrepose.core.services.event.impl;
 import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventService;
 
-public class SimpleEvent <T extends Enum, P> implements Event<T, P> {
+public class SimpleEvent<T extends Enum, P> implements Event<T, P> {
 
     private final P payload;
     private final T type;

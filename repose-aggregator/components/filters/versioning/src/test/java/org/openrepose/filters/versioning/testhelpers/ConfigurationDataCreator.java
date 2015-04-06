@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.versioning.testhelpers;
 
+import org.openrepose.core.systemmodel.Destination;
+import org.openrepose.core.systemmodel.DestinationEndpoint;
 import org.openrepose.filters.versioning.config.MediaType;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.VersionStatus;
-import org.openrepose.core.systemmodel.Destination;
-import org.openrepose.core.systemmodel.DestinationEndpoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -111,7 +111,7 @@ public abstract class ConfigurationDataCreator {
             mediaType.setType("application/vnd.vendor.service; x=v1." + i + "; y=json");
             mediaTypes.getMediaType().add(mediaType);
 
-            mapping.setMediaTypes(mediaTypes);            
+            mapping.setMediaTypes(mediaTypes);
 
             mappings.put(id, mapping);
         }

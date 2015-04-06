@@ -44,7 +44,8 @@ public class ValidatorConfigurator {
     private ValidatorInfo defaultvalidator;
     private List<ValidatorInfo> validators;
 
-    public ValidatorConfigurator() {}
+    public ValidatorConfigurator() {
+    }
 
     public ValidatorConfigurator(ValidatorConfiguration valConfig, String configRoot, String wadlUri) {
         processConfiguration(valConfig, configRoot, wadlUri);
@@ -157,7 +158,7 @@ public class ValidatorConfigurator {
 
     private String getWadlPath(String uri, String configRoot) {
         //If the wadl path is already absolute, just return that rather than prepending the config root
-        if(Paths.get(uri).isAbsolute()) {
+        if (Paths.get(uri).isAbsolute()) {
             return new File(uri).toString();
         } else {
             return new File(configRoot, uri).toURI().toString();

@@ -95,28 +95,28 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
 
         (1..numClients).each {
             threadNum ->
-            Map header1 = ['X-Auth-Token': UUID.randomUUID().leastSignificantBits.toString()]
-            def thread = Thread.start {
-                (1..callsPerClient).each {
-                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
+                Map header1 = ['X-Auth-Token': UUID.randomUUID().leastSignificantBits.toString()]
+                def thread = Thread.start {
+                    (1..callsPerClient).each {
+                        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
-                        println messageChain.receivedResponse.body
-                        if(messageChain.orphanedHandlings.size() > 0) {
-                            println messageChain.orphanedHandlings[0].request.body
-                            println messageChain.orphanedHandlings[0].response.body
-                        }
-                        missingAuthResponse = true
-                    } else {
-                        def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
-                        if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                            println sentToOrigin.request.headers
-                            missingAuthHeader = true
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                            println messageChain.receivedResponse.body
+                            if (messageChain.orphanedHandlings.size() > 0) {
+                                println messageChain.orphanedHandlings[0].request.body
+                                println messageChain.orphanedHandlings[0].response.body
+                            }
+                            missingAuthResponse = true
+                        } else {
+                            def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
+                            if (sentToOrigin.request.headers.findAll("x-roles").empty) {
+                                println sentToOrigin.request.headers
+                                missingAuthHeader = true
+                            }
                         }
                     }
                 }
-            }
-            clientThreads.add(thread)
+                clientThreads.add(thread)
         }
 
         when:

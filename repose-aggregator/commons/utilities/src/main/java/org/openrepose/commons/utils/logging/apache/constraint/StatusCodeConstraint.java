@@ -26,50 +26,50 @@ import java.util.regex.Pattern;
 
 public class StatusCodeConstraint {
 
-   private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
-   private final Set<Integer> statusCodes;
-   private final boolean isInclusivePass;
+    private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
+    private final Set<Integer> statusCodes;
+    private final boolean isInclusivePass;
 
-   public StatusCodeConstraint(boolean isExclusivePass) {
-      this.isInclusivePass = isExclusivePass;
+    public StatusCodeConstraint(boolean isExclusivePass) {
+        this.isInclusivePass = isExclusivePass;
 
-      statusCodes = new HashSet<Integer>();
-   }
+        statusCodes = new HashSet<Integer>();
+    }
 
-   public StatusCodeConstraint(String codes) {
-      this.isInclusivePass = !codes.startsWith("!");
+    public StatusCodeConstraint(String codes) {
+        this.isInclusivePass = !codes.startsWith("!");
 
-      statusCodes = new HashSet<Integer>();
-      for (String st : STATUS_CODE_RX.split(removeNegation(codes))) {
-         statusCodes.add(Integer.parseInt(st));
-      }
-   }
+        statusCodes = new HashSet<Integer>();
+        for (String st : STATUS_CODE_RX.split(removeNegation(codes))) {
+            statusCodes.add(Integer.parseInt(st));
+        }
+    }
 
-   private String removeNegation(String codes) {
-      return codes.startsWith("!") ? codes.substring(1) : codes;
-   }
+    private String removeNegation(String codes) {
+        return codes.startsWith("!") ? codes.substring(1) : codes;
+    }
 
-   public void addStatusCode(Integer statusCode) {
-      statusCodes.add(statusCode);
-   }
+    public void addStatusCode(Integer statusCode) {
+        statusCodes.add(statusCode);
+    }
 
-   public boolean pass(HttpServletResponse response) {
+    public boolean pass(HttpServletResponse response) {
 
-      int responseStatusCode = response.getStatus();
+        int responseStatusCode = response.getStatus();
 
-      return pass(isInclusivePass, responseStatusCode);
-   }
+        return pass(isInclusivePass, responseStatusCode);
+    }
 
-   private boolean pass(boolean passedByDefault, int responseStatusCode) {
-      boolean passed = !passedByDefault;
+    private boolean pass(boolean passedByDefault, int responseStatusCode) {
+        boolean passed = !passedByDefault;
 
-      for (int targetStatusCode : statusCodes) {
-         if (responseStatusCode == targetStatusCode) {
-            passed = !passed;
-            break;
-         }
-      }
+        for (int targetStatusCode : statusCodes) {
+            if (responseStatusCode == targetStatusCode) {
+                passed = !passed;
+                break;
+            }
+        }
 
-      return passed;
-   }
+        return passed;
+    }
 }

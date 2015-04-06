@@ -89,8 +89,8 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint")
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint")
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
 
         then:
         repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)

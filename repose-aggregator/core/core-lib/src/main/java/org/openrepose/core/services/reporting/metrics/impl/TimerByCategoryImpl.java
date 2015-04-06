@@ -19,10 +19,10 @@
  */
 package org.openrepose.core.services.reporting.metrics.impl;
 
-import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,14 +31,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Implements a collection of Timers which share the same JMX type & scope.  These Timers are usually related in some
  * fashion.
- * <p>
+ * <p/>
  * By calling the time(), stop(), and update() methods, a Timer object is automatically registered and can be updated
  * by later calls.
- * <p>
+ * <p/>
  * This is created by the {@link org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl} factory class.
- * <p>
+ * <p/>
  * This class is thread-safe.
- *
  */
 public class TimerByCategoryImpl implements TimerByCategory {
 
@@ -75,6 +74,6 @@ public class TimerByCategoryImpl implements TimerByCategory {
             }
         }
 
-        return map.get( key );
+        return map.get(key);
     }
 }

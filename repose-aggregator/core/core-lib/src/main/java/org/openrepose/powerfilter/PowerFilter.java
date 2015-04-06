@@ -80,10 +80,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Named("powerFilter")
 public class PowerFilter extends DelegatingFilterProxy {
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
-
+    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
     private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
@@ -96,12 +95,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
     private final AtomicReference<PowerFilterRouter> powerFilterRouter = new AtomicReference<>();
     private final AtomicReference<List<FilterContext>> currentFilterChain = new AtomicReference<>();
-
-    private ReportingService reportingService;
-    private HealthCheckServiceProxy healthCheckServiceProxy;
-    private MeterByCategory mbcResponseCodes;
-    private ResponseHeaderService responseHeaderService;
-
     private final String nodeId;
     private final String clusterId;
     private final PowerFilterRouterFactory powerFilterRouterFactory;
@@ -109,24 +102,29 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final MetricsService metricsService;
     private final ConfigurationInformation configurationInformation;
     private final RequestProxyService requestProxyService;
+    private ReportingService reportingService;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
+    private MeterByCategory mbcResponseCodes;
+    private ResponseHeaderService responseHeaderService;
 
     /**
      * OMG SO MANY INJECTED THINGIES
      * TODO: make this less complex
-     * @param clusterId this PowerFilter's cluster ID
-     * @param nodeId this PowerFilter's node ID
-     * @param powerFilterRouterFactory Builds a powerfilter router for this power filter
+     *
+     * @param clusterId                     this PowerFilter's cluster ID
+     * @param nodeId                        this PowerFilter's node ID
+     * @param powerFilterRouterFactory      Builds a powerfilter router for this power filter
      * @param reportingService
      * @param healthCheckService
      * @param responseHeaderService
-     * @param configurationService For monitoring config files
+     * @param configurationService          For monitoring config files
      * @param eventService
      * @param metricsService
      * @param containerConfigurationService
-     * @param responseMessageService the response message service
-     * @param filterContextFactory A factory that builds filter contexts
-     * @param configurationInformation allows JMX to see when this powerfilter is ready
-     * @param requestProxyService Only needed by the servletconfigwrapper thingy, no other way to get it in there
+     * @param responseMessageService        the response message service
+     * @param filterContextFactory          A factory that builds filter contexts
+     * @param configurationInformation      allows JMX to see when this powerfilter is ready
+     * @param requestProxyService           Only needed by the servletconfigwrapper thingy, no other way to get it in there
      */
     @Inject
     public PowerFilter(
@@ -170,52 +168,23 @@ public class PowerFilter extends DelegatingFilterProxy {
         mbcResponseCodes = metricsService.newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
     }
 
-    private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
-
-        @Override
-        public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
-            LOG.info("{}:{} -- Application collection has been modified. Application that changed: {}", clusterId, nodeId, e.payload());
-
-            // Using a set instead of a list to have a deployment health report if there are multiple artifacts with the same name
-            Set<String> uniqueArtifacts = new HashSet<>();
-            try {
-                for (String artifactName : e.payload()) {
-                    uniqueArtifacts.add(artifactName);
-                }
-                healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
-            } catch (IllegalArgumentException exception) {
-                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
-                        "versions of the same artifact exist!", Severity.BROKEN);
-                LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
-                LOG.trace("", exception);
-            }
-
-            configurationHeartbeat();
-        }
-    }
-
-    private class SystemModelConfigListener implements UpdateListener<SystemModel> {
-
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(SystemModel configurationObject) {
-            //TODO: how did I get here, when I've unsubscribed!
-            LOG.debug("{}:{} New system model configuration provided", clusterId, nodeId);
-            SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
-            //TODO: is this wrong?
-            if (previousSystemModel == null) {
-                LOG.debug("{}:{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", clusterId, nodeId);
-                eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
-            }
-
-            configurationHeartbeat();
-            isInitialized = true;
+    public static void markResponseCodeHelper(MeterByCategory mbc, int responseCode, Logger log, String logPrefix) {
+        if (mbc == null) {
+            return;
         }
 
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
+        int code = responseCode / 100;
+
+        if (code == 2) {
+            mbc.mark("2XX");
+        } else if (code == 3) {
+            mbc.mark("3XX");
+        } else if (code == 4) {
+            mbc.mark("4XX");
+        } else if (code == 5) {
+            mbc.mark("5XX");
+        } else {
+            log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
         }
     }
 
@@ -264,9 +233,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                             }
                         }
 
-                        if(LOG.isDebugEnabled()) {
+                        if (LOG.isDebugEnabled()) {
                             List<String> filterChainInfo = new LinkedList<>();
-                            for(FilterContext ctx :newFilterChain) {
+                            for (FilterContext ctx : newFilterChain) {
                                 filterChainInfo.add(ctx.getName() + "-" + ctx.getFilter().getClass().getName());
                             }
                             LOG.debug("{}:{} -- Repose filter chain: {}", clusterId, nodeId, filterChainInfo);
@@ -409,23 +378,52 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
     }
 
-    public static void markResponseCodeHelper(MeterByCategory mbc, int responseCode, Logger log, String logPrefix) {
-        if (mbc == null) {
-            return;
+    private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
+
+        @Override
+        public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
+            LOG.info("{}:{} -- Application collection has been modified. Application that changed: {}", clusterId, nodeId, e.payload());
+
+            // Using a set instead of a list to have a deployment health report if there are multiple artifacts with the same name
+            Set<String> uniqueArtifacts = new HashSet<>();
+            try {
+                for (String artifactName : e.payload()) {
+                    uniqueArtifacts.add(artifactName);
+                }
+                healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
+            } catch (IllegalArgumentException exception) {
+                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
+                        "versions of the same artifact exist!", Severity.BROKEN);
+                LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
+                LOG.trace("", exception);
+            }
+
+            configurationHeartbeat();
+        }
+    }
+
+    private class SystemModelConfigListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            //TODO: how did I get here, when I've unsubscribed!
+            LOG.debug("{}:{} New system model configuration provided", clusterId, nodeId);
+            SystemModel previousSystemModel = currentSystemModel.getAndSet(configurationObject);
+            //TODO: is this wrong?
+            if (previousSystemModel == null) {
+                LOG.debug("{}:{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", clusterId, nodeId);
+                eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
+            }
+
+            configurationHeartbeat();
+            isInitialized = true;
         }
 
-        int code = responseCode / 100;
-
-        if (code == 2) {
-            mbc.mark("2XX");
-        } else if (code == 3) {
-            mbc.mark("3XX");
-        } else if (code == 4) {
-            mbc.mark("4XX");
-        } else if (code == 5) {
-            mbc.mark("5XX");
-        } else {
-            log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 }

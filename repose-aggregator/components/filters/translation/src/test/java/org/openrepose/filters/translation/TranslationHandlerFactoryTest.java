@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.translation;
 
-import org.openrepose.filters.translation.config.*;
-import org.openrepose.core.services.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.filters.translation.config.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
 public class TranslationHandlerFactoryTest {
 
     public static class WhenBuildingHandlers {
-        
+
         private TranslationHandlerFactory factory;
         private String xml = "application/xml";
         private ConfigurationService manager;
@@ -44,15 +44,14 @@ public class TranslationHandlerFactoryTest {
             manager = mock(ConfigurationService.class);
             factory = new TranslationHandlerFactory(manager, "", "");
         }
-        
-   
-        
+
+
         @Test
         public void shouldCreateProcessorPoolsOnConfigUpdate() throws Exception {
             TranslationConfig config = new TranslationConfig();
             RequestTranslations requestTranslations = new RequestTranslations();
             ResponseTranslations responseTranslations = new ResponseTranslations();
-            
+
             RequestTranslation trans1 = new RequestTranslation();
             StyleSheets sheets = new StyleSheets();
             StyleSheet sheet = new StyleSheet();
@@ -63,7 +62,7 @@ public class TranslationHandlerFactoryTest {
             trans1.setContentType(xml);
             trans1.setTranslatedContentType(xml);
             trans1.setStyleSheets(sheets);
-            
+
             requestTranslations.getRequestTranslation().add(trans1);
 
             ResponseTranslation trans2 = new ResponseTranslation();
@@ -72,9 +71,9 @@ public class TranslationHandlerFactoryTest {
             trans2.setCodeRegex("4[\\d]{2}");
             trans2.setTranslatedContentType(xml);
             trans2.setStyleSheets(sheets);
-            
+
             responseTranslations.getResponseTranslation().add(trans2);
-            
+
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
             factory.configurationUpdated(config);

@@ -19,19 +19,17 @@
  */
 package org.openrepose.core.filter.logic.impl;
 
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderName;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderName;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

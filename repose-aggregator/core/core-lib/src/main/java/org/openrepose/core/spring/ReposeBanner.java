@@ -38,6 +38,7 @@ public final class ReposeBanner {
     /**
      * Print the banner to a log.
      * http://stackoverflow.com/a/5445161/423218 -- using this handy method
+     *
      * @param log
      */
     public static void print(Logger log) {
@@ -45,7 +46,7 @@ public final class ReposeBanner {
             final InputStream bannerInputStream = ReposeBanner.class.getResourceAsStream("/repose.banner");
             Scanner s = new Scanner(bannerInputStream).useDelimiter("\\A");
 
-            if(s.hasNext()) {
+            if (s.hasNext()) {
                 log.info("\n" + s.next());
             } else {
                 log.warn("Unable to find the beautiful narwhal banner. This is a bad thing.");

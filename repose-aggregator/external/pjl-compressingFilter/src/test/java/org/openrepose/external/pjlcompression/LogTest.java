@@ -51,6 +51,7 @@ public final class LogTest {
 
     /**
      * this test tests a commons logging implementation that we are *NOT* using
+     *
      * @throws Exception
      */
     @Test

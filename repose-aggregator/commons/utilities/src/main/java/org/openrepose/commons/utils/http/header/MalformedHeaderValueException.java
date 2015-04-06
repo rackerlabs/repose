@@ -20,16 +20,15 @@
 package org.openrepose.commons.utils.http.header;
 
 /**
- *
  * @author zinic
  */
 public class MalformedHeaderValueException extends RuntimeException {
 
-   public MalformedHeaderValueException(String string, Throwable thrwbl) {
-      super(string, thrwbl);
-   }
+    public MalformedHeaderValueException(String string, Throwable thrwbl) {
+        super(string, thrwbl);
+    }
 
-   public MalformedHeaderValueException(String string) {
-      super(string);
-   }
+    public MalformedHeaderValueException(String string) {
+        super(string);
+    }
 }

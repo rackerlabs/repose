@@ -28,7 +28,8 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a>test</a>"
     def static String rssPayload = "<a>test body</a>"
-    def static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
+    def
+    static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
     def static String jsonPayload = "{\"a\":\"1\",\"b\":\"2\"}"
     def static String invalidXml = "<a><remove-me>test</remove-me>somebody"
     def static String invalidJson = "{{'field1': \"value1\", \"field2\": \"value2\"]}"
@@ -41,7 +42,8 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
     def static Map contentOther = ["content-type": "application/other"]
     def static Map contentRss = ["content-type": "application/rss+xml"]
 
-    def static String xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
+    def
+    static String xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
     def static String remove = "remove-me"
     def static String add = "add-me"
 
@@ -66,11 +68,11 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         def resp =
-            deproxy.makeRequest([
-                    url: (String) reposeEndpoint,
-                    method: "POST",
-                    headers: acceptXML + contentXML ,
-                    requestBody: xmlPayLoad])
+                deproxy.makeRequest([
+                        url        : (String) reposeEndpoint,
+                        method     : "POST",
+                        headers    : acceptXML + contentXML,
+                        requestBody: xmlPayLoad])
         def handling = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request headers sent from repose to the origin service should contain"
@@ -81,17 +83,17 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
     def "when translating request query parameters"() {
 
         given: "Repose is configured to translate request query params"
-        def xmlResp = { request ->  new Response(200, "OK", contentXML) }
+        def xmlResp = { request -> new Response(200, "OK", contentXML) }
 
 
         when: "User passes a request through repose"
         def resp =
-            deproxy.makeRequest(
-                    url:(String) reposeEndpoint + "/path/to/resource/",
-                    method:"POST",
-                    headers:acceptXML + contentJSON ,
-                    requestBody:jsonPayload,
-                    defaultHandler:xmlResp)
+                deproxy.makeRequest(
+                        url: (String) reposeEndpoint + "/path/to/resource/",
+                        method: "POST",
+                        headers: acceptXML + contentJSON,
+                        requestBody: jsonPayload,
+                        defaultHandler: xmlResp)
         def handling = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request url sent from repose to the origin service should contain"

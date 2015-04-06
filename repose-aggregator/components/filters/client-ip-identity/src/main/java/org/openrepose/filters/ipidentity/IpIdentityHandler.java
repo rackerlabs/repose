@@ -40,81 +40,81 @@ import java.util.List;
 
 public class IpIdentityHandler extends AbstractFilterLogicHandler {
 
-   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandler.class);
-   public static final String DEFAULT_QUALITY = "0.1";
-   private final IpIdentityConfig config;
-   private final String quality;
-   private WhiteList whiteList = new WhiteList();
-   private final List<IpAddressRange> whitelistIps;
+    public static final String DEFAULT_QUALITY = "0.1";
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandler.class);
+    private final IpIdentityConfig config;
+    private final String quality;
+    private final List<IpAddressRange> whitelistIps;
+    private WhiteList whiteList = new WhiteList();
 
-   public IpIdentityHandler(IpIdentityConfig config, List<IpAddressRange> whitelistIps) {
-      this.config = config;
-      this.whiteList = config.getWhiteList() == null ? new WhiteList() : config.getWhiteList();
-      this.quality = determineQuality();
-      this.whitelistIps = whitelistIps;
-   }
-   
-   
-   private String determineClientIp(HttpServletRequest request) {
-      String address = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
-      if (StringUtilities.isBlank(address)) {
-         address = request.getRemoteAddr();
-      } else {
-         address = address.split(",")[0].trim();
-      }
+    public IpIdentityHandler(IpIdentityConfig config, List<IpAddressRange> whitelistIps) {
+        this.config = config;
+        this.whiteList = config.getWhiteList() == null ? new WhiteList() : config.getWhiteList();
+        this.quality = determineQuality();
+        this.whitelistIps = whitelistIps;
+    }
 
-      return address;
-   }
 
-   @Override
-   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+    private String determineClientIp(HttpServletRequest request) {
+        String address = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
+        if (StringUtilities.isBlank(address)) {
+            address = request.getRemoteAddr();
+        } else {
+            address = address.split(",")[0].trim();
+        }
 
-      final FilterDirector filterDirector = new FilterDirectorImpl();
-      HeaderManager headerManager = filterDirector.requestHeaderManager();
-      String address = determineClientIp(request);
+        return address;
+    }
 
-      if (StringUtilities.isNotBlank(address)) {
-         filterDirector.setFilterAction(FilterAction.PASS);
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
-         String q = quality;
-         String group = IpIdentityGroup.DEST_GROUP;
-         try {
-            if (onWhiteList(address)) {
-               group = IpIdentityGroup.DEFAULT_WHITELIST_GROUP;
-               q = ";q=" + whiteList.getQuality();
+        final FilterDirector filterDirector = new FilterDirectorImpl();
+        HeaderManager headerManager = filterDirector.requestHeaderManager();
+        String address = determineClientIp(request);
+
+        if (StringUtilities.isNotBlank(address)) {
+            filterDirector.setFilterAction(FilterAction.PASS);
+
+            String q = quality;
+            String group = IpIdentityGroup.DEST_GROUP;
+            try {
+                if (onWhiteList(address)) {
+                    group = IpIdentityGroup.DEFAULT_WHITELIST_GROUP;
+                    q = ";q=" + whiteList.getQuality();
+                }
+            } catch (UnknownHostException ex) {
+                LOG.warn("Invalid client IP Address: " + address, ex);
             }
-         } catch (UnknownHostException ex) {
-            LOG.warn("Invalid client IP Address: " + address, ex);
-         }
 
-         headerManager.appendHeader(PowerApiHeader.USER.toString(), address + q);
-         headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group + q);
-      }
-      return filterDirector;
-   }
+            headerManager.appendHeader(PowerApiHeader.USER.toString(), address + q);
+            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group + q);
+        }
+        return filterDirector;
+    }
 
-   private boolean onWhiteList(String address) throws UnknownHostException {
-      boolean onList = false;
+    private boolean onWhiteList(String address) throws UnknownHostException {
+        boolean onList = false;
 
-      byte[] addressBytes = InetAddress.getByName(address).getAddress();
+        byte[] addressBytes = InetAddress.getByName(address).getAddress();
 
-      for (IpAddressRange range : whitelistIps) {
-         if (range.addressInRange(addressBytes)) {
-            onList = true;
-            break;
-         }
-      }
+        for (IpAddressRange range : whitelistIps) {
+            if (range.addressInRange(addressBytes)) {
+                onList = true;
+                break;
+            }
+        }
 
-      return onList;
-   }
+        return onList;
+    }
 
-   private String determineQuality() {
-      String q = DEFAULT_QUALITY;
+    private String determineQuality() {
+        String q = DEFAULT_QUALITY;
 
-      if (config != null && config.getQuality() != null) {
-         q = config.getQuality().toString();
-      }
+        if (config != null && config.getQuality() != null) {
+            q = config.getQuality().toString();
+        }
 
-      return ";q=" + q;
-   }
+        return ";q=" + q;
+    }
 }

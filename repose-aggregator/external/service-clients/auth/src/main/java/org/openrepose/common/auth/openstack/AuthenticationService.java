@@ -29,7 +29,7 @@ import java.util.List;
 public interface AuthenticationService {
 
     AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException;
-    
+
     List<Endpoint> getEndpointsForToken(String userToken) throws AuthServiceException;
 
     AuthGroups getGroups(String userId) throws AuthServiceException;

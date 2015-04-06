@@ -46,7 +46,7 @@ class ChunkedTranslationTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec(){
+    def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
@@ -60,8 +60,8 @@ class ChunkedTranslationTest extends ReposeValveTest {
         def reqHeaders = ["accept": "application/xml", "content-type": "application/xml"]
 
         when:
-        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "POST", requestBody: xmlPayLoad,
-                headers: reqHeaders])
+        MessageChain messageChain = deproxy.makeRequest([url    : reposeEndpoint, method: "POST", requestBody: xmlPayLoad,
+                                                         headers: reqHeaders])
 
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 

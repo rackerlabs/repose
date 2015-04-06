@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:xalan="http://xml.apache.org/xalan"
                 version="1.0">
 
@@ -50,15 +49,15 @@
     <xsl:template match="@xsi:schemaLocation"/>
 
     <xsl:template match='node()'>
-        <xsl:variable name="namespaceValue" select="string(namespace-uri())" />
+        <xsl:variable name="namespaceValue" select="string(namespace-uri())"/>
         <xsl:variable name="newNamespace" select="xalan:nodeset($namespaceMap)/entry[@key=$namespaceValue]"/>
 
         <xsl:choose>
             <xsl:when test="$newNamespace">
                 <xsl:element name='{local-name()}' namespace="{$newNamespace}">
-                    <xsl:copy-of select='namespace::*[not(. = $newNamespace/@key)]' />
+                    <xsl:copy-of select='namespace::*[not(. = $newNamespace/@key)]'/>
                     <xsl:apply-templates select='@*'/>
-                    <xsl:apply-templates select='node()' />
+                    <xsl:apply-templates select='node()'/>
                 </xsl:element>
             </xsl:when>
             <xsl:otherwise>

@@ -58,7 +58,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -73,16 +73,16 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
             client_userid = requestTenant
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
-        if(groupResponseCode != 200){
+        if (groupResponseCode != 200) {
             fakeIdentityService.getGroupsHandler = {
-                userId, request,xml ->
+                userId, request, xml ->
                     new Response(groupResponseCode)
             }
         }
@@ -102,12 +102,12 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | clientToken
-        613           | 613             | 500              | "500"        | 200               | UUID.randomUUID()
-        614           | 614             | 404              | "401"        | 200               | UUID.randomUUID()
-        615           | 615             | 200              | "500"        | 404               | UUID.randomUUID()
-        616           | 616             | 200              | "500"        | 500               | UUID.randomUUID()
-        ""            | 612             | 200              | "500"        | 200               | ""
+        requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | clientToken
+        613           | 613            | 500              | "500"        | 200               | UUID.randomUUID()
+        614           | 614            | 404              | "401"        | 200               | UUID.randomUUID()
+        615           | 615            | 200              | "500"        | 404               | UUID.randomUUID()
+        616           | 616            | 200              | "500"        | 500               | UUID.randomUUID()
+        ""            | 612            | 200              | "500"        | 200               | ""
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
@@ -139,11 +139,11 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole
-        604           | 605             | "not-admin"
-        607           | 607             | "not-admin"
-        608           | 608             | "service:admin-role1"
-        609           | 610             | "service:admin-role1"
+        requestTenant | responseTenant | serviceAdminRole
+        604           | 605            | "not-admin"
+        607           | 607            | "not-admin"
+        608           | 608            | "service:admin-role1"
+        609           | 610            | "service:admin-role1"
     }
 
 }

@@ -19,14 +19,14 @@
  */
 package org.openrepose;
 
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.io.ByteBufferInputStream;
 import org.openrepose.commons.utils.io.ByteBufferOutputStream;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
 import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
 import org.openrepose.core.container.config.ObjectFactory;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -37,7 +37,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * I know this might feel like its in an odd place but I needed a schema to test
  * handing the xml unmarshaller a bytebuffer backed input stream
- * 
  */
 @RunWith(Enclosed.class)
 public class SchemaReadTest {

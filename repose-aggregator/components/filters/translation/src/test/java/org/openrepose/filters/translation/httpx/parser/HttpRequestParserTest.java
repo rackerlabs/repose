@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.translation.httpx.parser;
 
-import org.openrepose.core.httpx.MessageDetail;
-import org.openrepose.core.httpx.RequestHeadDetail;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.httpx.MessageDetail;
+import org.openrepose.core.httpx.RequestHeadDetail;
 import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,18 +33,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author fran
@@ -52,8 +44,8 @@ import static org.mockito.Mockito.when;
 @RunWith(Enclosed.class)
 public class HttpRequestParserTest {
     public static class WhenParsing {
-        private HttpServletRequest mockedRequest;
         Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+        private HttpServletRequest mockedRequest;
         private Enumeration<String> headerNames;
         private Vector<String> headers = new Vector<String>(2);
 
@@ -99,7 +91,7 @@ public class HttpRequestParserTest {
             when(mockedRequest.getProtocol()).thenReturn("HTTP/1.1");
             when(mockedRequest.getContentType()).thenReturn("application/xml");
             when(mockedRequest.getHeader(eq("content-type"))).thenReturn("application/xml");
-            
+
             messageFidelity.add(MessageDetail.BODY);
             messageFidelity.add(MessageDetail.HEAD);
 
@@ -119,7 +111,7 @@ public class HttpRequestParserTest {
 
             InputStreamReader reader = new InputStreamReader(actual);
             BufferedReader bufReader = new BufferedReader(reader);
-            
+
             Diff diff = new Diff(expected, bufReader.readLine());
 
             assertTrue("XML should be equivalent", diff.similar());

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<transform xmlns="http://www.w3.org/1999/XSL/Transform"
-           xmlns:ver="http://docs.openstack.org/common/api/v1.0"
+<transform xmlns:ver="http://docs.openstack.org/common/api/v1.0"
            xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns="http://www.w3.org/1999/XSL/Transform"
            version="1.0">
     <output method="text" encoding="UTF-8"/>
 
@@ -27,8 +27,8 @@
 
     <template name="doVersion">
         <variable name="attribs" select="@*"/>
-        <variable name="links"   select="descendant::atom:link"/>
-        <variable name="types"   select="descendant::ver:media-type"/>
+        <variable name="links" select="descendant::atom:link"/>
+        <variable name="types" select="descendant::ver:media-type"/>
 
         <text>{</text>
         <apply-templates select="$attribs"/>
@@ -54,8 +54,8 @@
     </template>
 
     <template name="doArray">
-        <param name="name" />
-        <param name="nodes" />
+        <param name="name"/>
+        <param name="nodes"/>
         <call-template name="json-string">
             <with-param name="in" select="$name"/>
         </call-template>
@@ -102,7 +102,7 @@
     </template>
 
     <template name="escape-out">
-        <param name="in" />
+        <param name="in"/>
         <param name="char"/>
         <variable name="before" select="substring-before($in, $char)"/>
         <variable name="after" select="substring-after($in, $char)"/>

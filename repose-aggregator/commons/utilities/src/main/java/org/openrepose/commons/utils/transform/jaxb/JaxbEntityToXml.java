@@ -33,14 +33,14 @@ import java.io.StringWriter;
 
 public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<JAXBElement, String> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(JaxbEntityToXml.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JaxbEntityToXml.class);
 
-   public JaxbEntityToXml(JAXBContext ctx) {
-      super(ctx);
-   }
+    public JaxbEntityToXml(JAXBContext ctx) {
+        super(ctx);
+    }
 
-   @Override
-   public String transform(final JAXBElement source) {
+    @Override
+    public String transform(final JAXBElement source) {
         String rtn = null;
         Marshaller pooledObject;
         final ObjectPool<Marshaller> objectPool = getMarshallerPool();
@@ -71,5 +71,5 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
             LOG.trace("", e);
         }
         return rtn;
-   }
+    }
 }

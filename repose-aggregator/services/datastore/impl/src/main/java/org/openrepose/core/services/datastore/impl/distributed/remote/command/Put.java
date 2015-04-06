@@ -54,7 +54,7 @@ public class Put extends AbstractRemoteCommand {
         headers.put(ExtendedHttpHeader.X_TTL.toString(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
         return headers;
     }
-    
+
     @Override
     protected byte[] getBody() {
         try {
@@ -63,7 +63,7 @@ public class Put extends AbstractRemoteCommand {
             throw new DatastoreOperationException("Failed to serialize value to be put", ioe);
         }
     }
-    
+
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException {
         if (response.getStatus() != HttpServletResponse.SC_ACCEPTED) {

@@ -3,7 +3,7 @@
     <delegating/>
 
     <openstack-identity-service username="admin-username"
-                      password="admin-password"
-                      uri="http://localhost:${identityPort}"
-                      xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
+                                password="admin-password"
+                                uri="http://localhost:${identityPort}"
+                                xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
 </openstack-identity-v3>

@@ -65,29 +65,29 @@ public class ServiceClient {
 
     private HttpClientService httpClientService;
 
-    public ServiceClient(String connectionPoolId,HttpClientService httpClientService) {
-        this.connectionPoolId= connectionPoolId;
-        this.httpClientService=httpClientService;
+    public ServiceClient(String connectionPoolId, HttpClientService httpClientService) {
+        this.connectionPoolId = connectionPoolId;
+        this.httpClientService = httpClientService;
     }
 
-    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId,HttpClientService httpClientService) {
-        this.targetHostUri =  targetHostUri;
-        this.username  =  username;
-        this.password  = password;
-        this.connectionPoolId= connectionPoolId;
-        this.httpClientService=httpClientService;
+    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId, HttpClientService httpClientService) {
+        this.targetHostUri = targetHostUri;
+        this.username = username;
+        this.password = password;
+        this.connectionPoolId = connectionPoolId;
+        this.httpClientService = httpClientService;
 
     }
 
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
         HttpClientResponse clientResponse = null;
 
-        try{
+        try {
 
             clientResponse = httpClientService.getClient(connectionPoolId);
             final HttpClient client = clientResponse.getHttpClient();
 
-            if(!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) && !StringUtilities.isEmpty(password) )  {
+            if (!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) && !StringUtilities.isEmpty(password)) {
 
                 client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
 
@@ -96,13 +96,13 @@ public class ServiceClient {
                 credsProvider.setCredentials(
                         new AuthScope(targetHostUri, AuthScope.ANY_PORT),
                         new UsernamePasswordCredentials(username, password));
-                client.getParams().setParameter("http.authentication.credential-provider", credsProvider) ;
+                client.getParams().setParameter("http.authentication.credential-provider", credsProvider);
 
             }
 
             return client;
 
-        } catch(HttpClientNotFoundException e) {
+        } catch (HttpClientNotFoundException e) {
             LOG.error("Failed to obtain an HTTP default client connection");
             throw new ServiceClientException("Failed to obtain an HTTP default client connection", e);
         } finally {
@@ -121,13 +121,13 @@ public class ServiceClient {
         }
     }
 
-    private ServiceClientResponse execute(HttpRequestBase base,String... queryParameters) {
+    private ServiceClientResponse execute(HttpRequestBase base, String... queryParameters) {
         try {
 
-            HttpClient client=getClientWithBasicAuth();
+            HttpClient client = getClientWithBasicAuth();
 
             for (int index = 0; index < queryParameters.length; index = index + 2) {
-               client.getParams().setParameter(queryParameters[index], queryParameters[index + 1]);
+                client.getParams().setParameter(queryParameters[index], queryParameters[index + 1]);
             }
 
             HttpResponse httpResponse = client.execute(base);
@@ -140,7 +140,7 @@ public class ServiceClient {
             }
 
             return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
-        } catch (ServiceClientException  ex){
+        } catch (ServiceClientException ex) {
             LOG.error("Failed to obtain an HTTP default client connection", ex);
         } catch (IOException ex) {
             LOG.error("Error executing request", ex);
@@ -161,7 +161,7 @@ public class ServiceClient {
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.putAll(headers);
-        String localContentType= contentMediaType.getType() +"/"+ contentMediaType.getSubtype();
+        String localContentType = contentMediaType.getType() + "/" + contentMediaType.getSubtype();
         requestHeaders.put(CommonHttpHeader.CONTENT_TYPE.toString(), localContentType);
 
         // TODO: Remove setting the accept type to XML by default
@@ -172,12 +172,12 @@ public class ServiceClient {
         setHeaders(post, requestHeaders);
 
         if (body != null && !body.isEmpty()) {
-            post.setEntity(new InputStreamEntity(new ByteArrayInputStream(body.getBytes()),body.length()));
+            post.setEntity(new InputStreamEntity(new ByteArrayInputStream(body.getBytes()), body.length()));
         }
         return execute(post);
     }
 
-    public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
+    public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters) {
 
         URI uriBuilt;
         HttpGet httpget = new HttpGet(uri);
@@ -209,11 +209,11 @@ public class ServiceClient {
         return execute(httpget);
     }
 
-    public int getPoolSize(){
+    public int getPoolSize() {
         return httpClientService.getMaxConnections(connectionPoolId);
     }
 
-    public int getSocketTimeout(){
+    public int getSocketTimeout() {
         return httpClientService.getSocketTimeout(connectionPoolId);
     }
 

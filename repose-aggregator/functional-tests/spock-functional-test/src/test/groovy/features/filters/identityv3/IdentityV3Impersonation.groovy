@@ -26,7 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 
-class IdentityV3Impersonation extends ReposeValveTest{
+class IdentityV3Impersonation extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -35,7 +35,7 @@ class IdentityV3Impersonation extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -46,9 +46,9 @@ class IdentityV3Impersonation extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
@@ -56,15 +56,15 @@ class IdentityV3Impersonation extends ReposeValveTest{
         fakeIdentityV3Service.resetParameters()
     }
 
-    def "when requesting with impersonation, repose should add X-Impersonator-Name and X-Impersonator-Id" () {
+    def "when requesting with impersonation, repose should add X-Impersonator-Name and X-Impersonator-Id"() {
         given:
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_domainid = 12345
             client_userid = 123456
-            impersonate_name="impersonator_name"
-            impersonate_id="567"
+            impersonate_name = "impersonator_name"
+            impersonate_id = "567"
         }
 
         when: "User passes a request with impersonation through repose"
@@ -72,7 +72,7 @@ class IdentityV3Impersonation extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/12345/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )
@@ -84,7 +84,7 @@ class IdentityV3Impersonation extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityV3Service.impersonate_id
     }
 
-    def "when requesting without impersonation, repose should not add any impersonator headers" () {
+    def "when requesting without impersonation, repose should not add any impersonator headers"() {
         given:
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
@@ -98,7 +98,7 @@ class IdentityV3Impersonation extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/789/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )

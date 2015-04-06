@@ -28,24 +28,25 @@ import java.util.Set;
 
 
 public final class HeaderNormalizer {
-    
-    private HeaderNormalizer(){}
-    
+
+    private HeaderNormalizer() {
+    }
+
     public static Set<HeaderName> getHeadersToRemove(HttpServletRequest request, CompiledRegexAndList target) {
 
         final Enumeration<String> headerNames = request.getHeaderNames();
         Set<HeaderName> headersToRemove = new HashSet<HeaderName>();
         Set<HeaderName> filterList = target.getFilterList();
-        String header;        
-        
-        while(headerNames.hasMoreElements()){
+        String header;
+
+        while (headerNames.hasMoreElements()) {
             header = headerNames.nextElement();
             headersToRemove.add(HeaderName.wrap(header));
         }
 
-        if(!target.isBlackList()){
+        if (!target.isBlackList()) {
             headersToRemove.removeAll(filterList);
-        }else{
+        } else {
             headersToRemove.retainAll(filterList);
         }
         return headersToRemove;

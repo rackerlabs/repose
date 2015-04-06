@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.translation.httpx.node;
 
-import org.openrepose.core.httpx.Body;
-import org.openrepose.core.httpx.Request;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.core.httpx.Body;
+import org.openrepose.core.httpx.Request;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 import org.openrepose.filters.translation.httpx.processor.TranslationPreProcessor;
 import org.slf4j.Logger;

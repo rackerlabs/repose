@@ -19,6 +19,7 @@
  */
 
 package features.filters.clientauthn.tokenexpireheader
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -27,41 +28,42 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
-B-50304
-Pass token expiration in header
+ B-50304
+ Pass token expiration in header
 
-Description:
-    As the origin service, we want the expiration date of token will be passed
-    as header from the Auth component so that we know when stored tokens expire.
+ Description:
+ As the origin service, we want the expiration date of token will be passed
+ as header from the Auth component so that we know when stored tokens expire.
 
-Acceptance Criteria:
-    Expiration date is passed as header name x-token-expires in the header.
-    Format of type x-token-expires time follows http spec for time format. This
-    will be converted to the http spec format. rfc1123... needs to be GMT time.
+ Acceptance Criteria:
+ Expiration date is passed as header name x-token-expires in the header.
+ Format of type x-token-expires time follows http spec for time format. This
+ will be converted to the http spec format. rfc1123... needs to be GMT time.
 
-        Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
+ Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
 
-Test Plan
-    1. Use a simple mock origin service that returns 200 for all requests, and
-       the mock identity service to validate tokens and return a pre-determined
-       expiration date for the token sent in the validation call.
-    2. Make a call to Repose with the test token. Check that:
-        a. The mock identity service received a single validate-token request.
-        b. The handlings list has one entry, indicating that the request
-           reached the origin service
-        c. The request on that handling has a header named "X-Token-Expires"
-           having as its value the default region returned by the mock identity
-           service
-    3. Make a second call to Repose with the same token (should be cached).
-       Check that:
-        a. The mock identity service did not receive any validate-token
-           requests, since the token info should be cached.
-        b. The handlings list has one entry, indicating that the request
-           reached the origin service
-        c. The request on that handling has a header named "X-Token-Expires"
-           having as its value the default region returned by the mock identity
-           service
+ Test Plan
+ 1. Use a simple mock origin service that returns 200 for all requests, and
+ the mock identity service to validate tokens and return a pre-determined
+ expiration date for the token sent in the validation call.
+ 2. Make a call to Repose with the test token. Check that:
+ a. The mock identity service received a single validate-token request.
+ b. The handlings list has one entry, indicating that the request
+ reached the origin service
+ c. The request on that handling has a header named "X-Token-Expires"
+ having as its value the default region returned by the mock identity
+ service
+ 3. Make a second call to Repose with the same token (should be cached).
+ Check that:
+ a. The mock identity service did not receive any validate-token
+ requests, since the token info should be cached.
+ b. The handlings list has one entry, indicating that the request
+ reached the origin service
+ c. The request on that handling has a header named "X-Token-Expires"
+ having as its value the default region returned by the mock identity
+ service
  */
 
 class PassTokenExpirationInHeaderTest extends ReposeValveTest {
@@ -74,7 +76,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort);
 
@@ -106,14 +108,14 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         // Calculate what the string representation of the rfc1123 date will be
         DateTimeFormatter fmt = DateTimeFormat
-            .forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
-            .withLocale(Locale.US)
-            .withZone(DateTimeZone.UTC);
+                .forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+                .withLocale(Locale.US)
+                .withZone(DateTimeZone.UTC);
         def expiresString = fmt.print(fakeIdentityService.tokenExpiresAt);
 
         when: "I send a GET request to Repose with an X-Auth-Token header"
         fakeIdentityService.resetCounts()
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should validate the token and path the token's expiration date/time as the X-Token-Expires header to the origin service"
         mc.receivedResponse.code == "200"
@@ -128,7 +130,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityService.resetCounts()
-        mc = deproxy.makeRequest(url: reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-Token-Expires header as before"
         mc.receivedResponse.code == "200"

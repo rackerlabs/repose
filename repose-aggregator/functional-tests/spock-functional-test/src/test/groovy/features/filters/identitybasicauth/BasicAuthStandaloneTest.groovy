@@ -264,7 +264,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         fakeIdentityService.with {
             generateTokenHandler = {
                 request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER) : retryString], xml)
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
             }
         }
         def headers = [

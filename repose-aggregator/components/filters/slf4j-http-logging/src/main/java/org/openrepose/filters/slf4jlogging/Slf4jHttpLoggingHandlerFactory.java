@@ -21,10 +21,10 @@ package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.slf4jlogging.config.FormatElement;
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLog;
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -54,6 +54,15 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
         return loggerWrappers;
     }
 
+    @Override
+    protected Slf4jHttpLoggingHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new Slf4jHttpLoggingHandler(new LinkedList<Slf4jLoggerWrapper>(loggerWrappers));
+    }
+
     private class Slf4jHttpLoggingConfigurationListener implements UpdateListener<Slf4JHttpLoggingConfig> {
 
         private boolean isInitialized = false;
@@ -66,10 +75,10 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
                 String loggerName = logConfig.getId();
                 //Format string might come from two places, the attribute, or the element
                 String formatString = logConfig.getFormat();
-                if(StringUtilities.isEmpty(formatString)) {
+                if (StringUtilities.isEmpty(formatString)) {
                     FormatElement formatElement = logConfig.getFormatElement();
                     formatString = formatElement.getValue().trim();
-                    if(formatElement.isCrush()) {
+                    if (formatElement.isCrush()) {
                         // Regex breakdown:
                         // (?m)         indicates multi-line processing
                         // [ \t]*       zero or more space or tab characters
@@ -116,14 +125,5 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected Slf4jHttpLoggingHandler buildHandler() {
-
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new Slf4jHttpLoggingHandler(new LinkedList<Slf4jLoggerWrapper>(loggerWrappers));
     }
 }

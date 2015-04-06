@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -33,7 +34,8 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
+            <!--plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
 
                 <executions>
@@ -47,7 +49,7 @@
                             <goal>run</goal>
                         </goals>
 
-                        <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
+
 
                         <configuration>
                             <target>
@@ -60,7 +62,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>

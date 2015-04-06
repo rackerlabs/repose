@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * A simple patchable implementation that works with strings.
- *
+ * <p/>
  * Created with IntelliJ IDEA.
  * User: adrian
  * Date: 1/27/14
@@ -40,6 +40,7 @@ public class StringValue implements Patchable<StringValue, StringValue.Patch>, S
 
     /**
      * Append the value of the patch onto the existing value.
+     *
      * @param patch the patch to apply
      * @return the patched value
      */

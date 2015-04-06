@@ -37,6 +37,73 @@ import scala.xml.XML
 class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends AbstractFilterLogicHandler with LazyLogging {
 
   type UsernameParsingFunction = InputStream => Option[String]
+  val username1_1XML: UsernameParsingFunction = { is =>
+    val xml = XML.load(is)
+    val username = (xml \\ "credentials" \ "@username").text
+    if (username.nonEmpty) {
+      Some(username)
+    } else {
+      None
+    }
+  }
+  // https://www.playframework.com/documentation/2.3.x/ScalaJson
+  //Using play json here because I don't have to build entire objects
+  val username1_1JSON: UsernameParsingFunction = { is =>
+    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
+    val username = (json \ "credentials" \ "username").validate[String]
+    username match {
+      case s: JsSuccess[String] =>
+        Some(s.get)
+      case f: JsError =>
+        logger.debug(s"1.1 JSON parsing failure: ${
+          JsError.toFlatJson(f)
+        }")
+        None
+    }
+  }
+  /**
+   * Many payloads to parse here, should be fun
+   */
+  val username2_0XML: UsernameParsingFunction = { is =>
+    val xml = XML.load(is)
+    val auth = xml \\ "auth"
+    val possibleUsernames = List(
+      (auth \ "apiKeyCredentials" \ "@username").text,
+      (auth \ "passwordCredentials" \ "@username").text,
+      (auth \ "@tenantId").text,
+      (auth \ "@tenantName").text
+    )
+
+    possibleUsernames.filterNot(_.isEmpty).foldLeft[Option[String]](Option.empty[String]) {
+      (opt, it) =>
+        Some(it)
+    }
+  }
+  val username2_0JSON: UsernameParsingFunction = { is =>
+    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
+    val possibleUsernames = List(
+      (json \ "auth" \ "passwordCredentials" \ "username").validate[String],
+      (json \ "auth" \ "RAX-KSKEY:apiKeyCredentials" \ "username").validate[String],
+      (json \ "auth" \ "tenantId").validate[String],
+      (json \ "auth" \ "tenantName").validate[String]
+    )
+
+    val usernames = possibleUsernames.map {
+      case s: JsSuccess[String] => Some(s.get)
+      case f: JsError =>
+        logger.debug(s"2.0 JSON Parsing failure: ${JsError.toFlatJson(f)}")
+        None
+    }.filterNot(_.isEmpty)
+
+    //At this point we have a prioritized list of the username parsing, where the head of the list is more
+    // important to return than the tail. If we are empty, we didn't find anything,
+    // If we've got at least one item, return just the first
+    if (usernames.isEmpty) {
+      None
+    } else {
+      usernames.head
+    }
+  }
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val director = new FilterDirectorImpl()
@@ -101,77 +168,6 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
         logger.warn(s"Unable to parse username from identity $identityRequestVersion request", e)
     } finally {
       limitedInputStream.reset()
-    }
-  }
-
-  val username1_1XML: UsernameParsingFunction = { is =>
-    val xml = XML.load(is)
-    val username = (xml \\ "credentials" \ "@username").text
-    if (username.nonEmpty) {
-      Some(username)
-    } else {
-      None
-    }
-  }
-
-  // https://www.playframework.com/documentation/2.3.x/ScalaJson
-  //Using play json here because I don't have to build entire objects
-  val username1_1JSON: UsernameParsingFunction = { is =>
-    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
-    val username = (json \ "credentials" \ "username").validate[String]
-    username match {
-      case s: JsSuccess[String] =>
-        Some(s.get)
-      case f: JsError =>
-        logger.debug(s"1.1 JSON parsing failure: ${
-          JsError.toFlatJson(f)
-        }")
-        None
-    }
-  }
-
-  /**
-   * Many payloads to parse here, should be fun
-   */
-  val username2_0XML: UsernameParsingFunction = { is =>
-    val xml = XML.load(is)
-    val auth = xml \\ "auth"
-    val possibleUsernames = List(
-      (auth \ "apiKeyCredentials" \ "@username").text,
-      (auth \ "passwordCredentials" \ "@username").text,
-      (auth \ "@tenantId").text,
-      (auth \ "@tenantName").text
-    )
-
-    possibleUsernames.filterNot(_.isEmpty).foldLeft[Option[String]](Option.empty[String]) {
-      (opt, it) =>
-        Some(it)
-    }
-  }
-
-  val username2_0JSON: UsernameParsingFunction = { is =>
-    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
-    val possibleUsernames = List(
-      (json \ "auth" \ "passwordCredentials" \ "username").validate[String],
-      (json \ "auth" \ "RAX-KSKEY:apiKeyCredentials" \ "username").validate[String],
-      (json \ "auth" \ "tenantId").validate[String],
-      (json \ "auth" \ "tenantName").validate[String]
-    )
-
-    val usernames = possibleUsernames.map {
-      case s: JsSuccess[String] => Some(s.get)
-      case f: JsError =>
-        logger.debug(s"2.0 JSON Parsing failure: ${JsError.toFlatJson(f)}")
-        None
-    }.filterNot(_.isEmpty)
-
-    //At this point we have a prioritized list of the username parsing, where the head of the list is more
-    // important to return than the tail. If we are empty, we didn't find anything,
-    // If we've got at least one item, return just the first
-    if (usernames.isEmpty) {
-      None
-    } else {
-      usernames.head
     }
   }
 

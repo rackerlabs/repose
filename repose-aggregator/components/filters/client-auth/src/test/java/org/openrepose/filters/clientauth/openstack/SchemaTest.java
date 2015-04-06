@@ -19,11 +19,11 @@
  */
 package org.openrepose.filters.clientauth.openstack;
 
-import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(Enclosed.class)
 public class SchemaTest {
 
-    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
+    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
 
     public static class WhenValidating {
 
@@ -53,9 +53,9 @@ public class SchemaTest {
 
             jaxbUnmarshaller.setSchema(SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/openstack-ids-auth/openstack-ids-auth.xsd")),
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/http-basic/http-basic.xsd")),
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/client-auth-n-configuration.xsd"))
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/openstack-ids-auth/openstack-ids-auth.xsd")),
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/http-basic/http-basic.xsd")),
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/client-auth-n-configuration.xsd"))
                     }));
         }
 

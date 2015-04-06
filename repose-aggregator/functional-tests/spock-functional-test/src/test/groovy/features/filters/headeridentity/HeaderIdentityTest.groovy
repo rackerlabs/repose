@@ -30,8 +30,8 @@ class HeaderIdentityTest extends ReposeValveTest {
 
     def static String user1 = "reposeuser1"
     def static String user2 = "reposeuser2"
-    def static Map headersIdSingle = ["x-header-user":user1,"some-other-header":"value"]
-    def static Map headersIdMulti = ["x-header-user":user2+","+user1]
+    def static Map headersIdSingle = ["x-header-user": user1, "some-other-header": "value"]
+    def static Map headersIdMulti = ["x-header-user": user2 + "," + user1]
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -65,10 +65,10 @@ class HeaderIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send x-pp-user based on incoming identity header"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser+";q=0.2")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser + ";q=0.2")
 
         and: "Repose will send x-pp-groups with the value of the targeted identity header"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("X-Header-User"+";q=0.2")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("X-Header-User" + ";q=0.2")
 
 
         where:
@@ -82,11 +82,11 @@ class HeaderIdentityTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
@@ -134,7 +134,7 @@ class HeaderIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -163,7 +163,7 @@ class HeaderIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"

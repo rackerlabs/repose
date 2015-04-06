@@ -42,11 +42,11 @@ class ContentNormalizationTest extends ReposeValveTest {
     }
 
     @Unroll("Send req with Accept Headers #sendAcceptHeaders when content normalizing will be #acceptHeaders")
-    def "When content normalizing with Accept Headers contains #sendAcceptHeaders then Accept Headers #acceptHeaders" () {
+    def "When content normalizing with Accept Headers contains #sendAcceptHeaders then Accept Headers #acceptHeaders"() {
         given:
         def headers = []
         def acceptHeaderList = acceptHeaders.split(',')
-        if(sendAcceptHeaders != null){
+        if (sendAcceptHeaders != null) {
             sendAcceptHeaders.split(',').each {
                 headers << ['accept': it]
             }
@@ -59,9 +59,9 @@ class ContentNormalizationTest extends ReposeValveTest {
 
         mc = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:reposeEndpoint + "/v1/usertest1/servers/something",
-                        headers:headers
+                        method : 'GET',
+                        url    : reposeEndpoint + "/v1/usertest1/servers/something",
+                        headers: headers
                 ])
 
 
@@ -71,22 +71,22 @@ class ContentNormalizationTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("accept") == acceptHeaderList
 
         where:
-        sendAcceptHeaders                               |acceptHeaders
-        'application/xml'                               |'application/xml'
-        'application/xml,application/json'              |'application/json'
-        'application/other'                             |'application/other'
-        'application/other,application/xml'             |'application/xml'
-        'html/text,application/xml'                     |'application/xml'
-        'application/xml,html/text'                     |'application/xml'
-        'application/xml,html/text,application/json'    |'application/json'
-        '*/*,application/json'                          |'application/json'
-        '*/*'                                           |'application/json'
-        null                                            |'application/json'
-        'application/json;q=1,application/xml;q=0.5'    |'application/json'
-        'application/xml;q=1,application/json;q=0.5'    |'application/json'
-        'application/xml;q=1'                           |'application/xml'
-        '*/json'                                        |'application/json'
-        '*/other'                                       |'application/json'
+        sendAcceptHeaders                            | acceptHeaders
+        'application/xml'                            | 'application/xml'
+        'application/xml,application/json'           | 'application/json'
+        'application/other'                          | 'application/other'
+        'application/other,application/xml'          | 'application/xml'
+        'html/text,application/xml'                  | 'application/xml'
+        'application/xml,html/text'                  | 'application/xml'
+        'application/xml,html/text,application/json' | 'application/json'
+        '*/*,application/json'                       | 'application/json'
+        '*/*'                                        | 'application/json'
+        null                                         | 'application/json'
+        'application/json;q=1,application/xml;q=0.5' | 'application/json'
+        'application/xml;q=1,application/json;q=0.5' | 'application/json'
+        'application/xml;q=1'                        | 'application/xml'
+        '*/json'                                     | 'application/json'
+        '*/other'                                    | 'application/json'
 
     }
 }

@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.thread;
 
 /**
  *
- * 
+ *
  */
 public interface KeyedStackLockTestThread {
 

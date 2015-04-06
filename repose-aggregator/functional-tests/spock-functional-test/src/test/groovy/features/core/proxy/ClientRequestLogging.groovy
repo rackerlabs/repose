@@ -21,8 +21,8 @@ package features.core.proxy
 
 import framework.ReposeValveTest
 import framework.category.Bug
-import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
+import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 /**
@@ -66,7 +66,7 @@ class ClientRequestLogging extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "test with client request logging true"(){
+    def "test with client request logging true"() {
 
         given: "Repose configs are updated"
         repose.configurationProvider.applyConfigs("common", params)
@@ -104,7 +104,7 @@ class ClientRequestLogging extends ReposeValveTest {
         after_headers_logs.size() - headers_logs.size() == 0
     }
 
-    def "test with client request logging missing"(){
+    def "test with client request logging missing"() {
 
         given: "Repose configs are updated"
         repose.configurationProvider.applyConfigs("common", params)

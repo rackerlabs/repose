@@ -29,12 +29,12 @@ public class InputStreamUriParameter implements URIResolver {
 
     private final InputStream inputStreamReference;
     private final String hrefSpec;
-    
+
     public InputStreamUriParameter(InputStream inputStreamReference) {
         this.inputStreamReference = inputStreamReference;
         this.hrefSpec = "reference:jio:" + inputStreamReference.toString();
     }
-    
+
     public String getHref() {
         return hrefSpec;
     }
@@ -44,7 +44,7 @@ public class InputStreamUriParameter implements URIResolver {
         if (hrefSpec.equals(href)) {
             return new StreamSource(inputStreamReference);
         }
-        
+
         throw new CombinedLimitsTransformerException("Failed to resolve href: " + href);
     }
 }

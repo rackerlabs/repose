@@ -22,10 +22,10 @@ package org.openrepose.filters.clientauth;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +40,12 @@ public class ClientAuthenticationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientAuthenticationFilter.class);
     private static final String DEFAULT_CONFIG = "client-auth-n.cfg.xml";
-    private String config;
-    private ClientAuthenticationHandlerFactory handlerFactory;
     private final DatastoreService datastoreService;
     private final ConfigurationService configurationService;
     private final HttpClientService httpClientService;
     private final AkkaServiceClient akkaServiceClient;
+    private String config;
+    private ClientAuthenticationHandlerFactory handlerFactory;
 
     @Inject
     public ClientAuthenticationFilter(DatastoreService datastoreService,

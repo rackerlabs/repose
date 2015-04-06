@@ -62,17 +62,17 @@ class ChunkedTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("content-type").size() == content_type
         ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == content_length
 
-        if(transfer_encoding > 0)
-         assert ((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
+        if (transfer_encoding > 0)
+            assert ((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
 
         where:
-        method | reqBody | content_type | content_length | transfer_encoding
-        "POST" | "blah"  | 1            | 0              | 1
-        "POST" | null    | 0            | 0              | 1
-        "PUT"  | "blah"  | 1            | 0              | 1
-        "PUT"  | null    | 0            | 0              | 1
-        "TRACE"| "blah"  | 1            | 0              | 0
-        "TRACE"| null    | 0            | 0              | 0
+        method  | reqBody | content_type | content_length | transfer_encoding
+        "POST"  | "blah"  | 1            | 0              | 1
+        "POST"  | null    | 0            | 0              | 1
+        "PUT"   | "blah"  | 1            | 0              | 1
+        "PUT"   | null    | 0            | 0              | 1
+        "TRACE" | "blah"  | 1            | 0              | 0
+        "TRACE" | null    | 0            | 0              | 0
 
     }
 

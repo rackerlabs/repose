@@ -21,8 +21,8 @@ package org.openrepose.core.services.event.common;
 
 public interface EventDispatcher {
 
-   void dispatch();
+    void dispatch();
 
-   Event getEvent();
-   
+    Event getEvent();
+
 }

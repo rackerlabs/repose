@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- *
  * @author zinic
  */
 public abstract class OneTimeUseOutputStream extends OutputStream {

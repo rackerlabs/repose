@@ -19,11 +19,7 @@
  */
 package org.openrepose.core.services.deploy;
 
-import org.openrepose.commons.utils.classloader.EarClassProvider;
-import org.openrepose.commons.utils.classloader.EarProcessingException;
-import org.openrepose.commons.utils.classloader.ReallySimpleEarClassLoaderContext;
-import org.openrepose.commons.utils.classloader.EarClassLoaderContext;
-import org.openrepose.commons.utils.classloader.EarDescriptor;
+import org.openrepose.commons.utils.classloader.*;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
@@ -55,16 +51,13 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactManager.class);
 
     private final EventService eventService;
-    private ContainerConfigurationListener containerConfigurationListener;
     private final ConfigurationService configurationService;
     private final ThreadingService threadingService;
-
     private final ConcurrentHashMap<String, String> artifactApplicationNames = new ConcurrentHashMap<>();
-
-    private DestroyableThreadWrapper watcherThread;
     private final String unpackPrefix = UUID.randomUUID().toString();
-
     private final ConcurrentHashMap<String, EarClassLoaderContext> classLoaderContextMap = new ConcurrentHashMap<>();
+    private ContainerConfigurationListener containerConfigurationListener;
+    private DestroyableThreadWrapper watcherThread;
 
     @Inject
     public ArtifactManager(EventService eventService,

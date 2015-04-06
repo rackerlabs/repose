@@ -38,12 +38,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -198,7 +193,6 @@ import java.util.regex.Pattern;
  */
 public final class CompressingFilter implements Filter {
 
-    private static final String ALREADY_APPLIED_KEY = "com.planetj.servlet.filter.compression.AlreadyApplied";
     /**
      * One may force the filter to use a particular encoding by setting its value as an attribute of the {@link
      * ServletRequest} passed to this filter, under this key. The value should be a valid "Accept-Encoding" header value, like "gzip". Specify "identity" to force no
@@ -217,6 +211,7 @@ public final class CompressingFilter implements Filter {
     static final String VARY_HEADER = "Vary";
     static final String VERSION = "1.7";
     static final String VERSION_STRING = CompressingFilter.class.getName() + '/' + VERSION;
+    private static final String ALREADY_APPLIED_KEY = "com.planetj.servlet.filter.compression.AlreadyApplied";
     private CompressingFilterContext context;
     private CompressingFilterLogger logger;
     //Flag to indicate whether this request is being run through Repose

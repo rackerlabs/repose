@@ -24,6 +24,7 @@ package org.openrepose.filters.versioning.testhelpers
  */
 public interface FilterSetup<T, E> {
     def buildFakeConfigXml(List<E> configList)
+
     T configureFilter(List<E> mappingList)
 
 

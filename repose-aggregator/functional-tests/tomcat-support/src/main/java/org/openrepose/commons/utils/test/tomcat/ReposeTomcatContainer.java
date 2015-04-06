@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.utils.test.tomcat;
 
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.Tomcat;
 import org.openrepose.commons.utils.test.ReposeContainer;
 import org.openrepose.commons.utils.test.ReposeContainerProps;
 import org.openrepose.commons.utils.test.mocks.util.MocksUtil;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +31,8 @@ import javax.servlet.ServletException;
 
 public class ReposeTomcatContainer extends ReposeContainer {
     private static final Logger LOG = LoggerFactory.getLogger(ReposeTomcatContainer.class);
-
-    private Tomcat tomcat;
     private static final String BASE_DIRECTORY = System.getProperty("java.io.tmpdir");
+    private Tomcat tomcat;
 
 
     public ReposeTomcatContainer(ReposeContainerProps props) throws ServletException {
@@ -45,9 +44,9 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.getHost().setDeployOnStartup(true);
         tomcat.addWebapp("/", warLocation).setCrossContext(true);
 
-        if(props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0){
-            for(String originService: props.getOriginServiceWars()){
-                tomcat.addWebapp("/"+ MocksUtil.getServletPath(originService), originService);
+        if (props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0) {
+            for (String originService : props.getOriginServiceWars()) {
+                tomcat.addWebapp("/" + MocksUtil.getServletPath(originService), originService);
             }
         }
     }

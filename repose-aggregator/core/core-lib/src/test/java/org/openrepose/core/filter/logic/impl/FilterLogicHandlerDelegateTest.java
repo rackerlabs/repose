@@ -19,17 +19,17 @@
  */
 package org.openrepose.core.filter.logic.impl;
 
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.FilterLogicHandler;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -39,103 +39,102 @@ import java.util.Collections;
 import static org.mockito.Mockito.*;
 
 /**
- *
  * @author zinic
  */
 @RunWith(Enclosed.class)
 public class FilterLogicHandlerDelegateTest {
 
-   @Ignore
-   public static class TestParent {
+    @Ignore
+    public static class TestParent {
 
-      protected HttpServletRequest servletRequest;
-      protected HttpServletResponse servletResponse;
-      protected FilterChain filterChain;
-      protected FilterLogicHandler filterLogicHandler;
-      protected FilterLogicHandlerDelegate filter;
-      protected FilterDirector filterDirector;
+        protected HttpServletRequest servletRequest;
+        protected HttpServletResponse servletResponse;
+        protected FilterChain filterChain;
+        protected FilterLogicHandler filterLogicHandler;
+        protected FilterLogicHandlerDelegate filter;
+        protected FilterDirector filterDirector;
 
-      @Before
-      public void beforeAll() {
-         servletRequest = mock(HttpServletRequest.class);
-         when(servletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.EMPTY_LIST));
+        @Before
+        public void beforeAll() {
+            servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.EMPTY_LIST));
 
-         servletResponse = mock(HttpServletResponse.class);
+            servletResponse = mock(HttpServletResponse.class);
 
-         filterChain = mock(FilterChain.class);
+            filterChain = mock(FilterChain.class);
 
-         filter = new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain);
+            filter = new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain);
 
-         filterLogicHandler = mock(FilterLogicHandler.class);
+            filterLogicHandler = mock(FilterLogicHandler.class);
 
-         filterDirector = mock(FilterDirector.class);
-         when(filterLogicHandler.handleRequest(any(HttpServletRequest.class), any(ReadableHttpServletResponse.class))).thenReturn(filterDirector);
-         when(filterLogicHandler.handleResponse(any(HttpServletRequest.class), any(ReadableHttpServletResponse.class))).thenReturn(filterDirector);
-      }
-   }
+            filterDirector = mock(FilterDirector.class);
+            when(filterLogicHandler.handleRequest(any(HttpServletRequest.class), any(ReadableHttpServletResponse.class))).thenReturn(filterDirector);
+            when(filterLogicHandler.handleResponse(any(HttpServletRequest.class), any(ReadableHttpServletResponse.class))).thenReturn(filterDirector);
+        }
+    }
 
-   public static class WhenPassingRequests extends TestParent {
+    public static class WhenPassingRequests extends TestParent {
 
-      @Test
-      public void shouldPassOriginalRequestAndResponseObjectsWhenFilterActionIsNotSet() throws Exception {
-         when(filterDirector.getFilterAction()).thenReturn(FilterAction.NOT_SET);
+        @Test
+        public void shouldPassOriginalRequestAndResponseObjectsWhenFilterActionIsNotSet() throws Exception {
+            when(filterDirector.getFilterAction()).thenReturn(FilterAction.NOT_SET);
 
-         filter.doFilter(filterLogicHandler);
+            filter.doFilter(filterLogicHandler);
 
-         verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
-         verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         
-         verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
-      }
+            verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+            verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
 
-      @Test
-      public void shouldPassRequests() throws Exception {
-         when(filterDirector.getFilterAction()).thenReturn(FilterAction.PASS);
+            verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
+            verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
+        }
 
-         filter.doFilter(filterLogicHandler);
+        @Test
+        public void shouldPassRequests() throws Exception {
+            when(filterDirector.getFilterAction()).thenReturn(FilterAction.PASS);
 
-         verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterChain, times(1)).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         
-         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
-      }
-   }
+            filter.doFilter(filterLogicHandler);
 
-   public static class WhenProcessingResponses extends TestParent {
+            verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterChain, times(1)).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
 
-      @Test
-      public void shouldProcessResponse() throws Exception {
-         when(filterDirector.getFilterAction()).thenReturn(FilterAction.PROCESS_RESPONSE);
+            verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
+            verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
+        }
+    }
 
-         filter.doFilter(filterLogicHandler);
+    public static class WhenProcessingResponses extends TestParent {
 
-         verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterChain, times(1)).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterLogicHandler, times(1)).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+        @Test
+        public void shouldProcessResponse() throws Exception {
+            when(filterDirector.getFilterAction()).thenReturn(FilterAction.PROCESS_RESPONSE);
 
-         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
-      }
-   }
+            filter.doFilter(filterLogicHandler);
 
-   public static class WhenReturningResponses extends TestParent {
+            verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterChain, times(1)).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterLogicHandler, times(1)).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
 
-      @Test
-      public void shouldReturnModifiedResponse() throws Exception {
-         when(filterDirector.getFilterAction()).thenReturn(FilterAction.RETURN);
+            verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
+            verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
+        }
+    }
 
-         filter.doFilter(filterLogicHandler);
+    public static class WhenReturningResponses extends TestParent {
 
-         verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterChain, never()).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
-         verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+        @Test
+        public void shouldReturnModifiedResponse() throws Exception {
+            when(filterDirector.getFilterAction()).thenReturn(FilterAction.RETURN);
 
-         verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
-      }
-   }
+            filter.doFilter(filterLogicHandler);
+
+            verify(filterLogicHandler, times(1)).handleRequest(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterChain, never()).doFilter(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+            verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
+
+            verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
+            verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
+        }
+    }
 }

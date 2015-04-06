@@ -50,8 +50,8 @@ import java.io.PrintWriter;
 final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
 
     static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
-    private static final String CACHE_CONTROL_HEADER = "Cache-Control";
     static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
+    private static final String CACHE_CONTROL_HEADER = "Cache-Control";
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String ETAG_HEADER = "ETag";
@@ -98,6 +98,27 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
         this.compressingStreamFactory = compressingStreamFactory;
         this.context = context;
         contentTypeOK = true;
+    }
+
+    private static boolean equalsIgnoreCaseAny(String a, String... others) {
+        for (String other : others) {
+            if (a.equalsIgnoreCase(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isCompressableEncoding(String encoding) {
+        if (encoding == null) {
+            return true;
+        }
+        for (String compressionEncoding : CompressingStreamFactory.ALL_COMPRESSION_ENCODINGS) {
+            if (encoding.equals(compressionEncoding)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -397,15 +418,6 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
         return !unallowed;
     }
 
-    private static boolean equalsIgnoreCaseAny(String a, String... others) {
-        for (String other : others) {
-            if (a.equalsIgnoreCase(other)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void flushWriter() {
         if (printWriter != null) {
             printWriter.flush();
@@ -443,18 +455,6 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
         }
         boolean isContained = context.getContentTypes().contains(contentTypeOnly);
         return context.isIncludeContentTypes() ? isContained : !isContained;
-    }
-
-    private static boolean isCompressableEncoding(String encoding) {
-        if (encoding == null) {
-            return true;
-        }
-        for (String compressionEncoding : CompressingStreamFactory.ALL_COMPRESSION_ENCODINGS) {
-            if (encoding.equals(compressionEncoding)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private CompressingServletOutputStream getCompressingServletOutputStream() throws IOException {

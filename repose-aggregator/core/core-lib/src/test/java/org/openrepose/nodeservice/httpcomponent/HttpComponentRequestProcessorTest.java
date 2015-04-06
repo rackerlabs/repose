@@ -66,7 +66,7 @@ public class HttpComponentRequestProcessorTest {
             host = new HttpHost("somename");
             method = mock(HttpEntityEnclosingRequestBase.class);
             methodParams = mock(HttpParams.class);
-            
+
             when(request.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList(headers)));
             when(request.getHeaders(eq("header1"))).thenReturn(Collections.enumeration(Arrays.asList(values1)));
             when(request.getHeaders(eq("header2"))).thenReturn(Collections.enumeration(Arrays.asList(values2)));
@@ -80,20 +80,20 @@ public class HttpComponentRequestProcessorTest {
 
         @Test
         public void shouldSetHeaders() throws IOException {
-            
+
             when(input.read()).thenReturn(-1);
             processor.process(method);
-            
+
             verify(request).getHeaderNames();
-            for (String header: headers) {
+            for (String header : headers) {
                 verify(request).getHeaders(eq(header));
             }
-            
-            for (String value: values1) {
+
+            for (String value : values1) {
                 verify(method).addHeader(eq("header1"), eq(value));
             }
 
-            for (String value: values2) {
+            for (String value : values2) {
                 verify(method).addHeader(eq("header2"), eq(value));
             }
         }
@@ -101,12 +101,12 @@ public class HttpComponentRequestProcessorTest {
         @Test
         @Ignore
         public void shouldSetParams() throws IOException {
-            
+
             when(input.read()).thenReturn(-1);
             processor.process(method);
-            
+
             verify(request).getParameterNames();
-            for (String param: params) {
+            for (String param : params) {
                 verify(request).getParameterValues(eq(param));
             }
 
@@ -124,9 +124,9 @@ public class HttpComponentRequestProcessorTest {
 
         @Test
         public void shouldSetInputStream() throws IOException {
-            when(input.read()).thenReturn((int)'1');
+            when(input.read()).thenReturn((int) '1');
             processor.process(method);
-            
+
             verify(method).setEntity(any(InputStreamEntity.class));
         }
     }

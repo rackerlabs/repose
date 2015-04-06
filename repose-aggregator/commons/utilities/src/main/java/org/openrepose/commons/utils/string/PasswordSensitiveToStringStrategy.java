@@ -28,14 +28,14 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  */
 public class PasswordSensitiveToStringStrategy extends JAXBToStringStrategy implements ToStringStrategy {
 
-   private static final String PASSWORD_FIELD_NAME = "password";
+    private static final String PASSWORD_FIELD_NAME = "password";
 
-   @Override
-   public StringBuilder appendField(ObjectLocator objectLocator, Object o, String s, StringBuilder stringBuilder, Object o1) {
-      if (PASSWORD_FIELD_NAME.equalsIgnoreCase(s)) {
-         return super.appendField(objectLocator, o, PASSWORD_FIELD_NAME, stringBuilder, "*******");
-      } else {
-         return super.appendField(objectLocator, o, s, stringBuilder, o1);
-      }
-   }
+    @Override
+    public StringBuilder appendField(ObjectLocator objectLocator, Object o, String s, StringBuilder stringBuilder, Object o1) {
+        if (PASSWORD_FIELD_NAME.equalsIgnoreCase(s)) {
+            return super.appendField(objectLocator, o, PASSWORD_FIELD_NAME, stringBuilder, "*******");
+        } else {
+            return super.appendField(objectLocator, o, s, stringBuilder, o1);
+        }
+    }
 }

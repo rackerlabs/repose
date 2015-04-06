@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.ipidentity
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -33,6 +34,7 @@ class IpIdentityTest extends ReposeValveTest {
 
     @Shared
     def url
+
     def setupSpec() {
 
         int deproxyPort = properties.targetPort
@@ -101,11 +103,11 @@ class IpIdentityTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: url, method: 'GET', headers: reqHeaders)
@@ -133,6 +135,7 @@ class IpIdentityTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
     @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
     def "Requests - headers should keep its case in requests"() {
 
@@ -151,7 +154,7 @@ class IpIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -180,7 +183,7 @@ class IpIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"

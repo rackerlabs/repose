@@ -37,9 +37,9 @@ public class ClientDecommissioner implements Runnable {
 
     private static final long DEFAULT_INTERVAL = 5000;
     List<HttpClient> clientList;
+    HttpClientUserManager userManager;
     private boolean done;
     private Object listLock;
-    HttpClientUserManager userManager;
 
     public ClientDecommissioner(HttpClientUserManager userManager) {
 

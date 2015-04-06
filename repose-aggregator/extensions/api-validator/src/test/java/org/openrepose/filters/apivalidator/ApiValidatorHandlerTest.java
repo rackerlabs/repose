@@ -67,19 +67,19 @@ public class ApiValidatorHandlerTest {
             defaultValidator = mock(Validator.class);
             defaultValidatorInfo = new ValidatorInfo(Arrays.asList("defaultrole"), "defaultwadl", null, null);
             defaultValidatorInfo.setValidator(defaultValidator);
-            
+
             role1Validator = mock(Validator.class);
             role1ValidatorInfo = new ValidatorInfo(Arrays.asList("role1"), "role1wadl", null, null);
             role1ValidatorInfo.setValidator(role1Validator);
-            
+
             role2Validator = mock(Validator.class);
             role2ValidatorInfo = new ValidatorInfo(Arrays.asList("role2"), "role2wadl", null, null);
             role2ValidatorInfo.setValidator(role2Validator);
-            
+
             nullValidatorInfo = mock(ValidatorInfo.class);
             when(nullValidatorInfo.getRoles()).thenReturn(Arrays.asList("nullValidator"));
             when(nullValidatorInfo.getValidator()).thenReturn(null);
-            
+
             blowupValidator = mock(Validator.class);
             when(blowupValidator.validate(request, response, chain)).thenThrow(new RuntimeException("Test"));
             blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
@@ -91,26 +91,26 @@ public class ApiValidatorHandlerTest {
             validators.add(role2ValidatorInfo);
             validators.add(nullValidatorInfo);
             validators.add(blowupValidatorInfo);
-            
+
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
             instance.setFilterChain(chain);
 
             when(request.getRequestURI()).thenReturn("/path/to/resource");
 
         }
-        
+
         @Test
         public void shouldCallDefaultValidatorWhenNoRoleMatch() {
-            
+
             instance.handleRequest(request, response);
             verify(defaultValidator).validate(request, response, chain);
         }
-        
+
         @Test
         public void shouldCallValidatorForRole() {
             List<HeaderValue> roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl("role1"));
-            
+
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             instance.handleRequest(request, response);
             verify(role1Validator).validate(request, response, chain);
@@ -120,7 +120,7 @@ public class ApiValidatorHandlerTest {
         public void shouldHandleNullValidators() {
             List<HeaderValue> roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl("nullValidator"));
-            
+
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             FilterDirector director = instance.handleRequest(request, response);
             verify(nullValidatorInfo).getValidator();
@@ -132,7 +132,7 @@ public class ApiValidatorHandlerTest {
             List<HeaderValue> roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl("blowupValidator"));
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
-            
+
             FilterDirector director = instance.handleRequest(request, response);
             verify(blowupValidator).validate(request, response, chain);
             assertEquals(HttpServletResponse.SC_BAD_GATEWAY, director.getResponseStatusCode());

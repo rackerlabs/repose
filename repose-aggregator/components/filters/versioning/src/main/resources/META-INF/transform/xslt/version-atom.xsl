@@ -24,9 +24,9 @@
     <xsl:variable name="versions" select="//ver:version"/>
 
     <xsl:template match="/">
-         <feed>
-             <xsl:apply-templates/>
-         </feed>
+        <feed>
+            <xsl:apply-templates/>
+        </feed>
     </xsl:template>
 
     <xsl:template match="ver:versions | ver:version">
@@ -46,12 +46,22 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <title type="text"><xsl:value-of select="$title"/></title>
-        <updated><xsl:call-template name="latest-time"/></updated>
-        <id><xsl:value-of select="$id"/></id>
+        <title type="text">
+            <xsl:value-of select="$title"/>
+        </title>
+        <updated>
+            <xsl:call-template name="latest-time"/>
+        </updated>
+        <id>
+            <xsl:value-of select="$id"/>
+        </id>
         <author>
-            <name><xsl:value-of select="$authorName"/></name>
-            <uri><xsl:value-of select="$authorURI"/></uri>
+            <name>
+                <xsl:value-of select="$authorName"/>
+            </name>
+            <uri>
+                <xsl:value-of select="$authorURI"/>
+            </uri>
         </author>
         <link rel="self" href="{$id}"/>
         <xsl:apply-templates select="$versions" mode="multiple">
@@ -61,10 +71,16 @@
 
     <xsl:template match="ver:version" mode="multiple">
         <entry>
-            <id><xsl:call-template name="id"/></id>
-            <title type="text">Version <xsl:value-of select="@id"/></title>
-            <updated><xsl:value-of select="@updated"/></updated>
-            <xsl:apply-templates />
+            <id>
+                <xsl:call-template name="id"/>
+            </id>
+            <title type="text">Version
+                <xsl:value-of select="@id"/>
+            </title>
+            <updated>
+                <xsl:value-of select="@updated"/>
+            </updated>
+            <xsl:apply-templates/>
             <content type="text">
                 <xsl:text>Version </xsl:text>
                 <xsl:value-of select="@id"/>
@@ -84,12 +100,12 @@
     </xsl:template>
 
     <xsl:template name="latest-time">
-       <xsl:for-each select="$versions">
-           <xsl:sort select="@updated" order="descending"/>
-           <xsl:if test="position() = 1">
-               <xsl:value-of select="@updated"/>
-           </xsl:if>
-       </xsl:for-each>
+        <xsl:for-each select="$versions">
+            <xsl:sort select="@updated" order="descending"/>
+            <xsl:if test="position() = 1">
+                <xsl:value-of select="@updated"/>
+            </xsl:if>
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="id">
@@ -104,7 +120,7 @@
                     <xsl:value-of select="$version/atom:link[@rel='self']/@href"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:message>version-atom.xsl:  Expected link with rel=alternate or rel=self!</xsl:message>
+                    <xsl:message>version-atom.xsl: Expected link with rel=alternate or rel=self!</xsl:message>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>

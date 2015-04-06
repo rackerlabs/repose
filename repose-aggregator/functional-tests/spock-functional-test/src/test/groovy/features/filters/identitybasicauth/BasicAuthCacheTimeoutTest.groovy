@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.identitybasicauth
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -26,6 +27,7 @@ import org.rackspace.deproxy.MessageChain
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+
 /**
  * Created by jennyvo on 9/24/14.
  * simple token cache timeout test

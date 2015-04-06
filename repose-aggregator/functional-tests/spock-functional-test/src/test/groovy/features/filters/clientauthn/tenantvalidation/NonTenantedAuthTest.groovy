@@ -24,9 +24,6 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Specification
-import spock.lang.Unroll
-
 
 class NonTenantedAuthTest extends ReposeValveTest {
 

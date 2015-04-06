@@ -19,10 +19,10 @@
  */
 package org.openrepose.core.services.jmx;
 
-import java.util.List;
-import java.util.Map;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
+import java.util.List;
+import java.util.Map;
 
 public interface ConfigurationInformationMBean {
     String OBJECT_NAME = "org.openrepose.core.services.jmx:type=ConfigurationInformation";

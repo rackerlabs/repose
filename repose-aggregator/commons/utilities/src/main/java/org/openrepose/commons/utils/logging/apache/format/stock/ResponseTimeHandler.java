@@ -43,7 +43,7 @@ public class ResponseTimeHandler implements FormatterLogic {
         String responseTime = "";
 
         if (startTime != null) {
-            responseTime = decimalFormat.format((System.currentTimeMillis() - (Long)startTime) * multiplier );
+            responseTime = decimalFormat.format((System.currentTimeMillis() - (Long) startTime) * multiplier);
         }
 
         return responseTime;

@@ -29,7 +29,8 @@ import spock.lang.Unroll
 class TranslationMultiMatchTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"
-    def static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
+    def
+    static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
     def static String simpleXml = "<a>test body</a>"
 
     def static String jsonPayload = "{\"field1\": \"value1\", \"field2\": \"value2\"}"
@@ -44,7 +45,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
     def testHeaders = ['test': 'x', 'other': 'y']
 
 
-    def String convertStreamToString(byte[] input){
+    def String convertStreamToString(byte[] input) {
         return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
     }
 
@@ -73,27 +74,28 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 
-        when: "The origin service sends back a response of type " + respHeaders
+        when:
+        "The origin service sends back a response of type " + respHeaders
         def resp = deproxy.makeRequest(
-                url:(String) reposeEndpoint + '/echobody?testparam=x&otherparam=y',
-                method:"GET",
-                headers:reqHeaders + testHeaders,
-                requestBody:respBody,
-                defaultHandler:xmlResp)
+                url: (String) reposeEndpoint + '/echobody?testparam=x&otherparam=y',
+                method: "GET",
+                headers: reqHeaders + testHeaders,
+                requestBody: respBody,
+                defaultHandler: xmlResp)
 
         then: "Response body received should contain"
         for (String st : shouldContain) {
-            if(resp.receivedResponse.body instanceof byte[])
-                assert(convertStreamToString(resp.receivedResponse.body).contains(st))
+            if (resp.receivedResponse.body instanceof byte[])
+                assert (convertStreamToString(resp.receivedResponse.body).contains(st))
             else
-                assert(resp.receivedResponse.body.contains(st))
+                assert (resp.receivedResponse.body.contains(st))
         }
 
         and: "Response body received should not contain"
-        if(resp.receivedResponse.body instanceof byte[])
-            assert(!convertStreamToString(resp.receivedResponse.body).contains("remove-me"))
+        if (resp.receivedResponse.body instanceof byte[])
+            assert (!convertStreamToString(resp.receivedResponse.body).contains("remove-me"))
         else
-            assert(!resp.receivedResponse.body.contains("remove-me"))
+            assert (!resp.receivedResponse.body.contains("remove-me"))
 
         and: "Response headers should contain"
         resp.receivedResponse.getHeaders().getNames().contains(headerContain)
@@ -105,9 +107,9 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         resp.receivedResponse.code == "200"
 
         where:
-        reqHeaders              | respHeaders  | respBody                                      | shouldContain           | headerContain | headerDoesNotContain
-        acceptXML + contentXML  | contentXML   | "<root>" + xmlPayLoad + simpleXml + "</root>" | ["somebody", simpleXml] | "translation-response-a" | "translation-response-b"
-        acceptOther + contentAtom  | contentAtom + acceptOther | simpleXml                                     | [simpleXml]             | "translation-response-b" | "translation-response-a"
+        reqHeaders                | respHeaders               | respBody                                      | shouldContain           | headerContain            | headerDoesNotContain
+        acceptXML + contentXML    | contentXML                | "<root>" + xmlPayLoad + simpleXml + "</root>" | ["somebody", simpleXml] | "translation-response-a" | "translation-response-b"
+        acceptOther + contentAtom | contentAtom + acceptOther | simpleXml                                     | [simpleXml]             | "translation-response-b" | "translation-response-a"
 
     }
 
@@ -118,8 +120,9 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         def xmlResp = { request -> return new Response(200, "OK", contentXML) }
 
 
-        when: "The user sends a request of type " + reqHeaders
-        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"POST", headers:reqHeaders, requestBody:simpleXml, defaultHandler:xmlResp)
+        when:
+        "The user sends a request of type " + reqHeaders
+        def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: reqHeaders, requestBody: simpleXml, defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body from repose to the origin service should contain"
@@ -128,12 +131,12 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
         and: "Request headers sent from repose to the origin service should contain"
         for (String st : shouldContainHeaders) {
-            assert(((Handling) sentRequest).request.getHeaders().getNames().contains(st))
+            assert (((Handling) sentRequest).request.getHeaders().getNames().contains(st))
         }
 
         and: "Request headers sent from repose to the origin service should not contain "
         for (String st : shouldNotContainHeaders) {
-            assert(!((Handling) sentRequest).request.getHeaders().getNames().contains(st))
+            assert (!((Handling) sentRequest).request.getHeaders().getNames().contains(st))
         }
 
         where:
@@ -152,12 +155,13 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
 
 
-        when: "The user sends a request of type " + reqHeaders
+        when:
+        "The user sends a request of type " + reqHeaders
         def resp = deproxy.makeRequest(
-                url:(String) reposeEndpoint + "/somepath?testparam=x&otherparam=y",
-                method:"POST",
-                headers:reqHeaders + testHeaders,
-                requestBody:simpleXml,
+                url: (String) reposeEndpoint + "/somepath?testparam=x&otherparam=y",
+                method: "POST",
+                headers: reqHeaders + testHeaders,
+                requestBody: simpleXml,
                 defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
@@ -170,18 +174,18 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
         and: "Request headers sent from repose to the origin service should contain"
         for (String st : shouldContainHeaders) {
-            assert(((Handling) sentRequest).request.getHeaders().getNames().contains(st))
+            assert (((Handling) sentRequest).request.getHeaders().getNames().contains(st))
         }
 
         and: "Request headers sent from repose to the origin service should not contain "
         for (String st : shouldNotContainHeaders) {
-            assert(!((Handling) sentRequest).request.getHeaders().getNames().contains(st))
+            assert (!((Handling) sentRequest).request.getHeaders().getNames().contains(st))
         }
 
         where:
-        reqHeaders              | shouldContainHeaders               | shouldNotContainHeaders            | requestPath
-        acceptXML + contentAtom | ["translation-b"]                  | ["translation-a" ]                 | "/somepath?translation-b=b&testparam=x&otherparam=y"
-        acceptXML + contentXML  | ["translation-a", "translation-b"] | []                                 | "/somepath?translation-b=b&translation-a=a&testparam=x&otherparam=y"
+        reqHeaders              | shouldContainHeaders               | shouldNotContainHeaders | requestPath
+        acceptXML + contentAtom | ["translation-b"]                  | ["translation-a"]       | "/somepath?translation-b=b&testparam=x&otherparam=y"
+        acceptXML + contentXML  | ["translation-a", "translation-b"] | []                      | "/somepath?translation-b=b&translation-a=a&testparam=x&otherparam=y"
 
 
     }

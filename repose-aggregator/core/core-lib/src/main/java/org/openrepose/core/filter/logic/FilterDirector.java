@@ -31,14 +31,13 @@ import java.util.List;
 
 /**
  * TODO: Starting to feel like a candidate for a bit of ISP love - read below for more info.
- * 
- * Feels like there's three separate domains being represented: filter direction 
- * (routing, action, application), response modification (response headers, 
- * response writer, response status code, body), and lastly request modification 
- * (request url and uri, query parameters, request header). I didn't think these domains were too 
- * different early on but now that we need to communicate more directives, the 
+ * <p/>
+ * Feels like there's three separate domains being represented: filter direction
+ * (routing, action, application), response modification (response headers,
+ * response writer, response status code, body), and lastly request modification
+ * (request url and uri, query parameters, request header). I didn't think these domains were too
+ * different early on but now that we need to communicate more directives, the
  * domains have begun to diverge.
- * 
  */
 public interface FilterDirector {
 
@@ -54,50 +53,50 @@ public interface FilterDirector {
      */
     public static final int SC_TOO_MANY_REQUESTS = 429;
 
-   void setRequestUriQuery(String query);
-   
-   void setRequestUri(String newUri);
+    void setRequestUriQuery(String query);
 
-   void setRequestUrl(StringBuffer newUrl);
+    String getRequestUri();
 
-   String getRequestUri();
+    void setRequestUri(String newUri);
 
-   StringBuffer getRequestUrl();
+    StringBuffer getRequestUrl();
 
-   HeaderManager requestHeaderManager();
+    void setRequestUrl(StringBuffer newUrl);
 
-   HeaderManager responseHeaderManager();
+    HeaderManager requestHeaderManager();
 
-   FilterAction getFilterAction();
+    HeaderManager responseHeaderManager();
 
-   int getResponseStatusCode();
+    FilterAction getFilterAction();
 
-   /**
-    * Informs the Filter Chain whether to continue (PASS), stop and return immediately (RETURN), or continue and then
-    * handle the response on the unwind (PROCESS_RESPONSE).
-    * The default is NOT_SET and shouldn't be used. This should always be set to one of the other three.
-    *
-    * @param action the action to take
-    */
-   void setFilterAction(FilterAction action);
+    /**
+     * Informs the Filter Chain whether to continue (PASS), stop and return immediately (RETURN), or continue and then
+     * handle the response on the unwind (PROCESS_RESPONSE).
+     * The default is NOT_SET and shouldn't be used. This should always be set to one of the other three.
+     *
+     * @param action the action to take
+     */
+    void setFilterAction(FilterAction action);
 
-   void setResponseStatusCode(int status);
+    int getResponseStatusCode();
 
-   String getResponseMessageBody();
+    void setResponseStatusCode(int status);
 
-   byte[] getResponseMessageBodyBytes();
+    String getResponseMessageBody();
 
-   PrintWriter getResponseWriter();
+    byte[] getResponseMessageBodyBytes();
 
-   OutputStream getResponseOutputStream();
+    PrintWriter getResponseWriter();
 
-   void applyTo(MutableHttpServletRequest request);
+    OutputStream getResponseOutputStream();
 
-   void applyTo(MutableHttpServletResponse response) throws IOException;
+    void applyTo(MutableHttpServletRequest request);
 
-   RouteDestination addDestination(String id, String uri, double quality);
+    void applyTo(MutableHttpServletResponse response) throws IOException;
 
-   RouteDestination addDestination(Destination dest, String uri, double quality);
-   
-   List<RouteDestination> getDestinations();
+    RouteDestination addDestination(String id, String uri, double quality);
+
+    RouteDestination addDestination(Destination dest, String uri, double quality);
+
+    List<RouteDestination> getDestinations();
 }

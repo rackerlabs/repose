@@ -35,7 +35,7 @@
              that don't match the previous two targets -->
         <target>
             <blacklist id="rate-limit-headers">
-                <header id="X-Last-Filter" />
+                <header id="X-Last-Filter"/>
                 <header id="x-auth-token"/>
             </blacklist>
         </target>

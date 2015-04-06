@@ -20,7 +20,7 @@
 package org.openrepose.filters.contenttypestripper
 
 import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
-import javax.servlet.{ServletRequest, FilterChain, ServletResponse}
+import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
@@ -30,6 +30,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
+
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])

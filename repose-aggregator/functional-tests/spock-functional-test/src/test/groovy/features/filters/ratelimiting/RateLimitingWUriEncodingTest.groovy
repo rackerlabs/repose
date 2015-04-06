@@ -22,10 +22,11 @@ package features.filters.ratelimiting
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 6/25/14.
  */
-class RateLimitingWUriEncodingTest extends ReposeValveTest{
+class RateLimitingWUriEncodingTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -59,19 +60,19 @@ class RateLimitingWUriEncodingTest extends ReposeValveTest{
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}" + uri, headers: headers)
         then: "it should rate limit and get correct respcode"
         mc.receivedResponse.code == respcode
-        if(respcode == "200")
+        if (respcode == "200")
             mc.handlings.size() == 1
 
         where:
-        uri                                    | respcode  |group
-        "/servers/abc/instances/123"           | "200"     |"test1"
-        "/servers/abc/instances/%31%32%33"     | "200"     |"test1"
-        "/servers/abc/instances%2F123"         | "200"     |"test1"
-        "/servers/abc/instances/123"           | "413"     |"test1"
-        "/objects/jkl/things/123"              | "200"     |"test2"
-        "/objects/%6a%6b%6c/things/%31%32%33"  | "200"     |"test2"
-        "/objects/%6A%6B%6C/things/%31%32%33"  | "200"     |"test2"
-        "/objects/jkl/things/123"              | "413"     |"test2"
+        uri                                   | respcode | group
+        "/servers/abc/instances/123"          | "200"    | "test1"
+        "/servers/abc/instances/%31%32%33"    | "200"    | "test1"
+        "/servers/abc/instances%2F123"        | "200"    | "test1"
+        "/servers/abc/instances/123"          | "413"    | "test1"
+        "/objects/jkl/things/123"             | "200"    | "test2"
+        "/objects/%6a%6b%6c/things/%31%32%33" | "200"    | "test2"
+        "/objects/%6A%6B%6C/things/%31%32%33" | "200"    | "test2"
+        "/objects/jkl/things/123"             | "413"    | "test2"
     }
 
     @Unroll("Request with uri #uri and method #method should be applied the same limit group #group")
@@ -87,17 +88,17 @@ class RateLimitingWUriEncodingTest extends ReposeValveTest{
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}" + uri, method: method, headers: headers)
         then: "it should rate limit and get correct respcode"
         mc.receivedResponse.code == respcode
-        if(respcode == "200")
+        if (respcode == "200")
             mc.handlings.size() == 1
 
         where:
-        uri                                 | respcode  | method     |group
-        "/method/jkl/test/123"              | "200"     |"GET"       |"test3"
-        "/method/%6a%6b%6c/test/%31%32%33"  | "200"     |"GET"       |"test3"
-        "/method/%6A%6B%6C/test/%31%32%33"  | "200"     |"GET"       |"test3"
-        "/method/jkl/test/123"              | "200"     |"PATCH"     |"test3"
-        "/method/%6a%6b%6c/test/%31%32%33"  | "413"     |"GET"       |"test3"
-        "/method/%6A%6B%6C/test/123"        | "200"     |"PATCH"     |"test3"
+        uri                                | respcode | method  | group
+        "/method/jkl/test/123"             | "200"    | "GET"   | "test3"
+        "/method/%6a%6b%6c/test/%31%32%33" | "200"    | "GET"   | "test3"
+        "/method/%6A%6B%6C/test/%31%32%33" | "200"    | "GET"   | "test3"
+        "/method/jkl/test/123"             | "200"    | "PATCH" | "test3"
+        "/method/%6a%6b%6c/test/%31%32%33" | "413"    | "GET"   | "test3"
+        "/method/%6A%6B%6C/test/123"       | "200"    | "PATCH" | "test3"
     }
 }
 

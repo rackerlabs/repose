@@ -39,15 +39,15 @@ public class MimeTypeTest {
 
             assertEquals(MimeType.UNKNOWN, returnedMediaType);
         }
-        
+
         @Test
         public void shouldReturnGuessedMediaType() {
-           
-           String mediaTypeString = "text/xml";
-           
-           MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
-           
-           assertEquals(returnedMediaType.getMimeType(), mediaTypeString);
+
+            String mediaTypeString = "text/xml";
+
+            MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
+
+            assertEquals(returnedMediaType.getMimeType(), mediaTypeString);
         }
     }
 }

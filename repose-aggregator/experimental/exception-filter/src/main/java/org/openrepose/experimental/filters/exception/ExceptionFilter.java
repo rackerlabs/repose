@@ -52,7 +52,8 @@ public class ExceptionFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        LOG.warn("start " + this.getClass());    }
+        LOG.warn("start " + this.getClass());
+    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)

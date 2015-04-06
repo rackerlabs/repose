@@ -19,10 +19,6 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
-import org.openrepose.filters.translation.TranslationHandler;
-import org.openrepose.filters.translation.resolvers.*;
-import org.openrepose.filters.translation.xslt.XsltException;
-import org.openrepose.filters.translation.xslt.XsltParameter;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
 import net.sf.saxon.om.DocumentInfo;
@@ -31,6 +27,10 @@ import org.apache.xalan.transformer.TrAXFilter;
 import org.openrepose.docs.repose.httpx.v1.Headers;
 import org.openrepose.docs.repose.httpx.v1.QueryParameters;
 import org.openrepose.docs.repose.httpx.v1.RequestInformation;
+import org.openrepose.filters.translation.TranslationHandler;
+import org.openrepose.filters.translation.resolvers.*;
+import org.openrepose.filters.translation.xslt.XsltException;
+import org.openrepose.filters.translation.xslt.XsltParameter;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -197,9 +197,9 @@ public class XmlFilterChainExecutor {
 
     private List<String> findInputUris(List<XsltParameter> inputs) {
         List<String> uris = new ArrayList<String>();
-        for(XsltParameter parameter : inputs) {
-            if(isInputUriName(parameter.getName())) {
-                uris.add((String)parameter.getValue());
+        for (XsltParameter parameter : inputs) {
+            if (isInputUriName(parameter.getName())) {
+                uris.add((String) parameter.getValue());
             }
         }
         return uris;
@@ -207,18 +207,17 @@ public class XmlFilterChainExecutor {
 
     private boolean isInputUriName(String name) {
         return TranslationHandler.INPUT_HEADERS_URI.equals(name) ||
-               TranslationHandler.INPUT_QUERY_URI.equals(name)   ||
-               TranslationHandler.INPUT_REQUEST_URI.equals(name);
+                TranslationHandler.INPUT_QUERY_URI.equals(name) ||
+                TranslationHandler.INPUT_REQUEST_URI.equals(name);
     }
 
     private void removeInputUrisFromPool(DocumentPool documentPool, List<String> uris) {
-        for(String uri : uris) {
+        for (String uri : uris) {
             DocumentInfo documentInfo = documentPool.find(uri);
-            if(documentInfo != null) {
+            if (documentInfo != null) {
                 LOG.trace("Removing document {}", uri);
                 documentPool.discard(documentInfo);
-            }
-            else {
+            } else {
                 LOG.trace("Tried to remove document {} but wasn't present.", uri);
             }
         }

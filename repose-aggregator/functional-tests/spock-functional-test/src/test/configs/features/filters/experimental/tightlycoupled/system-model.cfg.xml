@@ -8,13 +8,14 @@
         </nodes>
 
         <filters>
-            <filter name="tightly-coupled-filter" />
+            <filter name="tightly-coupled-filter"/>
         </filters>
 
         <destinations>
             <!-- using httpbin.org to guarantee a body response -->
             <!-- <endpoint id="target" protocol="http" hostname="httpbin.org" port="80" root-path="/" default="true"/> -->
-            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/" default="true"/>
+            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

@@ -48,7 +48,7 @@ public class EventListenerDescriptor<T extends Enum> {
 
         while (targetedEventIterator.hasNext()) {
             final T event = targetedEventIterator.next();
-            
+
             if (typesToRemove.remove(event)) {
                 targetedEventIterator.remove();
             }

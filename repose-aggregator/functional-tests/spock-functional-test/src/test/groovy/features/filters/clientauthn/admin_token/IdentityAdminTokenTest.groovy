@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.admin_token
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -25,6 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Specific tests for admin token
  */
@@ -59,7 +61,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep 500
         fakeIdentityService.resetHandlers()
     }
@@ -76,7 +78,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
 
         }
 
-        if(adminResponseCode != 200){
+        if (adminResponseCode != 200) {
             fakeIdentityService.generateTokenHandler = {
                 request, xml ->
                     new Response(adminResponseCode, null, null, responseBody)
@@ -99,10 +101,10 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         where:
-        reqTenant   | adminResponseCode | responseCode | responseBody                                   | orphanedHandlings
-        1113        | 500               | "500"        | ""                                             | 1
-        1112        | 404               | "500"        | fakeIdentityService.identityFailureXmlTemplate | 1
-        1111        | 200               | "200"        | fakeIdentityService.identitySuccessXmlTemplate | 3
+        reqTenant | adminResponseCode | responseCode | responseBody                                   | orphanedHandlings
+        1113      | 500               | "500"        | ""                                             | 1
+        1112      | 404               | "500"        | fakeIdentityService.identityFailureXmlTemplate | 1
+        1111      | 200               | "200"        | fakeIdentityService.identitySuccessXmlTemplate | 3
     }
 
 }

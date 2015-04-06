@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.http;
 
 /**
  * This enum matches the pattern used by other special header addition enums.
- * */
+ */
 
 public enum EndpointsHeader implements HeaderConstant {
     //header key

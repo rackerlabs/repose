@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.cache
+
 import features.filters.clientauthn.AtomFeedResponseSimulator
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -121,7 +123,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/atom", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
@@ -153,7 +155,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
 
 
-        when:"I send a GET request to REPOSE with the same X-Auth-Token header"
+        when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
@@ -169,7 +171,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         fakeIdentityService.with {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(404)
             }
         }
@@ -185,10 +187,10 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
                 [
-                        url:reposeEndpoint,
-                        method:'GET',
-                        headers:['X-Auth-Token': fakeIdentityService.client_token],
-                        defaultHandler:fakeIdentityService.handler
+                        url           : reposeEndpoint,
+                        method        : 'GET',
+                        headers       : ['X-Auth-Token': fakeIdentityService.client_token],
+                        defaultHandler: fakeIdentityService.handler
                 ])
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
@@ -214,7 +216,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
 
 
-        when:"I send a GET request to REPOSE with the same X-Auth-Token header"
+        when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
@@ -230,7 +232,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         //Make identity respond with a 404 every time now.
         fakeIdentityService.with {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(404)
             }
         }
@@ -245,10 +247,10 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
                 [
-                        url:reposeEndpoint,
-                        method:'GET',
-                        headers:['X-Auth-Token': fakeIdentityService.client_token],
-                        defaultHandler:fakeIdentityService.handler
+                        url           : reposeEndpoint,
+                        method        : 'GET',
+                        headers       : ['X-Auth-Token': fakeIdentityService.client_token],
+                        defaultHandler: fakeIdentityService.handler
                 ])
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"

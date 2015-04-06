@@ -31,9 +31,9 @@ import javax.servlet.http.HttpServletResponse;
 public class OpenStackResponseHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackResponseHandler.class);
+    private static final String DELEGATED = "Delegated";
     private final ReadableHttpServletResponse response;
     private final String wwwAuthenticate;
-    private static final String DELEGATED = "Delegated";
 
     public OpenStackResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
         this.response = response;
@@ -65,7 +65,7 @@ public class OpenStackResponseHandler {
                     myDirector.setResponseStatusCode(HttpServletResponse.SC_NOT_IMPLEMENTED);
                 }
                 break;
-                
+
             default:
                 break;
         }

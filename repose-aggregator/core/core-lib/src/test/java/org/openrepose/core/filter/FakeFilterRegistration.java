@@ -32,7 +32,7 @@ import java.util.Set;
 public class FakeFilterRegistration implements FilterRegistration.Dynamic {
     public FakeFilterRegistration() {
     }
-    
+
     @Override
     public void setAsyncSupported(boolean isAsyncSupported) {
         //To change body of implemented methods use File | Settings | File Templates.
