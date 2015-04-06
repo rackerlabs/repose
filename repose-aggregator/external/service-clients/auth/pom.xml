@@ -75,7 +75,6 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.8</version>
         </dependency>
 
         <!--Apache Pool Support-->

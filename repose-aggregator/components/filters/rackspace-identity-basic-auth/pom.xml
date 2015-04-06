@@ -48,8 +48,6 @@
         <dependency>
             <groupId>com.mockrunner</groupId>
             <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- These three are required because of our coupling between filters and core -->
