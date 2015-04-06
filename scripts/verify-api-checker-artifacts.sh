@@ -25,11 +25,14 @@ export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::") &&
 echo 'Installing maven...' &&
 apt-get install -y maven &&
 
-echo 'Installing JAD...' &&
-curl -O "http://varaneckas.com/jad/$JAD_FILE" &&
-mkdir -p '/opt/jad/bin' &&
-unzip $JAD_FILE -d '/opt/jad/bin/' &&
-rm -f $JAD_FILE &&
+echo 'Installing jd-cmd...' &&
+rm -rf jd-cmd &&
+git clone 'git://github.com/kwart/jd-cmd.git' &&
+cd jd-cmd &&
+mvn clean package &&
+mkdir -p '/opt/jd-cmd/bin' &&
+cp 'jd-cli/target/jd-cli.jar' '/opt/jd-cmd/bin/' &&
+cd .. &&
 
 echo 'Creating working directories...' &&
 rm -rf workspace/api-checker/built &&
@@ -56,20 +59,15 @@ for i in $( seq 13 22 ); do
 	mkdir -p "workspace/api-checker/built/1.0.$i/src" &&
 	mkdir -p "workspace/api-checker/published/1.0.$i/src" &&
 	mv -u "api-checker/core/target/checker-core-1.0.$i.jar" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
-	cd "workspace/api-checker/built/1.0.$i/src" &&
-	jar xf "../checker-core-1.0.$i.jar" &&
-	cd "../../../published/1.0.$i/src" &&
-	jar xf "../checker-core-1.0.$i.jar" &&
-	cd ../../../../.. &&
 
 	echo "Decompiling class files for version 1.0.$i..." &&
-	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/built/1.0.$i/src" "workspace/api-checker/built/1.0.$i/src/**.class" &&
-	/opt/jad/bin/jad -o -r -sjava -d"workspace/api-checker/published/1.0.$i/src" "workspace/api-checker/published/1.0.$i/src/**.class" &&
+	java -jar /opt/jd-cmd/bin/jd-cli.jar -od "workspace/api-checker/built/1.0.$i/src/" "workspace/api-checker/built/1.0.$i/checker-core-1.0.$i.jar" &&
+	java -jar /opt/jd-cmd/bin/jd-cli.jar -od "workspace/api-checker/published/1.0.$i/src/" "workspace/api-checker/published/1.0.$i/checker-core-1.0.$i.jar" &&
 
 	echo "Comparing files for version 1.0.$i..." &&
-	find "workspace/api-checker/built/1.0.$i/src" -type f ! -iname '*.class' | sort | xargs md5sum > "workspace/api-checker/built/1.0.$i/built.md5" &&
+	find "workspace/api-checker/built/1.0.$i/src/" -type f -exec md5sum {} + | sort -k 2 > "workspace/api-checker/built/1.0.$i/built.md5" &&
 	sed -i '' 's/built\///g' "workspace/api-checker/built/1.0.$i/built.md5" &&
-	find "workspace/api-checker/published/1.0.$i/src" -type f ! -iname '*.class' | sort | xargs md5sum > "workspace/api-checker/published/1.0.$i/published.md5" &&
+	find "workspace/api-checker/published/1.0.$i/src/" -type f -exec md5sum {} + | sort -k 2 > "workspace/api-checker/published/1.0.$i/published.md5" &&
 	sed -i '' 's/published\///g' "workspace/api-checker/published/1.0.$i/published.md5" &&
 	diff "workspace/api-checker/built/1.0.$i/built.md5" "workspace/api-checker/published/1.0.$i/published.md5" > "workspace/api-checker/report-1.0.$i.diff" &&
 
