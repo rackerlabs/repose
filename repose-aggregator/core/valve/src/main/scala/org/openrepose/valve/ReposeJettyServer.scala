@@ -95,6 +95,12 @@ class ReposeJettyServer(val clusterId: String,
 
         val sslConnector = new ServerConnector(s, cf)
         sslConnector.setPort(port)
+
+        //Handle the Protocols and Ciphers
+        //varargs are annoying, so lets deal with this using the scala methods
+        import scala.collection.JavaConversions._
+        cf.addExcludeProtocols(ssl.getExcludedProtocols.getProtocol.toList:_*)
+
         sslConnector
       } getOrElse {
         //If we didn't have an SSL config, BOMBZ0R
