@@ -65,6 +65,23 @@ class PowerFilterChainTest extends Specification {
 
         where:
         headerName            | headerValues                   | expectedNumber
+        "accept"              | ["foo", "bar,baz"]             | 3
+        "accept-charset"      | ["foo", "bar,baz"]             | 3
+        "accept-language"     | ["foo", "bar,baz"]             | 3
+        "allow"               | ["foo", "bar,baz"]             | 3
+        "cache-control"       | ["foo", "bar,baz"]             | 3
+        "connection"          | ["foo", "bar,baz"]             | 3
+        "content-encoding"    | ["foo", "bar,baz"]             | 3
+        "content-language"    | ["foo", "bar,baz"]             | 3
+        "expect"              | ["foo", "bar,baz"]             | 3
+        "pragma"              | ["foo", "bar,baz"]             | 3
+        "proxy-authenticate"  | ["foo", "bar,baz"]             | 3
+        "te"                  | ["foo", "bar,baz"]             | 3
+        "trailer"             | ["foo", "bar,baz"]             | 3
+        "transfer-encoding"   | ["foo", "bar,baz"]             | 3
+        "upgrade"             | ["foo", "bar,baz"]             | 3
+        "warning"             | ["foo", "bar,baz"]             | 3
+        "accept-encoding"     | ["foo", "bar,baz"]             | 3
         "X-PP-Next-Route"     | ["foo", "bar,baz"]             | 3
         "X-PP-User"           | ["foo", "bar,baz"]             | 3
         "X-PP-Groups"         | ["foo", "bar,baz"]             | 3
@@ -111,6 +128,23 @@ class PowerFilterChainTest extends Specification {
 
         where:
         headerName            | headerValues                   | expectedNumber
+        "accept"              | ["foo", "bar,baz"]             | 3
+        "accept-charset"      | ["foo", "bar,baz"]             | 3
+        "accept-language"     | ["foo", "bar,baz"]             | 3
+        "allow"               | ["foo", "bar,baz"]             | 3
+        "cache-control"       | ["foo", "bar,baz"]             | 3
+        "connection"          | ["foo", "bar,baz"]             | 3
+        "content-encoding"    | ["foo", "bar,baz"]             | 3
+        "content-language"    | ["foo", "bar,baz"]             | 3
+        "expect"              | ["foo", "bar,baz"]             | 3
+        "pragma"              | ["foo", "bar,baz"]             | 3
+        "proxy-authenticate"  | ["foo", "bar,baz"]             | 3
+        "te"                  | ["foo", "bar,baz"]             | 3
+        "trailer"             | ["foo", "bar,baz"]             | 3
+        "transfer-encoding"   | ["foo", "bar,baz"]             | 3
+        "upgrade"             | ["foo", "bar,baz"]             | 3
+        "warning"             | ["foo", "bar,baz"]             | 3
+        "accept-encoding"     | ["foo", "bar,baz"]             | 3
         "X-PP-Next-Route"     | ["foo", "bar,baz"]             | 3
         "X-PP-User"           | ["foo", "bar,baz"]             | 3
         "X-PP-Groups"         | ["foo", "bar,baz"]             | 3
