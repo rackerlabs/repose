@@ -113,7 +113,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
   //For each one of these, create a jetty server, talk to it, and make sure the SSL stuff is doing what is described
 
-  def requestUsingProtocol(protocol: String): Unit = {
+  def selectiveRequest(protocols: Array[String] = null, ciphers: Array[String] = null): Unit = {
     //Protocol names come from here:
     //http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#SSLContext
 
@@ -123,8 +123,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
     val sf = new SSLConnectionSocketFactory(
       sslContext,
-      Array(protocol),
-      null,
+      protocols,
+      ciphers,
       NoopHostnameVerifier.INSTANCE
     )
 
@@ -133,6 +133,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
     //Do a get, and it should fail to negotiate SSL
     val get = new HttpGet(s"https://localhost:$httpsPort")
     val response = client.execute(get)
+
+
   }
 
   it("creates a jetty server excluding a list of protocols") {
@@ -145,23 +147,108 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
     )
     repose.start()
 
-    intercept[SSLHandshakeException] {
-      requestUsingProtocol("TLSv1")
+    try {
+      intercept[SSLHandshakeException] {
+        selectiveRequest(Array("TLSv1"))
+      }
+    } finally {
+      repose.shutdown()
     }
   }
   it("creates a jetty server including only a list of protocols") {
-    pending
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")))
+    )
+    repose.start()
+    try {
+      intercept[SSLHandshakeException] {
+        selectiveRequest(Array("TLSv1"))
+      }
+    } finally {
+      repose.shutdown()
+    }
   }
   it("creates a jetty server excluding a list of ciphers") {
-    pending
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(excludedCiphers = List("TLS_RSA_WITH_AES_256_CBC_SHA"))) //TODO: set this up to use something dynamic
+    )
+    repose.start()
+    try {
+      intercept[SSLHandshakeException] {
+        selectiveRequest(ciphers = Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
+      }
+    } finally {
+      repose.shutdown()
+    }
   }
   it("creates a jetty server including only a list of ciphers") {
-    pending
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(includedCiphers = List("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384"))) //TODO: set this up to use something dynamic
+    )
+    repose.start()
+    try {
+      intercept[SSLHandshakeException] {
+        selectiveRequest(ciphers = Array("SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA"))
+      }
+    } finally {
+      repose.shutdown()
+    }
+
   }
   it("creates a jetty server that does not allow TLS renegotiation") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false))
+    )
+    repose.start()
+
+    //TODO: I can test this with openssl s_client commands, but not otherwise
+    import scala.sys.process._
+    try {
+      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 1
+    } finally {
+      repose.shutdown()
+    }
+  }
+
+  it("creates a jetty server that does allow TLS renegotiation") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true))
+    )
+    repose.start()
+
+    //TODO: I can test this with openssl s_client commands, but not otherwise
+    import scala.sys.process._
+    try {
+      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 0
+    } finally {
+      repose.shutdown()
+    }
+  }
+
+  it("excludes ciphers via regular expression") {
     pending
   }
-  it("creates a jetty server that does allow TLS renegotiation") {
+  it("includes ciphers via regular expression") {
     pending
   }
 
