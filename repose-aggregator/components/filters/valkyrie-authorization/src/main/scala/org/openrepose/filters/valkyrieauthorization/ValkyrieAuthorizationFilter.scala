@@ -6,6 +6,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{ServiceClientResponse, OpenStackServiceHeader}
@@ -24,6 +25,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   extends AbstractFilterLogicHandler
   with Filter
   with UpdateListener[ValkyrieAuthorizationConfig]
+  with HttpDelegationManager
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
@@ -62,9 +64,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val requestedTenantId = headerResult(OpenStackServiceHeader.TENANT_ID.toString, ValkyrieResult(502, "No tenant ID Specified"))
-    val requestedDeviceId = headerResult("X-Device-Id", ValkyrieResult(502, "No device ID"))
-    val requestedContactId = headerResult("X-Contact-Id", ValkyrieResult(403, "No contact ID Specified"))
+    val requestedTenantId = headerResult(OpenStackServiceHeader.TENANT_ID.toString, ValkyrieResult(502, "No tenant ID specified"))
+    val requestedDeviceId = headerResult("X-Device-Id", ValkyrieResult(502, "No device ID specified"))
+    val requestedContactId = headerResult("X-Contact-Id", ValkyrieResult(403, "No contact ID specified"))
     val valkyrieServer = configuration.getValkyrieServer
 
     val clientResponse: ValkyrieResult = (requestedTenantId, requestedContactId, requestedDeviceId) match {
@@ -85,7 +87,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                       case _ => ValkyrieResult(403, "Not Authorized")
                     }
                   } getOrElse {
-                    ValkyrieResult(403, "Didn't find required device")
+                    ValkyrieResult(403, "Not Authorized")
                   }
                 }
                 case Failure(x) => {
@@ -95,7 +97,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               }
             } else {
               //Didn't get a 200 from valkyrie
-              ValkyrieResult(502, "Didn't get 200 OK from Valkyrie")
+              ValkyrieResult(502, s"Valkyrie returned a ${response.getStatus}")
             }
           }
           case Failure(exception) => {
@@ -106,13 +108,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     clientResponse match {
-      case ValkyrieResult(code, _) if code == 200 => {
+      case ValkyrieResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-      }
-      case ValkyrieResult(code, message) => {
-        //TODO: delegate or bug out
+      case ValkyrieResult(code, message) if Option(configuration.getDelegating).isDefined =>
+        buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
+          values.foreach { value => mutableHttpRequest.addHeader(key, value) }
+        }
+        filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+      case ValkyrieResult(code, message) =>
         mutableHttpResponse.sendError(code, message)
-      }
     }
   }
 
@@ -154,8 +158,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     } catch {
       case e: Exception =>
-        logger.error(s"Invalid Json response from Valkyrie: $input")
-        Failure(e)
+        logger.error(s"Invalid Json response from Valkyrie: $input", e)
+        Failure(new Exception("Invalid Json response from Valkyrie"))
     }
   }
 
