@@ -213,7 +213,7 @@ class ApiValidatorTest extends ReposeValveTest {
         messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
     }
 
-    def "Should not split request headers according to rfc"() {
+    def "Should split request headers according to rfc by default"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"

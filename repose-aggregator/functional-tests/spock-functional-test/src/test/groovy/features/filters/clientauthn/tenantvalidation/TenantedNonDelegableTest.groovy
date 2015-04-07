@@ -165,7 +165,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         718           | 719            | "service:admin-role1" | "200"
     }
 
-    def "Should not split request headers according to rfc"() {
+    def "Should split request headers according to rfc by default"() {
         given:
         def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
