@@ -87,7 +87,7 @@ class ReposeJettyServer(val clusterId: String,
 
       //TODO: do we make this a URL for realsies?
       //Get the configuration root from the core spring context, because we haven't fired up the app Context yet.
-      val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT)
+      val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
         cf.setKeyStorePath(configRoot + File.separator + ssl.getKeystoreFilename)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
