@@ -49,7 +49,7 @@ GROUP_IDS=(
     joda-time
     junit
     org.linkedin
-    log4j
+    org.apache.logging.log4j
     org.mockito
     com.mockrunner
     net.sourceforge.pjl-comp-filter
@@ -82,7 +82,7 @@ for groupId in ${GROUP_IDS[*]} ; do
 done
 
 # Build the exclusion set based on all known direct dependencies.
-EXCLUDE=
+EXCLUDE=" -e ':test$'"
 for groupId in ${GROUP_IDS[*]} ; do
     EXCLUDE="$EXCLUDE -e ${groupId}:"
 done
