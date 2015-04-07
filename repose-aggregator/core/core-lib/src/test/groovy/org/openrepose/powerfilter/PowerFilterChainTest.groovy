@@ -117,14 +117,16 @@ class PowerFilterChainTest extends Specification {
         }
         def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null)
         def mockRequest = new MockHttpServletRequest()
-        def mockResponse = new MockHttpServletResponse()
-        mockResponse.setStatus(200)
+        //NOTE: The PowerFilterChain only works if the initial response it is given is one of our
+        // MutableHttpServletResponses, because it never writes changes down into the response
+        def response = MutableHttpServletResponse.wrap(mockRequest, new MockHttpServletResponse())
+        response.setStatus(200)
 
         when:
-        powerFilterChain.doRouting(MutableHttpServletRequest.wrap(mockRequest), mockResponse)
+        powerFilterChain.doRouting(MutableHttpServletRequest.wrap(mockRequest), response)
 
         then:
-        mockResponse.getHeaders(headerName).size() == expectedNumber
+        response.getHeaders(headerName).size() == expectedNumber
 
         where:
         headerName            | headerValues                   | expectedNumber

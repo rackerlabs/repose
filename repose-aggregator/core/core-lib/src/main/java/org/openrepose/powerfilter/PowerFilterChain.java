@@ -23,6 +23,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.openrepose.commons.utils.http.ExtendedHttpHeader;
+import org.openrepose.commons.utils.http.OpenStackServiceHeader;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.FilterProcessingTime;
@@ -41,9 +45,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,6 +72,7 @@ public class PowerFilterChain implements FilterChain {
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private TimerByCategory filterTimer;
+    private final SplittableHeaderUtil splittabelHeaderUtil;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
@@ -84,6 +87,8 @@ public class PowerFilterChain implements FilterChain {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
         }
+        splittabelHeaderUtil = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+                                                        ExtendedHttpHeader.values());
     }
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
@@ -221,11 +226,35 @@ public class PowerFilterChain implements FilterChain {
             if (isResponseOk(mutableHttpResponse)) {
                 router.route(mutableHttpRequest, mutableHttpResponse);
             }
+            splitResponseHeaders(mutableHttpResponse);
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
             mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mutableHttpResponse.setLastException(ex);
         }
+    }
+
+    private void splitResponseHeaders(MutableHttpServletResponse mutableHttpResponse) {
+        for (String headerName : mutableHttpResponse.getHeaderNames()) {
+            if (splittabelHeaderUtil.isSplitable(headerName)) {
+                Collection<String> splitValues = splitHeaderValues(mutableHttpResponse.getHeaders(headerName));
+                mutableHttpResponse.removeHeader(headerName);
+                for (String splitValue : splitValues) {
+                    mutableHttpResponse.addHeader(headerName, splitValue);
+                }
+            }
+        }
+    }
+
+    private Collection<String> splitHeaderValues(Collection<String> headerValues) {
+        List<String> finalValues = new ArrayList<>();
+        for (String passedValue : headerValues) {
+            String[] splitValues = passedValue.split(",");
+            for (String splitValue : splitValues)  {
+                finalValues.add(splitValue);
+            }
+        }
+        return finalValues;
     }
 
     private void setStartTimeForHttpLogger(long startTime, MutableHttpServletRequest mutableHttpRequest) {
