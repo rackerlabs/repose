@@ -3,7 +3,7 @@ package org.openrepose.filters.valkyrieauthorization
 import java.io.ByteArrayInputStream
 import java.net.URL
 import javax.servlet.http.HttpServletResponse
-import javax.servlet.{FilterChain, ServletRequest}
+import javax.servlet.{ServletResponse, FilterChain, ServletRequest}
 
 import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.httpdelegation.{HttpDelegationManager, HttpDelegationHeaderNames}
@@ -12,7 +12,7 @@ import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientException, AkkaServiceClient}
 import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieServer, DelegatingType, ValkyrieAuthorizationConfig}
 import org.scalatest.FunSpec
 import org.scalatest.junit.JUnitRunner
@@ -156,7 +156,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar with Htt
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, "I'm not really json"), Result(502, "Invalid Json response from Valkyrie")) //Malformed Valkyrie Response - Bad Json
     ).foreach { case (request, valkyrie, result) =>
       List(null, new DelegatingType).foreach { delegation =>
-        val delegating = if(Option(delegation).isDefined) true else false
+        val delegating = if (Option(delegation).isDefined) true else false
         it(s"should be ${result.code} where delegation is $delegating for $request with Valkyrie response of $valkyrie") {
           val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Device-Id", "ThisIsMissingADevice"), valkyrie.code, valkyrie.payload)
 
@@ -171,17 +171,44 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with MockitoSugar with Htt
           val mockFilterChain = mock[FilterChain]
           filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-          if(Option(delegation).isDefined) {
+          if (Option(delegation).isDefined) {
             assert(mockServletResponse.getStatusCode == 200)
-            val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
             val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
-            Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), responseCaptor.capture())
-            assert(responseCaptor.getValue.getStatus == 200)
+            Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
             val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(result.code, "valkyrie-authorization", result.message, .1)
             assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
           } else {
             assert(mockServletResponse.getStatusCode == result.code)
           }
+        }
+      }
+    }
+
+    List(null, new DelegatingType).foreach { delegation =>
+      val delegating = if (Option(delegation).isDefined) true else false
+      it(s"should return a 502 and delegation is $delegating with appropriate message when unable to communicate with Valkyrie") {
+        val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
+        Mockito.when(akkaServiceClient.get(Matchers.any(), Matchers.any(), Matchers.any())).thenThrow(new AkkaServiceClientException("Valkyrie is missing", new Exception()))
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient)
+        filter.configurationUpdated(createGenericValkyrieConfiguration(delegation))
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod("GET")
+        Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456").foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+
+        val mockFilterChain = mock[FilterChain]
+        val mockServletResponse = new MockHttpServletResponse
+        filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+        if (Option(delegation).isDefined) {
+          assert(mockServletResponse.getStatusCode == 200)
+          val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+          Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
+          val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(502, "valkyrie-authorization", "Unable to communicate with Valkyrie: Valkyrie is missing", .1)
+          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
+        } else {
+          assert(mockServletResponse.getStatusCode == 502)
         }
       }
     }
