@@ -139,6 +139,11 @@
                                         </source>
                                         <source>
                                             <location>
+                                                ${basedir}/../../../../CONTRIBUTORS.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
                                                 ${basedir}/../../../../DEPENDENCIES.txt
                                             </location>
                                         </source>
