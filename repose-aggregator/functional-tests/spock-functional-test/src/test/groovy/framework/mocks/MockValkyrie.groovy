@@ -59,8 +59,8 @@ class MockValkyrie {
 
     Closure<Response> authorizeHandler
 
-    String client_apikey = ""
-    String client_token = ""
+    String device_id = ""
+    String device_perm = ""
 
     def sleeptime =0;
 
@@ -121,7 +121,9 @@ class MockValkyrie {
 
         def params = [
                 contact     : contact,
-                tenant      : tenant
+                tenant      : tenant,
+                deviceID   : device_id,
+                permission : device_perm
         ];
 
         def code;
@@ -163,10 +165,10 @@ class MockValkyrie {
                             "account_number": \${tenant}, 
                             "contact_id": \${contact},
                              "id": 0, 
-                            "item_id": 520707,
+                            "item_id": \${deviceID},
                              "item_type_id": 1, 
                             "item_type_name": "devices", 
-                            "permission_name": "view_product", 
+                            "permission_name": \${permission}, 
                             "permission_type_id": 12
                         },
                         {
@@ -187,7 +189,7 @@ class MockValkyrie {
                             "item_type_id": 1,
                             "item_type_name": "devices",
                             "permission_name": "admin_product",
-                            "permission_type_id": 12
+                            "permission_type_id": 14
                         },
                         {
                             "account_number": \${tenant},
@@ -197,7 +199,7 @@ class MockValkyrie {
                             "item_type_id": 1,
                             "item_type_name": "devices",
                             "permission_name": "edit_product",
-                            "permission_type_id": 12
+                            "permission_type_id": 13
                         }
                     ]
                 }"""
