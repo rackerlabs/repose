@@ -56,6 +56,12 @@
             <version>2.3.4</version>
         </dependency>
 
+        <!-- Http Delegation Library for delegating requests -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>http-delegation</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
