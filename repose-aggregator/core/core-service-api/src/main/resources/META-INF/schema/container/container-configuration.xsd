@@ -22,6 +22,9 @@
 
 <xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            targetNamespace="http://docs.openrepose.org/repose/container/v2.0">
@@ -218,7 +221,58 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+
+            <xs:element name="included-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to include. </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="excluded-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to exclude.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Whether to allow TLS Renegotiation. Allowed by default.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:all>
+
+    </xs:complexType>
+
+    <xs:complexType name="sslCipherConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Allows you to configure cipher suites and TLS renegotiation that will be used by VALVE
+                    (not war file) for SSL and TLS.
+
+                    Each cipher can be an exact cipher name, or a regular expression.
+
+                    See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html for more information
+                    Specifically the parts about Enabling/Disabling Specific Cipher Suites
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="cipher" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <!-- TODO: validate that this does indeed work -->
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(cipher)) = count(cipher/@id)"
+                   xerces:message="Don't duplicate ciphers"
+                   saxon:message="Don't duplicate ciphers">
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="cipherList">
 
     </xs:complexType>
 
