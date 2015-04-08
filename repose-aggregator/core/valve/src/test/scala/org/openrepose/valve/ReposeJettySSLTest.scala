@@ -45,7 +45,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
     keystore.deleteOnExit()
     Files.copy(getClass.getResourceAsStream("/valveTesting/sslTesting/keystore.jks"), keystore.toPath)
 
-    tempDir.toFile.deleteOnExit() //TODO: this isn't working, need to clean up myself
+    tempDir.toFile.deleteOnExit()
     tempDir.toString
   }
 
@@ -203,7 +203,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head))) //TODO: set this up to use something dynamic
+      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)))
     )
     repose.start()
     try {
@@ -221,7 +221,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head))) //TODO: set this up to use something dynamic
+      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head)))
     )
     repose.start()
     try {
