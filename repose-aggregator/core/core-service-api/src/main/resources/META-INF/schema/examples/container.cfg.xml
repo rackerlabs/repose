@@ -10,6 +10,24 @@
             <keystore-filename>keystore.repose</keystore-filename>
             <keystore-password>manage</keystore-password>
             <key-password>password</key-password>
+            
+            <!-- Optional SSL configuration -->
+<!--
+            See the XSD for documentation on all the options here
+            <included-ciphers>
+                <cipher>.*TLS.*</cipher>
+            </included-ciphers>
+            <excluded-ciphers>
+                <cipher>.*SSL.*</cipher>
+            </excluded-ciphers>
+            <excluded-protocols>
+                <protocol>SSLv3</protocol>
+            </excluded-protocols>
+            <included-protocols>
+                <protocol>TLSv1.2</protocol>
+            </included-protocols>
+            <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
+-->
         </ssl-configuration>
     </deployment-config>
 </repose-container>
