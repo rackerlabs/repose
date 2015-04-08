@@ -285,9 +285,13 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       val tlsCiphers = defaultEnabledCiphers.collect {
         case s if s.matches(".*TLS.*") => s
       }
+      val sslCiphers = defaultEnabledCiphers.collect {
+        case s if s.matches(".*SSL.*") => s
+      }
       intercept[SSLHandshakeException] {
         selectiveRequest(ciphers = tlsCiphers.toArray)
       }
+      selectiveRequest(ciphers = sslCiphers.toArray)
     } finally {
       repose.shutdown()
     }
