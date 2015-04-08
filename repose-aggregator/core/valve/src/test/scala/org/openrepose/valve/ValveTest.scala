@@ -107,6 +107,16 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         exitStatus shouldBe 1
       })
     }
+    it("prints out the available SSL protocols and ciphers when given --show-ssl-params and exits 1") {
+      postExecution(Array("--show-ssl-params"), (output, error, exitStatus) => {
+        output should include("Default enabled SSL Protocols:")
+        output should include("Default enabled SSL Ciphers:")
+        output should include("All available SSL Protocols:")
+        output should include("All available SSL Ciphers:")
+        //NOTE: can't actually verify the ciphers and protocols, because we don't know what they'll be... JVM dependent
+        exitStatus shouldBe 1
+      })
+    }
   }
 
   /**
