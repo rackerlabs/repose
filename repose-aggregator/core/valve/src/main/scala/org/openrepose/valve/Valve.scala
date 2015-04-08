@@ -20,6 +20,7 @@
 package org.openrepose.valve
 
 import java.io.{File, InputStream, PrintStream}
+import javax.net.ssl.SSLContext
 
 import com.typesafe.config.Config
 import org.openrepose.core.spring.CoreSpringProvider
@@ -71,6 +72,9 @@ class Valve {
       opt[Unit]('k', "insecure") action { (_, c) =>
         c.copy(insecure = true)
       } text "Ignore all SSL certificates validity and operate Very insecurely. Default: off (validate certs)"
+      opt[Unit]("show-ssl-params") action { (_, c) =>
+        c.copy(showSslParams = true)
+      }
       opt[Unit]("version") action { (_, c) =>
         c.copy(showVersion = true)
       } text "Display version and exit"
@@ -85,6 +89,25 @@ class Valve {
         1
       } else if (valveConfig.showVersion) {
         out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
+        1
+      } else if(valveConfig.showSslParams) {
+        import scala.concurrent.JavaConversions._
+        //Print lots of SSL info!
+        val sslContext = SSLContext.getDefault
+        val sslEngine = sslContext.createSSLEngine()
+        out.println("Displaying Available SSL Information for the current JVM")
+        out.println("Default enabled SSL Protocols:")
+        out.println("\t" + sslEngine.getEnabledProtocols.toList.sorted.mkString("\n\t"))
+        out.println()
+        out.println("Default enabled SSL Ciphers:")
+        out.println("\t" + sslEngine.getEnabledCipherSuites.toList.sorted.mkString("\n\t"))
+        out.println()
+        out.println("All available SSL Protocols:")
+        out.println("\t" + sslEngine.getSupportedProtocols.toList.sorted.mkString("\n\t"))
+        out.println()
+        out.println("All available SSL Ciphers:")
+        out.println("\t" + sslEngine.getSupportedCipherSuites.toList.sorted.mkString("\n\t"))
+
         1
       } else {
         val logger = LoggerFactory.getLogger(this.getClass)
@@ -140,6 +163,8 @@ class Valve {
   case class ValveConfig(configDirectory: File = new File("/etc/repose"),
                          insecure: Boolean = false,
                          showVersion: Boolean = false,
-                         showUsage: Boolean = false
+                         showUsage: Boolean = false,
+                         showSslParams: Boolean = false
                           )
+
 }
