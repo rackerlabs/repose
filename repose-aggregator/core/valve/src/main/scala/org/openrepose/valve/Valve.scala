@@ -74,7 +74,7 @@ class Valve {
       } text "Ignore all SSL certificates validity and operate Very insecurely. Default: off (validate certs)"
       opt[Unit]("show-ssl-params") action { (_, c) =>
         c.copy(showSslParams = true)
-      }
+      } text "Display SSL Ciphers and Protocols, sorted by enabled by default and all available"
       opt[Unit]("version") action { (_, c) =>
         c.copy(showVersion = true)
       } text "Display version and exit"
