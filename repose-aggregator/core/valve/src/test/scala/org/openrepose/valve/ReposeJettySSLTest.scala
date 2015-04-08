@@ -130,11 +130,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
     val client = HttpClients.custom().setSSLSocketFactory(sf).build()
 
-    //Do a get, and it should fail to negotiate SSL
     val get = new HttpGet(s"https://localhost:$httpsPort")
     val response = client.execute(get)
-
-
   }
 
   it("creates a jetty server excluding a list of protocols") {
@@ -151,6 +148,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
       intercept[SSLHandshakeException] {
         selectiveRequest(Array("TLSv1"))
       }
+      selectiveRequest(Array("TLSv1.2"))
     } finally {
       repose.shutdown()
     }
@@ -168,39 +166,43 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
       intercept[SSLHandshakeException] {
         selectiveRequest(Array("TLSv1"))
       }
+      selectiveRequest(Array("TLSv1.1"))
+      selectiveRequest(Array("TLSv1.2"))
     } finally {
       repose.shutdown()
     }
   }
+
   it("creates a jetty server excluding a list of ciphers") {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List("TLS_RSA_WITH_AES_256_CBC_SHA"))) //TODO: set this up to use something dynamic
+      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head))) //TODO: set this up to use something dynamic
     )
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
+        selectiveRequest(ciphers = Array(defaultEnabledCiphers.head))
       }
     } finally {
       repose.shutdown()
     }
   }
+
   it("creates a jetty server including only a list of ciphers") {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384"))) //TODO: set this up to use something dynamic
+      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head))) //TODO: set this up to use something dynamic
     )
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = Array("SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA"))
+        selectiveRequest(ciphers = Array(defaultEnabledCiphers.tail.head))
       }
     } finally {
       repose.shutdown()
