@@ -19,8 +19,9 @@
  */
 package org.openrepose.valve
 
-import java.io.File
-import java.nio.file.Files
+import java.io.{IOException, File}
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file._
 import javax.net.ssl.{SSLContext, SSLHandshakeException}
 
 import org.apache.http.client.methods.HttpGet
@@ -31,10 +32,10 @@ import org.junit.runner.RunWith
 import org.openrepose.core.container.config.{SslCipherConfiguration, SslConfiguration, SslProtocolConfiguration}
 import org.openrepose.core.spring.CoreSpringProvider
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
+class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll {
 
   val configDir: String = {
     val tempDir = Files.createTempDirectory("reposeSSLTesting")
@@ -46,6 +47,38 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
     tempDir.toFile.deleteOnExit() //TODO: this isn't working, need to clean up myself
     tempDir.toString
+  }
+
+  def deleteRecursive(path: Path) = {
+    Files.walkFileTree(path, new SimpleFileVisitor[Path]() {
+      override def visitFile(file: Path, attrs: BasicFileAttributes) = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def visitFileFailed(file: Path, exc: IOException) = {
+        // try to delete the file anyway, even if its attributes
+        // could not be read, since delete-only access is
+        // theoretically possible
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def postVisitDirectory(dir: Path, exc: IOException) = {
+        if (exc == null) {
+          Files.delete(dir)
+          FileVisitResult.CONTINUE
+        } else {
+          // directory iteration failed; propagate exception
+          throw exc
+        }
+      }
+    })
+  }
+
+  override def afterAll() = {
+    //Clean up my temp dir now that I'm all finished
+    deleteRecursive(Paths.get(configDir))
   }
 
   //Acquire the protocols and ciphers this JVM supports
@@ -67,7 +100,6 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
   CoreSpringProvider.getInstance().initializeCoreContext(configDir, false)
 
-  val httpPort = 10234
   val httpsPort = 10235
 
   //Create an SSL configuration for the jaxb thingies
@@ -102,14 +134,6 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
 
     s
   }
-
-  //TODO: clean up this part
-  println(s"Default enabled protocols: $defaultEnabledProtocols")
-  println(s"Default enabled ciphers: $defaultEnabledCiphers")
-  println()
-  println(s"All protocols: s$allProtocols")
-  println(s"All ciphers: s$allCiphers")
-  println()
 
   //For each one of these, create a jetty server, talk to it, and make sure the SSL stuff is doing what is described
 
@@ -248,10 +272,51 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter {
   }
 
   it("excludes ciphers via regular expression") {
-    pending
-  }
-  it("includes ciphers via regular expression") {
-    pending
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(excludedCiphers = List(".*TLS.*")))
+    )
+    repose.start()
+    try {
+      //All the TLS ciphers should not work
+      val tlsCiphers = defaultEnabledCiphers.collect {
+        case s if s.matches(".*TLS.*") => s
+      }
+      intercept[SSLHandshakeException] {
+        selectiveRequest(ciphers = tlsCiphers.toArray)
+      }
+    } finally {
+      repose.shutdown()
+    }
   }
 
+  it("includes ciphers via regular expression") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      Some(httpsPort),
+      Some(sslConfig(includedCiphers = List(".*SSL.*")))
+    )
+    repose.start()
+    try {
+      //All the TLS ciphers should not work
+      val tlsCiphers = defaultEnabledCiphers.collect {
+        case s if s.matches(".*TLS.*") => s
+      }
+      val sslCiphers = defaultEnabledCiphers.collect {
+        case s if s.matches(".*SSL.*") => s
+      }
+      intercept[SSLHandshakeException] {
+        selectiveRequest(ciphers = tlsCiphers.toArray)
+      }
+
+      selectiveRequest(ciphers = sslCiphers.toArray)
+    } finally {
+      repose.shutdown()
+    }
+  }
 }
