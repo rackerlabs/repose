@@ -99,13 +99,13 @@ class ReposeJettyServer(val clusterId: String,
         //Handle the Protocols and Ciphers
         //varargs are annoying, so lets deal with this using the scala methods
         import scala.collection.JavaConversions._
-        cf.addExcludeProtocols(ssl.getExcludedProtocols.getProtocol.toList:_*)
-        if(ssl.getIncludedProtocols.getProtocol.nonEmpty) {
-          cf.setIncludeProtocols(ssl.getIncludedProtocols.getProtocol.toList:_*)
+        cf.addExcludeProtocols(ssl.getExcludedProtocols.getProtocol.toList: _*)
+        if (ssl.getIncludedProtocols.getProtocol.nonEmpty) {
+          cf.setIncludeProtocols(ssl.getIncludedProtocols.getProtocol.toList: _*)
         }
-        cf.addExcludeCipherSuites(ssl.getExcludedCiphers.getCipher.toList:_*)
-        if(ssl.getIncludedCiphers.getCipher.nonEmpty) {
-          cf.setIncludeCipherSuites(ssl.getIncludedCiphers.getCipher.toList:_*)
+        cf.addExcludeCipherSuites(ssl.getExcludedCiphers.getCipher.toList: _*)
+        if (ssl.getIncludedCiphers.getCipher.nonEmpty) {
+          cf.setIncludeCipherSuites(ssl.getIncludedCiphers.getCipher.toList: _*)
         }
         cf.setRenegotiationAllowed(ssl.isTlsRenegotiationAllowed)
 

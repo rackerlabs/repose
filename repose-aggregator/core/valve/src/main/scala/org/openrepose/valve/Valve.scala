@@ -90,7 +90,7 @@ class Valve {
       } else if (valveConfig.showVersion) {
         out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
-      } else if(valveConfig.showSslParams) {
+      } else if (valveConfig.showSslParams) {
         import scala.concurrent.JavaConversions._
         //Print lots of SSL info!
         val sslContext = SSLContext.getDefault
