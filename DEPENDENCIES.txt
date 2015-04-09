@@ -15,52 +15,29 @@ Below is the full list of dependencies.
 By contributing to this project, you agree to abide to the terms and conditions
 outlined in CONTRIBUTORS.txt.
 
-Name                        Dependency version  POM groupId                                 Licenses                                                                Source
---------------------------  ------------------  -----------------------------------------   --------------------------------------------------------------------    ----------------------------------------------------------------------------------------------------------
 Apache Commons CLI          1.2                 commons-cli                                 Apache License Version 2.0                                              http://commons.apache.org/proper/commons-cli/dependencies.html
-Apache Commons Codec        1.10                commons-codec                               Apache License Version 2.0                                              http://www.apache.org/licenses/
-Apache Commons IO           2.4                 commons-io                                  Apache License Version 2.0                                              http://www.apache.org/licenses/
-Apache Commons Lang         3.3.2               commons-lang3                               Apache License Version 2.0                                              http://projects.apache.org/projects/commons_lang.html
-Apache Commons Pool         1.6                 commons-pool                                Apache License Version 2.0                                              http://projects.apache.org/projects/commons_pool.html
-Apache Jena                 1.1.1               org.apache.jena                             Apache License Version 2.0                                              http://jena.apache.org/
 Apache Tomcat               7.0.42              org.apache.tomcat                           Apache License Version 2.0                                              http://tomcat.apache.org/legal.html
 Apache Tomcat Embedded      7.0.42              org.apache.tomcat.embed                     Apache License Version 2.0                                              http://tomcat.apache.org/legal.html
-Apache Xerces               2.12.0-rax          xerces                                      Apache License Version 2.0                                              http://xerces.apache.org/xml-commons/licenses.html
-API Checker                 1.0.22              com.rackspace.papi.components.api-checker   Apache License Version 2.0                                              https://github.com/rackerlabs/api-checker/blob/master/LICENSE.txt
 CGLib                       2.2.2               cglib                                       Apache License Version 1.1                                              http://cglib.sourceforge.net/license.html
 DeProxy                     0.21                org.rackspace                               MIT License                                                             https://github.com/rackerlabs/deproxy/blob/master/LICENSE
-EHCache                     2.6.0               net.sf.ehcache                              Apache License Version 2.0                                              http://ehcache.org/about/license
 Glassfish                   3.1                 org.glassfish                               Common Development and Distribution License (CDDL - Version 1.1)        https://glassfish.java.net/license.html
                                                                                             GNU General Public License, version 2 with the "Classpath Exception"
 Glassfish Embedded          3.1.2.2             org.glassfish.main.extras                   Common Development and Distribution License (CDDL - Version 1.1)        https://glassfish.java.net/license.html
                                                                                             GNU General Public License, version 2 with the "Classpath Exception"
 Groovy                      2.1.3               org.codehaus.groovy                         Apache License Version 2.0                                              http://groovy.codehaus.org/License+Information
-Guava                       14.0.1              com.google.guava                            Apache License Version 2.0                                              https://code.google.com/p/guava-libraries/
 Hamcrest                    1.3                 org.hamcrest                                New BSD License                                                         https://code.google.com/p/hamcrest/
-Handlebars                  2.0.0               com.github.jknack                           Apache License Version 2.0                                              https://github.com/jknack/handlebars.java
-HttpComponents              4.2.5               org.apache.httpcomponents                   Apache License Version 2.0                                              http://hc.apache.org/httpcomponents-client-4.2.x/license.html
-Jackson                     2.4.0               com.fasterxml.jackson.core                  Apache License Version 2.0                                              http://wiki.fasterxml.com/JacksonDownload
-                                                                                            GNU Lesser General Public License, version 2.1
 Java EE                     6.0                 javax                                       Oracle Specific License                                                 http://www.oracle.com/technetwork/java/javase/downloads/366879
-Java Binding (JSR 222)      0.6.3               org.jvnet.jaxb2_commons                     CDDL v1.1 and GPL v2                                                    https://jaxb.java.net/
 Java Inject (JSR 330)       1                   javax.inject                                Apache License Version 2.0                                              https://jcp.org/en/jsr/detail?id=330
 Java Mail (JSR 919)         1.4.4               javax.mail                                  Common Development and Distribution License (CDDL - Version 1.1)        https://java.net/projects/javamail/pages/License
-Java REST (JSR 311)         2.0.1               javax.ws.rs                                 Common Development and Distribution License (CDDL - Version 1.1)        https://jax-rs-spec.java.net/
 Java Transaction (JSR 907)  1.1                 javax.transaction                           Oracle Specific License                                                 http://download.oracle.com/otndocs/jcp/jta-1.1-spec-oth-JSpec/jta-1.1-spec-oth-JSpec-license.html
                                                                                             GNU General Public License, version 2 with the "Classpath Exception"
 JBoss Java EE 6             1.0.0.Final         org.jboss.spec                              None listed for this specific version, future versions use              http://repo1.maven.org/maven2/org/jboss/spec/jboss-javaee-6.0/3.0.1.Final/jboss-javaee-6.0-3.0.1.Final.pom
 Specification APIs                                                                          GNU Lesser General Public License, Version 2.1
-Jersey                      1.19                com.sun.jersey                              Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
-                                                                                            GNU General Public License, version 2 with the “Classpath Exception"
 Jersey Common               2.14                org.glassfish.jersey.core                   Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
                                                                                             GNU General Public License, version 2 with the “Classpath Exception"
 Jersey Test Framework       1.0.3.1             com.sun.jersey.test.framework               Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
                                                                                             GNU General Public License, version 2 with the “Classpath Exception"
 Jetbrains Annotations       13.0                org.jetbrains                               Apache License Version 2.0                                              http://mvnrepository.com/artifact/org.jetbrains/annotations/13.0
-Jetty                       9.2.0.v20140526     org.eclipse.jetty                           Apache License Version 2.0                                              http://www.eclipse.org/jetty/licenses.php
-                                                                                            Eclipse Public License 1.0
-Joda Convert                1.7                 org.joda                                    Apache License Version 2.0                                              http://www.joda.org/joda-convert/
-Joda Time                   2.7                 joda-time                                   Apache License Version 2.0                                              http://joda-time.sourceforge.net/license.html
 JUnit                       4.12                junit                                       IBM's Common Public License Version 0.5                                 http://junit.sourceforge.net/doc/faq/faq.htm#overview_7
 linkedin-utils              1.8.0               org.linkedin                                Apache License Version 2.0                                              http://mvnrepository.com/artifact/org.linkedin/org.linkedin.util-groovy/1.7.2
 Log4J                       2.1                 log4j                                       Apache License Version 2.0                                              https://logging.apache.org/log4j/2.x/license.html
@@ -68,12 +45,41 @@ Mockito                     1.9.5               org.mockito                     
 Mockrunner                  1.0.0(0.4.1)        com.mockrunner                              Mockrunner specific license                                             http://mockrunner.sourceforge.net/LICENSE.txt
 PJL Compressing Filter      1.7                 net.sourceforge.pjl-comp-filter             Apache License Version 2.0                                              http://sourceforge.net/projects/pjl-comp-filter/
 PowerMock                   1.5.4               org.powermock                               Apache License Version 2.0                                              https://code.google.com/p/powermock/
+ScalaTest                   2.2.0               org.scalatest                               Apache License Version 2.0                                              http://www.scalatest.org/
+Spock                       0.7-groovy-2.0      org.spockframework                          Apache License Version 2.0                                              https://code.google.com/p/spock/
+XML Calabash                0.9.38              com.xmlcalabash                             None listed for this specific version, future versions use              https://search.maven.org/remotecontent?filepath=com/xmlcalabash/xmlcalabash/1.0.32-96/xmlcalabash-1.0.32-96.pom
+                                                                                            Common Development and Distribution License (CDDL - Version 1.1)
+                                                                                            GNU General Public License, version 2 with the "Classpath Exception"
+XML Unit                    1.3                 xmlunit                                     BSD License                                                             http://sourceforge.net/projects/xmlunit/
+
+Name                        Dependency version  POM groupId                                 Licenses                                                                Source
+--------------------------  ------------------  -----------------------------------------   --------------------------------------------------------------------    ----------------------------------------------------------------------------------------------------------
+Apache Commons Codec        1.10                commons-codec                               Apache License Version 2.0                                              http://www.apache.org/licenses/
+Apache Commons IO           2.4                 commons-io                                  Apache License Version 2.0                                              http://www.apache.org/licenses/
+Apache Commons Lang         3.3.2               commons-lang3                               Apache License Version 2.0                                              http://projects.apache.org/projects/commons_lang.html
+Apache Commons Pool         1.6                 commons-pool                                Apache License Version 2.0                                              http://projects.apache.org/projects/commons_pool.html
+Apache Jena                 1.1.1               org.apache.jena                             Apache License Version 2.0                                              http://jena.apache.org/
+Apache Log4J                2.1                 org.apache.logging.log4j                    Apache License Version 2.0                                              https://logging.apache.org/log4j/2.x/license.html
+Apache Xerces               2.12.0-rax          xerces                                      Apache License Version 2.0                                              http://xerces.apache.org/xml-commons/licenses.html
+API Checker                 1.0.22              com.rackspace.papi.components.api-checker   Apache License Version 2.0                                              https://github.com/rackerlabs/api-checker/blob/master/LICENSE.txt
+EHCache                     2.6.0               net.sf.ehcache                              Apache License Version 2.0                                              http://ehcache.org/about/license
+Guava                       14.0.1              com.google.guava                            Apache License Version 2.0                                              https://code.google.com/p/guava-libraries/
+Handlebars                  2.0.0               com.github.jknack                           Apache License Version 2.0                                              https://github.com/jknack/handlebars.java
+HttpComponents              4.2.5               org.apache.httpcomponents                   Apache License Version 2.0                                              http://hc.apache.org/httpcomponents-client-4.2.x/license.html
+Jackson                     2.4.0               com.fasterxml.jackson.core                  Apache License Version 2.0                                              http://wiki.fasterxml.com/JacksonDownload
+                                                                                            GNU Lesser General Public License, version 2.1
+Java Binding (JSR 222)      0.6.3               org.jvnet.jaxb2_commons                     CDDL v1.1 and GPL v2                                                    https://jaxb.java.net/
+Java REST (JSR 311)         2.0.1               javax.ws.rs                                 Common Development and Distribution License (CDDL - Version 1.1)        https://jax-rs-spec.java.net/
+Jersey                      1.19                com.sun.jersey                              Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
+                                                                                            GNU General Public License, version 2 with the “Classpath Exception"
+Jetty                       9.2.0.v20140526     org.eclipse.jetty                           Apache License Version 2.0                                              http://www.eclipse.org/jetty/licenses.php
+                                                                                            Eclipse Public License 1.0
+Joda Convert                1.7                 org.joda                                    Apache License Version 2.0                                              http://www.joda.org/joda-convert/
+Joda Time                   2.7                 joda-time                                   Apache License Version 2.0                                              http://joda-time.sourceforge.net/license.html
 SLF4J                       1.7.7               org.slf4j                                   MIT License                                                             http://slf4j.org/license.html
 Saxon                       9.4.0.9             net.sf.saxon                                Mozilla Public License version 2.0                                      http://saxon.sourceforge.net/
 Scala Lang                  2.10.3              org.scala-lang                              Scala Specific License                                                  http://www.scala-lang.org/license.html
-ScalaTest                   2.2.0               org.scalatest                               Apache License Version 2.0                                              http://www.scalatest.org/
 Scopt                       3.2.0               com.github.scopt                            MIT License                                                             https://github.com/scopt/scopt
-Spock                       0.7-groovy-2.0      org.spockframework                          Apache License Version 2.0                                              https://code.google.com/p/spock/
 Spray JSON                  1.2.6               io.spray                                    Apache License Version 2.0                                              https://github.com/spray/spray-json
 Spring Framework            4.1.4.RELEASE       org.springframework                         Apache License Version 2.0                                              https://github.com/spring-projects/spring-framework
 Typesafe Akka               2.2.3               com.typesafe.akka                           Apache License Version 2.0                                              http://doc.akka.io/docs/akka/snapshot/project/licenses.html
@@ -81,8 +87,4 @@ Typesafe Config             1.2.1               com.typesafe                    
 Typesafe Play-JSON          2.3.4               com.typesafe.play                           Apache License Version 2.0                                              https://github.com/playframework/playframework
 Typesafe Scala Logging      2.1.2               com.typesafe.scala-logging                  Apache License Version 2.0                                              https://github.com/typesafehub/scala-logging
 Xalan-Java                  2.7.1               xalan                                       Apache License Version 2.0                                              http://xalan.apache.org/old/xalan-j/index.html
-XML Calabash                0.9.38              com.xmlcalabash                             None listed for this specific version, future versions use              https://search.maven.org/remotecontent?filepath=com/xmlcalabash/xmlcalabash/1.0.32-96/xmlcalabash-1.0.32-96.pom
-                                                                                            Common Development and Distribution License (CDDL - Version 1.1)
-                                                                                            GNU General Public License, version 2 with the "Classpath Exception"
-XML Unit                    1.3                 xmlunit                                     BSD License                                                             http://sourceforge.net/projects/xmlunit/
 Yammer Metrics              2.2.0               com.yammer.metrics                          Apache License Version 2.0                                              http://metrics.codahale.com/about/release-notes/
