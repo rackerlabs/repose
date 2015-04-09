@@ -62,28 +62,22 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
-    def headerResult(headerName: String, valkyrieResult: ResponseResult): Either[String, ResponseResult] = {
-      Option(mutableHttpRequest.getHeader(headerName)).map {
-        Left(_)
-      } getOrElse {
-        Right(valkyrieResult)
-      }
-    }
+    def nullOrWhitespace(str: Option[String]): Option[String] = str.map { _.trim }.filter { !"".equals(_) }
 
-    val requestedTenantId = headerResult(OpenStackServiceHeader.TENANT_ID.toString, ResponseResult(502, "No tenant ID specified"))
-    val requestedDeviceId = headerResult("X-Device-Id", ResponseResult(502, "No device ID specified"))
-    val requestedContactId = headerResult("X-Contact-Id", ResponseResult(403, "No contact ID specified"))
-    val clientResponse: ResponseResult = (requestedTenantId, requestedContactId, requestedDeviceId) match {
-      case (_, _, Right(x)) => x
-      case (_, Right(x), _) => x
-      case (Right(x), _, _) => x
-      case (Left(tenantId), Left(contactId), Left(deviceId)) =>
-        tenantId.replaceAll(".*:", "")
-        val transformedTenant = tenantId.substring(tenantId.indexOf(":") + 1, tenantId.length)
-        datastoreValue(transformedTenant, contactId, deviceId, configuration.getValkyrieServer, mutableHttpRequest.getMethod) match {
-          case x:DeviceList => authorize (deviceId, x.devices, mutableHttpRequest.getMethod)
-          case x:ResponseResult => x
-        }
+    val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
+    val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
+    val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
+
+    val clientResponse = (requestedTenantId, requestedContactId, requestedDeviceId) match {
+      case (None, _, _) => ResponseResult(502, "No tenant ID specified")
+      case (_, None, _) => ResponseResult(403, "No contact ID specified")
+      case (_, _, None) => ResponseResult(502, "No device ID specified")
+      case (Some(tenant), Some(contact), Some(device)) =>
+      val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
+      datastoreValue(transformedTenant, contact, configuration.getValkyrieServer) match {
+        case deviceList: DeviceList => authorize(device, deviceList.devices, mutableHttpRequest.getMethod)
+        case result: ResponseResult => result
+      }
     }
 
     clientResponse match {
@@ -103,14 +97,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     transformedTenant + contactId
   }
 
-  def datastoreValue(transformedTenant: String, contactId: String, deviceId: String,  valkyrieServer: ValkyrieServer, method: String): ValkyrieResult = {
+  def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer): ValkyrieResult = {
     Option(datastore.get(cacheKey(transformedTenant, contactId))) match {
-      case Some(x: Seq[DeviceToPermission]) => DeviceList(x)
-      case None => valkyrieAuthorize(valkyrieServer, transformedTenant, contactId, deviceId, method)
+      case Some(x) => DeviceList(x.asInstanceOf[Seq[DeviceToPermission]])
+      case None => valkyrieAuthorize(valkyrieServer, transformedTenant, contactId)
     }
   }
 
-  def valkyrieAuthorize(valkyrieServer: ValkyrieServer, tenantId: String, contactId: String, deviceId: String, method: String): ValkyrieResult = {
+  def valkyrieAuthorize(valkyrieServer: ValkyrieServer, tenantId: String, contactId: String): ValkyrieResult = {
     tryValkyrieCall(valkyrieServer, tenantId, contactId) match {
       case Success(response) => {
         if (response.getStatus == 200) {
