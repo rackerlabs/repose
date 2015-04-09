@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<merge-header xmlns='http://docs.openrepose.org/repose/merge-header/v1.0'>
+    <request>
+        <header>accept-charset</header>
+    </request>
+    <response>
+        <header>x-split-header</header>
+    </response>
+</merge-header>
