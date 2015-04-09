@@ -2,6 +2,7 @@ package org.openrepose.filters.valkyrieauthorization
 
 import java.io.InputStream
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -54,7 +55,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   trait ValkyrieResult
   case class DeviceToPermission(device: Int, permission: String)
-  case class DeviceList(devices: Seq[DeviceToPermission]) extends ValkyrieResult
+  case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
@@ -98,7 +99,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer): ValkyrieResult = {
     Option(datastore.get(cacheKey(transformedTenant, contactId))) match {
-      case Some(x) => DeviceList(x.asInstanceOf[Seq[DeviceToPermission]])
+      case Some(x) => DeviceList(x.asInstanceOf[Vector[DeviceToPermission]])
       case None => valkyrieAuthorize(valkyrieServer, transformedTenant, contactId)
     }
   }
@@ -108,7 +109,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case Success(response) => {
         if (response.getStatus == 200) {
           parseDevices(response.getData) match {
-            case Success(deviceList) => DeviceList(deviceList)
+            case Success(deviceList) =>
+              datastore.put(cacheKey(tenantId, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
+              DeviceList(deviceList)
             case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
           }
         } else {
@@ -121,7 +124,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
   }
 
-  def authorize(deviceId: String, deviceList: Seq[DeviceToPermission], method: String): ResponseResult = {
+  def authorize(deviceId: String, deviceList: Vector[DeviceToPermission], method: String): ResponseResult = {
     deviceList.find(_.device.toString == deviceId).map { deviceToPermission =>
       deviceToPermission.permission match {
         case "view_product" if List("GET", "HEAD").contains(method) => ResponseResult(200)
@@ -145,7 +148,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   }
 
-  def parseDevices(is: InputStream): Try[Seq[DeviceToPermission]] = {
+  def parseDevices(is: InputStream): Try[Vector[DeviceToPermission]] = {
     import play.api.libs.functional.syntax._
     import play.api.libs.json.Reads._
     import play.api.libs.json._
@@ -158,8 +161,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val input: String = Source.fromInputStream(is).getLines() mkString ""
     try {
       val json = Json.parse(input)
-      (json \ "contact_permissions").validate[Seq[DeviceToPermission]] match {
-        case s: JsSuccess[Seq[DeviceToPermission]] =>
+      (json \ "contact_permissions").validate[Vector[DeviceToPermission]] match {
+        case s: JsSuccess[Vector[DeviceToPermission]] =>
           Success(s.get)
         case f: JsError =>
           logger.error(s"Valkyrie Response did not match expected contract: ${
