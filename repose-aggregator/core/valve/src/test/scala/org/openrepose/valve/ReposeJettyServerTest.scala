@@ -23,12 +23,14 @@ import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeJettyServerTest extends FunSpec with Matchers {
+class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
-  CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false);
+  override def beforeAll() = {
+    CoreSpringProvider.getInstance().reInitializeCoreContext("/config/root", false)
+  }
 
   val httpPort = 10234
   val httpsPort = 10235
