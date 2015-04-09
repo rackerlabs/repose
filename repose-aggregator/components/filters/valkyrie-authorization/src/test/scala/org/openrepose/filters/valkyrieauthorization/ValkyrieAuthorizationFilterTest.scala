@@ -2,6 +2,7 @@ package org.openrepose.filters.valkyrieauthorization
 
 import java.io.ByteArrayInputStream
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
@@ -112,20 +113,19 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert(filter.configuration.getDelegating.getQuality == .1)
     }
     it("should set the configuration to current and update the cache timeout") {
-//      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient])
-//
-//      val configuration = new ValkyrieAuthorizationConfig
-//      filter.configurationUpdated(configuration)
-//
-//      assert(filter.configuration == configuration)
-//      assert(filter.isInitialized)
-//
-//      val newConfiguration = new ValkyrieAuthorizationConfig
-//      filter.configurationUpdated(newConfiguration)
-//
-//      assert(filter.configuration == newConfiguration)
-//      assert(filter.isInitialized)
-      pending
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+
+      val configuration = new ValkyrieAuthorizationConfig
+      filter.configurationUpdated(configuration)
+
+      assert(filter.configuration == configuration)
+      assert(filter.isInitialized)
+
+      val newConfiguration = new ValkyrieAuthorizationConfig
+      filter.configurationUpdated(newConfiguration)
+
+      assert(filter.configuration == newConfiguration)
+      assert(filter.isInitialized)
     }
   }
 
@@ -225,7 +225,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       }
     }
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
-      val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "112233", "X-Contact-Id" -> "123456"))
+      val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "1234561", "X-Contact-Id" -> "123456"))
       val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant",
         request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"),
         200,
@@ -234,12 +234,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       Mockito.when(mockDatastore.get("someTenant123456")).thenAnswer(new Answer[Serializable] {
         var firstAttempt = true
+
         override def answer(invocation: InvocationOnMock): Serializable =
           if (firstAttempt) {
             firstAttempt = false
             null
           } else {
-            Seq(filter.DeviceToPermission(112233, "foo"), filter.DeviceToPermission(123456, "edit_product")).asInstanceOf[Serializable]
+            Vector(filter.DeviceToPermission(123456, "view_product"), filter.DeviceToPermission(1234561, "view_product1")).asInstanceOf[Serializable]
           }
       })
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -252,16 +253,18 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
       assert(mockServletResponse.getStatusCode == 403)
-      
+
+      Mockito.verify(mockDatastore).put("someTenant123456", Vector(filter.DeviceToPermission(123456, "view_product"), filter.DeviceToPermission(1234561, "view_product1")), 300000, TimeUnit.MILLISECONDS)
+
       val secondRequest = new MockHttpServletRequest
       val secondServletResponse = new MockHttpServletResponse
-      val secondRequestProcessor = RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
+      val secondRequestProcessor = RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
       secondRequest.setMethod(secondRequestProcessor.method)
       secondRequestProcessor.headers.foreach { case (k, v) => secondRequest.setHeader(k, v) }
       filter.doFilter(secondRequest, secondServletResponse, mockFilterChain)
       assert(secondServletResponse.getStatusCode == 200)
-      
-      Mockito.verify(akkaServiceClient,Mockito.times(1)).get(
+
+      Mockito.verify(akkaServiceClient, Mockito.times(1)).get(
         "someTenant" + request.headers.get("X-Contact-Id").get,
         s"http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
