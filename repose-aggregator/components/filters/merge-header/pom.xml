@@ -9,7 +9,7 @@
     </parent>
 
     <name>Repose Merge Header Filter</name>
-    <groupId>org.openrepose.rackspace</groupId>
+    <groupId>org.openrepose</groupId>
     <artifactId>merge-header</artifactId>
     <packaging>jar</packaging>
 
