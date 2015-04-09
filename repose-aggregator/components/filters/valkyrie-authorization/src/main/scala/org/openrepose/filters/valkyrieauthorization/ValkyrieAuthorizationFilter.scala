@@ -23,8 +23,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
-  extends AbstractFilterLogicHandler
-  with Filter
+  extends Filter
   with UpdateListener[ValkyrieAuthorizationConfig]
   with HttpDelegationManager
   with LazyLogging {
