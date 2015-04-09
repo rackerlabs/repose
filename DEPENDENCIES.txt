@@ -5,7 +5,7 @@ You must agree to the terms of this license and abide by them before using,
 modifying, or distributing Repose or the Repose source code contained within
 this distribution.
 
-Some dependencies are under other licenses.
+Repose has a number of dependencies that are covered by separate licenses, listed below.
 
 By using, modifying, or distributing Repose you may also be subject to the
 terms of those licenses.
