@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderFieldParser;
+import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -105,8 +107,35 @@ public class PowerFilterChain implements FilterChain {
         servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
         servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest) servletRequest).getRequestURL().toString());
         servletRequest.setAttribute("http://openrepose.org/queryParams", servletRequest.getParameterMap());
+        MutableHttpServletRequest wrappedRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
+        splitRequestHeaders(wrappedRequest);
 
-        doFilter(servletRequest, servletResponse);
+        doFilter(wrappedRequest, servletResponse);
+    }
+
+    private void splitRequestHeaders(MutableHttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            if (splittabelHeaderUtil.isSplitable(headerName)) {
+                List<HeaderValue> splitValues = splitRequestHeaderValues(headerName, request.getHeaders(headerName));
+                List<HeaderValue> headerValuesList = request.getRequestValues().getHeaders().getHeaderValues(headerName);
+                headerValuesList.clear();
+                headerValuesList.addAll(splitValues);
+            }
+        }
+    }
+
+    private List<HeaderValue> splitRequestHeaderValues(String headerName, Enumeration<String> headerValues) {
+        List<HeaderValue> splitHeaders = new ArrayList<>();
+        while (headerValues.hasMoreElements()) {
+            String headerValue = headerValues.nextElement();
+            String[] splitValues = headerValue.split(",");
+            for (String splitValue : splitValues) {
+                splitHeaders.addAll(new HeaderFieldParser(splitValue, headerName).parse());
+            }
+        }
+        return splitHeaders;
     }
 
     /**
@@ -237,7 +266,7 @@ public class PowerFilterChain implements FilterChain {
     private void splitResponseHeaders(MutableHttpServletResponse mutableHttpResponse) {
         for (String headerName : mutableHttpResponse.getHeaderNames()) {
             if (splittabelHeaderUtil.isSplitable(headerName)) {
-                Collection<String> splitValues = splitHeaderValues(mutableHttpResponse.getHeaders(headerName));
+                Collection<String> splitValues = splitResponseHeaderValues(mutableHttpResponse.getHeaders(headerName));
                 mutableHttpResponse.removeHeader(headerName);
                 for (String splitValue : splitValues) {
                     mutableHttpResponse.addHeader(headerName, splitValue);
@@ -246,7 +275,7 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
-    private Collection<String> splitHeaderValues(Collection<String> headerValues) {
+    private Collection<String> splitResponseHeaderValues(Collection<String> headerValues) {
         List<String> finalValues = new ArrayList<>();
         for (String passedValue : headerValues) {
             String[] splitValues = passedValue.split(",");

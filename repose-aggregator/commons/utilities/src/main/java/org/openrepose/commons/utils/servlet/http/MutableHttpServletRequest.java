@@ -261,4 +261,8 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue) {
         return values.getHeaders().getPreferredHeaders(name, defaultValue);
     }
+
+    public RequestValues getRequestValues() {
+        return values;
+    }
 }
