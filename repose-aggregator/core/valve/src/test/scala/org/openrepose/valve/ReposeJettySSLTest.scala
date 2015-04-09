@@ -81,6 +81,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
     deleteRecursive(Paths.get(configDir))
   }
 
+  override def beforeAll() = {
+    CoreSpringProvider.getInstance().reInitializeCoreContext(configDir, false)
+  }
+
   //Acquire the protocols and ciphers this JVM supports
   val (
     defaultEnabledProtocols: List[String],
@@ -98,7 +102,6 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       )
   }
 
-  CoreSpringProvider.getInstance().initializeCoreContext(configDir, false)
 
   val httpsPort = 10235
 
