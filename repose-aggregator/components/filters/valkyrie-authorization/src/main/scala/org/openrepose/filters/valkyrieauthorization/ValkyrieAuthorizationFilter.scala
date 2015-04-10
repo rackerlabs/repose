@@ -37,7 +37,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   var initialized = false
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configurationFile = Option(filterConfig.getInitParameter(FilterConfigHelper.FILTER_CONFIG)).getOrElse(DEFAULT_CONFIG)
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + configurationFile)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/valkyrie-authorization.xsd")
     configurationService.subscribeTo(
