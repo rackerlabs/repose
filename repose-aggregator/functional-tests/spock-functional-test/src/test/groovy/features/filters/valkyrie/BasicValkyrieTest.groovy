@@ -94,7 +94,7 @@ class BasicValkyrieTest extends ReposeValveTest {
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
                         "x-roles": "raxRolesDisabled",
-                        "X-Device-Id": deviceID
+                        "X-Device-Id": deviceID     /* remove this once we have the api-validator piece */
                 ]
         )
 
@@ -149,7 +149,7 @@ class BasicValkyrieTest extends ReposeValveTest {
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
                         "x-roles": "raxRolesEnabled, a:observer",
-                        "X-Device-Id": deviceID
+                        "X-Device-Id": deviceID  //remove once we have the api-validator piece
                 ]
         )
 
