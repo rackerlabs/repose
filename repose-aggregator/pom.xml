@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>repose</artifactId>
-        <version>7.0.1.2-SNAPSHOT</version>
+        <version>7.1.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Build Support Profiles</name>
@@ -685,7 +684,7 @@
                 <version>${gmaven.version}</version>
                 <configuration>
                     <providerSelection>1.8</providerSelection>
-                    <source/>
+                    <source />
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -778,8 +777,7 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <illegalTransitiveDependencyCheck
-                                        implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
+                                <illegalTransitiveDependencyCheck implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
                                     <reportOnly>false</reportOnly>
                                     <useClassesFromLastBuild>true</useClassesFromLastBuild>
                                     <suppressTypesFromJavaRuntime>true</suppressTypesFromJavaRuntime>
@@ -913,20 +911,14 @@
                         </goals>
                         <configuration>
                             <target>
-                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask"
-                                         classpathref="maven.plugin.classpath"/>
-                                <codenarc
-                                        ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
-                                        maxPriority1Violations="0"
-                                        maxPriority2Violations="0"
-                                        maxPriority3Violations="0"
-                                        >
+                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath" />
+                                <codenarc ruleSetFiles="classpath:repose-style-configs/ruleset.xml" maxPriority1Violations="0" maxPriority2Violations="0" maxPriority3Violations="0">
                                     <report type="xml">
-                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
-                                        <option name="title" value="${project.name}"/>
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml" />
+                                        <option name="title" value="${project.name}" />
                                     </report>
                                     <fileset dir="${basedir}/src/test/groovy" erroronmissingdir="false">
-                                        <include name="**/*.groovy"/>
+                                        <include name="**/*.groovy" />
                                     </fileset>
                                 </codenarc>
                             </target>
