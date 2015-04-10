@@ -32,6 +32,7 @@ HttpComponents              4.2.5               org.apache.httpcomponents       
 Jackson                     2.4.0               com.fasterxml.jackson.core                  Apache License Version 2.0                                              http://wiki.fasterxml.com/JacksonDownload
                                                                                             GNU Lesser General Public License, version 2.1
 Java Binding (JSR 222)      0.6.3               org.jvnet.jaxb2_commons                     CDDL v1.1 and GPL v2                                                    https://jaxb.java.net/
+Java Inject (JSR 330)       1                   javax.inject                                Apache License Version 2.0                                              https://jcp.org/en/jsr/detail?id=330
 Java REST (JSR 311)         2.0.1               javax.ws.rs                                 Common Development and Distribution License (CDDL - Version 1.1)        https://jax-rs-spec.java.net/
 Jersey                      1.19                com.sun.jersey                              Common Development and Distribution License (CDDL - Version 1.1)        https://jersey.java.net/license.html
                                                                                             GNU General Public License, version 2 with the “Classpath Exception"
