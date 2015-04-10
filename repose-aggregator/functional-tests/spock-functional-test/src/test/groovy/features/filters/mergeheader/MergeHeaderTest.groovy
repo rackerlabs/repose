@@ -141,11 +141,12 @@ class MergeHeaderTest extends ReposeValveTest {
                         if (headerValues[key] == null)
                             headerValues[key] = []
 
-                        headerValues[key] << value
+                        headerValues[key].addAll(value.split(", "))
                     }
 
-                    def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-encoding") }
+                    def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-charset") }
                     def userNameCount = headerKeys.count { it.equalsIgnoreCase("x-user-name") }
+
 
                     def acceptCharsetProper = headerValues['accept-charset'].containsAll(requestHeaders['accept-charset'].split(", "))
 
