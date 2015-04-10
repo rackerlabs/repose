@@ -18,7 +18,7 @@ class MergeHeaderHandler(filterConfig: MergeHeaderConfig) extends AbstractFilter
 
     Option(filterConfig.getRequest).foreach { requestConfig =>
       requestConfig.getHeader.toList.foreach { name =>
-        val headerValue = request.getHeader(name)
+        val headerValue = request.getHeaders(name).toList.mkString(", ")
         logger.debug(s"REQUEST: Putting $name to $headerValue")
         fd.requestHeaderManager().putHeader(name, headerValue)
       }
@@ -33,7 +33,7 @@ class MergeHeaderHandler(filterConfig: MergeHeaderConfig) extends AbstractFilter
 
     Option(filterConfig.getResponse).foreach {responseConfig =>
       responseConfig.getHeader.toList.foreach { name =>
-        val headerValue = request.getHeader(name)
+        val headerValue = request.getHeaders(name).toList.mkString(", ")
         logger.debug(s"RESPONSE: Putting $name to $headerValue")
         fd.responseHeaderManager().putHeader(name, headerValue)
       }
