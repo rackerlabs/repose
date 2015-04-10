@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,14 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package framework.mocks
-
 import groovy.text.SimpleTemplateEngine
-
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicInteger
-
 /**
  * Simulates responses from a Valkyrie Server
  */
@@ -154,7 +152,7 @@ class MockValkyrie {
         if(sleeptime > 0) {
             sleep(sleeptime)
         }
-        return new Response(code, null, headers, body)
+        return new Response(code, null, headers, body.toString().getBytes(StandardCharsets.UTF_8))
     }
 
 
@@ -169,16 +167,16 @@ class MockValkyrie {
             """
 
     def validationSuccessTemplate =
-            """{ 
+            """{
                     "contact_permissions": [
-                        { 
-                            "account_number": \${tenant}, 
+                        {
+                            "account_number": \${tenant},
                             "contact_id": \${contact},
-                             "id": 0, 
+                            "id": 0,
                             "item_id": \${deviceID},
-                             "item_type_id": 1, 
-                            "item_type_name": "devices", 
-                            "permission_name": "\${permission}", 
+                            "item_type_id": 1,
+                            "item_type_name": "devices",
+                            "permission_name": "\${permission}",
                             "permission_type_id": 12
                         },
                         {
