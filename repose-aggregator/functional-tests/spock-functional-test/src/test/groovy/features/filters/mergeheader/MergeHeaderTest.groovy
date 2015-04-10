@@ -52,7 +52,10 @@ class MergeHeaderTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/mergeheader", params) //just a very simple config
         repose.start([waitOnJmxAfterStarting: true])
+    }
 
+    def cleanup() {
+        running = false
     }
 
     def cleanupSpec() {
@@ -85,10 +88,29 @@ class MergeHeaderTest extends ReposeValveTest {
 
     }
 
-    @Ignore
     def "merges the specified headers in the response before returning to the client"() {
-        //TODO: going to have to craft the HTTP response by hand using a socket :(
-        when "I just make a request that comes back"
+        when: "I just make a request that comes back"
+        Socket client = new Socket("localhost", properties.reposePort)
+        println("AM I CONNECTED: " + client.connected)
+        def pw = new PrintWriter(client.getOutputStream())
+
+        pw.println("GET / HTTP/1.0")
+        pw.println("HOST: localhost")
+        //Have to include the accept charset so the socket server doesn't get mad
+        pw.println("accept-charset: ${requestHeaders["accept-charset"]}")
+        pw.println()
+
+        pw.flush()
+
+        //Now I should read stuff until the socket closes?
+        def lines = client.inputStream.readLines()
+        println("lines:\n${lines.join("\n")}")
+
+        then:
+        lines.contains("HTTP/1.1 200 OK") == true
+        lines.count{ l ->
+            l.matches("(?i)^x-split-header.*")
+        } == 1
     }
 
     /**
@@ -182,7 +204,6 @@ class MergeHeaderTest extends ReposeValveTest {
                     response.println(body)
 
                     server.close()
-
                 } catch (Exception e) {
                     println("SOCKET SERVER EXCEPTION: $e")
                     e.printStackTrace()
