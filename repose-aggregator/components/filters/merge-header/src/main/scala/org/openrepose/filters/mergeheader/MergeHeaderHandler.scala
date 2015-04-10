@@ -14,13 +14,15 @@ class MergeHeaderHandler(filterConfig: MergeHeaderConfig) extends AbstractFilter
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val fd = new FilterDirectorImpl()
-    fd.setFilterAction(FilterAction.PASS)
+    fd.setFilterAction(FilterAction.PROCESS_RESPONSE)
 
     Option(filterConfig.getRequest).foreach { requestConfig =>
       requestConfig.getHeader.toList.foreach { name =>
-        val headerValue = request.getHeaders(name).toList.mkString(", ")
-        logger.debug(s"REQUEST: Putting $name to $headerValue")
-        fd.requestHeaderManager().putHeader(name, headerValue)
+        if (request.getHeaderNames.toList.exists(_.equalsIgnoreCase(name))) {
+          val headerValue = request.getHeaders(name).toList.mkString(", ")
+          logger.debug(s"REQUEST: merging header $name to $headerValue")
+          fd.requestHeaderManager().putHeader(name, headerValue)
+        }
       }
     }
 
@@ -30,12 +32,16 @@ class MergeHeaderHandler(filterConfig: MergeHeaderConfig) extends AbstractFilter
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val fd = new FilterDirectorImpl()
     fd.setFilterAction(FilterAction.PASS)
+    //This is the stupidest thing I've ever seen in my entire life
+    fd.setResponseStatusCode(response.getStatus)
 
-    Option(filterConfig.getResponse).foreach {responseConfig =>
+    Option(filterConfig.getResponse).foreach { responseConfig =>
       responseConfig.getHeader.toList.foreach { name =>
-        val headerValue = request.getHeaders(name).toList.mkString(", ")
-        logger.debug(s"RESPONSE: Putting $name to $headerValue")
-        fd.responseHeaderManager().putHeader(name, headerValue)
+        if (response.getHeaderNames.toList.exists(_.equalsIgnoreCase(name))) {
+          val headerValue = response.getHeaders(name).toList.mkString(", ")
+          logger.debug(s"RESPONSE: merging header $name to $headerValue")
+          fd.responseHeaderManager().putHeader(name, headerValue)
+        }
       }
     }
 
