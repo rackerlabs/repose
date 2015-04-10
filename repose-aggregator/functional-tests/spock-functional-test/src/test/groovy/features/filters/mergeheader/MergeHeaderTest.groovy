@@ -84,7 +84,7 @@ class MergeHeaderTest extends ReposeValveTest {
             l.matches("(?i)^x-split-header.*")
         } == 1
 
-        lines.count {l ->
+        lines.count { l ->
             l.matches("(?i)^x-random.*")
         } == 0
     }
@@ -149,7 +149,7 @@ class MergeHeaderTest extends ReposeValveTest {
                         headers.collect { header ->
                             def things = header.split(":")
                             def key = things[0].toLowerCase()
-                            def value = things[1]
+                            def value = things[1].toString().trim()
 
                             if (headerValues[key] == null)
                                 headerValues[key] = []
@@ -159,7 +159,7 @@ class MergeHeaderTest extends ReposeValveTest {
 
                         println("header Keys:\n" + headerKeys.join("\n"))
 
-                        def randomHeaderCount = headerKeys.count{ it.equalsIgnoreCase("x-random") }
+                        def randomHeaderCount = headerKeys.count { it.equalsIgnoreCase("x-random") }
                         def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-charset") }
                         def userNameCount = headerKeys.count { it.equalsIgnoreCase("x-user-name") }
 
@@ -167,7 +167,7 @@ class MergeHeaderTest extends ReposeValveTest {
 
                         def responseString = "HTTP/1.0 200 OK"
                         def body = "Everything is peachy"
-                        if(randomHeaderCount != 0) {
+                        if (randomHeaderCount != 0) {
                             //FAIL
                             responseString = "HTTP/1.0 500 INTERNAL SERVER ERROR"
                             body = "X-random header was added, shouldn't be there"
