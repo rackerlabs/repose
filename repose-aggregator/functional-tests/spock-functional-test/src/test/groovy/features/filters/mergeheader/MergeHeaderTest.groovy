@@ -20,28 +20,24 @@
 package features.filters.mergeheader
 
 import framework.ReposeValveTest
-import org.eclipse.jetty.server.Handler
-import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.server.handler.DefaultHandler
-import org.eclipse.jetty.server.handler.HandlerList
-import org.eclipse.jetty.server.session.SessionHandler
-import org.eclipse.jetty.servlet.ServletHandler
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
-import spock.lang.Ignore
 
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
+/**
+ * This is a rather low level test to verify the actual merging of headers. Recommend that other tests regarding header
+ * merging not go in here, but perhaps where they make more sense, if possible
+ */
 class MergeHeaderTest extends ReposeValveTest {
 
-    volatile boolean running = true
-    BasicLoop loop = new BasicLoop()
+    static volatile boolean running = true
 
-    def setup() {
+    def cleanupSpec() {
+        running = false
+    }
+
+    def setupSpec() {
+        BasicLoop loop = new BasicLoop()
+
+        running = true
         Thread t = new Thread(loop)
         t.start()
 
@@ -54,18 +50,6 @@ class MergeHeaderTest extends ReposeValveTest {
         repose.start([waitOnJmxAfterStarting: true])
     }
 
-    def cleanup() {
-        running = false
-    }
-
-    def cleanupSpec() {
-
-    }
-
-    def setupSpec() {
-
-    }
-
     // There's only a certain list of headers that get split
     // See SplittableHeaderUtil for that list
     public static def requestHeaders = [
@@ -74,24 +58,9 @@ class MergeHeaderTest extends ReposeValveTest {
             'x-singlevalue' : "value1"
     ]
 
-    def "merges the specified headers, but not unspecified ones, in the request before sending to the origin service"() {
-        given: "I start up a jetty to try to figure out if the header is split or not"
-
-        when: "request contains headers with multiple values and so are split"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: requestHeaders, method: 'GET'])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
-
-        then: "the origin service will see merged headers as configured"
-        //TODO: can deproxy even understand that they're split or not split? No, no it cannot
-        messageChain.receivedResponse.body.contains("Everything is peachy")
-        messageChain.receivedResponse.code == "200"
-
-    }
-
     def "merges the specified headers in the response before returning to the client"() {
         when: "I just make a request that comes back"
         Socket client = new Socket("localhost", properties.reposePort)
-        println("AM I CONNECTED: " + client.connected)
         def pw = new PrintWriter(client.getOutputStream())
 
         pw.println("GET / HTTP/1.0")
@@ -102,15 +71,34 @@ class MergeHeaderTest extends ReposeValveTest {
 
         pw.flush()
 
-        //Now I should read stuff until the socket closes?
+        //Now I should read stuff until the socket closes
         def lines = client.inputStream.readLines()
-        println("lines:\n${lines.join("\n")}")
+
+        //All done!
+        client.close()
 
         then:
+        lines.contains("Everything is peachy") == true
         lines.contains("HTTP/1.1 200 OK") == true
-        lines.count{ l ->
+        lines.count { l ->
             l.matches("(?i)^x-split-header.*")
         } == 1
+
+        lines.count {l ->
+            l.matches("(?i)^x-random.*")
+        } == 0
+    }
+
+    def "merges the specified headers, but not unspecified ones, in the request before sending to the origin service"() {
+        given: "I start up a jetty to try to figure out if the header is split or not"
+
+        when: "request contains headers with multiple values and so are split"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: requestHeaders, method: 'GET'])
+
+        then: "the origin service will see merged headers as configured"
+        //TODO: can deproxy even understand that they're split or not split? No, no it cannot
+        messageChain.receivedResponse.body.contains("Everything is peachy")
+        messageChain.receivedResponse.code == "200"
     }
 
     /**
@@ -125,90 +113,100 @@ class MergeHeaderTest extends ReposeValveTest {
             serverSocket = new ServerSocket(0)
             port = serverSocket.getLocalPort()
 
+            int count = 1
             while (running) {
                 try {
+                    count += 1
+
                     Socket server = serverSocket.accept()
-                    println("HERE I AM BEIN AN HTTP SERVER")
+                    Thread.start {
 
-                    //Cannot just read all the lines, because yeah
-                    boolean readHeader = false
-                    def headerLines = []
-                    def reader = new BufferedReader(new InputStreamReader(server.inputStream))
-                    while (!readHeader) {
-                        //Read lines until I get a blank line, then we're done
-                        def line = reader.readLine()
-                        headerLines << line
-                        if (line == "")
-                            readHeader = true
+                        //Cannot just read all the lines, because yeah
+                        boolean readHeader = false
+                        def headerLines = []
+                        def reader = new BufferedReader(new InputStreamReader(server.inputStream))
+                        while (!readHeader) {
+                            //Read lines until I get a blank line, then we're done
+                            def line = reader.readLine()
+                            headerLines << line
+                            if (line == "")
+                                readHeader = true
+                        }
+                        println("ORIGIN RECEIVED HTTP HEADER: \n" + headerLines.join("\n"))
+
+                        def headers = headerLines.collect { line ->
+                            if (line.matches(".+:.*")) line
+                        }
+                        headers.removeAll([null])
+
+                        def headerKeys = headers.collect { header ->
+                            def things = header.split(":")
+                            things[0]
+                        }
+
+                        //Collect all the header values into a map to compare stuff
+                        def headerValues = [:]
+                        headers.collect { header ->
+                            def things = header.split(":")
+                            def key = things[0].toLowerCase()
+                            def value = things[1]
+
+                            if (headerValues[key] == null)
+                                headerValues[key] = []
+
+                            headerValues[key].addAll(value.split(", "))
+                        }
+
+                        println("header Keys:\n" + headerKeys.join("\n"))
+
+                        def randomHeaderCount = headerKeys.count{ it.equalsIgnoreCase("x-random") }
+                        def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-charset") }
+                        def userNameCount = headerKeys.count { it.equalsIgnoreCase("x-user-name") }
+
+                        def acceptCharsetProper = headerValues['accept-charset']?.containsAll(requestHeaders['accept-charset'].split(", "))
+
+                        def responseString = "HTTP/1.0 200 OK"
+                        def body = "Everything is peachy"
+                        if(randomHeaderCount != 0) {
+                            //FAIL
+                            responseString = "HTTP/1.0 500 INTERNAL SERVER ERROR"
+                            body = "X-random header was added, shouldn't be there"
+                        } else if (!acceptCharsetProper) {
+                            //FAIL
+                            responseString = "HTTP/1.0 400 BAD REQUEST"
+                            body = "accept-charset values didn't contain all: ${headerValues['accept-charset']?.join(", ")}"
+                        } else if (acceptCharsetCount != 1) {
+                            //FAIL
+                            responseString = "HTTP/1.0 400 BAD REQUEST"
+                            body = "accept-charset not merged"
+                        } else if (userNameCount == 1) {
+                            //ALSO FAIL
+                            responseString = "HTTP/1.0 400 BAD REQUEST"
+                            body = "x-user-name was merged"
+                        }
+
+                        //Craft my http response
+                        def response = new PrintStream(server.outputStream)
+                        response.println(responseString)
+                        response.println("Content-type: text/plain")
+                        //Stick some split headers in there for use during the response merging
+                        response.println("x-split-header: value1")
+                        response.println("x-split-header: value2;q=0.3")
+                        response.println("x-split-header: value3;q=0.4")
+                        response.println("x-split-header: value4")
+                        response.println("x-split-header: value5")
+
+                        response.println("content-length: ${body.bytes.length}")
+                        response.println()
+                        response.println(body)
+
+                        server.close()
                     }
-                    println(headerLines.join("\n"))
-
-                    def headers = headerLines.collect { line ->
-                        if (line.matches(".+: .+")) line
-                    }
-                    headers.removeAll([null])
-
-                    def headerKeys = headers.collect { header ->
-                        def things = header.split(": ")
-                        things[0]
-                    }
-
-                    //Collect all the header values into a map to compare stuff
-                    def headerValues = [:]
-                    headers.collect { header ->
-                        def things = header.split(": ")
-                        def key = things[0]
-                        def value = things[1]
-
-                        if (headerValues[key] == null)
-                            headerValues[key] = []
-
-                        headerValues[key].addAll(value.split(", "))
-                    }
-
-                    def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-charset") }
-                    def userNameCount = headerKeys.count { it.equalsIgnoreCase("x-user-name") }
-
-
-                    def acceptCharsetProper = headerValues['accept-charset'].containsAll(requestHeaders['accept-charset'].split(", "))
-
-                    def responseString = "HTTP/1.1 200 OK"
-                    def body = "Everything is peachy"
-                    if (!acceptCharsetProper) {
-                        //FAIL
-                        responseString = "HTTP/1.1 400 BAD REQUEST"
-                        body = "accept-charset values didn't contain all: ${headerValues['accept-charset'].join(", ")}"
-                    } else if (acceptCharsetCount != 1) {
-                        //FAIL
-                        responseString = "HTTP/1.1 400 BAD REQUEST"
-                        body = "accept-charset not merged"
-                    } else if (userNameCount == 1) {
-                        //ALSO FAIL
-                        responseString = "HTTP/1.1 400 BAD REQUEST"
-                        body = "x-user-name was merged"
-                    }
-
-                    //Craft my http response
-                    def response = new PrintStream(server.outputStream)
-                    response.println(responseString)
-                    response.println("Content-type: text/plain")
-                    //Stick some split headers in there for use during the response merging
-                    response.println("x-split-header: value1")
-                    response.println("x-split-header: value2;q=0.3")
-                    response.println("x-split-header: value3;q=0.4")
-                    response.println("x-split-header: value4")
-                    response.println("x-split-header: value5")
-
-                    response.println("content-length: ${body.bytes.length}")
-                    response.println()
-                    response.println(body)
-
-                    server.close()
                 } catch (Exception e) {
                     println("SOCKET SERVER EXCEPTION: $e")
                     e.printStackTrace()
                 }
-            }
+            } //End of running loop
         }
     }
 }
