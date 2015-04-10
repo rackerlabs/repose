@@ -8,7 +8,9 @@
     </nodes>
 
     <filters>
-      <filter name="valkyrie-authorization" />
+      <filter name="client-auth"/>
+      <filter name="api-validator"/>
+      <filter name="valkyrie-authorization"/>
     </filters>
 
     <destinations>

@@ -62,6 +62,10 @@ class MockValkyrie {
     String device_id = ""
     String device_perm = ""
 
+    //remove
+    def client_token = 'this-is-the-token';
+    def client_apikey = 'this-is-the-api-key';
+
     def sleeptime =0;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -84,7 +88,8 @@ class MockValkyrie {
         String requestPath = request.getPath()
         String method = request.getMethod()
 
-        // requestPath = "/account/12345/permissions/contacts/devices/by_contact/67891/effective"
+        // remove
+        requestPath = "/account/12345/permissions/contacts/devices/by_contact/67891/effective"
 
         def username
         def password
@@ -97,7 +102,12 @@ class MockValkyrie {
         else
             password = request.headers.getFirstValue('X-Auth-Token')
 
-        if (method == "GET") {
+        // remove
+        missingRequestHeaders = false
+
+        // remove
+        if (true) {
+        //if (method == "GET") {
             if (!missingRequestHeaders) {
 
                 def match = (requestPath =~ permissionsRegex)
@@ -168,7 +178,7 @@ class MockValkyrie {
                             "item_id": \${deviceID},
                              "item_type_id": 1, 
                             "item_type_name": "devices", 
-                            "permission_name": \${permission}, 
+                            "permission_name": "\${permission}", 
                             "permission_type_id": 12
                         },
                         {
