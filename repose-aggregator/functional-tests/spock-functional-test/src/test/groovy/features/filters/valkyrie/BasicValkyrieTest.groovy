@@ -40,13 +40,15 @@ class BasicValkyrieTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
 
+
     def setupSpec() {
         deproxy = new Deproxy()
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
-        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -61,12 +63,10 @@ class BasicValkyrieTest extends ReposeValveTest {
     def setup() {
 
         // Initialize state of the mock identity
-
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
         }
-
     }
 
     def cleanupSpec() {
@@ -79,39 +79,37 @@ class BasicValkyrieTest extends ReposeValveTest {
         }
     }
 
-    def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
-        given: "the HTTP Basic authentication header containing the User Name and API Key"
-        def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeValkyrie.client_username + ":" + fakeValkyrie.client_apikey).bytes)
-        ]
+
+    def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
+        given: "A device ID with a particular permission level defined in Valykrie"
 
         fakeValkyrie.with {
             device_id = deviceID
             device_perm = permission
         }
 
-        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
-        //String sValkyrieEndpoint = "http://${properties.targetHostname}:${properties.valkyriePort}"
-        //MessageChain mc = deproxy.makeRequest(url: sValkyrieEndpoint, method: 'GET', headers: headers)
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        "x-roles": "raxRolesDisabled",
+                        "X-Device-Id": deviceID
+                ]
+        )
 
         then: "check response"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc.handlings[0].request.headers.getFirstVal ue("X-Auth-Token").equals(fakeValkyrie.client_token)
-        mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
-
 
 
         where:
         method      |   tenantID    |   deviceID    | permission        | responseCode
         "GET"       |   "12345"     |   "520707"    | "view_product"    | "200"
-        "HEAD"      |   "12345"     |   "520708"    | "view_product"    | "200"
+        "HEAD"      |   "12345"     |   "520707"    | "view_product"    | "200"
         "PUT"       |   "12345"     |   "520707"    | "view_product"    | "403"
         "POST"      |   "12345"     |   "520707"    | "view_product"    | "403"
         "DELETE"    |   "12345"     |   "520707"    | "view_product"    | "403"
+        "PATCH"     |   "12345"     |   "520707"    | "view_product"    | "403"
         "GET"       |   "12345"     |   "520707"    | "admin_product"   | "200"
         "HEAD"      |   "12345"     |   "520707"    | "admin_product"   | "200"
         "PUT"       |   "12345"     |   "520707"    | "admin_product"   | "200"
@@ -134,5 +132,62 @@ class BasicValkyrieTest extends ReposeValveTest {
         "DELETE"    |   "12345"     |   "520707"    | "blah"            | "403"
 
     }
+
+
+    /*
+    def "Test fine grain access of resources based on Valkyrie permissions (rbac enabled)"() {
+        given: "A device ID with a particular permission level defined in Valykrie"
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a #method is made against a device that has a permission of #permission"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        "x-roles": "raxRolesEnabled, a:observer",
+                        "X-Device-Id": deviceID
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+
+        where:
+        method      |   tenantID    |   deviceID    | permission        | responseCode
+        "GET"       |   "12345"     |   "520707"    | "view_product"    | "200"
+        "HEAD"      |   "12345"     |   "520707"    | "view_product"    | "200"
+        "PUT"       |   "12345"     |   "520707"    | "view_product"    | "403"
+        "POST"      |   "12345"     |   "520707"    | "view_product"    | "403"
+        "DELETE"    |   "12345"     |   "520707"    | "view_product"    | "403"
+        "PATCH"     |   "12345"     |   "520707"    | "view_product"    | "403"
+        "GET"       |   "12345"     |   "520707"    | "admin_product"   | "200"
+        "HEAD"      |   "12345"     |   "520707"    | "admin_product"   | "200"
+        "PUT"       |   "12345"     |   "520707"    | "admin_product"   | "403"
+        "POST"      |   "12345"     |   "520707"    | "admin_product"   | "403"
+        "DELETE"    |   "12345"     |   "520707"    | "admin_product"   | "403"
+        "GET"       |   "12345"     |   "520707"    | "edit_product"    | "200"
+        "HEAD"      |   "12345"     |   "520707"    | "edit_product"    | "200"
+        "PUT"       |   "12345"     |   "520707"    | "edit_product"    | "403"
+        "POST"      |   "12345"     |   "520707"    | "edit_product"    | "403"
+        "DELETE"    |   "12345"     |   "520707"    | "edit_product"    | "403"
+        "GET"       |   "12345"     |   "520707"    | ""                | "403"
+        "HEAD"      |   "12345"     |   "520707"    | ""                | "403"
+        "PUT"       |   "12345"     |   "520707"    | ""                | "403"
+        "POST"      |   "12345"     |   "520707"    | ""                | "403"
+        "DELETE"    |   "12345"     |   "520707"    | ""                | "403"
+        "GET"       |   "12345"     |   "520707"    | "shazbot_prod"    | "403"
+        "HEAD"      |   "12345"     |   "520707"    | "prombol"         | "403"
+        "PUT"       |   "12345"     |   "520707"    | "hezmol"          | "403"
+        "POST"      |   "12345"     |   "520707"    | "_22_reimer"      | "403"
+        "DELETE"    |   "12345"     |   "520707"    | "blah"            | "403"
+
+    }
+*/
+
 
 }
