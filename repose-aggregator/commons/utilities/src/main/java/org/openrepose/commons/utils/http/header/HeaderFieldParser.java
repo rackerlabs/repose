@@ -19,10 +19,6 @@
  */
 package org.openrepose.commons.utils.http.header;
 
-import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.PowerApiHeader;
-
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -37,12 +33,9 @@ public class HeaderFieldParser {
 
     private final List<String> headerValueStrings;
     private Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
-    private SplittableHeaderUtil splittable;
 
     private HeaderFieldParser() {
         headerValueStrings = new LinkedList<String>();
-        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                ExtendedHttpHeader.values());
     }
 
     public HeaderFieldParser(String rawHeaderString) {
@@ -127,17 +120,8 @@ public class HeaderFieldParser {
             return;
         }
 
-        final String[] splitHeaderValues;
-
-        if (headerName != null && splittable.isSplitable(headerName)) {
-            splitHeaderValues = rawHeaderString.split(",");
-        } else {
-            splitHeaderValues = new String[]{rawHeaderString};
-        }
-        for (String splitHeaderValue : splitHeaderValues) {
-            if (!splitHeaderValue.isEmpty()) {
-                headerValueStrings.add(splitHeaderValue.trim());
-            }
+        if (!rawHeaderString.isEmpty()) {
+            headerValueStrings.add(rawHeaderString.trim());
         }
     }
 
