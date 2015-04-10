@@ -65,7 +65,7 @@ class MergeHeaderTest extends ReposeValveTest {
 
     // There's only a certain list of headers that get split
     // See SplittableHeaderUtil for that list
-    public static def headers = [
+    public static def requestHeaders = [
             'accept-charset': "value1, value2;q=1, value3, value4", //Will be split
             'X-User-Name'   : "value1, value2, value3, value4", //Won't be split
             'x-singlevalue' : "value1"
@@ -75,7 +75,7 @@ class MergeHeaderTest extends ReposeValveTest {
         given: "I start up a jetty to try to figure out if the header is split or not"
 
         when: "request contains headers with multiple values and so are split"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: headers, method: 'GET'])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: requestHeaders, method: 'GET'])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "the origin service will see merged headers as configured"
@@ -88,6 +88,7 @@ class MergeHeaderTest extends ReposeValveTest {
     @Ignore
     def "merges the specified headers in the response before returning to the client"() {
         //TODO: going to have to craft the HTTP response by hand using a socket :(
+        when "I just make a request that comes back"
     }
 
     /**
@@ -130,15 +131,34 @@ class MergeHeaderTest extends ReposeValveTest {
                         things[0]
                     }
 
-                    def acceptEncodingCount = headerKeys.count { it.equalsIgnoreCase("accept-encoding") }
+                    //Collect all the header values into a map to compare stuff
+                    def headerValues = [:]
+                    headers.collect { header ->
+                        def things = header.split(": ")
+                        def key = things[0]
+                        def value = things[1]
+
+                        if (headerValues[key] == null)
+                            headerValues[key] = []
+
+                        headerValues[key] << value
+                    }
+
+                    def acceptCharsetCount = headerKeys.count { it.equalsIgnoreCase("accept-encoding") }
                     def userNameCount = headerKeys.count { it.equalsIgnoreCase("x-user-name") }
+
+                    def acceptCharsetProper = headerValues['accept-charset'].containsAll(requestHeaders['accept-charset'].split(", "))
 
                     def responseString = "HTTP/1.1 200 OK"
                     def body = "Everything is peachy"
-                    if (acceptEncodingCount != 1) {
+                    if (!acceptCharsetProper) {
                         //FAIL
                         responseString = "HTTP/1.1 400 BAD REQUEST"
-                        body = "accept-encoding not merged"
+                        body = "accept-charset values didn't contain all: ${headerValues['accept-charset'].join(", ")}"
+                    } else if (acceptCharsetCount != 1) {
+                        //FAIL
+                        responseString = "HTTP/1.1 400 BAD REQUEST"
+                        body = "accept-charset not merged"
                     } else if (userNameCount == 1) {
                         //ALSO FAIL
                         responseString = "HTTP/1.1 400 BAD REQUEST"
@@ -149,6 +169,13 @@ class MergeHeaderTest extends ReposeValveTest {
                     def response = new PrintStream(server.outputStream)
                     response.println(responseString)
                     response.println("Content-type: text/plain")
+                    //Stick some split headers in there for use during the response merging
+                    response.println("x-split-header: value1")
+                    response.println("x-split-header: value2;q=0.3")
+                    response.println("x-split-header: value3;q=0.4")
+                    response.println("x-split-header: value4")
+                    response.println("x-split-header: value5")
+
                     response.println("content-length: ${body.bytes.length}")
                     response.println()
                     response.println(body)
@@ -157,6 +184,7 @@ class MergeHeaderTest extends ReposeValveTest {
 
                 } catch (Exception e) {
                     println("SOCKET SERVER EXCEPTION: $e")
+                    e.printStackTrace()
                 }
             }
         }
