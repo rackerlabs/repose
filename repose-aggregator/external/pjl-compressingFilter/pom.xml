@@ -64,6 +64,10 @@
 
         <dependency>
             <groupId>com.mockrunner</groupId>
+            <!-- The new library causes:
+            java.lang.NoSuchMethodError: javax.servlet.http.HttpServletResponse.getHeader(Ljava/lang/String;)Ljava/lang/String;
+	        at org.openrepose.external.pjlcompression.CompressingHttpServletResponse.mustNotCompress(CompressingHttpServletResponse.java:482) -->
+            <!--artifactId>mockrunner-servlet</artifactId-->
             <artifactId>mockrunner</artifactId>
             <version>0.4.1</version>
             <scope>test</scope>

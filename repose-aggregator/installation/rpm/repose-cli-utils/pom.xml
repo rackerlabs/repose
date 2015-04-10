@@ -165,6 +165,16 @@
                                                 ${basedir}/../../../../LICENSE.txt
                                             </location>
                                         </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../CONTRIBUTORS.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                            </location>
+                                        </source>
                                     </sources>
                                 </mapping>
                             </mappings>

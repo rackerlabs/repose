@@ -14,4 +14,6 @@ limitations under the License.
 
 NOTE: Saxon EE features require the user to obtain their own commercial license.
 
-See https://repose.atlassian.net/wiki/display/REPOSE/License for a list of Repose dependencies and their licenses.
+See DEPENDENCIES.txt for a list of Repose dependencies and their licenses.
+
+Contributors should also review CONTRIBUTORS.txt.

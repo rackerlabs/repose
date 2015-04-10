@@ -146,6 +146,7 @@ name mappings are listed below.
 
 
 ##Repose Documentation##
+
 Documentation is included with the source files and may be built with the maven command:  
 <pre>
     export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=256m'
@@ -157,10 +158,19 @@ This will build the documentation pdfs in the generated "target/docbkx/" directo
 
 ##Notes Regarding Licensing##
 
+Original files contained with this distribution of Repose are licensed under
+the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
 
-All files contained with this distribution of Repose are licensed
-under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
-You must agree to the terms of this license and abide by it before
-viewing, utilizing, modifying, or distributing the source code contained
-within this distribution.
+You must agree to the terms of this license and abide by them before using,
+modifying, or distributing Repose or the Repose source code contained within
+this distribution.
 
+Some dependencies are under other licenses.
+
+By using, modifying, or distributing Repose you may also be subject to the
+terms of those licenses.
+
+See the full list of dependencies in DEPENDENCIES.txt.
+
+By contributing to this project, you agree to abide to the terms and conditions
+outlined in CONTRIBUTORS.txt.

@@ -19,9 +19,9 @@
  */
 package org.openrepose.filters.translation.httpx.processor.json;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.filters.translation.httpx.processor.common.Element;
