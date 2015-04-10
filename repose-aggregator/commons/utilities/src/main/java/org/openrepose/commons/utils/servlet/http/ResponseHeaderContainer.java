@@ -19,10 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http;
 
-import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.*;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -32,12 +31,9 @@ public class ResponseHeaderContainer implements HeaderContainer {
     private final HttpServletResponse response;
     private final List<HeaderName> headerNames;
     private final Map<HeaderName, List<HeaderValue>> headerValues;
-    private SplittableHeaderUtil splitable;
 
     public ResponseHeaderContainer(HttpServletResponse response) {
         this.response = response;
-        splitable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                ExtendedHttpHeader.values());
         this.headerNames = extractHeaderNames();
         this.headerValues = extractHeaderValues();
     }
@@ -62,14 +58,9 @@ public class ResponseHeaderContainer implements HeaderContainer {
             for (HeaderName headerNameKey : headerNames) {
                 String name = headerNameKey.getName();
 
-                if (splitable.isSplitable(name)) {
-                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
-                    valueMap.put(headerNameKey, parser.parse());
-                } else {
-                    List<HeaderValue> values = new ArrayList<HeaderValue>();
-                    values.add(new HeaderValueImpl(response.getHeader(name)));
-                    valueMap.put(headerNameKey, values);
-                }
+                List<HeaderValue> values = new ArrayList<HeaderValue>();
+                values.add(new HeaderValueImpl(response.getHeader(name)));
+                valueMap.put(headerNameKey, values);
             }
         }
 
