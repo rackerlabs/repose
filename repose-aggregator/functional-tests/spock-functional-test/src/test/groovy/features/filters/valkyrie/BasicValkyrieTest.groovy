@@ -32,6 +32,8 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
 
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 class BasicValkyrieTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -39,12 +41,12 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
-
+    Map params = [:]
 
     def setupSpec() {
         deproxy = new Deproxy()
 
-        def params = properties.getDefaultTemplateParams()
+        params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
@@ -189,5 +191,50 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 */
 
+    def "Test valkyrie filter delegable mode."() {
+        given: "a configuration change where valkyrie filter delegates error messaging"
+
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/delegable", params);
+        sleep 15000
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        "x-roles": "raxRolesDisabled",
+                        "X-Device-Id": deviceID     /* remove this once we have the api-validator piece */
+                ]
+        )
+
+        then: "origin service should be forworded errors from valkyrie filter in header"
+        mc.receivedResponse.code == SC_OK.toString()
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-delegated")
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
+        mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.7")
+
+        where:
+        method      |   tenantID    |   deviceID    | permission        | delegatedMsg
+        "PUT"       |   "12345"     |   "520707"    | "view_product"    | "status_code=403"
+        "POST"      |   "12345"     |   "520707"    | "view_product"    | "status_code=403"
+        "DELETE"    |   "12345"     |   "520707"    | "view_product"    | "status_code=403"
+        "PATCH"     |   "12345"     |   "520707"    | "view_product"    | "status_code=403"
+        "GET"       |   "12345"     |   "520707"    | ""                | "status_code=403"
+        "HEAD"      |   "12345"     |   "520707"    | ""                | "status_code=403"
+        "PUT"       |   "12345"     |   "520707"    | ""                | "status_code=403"
+        "POST"      |   "12345"     |   "520707"    | ""                | "status_code=403"
+        "DELETE"    |   "12345"     |   "520707"    | ""                | "status_code=403"
+        "GET"       |   "12345"     |   "520707"    | "shazbot_prod"    | "status_code=403"
+        "HEAD"      |   "12345"     |   "520707"    | "prombol"         | "status_code=403"
+        "PUT"       |   "12345"     |   "520707"    | "hezmol"          | "status_code=403"
+        "POST"      |   "12345"     |   "520707"    | "_22_reimer"      | "status_code=403"
+        "DELETE"    |   "12345"     |   "520707"    | "blah"            | "status_code=403"
+    }
 
 }
