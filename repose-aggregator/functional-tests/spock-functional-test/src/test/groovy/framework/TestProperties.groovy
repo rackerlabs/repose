@@ -123,6 +123,7 @@ class TestProperties {
                 configDirectory          : configDirectory,
                 'repose.config.directory': configDirectory,
                 'project.build.directory': projectBuildDirectory,
+                'valkyriePort'           : valkyriePort,
         ]
     }
 
