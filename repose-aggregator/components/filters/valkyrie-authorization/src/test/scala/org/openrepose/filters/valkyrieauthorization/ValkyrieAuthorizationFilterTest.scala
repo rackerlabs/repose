@@ -160,6 +160,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
     List((RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), Result(403, "Not Authorized")), //Non matching device
       (RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), Result(403, "Not Authorized")), //Non matching role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "not_a_role")), Result(403, "Not Authorized")), //Not a real role
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(403, ""), Result(502, "Valkyrie returned a 403")), //Bad Permissions to Valkyrie
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456")), ValkyrieResponse(404, ""), Result(403, "No contact ID specified")), //Missing Contact
       (RequestProcessor("GET", Map("X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(404, ""), Result(502, "No tenant ID specified")), //Missing Tenant
@@ -269,11 +270,35 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         s"http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
-    it("should timeout the cache correctly based on configuration") {
-      pending
-    }
-    it("should be able to mask 403 to a 404") {
-      pending
+    List(null, new DelegatingType).foreach { delegation =>
+      it(s"should be able to mask 403 to a 404 ${if (delegation != null) { "using delegation" } else { "" }} ") {
+        val request = RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
+
+        val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "123456"), 200, createValkyrieResponse("123456", "view_product"))
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+        val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(delegation)
+        configuration.setEnableMasking403S(true)
+        filter.configurationUpdated(configuration)
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod(request.method)
+        request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+
+        val mockServletResponse = new MockHttpServletResponse
+        val mockFilterChain = mock[FilterChain]
+        filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+        if (Option(delegation).isDefined) {
+          assert(mockServletResponse.getStatusCode == 200)
+          val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+          Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
+          val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(404, "valkyrie-authorization", "Not Found", .1)
+          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
+        } else {
+          assert(mockServletResponse.getStatusCode == 404)
+        }
+      }
     }
   }
 
