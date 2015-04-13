@@ -18,12 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.filters.ratelimiting
-
 import com.mockrunner.mock.web.MockHttpServletRequest
+import org.junit.Assume
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.ratelimit.RateLimitingService
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -37,6 +36,7 @@ import static org.mockito.Mockito.*
 public class RateLimitingServiceHelperTest extends Specification {
     private static final String MOST_QUALIFIED_USER = "the best user of them all"
     private static final String MOST_QUALIFIED_GROUP = "the best group of them all"
+    def splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1)
 
     @Shared
     private RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null)
@@ -64,9 +64,9 @@ public class RateLimitingServiceHelperTest extends Specification {
         javaMediaType.toString() == MediaType.APPLICATION_XML
     }
 
-    @Ignore("another one that isn't going to work right because where the processing of things happens is in a different spot")
     def "when getting preferred user, should return most qualified user header"() {
         given:
+        Assume.assumeTrue(new Date() > splodeDate.getTime())
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_USER + ";q=1.0")
         headerValues.add("that other user;q=0.5")
@@ -102,9 +102,9 @@ public class RateLimitingServiceHelperTest extends Specification {
         user == MOST_QUALIFIED_USER
     }
 
-    @Ignore("another one that isn't going to work right because where the processing of things happens is in a different spot")
     def "when getting preferred group, should return most qualified groups"() {
         given:
+        Assume.assumeTrue(new Date() > splodeDate.getTime())
         final List<String> headerNames = new LinkedList<String>()
         headerNames.add(PowerApiHeader.GROUPS.toString())
 
