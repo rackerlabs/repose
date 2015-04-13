@@ -2,5 +2,6 @@
 
 <valkyrie-authorization
         xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="300000">
+    <delegating quality="0.7"/>
     <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
 </valkyrie-authorization>
