@@ -32,6 +32,8 @@ import spock.lang.Unroll
  */
 class HeaderNormalizationTest extends ReposeValveTest {
 
+    static Map params = [:]
+
     def headers = [
             'user1'          : 'usertest1',
             'X-Auth-Token'   : '358484212:99493',
@@ -43,7 +45,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
     ]
 
     def setupSpec() {
-        def params = properties.defaultTemplateParams
+        params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/headerNormalization", params)
         repose.start()
@@ -242,4 +244,51 @@ class HeaderNormalizationTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
+
+
+
+    def "Should not split request headers when configured as such with merge-header filter"() {
+        given: "configurged to to split headers using the merge-header filter"
+
+        repose.configurationProvider.applyConfigs("features/filters/headerNormalization/withmergeheaderfilter", params)
+        sleep 15000
+
+
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
+    }
+
+    def "Should merge response headers when configured as such with merge-header filter"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["aurl": "http://somehost.com/blah", "aurl": "http://somehost.com/bloo", "type": "application/xml", "type": "application/json"]
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', defaultHandler: handler)
+        def handling = mc.getHandlings()[0]
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.findAll("aurl").size() == 1
+        mc.receivedResponse.headers['aurl'].contains("http://somehost.com/bloo")
+        mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
 }
