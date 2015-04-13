@@ -269,7 +269,9 @@ public class PowerFilterChain implements FilterChain {
                 Collection<String> splitValues = splitResponseHeaderValues(mutableHttpResponse.getHeaders(headerName));
                 mutableHttpResponse.removeHeader(headerName);
                 for (String splitValue : splitValues) {
-                    mutableHttpResponse.addHeader(headerName, splitValue);
+                    if (StringUtils.isNotEmpty(splitValue)) {
+                        mutableHttpResponse.addHeader(headerName, splitValue);
+                    }
                 }
             }
         }

@@ -131,6 +131,8 @@ class PowerFilterChainTest extends Specification {
         where:
         headerName            | headerValues                   | expectedNumber
         "accept"              | ["foo", "bar,baz"]             | 3
+        "accept"              | ["", "bar,baz"]                | 2
+        "accept"              | ["foo", ",baz"]                | 2
         "accept-charset"      | ["foo", "bar,baz"]             | 3
         "accept-language"     | ["foo", "bar,baz"]             | 3
         "allow"               | ["foo", "bar,baz"]             | 3
