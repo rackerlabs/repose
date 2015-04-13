@@ -61,6 +61,7 @@ class MockIdentityService {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
     boolean checkTokenValid = false;
+    def random = new Random()
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
@@ -141,7 +142,7 @@ class MockIdentityService {
     def region = "ORD"
     def admin_userid = 67890;
     def sleeptime =0;
-    def contact_id = "my-contactId"
+    def contact_id = "${random.nextInt()}"
     def contactIdJson = ""
     def contactIdXml = ""
     Validator validator;

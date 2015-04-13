@@ -9,7 +9,7 @@
 
     <filters>
       <filter name="client-auth"/>
-      <filter name="api-validator"/>
+      <!--<filter name="api-validator"/>-->
       <filter name="valkyrie-authorization"/>
     </filters>
 

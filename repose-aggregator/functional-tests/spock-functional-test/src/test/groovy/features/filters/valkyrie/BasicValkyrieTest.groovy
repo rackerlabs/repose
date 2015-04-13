@@ -22,15 +22,9 @@ package features.filters.valkyrie
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
-import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
-
-import javax.servlet.http.HttpServletResponse
-import javax.ws.rs.core.HttpHeaders
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
@@ -41,7 +35,9 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
-    Map params = [:]
+    def static Map params = [:]
+
+    def static random = new Random()
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -63,12 +59,6 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 
     def setup() {
-
-        // Initialize state of the mock identity
-        fakeIdentityService.with {
-            client_apikey = UUID.randomUUID().toString()
-            client_token = UUID.randomUUID().toString()
-        }
     }
 
     def cleanupSpec() {
@@ -82,8 +72,15 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 
 
+    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
         given: "A device ID with a particular permission level defined in Valykrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
 
         fakeValkyrie.with {
             device_id = deviceID
@@ -95,102 +92,45 @@ class BasicValkyrieTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        "x-roles": "raxRolesDisabled",
-                        "X-Device-Id": deviceID     /* remove this once we have the api-validator piece */
+                        "X-Device-Id" : deviceID     /* remove this once we have the api-validator piece */
                 ]
         )
 
         then: "check response"
         mc.receivedResponse.code == responseCode
 
-
         where:
-        method      |   tenantID    |   deviceID    | permission        | responseCode
-        "GET"       |   "12345"     |   "520707"    | "view_product"    | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "view_product"    | "200"
-        "PUT"       |   "12345"     |   "520707"    | "view_product"    | "403"
-        "POST"      |   "12345"     |   "520707"    | "view_product"    | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "view_product"    | "403"
-        "PATCH"     |   "12345"     |   "520707"    | "view_product"    | "403"
-        "GET"       |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "PUT"       |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "POST"      |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "DELETE"    |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "GET"       |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "PUT"       |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "POST"      |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "DELETE"    |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "GET"       |   "12345"     |   "520707"    | ""                | "403"
-        "HEAD"      |   "12345"     |   "520707"    | ""                | "403"
-        "PUT"       |   "12345"     |   "520707"    | ""                | "403"
-        "POST"      |   "12345"     |   "520707"    | ""                | "403"
-        "DELETE"    |   "12345"     |   "520707"    | ""                | "403"
-        "GET"       |   "12345"     |   "520707"    | "shazbot_prod"    | "403"
-        "HEAD"      |   "12345"     |   "520707"    | "prombol"         | "403"
-        "PUT"       |   "12345"     |   "520707"    | "hezmol"          | "403"
-        "POST"      |   "12345"     |   "520707"    | "_22_reimer"      | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "blah"            | "403"
+        method   | tenantID       | deviceID | permission      | responseCode
+        "GET"    | randomTenant() | "520707" | "view_product"  | "200"
+        "HEAD"   | randomTenant() | "520707" | "view_product"  | "200"
+        "PUT"    | randomTenant() | "520707" | "view_product"  | "403"
+        "POST"   | randomTenant() | "520707" | "view_product"  | "403"
+        "DELETE" | randomTenant() | "520707" | "view_product"  | "403"
+        "PATCH"  | randomTenant() | "520707" | "view_product"  | "403"
+        "GET"    | randomTenant() | "520707" | "admin_product" | "200"
+        "HEAD"   | randomTenant() | "520707" | "admin_product" | "200"
+        "PUT"    | randomTenant() | "520707" | "admin_product" | "200"
+        "POST"   | randomTenant() | "520707" | "admin_product" | "200"
+        "DELETE" | randomTenant() | "520707" | "admin_product" | "200"
+        "GET"    | randomTenant() | "520707" | "edit_product"  | "200"
+        "HEAD"   | randomTenant() | "520707" | "edit_product"  | "200"
+        "PUT"    | randomTenant() | "520707" | "edit_product"  | "200"
+        "POST"   | randomTenant() | "520707" | "edit_product"  | "200"
+        "DELETE" | randomTenant() | "520707" | "edit_product"  | "200"
+        "GET"    | randomTenant() | "520707" | ""              | "403"
+        "HEAD"   | randomTenant() | "520707" | ""              | "403"
+        "PUT"    | randomTenant() | "520707" | ""              | "403"
+        "POST"   | randomTenant() | "520707" | ""              | "403"
+        "DELETE" | randomTenant() | "520707" | ""              | "403"
+        "GET"    | randomTenant() | "520707" | "shazbot_prod"  | "403"
+        "HEAD"   | randomTenant() | "520707" | "prombol"       | "403"
+        "PUT"    | randomTenant() | "520707" | "hezmol"        | "403"
+        "POST"   | randomTenant() | "520707" | "_22_reimer"    | "403"
+        "DELETE" | randomTenant() | "520707" | "blah"          | "403"
 
     }
 
-
-    /*
-    def "Test fine grain access of resources based on Valkyrie permissions (rbac enabled)"() {
-        given: "A device ID with a particular permission level defined in Valykrie"
-
-        fakeValkyrie.with {
-            device_id = deviceID
-            device_perm = permission
-        }
-
-        when: "a #method is made against a device that has a permission of #permission"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
-                        "x-roles": "raxRolesEnabled, a:observer",
-                        "X-Device-Id": deviceID  //remove once we have the api-validator piece
-                ]
-        )
-
-        then: "check response"
-        mc.receivedResponse.code == responseCode
-
-
-        where:
-        method      |   tenantID    |   deviceID    | permission        | responseCode
-        "GET"       |   "12345"     |   "520707"    | "view_product"    | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "view_product"    | "200"
-        "PUT"       |   "12345"     |   "520707"    | "view_product"    | "403"
-        "POST"      |   "12345"     |   "520707"    | "view_product"    | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "view_product"    | "403"
-        "PATCH"     |   "12345"     |   "520707"    | "view_product"    | "403"
-        "GET"       |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "admin_product"   | "200"
-        "PUT"       |   "12345"     |   "520707"    | "admin_product"   | "403"
-        "POST"      |   "12345"     |   "520707"    | "admin_product"   | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "admin_product"   | "403"
-        "GET"       |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "HEAD"      |   "12345"     |   "520707"    | "edit_product"    | "200"
-        "PUT"       |   "12345"     |   "520707"    | "edit_product"    | "403"
-        "POST"      |   "12345"     |   "520707"    | "edit_product"    | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "edit_product"    | "403"
-        "GET"       |   "12345"     |   "520707"    | ""                | "403"
-        "HEAD"      |   "12345"     |   "520707"    | ""                | "403"
-        "PUT"       |   "12345"     |   "520707"    | ""                | "403"
-        "POST"      |   "12345"     |   "520707"    | ""                | "403"
-        "DELETE"    |   "12345"     |   "520707"    | ""                | "403"
-        "GET"       |   "12345"     |   "520707"    | "shazbot_prod"    | "403"
-        "HEAD"      |   "12345"     |   "520707"    | "prombol"         | "403"
-        "PUT"       |   "12345"     |   "520707"    | "hezmol"          | "403"
-        "POST"      |   "12345"     |   "520707"    | "_22_reimer"      | "403"
-        "DELETE"    |   "12345"     |   "520707"    | "blah"            | "403"
-
-    }
-*/
-
+    @Unroll
     def "Test valkyrie filter delegable mode."() {
         given: "a configuration change where valkyrie filter delegates error messaging"
 
@@ -237,4 +177,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "DELETE"    |   "12345"     |   "520707"    | "blah"            | "status_code=403"
     }
 
+    def String randomTenant() {
+        "hybrid:" + random.nextInt()
+    }
 }
