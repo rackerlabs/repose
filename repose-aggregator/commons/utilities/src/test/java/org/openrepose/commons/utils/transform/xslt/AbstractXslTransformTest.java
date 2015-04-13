@@ -78,14 +78,14 @@ public class AbstractXslTransformTest {
 
             actual = transformerPool.getNumActive() + transformerPool.getNumIdle();
 
-            if(pooledObject != null) {
+            if (pooledObject != null) {
                 transformerPool.returnObject(pooledObject);
             }
 
             assertEquals(expected, actual);
         }
 
-        @Test(expected=XsltTransformationException.class)
+        @Test(expected = XsltTransformationException.class)
         public void shouldThrowExceptionIfXslTransformerCanNotBeGenerated() throws Exception {
             when(templates.newTransformer())
                     .thenThrow(new TransformerConfigurationException());

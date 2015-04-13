@@ -36,11 +36,11 @@ import java.net.URL;
 public class RateLimitingFilter implements Filter {
 
     private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
-    private String config;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingFilter.class);
-    private RateLimitingHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final DatastoreService datastoreService;
+    private String config;
+    private RateLimitingHandlerFactory handlerFactory;
 
     @Inject
     public RateLimitingFilter(

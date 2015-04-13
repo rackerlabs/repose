@@ -30,7 +30,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 9/4/14.
  */
-class IdentityV3AdminTokenTest extends ReposeValveTest{
+class IdentityV3AdminTokenTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -39,7 +39,7 @@ class IdentityV3AdminTokenTest extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -50,13 +50,13 @@ class IdentityV3AdminTokenTest extends ReposeValveTest{
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep 500
         fakeIdentityV3Service.resetHandlers()
     }
@@ -80,7 +80,7 @@ class IdentityV3AdminTokenTest extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )

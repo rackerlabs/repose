@@ -25,7 +25,7 @@ import org.rackspace.deproxy.Deproxy
 /**
  * Created by jennyvo on 6/9/14.
  */
-class DecommissionHttpLoggingTest extends ReposeValveTest{
+class DecommissionHttpLoggingTest extends ReposeValveTest {
 
     def "Test decommission http-log filter"() {
         given:
@@ -35,7 +35,7 @@ class DecommissionHttpLoggingTest extends ReposeValveTest{
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/powerfilter/badfilter" , params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/badfilter", params)
 
         when:
         repose.start([waitOnJmxAfterStarting: false])
@@ -45,6 +45,7 @@ class DecommissionHttpLoggingTest extends ReposeValveTest{
         reposeLogSearch.searchByString("NullPointerException").size() == 0
         reposeLogSearch.searchByString("none of the loaded artifacts supply a filter named http-logging").size() > 0
     }
+
     def cleanup() {
         if (deproxy)
             deproxy.shutdown()

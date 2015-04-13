@@ -42,9 +42,9 @@ public class UriDetailNode extends ObjectFactoryUser implements Node {
     public void build() {
         URIDetail uriDetail = getObjectFactory().createURIDetail();
         uriDetail.setFragment("where do we get this?");
-        
+
         if (parameterMap != null) {
-            
+
             for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
                 ComplexParameter parameter = getObjectFactory().createComplexParameter();
                 parameter.setName(entry.getKey());

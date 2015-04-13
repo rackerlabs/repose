@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.translation.httpx.node;
 
-import org.openrepose.core.httpx.AcceptHeader;
-import org.openrepose.core.httpx.RequestHeaders;
-import org.openrepose.core.httpx.SimpleParameter;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.media.MediaRangeParser;
 import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.core.httpx.AcceptHeader;
+import org.openrepose.core.httpx.RequestHeaders;
+import org.openrepose.core.httpx.SimpleParameter;
 import org.openrepose.filters.translation.httpx.ObjectFactoryUser;
 
 import java.util.List;

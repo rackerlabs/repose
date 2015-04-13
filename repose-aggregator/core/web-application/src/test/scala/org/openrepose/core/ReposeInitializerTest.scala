@@ -28,14 +28,14 @@ import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.powerfilter.EmptyServlet
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.filter.DelegatingFilterProxy
 
 @RunWith(classOf[JUnitRunner])
-class ReposeInitializerTest extends FunSpec with Matchers with MockitoSugar{
+class ReposeInitializerTest extends FunSpec with BeforeAndAfterAll with Matchers with MockitoSugar {
 
-  {
+  override def beforeAll() {
     //NOTE: have to set up these things since the initializer needs this stuff
     import ReposeSpringProperties._
     System.setProperty(stripSpringValueStupidity(CORE.CONFIG_ROOT), "/config/root")

@@ -19,10 +19,6 @@
  */
 package com.rackspace.httpdelegation
 
-import org.scalatest.{FunSuite, Matchers}
-
-import scala.util.{Failure, Success}
-
 class HttpDelegationManagerTest extends FunSuite with Matchers with HttpDelegationManager {
 
   test("buildDelegationHeaders should return a header map with the appropriate values") {

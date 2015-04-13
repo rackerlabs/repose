@@ -33,7 +33,7 @@ class TranslateUncommonHeadersTest extends ReposeValveTest {
     def static Map weirdContentTypeXML = ['content-type': 'application/xml; type=entry;charset=utf-8']
     def static Map weirdAcceptXML = ['accept': 'application/xml; type=entry;charset=utf-8']
     def static sampleAtomEntry =
-        """<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+            """<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
             xmlns="http://wadl.dev.java.net/2009/02" 
             xmlns:db="http://docbook.org/ns/docbook" 
             xmlns:error="http://docs.rackspace.com/core/error" 
@@ -95,17 +95,18 @@ class TranslateUncommonHeadersTest extends ReposeValveTest {
         !mc.handlings[0].request.body.contains("huddleId")
 
         where:
-        reqHeaders                                   |  method
-        acceptXML + contentTypeAtomXML               |  "POST"
-        weirdAcceptAtomXML + weirdContentTypeAtomXML |  "POST"
-        acceptXML + contentTypeXML                   |  "POST"
-        weirdAcceptXML + weirdContentTypeXML         |  "POST"
+        reqHeaders                                   | method
+        acceptXML + contentTypeAtomXML               | "POST"
+        weirdAcceptAtomXML + weirdContentTypeAtomXML | "POST"
+        acceptXML + contentTypeXML                   | "POST"
+        weirdAcceptXML + weirdContentTypeXML         | "POST"
     }
 
     @Unroll("when translating responses with uncommon headers - #respHeaders")
     def "when translating responses with uncommon headers"() {
 
-        given: "Origin service returns body of type " + respHeaders
+        given:
+        "Origin service returns body of type " + respHeaders
         def handler = { request -> return new Response(200, "OK", respHeaders, sampleAtomEntry) }
 
 

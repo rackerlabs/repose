@@ -44,7 +44,7 @@ public class EchoFilter implements Filter {
                 httpResponse.addHeader(nextHeaderName, headerValues.nextElement());
             }
         }
-        
+
         httpResponse.setStatus(HttpServletResponse.SC_OK);
     }
 

@@ -31,7 +31,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 11/11/14.
  * check delegating option for authz
  */
-class ClientAuthZDelegatingTest extends ReposeValveTest{
+class ClientAuthZDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
@@ -60,7 +60,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         repose.stop()
     }
 
-    @Unroll ("When user role #roles not in ignore-tenant-role list")
+    @Unroll("When user role #roles not in ignore-tenant-role list")
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
         given:
         fakeIdentityService.with {
@@ -73,7 +73,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
                 [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-roles': roles
+                        'x-roles'     : roles
                 ]
         def authDelegatingMsg = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
 
@@ -85,20 +85,20 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         mc.receivedResponse.code == respcode
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
-        mc.handlings[0].request.headers.getFirstValue("x-delegated")=~ authDelegatingMsg
+        mc.handlings[0].request.headers.getFirstValue("x-delegated") =~ authDelegatingMsg
 
         where: "User with #roles expect response code #respcode"
-        roles               |respcode
-        'user-admin'        |"200"
-        'non-admin'         |"200"
-        null                |"200"
-        ''                  |"200"
-        'openstack%2Cadmin' |'200'
-        'admin%20'          |'200'
+        roles | respcode
+        'user-admin' | "200"
+        'non-admin' | "200"
+        null | "200"
+        '' | "200"
+        'openstack%2Cadmin' | '200'
+        'admin%20' | '200'
     }
 
     @Unroll("When #method request with URL is not in the user's service list")
-    def "When user requests a URL that is not in the user's service list repose should forward 403 FORBIDDEN to origin service"(){
+    def "When user requests a URL that is not in the user's service list repose should forward 403 FORBIDDEN to origin service"() {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
@@ -107,7 +107,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         def strregex = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:method, headers:['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: method, headers: ['X-Auth-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 
@@ -119,11 +119,11 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("x-delegated") =~ strregex
 
         where:
-        method << ["GET","POST","PUT","PATCH","DELETE"]
+        method << ["GET", "POST", "PUT", "PATCH", "DELETE"]
     }
 
     @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Endpoints Call: #endpointsBroken Error Code: #errorCode")
-    def "When Auxiliary service is broken for Service Endpoints call"(){
+    def "When Auxiliary service is broken for Service Endpoints call"() {
 
         given: "When Calls to Auth Return bad responses"
 
@@ -138,37 +138,38 @@ class ClientAuthZDelegatingTest extends ReposeValveTest{
             fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
         }
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "User should receive a " + expectedCode + "response"
+        then:
+        "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        adminBroken | endpointsBroken| errorCode | expectedCode | delegatingMsg
-        true        | false          | 400       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 401       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 402       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 403       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 404       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 413       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 429       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 500       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 501       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 502       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false          | 503       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 400       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 401       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 402       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 403       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 404       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 413       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 429       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 500       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 501       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 502       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true           | 503       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        adminBroken | endpointsBroken | errorCode | expectedCode | delegatingMsg
+        true        | false           | 400       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 401       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 402       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 403       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 404       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 413       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 429       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 500       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 501       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 502       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 503       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 400       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 401       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 402       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 403       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 404       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 413       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 429       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 500       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 501       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 502       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        false       | true            | 503       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
 
     }
 }

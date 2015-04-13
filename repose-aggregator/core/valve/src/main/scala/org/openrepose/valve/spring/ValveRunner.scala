@@ -32,16 +32,14 @@ import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
 import org.springframework.beans.factory.DisposableBean
 
-import scala.util.{Try, Failure, Success}
-
 
 /**
  * A singleton that's spring aware because of the services it needs to use.
  */
 @Named
 class ValveRunner @Inject()(
-                                configService: ConfigurationService
-                                ) extends DisposableBean with LazyLogging {
+                             configService: ConfigurationService
+                             ) extends DisposableBean with LazyLogging {
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
@@ -152,17 +150,17 @@ class ValveRunner @Inject()(
 
             logger.debug({
               "New configured nodes: " +
-                newConfiguredLocalNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+                newConfiguredLocalNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
             logger.debug({
               " Nodes to stop: " +
-                stopList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+                stopList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
             logger.debug({
               "Nodes to start: " +
-                startList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+                startList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
 
             })
 
@@ -176,11 +174,11 @@ class ValveRunner @Inject()(
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
               val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig))
-              try{
+              try {
                 node.start()
                 Some(node)
               } catch {
-                case e:Exception => {
+                case e: Exception => {
                   //If we couldn't start a node, throw a fatal error, and try to start other nodes?
                   // at the very least, we need to unload all the things, because it's buggered.
                   node.shutdown()
@@ -191,14 +189,14 @@ class ValveRunner @Inject()(
             }
 
             //Do a quick sanity check, in case all local nodes are broke
-            if(activeNodes.isEmpty) {
+            if (activeNodes.isEmpty) {
               logger.error("Unable to start up *any* local nodes, exiting valve, because there's nothing to do!")
               runLatch.countDown()
             }
 
             logger.debug({
               "Current running nodes: " +
-                activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+                activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
           }
@@ -216,7 +214,7 @@ class ValveRunner @Inject()(
         nodeModificationLock.synchronized {
           logger.debug({
             "ALL Nodes restarted (Container Config updated): " +
-              activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}"}
+              activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
           })
           activeNodes = activeNodes.map { node =>
             val n1 = node.restart()

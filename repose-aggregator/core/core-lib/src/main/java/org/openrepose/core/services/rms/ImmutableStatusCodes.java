@@ -31,33 +31,33 @@ import java.util.regex.Pattern;
  * @author fran
  */
 public final class ImmutableStatusCodes {
-   private final List<StatusCodeMatcher> statusCodeMatcherList = new LinkedList<StatusCodeMatcher>();
-   private final Map<String, Pattern> statusCodeRegexes = new HashMap<String, Pattern>();
+    private final List<StatusCodeMatcher> statusCodeMatcherList = new LinkedList<StatusCodeMatcher>();
+    private final Map<String, Pattern> statusCodeRegexes = new HashMap<String, Pattern>();
 
-   private ImmutableStatusCodes(List<StatusCodeMatcher> statusCodes) {
-      statusCodeMatcherList.clear();
-      statusCodeMatcherList.addAll(statusCodes);
-      
-      statusCodeRegexes.clear();
-      for (StatusCodeMatcher code : statusCodeMatcherList) {
-         statusCodeRegexes.put(code.getId(), Pattern.compile(code.getCodeRegex()));
-      }
-   }
+    private ImmutableStatusCodes(List<StatusCodeMatcher> statusCodes) {
+        statusCodeMatcherList.clear();
+        statusCodeMatcherList.addAll(statusCodes);
 
-   public StatusCodeMatcher getMatchingStatusCode(String statusCode) {
-      StatusCodeMatcher matchedCode = null;
+        statusCodeRegexes.clear();
+        for (StatusCodeMatcher code : statusCodeMatcherList) {
+            statusCodeRegexes.put(code.getId(), Pattern.compile(code.getCodeRegex()));
+        }
+    }
 
-      for (StatusCodeMatcher code : statusCodeMatcherList) {
-         if (statusCodeRegexes.get(code.getId()).matcher(statusCode).matches()) {
-            matchedCode = code;
-            break;
-         }
-      }      
+    public static ImmutableStatusCodes build(List<StatusCodeMatcher> statusCodeMatchers) {
+        return new ImmutableStatusCodes(statusCodeMatchers);
+    }
 
-      return matchedCode;
-   }
+    public StatusCodeMatcher getMatchingStatusCode(String statusCode) {
+        StatusCodeMatcher matchedCode = null;
 
-   public static ImmutableStatusCodes build(List<StatusCodeMatcher> statusCodeMatchers){
-      return new ImmutableStatusCodes(statusCodeMatchers);
-   }
+        for (StatusCodeMatcher code : statusCodeMatcherList) {
+            if (statusCodeRegexes.get(code.getId()).matcher(statusCode).matches()) {
+                matchedCode = code;
+                break;
+            }
+        }
+
+        return matchedCode;
+    }
 }

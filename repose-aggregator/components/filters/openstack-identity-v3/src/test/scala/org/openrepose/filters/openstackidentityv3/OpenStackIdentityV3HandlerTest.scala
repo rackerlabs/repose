@@ -27,10 +27,10 @@ import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.{HttpDate, CommonHttpHeader}
 import org.openrepose.commons.utils.http.header.HeaderName
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
-import org.openrepose.core.filter.logic.{FilterDirector, FilterAction, HeaderManager}
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
@@ -58,7 +58,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.setServiceEndpoint(new ServiceEndpoint())
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
-    identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
+    identityConfig.getValidateProjectIdInUri.setRegex( """/foo/(\d+)""")
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
@@ -512,15 +512,15 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     val extractProjectIdFromUri = PrivateMethod[Option[String]]('extractProjectIdFromUri)
 
     it("should return None if the regex does not match") {
-      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/bar/12345") shouldBe None
+      identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/(\d+)""".r, "/bar/12345") shouldBe None
     }
 
     it("should return None if the regex does not contain a capture group") {
-      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/\d+""".r, "/bar/12345") shouldBe None
+      identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/\d+""".r, "/bar/12345") shouldBe None
     }
 
     it("should return Some(projectId) if the regex matches and a capture group is present") {
-      val projectId = identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/foo/12345")
+      val projectId = identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/(\d+)""".r, "/foo/12345")
       projectId shouldBe a[Some[_]]
       projectId.get shouldEqual "12345"
     }

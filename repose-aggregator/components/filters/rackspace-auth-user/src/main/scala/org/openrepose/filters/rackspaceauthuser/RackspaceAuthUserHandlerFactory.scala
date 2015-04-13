@@ -30,7 +30,7 @@ class RackspaceAuthUserHandlerFactory extends AbstractConfiguredFilterHandlerFac
   private val handlerReference = new AtomicReference[RackspaceAuthUserHandler]()
 
   override protected def buildHandler(): RackspaceAuthUserHandler = {
-    if(isInitialized) {
+    if (isInitialized) {
       handlerReference.get
     } else {
       null //EW
@@ -58,4 +58,5 @@ class RackspaceAuthUserHandlerFactory extends AbstractConfiguredFilterHandlerFac
       initialized.get()
     }
   }
+
 }

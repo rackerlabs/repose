@@ -60,20 +60,16 @@ public class DistributedDatastoreLauncherService {
     private final ConfigurationService configurationService;
     private final RequestProxyService requestProxyService;
     private final SystemModelListener systemModelListener = new SystemModelListener();
-
-    private volatile boolean isRunning = false;
     private final Object heartbeatLock = new Object();
-
     private final DatastoreService datastoreService;
+    private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
+    private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
+    private final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
+    private volatile boolean isRunning = false;
     private Optional<DistributedDatastoreServer> ddServer = Optional.absent();
     private DistributedDatastoreServlet ddServlet = null;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private DistributedDatastoreConfigurationListener ddConfigListener;
-
-    private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
-    private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
-
-    private final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
 
 
     @Inject
@@ -142,13 +138,13 @@ public class DistributedDatastoreLauncherService {
                 //extract data and do things with it?
                 int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, clusterId, nodeId);
                 if (ddPort == -1) {
-                    LOG.error("Unable to determine Distributed Datastore port for {}:{}", clusterId, nodeId);
+                    LOG.error("Unable to determine Distributed Datastore port for {} : {}", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
                     return;
                 }
 
                 //Do a manual port range check, because it's less complicated than trying to catch exceptions
-                if(ddPort <= 0 || ddPort > 65535) {
+                if (ddPort <= 0 || ddPort > 65535) {
                     LOG.error("Distributed Datastore port out of range: {}", ddPort);
                     healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort out of range", Severity.BROKEN);
                     return;
@@ -210,7 +206,7 @@ public class DistributedDatastoreLauncherService {
     @PreDestroy
     public void destroy() {
         healthCheckServiceProxy.deregister();
-        
+
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
 
         stopDistributedDatastore();

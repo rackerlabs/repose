@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
-<!ENTITY PRODNAME "Repose">
-<!ENTITY PRODABBREV "Repose">
-<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
-    <!-- Some useful entities borrowed from HTML -->
-    <!ENTITY ndash  "&#x2013;">
-    <!ENTITY mdash  "&#x2014;">
-    <!ENTITY hellip "&#x2026;">
+        <!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+        <!ENTITY PRODNAME "Repose">
+        <!ENTITY PRODABBREV "Repose">
+        <!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+        <!-- Some useful entities borrowed from HTML -->
+        <!ENTITY ndash  "&#x2013;">
+        <!ENTITY mdash  "&#x2014;">
+        <!ENTITY hellip "&#x2026;">
 
-    <!-- Useful for describing APIs -->
-    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
-    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
-    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
-    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+        <!-- Useful for describing APIs -->
+        <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+        <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+        <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+        <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
 
-    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
         <imageobject>
         <imagedata fileref="img/Check_mark_23x20_02.svg"
         format="SVG" scale="60"/>
         </imageobject>
         </inlinemediaobject>'>
 
-    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
         <imageobject>
         <imagedata fileref="img/Arrow_east.svg"
         format="SVG" scale="60"/>
@@ -30,13 +30,9 @@
         </inlinemediaobject>'>
         ]>
 <!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
-<book version="5.0" xmlns="http://docbook.org/ns/docbook"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:svg="http://www.w3.org/2000/svg"
-      xmlns:m="http://www.w3.org/1998/Math/MathML"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:db="http://docbook.org/ns/docbook" 
+<book xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+      version="5.0"
+      xmlns="http://docbook.org/ns/docbook"
       xml:id="Repose-Deployment-Handbook">
     <?rax pdf.url="../../repose-deploy.pdf"?>
     <title>&PRODNAME; Deployment Handbook</title>
@@ -74,15 +70,20 @@
         </legalnotice>
         <abstract>
             <para>This document is intended for systems administrators
-                interested in configuring their service to deploy &PRODEXPAND;. </para>
+                interested in configuring their service to deploy &PRODEXPAND;.
+            </para>
         </abstract>
         <revhistory>
             <revision>
                 <date>2012-01-30</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
-                        <listitem><para>Added information about recommended proxy server deployment method.</para></listitem>
-                        <listitem><para>Retitled document as &PRODNAME; Deployment Handbook.</para></listitem>
+                        <listitem>
+                            <para>Added information about recommended proxy server deployment method.</para>
+                        </listitem>
+                        <listitem>
+                            <para>Retitled document as &PRODNAME; Deployment Handbook.</para>
+                        </listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -90,7 +91,9 @@
                 <date>2012-01-11</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
-                        <listitem><para>Republish for &PRODNAME; v1.0.</para></listitem>
+                        <listitem>
+                            <para>Republish for &PRODNAME; v1.0.</para>
+                        </listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -102,7 +105,9 @@
                             <para>Initial release for &PRODNAME; v0.9.</para>
                         </listitem>
                         <listitem>
-                            <para>Revised code samples and formatting to address feedback from early technical reviewers.</para>
+                            <para>Revised code samples and formatting to address feedback from early technical
+                                reviewers.
+                            </para>
                         </listitem>
                     </itemizedlist>
                 </revdescription>
@@ -111,7 +116,9 @@
                 <date>2012-06-15</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
-                        <listitem><para>Initial release as internal draft.</para></listitem>
+                        <listitem>
+                            <para>Initial release as internal draft.</para>
+                        </listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -119,85 +126,92 @@
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>About This Document</title>
-            <para> The purpose of this handbook is to facilitate
-            deployment of &PRODNAME;. </para>
-            <para> This handbook is not a tutorial. It provides basic
+        <para>The purpose of this handbook is to facilitate
+            deployment of &PRODNAME;.
+        </para>
+        <para>This handbook is not a tutorial. It provides basic
             information that will help you understand and deploy
             &PRODNAME;, but you must adapt this information to suit
-            your own configuration. </para>
+            your own configuration.
+        </para>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version replaces and obsoletes all previous versions.
-            The most recent changes are described in the table below: </para>
+                The most recent changes are described in the table below:
+            </para>
             <?rax revhistory?>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
-    </chapter>    
+    </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>Introduction to &PRODNAME; Deployment Strategies</title>
         <para>
             You can deploy &PRODNAME; in either of two ways:
         </para>
-            <table rules="all">
-                <caption>&PRODNAME; Deployment Strategies</caption>
-                <col width="20%"/>
-                <col width="47%"/>
-                <col width="33%"/>
-                <thead>
-                    <tr>
-                        <th>Deployment Strategy</th>
-                        <th>Description</th>
-                        <th>Recommended?</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Proxy server</td>
-                        <td>
-                            <para> &PRODNAME; sits between the
-                                requester and the origin service. </para>
-                            <para>
-                                &PRODNAME; runs on a different port or a different host
-                                than the origin service.
-                            </para>
-                        </td>
-                        <td>YES</td>
-                    </tr>
-                    <tr>
-                        <td>Root.WAR</td>
-                        <td>
-                            <para>
-                                &PRODNAME; runs in the root context of the same application server as the origin service.
-                            </para>
-                            <para> &PRODNAME; runs on the same port
-                                and host as the origin service. </para>
-                        </td>
-                        <td>NO</td>
-                    </tr>
-                </tbody>
-            </table>
+        <table rules="all">
+            <caption>&PRODNAME; Deployment Strategies</caption>
+            <col width="20%"/>
+            <col width="47%"/>
+            <col width="33%"/>
+            <thead>
+                <tr>
+                    <th>Deployment Strategy</th>
+                    <th>Description</th>
+                    <th>Recommended?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Proxy server</td>
+                    <td>
+                        <para> &PRODNAME; sits between the
+                            requester and the origin service.
+                        </para>
+                        <para>
+                            &PRODNAME; runs on a different port or a different host
+                            than the origin service.
+                        </para>
+                    </td>
+                    <td>YES</td>
+                </tr>
+                <tr>
+                    <td>Root.WAR</td>
+                    <td>
+                        <para>
+                            &PRODNAME; runs in the root context of the same application server as the origin service.
+                        </para>
+                        <para> &PRODNAME; runs on the same port
+                            and host as the origin service.
+                        </para>
+                    </td>
+                    <td>NO</td>
+                </tr>
+            </tbody>
+        </table>
         <para>
             This handbook is focused only on deployment strategies for &PRODNAME; itself.
-            &PRODNAME; components are documented in companion handbooks. 
+            &PRODNAME; components are documented in companion handbooks.
         </para>
     </chapter>
     <chapter xml:id="Default_Configuration_Model-d1e220">
         <title>Default Configuration Model</title>
         <para>We recommend that you deploy &PRODNAME; using the following operating systems, user and
-            group configurations, and directories for configuration, artifacts, and deployment. </para>
+            group configurations, and directories for configuration, artifacts, and deployment.
+        </para>
         <section xml:id="Target_Operating_System_Environments-d1e180">
             <title>Target Operating System</title>
             <para>
-            &PRODNAME; is designed for the Linux operating system and has been regression tested against the following Linux distros:
+                &PRODNAME; is designed for the Linux operating system and has been regression tested against the
+                following Linux distros:
             </para>
             <para>
                 <itemizedlist spacing="compact">
                     <listitem>
-                        <para> RHEL Versions 5 and 6 </para>
+                        <para>RHEL Versions 5 and 6</para>
                     </listitem>
                     <listitem>
-                        <para> CentOS Versions 5 and 6 </para>
+                        <para>CentOS Versions 5 and 6</para>
                     </listitem>
                 </itemizedlist>
             </para>
@@ -205,25 +219,27 @@
         <section xml:id="User_and_Group_Configuration-d1e204">
             <title>User and Group Configuration</title>
             <para>
-            <itemizedlist spacing="compact">
-                <listitem>
-                    <para> User: <code>example-powerapi</code>
+                <itemizedlist spacing="compact">
+                    <listitem>
+                        <para>User:
+                            <code>example-powerapi</code>
                         </para>
-                </listitem>
-                <listitem>
-                    <para> Group: <code>example-powerapi</code>
+                    </listitem>
+                    <listitem>
+                        <para>Group:
+                            <code>example-powerapi</code>
                         </para>
-                </listitem>
-            </itemizedlist>
+                    </listitem>
+                </itemizedlist>
             </para>
-            <para> Dedicate a user and group to &PRODNAME; to improve isolation of &PRODNAME;'s
+            <para>Dedicate a user and group to &PRODNAME; to improve isolation of &PRODNAME;'s
                 permissions. This user and group must be non-privileged; they can be assigned any
-                valid name as long as their permissions are consistent. 
+                valid name as long as their permissions are consistent.
             </para>
             <para>
                 Be sure the &PRODNAME; user
                 and group can write to the file system as well as read configurations stored in the
-                file system. 
+                file system.
             </para>
         </section>
         <section xml:id="Configuration_Directory-d1e237">
@@ -231,35 +247,41 @@
             <para>
                 <itemizedlist spacing="compact">
                     <listitem>
-                        <para> Directory: <code>/etc/powerapi</code> </para>
+                        <para>Directory:
+                            <code>/etc/powerapi</code>
+                        </para>
                     </listitem>
                     <listitem>
-                        <para> Permissions: <code>755</code>
+                        <para>Permissions:
+                            <code>755</code>
                         </para>
                     </listitem>
                 </itemizedlist>
             </para>
-            <para>Store all of &PRODNAME;'s XML configurations in the configuration directory. 
-                The Root.War deployment assumes this directory is located in <code>/etc/powerapi</code>.
-                &PRODNAME; only supports file system configuration locations. </para>
+            <para>Store all of &PRODNAME;'s XML configurations in the configuration directory.
+                The Root.War deployment assumes this directory is located in<code>/etc/powerapi</code>.
+                &PRODNAME; only supports file system configuration locations.
+            </para>
         </section>
         <section xml:id="Artifact_Directory-d1e280">
             <title>Artifact Directory</title>
             <para>
                 <itemizedlist spacing="compact">
                     <listitem>
-                        <para> Directory: <code>/usr/share/powerapi/filters</code>
+                        <para>Directory:
+                            <code>/usr/share/powerapi/filters</code>
                         </para>
                     </listitem>
                     <listitem>
-                        <para> Permissions: <code>755</code>
+                        <para>Permissions:
+                            <code>755</code>
                         </para>
                     </listitem>
                 </itemizedlist>
             </para>
             <para>
-                 An artifact may be a bundle of one or more components; an EAR is an example of an artifact.
-            </para>    
+                An artifact may be a bundle of one or more components; an EAR is an example of an artifact.
+            </para>
             <para>In the artifact directory, store all the artifacts that &PRODNAME; has been configured to use.</para>
         </section>
         <section xml:id="Deployment_Directory-d1e322">
@@ -267,17 +289,21 @@
             <para>
                 <itemizedlist spacing="compact">
                     <listitem>
-                        <para> Directory: <code>/var/powerapi/</code>
+                        <para>Directory:
+                            <code>/var/powerapi/</code>
                         </para>
                     </listitem>
                     <listitem>
-                        <para> Permissions: <code>765</code>
+                        <para>Permissions:
+                            <code>765</code>
                         </para>
                     </listitem>
                 </itemizedlist>
             </para>
-            <para>Define a deployment directory as a writable location. 
-                &PRODNAME; uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
+            <para>Define a deployment directory as a writable location.
+                &PRODNAME; uses the deployment directory to copy deployed versions of the artifacts it has been
+                configured to use.
+            </para>
         </section>
     </chapter>
     <chapter xml:id="Artifacts-d1e365">
@@ -300,32 +326,36 @@
                 <tr>
                     <td>EAR file</td>
                     <td>
-                        <para> All consumable artifacts meant for
+                        <para>All consumable artifacts meant for
                             deployment through &PRODNAME; must conform
                             to the Java Platform, Enterprise Edition 6
                             specification for Enterprise ARchive (EAR)
                             files. For details, please read the Java
-                            EE 6 (JSR-316) specification at <link
-                                xlink:href="http://jcp.org/en/jsr/detail?id=316"
-                                >http://jcp.org/en/jsr/detail?id=316</link>. </para>
+                            EE 6 (JSR-316) specification at<link
+                                    xlink:href="http://jcp.org/en/jsr/detail?id=316"
+                                    >http://jcp.org/en/jsr/detail?id=316</link>.
+                        </para>
                     </td>
                 </tr>
                 <tr>
                     <td>Proxy server JAR</td>
                     <td>
-                        
+
                     </td>
                 </tr>
                 <tr>
                     <td>WAR file</td>
                     <td>
-                        <para> 
-                            The <code>root.war</code> artifact is a Web
+                        <para>
+                            The
+                            <code>root.war</code>
+                            artifact is a Web
                             application ARchive (WAR). It contains all the
                             components needed to install &PRODNAME; into a running
                             application container. The WAR includes a default
-                            <code>web.xml</code> that can start up &PRODNAME;
-                            using the standard configuration model. 
+                            <code>web.xml</code>
+                            that can start up &PRODNAME;
+                            using the standard configuration model.
                         </para>
                     </td>
                 </tr>
@@ -334,36 +364,40 @@
     </chapter>
     <chapter xml:id="Core_and_Component_Configurations-d1e431">
         <title>Deployment Configurations</title>
-        <para> 
-            We have provided XML samples to help explain the ideas in this section, but you must customize them to fit your own operating environment.
+        <para>
+            We have provided XML samples to help explain the ideas in this section, but you must customize them to fit
+            your own operating environment.
         </para>
-        <para> Configurations included in the WAR are deployed in the
-            core of &PRODNAME;. 
-            For example, 
+        <para>Configurations included in the WAR are deployed in the
+            core of &PRODNAME;.
+            For example,
             the power proxy and container
             configurations are within the scope of the core and are
-            controlled by <code>root.war</code>.
+            controlled by<code>root.war</code>.
         </para>
         <para>
-            &PRODNAME; core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
+            &PRODNAME; core configurations outline the deployment layout for the service cluster and tell the system
+            where to look for component artifacts.
         </para>
         <para>
             Configurations included in the EAR are
-            deployed as components.  
-            For example, 
+            deployed as components.
+            For example,
             the versioning configuration is a
             component, outside the scope of the core and controlled by
-            the EAR. 
+            the EAR.
         </para>
         <section xml:id="Power_Proxy-d1e447">
             <title>Configuration Directory: Power Proxy</title>
-            <para> The power proxy configuration is the &PRODNAME; system model. This configuration
-                    outlines the entire deployment layout for the service cluster. &PRODNAME; must
-                    be aware of this in order to configure itself and correctly coordinate routing
-                    if necessary. </para>
-            <para> The system model also lets &PRODNAME; know where the other &PRODNAME; nodes
+            <para>The power proxy configuration is the &PRODNAME; system model. This configuration
+                outlines the entire deployment layout for the service cluster. &PRODNAME; must
+                be aware of this in order to configure itself and correctly coordinate routing
+                if necessary.
+            </para>
+            <para>The system model also lets &PRODNAME; know where the other &PRODNAME; nodes
                 reside. Using this information, &PRODNAME; can coordinate its own clustering to
-                    help balance load or share data among nodes that share common filters. </para>
+                help balance load or share data among nodes that share common filters.
+            </para>
             <example>
                 <title>Power Proxy Configuration: XML</title>
                 <programlistingco>
@@ -373,76 +407,97 @@
                         <area xml:id="powerproxy.xml.serviceport" units="linecolumn" coords="6 21"/>
                         <area xml:id="powerproxy.xml.filtername" units="linecolumn" coords="7 18"/>
                     </areaspec>
-                <programlisting language="xml">
-<xi:include href="samples/papi-powerproxy-rootwar.xml" parse="text"/>
-                </programlisting>
-               </programlistingco>
+                    <programlisting language="xml">
+                        <xi:include href="samples/papi-powerproxy-rootwar.xml" parse="text"/>
+                    </programlisting>
+                </programlistingco>
             </example>
-            <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
+            <para>Key elements of the preceding example are labeled with callouts and explained below:</para>
             <calloutlist>
                 <callout arearefs="powerproxy.xml.hostid">
-                    <para> This is the unique identifier of this node within this cluster. </para>
+                    <para>This is the unique identifier of this node within this cluster.</para>
                 </callout>
                 <callout arearefs="powerproxy.xml.hostname">
-                    <para> This is the network identifier of the machine running the &PRODNAME;
+                    <para>This is the network identifier of the machine running the &PRODNAME;
                         service. It can be any valid identifier, such as the hostname (if the
-                        hostname is known to the entire cluster) or the IP address.</para>
+                        hostname is known to the entire cluster) or the IP address.
+                    </para>
                 </callout>
                 <callout arearefs="powerproxy.xml.serviceport">
-                    <para> This is the port on which the service is running. Specification is optional; if unspecified, the value defaults to <code>80</code>. </para>
+                    <para>This is the port on which the service is running. Specification is optional; if unspecified,
+                        the value defaults to<code>80</code>.
+                    </para>
                 </callout>
                 <callout arearefs="powerproxy.xml.filtername">
-                    <para> This is a chain of the filters to be applied in this implementation of &PRODNAME;. 
-                    Valid filter names include <code>client-auth</code>, <code>versioning</code>, <code>dist-datastore</code>, and <code>rate-limiting</code>; other names will become valid as other filters become available.
+                    <para>This is a chain of the filters to be applied in this implementation of &PRODNAME;.
+                        Valid filter names include<code>client-auth</code>,<code>versioning</code>,<code>
+                            dist-datastore</code>, and<code>rate-limiting</code>; other names will become valid as other
+                        filters become available.
                     </para>
                 </callout>
             </calloutlist>
             <important>
                 <para>
-Filters are applied in the order they are specified. 
+                    Filters are applied in the order they are specified.
                 </para>
             </important>
             <para>
-            We recommend you specify filters in this order:
+                We recommend you specify filters in this order:
             </para>
             <orderedlist spacing="compact">
                 <listitem>
-                    <para><code>client-auth</code> should always be first</para>
+                    <para>
+                        <code>client-auth</code>
+                        should always be first
+                    </para>
                 </listitem>
                 <listitem>
-                    <para><code>dist-datastore</code> should precede <code>versioning</code></para>
+                    <para>
+                        <code>dist-datastore</code>
+                        should precede
+                        <code>versioning</code>
+                    </para>
                 </listitem>
                 <listitem>
-                    <para><code>versioning</code> should precede <code>rate-limiting</code></para>
+                    <para>
+                        <code>versioning</code>
+                        should precede
+                        <code>rate-limiting</code>
+                    </para>
                 </listitem>
             </orderedlist>
         </section>
-            <section xml:id="Container-d1e470">
-                <title>Container Configuration</title>
-                <para>
-                    The container configuration in &PRODNAME; is used to tell the system where to look for component artifacts and where to deploy them. 
-                    The deployment directory's configuration element includes an attribute that tells &PRODNAME; whether or not it should clean up deployed artifacts once they're no longer in use. 
-                    In addition, the artifact directory's configuration element includes an optional attribute that can be used to tweak the polling interval. 
-                    Based on the polling interval, &PRODNAME; checks for modified, deleted, or new artifacts.
-                </para>
-                <example>
-                    <title>Container Configuration: XML</title>
-                    <programlisting language="xml">
-<xi:include href="samples/papi-container.xml" parse="text"/>
-                    </programlisting>
-                </example>
-            <para> To integrate &PRODNAME;with Apache Tomcat, you must add this line to <code>context.xml</code>:
+        <section xml:id="Container-d1e470">
+            <title>Container Configuration</title>
+            <para>
+                The container configuration in &PRODNAME; is used to tell the system where to look for component
+                artifacts and where to deploy them.
+                The deployment directory's configuration element includes an attribute that tells &PRODNAME; whether or
+                not it should clean up deployed artifacts once they're no longer in use.
+                In addition, the artifact directory's configuration element includes an optional attribute that can be
+                used to tweak the polling interval.
+                Based on the polling interval, &PRODNAME; checks for modified, deleted, or new artifacts.
+            </para>
+            <example>
+                <title>Container Configuration: XML</title>
+                <programlisting language="xml">
+                    <xi:include href="samples/papi-container.xml" parse="text"/>
+                </programlisting>
+            </example>
+            <para>To integrate &PRODNAME;with Apache Tomcat, you must add this line to<code>context.xml</code>:
                 <code>&lt;context crosscontext="true"&gt;</code>.
             </para>
             <note>
                 <para>
-                    For Tomcat 7, <code>context.xml</code> is found in <code>/var/lib/tomcat7/config/context.xml</code>.
+                    For Tomcat 7,
+                    <code>context.xml</code>
+                    is found in<code>/var/lib/tomcat7/config/context.xml</code>.
                 </para>
             </note>
-            </section>
+        </section>
         <section xml:id="Deploy_ProxyServer-d1e550">
             <title>Recommended Deployment Method: Proxy Server</title>
-            <para> To deploy &PRODNAME; as a proxy server, set these parameters in the JAR file:</para>
+            <para>To deploy &PRODNAME; as a proxy server, set these parameters in the JAR file:</para>
             <itemizedlist spacing="compact">
                 <listitem>
                     <para>location of the &PRODNAME; configuration directory</para>
@@ -455,53 +510,67 @@ Filters are applied in the order they are specified.
                 </listitem>
             </itemizedlist>
             <para>
-                The following example demonstrates <code>system-model.cfg.xml</code>
+                The following example demonstrates
+                <code>system-model.cfg.xml</code>
                 configured for a &PRODNAME; proxy server deployment.
             </para>
             <example>
                 <title>Power Proxy Configuration for Proxy Server Deployment</title>
                 <programlisting language="xml">
-<xi:include href="samples/repose-deploy-proxyServerPowerProxyCfg.xml" parse="text"/>
-                    </programlisting>
+                    <xi:include href="samples/repose-deploy-proxyServerPowerProxyCfg.xml" parse="text"/>
+                </programlisting>
             </example>
             <para>
-                In the preceding example, 
-                &PRODNAME; is deployed at <code>cloud.repose.n01</code> and routes
+                In the preceding example,
+                &PRODNAME; is deployed at
+                <code>cloud.repose.n01</code>
+                and routes
                 incoming requests to the origin service which is deployed at
                 <code>api-n01.yourdomain.com</code>.
             </para>
         </section>
         <section xml:id="Deploy_RootWar-d1e570">
             <title>Alternative Deployment Method: Root.WAR</title>
-            <para> To deploy &PRODNAME; in the root Web application
-                ARchive (WAR), replace your <code>root.war</code>. with one supplied by &PRODNAME;.</para>
+            <para>To deploy &PRODNAME; in the root Web application
+                ARchive (WAR), replace your<code>root.war</code>. with one supplied by &PRODNAME;.
+            </para>
             <itemizedlist spacing="compact">
                 <listitem>
-                    <para><code>root.war</code> includes all the components needed to install &PRODNAME; 
-                        into a running application container</para>
+                    <para>
+                        <code>root.war</code>
+                        includes all the components needed to install &PRODNAME;
+                        into a running application container
+                    </para>
                 </listitem>
                 <listitem>
-                    <para>the configuration directory is assumed to be <code>/etc/powerapi</code></para>
+                    <para>the configuration directory is assumed to be
+                        <code>/etc/powerapi</code>
+                    </para>
                 </listitem>
             </itemizedlist>
-            <para> The following example demonstrates
-                    <code>system-model.cfg.xml</code> configured for a
-                &PRODNAME; Root.WAR  deployment. </para>
+            <para>The following example demonstrates
+                <code>system-model.cfg.xml</code>
+                configured for a
+                &PRODNAME; Root.WAR deployment.
+            </para>
             <example>
                 <title>Power Proxy Configuration for Root.WAR Deployment</title>
                 <programlisting language="xml">
-<xi:include href="samples/repose-deploy-rootWarPowerProxyCfg.xml" parse="text"/>
-                    </programlisting>
+                    <xi:include href="samples/repose-deploy-rootWarPowerProxyCfg.xml" parse="text"/>
+                </programlisting>
             </example>
-            <para> In the preceding example, &PRODNAME; is deployed in
+            <para>In the preceding example, &PRODNAME; is deployed in
                 the same container as the origin service in the root
                 context and intercepts requests coming into the
-                service. </para>
+                service.
+            </para>
             <important>
                 <para>
-                    When deploying on Glassfish, 
-                    be sure to remove the <code>default-web.xml</code> file located in <code>domains/your_domain/config</code>.  
-                    This file contains a default servlet that interferes with the routing between 
+                    When deploying on Glassfish,
+                    be sure to remove the
+                    <code>default-web.xml</code>
+                    file located in<code>domains/your_domain/config</code>.
+                    This file contains a default servlet that interferes with the routing between
                     &PRODNAME; and the origin service.
                 </para>
             </important>

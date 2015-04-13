@@ -19,20 +19,20 @@
  */
 package org.openrepose.valve
 
-import java.io.{File, PrintStream, ByteArrayOutputStream}
+import java.io.{ByteArrayOutputStream, File, PrintStream}
 import java.util.concurrent.ConcurrentSkipListSet
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{Await, Future}
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
@@ -47,23 +47,6 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
   val jettyVersion = defaultConfig.getString("jettyVersion")
 
   val cleanUpDirs = new ConcurrentSkipListSet[File]()
-
-  /**
-   * Need to keep track of stuff to clean up, so this is used to clean up the mess
-   */
-  override protected def afterAll() = {
-    import scala.collection.JavaConverters._
-    cleanUpDirs.asScala.foreach { f =>
-      deleteRecursive(f.toPath)
-    }
-  }
-
-  def autoCleanTempDir(prefix: String): String = {
-    val dir = tempDir(prefix).toFile
-    cleanUpDirs.add(dir)
-    dir.getAbsolutePath
-  }
-
 
   def postExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
@@ -82,21 +65,6 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     callback(output, error, exitStatus)
 
     valve.shutdown()
-  }
-
-  describe("Command line argument parsing short circuits") {
-    it("prints out a usage message when given --help and exits 1") {
-      postExecution(Array("--help"), (output, error, exitStatus) => {
-        output should include("Usage: java -jar repose-valve.jar [options]")
-        exitStatus shouldBe 1
-      })
-    }
-    it(s"prints out the current version when given --version and exits 1") {
-      postExecution(Array("--version"), (output, error, exitStatus) => {
-        output should include(s"Repose Valve: $myVersion on Jetty $jettyVersion")
-        exitStatus shouldBe 1
-      })
-    }
   }
 
   def valveConfig(systemModelResource: String,
@@ -118,6 +86,37 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
     //call the test function ...
     testFunc(configRoot, tmpOutput)
+  }
+
+  def autoCleanTempDir(prefix: String): String = {
+    val dir = tempDir(prefix).toFile
+    cleanUpDirs.add(dir)
+    dir.getAbsolutePath
+  }
+
+  describe("Command line argument parsing short circuits") {
+    it("prints out a usage message when given --help and exits 1") {
+      postExecution(Array("--help"), (output, error, exitStatus) => {
+        output should include("Usage: java -jar repose-valve.jar [options]")
+        exitStatus shouldBe 1
+      })
+    }
+    it(s"prints out the current version when given --version and exits 1") {
+      postExecution(Array("--version"), (output, error, exitStatus) => {
+        output should include(s"Repose Valve: $myVersion on Jetty $jettyVersion")
+        exitStatus shouldBe 1
+      })
+    }
+  }
+
+  /**
+   * Need to keep track of stuff to clean up, so this is used to clean up the mess
+   */
+  override protected def afterAll() = {
+    import scala.collection.JavaConverters._
+    cleanUpDirs.asScala.foreach { f =>
+      deleteRecursive(f.toPath)
+    }
   }
 
   ignore("for a good single node configuration") {

@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
+import net.sf.saxon.lib.FeatureKeys;
 import org.openrepose.filters.translation.TranslationHandlerFactory;
 import org.openrepose.filters.translation.xslt.StyleSheetInfo;
 import org.openrepose.filters.translation.xslt.XsltException;
-import net.sf.saxon.lib.FeatureKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -49,10 +49,8 @@ import java.util.List;
 
 public class XmlFilterChainBuilder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
-  private static final String CLASSPATH_PREFIX = "classpath://";
-  private final SAXTransformerFactory factory;
-
+    private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
+    private static final String CLASSPATH_PREFIX = "classpath://";
     //
     // TODO_SAXON_WORKAROUND
     // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
@@ -62,175 +60,177 @@ public class XmlFilterChainBuilder {
     //
     private static final String XALANC_FACTORY_NAME = "org.apache.xalan.xsltc.trax.TransformerFactoryImpl";
     private static SAXTransformerFactory XALANC_TRANSFORMER_FACTORY;
+
     static {
 
         try {
 
             XALANC_TRANSFORMER_FACTORY =
-                    (SAXTransformerFactory) TransformerFactory.newInstance( XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
+                    (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
 
-            XALANC_TRANSFORMER_FACTORY.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+            XALANC_TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
         } catch (TransformerConfigurationException ex) {
 
-            LOG.error( "Error", ex );
+            LOG.error("Error", ex);
         }
     }
+
+    private final SAXTransformerFactory factory;
     //
     //
+    private final boolean allowEntities;
+    private final boolean allowDtdDeclarations;
 
-  private final boolean allowEntities;
-  private final boolean allowDtdDeclarations;
-
-  public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities, boolean allowDeclarations) {
-    this.factory = factory;
-    this.allowEntities = allowEntities;
-    this.allowDtdDeclarations = allowDeclarations;
-    try {
-      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
-    } catch (TransformerConfigurationException ex) {
-      LOG.error("Error", ex);
+    public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities, boolean allowDeclarations) {
+        this.factory = factory;
+        this.allowEntities = allowEntities;
+        this.allowDtdDeclarations = allowDeclarations;
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
+        } catch (TransformerConfigurationException ex) {
+            LOG.error("Error", ex);
+        }
     }
-  }
 
 
-  //
-  // TODO_SAXON_WORKAROUND
-  // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
-  // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
-  // This same procedure is used in api-checker to get around this issue.
-  // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
-  //
-  private SAXTransformerFactory getFactoryForIdentityTransform() {
+    //
+    // TODO_SAXON_WORKAROUND
+    // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+    // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+    // This same procedure is used in api-checker to get around this issue.
+    // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+    //
+    private SAXTransformerFactory getFactoryForIdentityTransform() {
 
-      return factory.getClass().getCanonicalName().equals(TranslationHandlerFactory.SAXON_HE_FACTORY_NAME ) ?
-              XALANC_TRANSFORMER_FACTORY : factory;
-  }
-  //
+        return factory.getClass().getCanonicalName().equals(TranslationHandlerFactory.SAXON_HE_FACTORY_NAME) ?
+                XALANC_TRANSFORMER_FACTORY : factory;
+    }
+    //
 
-  public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
-    try {
-      List<XmlFilterReference> filters = new ArrayList<XmlFilterReference>();
-      XMLReader lastReader = getSaxReader();
+    public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
+        try {
+            List<XmlFilterReference> filters = new ArrayList<XmlFilterReference>();
+            XMLReader lastReader = getSaxReader();
 
-      if (stylesheets.length > 0) {
-        for (StyleSheetInfo resource : stylesheets) {
-          Source source = getStylesheetSource(resource);
-          // Wire the output of the reader to filter1 (see Note #3)
-          // and the output of filter1 to filter2
-          XMLFilter filter;
-          try {
-            filter = factory.newXMLFilter(source);
-          } catch (TransformerConfigurationException ex) {
-            LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
+            if (stylesheets.length > 0) {
+                for (StyleSheetInfo resource : stylesheets) {
+                    Source source = getStylesheetSource(resource);
+                    // Wire the output of the reader to filter1 (see Note #3)
+                    // and the output of filter1 to filter2
+                    XMLFilter filter;
+                    try {
+                        filter = factory.newXMLFilter(source);
+                    } catch (TransformerConfigurationException ex) {
+                        LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
+                        throw new XsltException(ex);
+                    }
+                    filter.setParent(lastReader);
+                    filters.add(new XmlFilterReference(resource.getId(), filter));
+                    lastReader = filter;
+                }
+            } else {
+                filters.add(new XmlFilterReference(null, lastReader));
+            }
+
+            //
+            // TODO_SAXON_WORKAROUND
+            // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+            // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+            // This same procedure is used in api-checker to get around this issue.
+            // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+            //
+            return new XmlFilterChain(getFactoryForIdentityTransform(), filters);
+            //return new XmlFilterChain(factory, filters);
+
+        } catch (ParserConfigurationException ex) {
             throw new XsltException(ex);
-          }
-          filter.setParent(lastReader);
-          filters.add(new XmlFilterReference(resource.getId(), filter));
-          lastReader = filter;
+        } catch (SAXException ex) {
+            throw new XsltException(ex);
         }
-      } else {
-        filters.add(new XmlFilterReference(null, lastReader));
-      }
 
-      //
-      // TODO_SAXON_WORKAROUND
-      // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
-      // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
-      // This same procedure is used in api-checker to get around this issue.
-      // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
-      //
-      return new XmlFilterChain( getFactoryForIdentityTransform(), filters );
-      //return new XmlFilterChain(factory, filters);
-
-    } catch (ParserConfigurationException ex) {
-      throw new XsltException(ex);
-    } catch (SAXException ex) {
-      throw new XsltException(ex);
     }
 
-  }
+    protected StreamSource getClassPathResource(String path) {
+        String resource = path.substring(CLASSPATH_PREFIX.length());
+        InputStream input = getClass().getResourceAsStream(resource);
+        URL inputURL = getClass().getResource(resource);
+        if (input != null) {
+            return new StreamSource(input, inputURL.toExternalForm());
+        }
 
-  protected StreamSource getClassPathResource(String path) {
-    String resource = path.substring(CLASSPATH_PREFIX.length());
-    InputStream input = getClass().getResourceAsStream(resource);
-    URL inputURL = getClass().getResource(resource);
-    if (input != null) {
-      return new StreamSource(input, inputURL.toExternalForm());
+        throw new XsltException("Unable to load stylesheet " + path);
     }
 
-    throw new XsltException("Unable to load stylesheet " + path);
-  }
+    private StreamSource nodeToStreamSource(Node node, String systemId) {
+        try {
+            // Create dom source for the document
+            DOMSource domSource = new DOMSource(node, systemId);
 
-  private StreamSource nodeToStreamSource(Node node, String systemId) {
-    try {
-      // Create dom source for the document
-      DOMSource domSource = new DOMSource(node, systemId);
+            // Create a string writer
+            StringWriter stringWriter = new StringWriter();
 
-      // Create a string writer
-      StringWriter stringWriter = new StringWriter();
+            // Create the result stream for the transform
+            StreamResult result = new StreamResult(stringWriter);
 
-      // Create the result stream for the transform
-      StreamResult result = new StreamResult(stringWriter);
+            // Create a Transformer to serialize the document
 
-      // Create a Transformer to serialize the document
-
-        //
-        // TODO_SAXON_WORKAROUND
-        // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
-        // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
-        // This same procedure is used in api-checker to get around this issue.
-        // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
-        //
-        Transformer transformer = getFactoryForIdentityTransform().newTransformer();
+            //
+            // TODO_SAXON_WORKAROUND
+            // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+            // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+            // This same procedure is used in api-checker to get around this issue.
+            // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+            //
+            Transformer transformer = getFactoryForIdentityTransform().newTransformer();
 //      Transformer transformer = factory.newTransformer();
 
-      // Transform the document to the result stream
-      transformer.transform(domSource, result);
-      StringReader reader = new StringReader(stringWriter.toString());
-      return new StreamSource(reader);
-    } catch (TransformerException ex) {
-      throw new XsltException(ex);
-    }
-  }
-
-  protected Source getStylesheetSource(StyleSheetInfo stylesheet) {
-
-    if (stylesheet.getXsl() != null) {
-      return nodeToStreamSource(stylesheet.getXsl(), stylesheet.getSystemId());
-    } else if (stylesheet.getUri() != null) {
-      if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
-        return getClassPathResource(stylesheet.getUri());
-      } else {
-        try {
-          URL stylesheetURL = new URL(stylesheet.getUri());
-          return new StreamSource(stylesheetURL.openStream(), stylesheetURL.toExternalForm());
-        } catch (IOException ex) {
-          throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
+            // Transform the document to the result stream
+            transformer.transform(domSource, result);
+            StringReader reader = new StringReader(stringWriter.toString());
+            return new StreamSource(reader);
+        } catch (TransformerException ex) {
+            throw new XsltException(ex);
         }
-      }
     }
 
-    throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
-  }
+    protected Source getStylesheetSource(StyleSheetInfo stylesheet) {
 
-  protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
-    System.setProperty("entityExpansionLimit","10");
-    SAXParserFactory spf = SAXParserFactory.newInstance();
-    spf.setXIncludeAware(false);
-    spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    spf.setValidating(true);
-    spf.setNamespaceAware(true);
-    spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !allowDtdDeclarations);
-    SAXParser parser = spf.newSAXParser();
-    XMLReader reader = parser.getXMLReader();
-    reader.setEntityResolver(new ReposeEntityResolver(reader.getEntityResolver(), allowEntities));
+        if (stylesheet.getXsl() != null) {
+            return nodeToStreamSource(stylesheet.getXsl(), stylesheet.getSystemId());
+        } else if (stylesheet.getUri() != null) {
+            if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
+                return getClassPathResource(stylesheet.getUri());
+            } else {
+                try {
+                    URL stylesheetURL = new URL(stylesheet.getUri());
+                    return new StreamSource(stylesheetURL.openStream(), stylesheetURL.toExternalForm());
+                } catch (IOException ex) {
+                    throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
+                }
+            }
+        }
 
-    LOG.info("SAXParserFactory class: " + spf.getClass().getCanonicalName());
-    LOG.info("SAXParser class: " + parser.getClass().getCanonicalName());
-    LOG.info("XMLReader class: " + reader.getClass().getCanonicalName());
+        throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
+    }
 
-    return reader;
-  }
+    protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
+        System.setProperty("entityExpansionLimit", "10");
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setXIncludeAware(false);
+        spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        spf.setValidating(true);
+        spf.setNamespaceAware(true);
+        spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !allowDtdDeclarations);
+        SAXParser parser = spf.newSAXParser();
+        XMLReader reader = parser.getXMLReader();
+        reader.setEntityResolver(new ReposeEntityResolver(reader.getEntityResolver(), allowEntities));
+
+        LOG.info("SAXParserFactory class: " + spf.getClass().getCanonicalName());
+        LOG.info("SAXParser class: " + parser.getClass().getCanonicalName());
+        LOG.info("XMLReader class: " + reader.getClass().getCanonicalName());
+
+        return reader;
+    }
 }

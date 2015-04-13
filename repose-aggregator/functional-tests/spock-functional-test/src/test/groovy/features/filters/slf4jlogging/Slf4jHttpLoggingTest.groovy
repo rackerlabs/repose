@@ -29,7 +29,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 4/8/14.
  */
-class Slf4jHttpLoggingTest extends ReposeValveTest{
+class Slf4jHttpLoggingTest extends ReposeValveTest {
     def setupSpec() {
         //remove old log
         def logSearch = new ReposeLogSearch(properties.logFile)
@@ -45,7 +45,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
     }
 
     @Unroll("Test slf4jlog entry with #method")
-    def "Test check slf4log for various methods" () {
+    def "Test check slf4log for various methods"() {
         def logSearch = new ReposeLogSearch(properties.logFile)
         logSearch.cleanLog()
 
@@ -69,7 +69,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
     }
 
     @Unroll("Test slf4jlog entry failed tests with #method and response code #responseCode")
-    def "Test slf4j log entry for failed tests"(){
+    def "Test slf4j log entry for failed tests"() {
         given:
         def xmlResp = { request -> return new Response(responseCode) }
         def logSearch = new ReposeLogSearch(properties.logFile)

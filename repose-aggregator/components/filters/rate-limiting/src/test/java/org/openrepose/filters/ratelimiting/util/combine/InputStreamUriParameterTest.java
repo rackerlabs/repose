@@ -58,7 +58,7 @@ public class InputStreamUriParameterTest {
             assertNotNull(inputStreamUriParameter.resolve(validHref, null));
         }
 
-        @Test(expected= CombinedLimitsTransformerException.class)
+        @Test(expected = CombinedLimitsTransformerException.class)
         public void shouldThrowExceptionIfIsNotMatchingHref() throws TransformerException {
             String validHref = "reference:jio:invalidStreamRef";
 

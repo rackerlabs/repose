@@ -27,7 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
+class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -58,7 +58,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -73,9 +73,9 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
             service_admin_role = serviceAdminRole
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -92,9 +92,9 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") =~ delegatingMsg
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole | authResponseCode | delegatingMsg
-        400           | 401             | "not-admin"      | 500              | "status_code=500"
-        402           | 403             | "not-admin"      | 404              | "status_code=401"
+        requestTenant | responseTenant | serviceAdminRole | authResponseCode | delegatingMsg
+        400           | 401            | "not-admin"      | 500              | "status_code=500"
+        402           | 403            | "not-admin"      | 404              | "status_code=401"
 
     }
 
@@ -128,13 +128,13 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | responseCode | identityStatus  | clientToken        | default_region
-        404           | 405             | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        406           | 406             | "not-admin"           | "200"        | "Indeterminate" | ""                 | null
-        407           | 407             | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        408           | 408             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        409           | 410             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
-        ""            | 412             | "not-admin"           | "200"        | "Indeterminate" | ""                 | null
+        requestTenant | responseTenant | serviceAdminRole      | responseCode | identityStatus  | clientToken       | default_region
+        404           | 405            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        406           | 406            | "not-admin"           | "200"        | "Indeterminate" | ""                | null
+        407           | 407            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        408           | 408            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        409           | 410            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        ""            | 412            | "not-admin"           | "200"        | "Indeterminate" | ""                | null
 
     }
 

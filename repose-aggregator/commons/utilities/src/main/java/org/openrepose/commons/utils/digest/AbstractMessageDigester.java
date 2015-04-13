@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.digest;
 
-import org.openrepose.commons.utils.io.MessageDigesterOutputStream;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
+import org.openrepose.commons.utils.io.MessageDigesterOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +31,8 @@ import java.security.MessageDigest;
 public abstract class AbstractMessageDigester implements MessageDigester {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageDigester.class);
-    private final ObjectPool<MessageDigest> MESSAGE_DIGEST_POOL;
     private static final int BYTE_BUFFER_SIZE = 1024;
+    private final ObjectPool<MessageDigest> MESSAGE_DIGEST_POOL;
 
     public AbstractMessageDigester() {
         MESSAGE_DIGEST_POOL = new SoftReferenceObjectPool<>(

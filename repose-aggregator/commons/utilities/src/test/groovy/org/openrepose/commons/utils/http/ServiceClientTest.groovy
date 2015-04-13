@@ -19,8 +19,6 @@
  */
 package org.openrepose.commons.utils.http
 
-import org.openrepose.core.services.httpclient.HttpClientResponse
-import org.openrepose.core.services.httpclient.HttpClientService
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
@@ -28,6 +26,8 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
+import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientService
 
 import javax.ws.rs.core.MediaType
 

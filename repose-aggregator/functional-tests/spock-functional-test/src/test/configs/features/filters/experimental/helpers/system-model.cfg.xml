@@ -8,11 +8,12 @@
         </nodes>
 
         <filters>
-            <filter name="exception-filter" />
+            <filter name="exception-filter"/>
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/get" default="true"/>
+            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/get"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

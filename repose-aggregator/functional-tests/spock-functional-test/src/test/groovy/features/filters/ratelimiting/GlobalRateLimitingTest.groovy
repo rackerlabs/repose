@@ -25,23 +25,22 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
 
-import static org.junit.Assert.*
-import org.w3c.dom.Document
+import static org.junit.Assert.assertTrue
 
 /**
  * Created by jennyvo on 7/30/14.
  */
 class GlobalRateLimitingTest extends ReposeValveTest {
-    final handler = {return new Response(200, "OK")}
+    final handler = { return new Response(200, "OK") }
 
-    final Map<String, String> userHeaderDefault = ["X-PP-User" : "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups" : "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
+    final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
+    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
+    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
 
     static int userCount = 0;
+
     String getNewUniqueUser() {
 
         String name = "user-${userCount}"
@@ -68,11 +67,11 @@ class GlobalRateLimitingTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def "When Repose config with Global Rate Limit, user limit should hit first" () {
+    def "When Repose config with Global Rate Limit, user limit should hit first"() {
         given: "the rate-limit has not been reached"
         //waitForLimitReset()
 
-        (1..5).each{
+        (1..5).each {
             i ->
                 when: "the user sends their request and the rate-limit has not been reached"
                 MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
@@ -92,8 +91,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
     }
 
     @Category(Slow.class)
-    def "When Run with different users, hit the same resource, global limit share between users" () {
-        given:"the rate-limit has not been reached"
+    def "When Run with different users, hit the same resource, global limit share between users"() {
+        given: "the rate-limit has not been reached"
         //waitForLimitReset
         sleep(60000)
         def group = "customer"
@@ -150,30 +149,30 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         response.receivedResponse.code == responseCode
 
         where:
-        url                      | user       | group      | method     | responseCode
-        "/test1"                 | "user1"    | "group1"   | "GET"      | "200"
-        "/test1"                 | "user1"    | "group1"   | "GET"      | "200"
-        "/test1"                 | "user1"    | "group1"   | "GET"      | "200"
-        "/test1"                 | "user1"    | "group1"   | "GET"      | "503"
-        "/test1"                 | "user2"    | "group1"   | "GET"      | "503"
-        "/test1"                 | "user3"    | "group2"   | "GET"      | "503"
-        "/test1"                 | "user1"    | "group1"   | "POST"     | "503"
-        "/test1"                 | "user2"    | "group1"   | "POST"     | "503"
-        "/test1"                 | "user3"    | "group2"   | "POST"     | "503"
+        url      | user    | group    | method  | responseCode
+        "/test1" | "user1" | "group1" | "GET"   | "200"
+        "/test1" | "user1" | "group1" | "GET"   | "200"
+        "/test1" | "user1" | "group1" | "GET"   | "200"
+        "/test1" | "user1" | "group1" | "GET"   | "503"
+        "/test1" | "user2" | "group1" | "GET"   | "503"
+        "/test1" | "user3" | "group2" | "GET"   | "503"
+        "/test1" | "user1" | "group1" | "POST"  | "503"
+        "/test1" | "user2" | "group1" | "POST"  | "503"
+        "/test1" | "user3" | "group2" | "POST"  | "503"
 
-        "/test2"                 | "user1"    | "group1"   | "GET"      | "200"
-        "/test2"                 | "user2"    | "group2"   | "POST"     | "200"
-        "/test2"                 | "user3"    | "group3"   | "PUT"      | "200"
-        "/test2"                 | "user4"    | "group4"   | "PATCH"    | "503"
+        "/test2" | "user1" | "group1" | "GET"   | "200"
+        "/test2" | "user2" | "group2" | "POST"  | "200"
+        "/test2" | "user3" | "group3" | "PUT"   | "200"
+        "/test2" | "user4" | "group4" | "PATCH" | "503"
 
-        "/test3"                 | "user1"    | "group1"   | "POST"     | "200"
-        "/test3"                 | "user1"    | "group1"   | "PATCH"    | "200"
-        "/test3"                 | "user2"    | "group2"   | "PUT"      | "200"
-        "/test3"                 | "user3"    | "group3"   | "POST"     | "200"
-        "/test3"                 | "user3"    | "group3"   | "POST"     | "200"
-        "/test3"                 | "user4"    | "group4"   | "GET"      | "200"
-        "/test3"                 | "user3"    | "group3"   | "GET"      | "200"
-        "/test3"                 | "user2"    | "group2"   | "GET"      | "200"
-        "/test3"                 | "user1"    | "group1"   | "GET"      | "503"
+        "/test3" | "user1" | "group1" | "POST"  | "200"
+        "/test3" | "user1" | "group1" | "PATCH" | "200"
+        "/test3" | "user2" | "group2" | "PUT"   | "200"
+        "/test3" | "user3" | "group3" | "POST"  | "200"
+        "/test3" | "user3" | "group3" | "POST"  | "200"
+        "/test3" | "user4" | "group4" | "GET"   | "200"
+        "/test3" | "user3" | "group3" | "GET"   | "200"
+        "/test3" | "user2" | "group2" | "GET"   | "200"
+        "/test3" | "user1" | "group1" | "GET"   | "503"
     }
 }

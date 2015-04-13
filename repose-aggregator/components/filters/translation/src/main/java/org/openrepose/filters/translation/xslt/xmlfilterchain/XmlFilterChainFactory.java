@@ -19,11 +19,11 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.filters.translation.config.StyleSheet;
 import org.openrepose.filters.translation.config.TranslationBase;
 import org.openrepose.filters.translation.xslt.StyleSheetInfo;
-import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class XmlFilterChainFactory extends BasePoolableObjectFactory<XmlFilterCh
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
                 if (sheet.getXsl() != null && sheet.getXsl().getAny() != null) {
-                    stylesheets.add(new StyleSheetInfo(sheet.getId(), (Node)sheet.getXsl().getAny(), getAbsoluteXslPath(config)));
+                    stylesheets.add(new StyleSheetInfo(sheet.getId(), (Node) sheet.getXsl().getAny(), getAbsoluteXslPath(config)));
                 } else {
                     stylesheets.add(new StyleSheetInfo(sheet.getId(), getAbsoluteXslPath(sheet.getHref())));
                 }

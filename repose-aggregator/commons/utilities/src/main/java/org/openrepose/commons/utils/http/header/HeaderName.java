@@ -26,6 +26,10 @@ public class HeaderName {
         this.name = name;
     }
 
+    public static HeaderName wrap(String name) {
+        return new HeaderName(name);
+    }
+
     public String getName() {
         return name;
     }
@@ -42,12 +46,12 @@ public class HeaderName {
 
         HeaderName that = (HeaderName) o;
 
-        if(name != null) {
+        if (name != null) {
             if (!name.equalsIgnoreCase(that.name)) {
                 return false;
             }
         } else {
-            if(that.name != null) {
+            if (that.name != null) {
                 return false;
             }
         }
@@ -65,9 +69,5 @@ public class HeaderName {
         return "HeaderName{" +
                 "name='" + name + '\'' +
                 '}';
-    }
-
-    public static HeaderName wrap(String name) {
-        return new HeaderName(name);
     }
 }

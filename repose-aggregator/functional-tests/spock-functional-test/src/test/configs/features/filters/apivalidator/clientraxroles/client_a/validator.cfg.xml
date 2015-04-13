@@ -6,5 +6,5 @@
             default="true"
             wadl="client-service-user.wadl"
             dot-output="default.dot"
-            enable-rax-roles="true" />
+            enable-rax-roles="true"/>
 </validators>

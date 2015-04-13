@@ -38,23 +38,23 @@ public class DispatchHandler extends ResultHandler {
     public DispatchHandler(ResultHandler... handlers) {
         this.handlers = handlers;
     }
-    
+
     @Override
     public void init(Validator vldtr, Option<Document> option) {
-      if (handlers == null) {
-          return;
+        if (handlers == null) {
+            return;
         }
         for (ResultHandler handler : handlers) {
-            handler.init(vldtr,option);
+            handler.init(vldtr, option);
         }
     }
 
     @Override
     public void handle(CheckerServletRequest request, CheckerServletResponse response, FilterChain chain, Result result) {
         if (handlers == null) {
-          return;
+            return;
         }
-        
+
         for (ResultHandler handler : handlers) {
             handler.handle(request, response, chain, result);
         }
@@ -63,7 +63,7 @@ public class DispatchHandler extends ResultHandler {
     @Override
     public StepContext inStep(Step currentStep, CheckerServletRequest request, CheckerServletResponse response, StepContext context) {
         StepContext newContext = context;
-        if(handlers != null) {
+        if (handlers != null) {
             for (ResultHandler handler : handlers) {
                 newContext = handler.inStep(currentStep, request, response, newContext);
             }

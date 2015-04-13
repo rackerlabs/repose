@@ -8,11 +8,12 @@
         </nodes>
 
         <filters>
-            <filter name="api-validator" />
+            <filter name="api-validator"/>
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true"/>
+            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

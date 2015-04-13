@@ -83,11 +83,11 @@ public class Patch extends AbstractRemoteCommand {
         if (response.getStatus() == HttpServletResponse.SC_OK) {
             final InputStream internalStreamReference = response.getData();
 
-             try {
-                 return objectSerializer.readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
-             } catch (ClassNotFoundException cnfe) {
-                 throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
-             }
+            try {
+                return objectSerializer.readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
+            } catch (ClassNotFoundException cnfe) {
+                throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
+            }
         } else {
             throw new DatastoreOperationException("Remote request failed with: " + response.getStatus());
         }

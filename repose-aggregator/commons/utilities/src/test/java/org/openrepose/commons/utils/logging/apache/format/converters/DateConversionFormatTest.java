@@ -19,10 +19,12 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.converters;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Enclosed.class)
 public class DateConversionFormatTest {
@@ -35,7 +37,7 @@ public class DateConversionFormatTest {
             assertNotNull(format);
             assertEquals(DateConversionFormat.ISO_8601.getPattern(), format);
         }
-        
+
         @Test
         public void shouldGetDefaultPattern() {
             String format = DateConversionFormat.getPattern("Doesn't Exist");

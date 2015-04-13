@@ -20,12 +20,12 @@
 package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.filters.headernormalization.config.HeaderFilterList;
 import org.openrepose.filters.headernormalization.config.HeaderNormalizationConfig;
 import org.openrepose.filters.headernormalization.config.Target;
+import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -50,6 +50,14 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
                 put(HeaderNormalizationConfig.class, new ContentNormalizationConfigurationListener());
             }
         };
+    }
+
+    @Override
+    protected HeaderNormalizationHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderNormalizationHandler(compiledTargetList, metricsService);
     }
 
     private class ContentNormalizationConfigurationListener implements UpdateListener<HeaderNormalizationConfig> {
@@ -84,13 +92,5 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected HeaderNormalizationHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new HeaderNormalizationHandler(compiledTargetList, metricsService);
     }
 }

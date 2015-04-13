@@ -27,10 +27,10 @@ public class GenericResourceConfigurationParser extends AbstractConfigurationObj
     public GenericResourceConfigurationParser() {
         super(ConfigurationResource.class);
     }
-    
+
     @Override
     public ConfigurationResource read(ConfigurationResource cr) {
         return cr;
     }
-    
+
 }

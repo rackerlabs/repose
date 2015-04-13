@@ -20,15 +20,15 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified"
-           attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/validator/v1.0"
-           xmlns:scr="http://docs.openrepose.org/repose/validator/v1.0"
+<xs:schema xmlns:scr="http://docs.openrepose.org/repose/validator/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/validator/v1.0">
 
     <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="StringList">

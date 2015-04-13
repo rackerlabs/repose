@@ -20,10 +20,10 @@
   -->
 
 
-<xs:schema targetNamespace="http://docs.openrepose.org/repose/add-header/v1.0"
-           xmlns="http://docs.openrepose.org/repose/add-header/v1.0"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           targetNamespace="http://docs.openrepose.org/repose/add-header/v1.0"
+           xmlns="http://docs.openrepose.org/repose/add-header/v1.0"
            elementFormDefault="qualified">
 
     <xs:element name="add-headers" type="AddHeadersConfig"/>
@@ -49,7 +49,7 @@
                 <html:p>Values are limited to 4096 characters.</html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:simpleContent>
             <xs:extension base="HeaderValue">
                 <xs:attribute name="name" type="xs:string" use="required"/>
@@ -62,8 +62,13 @@
                                 If no quality is set, Repose will default this value to 0.1
                             </html:p>
                             <html:p>
-                                Quality factors are defined in the <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC - Section-3.9</html:a>
-                                (for usage examples, see <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section 14.1</html:a>)
+                                Quality factors are defined in the
+                                <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC -
+                                    Section-3.9
+                                </html:a>
+                                (for usage examples, see<html:a
+                                    href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section
+                                14.1</html:a>)
                                 as a mechanism for weighting values in multi-value headers.
                                 Possible values for quality are 0 to 1.0.
                             </html:p>

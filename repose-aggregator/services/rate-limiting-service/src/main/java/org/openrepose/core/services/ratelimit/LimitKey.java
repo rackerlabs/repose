@@ -31,7 +31,8 @@ public class LimitKey {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
 
-    private LimitKey() {}
+    private LimitKey() {
+    }
 
     public static String getLimitKey(String limitGroup, String limitId, Matcher uriMatcher, boolean useCaptureGroups) {
         // The group count represents the number of elements that will go into

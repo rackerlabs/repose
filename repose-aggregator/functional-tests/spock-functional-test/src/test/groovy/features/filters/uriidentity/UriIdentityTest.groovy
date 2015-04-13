@@ -52,7 +52,7 @@ class UriIdentityTest extends ReposeValveTest {
     def "when identifying requests by uri"() {
 
         when: "Request contains the user within the uri"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint+"/service/reposeuser1/something"])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/service/reposeuser1/something"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
@@ -64,9 +64,9 @@ class UriIdentityTest extends ReposeValveTest {
 
     }
 
-    def "when identifying requests on uri without user"(){
+    def "when identifying requests on uri without user"() {
         when: "Request does not contain the user within the uri"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint+"/resource/reposeuser1/something"])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/resource/reposeuser1/something"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will not send a x-pp-user header"
@@ -83,11 +83,11 @@ class UriIdentityTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
@@ -134,7 +134,7 @@ class UriIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -163,7 +163,7 @@ class UriIdentityTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"
@@ -173,4 +173,4 @@ class UriIdentityTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
- }
+}

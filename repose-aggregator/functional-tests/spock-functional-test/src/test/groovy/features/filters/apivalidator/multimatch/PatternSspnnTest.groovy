@@ -54,8 +54,8 @@ class PatternSspnnTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-3"        | "200"        | 1
+        roles    | responseCode | numHandlings
+        "role-3" | "200"        | 1
     }
 
     def "With multiple roles given, the first one encountered in the config should be used (F4F4PF5F5\\3,4 -> SSPNN -> P)"() {

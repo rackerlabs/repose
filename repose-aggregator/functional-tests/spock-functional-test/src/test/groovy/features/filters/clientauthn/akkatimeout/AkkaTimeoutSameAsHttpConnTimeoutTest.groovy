@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.akkatimeout
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
@@ -27,6 +28,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 import javax.servlet.http.HttpServletResponse
+
 /**
  * Created by jennyvo on 1/5/15.
  *  Akka timeout "matches" http connection pool timeout.
@@ -59,17 +61,17 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds" () {
+    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -94,7 +96,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than socket connection time out" () {
+    def "akka timeout test, auth response time out greater than socket connection time out"() {
         reposeLogSearch.cleanLog()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()

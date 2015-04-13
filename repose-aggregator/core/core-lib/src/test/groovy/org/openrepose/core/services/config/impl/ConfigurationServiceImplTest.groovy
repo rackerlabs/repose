@@ -31,6 +31,7 @@ import org.openrepose.core.services.config.ConfigurationService
 
 import static org.mockito.Matchers.any
 import static org.mockito.Mockito.*
+
 /**
  * Created with IntelliJ IDEA.
  * User: adrian

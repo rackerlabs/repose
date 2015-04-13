@@ -23,8 +23,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 public interface DataProvider {
 
-   XMLGregorianCalendar getCalendar();
+    XMLGregorianCalendar getCalendar();
 
-   XMLGregorianCalendar getCalendar(int field, int value);
-   
+    XMLGregorianCalendar getCalendar(int field, int value);
+
 }

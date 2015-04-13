@@ -107,7 +107,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url ="${properties.reposeEndpoint}/allmethods/resource"
+        String url = "${properties.reposeEndpoint}/allmethods/resource"
         def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'allmethods']
 
         when: "we make some requests with mixed methods"

@@ -22,8 +22,8 @@ package org.openrepose.core.services.ratelimit.cache;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
-import org.openrepose.core.services.ratelimit.config.TimeUnit;
 import org.openrepose.core.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.config.TimeUnit;
 
 import java.util.LinkedList;
 
@@ -32,7 +32,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author jhopper
  */
 public class CachedRateLimitTest {
@@ -87,7 +86,8 @@ public class CachedRateLimitTest {
 
         try {
             Thread.sleep(2000);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
 
         assertTrue(limit.amount() == 0);
     }
@@ -102,7 +102,8 @@ public class CachedRateLimitTest {
 
         try {
             Thread.sleep(2000);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
 
         limit.logHit();
 

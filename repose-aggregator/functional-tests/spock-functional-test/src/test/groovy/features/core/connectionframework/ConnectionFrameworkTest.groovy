@@ -42,9 +42,9 @@ class ConnectionFrameworkTest extends ReposeValveTest {
 
     def cleanupSpec() {
         if (repose)
-                repose.stop()
+            repose.stop()
         if (deproxy)
-                deproxy.shutdown()
+            deproxy.shutdown()
     }
 
     def "When accept header is absent"() {
@@ -62,8 +62,8 @@ class ConnectionFrameworkTest extends ReposeValveTest {
     def "When accept header is empty"() {
         setup:
         MessageChain messageChain
-        def headers = ["Host": "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
-                "Accept": ""]
+        def headers = ["Host"  : "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
+                       "Accept": ""]
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/", headers: headers, addDefaultHeaders: false)
@@ -75,8 +75,8 @@ class ConnectionFrameworkTest extends ReposeValveTest {
     def "When accept header is asterisks"() {
         setup:
         MessageChain messageChain
-        def headers = ["Host": "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
-                "Accept": "*/*"]
+        def headers = ["Host"  : "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
+                       "Accept": "*/*"]
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/", headers: headers, addDefaultHeaders: false)
@@ -88,8 +88,8 @@ class ConnectionFrameworkTest extends ReposeValveTest {
     def "When accept header is type asterisk"() {
         setup:
         MessageChain messageChain
-        def headers = ["Host": "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
-                "Accept": "text/*"]
+        def headers = ["Host"  : "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
+                       "Accept": "text/*"]
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/", headers: headers, addDefaultHeaders: false)
@@ -101,8 +101,8 @@ class ConnectionFrameworkTest extends ReposeValveTest {
     def "When accept header is subtype"() {
         setup:
         MessageChain messageChain
-        def headers = ["Host": "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
-                "Accept": "text/plain"]
+        def headers = ["Host"  : "localhost:" + String.valueOf(repose.reposePort), "User-Agent": deproxy.VERSION_STRING,
+                       "Accept": "text/plain"]
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/", headers: headers, addDefaultHeaders: false)

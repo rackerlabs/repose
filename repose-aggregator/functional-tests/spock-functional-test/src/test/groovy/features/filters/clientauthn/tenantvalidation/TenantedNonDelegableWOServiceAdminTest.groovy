@@ -58,7 +58,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
@@ -74,16 +74,16 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        if(authResponseCode != 200){
+        if (authResponseCode != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
-        if(groupResponseCode != 200){
+        if (groupResponseCode != 200) {
             fakeIdentityService.getGroupsHandler = {
-                userId, request,xml ->
+                userId, request, xml ->
                     new Response(groupResponseCode)
             }
         }
@@ -103,12 +103,12 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        813           | 813             | 500              | "500"        | 200               | false
-        814           | 814             | 404              | "401"        | 200               | true
-        815           | 815             | 200              | "500"        | 404               | false
-        816           | 816             | 200              | "500"        | 500               | false
-        811           | 812             | 200              | "401"        | 200               | true
+        requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        813           | 813            | 500              | "500"        | 200               | false
+        814           | 814            | 404              | "401"        | 200               | true
+        815           | 815            | 200              | "500"        | 404               | false
+        816           | 816            | 200              | "500"        | 500               | false
+        811           | 812            | 200              | "401"        | 200               | true
 
 
     }
@@ -125,9 +125,9 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url:"$reposeEndpoint/servers/999/",
-                method:'GET',
-                headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                url: "$reposeEndpoint/servers/999/",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

@@ -21,7 +21,6 @@ package org.openrepose.filters.clientauth.common;
 
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -119,7 +118,9 @@ public class Configurables {
         return ignoreTenantRoles;
     }
 
-    public boolean sendingAllTenantIds() { return sendAllTenantIds; }
+    public boolean sendingAllTenantIds() {
+        return sendAllTenantIds;
+    }
 
     public boolean sendTenantIdQuality() {
         return sendTenantIdQuality;

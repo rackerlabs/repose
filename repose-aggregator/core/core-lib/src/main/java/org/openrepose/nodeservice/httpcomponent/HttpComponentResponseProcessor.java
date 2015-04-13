@@ -19,15 +19,16 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.proxy.common.AbstractResponseProcessor;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.servlet.http.HttpServletResponse;
-import org.openrepose.core.proxy.common.AbstractResponseProcessor;
-import org.apache.http.util.EntityUtils;
 
 public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
 

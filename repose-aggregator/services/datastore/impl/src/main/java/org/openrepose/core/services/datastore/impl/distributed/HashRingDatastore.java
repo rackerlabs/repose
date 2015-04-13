@@ -53,17 +53,16 @@ public class HashRingDatastore implements DistributedDatastore {
     private final ClusterView clusterView;
     private final Datastore localDatastore;
     private final RemoteCommandExecutor remoteCommandExecutor;
-    private boolean clusterMemberWarning = false;
     private final Object lock = new Object();
-
     private final EncodingProvider encodingProvider;
     private final MessageDigestFactory hashProvider;
     private final String datasetPrefix;
     private final String name;
+    private boolean clusterMemberWarning = false;
 
     public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, ClusterView clusterView,
-            String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider,
-            EncodingProvider encodingProvider) {
+                             String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider,
+                             EncodingProvider encodingProvider) {
 
         this.name = DATASTORE_NAME;
         this.encodingProvider = encodingProvider;
@@ -104,7 +103,7 @@ public class HashRingDatastore implements DistributedDatastore {
             }
 
             synchronized (lock) {
-                Boolean isLocal = (Boolean)localDatastore.get(target.toString());
+                Boolean isLocal = (Boolean) localDatastore.get(target.toString());
                 if (isLocal == null) {
                     isLocal = clusterView.isLocal(target);
                     localDatastore.put(target.toString(), isLocal, DEFAULT_TTL, TimeUnit.MINUTES);
@@ -140,7 +139,7 @@ public class HashRingDatastore implements DistributedDatastore {
                     clusterView.memberDamaged(target, rce.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 } catch (DatastoreOperationException doe) {
-                    LOG.trace("Could not perform action",doe);
+                    LOG.trace("Could not perform action", doe);
                     clusterView.memberDamaged(target, doe.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 }
@@ -172,7 +171,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
     @Override
     public Serializable get(String hashedKey, byte[] id, RemoteBehavior remoteBehavior) {
-        return (Serializable)performAction(hashedKey, id, new DatastoreAction() {
+        return (Serializable) performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -265,13 +264,13 @@ public class HashRingDatastore implements DistributedDatastore {
     public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
-        return patch(encodingProvider.encode(keyHash), keyHash, (SerializablePatch)patch, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
+        return patch(encodingProvider.encode(keyHash), keyHash, (SerializablePatch) patch, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
     public Serializable patch(String hashedKey, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
-                    RemoteBehavior remoteBehavior) {
-        return (Serializable)performAction(hashedKey, id, new DatastoreAction() {
+                              RemoteBehavior remoteBehavior) {
+        return (Serializable) performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {

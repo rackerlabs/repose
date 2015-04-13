@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CanonicalPortHandler implements FormatterLogic {
 
-   @Override
-   public String handle(HttpServletRequest request, HttpServletResponse response) {
-      return String.valueOf(request.getLocalPort());
-   }
+    @Override
+    public String handle(HttpServletRequest request, HttpServletResponse response) {
+        return String.valueOf(request.getLocalPort());
+    }
 }

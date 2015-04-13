@@ -51,8 +51,8 @@ class SingleMatchQValueTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles                                         | responseCode | numHandlings | Description
-        "role-1; q=0.1, role-3; q=0.9"                | "200"        | 1            | "test_single_match_qvalue"
+        roles                          | responseCode | numHandlings | Description
+        "role-1; q=0.1, role-3; q=0.9" | "200"        | 1            | "test_single_match_qvalue"
     }
 
     def "When multiple roles have the same qvalue, and that qvalue is the highest, use all of them (f4f5p\\3q0.9,2q0.1,1q0.9 -> f4)"() {

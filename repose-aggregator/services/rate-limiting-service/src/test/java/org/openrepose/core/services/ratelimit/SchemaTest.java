@@ -43,6 +43,12 @@ public class SchemaTest {
     @RunWith(Parameterized.class)
     public static class WhenValidatingConfiguredMethod {
 
+        private String method;
+        private Validator validator;
+        public WhenValidatingConfiguredMethod(String method) {
+            this.method = method;
+        }
+
         // TODO Upgrade jUnit to 4.11 to name parameterized tests
         @Parameterized.Parameters // (name = "{0} method")
         public static Collection<Object[]> data() {
@@ -51,13 +57,6 @@ public class SchemaTest {
                     {"PATCH"}, {"HEAD"}, {"OPTIONS"},
                     {"CONNECT"}, {"TRACE"}, {"ALL"}
             });
-        }
-
-        private String method;
-        private Validator validator;
-
-        public WhenValidatingConfiguredMethod(String method) {
-            this.method = method;
         }
 
         @Before
@@ -116,12 +115,12 @@ public class SchemaTest {
         public void shouldValidateWhenDuplicateHttpMethodAndDifferentUriRegex() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit id=\"two\" uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "    </limit-group>" +
-                    "    <limit-group id='customer-limits' groups='user'/> " +
-                    "</rate-limiting>";
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"two\" uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
 
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
@@ -130,12 +129,12 @@ public class SchemaTest {
         public void shouldValidateWhenDuplicateUriRegexsAndDifferentMethods() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit id=\"two\" uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
-                    "    </limit-group>" +
-                    "    <limit-group id='customer-limits' groups='user'/> " +
-                    "</rate-limiting>";
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"two\" uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
 
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
@@ -173,9 +172,9 @@ public class SchemaTest {
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='test-limits' groups='customer foo' default='true'/> " +
-                    "    <limit-group id='test-limits' groups='user'/> " +
-                    "</rate-limiting>";
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'/> " +
+                            "    <limit-group id='test-limits' groups='user'/> " +
+                            "</rate-limiting>";
             assertInvalidConfig(xml, "Limit groups must have unique ids");
         }
 
@@ -183,9 +182,9 @@ public class SchemaTest {
         public void shouldFailIfMoreThanOneDefaultLimitGroup() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='customer-limits' groups='customer foo' default='true'/> " +
-                    "    <limit-group id='test-limits' groups='user' default='true'/> " +
-                    "</rate-limiting>";
+                            "    <limit-group id='customer-limits' groups='customer foo' default='true'/> " +
+                            "    <limit-group id='test-limits' groups='user' default='true'/> " +
+                            "</rate-limiting>";
             assertInvalidConfig(xml, "Only one default limit group may be defined");
         }
 
@@ -193,11 +192,11 @@ public class SchemaTest {
         public void shouldFailIfNonUniqueLimitIdsUsed() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='customer-limits' groups='customer'> " +
-                    "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
-                    "        <limit id=\"one\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
-                    "    </limit-group>" +
-                    "</rate-limiting>";
+                            "    <limit-group id='customer-limits' groups='customer'> " +
+                            "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "        <limit id=\"one\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "</rate-limiting>";
             assertInvalidConfig(xml, "Limits must have unique ids");
         }
 

@@ -20,28 +20,26 @@
 package org.openrepose.commons.utils.regex;
 
 /**
- *
  * @author zinic
  */
 public class SelectorResult<K> {
 
-   private static final SelectorResult EMPTY_INSTANCE = new SelectorResult(null);
-   
-   public static SelectorResult emptyResult() {
-      return EMPTY_INSTANCE;
-   }
-   
-   private final K key;
+    private static final SelectorResult EMPTY_INSTANCE = new SelectorResult(null);
+    private final K key;
 
-   public SelectorResult(K key) {
-      this.key = key;
-   }
+    public SelectorResult(K key) {
+        this.key = key;
+    }
 
-   public boolean hasKey() {
-      return key != null;
-   }
+    public static SelectorResult emptyResult() {
+        return EMPTY_INSTANCE;
+    }
 
-   public K getKey() {
-      return key;
-   }
+    public boolean hasKey() {
+        return key != null;
+    }
+
+    public K getKey() {
+        return key;
+    }
 }

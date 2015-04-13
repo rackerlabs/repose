@@ -21,7 +21,7 @@ package framework
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang.text.StrSubstitutor
+import org.apache.commons.lang3.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
 
 /**
@@ -37,6 +37,7 @@ class ReposeConfigurationProvider {
     ReposeConfigurationProvider(TestProperties properties) {
         this(properties.configDirectory, properties.configTemplates)
     }
+
     ReposeConfigurationProvider(String reposeConfigDir, String configTemplatesDir) {
         this.reposeConfigDir = new File(reposeConfigDir)
         this.configTemplatesDir = new File(configTemplatesDir)
@@ -57,12 +58,16 @@ class ReposeConfigurationProvider {
      *   config files have been applied. Useful for waiting for Repose
      *   to pick up the new changes.
      */
-    void applyConfigs(String sourceFolder, Map params=[:], sleepTimeInSeconds=null) {
+    void applyConfigs(String sourceFolder, Map params = [:], sleepTimeInSeconds = null) {
 
         def source = new File(configTemplatesDir.absolutePath + "/" + sourceFolder)
 
-        if (!source.exists()) { throw new IllegalArgumentException("\"${source.toString()}\" not found")}
-        if (!source.isDirectory()) { throw new IllegalArgumentException("\"${source.toString()}\" is not a directory") }
+        if (!source.exists()) {
+            throw new IllegalArgumentException("\"${source.toString()}\" not found")
+        }
+        if (!source.isDirectory()) {
+            throw new IllegalArgumentException("\"${source.toString()}\" is not a directory")
+        }
 
         for (file in FileUtils.listFiles(source, null, true)) {
 

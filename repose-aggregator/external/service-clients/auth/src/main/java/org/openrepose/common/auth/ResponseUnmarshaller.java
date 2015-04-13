@@ -39,26 +39,26 @@ import java.io.UnsupportedEncodingException;
  */
 public class ResponseUnmarshaller {
 
- private static final Logger LOG = LoggerFactory.getLogger(ResponseUnmarshaller.class);
-   private final JAXBContext jaxbContext;
-   private final ObjectPool<Unmarshaller> objectPool;
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseUnmarshaller.class);
+    private final JAXBContext jaxbContext;
+    private final ObjectPool<Unmarshaller> objectPool;
 
-   public ResponseUnmarshaller(JAXBContext jaxbContext) {
-      this.jaxbContext = jaxbContext;
-      objectPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
+    public ResponseUnmarshaller(JAXBContext jaxbContext) {
+        this.jaxbContext = jaxbContext;
+        objectPool = new SoftReferenceObjectPool<>(new BasePoolableObjectFactory<Unmarshaller>() {
 
-         @Override
-         public Unmarshaller makeObject() {
-            try {
-               return ResponseUnmarshaller.this.jaxbContext.createUnmarshaller();
-            } catch (JAXBException ex) {
-               throw new ResourceConstructionException("Unable to build jaxb unmarshaller", ex);
+            @Override
+            public Unmarshaller makeObject() {
+                try {
+                    return ResponseUnmarshaller.this.jaxbContext.createUnmarshaller();
+                } catch (JAXBException ex) {
+                    throw new ResourceConstructionException("Unable to build jaxb unmarshaller", ex);
+                }
             }
-         }
-      });
-   }
+        });
+    }
 
-   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) throws AuthServiceException {
+    public <T> T unmarshall(final InputStream data, final Class<T> expectedType) throws AuthServiceException {
         Object rtn = null;
         Unmarshaller pooledObject;
         try {
@@ -96,5 +96,5 @@ public class ResponseUnmarshaller {
             throw new AuthServiceException("Failed to unmarshall response body. Unexpected element encountered. Body output is in debug.");
         }
         return expectedType.cast(rtn);
-   }
+    }
 }

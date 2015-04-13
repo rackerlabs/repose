@@ -44,18 +44,18 @@ import java.io.OutputStream;
  */
 final class ThresholdOutputStream extends OutputStream {
 
-    private boolean buffering;
     private final OutputStream out1;
-    private OutputStream out2;
-    private CompressingOutputStream compressingOutputStream;
     private final CompressingStreamFactory compressingStreamFactory;
     private final CompressingFilterContext context;
     private final int threshold;
     private final BufferCommitmentCallback bufferCommitmentCallback;
+    private final CompressingFilterLogger logger;
+    private boolean buffering;
+    private OutputStream out2;
+    private CompressingOutputStream compressingOutputStream;
     private ByteArrayOutputStream buffer;
     private boolean closed;
     private boolean forceOut1;
-    private final CompressingFilterLogger logger;
 
     ThresholdOutputStream(OutputStream out1,
                           CompressingStreamFactory compressingStreamFactory,
@@ -170,19 +170,6 @@ final class ThresholdOutputStream extends OutputStream {
         return "ThresholdOutputStream";
     }
 
-
-    /**
-     * Implementations of this interface are used to receive notification that this stream has either committed bytes to
-     * the "raw" stream (without compression), or has committed bytes to a compressing stream.
-     */
-    interface BufferCommitmentCallback {
-
-        void rawStreamCommitted();
-
-        void compressingStreamCommitted();
-    }
-
-
     private boolean continueBuffering(int numAdditionalBytes) throws IOException {
         boolean shouldContinue = false;
         if (buffering) {
@@ -238,6 +225,17 @@ final class ThresholdOutputStream extends OutputStream {
         if (closed) {
             throw new IllegalStateException("Stream is closed");
         }
+    }
+
+    /**
+     * Implementations of this interface are used to receive notification that this stream has either committed bytes to
+     * the "raw" stream (without compression), or has committed bytes to a compressing stream.
+     */
+    interface BufferCommitmentCallback {
+
+        void rawStreamCommitted();
+
+        void compressingStreamCommitted();
     }
 
 }

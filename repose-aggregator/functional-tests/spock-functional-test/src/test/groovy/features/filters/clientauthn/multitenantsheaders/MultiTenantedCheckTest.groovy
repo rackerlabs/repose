@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthn.multitenantsheaders
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 8/19/14.
  */
@@ -58,12 +60,12 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll ("when passing #requestTenant with setting #defaultTenant #serviceRespCode")
-    def "When authenticate user with tenanted client-mapping matching more than one from tenant list" () {
+    @Unroll("when passing #requestTenant with setting #defaultTenant #serviceRespCode")
+    def "When authenticate user with tenanted client-mapping matching more than one from tenant list"() {
         given:
         fakeIdentityService.with {
             client_token = clientToken
@@ -73,7 +75,8 @@ class MultiTenantedCheckTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        when: "User passes a request through repose with $requestTenant"
+        when:
+        "User passes a request through repose with $requestTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
@@ -89,12 +92,12 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         }
 
         where:
-        defaultTenant   | requestTenant         | authResponseCode  |clientToken        |serviceRespCode
-        "123456"        | "123456"              | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "no-a-nast-id"        | "200"             |UUID.randomUUID()  | "401"
-        "900000"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "nast-id"       | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
-        "900000"        | "900000"              | "200"             |''                 | "401"
+        defaultTenant | requestTenant  | authResponseCode | clientToken       | serviceRespCode
+        "123456"      | "123456"       | "200"            | UUID.randomUUID() | "200"
+        "123456"      | "nast-id"      | "200"            | UUID.randomUUID() | "200"
+        "123456"      | "no-a-nast-id" | "200"            | UUID.randomUUID() | "401"
+        "900000"      | "nast-id"      | "200"            | UUID.randomUUID() | "200"
+        "nast-id"     | "nast-id"      | "200"            | UUID.randomUUID() | "200"
+        "900000"      | "900000"       | "200"            | ''                | "401"
     }
 }

@@ -46,7 +46,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers one-to-one without removal"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -59,14 +59,14 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-OneToOne-A" : "a", "X-OneToOne-B" : "b"]
-        "GET"  | ["X-OneToOne-A" : "a", "X-OneToOne-B" : "b"]
+        "POST" | ["X-OneToOne-A": "a", "X-OneToOne-B": "b"]
+        "GET"  | ["X-OneToOne-A": "a", "X-OneToOne-B": "b"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-one with removal"() {
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -78,14 +78,14 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-OneToOneRemoval-A" : "a", "X-OneToOneRemoval-B" : "b"]
-        "GET"  | ["X-OneToOneRemoval-A" : "a", "X-OneToOneRemoval-B" : "b"]
+        "POST" | ["X-OneToOneRemoval-A": "a", "X-OneToOneRemoval-B": "b"]
+        "GET"  | ["X-OneToOneRemoval-A": "a", "X-OneToOneRemoval-B": "b"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-many without removal"() {
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -100,15 +100,15 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-OneToMany-A" : "a", "X-OneToMany-B" : "b"]
-        "GET"  | ["X-OneToMany-A" : "a", "X-OneToMany-B" : "b"]
+        "POST" | ["X-OneToMany-A": "a", "X-OneToMany-B": "b"]
+        "GET"  | ["X-OneToMany-A": "a", "X-OneToMany-B": "b"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-many with removal"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -136,9 +136,9 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-OneToManyRemoval-A" : "a,b,c", "X-OneToManyRemoval-B" : "b"]
-        "GET"  | ["X-OneToManyRemoval-A" : "a,b,c", "X-OneToManyRemoval-B" : "b"]
-        "POST" | ["X-OneToManyRemoval-A" : "a ,b,c,,", "X-OneToManyRemoval-B" : "b"]
+        "POST" | ["X-OneToManyRemoval-A": "a,b,c", "X-OneToManyRemoval-B": "b"]
+        "GET"  | ["X-OneToManyRemoval-A": "a,b,c", "X-OneToManyRemoval-B": "b"]
+        "POST" | ["X-OneToManyRemoval-A": "a ,b,c,,", "X-OneToManyRemoval-B": "b"]
 
     }
 
@@ -146,7 +146,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers one-to-none"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers: reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -156,8 +156,8 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-StripHeader-A" : "a", "X-StripHeader-B" : "b"]
-        "GET"  | ["X-StripHeader-A" : "a", "X-StripHeader-B" : "b"]
+        "POST" | ["X-StripHeader-A": "a", "X-StripHeader-B": "b"]
+        "GET"  | ["X-StripHeader-A": "a", "X-StripHeader-B": "b"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
@@ -183,8 +183,8 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-ManyToMany-A" : "a", "X-ManyToMany-B" : "b", "X-ManyToMany-C" : "c"]
-        "GET"  | ["X-ManyToMany-A" : "a", "X-ManyToMany-B" : "b", "X-ManyToMany-C" : "c"]
+        "POST" | ["X-ManyToMany-A": "a", "X-ManyToMany-B": "b", "X-ManyToMany-C": "c"]
+        "GET"  | ["X-ManyToMany-A": "a", "X-ManyToMany-B": "b", "X-ManyToMany-C": "c"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
@@ -202,8 +202,8 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-ManyToOne-A" : "a", "X-ManyToOne-B" : "b", "X-ManyToOne-C" : "c"]
-        "GET"  | ["X-ManyToOne-A" : "a", "X-ManyToOne-B" : "b", "X-ManyToOne-C" : "c"]
+        "POST" | ["X-ManyToOne-A": "a", "X-ManyToOne-B": "b", "X-ManyToOne-C": "c"]
+        "GET"  | ["X-ManyToOne-A": "a", "X-ManyToOne-B": "b", "X-ManyToOne-C": "c"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
@@ -222,15 +222,15 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-ToExisting-A" : "a", "X-Header-Existing" : "b"]
-        "GET"  | ["X-ToExisting-A" : "a", "X-Header-Existing" : "b"]
+        "POST" | ["X-ToExisting-A": "a", "X-Header-Existing": "b"]
+        "GET"  | ["X-ToExisting-A": "a", "X-Header-Existing": "b"]
     }
 
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers with mixed case"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method: method, headers:reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -248,8 +248,8 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["X-Mixedcase-A" : "a", "X-Mixedcase-B" : "b", "X-Mixedcase-C" : "c"]
-        "GET"  | ["X-Mixedcase-A" : "a", "X-Mixedcase-B" : "b", "X-Mixedcase-C" : "c"]
+        "POST" | ["X-Mixedcase-A": "a", "X-Mixedcase-B": "b", "X-Mixedcase-C": "c"]
+        "GET"  | ["X-Mixedcase-A": "a", "X-Mixedcase-B": "b", "X-Mixedcase-C": "c"]
     }
 
 
@@ -257,7 +257,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating CSL request headers"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method: method, headers: reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -270,8 +270,8 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         where:
         method | reqHeaders
-        "POST" | ["x-pp-user" : "a", "x-tenant-name" : "b", "x-roles" : "c"]
-        "GET"  | ["x-pp-user" : "a", "x-tenant-name" : "b", "x-roles" : "c"]
+        "POST" | ["x-pp-user": "a", "x-tenant-name": "b", "x-roles": "c"]
+        "GET"  | ["x-pp-user": "a", "x-tenant-name": "b", "x-roles": "c"]
     }
 
     def "Should not split request headers according to rfc"() {
@@ -279,11 +279,11 @@ class HeaderTranslationTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
@@ -330,7 +330,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -359,7 +359,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"

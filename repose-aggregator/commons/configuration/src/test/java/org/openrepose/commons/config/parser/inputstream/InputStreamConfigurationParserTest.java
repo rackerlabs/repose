@@ -19,21 +19,17 @@
  */
 package org.openrepose.commons.config.parser.inputstream;
 
-import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.config.resource.ResourceResolutionException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertNotNull;
+import org.openrepose.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.config.resource.ResourceResolutionException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.After;
-import org.junit.AfterClass;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.BeforeClass;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -55,47 +51,47 @@ public class InputStreamConfigurationParserTest {
     public void tearDown() throws Exception {
     }
 
-   public static class WhenReadingResource {
-      private InputStreamConfigurationParser instance;
-      private ConfigurationResource cr;
-      private InputStream stream;
-      private ConfigurationResource badCr;
+    public static class WhenReadingResource {
+        private InputStreamConfigurationParser instance;
+        private ConfigurationResource cr;
+        private InputStream stream;
+        private ConfigurationResource badCr;
 
-      @Before
-      public void setUp() throws IOException {
-         instance = new InputStreamConfigurationParser();
-         
-         // good case
-         cr = mock(ConfigurationResource.class);
-         stream = mock(InputStream.class);
-         when(cr.newInputStream()).thenReturn(stream);
-         
-         // bad case
-         badCr = mock(ConfigurationResource.class);
-         when(badCr.newInputStream()).thenThrow(new IOException());
-      }
+        @Before
+        public void setUp() throws IOException {
+            instance = new InputStreamConfigurationParser();
 
-      @Test
-      public void shouldGetInputStream() throws IOException {
-         InputStream actual = instance.read(cr);
-         verify(cr, times(1)).newInputStream();
-         assertTrue("Should get input stream", actual == stream);
-      }
+            // good case
+            cr = mock(ConfigurationResource.class);
+            stream = mock(InputStream.class);
+            when(cr.newInputStream()).thenReturn(stream);
 
-      @Test(expected=ResourceResolutionException.class)
-      public void shouldThrowResourceResolutionException() {
-         instance.read(badCr);
-      }
- 
-    /**
-     * Test of read method, of class InputStreamConfigurationParser.
-     */
-    @Test
-    public void testRead() {
-        InputStream result = instance.read(cr);
-        assertNotNull(result);
-        // TODO review the generated test code and remove the default call to fail.
-        
+            // bad case
+            badCr = mock(ConfigurationResource.class);
+            when(badCr.newInputStream()).thenThrow(new IOException());
+        }
+
+        @Test
+        public void shouldGetInputStream() throws IOException {
+            InputStream actual = instance.read(cr);
+            verify(cr, times(1)).newInputStream();
+            assertTrue("Should get input stream", actual == stream);
+        }
+
+        @Test(expected = ResourceResolutionException.class)
+        public void shouldThrowResourceResolutionException() {
+            instance.read(badCr);
+        }
+
+        /**
+         * Test of read method, of class InputStreamConfigurationParser.
+         */
+        @Test
+        public void testRead() {
+            InputStream result = instance.read(cr);
+            assertNotNull(result);
+            // TODO review the generated test code and remove the default call to fail.
+
+        }
     }
-   }
 }

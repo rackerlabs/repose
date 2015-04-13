@@ -4,27 +4,27 @@
 <!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
 <schema
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
-    xmlns:atom="http://www.w3.org/2005/Atom"
-    targetNamespace="http://docs.openstack.org/identity/api/v2.0"
->
- 
+        xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        xmlns:atom="http://www.w3.org/2005/Atom"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://docs.openstack.org/identity/api/v2.0"
+        >
+
     <include schemaLocation="roles.xsd"/>
     <include schemaLocation="services.xsd"/>
-       
+
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
-        schemaLocation="atom/atom.xsd" />
-    
+            schemaLocation="atom/atom.xsd"/>
+
     <!-- Elements -->
     <element name="access" type="identity:AuthenticateResponse"/>
-    
+
     <!-- Complex Types -->
     <complexType name="Token">
         <annotation>
@@ -45,17 +45,17 @@
             <xsd:appinfo>
                 <xsdxt:samples>
                     <xsdxt:sample>
-                        <xsdxt:code type="application/xml" href="../samples/token.xml" />
+                        <xsdxt:code type="application/xml" href="../samples/token.xml"/>
                     </xsdxt:sample>
                     <xsdxt:sample>
-                        <xsdxt:code type="application/json" href="../samples/token.json" />
+                        <xsdxt:code type="application/json" href="../samples/token.json"/>
                     </xsdxt:sample>
                 </xsdxt:samples>
             </xsd:appinfo>
         </annotation>
         <sequence>
             <element name="tenant" type="identity:TenantForAuthenticateResponse"/>
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:string" use="required"/>
         <attribute name="expires" type="xsd:dateTime" use="required"/>
@@ -67,53 +67,53 @@
             <element name="token" type="identity:Token"/>
             <element name="user" type="identity:UserForAuthenticateResponse"/>
             <element name="serviceCatalog" type="identity:ServiceCatalog" minOccurs="0"/>
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
     <complexType name="UserForAuthenticateResponse">
         <sequence>
-            <element name="roles" type="identity:RoleList" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element name="roles" type="identity:RoleList"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:string"/>
         <attribute name="name" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="TenantForAuthenticateResponse">
         <attribute name="id" type="xsd:string"/>
         <attribute name="name" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="ServiceCatalog">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                  The service catalog lists the services you have access to
+                    The service catalog lists the services you have access to
                 </p>
                 <div class="design">
                     <p>
-                    We optimized for future flexibility around the hierarchy. So we
-                    left the design as a flat list of endpoints with attributes and the
-                    consumer can categorize as they need.
-                    This results in potential duplication (such as with the version/@list)
-                    but we acceopt that normalization cost in order to not force an
-                    artificial hierarchy (suchas on region, which can be optional).
-                  </p>
+                        We optimized for future flexibility around the hierarchy. So we
+                        left the design as a flat list of endpoints with attributes and the
+                        consumer can categorize as they need.
+                        This results in potential duplication (such as with the version/@list)
+                        but we acceopt that normalization cost in order to not force an
+                        artificial hierarchy (suchas on region, which can be optional).
+                    </p>
                 </div>
             </xsd:documentation>
             <xsd:appinfo>
-              <xsdxt:samples>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/xml" href="../samples/services.xml" />
-                </xsdxt:sample>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/json" href="../samples/services.json" />
-                </xsdxt:sample>
-              </xsdxt:samples>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/services.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/services.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
             </xsd:appinfo>
         </annotation>
         <sequence>
@@ -128,12 +128,12 @@
                     </xsd:documentation>
                 </annotation>
             </element>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <complexType name="ServiceForCatalog">
         <sequence>
             <element name="endpoint" type="identity:EndpointForService" minOccurs="1" maxOccurs="unbounded">
@@ -147,14 +147,14 @@
                     </xsd:documentation>
                 </annotation>
             </element>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="type" type="identity:ExtensibleServiceType" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The OpenStack-registered type (e.g. 'compute', 'object-store', etc).
                     </p>
@@ -164,8 +164,8 @@
         <attribute name="name" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The commercial service name (e.g. 'My Nova Cloud Servers').
                     </p>
@@ -174,29 +174,29 @@
         </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <!--EndpointForService-->
     <complexType name="EndpointForService">
         <sequence>
             <element name="version" type="identity:VersionForService" maxOccurs="1" minOccurs="0">
                 <annotation>
                     <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
                         <p>
                             Version details.
                         </p>
                     </xsd:documentation>
-                </annotation>               
+                </annotation>
             </element>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="region" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The name of the region where the endpoint
                         lives. Example: airport codes; LHR (UK),
@@ -208,8 +208,8 @@
         <attribute name="tenantId" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         Tenant id to which the endpoints belong.
                     </p>
@@ -219,8 +219,8 @@
         <attribute name="publicURL" type="xsd:anyURI" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         Public accessible service URL.
                     </p>
@@ -230,8 +230,8 @@
         <attribute name="internalURL" type="xsd:anyURI" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         A service URL, accessible only locally within that
                         cloud (generally over a high bandwidth, low latency,
@@ -243,8 +243,8 @@
         <attribute name="adminURL" type="xsd:anyURI" use="optional">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         An Admin URL (used for administration using privileged
                         calls). This may expose
@@ -256,16 +256,16 @@
         </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
+
     <!-- VersionForService -->
     <complexType name="VersionForService">
         <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                       Id of the version.
+                        Id of the version.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -273,8 +273,8 @@
         <attribute name="info" type="xsd:anyURI" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         URI to get the information specific to this version.
                     </p>
@@ -284,8 +284,8 @@
         <attribute name="list" type="xsd:anyURI" use="required">
             <annotation>
                 <xsd:documentation
-                    xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         URI to get the information about all versions.
                     </p>

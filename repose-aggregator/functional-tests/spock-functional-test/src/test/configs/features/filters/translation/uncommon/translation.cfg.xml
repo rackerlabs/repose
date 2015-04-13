@@ -4,14 +4,14 @@
     <request-translations>
         <request-translation>
             <style-sheets>
-                <style id="ss3" href="remove-attribute.xsl" />
+                <style id="ss3" href="remove-attribute.xsl"/>
             </style-sheets>
         </request-translation>
     </request-translations>
     <response-translations>
         <response-translation>
             <style-sheets>
-                <style id="ss2" href="remove-attribute.xsl" />
+                <style id="ss2" href="remove-attribute.xsl"/>
             </style-sheets>
         </response-translation>
     </response-translations>

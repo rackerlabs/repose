@@ -47,7 +47,7 @@ public class AuthGetRequest implements ConsistentHashable {
         return hashKey;
     }
 
-    public String consistentHashKey(){
+    public String consistentHashKey() {
         return hashKey();
     }
 

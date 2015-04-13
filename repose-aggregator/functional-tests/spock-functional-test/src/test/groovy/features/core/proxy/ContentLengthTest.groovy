@@ -39,7 +39,7 @@ class ContentLengthTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec(){
+    def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
@@ -62,18 +62,18 @@ class ContentLengthTest extends ReposeValveTest {
 
         ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == content_length
 
-        if(content_length > 0)
+        if (content_length > 0)
             assert ((Handling) sentRequest).request.getHeaders().getFirstValue("content-length").equalsIgnoreCase((reqBody == null) ? "0" : reqBody.length().toString())
 
 
         where:
-        method | reqBody | content_type | content_length | transfer_encoding
-        "POST" | "blah"  | 1            | 1              | 0
-        "POST" | null    | 0            | 1              | 0
-        "PUT"  | "blah"  | 1            | 1              | 0
-        "PUT"  | null    | 0            | 1              | 0
-        "TRACE"| "blah"  | 1            | 0              | 0
-        "TRACE"| null    | 0            | 0              | 0
+        method  | reqBody | content_type | content_length | transfer_encoding
+        "POST"  | "blah"  | 1            | 1              | 0
+        "POST"  | null    | 0            | 1              | 0
+        "PUT"   | "blah"  | 1            | 1              | 0
+        "PUT"   | null    | 0            | 1              | 0
+        "TRACE" | "blah"  | 1            | 0              | 0
+        "TRACE" | null    | 0            | 0              | 0
 
     }
 

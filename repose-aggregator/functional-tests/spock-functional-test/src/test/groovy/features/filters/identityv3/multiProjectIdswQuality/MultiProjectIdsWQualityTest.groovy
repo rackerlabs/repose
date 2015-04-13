@@ -29,7 +29,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 1/13/15.
  */
-class MultiProjectIdsWQualityTest extends ReposeValveTest{
+class MultiProjectIdsWQualityTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -59,12 +59,12 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         fakeIdentityV3Service.resetHandlers()
     }
 
-    @Unroll ("#defaultProject, #secondProject, request project #reqProject")
-    def "When user have multi-projects will retrieve all projects to headers" () {
+    @Unroll("#defaultProject, #secondProject, request project #reqProject")
+    def "When user have multi-projects will retrieve all projects to headers"() {
         given:
         fakeIdentityV3Service.with {
             client_token = clientToken
@@ -73,7 +73,8 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
             client_projectid2 = secondProject
         }
 
-        when: "User passes a request through repose with $reqProject"
+        when:
+        "User passes a request through repose with $reqProject"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
                 method: 'GET',
@@ -87,21 +88,21 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject+";q=1.0")
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(secondProject+";q=0.5")
+            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject + ";q=1.0")
+            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(secondProject + ";q=0.5")
         }
 
         where:
-        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
-        "test-project"  | "12345"         | "12345"         |UUID.randomUUID()  | "200"             | 2
-        "test-project"  | "12345"         | "test-project"  |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "401"             | 1
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
+        defaultProject | secondProject  | reqProject     | clientToken       | serviceRespCode | numberProjects
+        "123456"       | "test-project" | "123456"       | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "12345"        | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "test-project" | UUID.randomUUID() | "200"           | 2
+        "123456"       | "123456"       | "test-proj-id" | UUID.randomUUID() | "401"           | 1
+        "123456"       | "test-project" | "openstack"    | UUID.randomUUID() | "401"           | 2
     }
 
-    @Unroll ("No project id from token object: request project #reqProject")
-    def "when no project id from token object" () {
+    @Unroll("No project id from token object: request project #reqProject")
+    def "when no project id from token object"() {
         given:
         fakeIdentityV3Service.with {
             identitySuccessJsonRespTemplate = identitySuccessJsonRespShortTemplate  // No project id in token object
@@ -111,7 +112,8 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
             client_projectid2 = secondProject
         }
 
-        when: "User passes a request through repose with $reqProject"
+        when:
+        "User passes a request through repose with $reqProject"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
                 method: 'GET',
@@ -129,8 +131,8 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest{
         }
 
         where:
-        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "401"             | 0
-        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "401"             | 0
+        defaultProject | secondProject  | reqProject | clientToken       | serviceRespCode | numberProjects
+        "123456"       | "test-project" | "123456"   | UUID.randomUUID() | "401"           | 0
+        "123456"       | "test-project" | ""         | UUID.randomUUID() | "401"           | 0
     }
 }

@@ -21,9 +21,9 @@ package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.RequestProxyService;
-import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;
-import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
+import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
+import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommand;
 
 import java.net.InetSocketAddress;
@@ -40,15 +40,15 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
         this.cacheObjectKey = cacheObjectKey;
         this.remoteEndpoint = remoteEndpoint;
     }
-    
+
     public String getUrl() {
         return CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey());
     }
-    
+
     public String getBaseUrl() {
         return CacheRequest.urlFor(remoteEndpoint);
     }
-    
+
     @Override
     public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
@@ -60,7 +60,7 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
-        
+
         return headers;
     }
 

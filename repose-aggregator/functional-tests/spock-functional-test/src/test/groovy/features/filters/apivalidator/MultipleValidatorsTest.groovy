@@ -28,7 +28,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
     def static badElementBody = "<a><testing>test</testing>Stuff</a>"
     def static badParamBody = "<element blah=\"something\"><testing>tests</testing></element>"
-    def static badParamBadBody =  "<a blah=\"something\"><testing>test</testing>Stuff</a>"
+    def static badParamBadBody = "<a blah=\"something\"><testing>test</testing>Stuff</a>"
     def static contentTypeHeader = ["content-type": "application/xml"]
     def static goodFirstBadSecondElementBody = "<test:element " +
             "xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\">" +
@@ -40,8 +40,8 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
 
-        repose.configurationProvider.applyConfigs("common",params)
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common",params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/multiValidatorsPreProcess/", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -49,7 +49,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
     def cleanupSpec() {
         if (repose)
-            // TODO: Figure out a more elegant way for this test to shutdown.
+        // TODO: Figure out a more elegant way for this test to shutdown.
             repose.stop(throwExceptionOnKill: false)
         if (deproxy)
             deproxy.shutdown()
@@ -107,8 +107,8 @@ class MultipleValidatorsTest extends ReposeValveTest {
         messageChain.getReceivedResponse().body.toString().contains(errorMessage)
 
         where:
-        requestBody  | headers                               | errorMessage
-        badParamBody | ["x-roles": "check-xsd,check-param"]  | "<message>Bad Content: blah should not be here</message>"
+        requestBody     | headers                               | errorMessage
+        badParamBody    | ["x-roles": "check-xsd,check-param"]  | "<message>Bad Content: blah should not be here</message>"
         badParamBadBody | ["x-roles": "check-param, check-all"] | "<message>Bad Content: Expecting the root element to be: test:element</message>"
     }
 }

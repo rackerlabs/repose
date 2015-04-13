@@ -25,6 +25,7 @@ import org.rackspace.deproxy.Deproxy
 
 class MultiBucketTest extends ReposeValveTest {
     def logSearch = new ReposeLogSearch(properties.logFile)
+
     def setupSpec() {
 
         deproxy = new Deproxy()
@@ -39,6 +40,7 @@ class MultiBucketTest extends ReposeValveTest {
     }
 
     static int userCount = 0;
+
     String getNewUniqueUser() {
 
         String name = "user-${userCount}"
@@ -103,13 +105,13 @@ class MultiBucketTest extends ReposeValveTest {
         def item = "${reposeEndpoint}/item"
 
         expect:                                                                                     // counts: A B
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 1 1
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 2 2
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 3 3
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 3 3
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "413" // - X
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413" // - X
     }
 
     def "when two <limit> elements overlap, requests to the non-overlapping uri's are counted separately"() {
@@ -128,10 +130,10 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 1
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 2
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 3
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "413" // - X
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200" // - 1
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413" // - X
     }
 
     def "when two <limit> elements are disjoint, requests count against the limits separately"() {
@@ -150,10 +152,10 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 3 -
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 1
-        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 2
-        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 3
-        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "413" // - X
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200" // - 1
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "413" // - X
     }
 
     def "when one <limit> is a strict subset of the other by uri, both counters are affected"() {
@@ -167,11 +169,11 @@ class MultiBucketTest extends ReposeValveTest {
         def subresource = "${resource}/subresource"
 
         expect:
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 1 -
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 2 -
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 3 -
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 4 -
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 4 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // X -
 
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // X -
     }
@@ -191,8 +193,8 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "200" // 2 2
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // 3 X
 
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 4 -
-        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 4 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // X -
     }
 
     def "when one <limit> is a strict subset of the other by method, both counters are affected"() {
@@ -210,7 +212,7 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 3
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413" // - X
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413" // - X
     }
 
     def "when one <limit> is a strict subset of the other by method, both counters are affected 2"() {
@@ -223,17 +225,17 @@ class MultiBucketTest extends ReposeValveTest {
         def resource = "${reposeEndpoint}/resource"
 
         expect:                                                                                       // counts: A B
-        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 1 1
-        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 2 2
-        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 3 3
-        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200" // 3 3
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'POST',   url: resource, headers: headers).receivedResponse.code == "413" // X -
-        deproxy.makeRequest(method: 'PUT',    url: resource, headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(method: 'PUT', url: resource, headers: headers).receivedResponse.code == "413" // X -
         deproxy.makeRequest(method: 'DELETE', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
     }
-    
+
     def "when two <limit> elements have the same uri-regex and method, but different units, then they each get counters that counted separately"() {
 
         /*
@@ -279,7 +281,7 @@ class MultiBucketTest extends ReposeValveTest {
         // 3 per sec exceeded
 
         sleep 2000 //let the per-second limit reset                                            0  3
-        
+
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 1  4
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 2  5
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // 3  X
@@ -289,7 +291,7 @@ class MultiBucketTest extends ReposeValveTest {
 
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // 1  X
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // 2  X
-        
+
     }
 
     def "a sequence of <limit> elements is considered in order. limits after a failing one don't get affected"() {
@@ -366,16 +368,16 @@ class MultiBucketTest extends ReposeValveTest {
         def headers = ['X-PP-User': user, 'X-PP-Groups': group]
 
         expect:
-        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
-        deproxy.makeRequest(method: "DELETE",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
-        deproxy.makeRequest(method: "POST",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
-        deproxy.makeRequest(method: "PUT",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 4
-        deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 5
-        deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 6
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "DELETE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "POST", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "PUT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 4
+        deproxy.makeRequest(method: "PATCH", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 5
+        deproxy.makeRequest(method: "HEAD", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 6
         deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 7
-        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
+        deproxy.makeRequest(method: "TRACE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
 
-        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
     }
 
     def "when a <limit> has http-methods of ALL, requests to the same method contribute to the total"() {
@@ -422,10 +424,10 @@ class MultiBucketTest extends ReposeValveTest {
         def headers = ['X-PP-User': user, 'X-PP-Groups': group]
 
         expect:
-        deproxy.makeRequest(method: "GET",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
         deproxy.makeRequest(method: "POST", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
-        deproxy.makeRequest(method: "PUT",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
-        deproxy.makeRequest(method: "GET",  url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+        deproxy.makeRequest(method: "PUT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
     }
 
     def "when a <limit> has specific http-methods, request to other methods are not counted by that <limit>"() {
@@ -437,16 +439,16 @@ class MultiBucketTest extends ReposeValveTest {
         logSearch.cleanLog()
 
         expect:
-        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
-        deproxy.makeRequest(method: "POST",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
-        deproxy.makeRequest(method: "PUT",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
-        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "POST", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "PUT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
 
-        deproxy.makeRequest(method: "DELETE",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
-        deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
-        deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "DELETE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "PATCH", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "HEAD", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
         deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
-        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "TRACE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
 
         //deproxy.makeRequest(method: "SOME",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
         //deproxy.makeRequest(method: "OTHER",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
@@ -476,14 +478,12 @@ class MultiBucketTest extends ReposeValveTest {
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-' + threadNum + '-request-' + i)
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
-                    if(messageChain.receivedResponse.code.equals("200")){
+                    if (messageChain.receivedResponse.code.equals("200")) {
                         totalSuccessfulCount = totalSuccessfulCount + 1
                         println messageChain.sentRequest.headers
                         println messageChain.sentRequest.body
                         println messageChain.receivedResponse.code
-                    }
-
-                    else   {
+                    } else {
                         totalFailedCount = totalFailedCount + 1
                         println messageChain.receivedResponse.code
                     }
@@ -506,7 +506,7 @@ class MultiBucketTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        1        | 50
+        1          | 50
     }
 
     def "counts use a fixed time window"() {
@@ -626,11 +626,11 @@ class MultiBucketTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        
+
         if (repose) {
             repose.stop()
         }
-        
+
         if (deproxy) {
             deproxy.shutdown()
         }

@@ -21,10 +21,9 @@ package org.openrepose.core;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.openrepose.core.spring.CoreSpringProvider;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.powerfilter.EmptyServlet;
-import org.openrepose.powerfilter.PowerFilter;
-import org.openrepose.core.spring.CoreSpringProvider;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;

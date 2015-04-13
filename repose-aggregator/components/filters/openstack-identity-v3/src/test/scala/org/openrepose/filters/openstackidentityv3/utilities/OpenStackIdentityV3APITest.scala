@@ -20,13 +20,13 @@
 package org.openrepose.filters.openstackidentityv3.utilities
 
 import java.io.ByteArrayInputStream
-import java.util.{Calendar, GregorianCalendar}
 import java.util.concurrent.TimeUnit
+import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 
-import org.apache.http.message.BasicHeader
 import org.apache.http.Header
+import org.apache.http.message.BasicHeader
 import org.hamcrest.Matchers.{equalTo, is, lessThanOrEqualTo, theInstance}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat

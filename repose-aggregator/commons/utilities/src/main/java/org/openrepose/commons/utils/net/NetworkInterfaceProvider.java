@@ -24,14 +24,13 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 
 /**
- *
  * @author zinic
  */
 public interface NetworkInterfaceProvider {
-   
-   boolean hasInterfaceFor(InetAddress address) throws SocketException;
-   
-   NetworkInterface getInterfaceFor(InetAddress address) throws SocketException;
 
-   Iterable<NetworkInterface> getNetworkInterfaces() throws SocketException;
+    boolean hasInterfaceFor(InetAddress address) throws SocketException;
+
+    NetworkInterface getInterfaceFor(InetAddress address) throws SocketException;
+
+    Iterable<NetworkInterface> getNetworkInterfaces() throws SocketException;
 }

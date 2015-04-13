@@ -94,7 +94,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
     }
 
-    @Unroll ("#method with #caseDesc")
+    @Unroll("#method with #caseDesc")
     def "No HTTP Basic authentication header sent and no token with delegating."() {
         when: "the request does not have an HTTP Basic authentication"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
@@ -105,20 +105,20 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("x-delegated")
 
         where:
-        caseDesc                        | method
-        "No HTTP Basic authentication"  | "GET"
-        "No HTTP Basic authentication"  | "PUT"
-        "No HTTP Basic authentication"  | "POST"
-        "No HTTP Basic authentication"  | "DELETE"
-        "No HTTP Basic authentication"  | "PATCH"
+        caseDesc                       | method
+        "No HTTP Basic authentication" | "GET"
+        "No HTTP Basic authentication" | "PUT"
+        "No HTTP Basic authentication" | "POST"
+        "No HTTP Basic authentication" | "DELETE"
+        "No HTTP Basic authentication" | "PATCH"
     }
 
-    @Unroll ("#method with #caseDesc")
+    @Unroll("#method with #caseDesc")
     def "HTTP Basic authentication header sent and no token with delegating."() {
         given:
         def headers = [
-                    (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
-            ]
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
+        ]
 
         when: "the request has invalid key/username"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
@@ -131,12 +131,12 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.2")
 
         where:
-        caseDesc                        | method      | delegatedMsg
-        "Invalid key or username"       | "GET"       | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        "Invalid key or username"       | "PUT"       | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        "Invalid key or username"       | "POST"      | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        "Invalid key or username"       | "DELETE"    | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        "Invalid key or username"       | "PATCH"     | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        caseDesc                  | method   | delegatedMsg
+        "Invalid key or username" | "GET"    | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username" | "PUT"    | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username" | "POST"   | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username" | "DELETE" | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
+        "Invalid key or username" | "PATCH"  | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
     }
 
     @Unroll("Sending request with auth admin response set to HTTP #identityStatusCode")

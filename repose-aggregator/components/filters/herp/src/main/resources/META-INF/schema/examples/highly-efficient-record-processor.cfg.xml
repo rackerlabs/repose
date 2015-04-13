@@ -7,7 +7,6 @@
     <template crush="true">
         <!-- todo: methodLabel, host.address -->
         <![CDATA[
-        <?xml version="1.0"?>
         <event xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/ user-access-cadf.xsd'
                xmlns:ua="http://feeds.api.rackspacecloud.com/cadf/user-access-event"

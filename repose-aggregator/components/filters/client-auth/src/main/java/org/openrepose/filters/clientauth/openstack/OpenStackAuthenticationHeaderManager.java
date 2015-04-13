@@ -42,6 +42,9 @@ public class OpenStackAuthenticationHeaderManager {
     // Proxy is specified in the OpenStack auth blue print:
     // http://wiki.openstack.org/openstack-authn
     private static final String X_AUTH_PROXY = "Proxy";
+    // Hard code QUALITY for now as the auth component will have
+    // the highest QUALITY in terms of using the user it supplies for rate limiting
+    private static final String QUALITY = ";q=1.0";
     private final String authToken;
     private final AuthToken cachableToken;
     private final Boolean isDelagable;
@@ -52,9 +55,6 @@ public class OpenStackAuthenticationHeaderManager {
     private final String tenantId;
     private final Boolean validToken;
     private final List<AuthGroup> groups;
-    // Hard code QUALITY for now as the auth component will have
-    // the highest QUALITY in terms of using the user it supplies for rate limiting
-    private static final String QUALITY = ";q=1.0";
     private final String wwwAuthHeaderContents;
     private final String endpointsBase64;
     private final String contactId;
@@ -132,15 +132,15 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     /**
-    * EXTENDED AUTHORIZATION
-    */
+     * EXTENDED AUTHORIZATION
+     */
     private void setExtendedAuthorization() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(tenantId) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + tenantId);
     }
 
     /**
-    * IDENTITY STATUS
-    */
+     * IDENTITY STATUS
+     */
     private void setIdentityStatus() {
         IdentityStatus identityStatus = IdentityStatus.Confirmed;
 
@@ -170,8 +170,8 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     /**
-    * TENANT
-    */
+     * TENANT
+     */
     private void setTenant() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
 
@@ -205,10 +205,10 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     /**
-    * USER
-    * The PowerApiHeader is used for Rate Limiting
-    * The OpenStackServiceHeader is used for an OpenStack service
-    */
+     * USER
+     * The PowerApiHeader is used for Rate Limiting
+     * The OpenStackServiceHeader is used for an OpenStack service
+     */
     private void setUser() {
         filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), cachableToken.getUsername() + QUALITY);
 
@@ -217,9 +217,9 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     /**
-    * ROLES
-    * The OpenStackServiceHeader is used for an OpenStack service
-    */
+     * ROLES
+     * The OpenStackServiceHeader is used for an OpenStack service
+     */
     private void setRoles() {
         String roles = cachableToken.getRoles();
 
@@ -229,9 +229,9 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     /**
-    * GROUPS
-    * The PowerApiHeader is used for Rate Limiting
-    */
+     * GROUPS
+     * The PowerApiHeader is used for Rate Limiting
+     */
     private void setGroups() {
         for (AuthGroup group : groups) {
             filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
@@ -254,27 +254,26 @@ public class OpenStackAuthenticationHeaderManager {
      */
 
     private void setExpirationDate() {
-        if (cachableToken.getExpires()>0) {
+        if (cachableToken.getExpires() > 0) {
             HttpDate date = new HttpDate(new Date(cachableToken.getExpires()));
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.X_EXPIRATION.toString(), date.toRFC1123());
         }
     }
 
 
-
     /**
      * Default Region
      * Default region of user
      */
-    private void setDefaultRegion(){
-       String region = cachableToken.getDefaultRegion();
-       if(!StringUtilities.isBlank(region)){
-          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
-       }
+    private void setDefaultRegion() {
+        String region = cachableToken.getDefaultRegion();
+        if (!StringUtilities.isBlank(region)) {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
+        }
     }
 
     private void setContactId() {
-        if(contactId != null) {
+        if (contactId != null) {
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.CONTACT_ID.toString(), contactId);
         }
     }

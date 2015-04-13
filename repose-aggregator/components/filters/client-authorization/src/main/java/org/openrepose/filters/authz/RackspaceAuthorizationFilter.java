@@ -40,12 +40,12 @@ public class RackspaceAuthorizationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
     private static final String DEFAULT_CONFIG = "openstack-authorization.cfg.xml";
-    private String config;
-    private RequestAuthorizationHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final DatastoreService datastoreService;
     private final HttpClientService httpClientService;
     private final AkkaServiceClient akkaServiceClient;
+    private String config;
+    private RequestAuthorizationHandlerFactory handlerFactory;
 
     @Inject
     public RackspaceAuthorizationFilter(ConfigurationService configurationService,
@@ -74,6 +74,6 @@ public class RackspaceAuthorizationFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new RequestAuthorizationHandlerFactory(datastoreService.getDefaultDatastore(), httpClientService, akkaServiceClient);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/openstack-authorization-configuration.xsd");
-        configurationService.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, RackspaceAuthorization.class);
+        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, RackspaceAuthorization.class);
     }
 }

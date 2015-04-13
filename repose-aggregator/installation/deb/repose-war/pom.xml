@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>deb</artifactId>
-        <version>7.0.1.1</version>
+        <version>7.0.1.2-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation ROOT.WAR DEB</name>
@@ -246,6 +247,36 @@
                                             </mapper>
                                             <src>
                                                 ${basedir}/../../../../LICENSE.txt
+                                            </src>
+                                        </data>
+
+                                        <!--This adds the dependencies file on installation.-->
+                                        <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>
+                                                    /usr/share/doc/${artifactName}
+                                                </prefix>
+                                                <filemode>444</filemode>
+                                            </mapper>
+                                            <src>
+                                                ${basedir}/../../../../CONTRIBUTORS.txt
+                                            </src>
+                                        </data>
+
+                                        <!--This adds the dependencies file on installation.-->
+                                        <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>
+                                                    /usr/share/doc/${artifactName}
+                                                </prefix>
+                                                <filemode>444</filemode>
+                                            </mapper>
+                                            <src>
+                                                ${basedir}/../../../../DEPENDENCIES.txt
                                             </src>
                                         </data>
                                     </dataSet>

@@ -37,7 +37,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
-    def classPaths =[]
+    def classPaths = []
 
     def boolean debugEnabled
     def boolean doSuspend
@@ -77,7 +77,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
             webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
-            if(doSuspend) {
+            if (doSuspend) {
                 webXmlOverrides += "y"
                 println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
             } else {
@@ -179,7 +179,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     }
 
     @Override
-    void addToClassPath(String path){
+    void addToClassPath(String path) {
         classPaths.add(path)
     }
 }

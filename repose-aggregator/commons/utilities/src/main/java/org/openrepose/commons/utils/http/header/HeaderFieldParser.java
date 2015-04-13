@@ -35,10 +35,8 @@ import java.util.regex.Pattern;
  */
 public class HeaderFieldParser {
 
-    private Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
-
-
     private final List<String> headerValueStrings;
+    private Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
     private SplittableHeaderUtil splittable;
 
     private HeaderFieldParser() {

@@ -19,142 +19,136 @@
  */
 package org.openrepose.nodeservice.distributed.cluster.utils;
 
-import org.openrepose.core.systemmodel.Filter;
-import org.openrepose.core.systemmodel.FilterList;
-import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.NodeList;
-import org.openrepose.core.systemmodel.ReposeCluster;
-import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
-import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;
-import org.openrepose.core.services.datastore.distributed.config.HostAccessControlList;
-import org.openrepose.core.services.datastore.distributed.config.Port;
-import org.openrepose.core.services.datastore.distributed.config.PortConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.openrepose.core.services.datastore.distributed.config.*;
+import org.openrepose.core.systemmodel.*;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class ClusterMemberDeterminatorTest {
 
-   public static class WhenDeterminingClusterMembers {
+    public static class WhenDeterminingClusterMembers {
 
-      private SystemModel sysConfig;
-      private DistributedDatastoreConfiguration ddConfig;
-      private List<ReposeCluster> clusters;
-      private ReposeCluster cluster1, cluster2;
-      private Node node1, node2;
-      private NodeList nodeList;
-      private List<Filter> filters;
-      private FilterList filterList;
-      private HostAccessControlList hacl;
-      private boolean isAllowed;
-      private HostAccessControl ctrl;
-      private PortConfiguration portConfig;
-      private Port node1Port, node2Port;
+        private SystemModel sysConfig;
+        private DistributedDatastoreConfiguration ddConfig;
+        private List<ReposeCluster> clusters;
+        private ReposeCluster cluster1, cluster2;
+        private Node node1, node2;
+        private NodeList nodeList;
+        private List<Filter> filters;
+        private FilterList filterList;
+        private HostAccessControlList hacl;
+        private boolean isAllowed;
+        private HostAccessControl ctrl;
+        private PortConfiguration portConfig;
+        private Port node1Port, node2Port;
 
-      @Before
-      public void setUp() {
+        @Before
+        public void setUp() {
 
-         filters = new ArrayList<Filter>();
-         filterList = new FilterList();
-         filterList.getFilter().addAll(filters);
+            filters = new ArrayList<Filter>();
+            filterList = new FilterList();
+            filterList.getFilter().addAll(filters);
 
-         node1 = new Node();
-         node1.setHttpPort(8888);
-         node1.setHostname("127.0.0.1");
-         node1.setId("node1");
-         nodeList = new NodeList();
-         nodeList.getNode().add(node1);
-
-
-         node2 = new Node();
-         node2.setHttpPort(8889);
-         node2.setHostname("127.0.0.1");
-         node2.setId("node2");
-         nodeList.getNode().add(node2);
-
-         cluster1 = new ReposeCluster();
-         cluster1.setFilters(filterList);
-         cluster1.setId("reposeCluster");
-         cluster1.setNodes(nodeList);
-
-         cluster2 = new ReposeCluster();
-         cluster2.setFilters(filterList);
-         cluster2.setId("otherReposeCluster");
+            node1 = new Node();
+            node1.setHttpPort(8888);
+            node1.setHostname("127.0.0.1");
+            node1.setId("node1");
+            nodeList = new NodeList();
+            nodeList.getNode().add(node1);
 
 
-         sysConfig = new SystemModel();
-         sysConfig.getReposeCluster().add(cluster1);
+            node2 = new Node();
+            node2.setHttpPort(8889);
+            node2.setHostname("127.0.0.1");
+            node2.setId("node2");
+            nodeList.getNode().add(node2);
 
-         node1Port = new Port();
-         node1Port.setCluster("reposeCluster");
-         node1Port.setPort(9999);
+            cluster1 = new ReposeCluster();
+            cluster1.setFilters(filterList);
+            cluster1.setId("reposeCluster");
+            cluster1.setNodes(nodeList);
 
-
-         node2Port = new Port();
-         node2Port.setCluster("reposeCluster");
-         node2Port.setNode("node2");
-         node2Port.setPort(3333);
-
-         portConfig = new PortConfiguration();
-         portConfig.getPort().add(node1Port);
-         portConfig.getPort().add(node2Port);
-
-         isAllowed = false;
-
-         ctrl = new HostAccessControl();
-         ctrl.setHost("127.0.0.1");
-
-         hacl = new HostAccessControlList();
-         hacl.setAllowAll(isAllowed);
-         hacl.getAllow().add(ctrl);
+            cluster2 = new ReposeCluster();
+            cluster2.setFilters(filterList);
+            cluster2.setId("otherReposeCluster");
 
 
-         ddConfig = new DistributedDatastoreConfiguration();
-         ddConfig.setAllowedHosts(hacl);
-         ddConfig.setPortConfig(portConfig);
-      }
+            sysConfig = new SystemModel();
+            sysConfig.getReposeCluster().add(cluster1);
 
-      @Test
-      public void whenDeterminingCurrentCluster() {
+            node1Port = new Port();
+            node1Port.setCluster("reposeCluster");
+            node1Port.setPort(9999);
 
-         ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "reposeCluster");
 
-         assertTrue("should retrieve cluster", getCluster.getId().equals("reposeCluster"));
+            node2Port = new Port();
+            node2Port.setCluster("reposeCluster");
+            node2Port.setNode("node2");
+            node2Port.setPort(3333);
 
-      }
+            portConfig = new PortConfiguration();
+            portConfig.getPort().add(node1Port);
+            portConfig.getPort().add(node2Port);
 
-      @Test
-      public void whenRetrievingNonExistantCluster() {
+            isAllowed = false;
 
-         ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "nonExistantCluster");
+            ctrl = new HostAccessControl();
+            ctrl.setHost("127.0.0.1");
 
-         assertNull("No cluster retrieved", getCluster);
-      }
+            hacl = new HostAccessControlList();
+            hacl.setAllowAll(isAllowed);
+            hacl.getAllow().add(ctrl);
 
-      @Test
-      public void whenRetrievingDDPort() {
 
-         int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node1");
-         int ddPort2 = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node2");
+            ddConfig = new DistributedDatastoreConfiguration();
+            ddConfig.setAllowedHosts(hacl);
+            ddConfig.setPortConfig(portConfig);
+        }
 
-         assertTrue("Should determine proper dd port 1", ddPort == 9999);
-         assertTrue("Should determine proper dd port 2", ddPort2 == 3333);
+        @Test
+        public void whenDeterminingCurrentCluster() {
 
-      }
-      
-      @Test
-      public void whenRetrievingClusterMembers(){
-         
-         List<InetSocketAddress> clusterView = ClusterMemberDeterminator.getClusterMembers(sysConfig, ddConfig, "reposeCluster");
-         
-         assertTrue("Cluster has 2 repose nodes", clusterView.size() == 2);
-      }
-   }
+            ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "reposeCluster");
+
+            assertTrue("should retrieve cluster", getCluster.getId().equals("reposeCluster"));
+
+        }
+
+        @Test
+        public void whenRetrievingNonExistantCluster() {
+
+            ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "nonExistantCluster");
+
+            assertNull("No cluster retrieved", getCluster);
+        }
+
+        @Test
+        public void whenRetrievingDDPort() {
+
+            int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node1");
+            int ddPort2 = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node2");
+
+            assertTrue("Should determine proper dd port 1", ddPort == 9999);
+            assertTrue("Should determine proper dd port 2", ddPort2 == 3333);
+
+        }
+
+        @Test
+        public void whenRetrievingClusterMembers() {
+
+            List<InetSocketAddress> clusterView = ClusterMemberDeterminator.getClusterMembers(sysConfig, ddConfig, "reposeCluster");
+
+            assertTrue("Cluster has 2 repose nodes", clusterView.size() == 2);
+        }
+    }
 }

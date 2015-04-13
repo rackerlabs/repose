@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.headertranslation
+
 import framework.ReposeValveTest
 import framework.category.Flaky
 import org.joda.time.DateTime
@@ -44,14 +45,14 @@ class PerformanceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/headertranslation/common", params)
         repose.start()
-        MessageChain mcHdrXlate = deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
+        MessageChain mcHdrXlate = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-OneToMany-A": "12345", "X-OneToMany-B": "abcde"])
         repose.stop()
 
         and: "I make a request through header translation filter"
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/headertranslation/perftest", params)
         repose.start()
-        MessageChain mcTranslation = deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
+        MessageChain mcTranslation = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-OneToMany-A": "12345", "X-OneToMany-B": "abcde"])
         repose.stop()
 
         then: "Headers are translated correctly by HDR XLATE"
@@ -101,14 +102,14 @@ class PerformanceTest extends ReposeValveTest {
 
         // warm up, ignore response times
         for (int i : 1..100) {
-            deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-Header-A":"12345", "X-Header-B":"abcde"])
+            deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-Header-A": "12345", "X-Header-B": "abcde"])
         }
 
         // now let's capture response times
         for (int i : 1..totalRequests) {
             // start time
             def timeStart = new DateTime()
-            MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-Header-A":"12345", "X-Header-B":"abcde"])
+            MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ["X-Header-A": "12345", "X-Header-B": "abcde"])
             def timeStop = new DateTime()
             def elapsedMillis = timeStop.millis - timeStart.millis
             totalMillis += elapsedMillis

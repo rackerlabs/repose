@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 public interface MessageDigester {
 
-   byte[] digestStream(InputStream stream);
+    byte[] digestStream(InputStream stream);
 
-   byte[] digestBytes(byte[] bytes);
+    byte[] digestBytes(byte[] bytes);
 }

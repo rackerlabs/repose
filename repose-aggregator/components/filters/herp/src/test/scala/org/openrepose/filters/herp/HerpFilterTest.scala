@@ -64,48 +64,47 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     herpConfig.setPreFilterLoggerName("highly-efficient-record-processor-pre-Logger")
     herpConfig.setPostFilterLoggerName("highly-efficient-record-processor-post-Logger")
     val templateText =
-      """
-         {
-          "GUID" : "{{guid}}",
-          "ServiceCode" : "{{serviceCode}}",
-          "Region" : "{{region}}",
-          "DataCenter" : "{{dataCenter}}",
-          "Cluster" : "{{clusterId}}",
-          "Node" : "{{nodeId}}",
-          "RequestorIp" : "{{requestorIp}}",
-          "Timestamp" : "{{timestamp}}",
-          "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
-          "Request" : {
-            "Method" : "{{requestMethod}}",
-            "MethodLabel" : "{{methodLabel}}",
-            "CadfMethod" : "{{cadfMethod requestMethod}}",
-            "URL" : "{{requestURL}}",
-            "TargetHost" : "{{targetHost}}",
-            "QueryString" : "{{requestQueryString}}",
-            "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
-                           },
-            "UserName" : "{{userName}}",
-            "ImpersonatorName" : "{{impersonatorName}}",
-            "DefaultProjectID" : "{{defaultProjectId}}",
-            "ProjectID" : [
-                            {{#each projectID}}
-                            {{#if @index}},{{/if}}"{{.}}"
-                            {{/each}}
-                          ],
-            "Roles" : [
-                        {{#each roles}}
-                        {{#if @index}},{{/if}}"{{.}}"
-                        {{/each}}
-                      ],
-            "UserAgent" : "{{userAgent}}"
-          },
-          "Response" : {
-            "Code" : {{responseCode}},
-            "CadfOutcome" : "{{cadfOutcome responseCode}}",
-            "Message" : "{{responseMessage}}"
-          }
-         }
-      """.stripMargin
+      """{
+        |  "GUID" : "{{guid}}",
+        |  "ServiceCode" : "{{serviceCode}}",
+        |  "Region" : "{{region}}",
+        |  "DataCenter" : "{{dataCenter}}",
+        |  "Cluster" : "{{clusterId}}",
+        |  "Node" : "{{nodeId}}",
+        |  "RequestorIp" : "{{requestorIp}}",
+        |  "Timestamp" : "{{timestamp}}",
+        |  "CadfTimestamp" : "{{cadfTimestamp timestamp}}",
+        |  "Request" : {
+        |    "Method" : "{{requestMethod}}",
+        |    "MethodLabel" : "{{methodLabel}}",
+        |    "CadfMethod" : "{{cadfMethod requestMethod}}",
+        |    "URL" : "{{requestURL}}",
+        |    "TargetHost" : "{{targetHost}}",
+        |    "QueryString" : "{{requestQueryString}}",
+        |    "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
+        |                   },
+        |    "UserName" : "{{userName}}",
+        |    "ImpersonatorName" : "{{impersonatorName}}",
+        |    "DefaultProjectID" : "{{defaultProjectId}}",
+        |    "ProjectID" : [
+        |                    {{#each projectID}}
+        |                    {{#if @index}},{{/if}}"{{.}}"
+        |                    {{/each}}
+        |                  ],
+        |    "Roles" : [
+        |                {{#each roles}}
+        |                {{#if @index}},{{/if}}"{{.}}"
+        |                {{/each}}
+        |              ],
+        |    "UserAgent" : "{{userAgent}}"
+        |  },
+        |  "Response" : {
+        |    "Code" : {{responseCode}},
+        |    "CadfOutcome" : "{{cadfOutcome responseCode}}",
+        |    "Message" : "{{responseMessage}}"
+        |  }
+        |}
+        |""".stripMargin
     val template = new Template
     template.setValue(templateText)
     template.setCrush(true)
@@ -592,22 +591,22 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
           val matchersOne = filterOne.getMatch
           val matcherOne = new Match
           matcherOne.setField("userName")
-          matcherOne.setRegex(condition._1._1)  // Conditionally matches
+          matcherOne.setRegex(condition._1._1) // Conditionally matches
           matchersOne.add(matcherOne)
-          val matcherTwo = new Match            // AND'd
+          val matcherTwo = new Match // AND'd
           matcherTwo.setField("roles")
-          matcherTwo.setRegex(".*BUZ.*")        // Always matches
+          matcherTwo.setRegex(".*BUZ.*") // Always matches
           matchersOne.add(matcherTwo)
           filtersOut.add(filterOne)
-          val filterTwo = new FilterOut         // OR'd
+          val filterTwo = new FilterOut // OR'd
           val matchersTwo = filterTwo.getMatch
           val matcherThree = new Match
           matcherThree.setField("userName")
-          matcherThree.setRegex(condition._1._2)// Never Matches
+          matcherThree.setRegex(condition._1._2) // Never Matches
           matchersTwo.add(matcherThree)
-          val matcherFour = new Match           // AND'd
+          val matcherFour = new Match // AND'd
           matcherFour.setField("roles")
-          matcherFour.setRegex(".*BUZ.*")       // Always matches
+          matcherFour.setRegex(".*BUZ.*") // Always matches
           matchersTwo.add(matcherFour)
           filtersOut.add(filterTwo)
 
@@ -732,16 +731,16 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
   describe("cadf method") {
     val methodFormatter = new CadfMethod
     val methods: Map[String, String] = Map(
-      "get"    -> "read/get",
-      "head"   -> "read/head",
-      "post"   -> "update/post",
-      "put"    -> "update/put",
+      "get" -> "read/get",
+      "head" -> "read/head",
+      "post" -> "update/post",
+      "put" -> "update/put",
       "delete" -> "update/delete",
-      "patch"  -> "update/patch"
+      "patch" -> "update/patch"
     )
     methods.foreach { method =>
       it(s"should translate ${method._1} into ${method._2}") {
-        methodFormatter(method._1, null) should equal (method._2)
+        methodFormatter(method._1, null) should equal(method._2)
       }
     }
   }
@@ -763,7 +762,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
     )
     outcomes.foreach { outcome =>
       it(s"should translate status ${outcome._1} into ${outcome._2}") {
-        outcomeFormatter(outcome._1, null) should equal (outcome._2)
+        outcomeFormatter(outcome._1, null) should equal(outcome._2)
       }
     }
   }

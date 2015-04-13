@@ -88,6 +88,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
     }
+
     def "No HTTP Basic authentication header sent and no token."() {
         when: "the request does not have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
@@ -129,7 +130,8 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    @Ignore // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
+    @Ignore
+    // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key and the Mock Identity Service's generateTokenHandler"

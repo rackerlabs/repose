@@ -22,6 +22,8 @@ package org.openrepose.core.services.reporting;
 public class StatusCodeResponseStore {
 
     private static final long LONG_ZERO = 0l;
+    private static final int HASH = 67;
+    private static final int SHIFT = 32;
     private long totalCount = LONG_ZERO;
     private long accumulatedResponseTime = LONG_ZERO;
 
@@ -48,8 +50,6 @@ public class StatusCodeResponseStore {
     public Long getAccumulatedResponseTime() {
         return accumulatedResponseTime;
     }
-    private static final int HASH = 67;
-    private static final int SHIFT = 32;
 
     @Override
     public int hashCode() {

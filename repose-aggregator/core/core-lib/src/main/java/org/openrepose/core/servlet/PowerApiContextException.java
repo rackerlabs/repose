@@ -36,7 +36,6 @@
 package org.openrepose.core.servlet;
 
 /**
- *
  * @author jhopper
  */
 public class PowerApiContextException extends RuntimeException {

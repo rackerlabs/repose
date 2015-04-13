@@ -33,9 +33,10 @@ public final class EmptyServlet extends HttpServlet {
 
     /**
      * Have to override service so that the EmptyServlet doesn't actually do anything.
-     *
+     * <p/>
      * We could totally probably use Jetty's ProxyServlet in here to make the request instead of doing whatever,
      * This is the last thing called in the container config chain
+     *
      * @param req
      * @param resp
      * @throws ServletException

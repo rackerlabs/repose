@@ -21,11 +21,10 @@ package features.core.proxy
 
 import framework.ReposeValveTest
 import framework.category.Bug
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
 
 class PassThruTest extends ReposeValveTest {
 
@@ -93,7 +92,8 @@ class PassThruTest extends ReposeValveTest {
         !requestAtOriginService.headers["host"].equals(messageChain.sentRequest.headers["host"])
     }
 
-    @Category(Bug.class) // Defect D-11822
+    @Category(Bug.class)
+    // Defect D-11822
     @Unroll("Should not interfere with semicolons and equals signs in request: #name - #value")
     def "Should not interfere with semicolons and equals signs in request"() {
 
@@ -196,7 +196,8 @@ class PassThruTest extends ReposeValveTest {
         (count == 2 && firstValue == value) || (count == 1 && firstValue.startsWith(value))
     }
 
-    @Category(Bug.class) // Defect D-11822
+    @Category(Bug.class)
+    // Defect D-11822
     @Unroll("Should not interfere with semicolons and equals signs in response: #name - #value")
     def "Should not interfere with semicolons and equals signs in response"() {
 

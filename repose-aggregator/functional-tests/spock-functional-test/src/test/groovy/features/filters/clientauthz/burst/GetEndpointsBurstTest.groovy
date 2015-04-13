@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.clientauthz.burst
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone
@@ -86,21 +87,21 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         (1..numClients).each {
             threadNum ->
 
-            def thread = Thread.start {
-                (1..callsPerClient).each {
-                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
+                def thread = Thread.start {
+                    (1..callsPerClient).each {
+                        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
-                        missingAuthResponse = true
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                            missingAuthResponse = true
+                        }
+
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("403")) {
+                            Bad403Response = true
+                        }
+
                     }
-
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("403")) {
-                        Bad403Response = true
-                    }
-
                 }
-            }
-            clientThreads.add(thread)
+                clientThreads.add(thread)
         }
 
         when:

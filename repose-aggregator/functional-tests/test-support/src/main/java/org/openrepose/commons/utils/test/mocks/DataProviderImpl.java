@@ -27,27 +27,27 @@ import java.util.GregorianCalendar;
 
 public class DataProviderImpl implements DataProvider {
 
-   private final DatatypeFactory dataTypeFactory;
+    private final DatatypeFactory dataTypeFactory;
 
-   public DataProviderImpl() throws DatatypeConfigurationException {
-      dataTypeFactory = DatatypeFactory.newInstance();
-   }
+    public DataProviderImpl() throws DatatypeConfigurationException {
+        dataTypeFactory = DatatypeFactory.newInstance();
+    }
 
-   @Override
-   public XMLGregorianCalendar getCalendar() {
-      return getCalendar(Calendar.DAY_OF_YEAR, 0);
-   }
+    @Override
+    public XMLGregorianCalendar getCalendar() {
+        return getCalendar(Calendar.DAY_OF_YEAR, 0);
+    }
 
-   @Override
-   public XMLGregorianCalendar getCalendar(int field, int value) {
-      Calendar calendar = GregorianCalendar.getInstance();
+    @Override
+    public XMLGregorianCalendar getCalendar(int field, int value) {
+        Calendar calendar = GregorianCalendar.getInstance();
 
-      if (value != 0) {
-         calendar.setLenient(true);
-         calendar.add(field, value);
-      }
+        if (value != 0) {
+            calendar.setLenient(true);
+            calendar.add(field, value);
+        }
 
-      return dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
-   }
-   
+        return dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
+    }
+
 }

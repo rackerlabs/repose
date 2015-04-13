@@ -4,74 +4,75 @@
 <!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
 <schema
-        elementFormDefault="qualified"
-        attributeFormDefault="unqualified"
-        xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
         xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:atom="http://www.w3.org/2005/Atom"
-        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns="http://www.w3.org/2001/XMLSchema"
         targetNamespace="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
 
-<!--
-    <import namespace="http://docs.openstack.org/identity/api/v2.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/common/xsd/api.xsd" />
-    <import namespace="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/extensions/RAX-KSKEY/xsd/RAX-KSKEY-credentials.xsd" />
-    <import namespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/extensions/OS-KSCATALOG/xsd/OS-KSCATALOG.xsd" />
--->
-    <import namespace="http://docs.openstack.org/identity/api/v2.0" schemaLocation="./api.xsd" />
-    <import namespace="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0" schemaLocation="./RAX-KSKEY-credentials.xsd" />
-    <import namespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0" schemaLocation="./OS-KSCATALOG.xsd" />
-    <import namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd" />
+    <!--
+        <import namespace="http://docs.openstack.org/identity/api/v2.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/common/xsd/api.xsd" />
+        <import namespace="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/extensions/RAX-KSKEY/xsd/RAX-KSKEY-credentials.xsd" />
+        <import namespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0" schemaLocation="https://raw.github.com/openstack/identity-api/master/openstack-identity-api/src/docbkx/extensions/OS-KSCATALOG/xsd/OS-KSCATALOG.xsd" />
+    -->
+    <import namespace="http://docs.openstack.org/identity/api/v2.0" schemaLocation="./api.xsd"/>
+    <import namespace="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+            schemaLocation="./RAX-KSKEY-credentials.xsd"/>
+    <import namespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0"
+            schemaLocation="./OS-KSCATALOG.xsd"/>
+    <import namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd"/>
 
-    <attribute name="defaultRegion" type="xsd:string" />
-    <attribute name="domainId" type="xsd:string" />
-    <attribute name="requirePasswordReset" type="xsd:boolean" />
-    <attribute name="phoneNumber" type="xsd:string" />
-    <attribute name="propagate" type="xsd:boolean" />
-    <attribute name="default" type="xsd:boolean" />
-    <attribute name="federatedIdp" type="xsd:string" />
-    <attribute name="tenantAlias" type="xsd:string" />
-    <attribute name="contactId" type="xsd:string" />
+    <attribute name="defaultRegion" type="xsd:string"/>
+    <attribute name="domainId" type="xsd:string"/>
+    <attribute name="requirePasswordReset" type="xsd:boolean"/>
+    <attribute name="phoneNumber" type="xsd:string"/>
+    <attribute name="propagate" type="xsd:boolean"/>
+    <attribute name="default" type="xsd:boolean"/>
+    <attribute name="federatedIdp" type="xsd:string"/>
+    <attribute name="tenantAlias" type="xsd:string"/>
+    <attribute name="contactId" type="xsd:string"/>
     <attribute name="multiFactorEnabled" type="xsd:boolean"/>
-    <attribute name="multiFactorState" type="RAX-AUTH:MultiFactorStateEnum" />
-    <attribute name="userMultiFactorEnforcementLevel" type="RAX-AUTH:UserMultiFactorEnforcementLevelEnum" />
-    <attribute name="scope" type="RAX-AUTH:ScopeEnum" />
+    <attribute name="multiFactorState" type="RAX-AUTH:MultiFactorStateEnum"/>
+    <attribute name="userMultiFactorEnforcementLevel" type="RAX-AUTH:UserMultiFactorEnforcementLevelEnum"/>
+    <attribute name="scope" type="RAX-AUTH:ScopeEnum"/>
     <!--  <attribute name="apiKey" type="xsd:string" /> -->
-    
-    <element name="authenticatedBy" type="RAX-AUTH:AuthenticatedBy" />
-    <element name="defaultRegionServices" type="RAX-AUTH:DefaultRegionServices" />
-    <element name="serviceApis" type="RAX-AUTH:ServiceApis" />
-    <element name="impersonation" type="RAX-AUTH:ImpersonationRequest" />
-    <element name="access" type="RAX-AUTH:ImpersonationResponse" />
-    <element name="impersonator" type="identity:UserForAuthenticateResponse" >
-    	<annotation>
+
+    <element name="authenticatedBy" type="RAX-AUTH:AuthenticatedBy"/>
+    <element name="defaultRegionServices" type="RAX-AUTH:DefaultRegionServices"/>
+    <element name="serviceApis" type="RAX-AUTH:ServiceApis"/>
+    <element name="impersonation" type="RAX-AUTH:ImpersonationRequest"/>
+    <element name="access" type="RAX-AUTH:ImpersonationResponse"/>
+    <element name="impersonator" type="identity:UserForAuthenticateResponse">
+        <annotation>
             <xsd:documentation>
                 <p>The user impersonating.</p>
             </xsd:documentation>
         </annotation>
     </element>
-    <element name="domain" type="RAX-AUTH:Domain" >
+    <element name="domain" type="RAX-AUTH:Domain">
         <annotation>
             <xsd:documentation>
                 <p>A domain represents an administrative boundary for identity management.</p>
             </xsd:documentation>
         </annotation>
     </element>
-    <element name="domains" type="RAX-AUTH:Domains" />
+    <element name="domains" type="RAX-AUTH:Domains"/>
     <element name="policy" type="RAX-AUTH:Policy"/>
-    <element name="policies" type="RAX-AUTH:Policies" />
-    <element name="regions" type="RAX-AUTH:Regions" />
-    <element name="region" type="RAX-AUTH:Region" />
-    <element name="questions" type="RAX-AUTH:Questions" />
-    <element name="question" type="RAX-AUTH:Question" />
-    <element name="secretqas" type="RAX-AUTH:SecretQAs" />
-    <element name="secretqa" type="RAX-AUTH:SecretQA" />
-    <element name="rsaCredentials" type="RAX-AUTH:RsaCredentials" substitutionGroup="identity:credential" />
-    <element name="passcodeCredentials" type="RAX-AUTH:PasscodeCredentials" substitutionGroup="identity:credential" />
-    <element name="mobilePhone" type="RAX-AUTH:MobilePhone" />
-    <element name="verificationCode" type="RAX-AUTH:VerificationCode" />
-    <element name="multiFactor" type="RAX-AUTH:MultiFactor" />
+    <element name="policies" type="RAX-AUTH:Policies"/>
+    <element name="regions" type="RAX-AUTH:Regions"/>
+    <element name="region" type="RAX-AUTH:Region"/>
+    <element name="questions" type="RAX-AUTH:Questions"/>
+    <element name="question" type="RAX-AUTH:Question"/>
+    <element name="secretqas" type="RAX-AUTH:SecretQAs"/>
+    <element name="secretqa" type="RAX-AUTH:SecretQA"/>
+    <element name="rsaCredentials" type="RAX-AUTH:RsaCredentials" substitutionGroup="identity:credential"/>
+    <element name="passcodeCredentials" type="RAX-AUTH:PasscodeCredentials" substitutionGroup="identity:credential"/>
+    <element name="mobilePhone" type="RAX-AUTH:MobilePhone"/>
+    <element name="verificationCode" type="RAX-AUTH:VerificationCode"/>
+    <element name="multiFactor" type="RAX-AUTH:MultiFactor"/>
     <element name="mobilePhones" type="RAX-AUTH:MobilePhones"/>
     <element name="bypassCodes" type="RAX-AUTH:BypassCodes"/>
     <element name="multiFactorDomain" type="RAX-AUTH:MultiFactorDomain"/>
@@ -85,7 +86,7 @@
 
     <complexType name="ImpersonationRequest">
         <sequence>
-            <element name="user" type="identity:User" >
+            <element name="user" type="identity:User">
                 <annotation>
                     <xsd:documentation>
                         <p>The user being impersonated.</p>
@@ -107,7 +108,7 @@
             </element>
         </sequence>
     </complexType>
-    
+
     <complexType name="Domain">
         <sequence>
             <element name="description" type="xsd:string">
@@ -119,13 +120,13 @@
                     </xsd:documentation>
                 </annotation>
             </element>
-           <element ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <element ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the domain. 
+                        An ID uniquely identifying the domain.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -148,7 +149,8 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="domainMultiFactorEnforcementLevel" type="RAX-AUTH:DomainMultiFactorEnforcementLevelEnum" use="optional">
+        <attribute name="domainMultiFactorEnforcementLevel" type="RAX-AUTH:DomainMultiFactorEnforcementLevelEnum"
+                   use="optional">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
@@ -158,14 +160,14 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="Domains">
         <sequence>
             <element name="domain" type="RAX-AUTH:Domain" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <element ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
-    
+
     <complexType name="DefaultRegionServices">
         <sequence>
             <element name="serviceName" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
@@ -195,18 +197,19 @@
                 <annotation>
                     <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                         <p>
-                            A blob containing any type of policy that a client can provide. This could be in any format the client chooses.
+                            A blob containing any type of policy that a client can provide. This could be in any format
+                            the client chooses.
                         </p>
                     </xsd:documentation>
                 </annotation>
             </element>
-            <element ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <element ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
         <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the policy. 
+                        An ID uniquely identifying the policy.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -248,7 +251,7 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="Policies">
         <sequence>
             <element name="policy" type="RAX-AUTH:Policy" minOccurs="0" maxOccurs="unbounded"/>
@@ -365,19 +368,19 @@
 
     <complexType name="ServiceApis">
         <sequence>
-            <element name="serviceApi" type="RAX-AUTH:ServiceApi" minOccurs="0" maxOccurs="unbounded" />
+            <element name="serviceApi" type="RAX-AUTH:ServiceApi" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
-    
+
     <complexType name="ServiceApi">
         <sequence>
-        	<element name="description" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <element name="description" type="xsd:string" minOccurs="0" maxOccurs="1"/>
         </sequence>
         <attribute name="type" type="identity:ExtensibleServiceType">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                       Type of the service api e.g compute, object-store, ..
+                        Type of the service api e.g compute, object-store, ..
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -386,18 +389,18 @@
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                       Version of the service api
+                        Version of the service api
                     </p>
                 </xsd:documentation>
             </annotation>
         </attribute>
     </complexType>
-    
+
     <complexType name="RsaCredentials">
         <complexContent>
             <extension base="identity:CredentialType">
-                <attribute name="username" type="xsd:string" use="required" />
-                <attribute name="tokenKey" type="xsd:string" use="required" />
+                <attribute name="username" type="xsd:string" use="required"/>
+                <attribute name="tokenKey" type="xsd:string" use="required"/>
             </extension>
         </complexContent>
     </complexType>
@@ -405,7 +408,7 @@
     <complexType name="PasscodeCredentials">
         <complexContent>
             <extension base="identity:CredentialType">
-                <attribute name="passcode" type="xsd:string" use="required" />
+                <attribute name="passcode" type="xsd:string" use="required"/>
             </extension>
         </complexContent>
     </complexType>
@@ -455,7 +458,7 @@
 
     <complexType name="VerificationCode">
         <sequence/>
-        <attribute name="code" type="xsd:string" />
+        <attribute name="code" type="xsd:string"/>
     </complexType>
 
     <complexType name="MultiFactor">
@@ -473,15 +476,18 @@
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        After a number of unsuccessful multifactor authentication attempts a user's account will become locked.
-                        When set to true, and the caller has appropriate permissions, this will unlock the user's account if
+                        After a number of unsuccessful multifactor authentication attempts a user's account will become
+                        locked.
+                        When set to true, and the caller has appropriate permissions, this will unlock the user's
+                        account if
                         the user has multifactor enabled. When set to false or not provided, no change will be made to
                         the lock status of the user's account.
                     </p>
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="userMultiFactorEnforcementLevel" type="RAX-AUTH:UserMultiFactorEnforcementLevelEnum" use="optional">
+        <attribute name="userMultiFactorEnforcementLevel" type="RAX-AUTH:UserMultiFactorEnforcementLevelEnum"
+                   use="optional">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
@@ -524,7 +530,8 @@
 
     <complexType name="MultiFactorDomain">
         <sequence/>
-        <attribute name="domainMultiFactorEnforcementLevel" type="RAX-AUTH:DomainMultiFactorEnforcementLevelEnum" use="optional">
+        <attribute name="domainMultiFactorEnforcementLevel" type="RAX-AUTH:DomainMultiFactorEnforcementLevelEnum"
+                   use="optional">
             <annotation>
                 <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                     <p>
@@ -534,7 +541,7 @@
             </annotation>
         </attribute>
     </complexType>
-    
+
     <simpleType name="StringList">
         <list itemType="xsd:string"/>
     </simpleType>
@@ -552,11 +559,11 @@
             <xsd:enumeration value="if-false-deny"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
-    <simpleType  name="PolicyType"> 
+
+    <simpleType name="PolicyType">
         <restriction base="xsd:string">
             <enumeration value="json-policy-format"/>
-            <enumeration value="standard-policy-format"/> 
+            <enumeration value="standard-policy-format"/>
         </restriction>
     </simpleType>
 
@@ -596,7 +603,7 @@
             <enumeration value="SETUP-MFA"/>
         </restriction>
     </simpleType>
-    
+
     <simpleType name="AuthenticatedByEnum">
         <restriction base="xsd:string">
             <enumeration value="PASSWORD">

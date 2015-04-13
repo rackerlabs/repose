@@ -47,9 +47,9 @@ import scala.io.Source
 import scala.xml.XML
 
 @Named
-class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: ConfigurationService,
-                                                  akkaServiceClient : AkkaServiceClient,
-                                                  datastoreService : DatastoreService)
+class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: ConfigurationService,
+                                                 akkaServiceClient: AkkaServiceClient,
+                                                 datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler
   with Filter
   with UpdateListener[RackspaceIdentityBasicAuthConfig]
@@ -58,17 +58,14 @@ class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: Configur
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "rackspace-identity-basic-auth.cfg.xml"
-
-  private var initialized = false
-  private var config: String = _
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
+  private val datastore = datastoreService.getDefaultDatastore
+  private var initialized = false
+  private var config: String = _
   private var identityServiceUri: String = _
   private var tokenCacheTtlMillis: Int = _
   private var delegationWithQuality: Option[Double] = _
-  private val datastore = datastoreService.getDefaultDatastore
-
-  case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String, retry: String)
 
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -97,16 +94,6 @@ class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: Configur
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
     new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(this)
-  }
-
-  private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
-    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).map { authHeader =>
-      val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
-      if (authMethodBasicHeaders.nonEmpty) {
-        val firstHeader = authMethodBasicHeaders.next()
-        f(firstHeader.replace("Basic ", ""))
-      }
-    }
   }
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
@@ -173,8 +160,9 @@ class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: Configur
           val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
           val idString = (xmlString \\ "access" \ "token" \ "@id").text
           TokenCreationInfo(statusCode, Option(idString), userName, "0")
-        } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) { // (413 | 429)
-        val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER)}
+        } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
+          // (413 | 429)
+          val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
           if (retryHeaders.isEmpty) {
             logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
             val retryCalendar = new GregorianCalendar()
@@ -236,7 +224,19 @@ class RackspaceIdentityBasicAuthFilter @Inject() (configurationService: Configur
     filterDirector
   }
 
+  private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
+    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).map { authHeader =>
+      val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
+      if (authMethodBasicHeaders.nonEmpty) {
+        val firstHeader = authMethodBasicHeaders.next()
+        f(firstHeader.replace("Basic ", ""))
+      }
+    }
+  }
+
   override def destroy() {
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
   }
+
+  case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String, retry: String)
 }

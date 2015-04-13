@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
@@ -29,18 +31,16 @@ import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreAction;
 import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastore;
 import org.openrepose.core.services.datastore.impl.distributed.remote.command.Get;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import static org.openrepose.core.services.datastore.distributed.RemoteBehavior.ALLOW_FORWARDING;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.openrepose.core.services.datastore.distributed.RemoteBehavior.ALLOW_FORWARDING;
 
 /**
  * A unit test suite for the Hash Ring Datastore
@@ -116,7 +116,7 @@ public class HashRingDatastoreTest {
     @Test
     public void shouldPatchNewElement() throws Exception {
         String key = "key-one";
-        byte[] id = new byte[] { 1, 2, 3};
+        byte[] id = new byte[]{1, 2, 3};
         String value = "1, 2, 3";
 
         when(clusterView.members()).thenReturn(
@@ -124,7 +124,7 @@ public class HashRingDatastoreTest {
         when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
         StringValue.Patch patch = new StringValue.Patch(value);
         when(localDatastore.patch(eq(key), same(patch), eq(5), eq(DAYS))).thenReturn(new StringValue(value));
-        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, patch, 5, DAYS, ALLOW_FORWARDING);
+        StringValue patchedValue = (StringValue) hashRingDatastore.patch(key, id, patch, 5, DAYS, ALLOW_FORWARDING);
         verifyZeroInteractions(remoteCommandExecutor);
         verify(localDatastore).patch(any(String.class), any(StringValue.Patch.class), anyInt(), any(TimeUnit.class));
         assertThat(patchedValue.getValue(), equalTo(value));
@@ -133,7 +133,7 @@ public class HashRingDatastoreTest {
     @Test
     public void shouldPatchExistingElement() throws Exception {
         String key = "key-one";
-        byte[] id = new byte[] { 1, 2, 3};
+        byte[] id = new byte[]{1, 2, 3};
         String value = "1, 2, 3";
         String newValue = ", 4, 5";
         StringValue.Patch secondPatch = new StringValue.Patch(newValue);
@@ -143,7 +143,7 @@ public class HashRingDatastoreTest {
         when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
         when(localDatastore.patch(eq(key), same(secondPatch), eq(5), eq(DAYS))).thenReturn(new StringValue("1, 2, 3, 4, 5"));
         hashRingDatastore.patch(key, id, new StringValue.Patch(value), 5, DAYS, ALLOW_FORWARDING);
-        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, secondPatch, 5, DAYS, ALLOW_FORWARDING);
+        StringValue patchedValue = (StringValue) hashRingDatastore.patch(key, id, secondPatch, 5, DAYS, ALLOW_FORWARDING);
         verifyZeroInteractions(remoteCommandExecutor);
         assertThat(patchedValue.getValue(), equalTo("1, 2, 3, 4, 5"));
     }

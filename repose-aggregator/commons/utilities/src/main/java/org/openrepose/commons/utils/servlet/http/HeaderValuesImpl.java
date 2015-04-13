@@ -36,6 +36,14 @@ public final class HeaderValuesImpl implements HeaderValues {
     private SplittableHeaderUtil splittable;
 
 
+    private HeaderValuesImpl(HttpServletRequest request, HeaderContainer container) {
+        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+                ExtendedHttpHeader.values());
+
+        this.headers = initHeaders(request, container);
+        cloneHeaders(container);
+    }
+
     public static HeaderValues extract(HttpServletRequest request) {
         return new HeaderValuesImpl(request, new RequestHeaderContainer(request));
     }
@@ -44,12 +52,10 @@ public final class HeaderValuesImpl implements HeaderValues {
         return new HeaderValuesImpl(request, new ResponseHeaderContainer(response));
     }
 
-    private HeaderValuesImpl(HttpServletRequest request, HeaderContainer container) {
-        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                ExtendedHttpHeader.values());
+    static <T> T fromMap(Map<HeaderName, List<T>> headers, String headerName) {
+        final List<T> headerValues = headers.get(HeaderName.wrap(headerName));
 
-        this.headers = initHeaders(request, container);
-        cloneHeaders(container);
+        return (headerValues != null && !headerValues.isEmpty()) ? headerValues.get(0) : null;
     }
 
     private Map<HeaderName, List<HeaderValue>> initHeaders(HttpServletRequest request, HeaderContainer container) {
@@ -134,12 +140,6 @@ public final class HeaderValuesImpl implements HeaderValues {
     @Override
     public HeaderValue getHeaderValue(String name) {
         return fromMap(headers, name);
-    }
-
-    static <T> T fromMap(Map<HeaderName, List<T>> headers, String headerName) {
-        final List<T> headerValues = headers.get(HeaderName.wrap(headerName));
-
-        return (headerValues != null && !headerValues.isEmpty()) ? headerValues.get(0) : null;
     }
 
     @Override

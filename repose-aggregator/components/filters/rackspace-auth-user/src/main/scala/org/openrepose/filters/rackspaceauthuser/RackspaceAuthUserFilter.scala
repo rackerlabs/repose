@@ -29,7 +29,7 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 
 @Named
-class RackspaceAuthUserFilter @Inject() (configurationService: ConfigurationService) extends Filter with LazyLogging {
+class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService) extends Filter with LazyLogging {
   private final val DEFAULT_CONFIG = "rackspace-auth-user.cfg.xml"
 
   private var config: String = _

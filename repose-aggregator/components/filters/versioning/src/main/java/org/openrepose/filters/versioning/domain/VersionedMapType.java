@@ -23,12 +23,12 @@ import org.openrepose.filters.versioning.config.MediaType;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 
 public class VersionedMapType {
-    
+
     private MediaType mediaType;
     private ServiceVersionMapping serviceVersionMapping;
-    
+
     public VersionedMapType(ServiceVersionMapping serviceVersionMapping, MediaType mediaType) {
-        
+
         this.mediaType = mediaType;
         this.serviceVersionMapping = serviceVersionMapping;
     }
@@ -40,5 +40,5 @@ public class VersionedMapType {
     public ServiceVersionMapping getServiceVersionMapping() {
         return serviceVersionMapping;
     }
-    
+
 }

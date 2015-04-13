@@ -38,85 +38,85 @@ import java.security.NoSuchAlgorithmException;
 
 public class BufferedURLConfigurationResource implements ConfigurationResource {
 
-   private final byte[] internalByteArray;
-   private final URL resourceUrl;
-   private ByteBuffer byteBuffer;
-   private byte[] digest;
-   private static final int DEFAULT_BYTE_ARRAY_SIZE = 2048;
+    private static final int DEFAULT_BYTE_ARRAY_SIZE = 2048;
+    private final byte[] internalByteArray;
+    private final URL resourceUrl;
+    private ByteBuffer byteBuffer;
+    private byte[] digest;
 
-   public BufferedURLConfigurationResource(URL resourceUrl) {
-      this.resourceUrl = resourceUrl;
+    public BufferedURLConfigurationResource(URL resourceUrl) {
+        this.resourceUrl = resourceUrl;
 
-      internalByteArray = new byte[DEFAULT_BYTE_ARRAY_SIZE];
-   }
+        internalByteArray = new byte[DEFAULT_BYTE_ARRAY_SIZE];
+    }
 
-   @Override
-   public String name() {
-      return resourceUrl.toString();
-   }
+    @Override
+    public String name() {
+        return resourceUrl.toString();
+    }
 
-   @Override
-   public boolean exists() throws IOException {
-      return resourceUrl.openConnection().getContentLength() > 0;
-   }
+    @Override
+    public boolean exists() throws IOException {
+        return resourceUrl.openConnection().getContentLength() > 0;
+    }
 
-   private MessageDigesterOutputStream newDigesterOutputStream(String digestSpec) {
-      try {
-         return new MessageDigesterOutputStream(MessageDigest.getInstance(digestSpec));
-      } catch (NoSuchAlgorithmException nsae) {
-         throw new ConfigurationResourceException("unrecognized digest specification", nsae);
-      }
-   }
+    private MessageDigesterOutputStream newDigesterOutputStream(String digestSpec) {
+        try {
+            return new MessageDigesterOutputStream(MessageDigest.getInstance(digestSpec));
+        } catch (NoSuchAlgorithmException nsae) {
+            throw new ConfigurationResourceException("unrecognized digest specification", nsae);
+        }
+    }
 
-   //TODO: Review - File descriptor management is a concern we have not looked at in depth
-   private byte[] read(ByteBuffer buffer) throws IOException {
-      final OutputStream bufferOut = new ByteBufferOutputStream(buffer);
-      final MessageDigesterOutputStream mdos = newDigesterOutputStream("MD5");
-      final OutputStreamSplitter splitter = new OutputStreamSplitter(bufferOut, mdos);
+    //TODO: Review - File descriptor management is a concern we have not looked at in depth
+    private byte[] read(ByteBuffer buffer) throws IOException {
+        final OutputStream bufferOut = new ByteBufferOutputStream(buffer);
+        final MessageDigesterOutputStream mdos = newDigesterOutputStream("MD5");
+        final OutputStreamSplitter splitter = new OutputStreamSplitter(bufferOut, mdos);
 
-      InputStream urlInput = null;
+        InputStream urlInput = null;
 
-      try {
-         urlInput = resourceUrl.openStream();
+        try {
+            urlInput = resourceUrl.openStream();
 
-         int read;
+            int read;
 
-         while ((read = urlInput.read(internalByteArray)) > -1) {
-            splitter.write(internalByteArray, 0, read);
-         }
-      } finally {
-         splitter.close();
+            while ((read = urlInput.read(internalByteArray)) > -1) {
+                splitter.write(internalByteArray, 0, read);
+            }
+        } finally {
+            splitter.close();
 
-         if (urlInput != null) {
-            urlInput.close();
-         }
-      }
+            if (urlInput != null) {
+                urlInput.close();
+            }
+        }
 
-      return mdos.getDigest();
+        return mdos.getDigest();
 
-   }
+    }
 
-   @Override
-   public synchronized boolean updated() throws IOException {
-      final ByteBuffer freshBuffer = new CyclicByteBuffer();
-      final byte[] newDigest = read(freshBuffer);
+    @Override
+    public synchronized boolean updated() throws IOException {
+        final ByteBuffer freshBuffer = new CyclicByteBuffer();
+        final byte[] newDigest = read(freshBuffer);
 
-      if (digest == null || !new ByteArrayComparator(digest, newDigest).arraysAreEqual()) {
-         byteBuffer = freshBuffer;
-         digest = newDigest;
+        if (digest == null || !new ByteArrayComparator(digest, newDigest).arraysAreEqual()) {
+            byteBuffer = freshBuffer;
+            digest = newDigest;
 
-         return true;
-      }
+            return true;
+        }
 
-      return false;
-   }
+        return false;
+    }
 
-   @Override
-   public synchronized InputStream newInputStream() throws IOException {
-      if (byteBuffer == null && !updated()) {
-         throw new IOException("Failed to perform initial read");
-      }
+    @Override
+    public synchronized InputStream newInputStream() throws IOException {
+        if (byteBuffer == null && !updated()) {
+            throw new IOException("Failed to perform initial read");
+        }
 
-      return new ByteBufferInputStream(byteBuffer.copy());
-   }
+        return new ByteBufferInputStream(byteBuffer.copy());
+    }
 }

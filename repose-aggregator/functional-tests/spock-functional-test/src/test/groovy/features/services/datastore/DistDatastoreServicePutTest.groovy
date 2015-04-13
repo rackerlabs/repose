@@ -18,21 +18,22 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.services.datastore
-import org.openrepose.commons.utils.io.ObjectSerializer
+
 import framework.ReposeValveTest
-import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang3.RandomStringUtils
+import org.openrepose.commons.utils.io.ObjectSerializer
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue
 
 class DistDatastoreServicePutTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     String DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
+    def DD_HEADERS = ['X-PP-Host-Key': 'temp', 'X-TTL': '10']
     def BODY = objectSerializer.writeObject("test data")
     static def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
@@ -48,13 +49,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1' : dataStorePort1,
-                'datastorePort2' : dataStorePort2
+                'datastorePort1': dataStorePort1,
+                'datastorePort2': dataStorePort2
         ]
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
-        repose.start([clusterId:"repose", nodeId: "nofilters"])
+        repose.start([clusterId: "repose", nodeId: "nofilters"])
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
@@ -68,9 +69,9 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "PUT a new cache object should return 202 response" () {
+    def "PUT a new cache object should return 202 response"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '202'
@@ -78,13 +79,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     def "PUT with query parameters should ignore query params and return 202"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY + "?foo=bar", headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY + "?foo=bar", headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '202'
 
         when:
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.body == BODY
@@ -95,11 +96,11 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         when: "I make 2 PUT calls for 2 different values for the same key"
         def newBody = objectSerializer.writeObject("MY NEW VALUE")
-        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
-        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
+        deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])
+        deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: newBody])
 
         and: "I get the value for the key"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then: "The body of the get response should be the new body"
         mc.receivedResponse.body == newBody
@@ -107,13 +108,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     def "PUT with missing X-TTL is allowed"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: ['X-PP-Host-Key': 'temp'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '202'
 
         when: "I get the value for the key"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.body == BODY
@@ -121,14 +122,14 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     def "PUT with empty string as body is allowed, and GET will return it"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS,
-                requestBody: objectSerializer.writeObject("")])
+        MessageChain mc = deproxy.makeRequest([method     : 'PUT', url: DD_URI + KEY, headers: DD_HEADERS,
+                                               requestBody: objectSerializer.writeObject("")])
 
         then:
         mc.receivedResponse.code == '202'
 
         when: "I get the value from cache with the empty body"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
@@ -137,7 +138,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     def "PUT with no key should return 400 Bad Request"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI, headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
@@ -147,14 +148,14 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: ['X-TTL': '10'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '401'
         mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then: "The key is valid but does not exist, so should return a 404 NOT FOUND"
         mc.receivedResponse.code == '404'
@@ -163,15 +164,15 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT of invalid key should fail with 400 Bad Request"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers: DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method : 'PUT', url: distDatastoreEndpoint, path: DD_PATH + key,
+                                               headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method : 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
+                                  headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'
@@ -179,7 +180,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         where:
         key                                       | scenario
-        UUID.randomUUID().toString() +"///"       | "unnecessary slashes on path"
+        UUID.randomUUID().toString() + "///"      | "unnecessary slashes on path"
         "foo/bar/?assd=adff"                      | "includes query parameters"
         "foo"                                     | "less than 36 chars"
         UUID.randomUUID().toString() + "a"        | "more than 36 chars"
@@ -202,7 +203,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         mc.receivedResponse.code == "202"
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == "200"
@@ -223,7 +224,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
         mc.receivedResponse.code == "404"

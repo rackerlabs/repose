@@ -31,7 +31,7 @@ class TightlyCoupledFilterTest extends ReposeValveTest {
      * can modify the response body
      * @return
      */
-    def "Proving that a custom filter (although tightly coupled) does in fact work" () {
+    def "Proving that a custom filter (although tightly coupled) does in fact work"() {
         setup:
 
         def params = properties.defaultTemplateParams
@@ -49,8 +49,8 @@ class TightlyCoupledFilterTest extends ReposeValveTest {
         MessageChain mc = null
         mc = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:reposeEndpoint + "/get",
+                        method        : 'GET',
+                        url           : reposeEndpoint + "/get",
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }
@@ -63,9 +63,9 @@ class TightlyCoupledFilterTest extends ReposeValveTest {
         println(mc.receivedResponse.body)
 
         cleanup:
-        if(started)
+        if (started)
             repose.stop()
-        if(deproxy != null)
+        if (deproxy != null)
             deproxy.shutdown()
 
     }

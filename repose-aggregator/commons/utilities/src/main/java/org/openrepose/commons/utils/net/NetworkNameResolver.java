@@ -23,11 +23,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- *
  * @author zinic
  */
 public interface NetworkNameResolver {
 
-   InetAddress lookupName(String host) throws UnknownHostException;
-   
+    InetAddress lookupName(String host) throws UnknownHostException;
+
 }

@@ -19,52 +19,51 @@
  */
 package org.openrepose.cli;
 
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.cli.command.Command;
 import org.openrepose.cli.command.results.CommandResult;
+import org.openrepose.commons.utils.StringUtilities;
 
 import java.util.Arrays;
 
 /**
- *
  * @author zinic
  */
 public class CommandDriver {
 
-   private final Command myCommand;
-   private final String[] args;
-   
-   @SuppressWarnings({"squid:S106","PMD.SystemPrintln","squid:S1147"})
-   public static void main(String[] args) {
-      final CommandResult result = new CommandDriver(new RootCommandLine(), args).go();
+    private final Command myCommand;
+    private final String[] args;
 
-      if (StringUtilities.isNotBlank(result.getStringResult())) {
-         System.out.println(result.getStringResult());
-      }
+    public CommandDriver(Command command, String[] args) {
+        this.myCommand = command;
+        this.args = Arrays.copyOf(args, args.length);
+    }
 
-      System.exit(result.getStatusCode());
-   }
+    @SuppressWarnings({"squid:S106", "PMD.SystemPrintln", "squid:S1147"})
+    public static void main(String[] args) {
+        final CommandResult result = new CommandDriver(new RootCommandLine(), args).go();
 
-   public CommandDriver(Command command, String[] args) {
-      this.myCommand = command;
-      this.args = Arrays.copyOf(args, args.length);
-   }
+        if (StringUtilities.isNotBlank(result.getStringResult())) {
+            System.out.println(result.getStringResult());
+        }
 
-   public CommandResult go() {
-      return args.length > 0 ? nextCommand(args[0]) : myCommand.perform(args);
-   }
+        System.exit(result.getStatusCode());
+    }
 
-   public CommandResult nextCommand(String nextArgument) {
-      if (StringUtilities.isBlank(nextArgument)) {
-         throw new IllegalArgumentException();
-      }
+    public CommandResult go() {
+        return args.length > 0 ? nextCommand(args[0]) : myCommand.perform(args);
+    }
 
-      for (Command availableCommand : myCommand.availableCommands()) {
-         if (availableCommand.getCommandToken().equalsIgnoreCase(nextArgument)) {
-            return new CommandDriver(availableCommand, Arrays.copyOfRange(args, 1, args.length)).go();
-         }
-      }
+    public CommandResult nextCommand(String nextArgument) {
+        if (StringUtilities.isBlank(nextArgument)) {
+            throw new IllegalArgumentException();
+        }
 
-      return myCommand.perform(args);
-   }
+        for (Command availableCommand : myCommand.availableCommands()) {
+            if (availableCommand.getCommandToken().equalsIgnoreCase(nextArgument)) {
+                return new CommandDriver(availableCommand, Arrays.copyOfRange(args, 1, args.length)).go();
+            }
+        }
+
+        return myCommand.perform(args);
+    }
 }

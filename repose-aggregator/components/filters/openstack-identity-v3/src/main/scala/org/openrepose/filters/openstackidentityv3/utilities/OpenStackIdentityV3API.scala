@@ -20,15 +20,15 @@
 package org.openrepose.filters.openstackidentityv3.utilities
 
 import java.io.{InputStream, Serializable}
-import java.util.{GregorianCalendar, Calendar}
 import java.util.concurrent.TimeUnit
+import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
-import org.openrepose.commons.utils.http.{ServiceClientResponse, HttpDate, CommonHttpHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -270,7 +270,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
 
   private def buildIdentityServiceOverLimitException(serviceClientResponse: ServiceClientResponse): IdentityServiceOverLimitException = {
     val statusCode: Int = serviceClientResponse.getStatus
-    val retryHeaders = serviceClientResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER)}
+    val retryHeaders = serviceClientResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
     if (retryHeaders.isEmpty) {
       logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on OpenStack Identity Response status code: $statusCode")
       val retryCalendar = new GregorianCalendar()

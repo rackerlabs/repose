@@ -3,6 +3,6 @@
         <server host="localhost"
                 port="${graphitePort}"
                 period="1"
-                prefix="test.1.metrics" />
+                prefix="test.1.metrics"/>
     </graphite>
 </metrics>

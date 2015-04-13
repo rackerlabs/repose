@@ -31,19 +31,19 @@ trait TestUtils {
     Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
   }
 
-  def writeSystemModel(configRoot: String, content: String):File = {
+  def writeSystemModel(configRoot: String, content: String): File = {
     val tempFile = new File(configRoot, "system-model.cfg.xml")
     tempFile.deleteOnExit() //Mark it to be clobbered later
     writeFileContent(tempFile, content)
   }
 
-  def writeContainerConfig(configRoot:String, content:String):File = {
+  def writeContainerConfig(configRoot: String, content: String): File = {
     val tempFile = new File(configRoot, "container.cfg.xml")
     tempFile.deleteOnExit()
     writeFileContent(tempFile, content)
   }
 
-  def writeFileContent(file: File, content: String):File = {
+  def writeFileContent(file: File, content: String): File = {
     Files.write(file.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
     file
   }
@@ -56,8 +56,8 @@ trait TestUtils {
    * @param path
    * @return
    */
-  def deleteRecursive(path:Path) = {
-    Files.walkFileTree(path, new SimpleFileVisitor[Path](){
+  def deleteRecursive(path: Path) = {
+    Files.walkFileTree(path, new SimpleFileVisitor[Path]() {
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
         Files.delete(file)
         FileVisitResult.CONTINUE

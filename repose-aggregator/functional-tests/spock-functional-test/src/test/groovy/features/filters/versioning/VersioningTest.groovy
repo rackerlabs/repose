@@ -48,7 +48,6 @@ class VersioningTest extends ReposeValveTest {
     def static Map contentXML = ["content-type": "application/xml"]
     def static Map contentJSON = ["content-type": "application/json"]
 
-
     //Start repose once for this particular translation test
     def setupSpec() {
 
@@ -70,7 +69,7 @@ class VersioningTest extends ReposeValveTest {
     @Unroll("when retrieving all versions: #reqHeaders")
     def "when retrieving all versions"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest(url:(String) reposeEndpoint, method:'GET', headers:reqHeaders)
+        def mc = deproxy.makeRequest(url: (String) reposeEndpoint, method: 'GET', headers: reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == "200"
@@ -81,8 +80,8 @@ class VersioningTest extends ReposeValveTest {
 
         where:
         reqHeaders | shouldContain
-        acceptXML  | ['id="/v1"','id="/v2"']
-        acceptJSON | ['"id" : "/v1"','"id" : "/v2"']
+        acceptXML  | ['id="/v1"', 'id="/v2"']
+        acceptJSON | ['"id" : "/v1"', '"id" : "/v2"']
 
 
     }
@@ -90,7 +89,7 @@ class VersioningTest extends ReposeValveTest {
     @Unroll("when retrieving version details: #reqHeaders - #requestUri")
     def "when retrieving version details"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
+        def mc = deproxy.makeRequest(url: (String) reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == respCode
@@ -104,27 +103,27 @@ class VersioningTest extends ReposeValveTest {
         }
 
         where:
-        reqHeaders            | respCode | shouldContain                   | shouldNotContain | requestUri
-        acceptJSON            | '200'    | ['"id" : "/v1"']                | ['"id" : "/v2"'] | "/v1"
-        acceptJSON            | '200'    | ['"id" : "/v2"']                | ['"id" : "/v1"'] | "/v2"
-        acceptV1JSON          | '200'    | ['"id" : "/v1"']                | ['"id" : "/v2"'] | "/v1"
-        acceptV2JSON          | '200'    | ['"id" : "/v2"']                | ['"id" : "/v1"'] | "/v2"
-        acceptJSON            | '300'    | ['"id" : "/v2"','"id" : "/v1"'] | []               | "/wrong"
-        acceptJSON            | '300'    | ['"id" : "/v2"','"id" : "/v1"'] | []               | "/0/usertest1/ss"
-        acceptXML             | '200'    | ['id="/v1"']                    | ['id="/v2"']     | "/v1"
-        acceptXML             | '200'    | ['id="/v2"']                    | ['id="/v1"']     | "/v2"
-        acceptV1XML           | '200'    | ['id="/v1"']                    | ['id="/v1"']     | "/v1"
-        acceptV2XML           | '200'    | ['id="/v2"']                    | ['id="/v2"']     | "/v2"
-        acceptXML             | '300'    | ['id="/v2"','id="/v1"']         | []               | "/wrong"
-        acceptXML             | '300'    | ['id="/v2"','id="/v1"']         | []               | "/v1xxx/usertest1/ss"
-        acceptXML             | '300'    | ['id="/v2"','id="/v1"']         | []               | "/0/usertest1/ss"
-        acceptJSON            | '300'    | ['id="/v2"','id="/v1"']         | []               | "/v1xxx/usertest1/ss"
+        reqHeaders   | respCode | shouldContain                    | shouldNotContain | requestUri
+        acceptJSON   | '200'    | ['"id" : "/v1"']                 | ['"id" : "/v2"'] | "/v1"
+        acceptJSON   | '200'    | ['"id" : "/v2"']                 | ['"id" : "/v1"'] | "/v2"
+        acceptV1JSON | '200'    | ['"id" : "/v1"']                 | ['"id" : "/v2"'] | "/v1"
+        acceptV2JSON | '200'    | ['"id" : "/v2"']                 | ['"id" : "/v1"'] | "/v2"
+        acceptJSON   | '300'    | ['"id" : "/v2"', '"id" : "/v1"'] | []               | "/wrong"
+        acceptJSON   | '300'    | ['"id" : "/v2"', '"id" : "/v1"'] | []               | "/0/usertest1/ss"
+        acceptXML    | '200'    | ['id="/v1"']                     | ['id="/v2"']     | "/v1"
+        acceptXML    | '200'    | ['id="/v2"']                     | ['id="/v1"']     | "/v2"
+        acceptV1XML  | '200'    | ['id="/v1"']                     | ['id="/v1"']     | "/v1"
+        acceptV2XML  | '200'    | ['id="/v2"']                     | ['id="/v2"']     | "/v2"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/wrong"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/0/usertest1/ss"
+        acceptJSON   | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
     }
 
     @Unroll("when retrieving version details with variant uri: #reqHeaders - #requestUri")
     def "when retrieving version details with variant uri"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
+        def mc = deproxy.makeRequest(url: (String) reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == "200"
@@ -133,16 +132,16 @@ class VersioningTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("host") == host
 
         where:
-        reqHeaders            | requestUri         | host
-        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort2
-        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort2
-        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort
-        acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort
-        acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
-        acceptJSON            | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        reqHeaders         | requestUri         | host
+        acceptV2VendorJSON | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptHtml         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXHtml        | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXMLWQ        | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptV1VendorJSON | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML  | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptXML          | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        acceptJSON         | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
 
 
     }
@@ -152,11 +151,11 @@ class VersioningTest extends ReposeValveTest {
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         def reqHeaders =
-            [
-                    "user-agent": userAgentValue,
-                    "x-pp-user": "usertest1, usertest2, usertest3",
-                    "accept": "application/xml;q=1 , application/json;q=0.5"
-            ]
+                [
+                        "user-agent": userAgentValue,
+                        "x-pp-user" : "usertest1, usertest2, usertest3",
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", method: 'GET', headers: reqHeaders)
@@ -184,6 +183,7 @@ class VersioningTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
     @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
     def "Requests - headers should keep its case in requests"() {
 
@@ -202,7 +202,7 @@ class VersioningTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName         | headerValue
         "Accept"           | "text/plain"
         "ACCEPT"           | "text/PLAIN"
         "accept"           | "TEXT/plain;q=0.2"
@@ -222,7 +222,9 @@ class VersioningTest extends ReposeValveTest {
         ]
         headers[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint+ "/v2/test", defaultHandler: { new Response(200, null, headers) })
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", defaultHandler: {
+            new Response(200, null, headers)
+        })
 
         then: "the response should keep headerName and headerValue case"
         mc.handlings.size() == 1
@@ -231,7 +233,7 @@ class VersioningTest extends ReposeValveTest {
 
 
         where:
-        headerName | headerValue
+        headerName     | headerValue
         "x-auth-token" | "123445"
         "X-AUTH-TOKEN" | "239853"
         "x-AUTH-token" | "slDSFslk&D"

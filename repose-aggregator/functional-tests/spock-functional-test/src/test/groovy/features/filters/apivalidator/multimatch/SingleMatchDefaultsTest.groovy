@@ -54,8 +54,8 @@ class SingleMatchDefaultsTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-1"        | "404"        | 0
+        roles    | responseCode | numHandlings
+        "role-1" | "404"        | 0
     }
 
     def "When no validator matches, the default should be used instead (F4(F5)\\0 = F4F5F5\\3 -> SSF5 -> F5)"() {
@@ -70,8 +70,8 @@ class SingleMatchDefaultsTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-0"        | "405"        | 0
+        roles    | responseCode | numHandlings
+        "role-0" | "405"        | 0
     }
 
     def cleanupSpec() {

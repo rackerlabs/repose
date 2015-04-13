@@ -54,13 +54,27 @@ import java.io.Serializable;
  */
 public final class CompressingFilterStats implements Serializable {
 
-    private static final long serialVersionUID = -2246829834191152845L;
-
     /**
      * Key under which a {@link CompressingFilterStats} object can be found in the servlet context.
      */
     public static final String STATS_KEY = "com.planetj.servlet.filter.compression.CompressingFilterStats";
-
+    private static final long serialVersionUID = -2246829834191152845L;
+    /**
+     * @serial
+     */
+    private final OutputStatsCallback responseInputStatsCallback;
+    /**
+     * @serial
+     */
+    private final OutputStatsCallback responseCompressedStatsCallback;
+    /**
+     * @serial
+     */
+    private final InputStatsCallback requestInputStatsCallback;
+    /**
+     * @serial
+     */
+    private final InputStatsCallback requestCompressedStatsCallback;
     /**
      * @serial
      */
@@ -93,22 +107,6 @@ public final class CompressingFilterStats implements Serializable {
      * @serial
      */
     private long requestCompressedBytes;
-    /**
-     * @serial
-     */
-    private final OutputStatsCallback responseInputStatsCallback;
-    /**
-     * @serial
-     */
-    private final OutputStatsCallback responseCompressedStatsCallback;
-    /**
-     * @serial
-     */
-    private final InputStatsCallback requestInputStatsCallback;
-    /**
-     * @serial
-     */
-    private final InputStatsCallback requestCompressedStatsCallback;
 
     CompressingFilterStats() {
         responseInputStatsCallback = new OutputStatsCallback(StatsField.RESPONSE_INPUT_BYTES);
@@ -272,6 +270,19 @@ public final class CompressingFilterStats implements Serializable {
         }
     }
 
+    /**
+     * <p>A simple enum used by {@link OutputStatsCallback} to select a field in this class. This is getting
+     * a little messy but somehow better than defining a bunch of inner classes?</p>
+     *
+     * @since 1.6
+     */
+    enum StatsField implements Serializable {
+        RESPONSE_INPUT_BYTES,
+        RESPONSE_COMPRESSED_BYTES,
+        REQUEST_INPUT_BYTES,
+        REQUEST_COMPRESSED_BYTES
+    }
+
     final class OutputStatsCallback implements StatsOutputStream.StatsCallback, Serializable {
 
         private static final long serialVersionUID = -4483355731273629325L;
@@ -336,19 +347,6 @@ public final class CompressingFilterStats implements Serializable {
         public String toString() {
             return "InputStatsCallback[field: " + field + ']';
         }
-    }
-
-    /**
-     * <p>A simple enum used by {@link OutputStatsCallback} to select a field in this class. This is getting
-     * a little messy but somehow better than defining a bunch of inner classes?</p>
-     *
-     * @since 1.6
-     */
-    enum StatsField implements Serializable {
-        RESPONSE_INPUT_BYTES,
-        RESPONSE_COMPRESSED_BYTES,
-        REQUEST_INPUT_BYTES,
-        REQUEST_COMPRESSED_BYTES
     }
 
 }

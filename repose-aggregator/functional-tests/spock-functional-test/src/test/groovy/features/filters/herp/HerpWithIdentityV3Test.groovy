@@ -30,7 +30,7 @@ import org.rackspace.deproxy.Response
 /**
  * Created by jennyvo on 1/12/15.
  */
-class HerpWithIdentityV3Test extends ReposeValveTest{
+class HerpWithIdentityV3Test extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -47,13 +47,13 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         fakeIdentityV3Service.resetCounts()
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null,fakeIdentityV3Service.handler)
+                'identity service', null, fakeIdentityV3Service.handler)
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
@@ -70,8 +70,8 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
             tokenExpiresAt = DateTime.now().plusDays(1)
             default_region = "DFW"
             client_userid = 12345
-            impersonate_name="impersonateuser"
-            impersonate_id="567"
+            impersonate_name = "impersonateuser"
+            impersonate_id = "567"
         }
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
@@ -94,7 +94,7 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
         result.Response.Message == "OK"
     }
 
-    def "when client failed to authenticate, the auth filter failed before get to herp" () {
+    def "when client failed to authenticate, the auth filter failed before get to herp"() {
         given:
         List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
@@ -117,14 +117,14 @@ class HerpWithIdentityV3Test extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/11111/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"
-        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://"+identityEndpoint.hostname+":"+properties.identityPort
+        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://" + identityEndpoint.hostname + ":" + properties.identityPort
         !reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
     }
 

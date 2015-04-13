@@ -53,8 +53,8 @@ class TomcatProxyTest extends Specification {
         def params = properties.getDefaultTemplateParams()
         params += [
                 'repose.cluster.id': "repose1",
-                'repose.node.id': 'node1',
-                'targetHostname': 'localhost',
+                'repose.node.id'   : 'node1',
+                'targetHostname'   : 'localhost',
         ]
         config.applyConfigs("features/core/proxy", params)
         config.applyConfigs("common", params)

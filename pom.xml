@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.openrepose</groupId>
     <artifactId>repose</artifactId>
-    <version>7.0.1.1</version>
+    <version>7.0.1.2-SNAPSHOT</version>
 
 
     <name>Repose</name>
@@ -36,6 +37,7 @@
     </licenses>
 
     <modules>
+        <module>build-tools</module>
         <module>repose-aggregator</module>
     </modules>
 
@@ -92,6 +94,7 @@
                         <target>1.7</target>
                     </configuration>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -114,9 +117,12 @@
                         <canUpdateLicense>false</canUpdateLicense>
                         <failOnMissingHeader>true</failOnMissingHeader>
                         <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
-                        <processStartTag>_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=</processStartTag>
-                        <sectionDelimiter>_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-</sectionDelimiter>
-                        <processEndTag>=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_</processEndTag>
+                        <processStartTag>_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+                        </processStartTag>
+                        <sectionDelimiter>_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+                        </sectionDelimiter>
+                        <processEndTag>=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+                        </processEndTag>
                         <roots>
                             <root>src/main/java</root>
                             <root>src/test/java</root>
@@ -152,6 +158,25 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.12.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.scalastyle</groupId>
+                    <artifactId>scalastyle-maven-plugin</artifactId>
+                    <version>0.6.0</version>
+                </plugin>
+
+                <!-- this is working now that doxygen is commented out-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -173,6 +198,43 @@
                         <root>repose-support/second-filter/src/main/scala</root>
                     </roots>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.6.0</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failOnWarning>true</failOnWarning>
+                    <sourceDirectories>
+                        <dir>http-delegation/src/main/scala</dir>
+                        <dir>repose-support/classloader-dependency-two/src/main/scala</dir>
+                        <dir>repose-support/classloader-dependency-one/src/main/scala</dir>
+                        <dir>repose-support/core-test-filter/src/main/scala</dir>
+                        <dir>repose-support/filter-one/src/main/scala</dir>
+                        <dir>repose-support/filter-two/src/main/scala</dir>
+                        <dir>repose-support/filter-three/src/main/scala</dir>
+                        <dir>repose-support/filter-four/src/main/scala</dir>
+                        <dir>repose-support/filter-five/src/main/scala</dir>
+                        <dir>repose-support/second-filter/src/main/scala</dir>
+                    </sourceDirectories>
+                    <testSourceDirectories>
+                        <dir>http-delegation/src/test/scala</dir>
+                    </testSourceDirectories>
+                    <configLocation>build-tools/src/main/resources/repose-style-configs/scalastyle_config.xml</configLocation>
+                    <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

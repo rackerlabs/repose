@@ -33,20 +33,20 @@ import static org.mockito.Mockito.verify;
 @RunWith(Enclosed.class)
 public class ServletInputStreamWrapperTest {
 
-   public static class WhenReadingStream {
-      InputStream stream1;
-      ServletInputStreamWrapper wrapper;
+    public static class WhenReadingStream {
+        InputStream stream1;
+        ServletInputStreamWrapper wrapper;
 
-      @Before
-      public void setUp() {
-         stream1 = mock(InputStream.class);
-         wrapper = new ServletInputStreamWrapper(stream1);
-      }
-      
-      @Test
-      public void shouldReadFromInputStream() throws IOException {
-         wrapper.read();
-         verify(stream1).read();
-      }
-   }
+        @Before
+        public void setUp() {
+            stream1 = mock(InputStream.class);
+            wrapper = new ServletInputStreamWrapper(stream1);
+        }
+
+        @Test
+        public void shouldReadFromInputStream() throws IOException {
+            wrapper.read();
+            verify(stream1).read();
+        }
+    }
 }

@@ -22,10 +22,10 @@ package org.openrepose.core.services.jmx;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
-import org.openrepose.core.services.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -38,7 +38,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Named("reposeConfigurationInformation")
@@ -59,6 +62,56 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
 
     private String key(String clusterId, String nodeId) {
         return clusterId + "-" + nodeId;
+    }
+
+    @Override
+    @ManagedOperation(description = "Gets all the per-node-filter information that this host's system model knows about")
+    public Map<String, List<CompositeData>> getPerNodeFilterInformation() throws OpenDataException {
+        HashMap<String, List<CompositeData>> data = new HashMap<>();
+        for (String key : perNodeFilterInformation.keySet()) {
+            List<CompositeData> dataList = new ArrayList<>();
+            for (FilterInformation filterInfo : perNodeFilterInformation.get(key)) {
+                dataList.add(new ConfigurationInformationCompositeDataBuilder(filterInfo).toCompositeData());
+            }
+            data.put(key, dataList);
+        }
+
+        return data;
+    }
+
+    @Override
+    @ManagedAttribute(description = "tells you if this node is ready")
+    public boolean isNodeReady(String clusterId, String nodeId) {
+        Boolean result = nodeStatus.get(key(clusterId, nodeId));
+        if (result == null) {
+            return false;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Used by things to indicate if a node is ready to work or not...
+     *
+     * @param clusterId the cluster ID we care about
+     * @param nodeId    the node ID we care about
+     * @param ready     Is this node ready?
+     */
+    public void updateNodeStatus(String clusterId, String nodeId, boolean ready) {
+        nodeStatus.put(key(clusterId, nodeId), ready);
+    }
+
+    @PostConstruct
+    public void init() {
+        LOG.info("Created ConfigurationInformation MBean");
+
+        systemModelListener = new SystemModelListener();
+        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 
     private class SystemModelListener implements UpdateListener<SystemModel> {
@@ -107,55 +160,5 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
         public boolean isInitialized() {
             return initialized;
         }
-    }
-
-
-    @Override
-    @ManagedOperation(description = "Gets all the per-node-filter information that this host's system model knows about")
-    public Map<String, List<CompositeData>> getPerNodeFilterInformation() throws OpenDataException {
-        HashMap<String, List<CompositeData>> data = new HashMap<>();
-        for(String key : perNodeFilterInformation.keySet()) {
-            List<CompositeData> dataList = new ArrayList<>();
-            for(FilterInformation filterInfo : perNodeFilterInformation.get(key)) {
-                dataList.add(new ConfigurationInformationCompositeDataBuilder(filterInfo).toCompositeData());
-            }
-            data.put(key, dataList);
-        }
-
-        return data;
-    }
-
-    @Override
-    @ManagedAttribute(description = "tells you if this node is ready")
-    public boolean isNodeReady(String clusterId, String nodeId) {
-        Boolean result = nodeStatus.get(key(clusterId, nodeId));
-        if(result == null) {
-            return false;
-        } else {
-            return result;
-        }
-    }
-
-    /**
-     * Used by things to indicate if a node is ready to work or not...
-     * @param clusterId the cluster ID we care about
-     * @param nodeId the node ID we care about
-     * @param ready Is this node ready?
-     */
-    public void updateNodeStatus(String clusterId, String nodeId, boolean ready) {
-        nodeStatus.put(key(clusterId, nodeId), ready);
-    }
-
-    @PostConstruct
-    public void init() {
-        LOG.info("Created ConfigurationInformation MBean");
-
-        systemModelListener = new SystemModelListener();
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
-    }
-
-    @PreDestroy
-    public void destroy() {
-        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 }

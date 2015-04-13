@@ -38,14 +38,14 @@ public class TranslationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
     private static final String DEFAULT_CONFIG = "translation.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private TranslationHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
     private String configurationRoot;
 
     @Inject
     public TranslationFilter(ConfigurationService configurationService,
-                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT)String configurationRoot) {
+                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configurationRoot) {
         this.configurationService = configurationService;
         this.configurationRoot = configurationRoot;
     }

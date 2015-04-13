@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.test.glassfish;
 
+import org.glassfish.embeddable.*;
 import org.openrepose.commons.utils.test.ReposeContainer;
 import org.openrepose.commons.utils.test.ReposeContainerProps;
-import org.glassfish.embeddable.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,13 +19,13 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.params.CoreConnectionPNames;
-import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
-import org.openrepose.core.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.pool.PoolStats;
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
+import org.openrepose.core.service.httpclient.config.PoolType;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
@@ -51,20 +51,18 @@ import static org.openrepose.core.services.httpclient.impl.HttpConnectionPoolPro
 @Named
 public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
+    public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
+    private static final String DEFAULT_POOL_ID = "DEFAULT_POOL";
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
+    private static final String httpConnectionPoolServiceReport = "HttpConnectionPoolServiceReport";
     private static PoolType DEFAULT_POOL = new PoolType();
-    private static final String DEFAULT_POOL_ID =  "DEFAULT_POOL";
-    private Map<String, HttpClient> poolMap;
     private final ConfigurationService configurationService;
-    private String defaultClientId;
-    private ClientDecommissionManager decommissionManager;
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final ConfigurationListener configurationListener;
-
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
-
-    private static final String httpConnectionPoolServiceReport = "HttpConnectionPoolServiceReport";
-    public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
+    private Map<String, HttpClient> poolMap;
+    private String defaultClientId;
+    private ClientDecommissionManager decommissionManager;
 
     @Inject
     public HttpConnectionPoolServiceImpl(

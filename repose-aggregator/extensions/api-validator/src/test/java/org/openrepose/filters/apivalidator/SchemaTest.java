@@ -64,12 +64,12 @@ public class SchemaTest {
     public void shouldAllowEnableRaxRolesAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
-                "    <validator" +
-                "        role=\"default\"" +
-                "        default=\"true\"" +
-                "        wadl=\"file://my/wadl/file.wadl\"" +
-                "        enable-rax-roles=\"true\"/>" +
-                "</validators>";
+                        "    <validator" +
+                        "        role=\"default\"" +
+                        "        default=\"true\"" +
+                        "        wadl=\"file://my/wadl/file.wadl\"" +
+                        "        enable-rax-roles=\"true\"/>" +
+                        "</validators>";
 
         validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
@@ -106,12 +106,12 @@ public class SchemaTest {
     public void shouldNotAllowUseSaxonAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\">" +
-                "    <validator" +
-                "        role=\"default\"" +
-                "        default=\"true\"" +
-                "        wadl=\"file://my/wadl/file.wadl\"" +
-                "        use-saxon=\"true\"/>" +
-                "</validators>";
+                        "    <validator" +
+                        "        role=\"default\"" +
+                        "        default=\"true\"" +
+                        "        wadl=\"file://my/wadl/file.wadl\"" +
+                        "        use-saxon=\"true\"/>" +
+                        "</validators>";
 
         validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
@@ -120,11 +120,11 @@ public class SchemaTest {
     public void shouldNotAllowVersionAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://docs.openrepose.org/repose/validator/v1.0\" version=\"1\">" +
-                "    <validator" +
-                "        role=\"default\"" +
-                "        default=\"true\"" +
-                "        wadl=\"file://my/wadl/file.wadl\"/>" +
-                "</validators>";
+                        "    <validator" +
+                        "        role=\"default\"" +
+                        "        default=\"true\"" +
+                        "        wadl=\"file://my/wadl/file.wadl\"/>" +
+                        "</validators>";
 
         validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }

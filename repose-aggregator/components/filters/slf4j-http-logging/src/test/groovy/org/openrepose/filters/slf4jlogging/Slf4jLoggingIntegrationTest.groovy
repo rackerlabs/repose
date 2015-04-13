@@ -48,10 +48,10 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
-        app = ((ListAppender)(ctx.getConfiguration().getAppender("List0"))).clear()
+        app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear()
     }
 
-    def "The SLF4j logging filter logs to the named logger"(){
+    def "The SLF4j logging filter logs to the named logger"() {
         given:
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()
@@ -72,7 +72,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
 
         def responseBody = "HEY A BODY"
         response.setContentLength(10)// size of responseBody .. but no
-        response.setStatus(200,"OK")
+        response.setStatus(200, "OK")
         response.addHeader("X-Derp-header", "lolwut")
         response.getWriter().print(responseBody)
         response.getWriter().flush()

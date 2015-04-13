@@ -45,18 +45,18 @@ public class Slf4jHttpLoggingHandler extends AbstractFilterLogicHandler {
         for (Slf4jLoggerWrapper wrapper : loggers) {
             //format the string and send it to the logger
             HttpLogFormatter formatter = wrapper.getFormatter();
-            wrapper.getLogger().info(formatter.format(request,response));
+            wrapper.getLogger().info(formatter.format(request, response));
         }
 
         return filterDirector;
     }
-    
-    
+
+
     @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response){
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
         return filterDirector;
-        
+
     }
 }

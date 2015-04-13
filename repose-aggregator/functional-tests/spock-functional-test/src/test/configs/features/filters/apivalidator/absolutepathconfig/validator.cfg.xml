@@ -2,5 +2,5 @@
 <validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
     <validator role="test_user"
                wadl="${repose.config.directory}/relatedconfig/generic_pass.wadl"
-               default="false" />
+               default="false"/>
 </validators>

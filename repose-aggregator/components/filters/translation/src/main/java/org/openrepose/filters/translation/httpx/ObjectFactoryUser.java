@@ -26,13 +26,13 @@ import org.openrepose.core.httpx.ObjectFactory;
  */
 public abstract class ObjectFactoryUser {
 
-   private ObjectFactory objectFactory = new ObjectFactory();
+    private ObjectFactory objectFactory = new ObjectFactory();
 
-   public ObjectFactory getObjectFactory() {
-      return objectFactory;
-   }
+    public ObjectFactory getObjectFactory() {
+        return objectFactory;
+    }
 
-   public void setObjectFactory(ObjectFactory objectFactory) {
-      this.objectFactory = objectFactory;
-   }
+    public void setObjectFactory(ObjectFactory objectFactory) {
+        this.objectFactory = objectFactory;
+    }
 }

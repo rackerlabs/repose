@@ -18,8 +18,9 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.core.filter.logic.common
-import org.openrepose.core.filter.logic.impl.SimplePassFilterDirector
+
 import org.junit.Test
+import org.openrepose.core.filter.logic.impl.SimplePassFilterDirector
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
@@ -32,12 +33,12 @@ public class AbstractFilterLogicHandlerTest {
     @Test
     public void testHandleRequest() {
         AbstractFilterLogicHandler aflh = new AbstractFilterLogicHandler();
-        assertThat(aflh.handleRequest(null,null),equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
+        assertThat(aflh.handleRequest(null, null), equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
     }
 
     @Test
     public void testHandleResponse() {
         AbstractFilterLogicHandler aflh = new AbstractFilterLogicHandler();
-        assertThat(aflh.handleResponse(null,null),equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
+        assertThat(aflh.handleResponse(null, null), equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
     }
 }

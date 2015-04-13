@@ -81,7 +81,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private AuthToken validateTenant(AuthenticateResponse resp, String tenantID) {
         AuthToken authToken = null;
-        if(resp != null) {
+        if (resp != null) {
             authToken = new OpenStackToken(resp);
         }
 
@@ -90,7 +90,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
             if (resp.getUser() != null && resp.getUser().getRoles() != null) {
                 for (Role role : resp.getUser().getRoles().getRole()) {
-                    if(tenantID.equalsIgnoreCase(role.getTenantId())) {
+                    if (tenantID.equalsIgnoreCase(role.getTenantId())) {
                         //we have the real tenantID
                         return authToken;
                     }
@@ -116,7 +116,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         } else {
             AuthenticateResponse authResp = authenticationService.validateToken(null, token);
             delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
-            if(authResp != null) {
+            if (authResp != null) {
                 authToken = new OpenStackToken(authResp);
             }
         }

@@ -41,12 +41,12 @@ import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.*;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.core.services.datastore.Datastore;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,8 +63,6 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 
-
-
 /**
  * @author zinic
  */
@@ -74,8 +72,8 @@ public class OpenStackAuthenticationHandlerTest {
     @Ignore
     public static abstract class TestParent {
         protected static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
-        protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";   
-        protected static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";  
+        protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
+        protected static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
         protected static final long AUTH_USER_CACHE_TTL = 5000;
@@ -141,7 +139,7 @@ public class OpenStackAuthenticationHandlerTest {
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
                     new ArrayList<String>(), false, false);
-            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
+            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
             // Handler with cache
@@ -151,11 +149,11 @@ public class OpenStackAuthenticationHandlerTest {
             AuthUserCache usrCache = new AuthUserCache(store, AUTH_USER_CACHE_PREFIX);
             EndpointsCache endpointsCache = new EndpointsCache(store, ENDPOINTS_CACHE_PREFIX);
 
-            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache,usrCache, endpointsCache, new UriMatcher(whiteListRegexPatterns));
+            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();
-        
+
         protected abstract boolean requestGroups();
 
         protected boolean isTenanted() {
@@ -224,13 +222,13 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
     }
-    
+
     public static class TestXTenantId extends TestParent {
 
-        private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
         Calendar expires;
         UserForAuthenticateResponse userForAuthenticateResponse;
+        private DatatypeFactory dataTypeFactory;
 
         @Override
         protected boolean delegable() {
@@ -280,8 +278,8 @@ public class OpenStackAuthenticationHandlerTest {
 
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
 
         @Test
@@ -319,8 +317,8 @@ public class OpenStackAuthenticationHandlerTest {
 
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
 
         @Test
@@ -348,7 +346,7 @@ public class OpenStackAuthenticationHandlerTest {
             FilterDirector director = handler.handleRequest(request, response);
 
             //this ID doesn't match so we should see FilterAction.RETURN
-            assertThat(director.getFilterAction(),equalTo(FilterAction.RETURN));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
         }
 
         @Test
@@ -375,12 +373,12 @@ public class OpenStackAuthenticationHandlerTest {
 
             FilterDirector director = handler.handleRequest(request, response);
 
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), notNullValue());
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             //we should see PASS as the filter action
-            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
 
         @Test
@@ -422,25 +420,24 @@ public class OpenStackAuthenticationHandlerTest {
 
             FilterDirector director = handler.handleRequest(request, response);
 
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), notNullValue());
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             //we should see PASS as the filter action
-            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
 
     }
 
 
-
     public static class TestSendAllTenantIds extends TestParent {
 
-        private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
         Calendar expires;
         UserForAuthenticateResponse userForAuthenticateResponse;
         OpenStackAuthenticationHandler handler2;
+        private DatatypeFactory dataTypeFactory;
 
         @Override
         protected boolean delegable() {
@@ -485,7 +482,7 @@ public class OpenStackAuthenticationHandlerTest {
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
                     new ArrayList<String>(), true, false);
-            handler2 = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
+            handler2 = new OpenStackAuthenticationHandler(configurables, authService, null, null, null, null, new UriMatcher(whiteListRegexPatterns));
 
         }
 
@@ -511,25 +508,22 @@ public class OpenStackAuthenticationHandlerTest {
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
             expectedSet.add("derpRole");
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
     }
 
 
-
-
-
     public static class WhenCachingUserInfo extends TestParent {
 
-        private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
+        private DatatypeFactory dataTypeFactory;
 
         @Override
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return false;
@@ -622,16 +616,16 @@ public class OpenStackAuthenticationHandlerTest {
     }
 
     public static class WhenCachingGroupInfo extends TestParent {
-        private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
         Groups groups;
         Group group;
+        private DatatypeFactory dataTypeFactory;
 
         @Override
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -708,70 +702,70 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "."  + user.getTokenId()));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()));
             // Service should be called since token has expired
             verify(authService, times(1)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
-    
-   public static class WhenNoGroupInfo extends TestParent {
-    private DatatypeFactory dataTypeFactory;
-    AuthenticateResponse authResponse;
-    Groups groups;
-    Group group;
 
-    @Override
-    protected boolean delegable() {
-        return true;
-    }
+    public static class WhenNoGroupInfo extends TestParent {
+        AuthenticateResponse authResponse;
+        Groups groups;
+        Group group;
+        private DatatypeFactory dataTypeFactory;
 
-    @Override
-    protected boolean requestGroups() {
-        return false;
-    }
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
 
-    @Before
-    public void standUp() throws Exception {
-        dataTypeFactory = DatatypeFactory.newInstance();
-        when(request.getRequestURI()).thenReturn("/start/104772/resource");
-        when(request.getHeader(anyString())).thenReturn("tokenId");
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
 
-        Calendar expires = getCalendarWithOffset(1000);
+        @Before
+        public void standUp() throws Exception {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
 
-        authResponse = new AuthenticateResponse();
-        UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
-        userForAuthenticateResponse.setId("104772");
-        userForAuthenticateResponse.setName("user2");
+            Calendar expires = getCalendarWithOffset(1000);
 
-        userForAuthenticateResponse.setRoles(defaultRoleList());
+            authResponse = new AuthenticateResponse();
+            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
 
-        Token token = new Token();
-        token.setId("tokenId");
-        TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-        tenant.setId("104772");
-        tenant.setName("tenantName");
-        token.setTenant(tenant);
-        token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            userForAuthenticateResponse.setRoles(defaultRoleList());
 
-        authResponse.setToken(token);
-        authResponse.setUser(userForAuthenticateResponse);
+            Token token = new Token();
+            token.setId("tokenId");
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("104772");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
 
-    }
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
 
-   
-    @Test
-    public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
-        final AuthToken user = new OpenStackToken(authResponse);
-        when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+        }
 
-        final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-        verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX +"." + user.getTokenId()));
-        // Service should be called since token has expired
-        verify(authService, times(0)).getGroups(anyString());
-        assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-    }
+        @Test
+        public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()));
+            // Service should be called since token has expired
+            verify(authService, times(0)).getGroups(anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
     }
 
     public static class WhenAuthenticatingDelegatableRequests extends TestParent {
@@ -780,7 +774,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return false;
@@ -805,8 +799,8 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertEquals("Auth component must not reject requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
         }
-        
-     }
+
+    }
 
     public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
@@ -817,7 +811,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return false;
@@ -883,7 +877,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return false;
@@ -941,7 +935,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return false;
@@ -982,7 +976,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -1009,7 +1003,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -1036,7 +1030,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;

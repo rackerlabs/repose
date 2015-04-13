@@ -42,13 +42,13 @@ import java.util.HashMap;
 
 public class AdminTokenProvider {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);
+    private final String requestBody;
     private String authUrl;
     private AkkaServiceClient client;
     private JAXBContext coreJaxbContext;
     private ResponseUnmarshaller marshaller;
     private AdminToken curAdminToken;
-    private final String requestBody;
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);
 
     public AdminTokenProvider(AkkaServiceClient client, String authUrl, String username, String password) {
         this.client = client;

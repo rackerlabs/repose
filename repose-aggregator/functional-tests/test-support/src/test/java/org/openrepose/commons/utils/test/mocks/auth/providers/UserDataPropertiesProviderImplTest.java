@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.utils.test.mocks.auth.providers;
 
-import org.openrepose.commons.utils.test.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.test.mocks.auth.provider.UserDataPropertiesProviderImpl;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;

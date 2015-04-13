@@ -35,7 +35,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Named("reposeLocalDatastore")
 @ManagedResource(objectName = "org.openrepose.core.services.datastore.impl.ehcache:type=ReposeLocalCache",
-                 description = "Repose local datastore MBean.")
+        description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeLocalCache.class);
@@ -74,7 +74,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
                 .remove(AUTH_TOKEN_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed token from cache: " + removed +
-                         (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+                (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -86,7 +86,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
                 .remove(AUTH_GROUP_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed groups from cache: " + removed +
-                         (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+                (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -120,7 +120,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
             removed = datastoreService.getDefaultDatastore().remove(getEncodedUserCacheKey(userId));
 
             LOG.info("Removed rate limits from cache: " + removed +
-                             (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));
+                    (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Your instance of the Java Runtime Environment does not support the MD5 hash algorithm.", e);
         }

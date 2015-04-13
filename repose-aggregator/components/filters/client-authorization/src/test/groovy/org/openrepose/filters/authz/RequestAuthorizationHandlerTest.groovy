@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.filters.authz
+
 import com.rackspace.httpdelegation.HttpDelegationHeaderNames
 import com.rackspace.httpdelegation.JavaDelegationManagerProxy
 import org.openrepose.common.auth.AuthServiceOverLimitException
@@ -55,8 +56,10 @@ class RequestAuthorizationHandlerTest extends Specification {
     IgnoreTenantRoles ignoreTenantRoles
     RequestAuthorizationHandler requestAuthorizationHandler
 
-    private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
-    private static final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
+    private static
+    final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
+    private static
+    final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
 
     protected AuthenticationService mockedAuthService
     protected RequestAuthorizationHandler handler
@@ -143,7 +146,7 @@ class RequestAuthorizationHandlerTest extends Specification {
         ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, endpointListCache,
-                new ServiceEndpoint().with { it.href = "http://foo.com/moo"; it}, ignoreTenantRoles, delegable)
+                new ServiceEndpoint().with { it.href = "http://foo.com/moo"; it }, ignoreTenantRoles, delegable)
 
         when:
         def filterDirector = requestAuthorizationHandler.handleRequest(mockedRequest, null)
@@ -306,19 +309,19 @@ class RequestAuthorizationHandlerTest extends Specification {
         director.filterAction == outcome
 
         where:
-        configuration    | configUri        | configRegion | configName | configType  | endpoint               | endpointUri       | endpointRegion | endpointName | endpointType | outcome
-        "uri"            | PUBLIC_URL       | null         | null       | null        | "uri matches"          | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
-        "uri"            | "http://foo.com" | null         | null       | null        | "uri doesn't match"    | "http://bar.com"  | REGION         | NAME         | TYPE         | RETURN
-        "uri and region" | PUBLIC_URL       | REGION       | null       | null        | "uri and region match" | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
-        "uri and region" | PUBLIC_URL       | "here"       | null       | null        | "region doesn't match" | PUBLIC_URL        | "there"        | NAME         | TYPE         | RETURN
-        "uri and name"   | PUBLIC_URL       | null         | NAME       | null        | "uri and name match"   | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
-        "uri and name"   | PUBLIC_URL       | null         | "Bob"      | null        | "name doesn't match"   | PUBLIC_URL        | REGION         | "Billy"      | TYPE         | RETURN
-        "uri and type"   | PUBLIC_URL       | null         | null       | TYPE        | "uri and type match"   | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
-        "uri and type"   | PUBLIC_URL       | null         | null       | "dangerous" | "type doesn't match"   | PUBLIC_URL        | REGION         | NAME         | "confident"  | RETURN
-        "all"            | PUBLIC_URL       | REGION       | NAME       | TYPE        | "all match"            | PUBLIC_URL        | REGION         | NAME         | TYPE         | PASS
-        "all"            | PUBLIC_URL       | "here"       | NAME       | TYPE        | "region doesn't match" | PUBLIC_URL        | "there"        | NAME         | TYPE         | RETURN
-        "all"            | PUBLIC_URL       | REGION       | "Bob"      | TYPE        | "name doesn't match"   | PUBLIC_URL        | REGION         | "Billy"      | TYPE         | RETURN
-        "all"            | PUBLIC_URL       | REGION       | NAME       | "dangerous" | "type doesn't match"   | PUBLIC_URL        | REGION         | NAME         | "confident"  | RETURN
+        configuration    | configUri        | configRegion | configName | configType  | endpoint               | endpointUri      | endpointRegion | endpointName | endpointType | outcome
+        "uri"            | PUBLIC_URL       | null         | null       | null        | "uri matches"          | PUBLIC_URL       | REGION         | NAME         | TYPE         | PASS
+        "uri"            | "http://foo.com" | null         | null       | null        | "uri doesn't match"    | "http://bar.com" | REGION         | NAME         | TYPE         | RETURN
+        "uri and region" | PUBLIC_URL       | REGION       | null       | null        | "uri and region match" | PUBLIC_URL       | REGION         | NAME         | TYPE         | PASS
+        "uri and region" | PUBLIC_URL       | "here"       | null       | null        | "region doesn't match" | PUBLIC_URL       | "there"        | NAME         | TYPE         | RETURN
+        "uri and name"   | PUBLIC_URL       | null         | NAME       | null        | "uri and name match"   | PUBLIC_URL       | REGION         | NAME         | TYPE         | PASS
+        "uri and name"   | PUBLIC_URL       | null         | "Bob"      | null        | "name doesn't match"   | PUBLIC_URL       | REGION         | "Billy"      | TYPE         | RETURN
+        "uri and type"   | PUBLIC_URL       | null         | null       | TYPE        | "uri and type match"   | PUBLIC_URL       | REGION         | NAME         | TYPE         | PASS
+        "uri and type"   | PUBLIC_URL       | null         | null       | "dangerous" | "type doesn't match"   | PUBLIC_URL       | REGION         | NAME         | "confident"  | RETURN
+        "all"            | PUBLIC_URL       | REGION       | NAME       | TYPE        | "all match"            | PUBLIC_URL       | REGION         | NAME         | TYPE         | PASS
+        "all"            | PUBLIC_URL       | "here"       | NAME       | TYPE        | "region doesn't match" | PUBLIC_URL       | "there"        | NAME         | TYPE         | RETURN
+        "all"            | PUBLIC_URL       | REGION       | "Bob"      | TYPE        | "name doesn't match"   | PUBLIC_URL       | REGION         | "Billy"      | TYPE         | RETURN
+        "all"            | PUBLIC_URL       | REGION       | NAME       | "dangerous" | "type doesn't match"   | PUBLIC_URL       | REGION         | NAME         | "confident"  | RETURN
     }
 
     ServiceEndpoint createConfiguredEndpoint(String configUri, String configRegion, String configName, String configType) {

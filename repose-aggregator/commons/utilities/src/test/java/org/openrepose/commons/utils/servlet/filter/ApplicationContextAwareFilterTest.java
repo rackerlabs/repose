@@ -19,11 +19,11 @@
  */
 package org.openrepose.commons.utils.servlet.filter;
 
-import org.openrepose.commons.utils.servlet.InitParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.servlet.InitParameter;
 
 import javax.servlet.*;
 import java.io.IOException;

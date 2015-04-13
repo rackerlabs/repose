@@ -24,19 +24,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- *
  * @author zinic
  */
 public class ServletInputStreamWrapper extends ServletInputStream {
 
-   private final InputStream is;
+    private final InputStream is;
 
-   public ServletInputStreamWrapper(InputStream is) {
-      this.is = is;
-   }
+    public ServletInputStreamWrapper(InputStream is) {
+        this.is = is;
+    }
 
-   @Override
-   public int read() throws IOException {
-      return is.read();
-   }
+    @Override
+    public int read() throws IOException {
+        return is.read();
+    }
 }

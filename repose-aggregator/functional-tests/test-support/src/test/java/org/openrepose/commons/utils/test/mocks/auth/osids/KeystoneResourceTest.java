@@ -24,7 +24,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.test.mocks.auth.osids.KeystoneResource;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.ws.rs.core.Response;
@@ -50,13 +49,13 @@ public class KeystoneResourceTest {
         public static final ObjectFactory objectFactory = new ObjectFactory();
         protected KeystoneResource keystoneResource;
 
+        public static <T> T getEntity(Response r) {
+            return ((JAXBElement<T>) r.getEntity()).getValue();
+        }
+
         @Before
         public void beforeAll() throws Exception {
             keystoneResource = new KeystoneResource();
-        }
-
-        public static <T> T getEntity(Response r) {
-            return ((JAXBElement<T>) r.getEntity()).getValue();
         }
     }
 

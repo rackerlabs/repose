@@ -21,7 +21,6 @@ package features.core.proxy
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 
 class NoHostHeaderRewriteTest extends ReposeValveTest {
 
@@ -45,7 +44,7 @@ class NoHostHeaderRewriteTest extends ReposeValveTest {
         }
     }
 
-    def "should not rewrite host header"(){
+    def "should not rewrite host header"() {
 
         when: "client passes a request through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint)

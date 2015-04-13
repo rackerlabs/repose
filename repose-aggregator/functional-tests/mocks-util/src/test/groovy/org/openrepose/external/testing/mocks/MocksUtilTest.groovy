@@ -19,10 +19,10 @@
  */
 package org.openrepose.external.testing.mocks
 
+import org.junit.Test
 import org.openrepose.commons.utils.test.mocks.*
 import org.openrepose.commons.utils.test.mocks.util.MocksUtil
 import org.openrepose.commons.utils.test.mocks.util.RequestInfo
-import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 
@@ -150,7 +150,7 @@ class MocksUtilTest {
     }
 
     @Test
-    void testXmlToRequestInfo(){
+    void testXmlToRequestInfo() {
 
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(testXml)
         assert info.method == "GET"

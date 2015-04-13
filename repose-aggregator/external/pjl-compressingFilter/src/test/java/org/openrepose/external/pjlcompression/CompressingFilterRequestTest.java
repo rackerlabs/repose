@@ -43,8 +43,6 @@ import com.mockrunner.servlet.ServletTestModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.external.pjlcompression.CompressingFilter;
-import org.openrepose.external.pjlcompression.CompressingFilterStats;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,10 +55,7 @@ import java.util.Random;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests {@link CompressingFilter} compressed requests.
@@ -81,6 +76,16 @@ public final class CompressingFilterRequestTest {
 
     private WebMockObjectFactory factory;
     private ServletTestModule module;
+
+    private static byte[] getCompressedOutput(byte[] output) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
+        gzipOut.write(output);
+        gzipOut.finish();
+        gzipOut.close();
+        baos.close();
+        return baos.toByteArray();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -146,16 +151,6 @@ public final class CompressingFilterRequestTest {
         assertEquals(0.0, stats.getResponseAverageCompressionRatio(), 0.0001);
         assertEquals(0L, stats.getResponseCompressedBytes());
         assertEquals(0L, stats.getResponseInputBytes());
-    }
-
-    private static byte[] getCompressedOutput(byte[] output) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
-        gzipOut.write(output);
-        gzipOut.finish();
-        gzipOut.close();
-        baos.close();
-        return baos.toByteArray();
     }
 
 }

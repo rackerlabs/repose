@@ -20,11 +20,11 @@
   -->
 
 
-<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/uri-stripper/v1.0"
-           xmlns:uri-stripper="http://docs.openrepose.org/repose/uri-stripper/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:uri-stripper="http://docs.openrepose.org/repose/uri-stripper/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/uri-stripper/v1.0">
 
     <!-- Client IP Identity Configuration -->
     <xs:element name="uri-stripper" type="uri-stripper:UriStripperConfig"/>

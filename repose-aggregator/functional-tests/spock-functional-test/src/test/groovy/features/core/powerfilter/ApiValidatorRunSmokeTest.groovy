@@ -57,14 +57,13 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
 
         when:
 
-        MessageChain mc1 =  deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1','x-trace-request': 'true']])
+        MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1', 'x-trace-request': 'true']])
 
         then:
         mc1.receivedResponse.getHeaders().names.contains("X-api-validator-Time")
         mc1.receivedResponse.getHeaders().names.contains("X-ip-identity-Time")
 
-     }
-
+    }
 
 
 }

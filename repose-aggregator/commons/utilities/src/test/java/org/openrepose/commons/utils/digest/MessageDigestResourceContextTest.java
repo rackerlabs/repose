@@ -19,13 +19,13 @@
  */
 package org.openrepose.commons.utils.digest;
 
-import org.openrepose.commons.utils.digest.impl.HexHelper;
-import org.openrepose.commons.utils.digest.impl.MD5MessageDigester;
-import org.openrepose.commons.utils.pooling.ResourceContextException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.digest.impl.HexHelper;
+import org.openrepose.commons.utils.digest.impl.MD5MessageDigester;
+import org.openrepose.commons.utils.pooling.ResourceContextException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class MessageDigestResourceContextTest {
     public static class WhenPerformingMessageDigest {
         private InputStream inputStream;
         private MessageDigestResourceContext context;
-        
+
 
         @Before
         public void setup() throws IOException {
@@ -70,7 +70,7 @@ public class MessageDigestResourceContextTest {
             assertEquals(expected, actual);
         }
 
-        @Test(expected=ResourceContextException.class)
+        @Test(expected = ResourceContextException.class)
         public void shouldThrowResourceContextExceptionIfIOErrorOccurs() throws IOException, NoSuchAlgorithmException {
             InputStream iStream = mock(InputStream.class);
 

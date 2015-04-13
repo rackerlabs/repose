@@ -38,7 +38,7 @@ class ServletContractFilterTest extends ReposeValveTest {
      * It should be corrected in REP-320:
      * https://repose.atlassian.net/browse/REP-320
      */
-    def "Proving that a custom filter (although tightly coupled) does in fact work" () {
+    def "Proving that a custom filter (although tightly coupled) does in fact work"() {
         setup:
         Assume.assumeTrue(new Date() > splodeDate.getTime())
 
@@ -57,8 +57,8 @@ class ServletContractFilterTest extends ReposeValveTest {
         MessageChain mc = null
         mc = deproxy.makeRequest(
                 [
-                        method: 'GET',
-                        url:reposeEndpoint + "/get",
+                        method        : 'GET',
+                        url           : reposeEndpoint + "/get",
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }
@@ -71,9 +71,9 @@ class ServletContractFilterTest extends ReposeValveTest {
         println(mc.receivedResponse.body)
 
         cleanup:
-        if(started)
+        if (started)
             repose.stop()
-        if(deproxy != null)
+        if (deproxy != null)
             deproxy.shutdown()
 
     }

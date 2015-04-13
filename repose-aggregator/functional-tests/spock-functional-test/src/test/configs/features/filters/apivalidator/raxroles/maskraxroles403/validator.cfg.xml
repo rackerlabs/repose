@@ -3,7 +3,7 @@
 <validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
 
     <validator role="raxRolesDisabled" default="false" enable-rax-roles="false" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/a">
                     <method name="GET" rax:roles="a:observer"/>
@@ -15,7 +15,7 @@
         </application>
     </validator>
     <validator role="raxRolesEnabled" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/a">
                     <method name="GET" rax:roles="a:observer a:admin"/>
@@ -27,7 +27,7 @@
     </validator>
 
     <validator role="test_user3" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="POST"/>
@@ -40,7 +40,7 @@
     </validator>
 
     <validator role="test_user4" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="POST" rax:roles="a:creator"/>
@@ -65,7 +65,7 @@
     </validator>
 
     <validator role="test_user5" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="POST" rax:roles="a:creator"/>
@@ -89,7 +89,7 @@
     </validator>
 
     <validator role="test_user6" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a">
                     <method name="GET"/>
@@ -99,8 +99,9 @@
         </application>
     </validator>
 
-    <validator role="test_user7" default="false" enable-rax-roles="false" check-headers="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+    <validator role="test_user7" default="false" enable-rax-roles="false" check-headers="true"
+               mask-rax-roles-403="true">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="POST" rax:roles="a:creator"/>
@@ -114,8 +115,9 @@
         </application>
     </validator>
 
-    <validator role="test_user7.1" default="false" enable-rax-roles="false" check-headers="false" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+    <validator role="test_user7.1" default="false" enable-rax-roles="false" check-headers="false"
+               mask-rax-roles-403="true">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="PUT" rax:roles="a:observer"/>
@@ -130,7 +132,7 @@
     </validator>
 
     <validator role="test_user8" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="POST" rax:roles="a:creator"/>
@@ -149,7 +151,7 @@
     </validator>
 
     <validator role="test_user9" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="PUT" rax:roles="a:observer"/>
@@ -164,7 +166,7 @@
     </validator>
 
     <validator role="test_user10" default="false" enable-rax-roles="true" remove-dups="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="PUT" rax:roles="a:observer"/>
@@ -178,8 +180,9 @@
         </application>
     </validator>
 
-    <validator role="test_user11" default="false" enable-rax-roles="true" check-headers="false" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+    <validator role="test_user11" default="false" enable-rax-roles="true" check-headers="false"
+               mask-rax-roles-403="true">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="https://test.api.openstack.com">
                 <resource path="/a" rax:roles="a:admin">
                     <method name="PUT" rax:roles="a:observer"/>
@@ -194,7 +197,7 @@
     </validator>
 
     <validator role="test_user12" default="false" enable-rax-roles="true" mask-rax-roles-403="true">
-        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/a">
                     <method href="#getSomething"/>
@@ -204,7 +207,7 @@
                     <method href="#patchSomething"/>
                 </resource>
                 <resource path="/v">
-                    <method href="#getSomethingElse" />
+                    <method href="#getSomethingElse"/>
                 </resource>
             </resources>
 

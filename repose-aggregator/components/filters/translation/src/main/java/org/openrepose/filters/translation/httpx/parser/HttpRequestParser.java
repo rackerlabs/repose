@@ -43,7 +43,7 @@ public class HttpRequestParser extends ObjectFactoryUser implements Parser<HttpS
         ComplexNode requestNode = new RequestNode(request, messageEnvelope, requestFidelity, headFidelity, headersFidelity, jsonProcessing);
 
         requestNode.build();
-        
+
         return MarshallerFactory.newInstance().marshall(messageEnvelope);
     }
 }

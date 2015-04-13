@@ -63,7 +63,7 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
-        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers:['X-Roles':'test_user']])
+        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['X-Roles': 'test_user']])
         def List<String> wadlError;
         wadlError = reposeLogSearch.searchByString(errorMessage)
 
@@ -82,7 +82,7 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
-        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers:['X-Roles':'test_user']])
+        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['X-Roles': 'test_user']])
         def List<String> wadlError;
         wadlError = reposeLogSearch.searchByString(errorMessage)
 

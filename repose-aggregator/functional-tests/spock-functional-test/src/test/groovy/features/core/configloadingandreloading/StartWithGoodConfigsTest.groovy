@@ -54,9 +54,8 @@ class StartWithGoodConfigsTest extends Specification {
         params = properties.getDefaultTemplateParams()
 
         params += [
-                'datastorePort' : dataStorePort,
+                'datastorePort': dataStorePort,
         ]
-
 
         // start a deproxy
         deproxy = new Deproxy()

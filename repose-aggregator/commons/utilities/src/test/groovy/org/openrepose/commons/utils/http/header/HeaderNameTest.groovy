@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.commons.utils.http.header
+
 import org.junit.Test
 
 import static org.hamcrest.CoreMatchers.equalTo

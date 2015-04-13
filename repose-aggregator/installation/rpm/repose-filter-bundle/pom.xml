@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
-        <version>7.0.1.1</version>
+        <version>7.0.1.2-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation Filter Bundle RPM</name>
@@ -134,6 +135,16 @@
                                         <source>
                                             <location>
                                                 ${basedir}/../../../../LICENSE.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../CONTRIBUTORS.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../DEPENDENCIES.txt
                                             </location>
                                         </source>
                                     </sources>

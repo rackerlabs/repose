@@ -20,13 +20,14 @@
 package org.openrepose.commons.utils.http;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class ExtendedHttpHeaderTest {
-    
+
     public ExtendedHttpHeaderTest() {
     }
-    
+
     @Test
     public void shouldMakeManagementHappy() {
         ExtendedHttpHeader header = ExtendedHttpHeader.X_TTL;

@@ -30,7 +30,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.addheader.config.AddHeadersConfig
 
 @Named
-class AddHeaderFilter @Inject() (configurationService: ConfigurationService) extends Filter with LazyLogging {
+class AddHeaderFilter @Inject()(configurationService: ConfigurationService) extends Filter with LazyLogging {
 
   private final val DEFAULT_CONFIG = "add-header.cfg.xml"
 

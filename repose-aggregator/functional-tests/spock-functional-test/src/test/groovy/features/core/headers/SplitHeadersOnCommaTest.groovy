@@ -230,7 +230,6 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
     }
 
 
-
     @Unroll("Responses - headers defined by RFC: #headerName with \"#headerValue\" should split into #expectedCount parts")
     def "Responses - headers defined by the rfc as comma-separated lists should be split on commas in requests"() {
 
@@ -391,11 +390,6 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         headerName        | headerValue
         "X-Random-Header" | "Value1,Value2"
     }
-
-
-
-
-
 
 
     def cleanupSpec() {

@@ -20,9 +20,9 @@
 package org.openrepose.filters.headeridmapping;
 
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.headeridmapping.config.HeaderIdMappingConfig;
 import org.openrepose.filters.headeridmapping.config.HttpHeader;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +47,14 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
         };
     }
 
+    @Override
+    protected HeaderIdMappingHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderIdMappingHandler(sourceHeaders);
+    }
+
     private class HeaderIdMappingConfigurationListener implements UpdateListener<HeaderIdMappingConfig> {
 
         private boolean isInitialized = false;
@@ -62,13 +70,5 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
         public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    @Override
-    protected HeaderIdMappingHandler buildHandler() {
-        if (!this.isInitialized()) {
-            return null;
-        }
-        return new HeaderIdMappingHandler(sourceHeaders);
     }
 }

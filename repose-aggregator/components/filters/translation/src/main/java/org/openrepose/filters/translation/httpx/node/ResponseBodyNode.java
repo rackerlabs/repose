@@ -44,16 +44,16 @@ public class ResponseBodyNode extends ObjectFactoryUser implements Node {
         Body body = getObjectFactory().createBody();
 
         // TODO: Need to determine how we want to handle the response data and if it needs any processing
-        
+
         messageResponse.setBody(body);
     }
-    
+
     public HttpServletResponse getResponse() {
         return response;
     }
-    
+
     public boolean getJsonProcessing() {
         return jsonProcessing;
     }
-        
+
 }

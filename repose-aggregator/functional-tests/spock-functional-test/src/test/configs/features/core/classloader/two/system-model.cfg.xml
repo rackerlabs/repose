@@ -8,12 +8,13 @@
         </nodes>
 
         <filters>
-            <filter name="filter-one" />
-            <filter name="filter-three" />
+            <filter name="filter-one"/>
+            <filter name="filter-three"/>
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
+            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

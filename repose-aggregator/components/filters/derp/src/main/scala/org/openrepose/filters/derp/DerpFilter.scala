@@ -66,10 +66,6 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
     }
   }
 
-  override def destroy(): Unit = {
-    logger.trace("DeRP filter destroyed")
-  }
-
   def parseDelegationValues(delegationValues: Seq[String]): Seq[HttpDelegationHeader] = {
     delegationValues.flatMap { value =>
       parseDelegationHeader(value) match {
@@ -86,5 +82,9 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
     httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
     httpServletResponse.getWriter.write(responseBody)
     httpServletResponse.sendError(statusCode)
+  }
+
+  override def destroy(): Unit = {
+    logger.trace("DeRP filter destroyed")
   }
 }

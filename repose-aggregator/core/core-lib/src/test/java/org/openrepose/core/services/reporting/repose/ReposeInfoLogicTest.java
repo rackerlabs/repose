@@ -19,13 +19,12 @@
  */
 package org.openrepose.core.services.reporting.repose;
 
-import org.openrepose.core.services.reporting.ReposeInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.reporting.ReposeInfo;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
@@ -104,7 +103,7 @@ public class ReposeInfoLogicTest {
         public void shouldGetAverageRequestSize() {
             long totalRequests = 1000l;
             long requestSize = 2l;
-            double expectedAverageRequestSize = requestSize/totalRequests;
+            double expectedAverageRequestSize = requestSize / totalRequests;
 
             for (int i = 0; i < 1000; i++) {
                 reposeInfoLogic.incrementRequestCount();
@@ -119,12 +118,12 @@ public class ReposeInfoLogicTest {
         public void shouldReturnZeroIfNoRequests() {
             assertEquals(0, reposeInfoLogic.getAverageRequestSize(), 0.1);
         }
-        
+
         @Test
         public void shouldGetAverageResponseSize() {
             long totalResponses = 1000l;
             long responseSize = 2l;
-            double expectedAverageResponseSize = responseSize/totalResponses;
+            double expectedAverageResponseSize = responseSize / totalResponses;
 
             for (int i = 0; i < 1000; i++) {
                 reposeInfoLogic.incrementResponseCount();
@@ -150,13 +149,13 @@ public class ReposeInfoLogicTest {
         }
 
         @Test
-        public void shouldCopy(){
+        public void shouldCopy() {
             reposeInfoLogic.incrementStatusCodeCount(200, 10);
 
             ReposeInfo copy = reposeInfoLogic.copy();
 
             reposeInfoLogic.incrementStatusCodeCount(200, 20);
-            
+
             assertNotSame(copy.getTotalStatusCode(200), reposeInfoLogic.getTotalStatusCode(200));
         }
     }

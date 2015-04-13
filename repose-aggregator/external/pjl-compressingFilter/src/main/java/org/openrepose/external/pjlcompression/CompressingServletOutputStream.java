@@ -50,10 +50,10 @@ final class CompressingServletOutputStream extends ServletOutputStream {
     private final CompressingStreamFactory compressingStreamFactory;
     private final CompressingHttpServletResponse compressingResponse;
     private final CompressingFilterContext context;
+    private final CompressingFilterLogger logger;
     private ThresholdOutputStream thresholdOutputStream;
     private boolean closed;
     private boolean aborted;
-    private final CompressingFilterLogger logger;
 
     CompressingServletOutputStream(OutputStream rawStream,
                                    CompressingStreamFactory compressingStreamFactory,

@@ -23,7 +23,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class RoleOrderTest extends ReposeValveTest{
+class RoleOrderTest extends ReposeValveTest {
 
     def setupSpec() {
 

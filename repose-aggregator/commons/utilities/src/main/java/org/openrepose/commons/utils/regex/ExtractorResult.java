@@ -20,32 +20,31 @@
 package org.openrepose.commons.utils.regex;
 
 /**
- *
  * @author malconis
  */
 public class ExtractorResult<K> {
 
-   private final String result;
-   private final K key;
+    private final String result;
+    private final K key;
 
-   public ExtractorResult(String result, K key) {
-      this.result = result;
-      this.key = key;
-   }
+    public ExtractorResult(String result, K key) {
+        this.result = result;
+        this.key = key;
+    }
 
-   public boolean hasKey() {
-      return key != null;
-   }
+    public boolean hasKey() {
+        return key != null;
+    }
 
-   public K getKey() {
-      return key;
-   }
+    public K getKey() {
+        return key;
+    }
 
-   public boolean hasResult() {
-      return result != null;
-   }
+    public boolean hasResult() {
+        return result != null;
+    }
 
-   public String getResult() {
-      return result;
-   }
+    public String getResult() {
+        return result;
+    }
 }

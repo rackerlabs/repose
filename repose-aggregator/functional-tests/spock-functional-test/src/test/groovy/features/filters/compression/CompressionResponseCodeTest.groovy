@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.compression
+
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -41,23 +42,23 @@ class CompressionResponseCodeTest extends ReposeValveTest {
 
     def "when decompression fails with EOF Exception, return 400"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST",
-                headers:["Content-Encoding":"gzip"],
-                requestBody:"")
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST",
+                headers: ["Content-Encoding": "gzip"],
+                requestBody: "")
 
         then:
-        mc.handlings.size()      == 0
+        mc.handlings.size() == 0
         mc.receivedResponse.code == "400"
     }
 
     def "when decompression fails with EOF Exception and Content-Length is set to 0, return 400"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST",
-                headers:["Content-Encoding":"gzip", "Content-Length":"0"],
-                requestBody:"")
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST",
+                headers: ["Content-Encoding": "gzip", "Content-Length": "0"],
+                requestBody: "")
 
         then:
-        mc.handlings.size()      == 0
+        mc.handlings.size() == 0
         mc.receivedResponse.code == "400"
     }
 }

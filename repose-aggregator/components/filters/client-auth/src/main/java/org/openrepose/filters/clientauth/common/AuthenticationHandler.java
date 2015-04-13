@@ -47,21 +47,14 @@ import java.util.concurrent.TimeoutException;
 public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
-
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException;
-
-    protected abstract AuthGroups getGroups(String group) throws AuthServiceException;
-
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException;
-
-    protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
-
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
-                                                    double delegableQuality, String delegationMessage,
-                                                    FilterDirector filterDirector, String extractedResult,
-                                                    List<AuthGroup> groups, String endpointsBase64, String contactId,
-                                                    boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality);
-
+    private static final String REASON = " Reason: ";
+    private static final String FAILURE_AUTH_N = "Failure in Auth-N filter.";
+    protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
+        @Override
+        protected String initialValue() {
+            return FAILURE_AUTH_N;
+        }
+    };
     private final boolean delegable;
     private final double delegableQuality;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
@@ -74,22 +67,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final long tokenCacheTtl;
     private final long userCacheTtl;
     private final Random offsetGenerator;
-    private int cacheOffset;
     private final boolean requestGroups;
     private final AuthUserCache usrCache;
     private final EndpointsConfiguration endpointsConfiguration;
-    private static final String REASON = " Reason: ";
-    private static final String FAILURE_AUTH_N = "Failure in Auth-N filter.";
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
-
-    protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
-        @Override
-        protected String initialValue() {
-            return FAILURE_AUTH_N;
-        }
-    };
-
+    private int cacheOffset;
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.delegableQuality = configurables.getDelegableQuality();
@@ -110,6 +93,20 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.sendAllTenantIds = configurables.sendingAllTenantIds();
         this.sendTenantIdQuality = configurables.sendTenantIdQuality();
     }
+
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException;
+
+    protected abstract AuthGroups getGroups(String group) throws AuthServiceException;
+
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException;
+
+    protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
+
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
+                                                    double delegableQuality, String delegationMessage,
+                                                    FilterDirector filterDirector, String extractedResult,
+                                                    List<AuthGroup> groups, String endpointsBase64, String contactId,
+                                                    boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality);
 
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
@@ -177,7 +174,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             LOG.trace("", ex);
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE); // (503)
             String retry = ex.getRetryAfter();
-            if(retry == null) {
+            if (retry == null) {
                 Calendar retryCalendar = new GregorianCalendar();
                 retryCalendar.add(Calendar.SECOND, 5);
                 retry = new HttpDate(retryCalendar.getTime()).toRFC1123();
@@ -187,7 +184,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         } catch (AuthServiceException ex) {
             LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
             LOG.trace("", ex);
-            if(ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
+            if (ex.getCause() instanceof AkkaServiceClientException && ex.getCause().getCause() instanceof TimeoutException) {
                 filterDirector.setResponseStatusCode(HttpServletResponse.SC_GATEWAY_TIMEOUT);
             } else {
                 filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

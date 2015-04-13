@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.test.mocks.providers;
 
-import org.openrepose.commons.utils.test.mocks.util.MocksUtil;
 import org.openrepose.commons.utils.test.mocks.ObjectFactory;
 import org.openrepose.commons.utils.test.mocks.RequestInformation;
+import org.openrepose.commons.utils.test.mocks.util.MocksUtil;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +46,7 @@ public class MockServiceProvider {
             RequestInformation requestInformation = MocksUtil.servletRequestToRequestInformation(request, body);
             resp = resp.append(MocksUtil.requestInformationToXml(requestInformation));
 
-        } catch (IOException|JAXBException e) {
+        } catch (IOException | JAXBException e) {
             LOG.trace("", e);
         }
 

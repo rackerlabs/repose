@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.logging.apache.format.converters
 
 import org.junit.Test
+
 /**
  * Created with IntelliJ IDEA.
  * User: adrian
@@ -32,7 +33,7 @@ class DateTimeFormatConverterTest {
     @Test
     void "null input value passes straight through"() {
         String result = converter.convert(null, null, null)
-        assert result ==null
+        assert result == null
     }
 
     @Test

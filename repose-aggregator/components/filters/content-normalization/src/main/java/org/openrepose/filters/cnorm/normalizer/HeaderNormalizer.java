@@ -28,7 +28,6 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- *
  * @author jhopper
  */
 public class HeaderNormalizer {

@@ -35,27 +35,16 @@
 
 package org.openrepose.external.pjlcompression;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.InflaterInputStream;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.zip.*;
 
 /**
  * <p>Implementations of this abstract class can add compression of a particular type to a given {@link OutputStream}.
@@ -69,28 +58,23 @@ import org.slf4j.LoggerFactory;
  * @author Sean Owen
  */
 abstract class CompressingStreamFactory {
-    private static final Logger LOG = LoggerFactory.getLogger(CompressingStreamFactory.class);
-
-    /**
-     * Implementation based on {@link GZIPOutputStream} and {@link GZIPInputStream}.
-     */
-    private static final CompressingStreamFactory GZIP_CSF = new GZIPCompressingStreamFactory();
-
-    /**
-     * Implementation based on {@link ZipOutputStream} and {@link ZipInputStream}.
-     */
-    private static final CompressingStreamFactory ZIP_CSF = new ZipCompressingStreamFactory();
-
-    /**
-     * Implementation based on {@link DeflaterOutputStream}.
-     */
-    private static final CompressingStreamFactory DEFLATE_CSF = new DeflateCompressingStreamFactory();
-
     /**
      * "No encoding" content type: "identity".
      */
     static final String NO_ENCODING = "identity";
-
+    private static final Logger LOG = LoggerFactory.getLogger(CompressingStreamFactory.class);
+    /**
+     * Implementation based on {@link GZIPOutputStream} and {@link GZIPInputStream}.
+     */
+    private static final CompressingStreamFactory GZIP_CSF = new GZIPCompressingStreamFactory();
+    /**
+     * Implementation based on {@link ZipOutputStream} and {@link ZipInputStream}.
+     */
+    private static final CompressingStreamFactory ZIP_CSF = new ZipCompressingStreamFactory();
+    /**
+     * Implementation based on {@link DeflaterOutputStream}.
+     */
+    private static final CompressingStreamFactory DEFLATE_CSF = new DeflateCompressingStreamFactory();
     private static final String GZIP_ENCODING = "gzip";
     private static final String X_GZIP_ENCODING = "x-gzip";
     private static final String DEFLATE_ENCODING = "deflate";
@@ -109,18 +93,6 @@ abstract class CompressingStreamFactory {
      * Ordered list of preferred encodings, from most to least preferred
      */
     private static final List<String> SUPPORTED_ENCODINGS;
-
-    static {
-        List<String> temp = new ArrayList<String>(6);
-        temp.add(GZIP_ENCODING);
-        temp.add(DEFLATE_ENCODING);
-        temp.add(COMPRESS_ENCODING);
-        temp.add(X_GZIP_ENCODING);
-        temp.add(X_COMPRESS_ENCODING);
-        temp.add(NO_ENCODING);
-        SUPPORTED_ENCODINGS = Collections.unmodifiableList(temp);
-    }
-
     /**
      * Cache mapping previously seen "Accept-Encoding" header Strings to an appropriate instance of {@link
      * CompressingStreamFactory}.
@@ -134,6 +106,17 @@ abstract class CompressingStreamFactory {
     private static final Pattern COMMA = Pattern.compile(",");
 
     static {
+        List<String> temp = new ArrayList<String>(6);
+        temp.add(GZIP_ENCODING);
+        temp.add(DEFLATE_ENCODING);
+        temp.add(COMPRESS_ENCODING);
+        temp.add(X_GZIP_ENCODING);
+        temp.add(X_COMPRESS_ENCODING);
+        temp.add(NO_ENCODING);
+        SUPPORTED_ENCODINGS = Collections.unmodifiableList(temp);
+    }
+
+    static {
         Map<String, CompressingStreamFactory> temp = new HashMap<String, CompressingStreamFactory>(11);
         temp.put(GZIP_ENCODING, GZIP_CSF);
         temp.put(X_GZIP_ENCODING, GZIP_CSF);
@@ -142,13 +125,6 @@ abstract class CompressingStreamFactory {
         temp.put(DEFLATE_ENCODING, DEFLATE_CSF);
         FACTORY_MAP = Collections.unmodifiableMap(temp);
     }
-
-
-    abstract CompressingOutputStream getCompressingStream(OutputStream servletOutputStream,
-                                                          CompressingFilterContext context) throws IOException;
-
-    abstract CompressingInputStream getCompressingStream(InputStream servletInputStream,
-                                                         CompressingFilterContext context) throws IOException;
 
     private static OutputStream maybeWrapStatsOutputStream(OutputStream outputStream,
                                                            CompressingFilterContext context,
@@ -345,6 +321,11 @@ abstract class CompressingStreamFactory {
         return new ContentEncodingQ(contentEncoding, q);
     }
 
+    abstract CompressingOutputStream getCompressingStream(OutputStream servletOutputStream,
+                                                          CompressingFilterContext context) throws IOException;
+
+    abstract CompressingInputStream getCompressingStream(InputStream servletInputStream,
+                                                         CompressingFilterContext context) throws IOException;
 
     private static final class ContentEncodingQ {
 

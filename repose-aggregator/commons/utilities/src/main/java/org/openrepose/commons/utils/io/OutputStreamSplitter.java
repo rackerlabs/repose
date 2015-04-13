@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  *
- * 
+ *
  */
 public final class OutputStreamSplitter extends OutputStream {
 

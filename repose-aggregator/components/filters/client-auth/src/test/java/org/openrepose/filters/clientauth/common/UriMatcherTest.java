@@ -36,26 +36,26 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(Enclosed.class)
 public class UriMatcherTest {
 
-   public static class WhenCheckingIfUriOnWhiteList {
-      private final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
-      private static final String WADL_REGEX = "/v1.0/application\\.wadl";
-      private final UriMatcher uriMatcher;
+    public static class WhenCheckingIfUriOnWhiteList {
+        private static final String WADL_REGEX = "/v1.0/application\\.wadl";
+        private final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
+        private final UriMatcher uriMatcher;
 
-      public WhenCheckingIfUriOnWhiteList() {
-         whiteListRegexPatterns.add(Pattern.compile(WADL_REGEX));
-         uriMatcher = new UriMatcher(whiteListRegexPatterns);
-      }
+        public WhenCheckingIfUriOnWhiteList() {
+            whiteListRegexPatterns.add(Pattern.compile(WADL_REGEX));
+            uriMatcher = new UriMatcher(whiteListRegexPatterns);
+        }
 
-      @Test
-      public void shouldReturnTrueIfUriMatchesPatternInWhiteList() {
-         final String REQUEST_URL = "/v1.0/application.wadl";
-         assertTrue(uriMatcher.isUriOnWhiteList(REQUEST_URL));
-      }
+        @Test
+        public void shouldReturnTrueIfUriMatchesPatternInWhiteList() {
+            final String REQUEST_URL = "/v1.0/application.wadl";
+            assertTrue(uriMatcher.isUriOnWhiteList(REQUEST_URL));
+        }
 
-      @Test
-      public void shouldReturnFalseIfUriDoesNotMatchPatternInWhiteList() {
-         final String REQUEST_URL = "/v1.0/1234/loadbalancers?param=/application.wadl";
-         assertFalse(uriMatcher.isUriOnWhiteList(REQUEST_URL));
-      }
-   }
+        @Test
+        public void shouldReturnFalseIfUriDoesNotMatchPatternInWhiteList() {
+            final String REQUEST_URL = "/v1.0/1234/loadbalancers?param=/application.wadl";
+            assertFalse(uriMatcher.isUriOnWhiteList(REQUEST_URL));
+        }
+    }
 }

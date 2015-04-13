@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.apivalidator
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
@@ -25,6 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 11/3/14.
  */
@@ -60,7 +62,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
+    def setup() {
         sleep 500
         fakeIdentityService.resetHandlers()
     }
@@ -79,7 +81,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
                 url: "$reposeEndpoint/a",
                 method: method,
                 headers: [
-                        'x-roles': roles,
+                        'x-roles'     : roles,
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token
                 ]
@@ -91,11 +93,11 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Delegated") == delegateMsg
 
         where:
-        roles                       | method     | responseCode | delegateMsg
-        "raxrole-test1"             | "GET"      | "200"        | "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
-        "raxrole-test1,a:observer"  | "POST"     | "200"        | "status_code=405`component=api-checker`message=Bad method: POST. The Method does not match the pattern: 'GET';q=0.5"
-        "raxrole-test1,a:observer"  | "DELETE"   | "200"        | "status_code=405`component=api-checker`message=Bad method: DELETE. The Method does not match the pattern: 'GET';q=0.5"
-        "raxrole-test1,a:admin"     | "PUT"      | "200"        | "status_code=405`component=api-checker`message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
+        roles                      | method   | responseCode | delegateMsg
+        "raxrole-test1"            | "GET"    | "200"        | "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
+        "raxrole-test1,a:observer" | "POST"   | "200"        | "status_code=405`component=api-checker`message=Bad method: POST. The Method does not match the pattern: 'GET';q=0.5"
+        "raxrole-test1,a:observer" | "DELETE" | "200"        | "status_code=405`component=api-checker`message=Bad method: DELETE. The Method does not match the pattern: 'GET';q=0.5"
+        "raxrole-test1,a:admin"    | "PUT"    | "200"        | "status_code=405`component=api-checker`message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
     }
 
     @Unroll("Sending request with roles: #roles and admin resp: #authresp")
@@ -107,9 +109,9 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        if(authresp != 200){
+        if (authresp != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request,xml ->
+                tokenId, request, xml ->
                     new Response(authresp)
             }
         }
@@ -118,7 +120,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
                 url: "$reposeEndpoint/a/123",
                 method: method,
                 headers: [
-                        'x-roles': roles,
+                        'x-roles'     : roles,
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token
                 ]
@@ -129,8 +131,8 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        roles                       | method     | authresp     | responseCode
-        "raxrole-test1"             | "GET"      | 401          |"500"
-        "raxrole-test1,a:observer"  | "POST"     | 404          |"401"
+        roles                      | method | authresp | responseCode
+        "raxrole-test1"            | "GET"  | 401      | "500"
+        "raxrole-test1,a:observer" | "POST" | 404      | "401"
     }
 }

@@ -19,15 +19,15 @@
  */
 package org.openrepose.filters.translation.httpx.processor.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.filters.translation.httpx.processor.common.Element;
 import org.openrepose.filters.translation.httpx.processor.common.InputStreamProcessor;
 import org.openrepose.filters.translation.httpx.processor.common.PreProcessorException;
 import org.openrepose.filters.translation.httpx.processor.json.elements.ElementFactory;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -37,11 +37,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class JsonxStreamProcessor implements InputStreamProcessor {
@@ -71,6 +67,26 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
         this.jsonFactory = jsonFactory;
         this.handlerFactory = handlerFactory;
         format = properties;
+    }
+
+    @Override
+    public InputStream process(InputStream sourceStream) throws PreProcessorException {
+        try {
+            final TransformerHandler transformerHandler = handlerFactory.newTransformerHandler();
+            final PipedInputStream resultStream = new PipedInputStream();
+            final PipedOutputStream out = new PipedOutputStream(resultStream);
+            transformerHandler.getTransformer().setOutputProperties(format);
+            transformerHandler.setResult(new StreamResult(out));
+
+            processingThread = DestroyableThreadWrapper.newThread(new JsonStreamProcessor(transformerHandler, sourceStream, out));
+            processingThread.start();
+
+            return resultStream;
+        } catch (IOException ex) {
+            throw new PreProcessorException(ex);
+        } catch (TransformerConfigurationException ex) {
+            throw new PreProcessorException(ex);
+        }
     }
 
     private class JsonStreamProcessor implements Runnable, Destroyable {
@@ -152,26 +168,6 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
         @Override
         public void destroy() {
             exitThread = true;
-        }
-    }
-
-    @Override
-    public InputStream process(InputStream sourceStream) throws PreProcessorException {
-        try {
-            final TransformerHandler transformerHandler = handlerFactory.newTransformerHandler();
-            final PipedInputStream resultStream = new PipedInputStream();
-            final PipedOutputStream out = new PipedOutputStream(resultStream);
-            transformerHandler.getTransformer().setOutputProperties(format);
-            transformerHandler.setResult(new StreamResult(out));
-
-            processingThread = DestroyableThreadWrapper.newThread(new JsonStreamProcessor(transformerHandler, sourceStream, out));
-            processingThread.start();
-
-            return resultStream;
-        } catch (IOException ex) {
-            throw new PreProcessorException(ex);
-        } catch (TransformerConfigurationException ex) {
-            throw new PreProcessorException(ex);
         }
     }
 }

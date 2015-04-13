@@ -94,7 +94,8 @@ class MockGraphite {
                 th.interrupt()
                 th.join(100)
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     static void logAndPrintln(String line) {

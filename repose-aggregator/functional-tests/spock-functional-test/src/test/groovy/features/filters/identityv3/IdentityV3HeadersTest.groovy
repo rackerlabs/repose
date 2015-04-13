@@ -29,7 +29,7 @@ import org.rackspace.deproxy.Response
 /**
  * Created by jennyvo on 8/26/14.
  */
-class IdentityV3HeadersTest extends ReposeValveTest{
+class IdentityV3HeadersTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -38,24 +38,24 @@ class IdentityV3HeadersTest extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         fakeIdentityV3Service.resetCounts()
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null,fakeIdentityV3Service.handler)
+                'identity service', null, fakeIdentityV3Service.handler)
     }
 
     def cleanupSpec() {
-        if(deproxy)
+        if (deproxy)
             deproxy.shutdown()
-        if(repose)
+        if (repose)
             repose.stop()
     }
 
-    def "When token is validated, set of headers should be generated"(){
+    def "When token is validated, set of headers should be generated"() {
         when: "I send a GET request to Repose with an X-Auth-Token header"
         fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.default_region = "DFW"
@@ -93,7 +93,7 @@ class IdentityV3HeadersTest extends ReposeValveTest{
         request2.headers.getFirstValue("X-Default-Region") == "DFW"
     }
 
-    def "when client failed to authenticate, the XXX-Authentication header should be expected" () {
+    def "when client failed to authenticate, the XXX-Authentication header should be expected"() {
         given:
         fakeIdentityV3Service.with {
             client_domainid = 11111
@@ -112,13 +112,13 @@ class IdentityV3HeadersTest extends ReposeValveTest{
                 url: "$reposeEndpoint/servers/11111/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
+                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"
-        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://"+identityEndpoint.hostname+":"+properties.identityPort
+        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://" + identityEndpoint.hostname + ":" + properties.identityPort
     }
 }

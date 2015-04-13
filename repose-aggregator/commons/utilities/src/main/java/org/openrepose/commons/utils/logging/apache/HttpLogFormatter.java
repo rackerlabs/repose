@@ -38,57 +38,16 @@ public class HttpLogFormatter {
 
     private static final Pattern TABS = Pattern.compile("\\\\t+");
     private static final Pattern NEWLINES = Pattern.compile("\\\\n+");
-    private final String formatTemplate;
-    private final List<FormatArgumentHandler> handlerList;
     private static final double RESPONSE_TIME_MULTIPLIER_MICROSEC = 1000;
     private static final double RESPONSE_TIME_MULTIPLIER_SEC = .001;
+    private final String formatTemplate;
+    private final List<FormatArgumentHandler> handlerList;
 
     public HttpLogFormatter(String formatTemplate) {
         this.formatTemplate = handleTabsAndNewlines(formatTemplate);
         handlerList = new LinkedList<FormatArgumentHandler>();
 
         build();
-    }
-
-    private String handleTabsAndNewlines(String formatTemplate) {
-        Matcher tabsMatcher = TABS.matcher(formatTemplate);
-        Matcher newlinesMatcher = NEWLINES.matcher(tabsMatcher.replaceAll("\t"));
-
-        return newlinesMatcher.replaceAll("\n");
-    }
-
-    private void build() {
-        final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(formatTemplate);
-
-        int previousTokenEnd = 0;
-
-        while (m.find()) {
-            handleStringContent(previousTokenEnd, m.start(), handlerList);
-            handlerList.add(handleArgument(new LogArgumentGroupExtractor(m)));
-            previousTokenEnd = m.end();
-        }
-
-        handleStringContent(previousTokenEnd, formatTemplate.length(), handlerList);
-    }
-
-    private void handleStringContent(int previousTokenEnd, int currentTokenStart, List<FormatArgumentHandler> argHandlerList) {
-        final String betweenElements = formatTemplate.substring(previousTokenEnd, currentTokenStart);
-
-        if (!isEmpty(betweenElements)) {
-            argHandlerList.add(handleArgument(LogArgumentGroupExtractor.stringEntity(betweenElements)));
-        }
-    }
-
-    private LogArgumentFormatter handleArgument(LogArgumentGroupExtractor extractor) {
-        final LogArgumentFormatter argFormatter = new LogArgumentFormatter();
-
-        if (!isBlank(extractor.getStatusCodes())) {
-            argFormatter.setStatusCodeConstraint(new StatusCodeConstraint(extractor.getStatusCodes()));
-        }
-
-        setLogic(extractor, argFormatter);
-
-        return argFormatter;
     }
 
     @SuppressWarnings("PMD.NcssMethodCount")
@@ -161,6 +120,47 @@ public class HttpLogFormatter {
                 formatter.setLogic(new ResponseMessageHandler());
                 break;
         }
+    }
+
+    private String handleTabsAndNewlines(String formatTemplate) {
+        Matcher tabsMatcher = TABS.matcher(formatTemplate);
+        Matcher newlinesMatcher = NEWLINES.matcher(tabsMatcher.replaceAll("\t"));
+
+        return newlinesMatcher.replaceAll("\n");
+    }
+
+    private void build() {
+        final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(formatTemplate);
+
+        int previousTokenEnd = 0;
+
+        while (m.find()) {
+            handleStringContent(previousTokenEnd, m.start(), handlerList);
+            handlerList.add(handleArgument(new LogArgumentGroupExtractor(m)));
+            previousTokenEnd = m.end();
+        }
+
+        handleStringContent(previousTokenEnd, formatTemplate.length(), handlerList);
+    }
+
+    private void handleStringContent(int previousTokenEnd, int currentTokenStart, List<FormatArgumentHandler> argHandlerList) {
+        final String betweenElements = formatTemplate.substring(previousTokenEnd, currentTokenStart);
+
+        if (!isEmpty(betweenElements)) {
+            argHandlerList.add(handleArgument(LogArgumentGroupExtractor.stringEntity(betweenElements)));
+        }
+    }
+
+    private LogArgumentFormatter handleArgument(LogArgumentGroupExtractor extractor) {
+        final LogArgumentFormatter argFormatter = new LogArgumentFormatter();
+
+        if (!isBlank(extractor.getStatusCodes())) {
+            argFormatter.setStatusCodeConstraint(new StatusCodeConstraint(extractor.getStatusCodes()));
+        }
+
+        setLogic(extractor, argFormatter);
+
+        return argFormatter;
     }
 
     List<FormatArgumentHandler> getHandlerList() {

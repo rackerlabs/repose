@@ -20,12 +20,10 @@
 package org.openrepose.spring
 
 import java.net.URL
-import java.util.concurrent.LinkedBlockingQueue
 
-import org.openrepose.commons.config.manager.{ConfigurationUpdateManager, UpdateListener}
+import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.config.parser.common.ConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.core.services.jmx.ConfigurationInformation
 import org.openrepose.core.services.config.ConfigurationService
 import org.slf4j.LoggerFactory
 
@@ -35,10 +33,8 @@ import scala.collection.mutable
 class FakeConfigService extends ConfigurationService {
 
   val log = LoggerFactory.getLogger(this.getClass)
-
-  private val lock = new Object()
-
   val stupidListener: mutable.Map[String, AnyRef] = mutable.Map.empty[String, AnyRef]
+  private val lock = new Object()
 
   def getListener[T](key: String): UpdateListener[T] = {
 

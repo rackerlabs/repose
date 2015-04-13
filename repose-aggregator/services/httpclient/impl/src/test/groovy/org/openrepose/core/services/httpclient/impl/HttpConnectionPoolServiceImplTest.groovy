@@ -19,9 +19,6 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
-import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.conn.ClientConnectionManager
 import org.apache.http.impl.conn.PoolingClientConnectionManager
@@ -30,6 +27,9 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.HttpClientResponse
 
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
@@ -38,15 +38,15 @@ class HttpConnectionPoolServiceImplTest {
 
     HttpConnectionPoolConfig poolCfg;
     HttpConnectionPoolServiceImpl srv;
-    String  POOL1_ID = "POOL1_ID"
+    String POOL1_ID = "POOL1_ID"
     Boolean POOL1_DEFAULT = false
     Integer POOL1_MAX_CON = 10
     Integer POOL1_SO_TIMEOUT = 20000
-    String  POOL2_ID = "POOL2_ID"
+    String POOL2_ID = "POOL2_ID"
     Boolean POOL2_DEFAULT = true
     Integer POOL2_MAX_CON = 20
     Integer POOL2_SO_TIMEOUT = 60000
-    String  POOLU_ID = "POOLU_ID"
+    String POOLU_ID = "POOLU_ID"
     // Retrieve the defaults defined in the XSD.
     PoolType poolType = new PoolType()
     Integer POOLU_SO_TIMEOUT = poolType.getHttpSocketTimeout()

@@ -2,9 +2,10 @@
 
 <translation xmlns="http://docs.openrepose.org/repose/translation/v1.0" allow-doctype-decl="true">
     <response-translations>
-        <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+        <response-translation content-type="application/xml" accept="application/xml"
+                              translated-content-type="application/xml">
             <style-sheets>
-                <style id="ss2" href="remove-element.xsl" />
+                <style id="ss2" href="remove-element.xsl"/>
             </style-sheets>
         </response-translation>
     </response-translations>

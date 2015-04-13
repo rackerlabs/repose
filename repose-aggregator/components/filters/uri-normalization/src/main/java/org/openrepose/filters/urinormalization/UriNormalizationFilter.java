@@ -37,10 +37,10 @@ public class UriNormalizationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UriNormalizationFilter.class);
     private static final String DEFAULT_CONFIG = "uri-normalization.cfg.xml";
-    private String config;
-    private UriNormalizationHandlerFactory handlerFactory;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
+    private String config;
+    private UriNormalizationHandlerFactory handlerFactory;
 
     @Inject
     public UriNormalizationFilter(

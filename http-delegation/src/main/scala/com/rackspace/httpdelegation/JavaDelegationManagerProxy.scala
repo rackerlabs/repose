@@ -22,16 +22,11 @@ package com.rackspace.httpdelegation
 import java.text.ParseException
 import java.util
 
-import scala.collection.JavaConverters._
-import scala.util.{Failure, Success}
-
 /** A Java interface into the [[HttpDelegationManager]].
   *
   * This object deals in Java objects to simplify interoperability with Java code which utilizes this library.
   */
 object JavaDelegationManagerProxy {
-
-  private object HttpDelegationManagerProxy extends HttpDelegationManager
 
   /** Generates the appropriate headers to add to a HTTP request to support delegation.
     *
@@ -65,4 +60,6 @@ object JavaDelegationManagerProxy {
         throw new ParseException(e.getMessage, -1)
     }
   }
+
+  private object HttpDelegationManagerProxy extends HttpDelegationManager
 }

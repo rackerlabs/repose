@@ -61,26 +61,26 @@ public class ReportingServiceImplTest {
             assertEquals(5, reportingService.getDestinationInfo("id_7").getTotalRequests());
 
             // sleep for three seconds
-            Thread.sleep(3*1000);
+            Thread.sleep(3 * 1000);
 
             assertEquals(0, reportingService.getDestinationInfo("id_7").getTotalRequests());
         }
-        
+
         @Test
-        public void shouldReturnDestinationList(){
-           
-           List<DestinationInfo> dst = reportingService.getDestinations();
-           
-           assertEquals(3, dst.size());
+        public void shouldReturnDestinationList() {
+
+            List<DestinationInfo> dst = reportingService.getDestinations();
+
+            assertEquals(3, dst.size());
         }
-        
+
         @Test
-        public void shouldRecordServiceResponse(){
-           
-           Long responseTime = new Long("200");
-           reportingService.recordServiceResponse("id_1", 202, responseTime);
-           DestinationInfo dstInfo = reportingService.getDestinationInfo("id_1");
-           assertEquals(1, dstInfo.getTotalStatusCode(202));
+        public void shouldRecordServiceResponse() {
+
+            Long responseTime = new Long("200");
+            reportingService.recordServiceResponse("id_1", 202, responseTime);
+            DestinationInfo dstInfo = reportingService.getDestinationInfo("id_1");
+            assertEquals(1, dstInfo.getTotalStatusCode(202));
         }
     }
 }

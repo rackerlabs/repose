@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.1.1</version>
+        <version>7.0.1.2-SNAPSHOT</version>
     </parent>
 
     <name>Repose Components - Versioning</name>
@@ -62,14 +63,20 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-lgpl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-lgpl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -151,6 +158,59 @@
                     <verbose>false</verbose>
 
                 </configuration>
+            </plugin>
+            <!-- this is working now that doxygen is commented out-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codenarc</groupId>
+                        <artifactId>CodeNarc</artifactId>
+                        <version>0.21</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrepose</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>codenarc</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask"
+                                         classpathref="maven.plugin.classpath"/>
+                                <codenarc
+                                        ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
+                                        maxPriority1Violations="0"
+                                        maxPriority2Violations="0"
+                                        maxPriority3Violations="0"
+                                        >
+                                    <report type="xml">
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
+                                        <option name="title" value="${project.name}"/>
+                                    </report>
+                                    <!--fileset dir="${basedir}/src/test/groovy"-->
+                                    <fileset dir="${basedir}/src/test/java">
+                                        <include name="**/*.groovy"/>
+                                    </fileset>
+                                </codenarc>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

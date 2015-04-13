@@ -36,7 +36,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 
 /**
- *
  * @author zinic
  */
 public class CombinedLimitsTransformer extends AbstractXslTransform implements StreamTransform<LimitsTransformPair, OutputStream> {
@@ -44,14 +43,14 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
     private static final Logger LOG = LoggerFactory.getLogger(CombinedLimitsTransformer.class);
     private final JAXBContext jaxbContext;
     private final ObjectFactory factory;
-    
+
     public CombinedLimitsTransformer(Templates templates, JAXBContext jaxbContext, ObjectFactory factory) {
         super(templates);
-        
+
         this.jaxbContext = jaxbContext;
         this.factory = factory;
     }
-    
+
     @Override
     public void transform(final LimitsTransformPair source, final OutputStream target) {
         Transformer pooledObject;

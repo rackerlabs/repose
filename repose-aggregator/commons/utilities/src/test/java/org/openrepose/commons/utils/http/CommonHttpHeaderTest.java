@@ -32,11 +32,11 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Enclosed.class)
 public class CommonHttpHeaderTest {
 
-   public static class WhenGettingHeaderKeys {
+    public static class WhenGettingHeaderKeys {
 
-      @Test
-      public void shouldReturnExpectedKey() {
-         assertEquals("retry-after", CommonHttpHeader.RETRY_AFTER.toString());
-      }
-   }
+        @Test
+        public void shouldReturnExpectedKey() {
+            assertEquals("retry-after", CommonHttpHeader.RETRY_AFTER.toString());
+        }
+    }
 }

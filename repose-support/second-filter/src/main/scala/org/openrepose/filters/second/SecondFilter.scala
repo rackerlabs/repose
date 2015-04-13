@@ -19,9 +19,6 @@
  */
 package org.openrepose.filters.second
 
-import javax.inject.Named
-import javax.servlet._
-
 /**
  * This test filter assumes it is operating in the test classpath of core unit tests
  */

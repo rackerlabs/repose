@@ -42,65 +42,65 @@ import java.util.List;
 
 public class RateLimitingServiceHelper {
 
-   private static final RuntimeDelegateImpl runtimeDelegateImpl = new RuntimeDelegateImpl();
-   private final RateLimitingService service;
-   private final ActiveLimitsWriter activeLimitsWriter;
-   private final CombinedLimitsWriter combinedLimitsWriter;
+    private static final RuntimeDelegateImpl runtimeDelegateImpl = new RuntimeDelegateImpl();
+    private final RateLimitingService service;
+    private final ActiveLimitsWriter activeLimitsWriter;
+    private final CombinedLimitsWriter combinedLimitsWriter;
 
-   public RateLimitingServiceHelper(RateLimitingService service, ActiveLimitsWriter activeLimitsWriter, CombinedLimitsWriter combinedLimitsWriter) {
-      this.service = service;
-      this.activeLimitsWriter = activeLimitsWriter;
-      this.combinedLimitsWriter = combinedLimitsWriter;
-      // This fixes the ClassNotFoundException: org.glassfish.jersey.internal.RuntimeDelegateImpl
-      // and requires the Maven dependency: com.sun.jersey:jersey-server:jar:1.16:compile
-      // http://www.programcreek.com/java-api-examples/index.php?api=javax.ws.rs.ext.RuntimeDelegate
-      RuntimeDelegate.setInstance(runtimeDelegateImpl);
-   }
+    public RateLimitingServiceHelper(RateLimitingService service, ActiveLimitsWriter activeLimitsWriter, CombinedLimitsWriter combinedLimitsWriter) {
+        this.service = service;
+        this.activeLimitsWriter = activeLimitsWriter;
+        this.combinedLimitsWriter = combinedLimitsWriter;
+        // This fixes the ClassNotFoundException: org.glassfish.jersey.internal.RuntimeDelegateImpl
+        // and requires the Maven dependency: com.sun.jersey:jersey-server:jar:1.16:compile
+        // http://www.programcreek.com/java-api-examples/index.php?api=javax.ws.rs.ext.RuntimeDelegate
+        RuntimeDelegate.setInstance(runtimeDelegateImpl);
+    }
 
-   public MimeType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
-      RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-      javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), outputStream);
+    public MimeType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
+        RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
+        javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), outputStream);
 
-      return getReposeMimeType(mediaType);
-   }
+        return getReposeMimeType(mediaType);
+    }
 
-   public MimeType queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
-      RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-      javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), absoluteLimits, outputStream);
+    public MimeType queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
+        RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
+        javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), absoluteLimits, outputStream);
 
-      return getReposeMimeType(mediaType);
-   }
+        return getReposeMimeType(mediaType);
+    }
 
-   public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
-      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), request.getParameterMap(), request.getMethod(), datastoreWarnLimit);
-   }
+    public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
+        service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), request.getParameterMap(), request.getMethod(), datastoreWarnLimit);
+    }
 
-   public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
-      return MimeType.guessMediaTypeFromString(mediaType.toString());
-   }
+    public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
+        return MimeType.guessMediaTypeFromString(mediaType.toString());
+    }
 
-   public javax.ws.rs.core.MediaType getJavaMediaType(MimeType reposeMimeType) {
-      return new javax.ws.rs.core.MediaType(reposeMimeType.getType(), reposeMimeType.getSubType());
-   }
+    public javax.ws.rs.core.MediaType getJavaMediaType(MimeType reposeMimeType) {
+        return new javax.ws.rs.core.MediaType(reposeMimeType.getType(), reposeMimeType.getSubType());
+    }
 
-   public String getPreferredUser(HttpServletRequest request) {
-      final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-      final HeaderValue userNameHeaderValue = mutableRequest.getPreferredHeader(PowerApiHeader.USER.toString(), new HeaderValueImpl(""));
+    public String getPreferredUser(HttpServletRequest request) {
+        final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+        final HeaderValue userNameHeaderValue = mutableRequest.getPreferredHeader(PowerApiHeader.USER.toString(), new HeaderValueImpl(""));
 
-      return userNameHeaderValue.getValue();
-   }
+        return userNameHeaderValue.getValue();
+    }
 
-   public List<String> getPreferredGroups(HttpServletRequest request) {
-      final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-      final List<? extends HeaderValue> userGroup = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), null);
-      final List<String> groups = new ArrayList<String>();
+    public List<String> getPreferredGroups(HttpServletRequest request) {
+        final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+        final List<? extends HeaderValue> userGroup = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), null);
+        final List<String> groups = new ArrayList<String>();
 
-      for (HeaderValue group : userGroup) {
-         groups.add(group.getValue());
-      }
+        for (HeaderValue group : userGroup) {
+            groups.add(group.getValue());
+        }
 
-      return groups;
-   }
+        return groups;
+    }
 
     private String decodeURI(String uri) {
         return URI.create(uri).getPath();

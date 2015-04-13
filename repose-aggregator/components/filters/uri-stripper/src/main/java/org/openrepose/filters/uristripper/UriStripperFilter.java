@@ -37,9 +37,9 @@ public class UriStripperFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(UriStripperFilter.class);
     private static final String DEFAULT_CONFIG = "uri-stripper.cfg.xml";
+    private final ConfigurationService configurationService;
     private String config;
     private UriStripperHandlerFactory handlerFactory;
-    private final ConfigurationService configurationService;
 
     @Inject
     public UriStripperFilter(ConfigurationService configurationService) {

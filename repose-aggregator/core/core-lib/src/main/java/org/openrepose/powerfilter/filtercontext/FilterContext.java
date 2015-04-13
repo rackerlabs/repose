@@ -22,9 +22,8 @@ package org.openrepose.powerfilter.filtercontext;
 import org.openrepose.commons.utils.Destroyable;
 import org.springframework.context.support.AbstractApplicationContext;
 
-import java.util.regex.Pattern;
-
 import javax.servlet.Filter;
+import java.util.regex.Pattern;
 
 /**
  * Holds information about a filter, the filter itself and the filter's application context.
@@ -92,7 +91,7 @@ public class FilterContext implements Destroyable {
         if (filter != null) {
             filter.destroy();
         }
-        if(filterAppContext != null) {
+        if (filterAppContext != null) {
             filterAppContext.close();
         }
     }

@@ -19,17 +19,20 @@
  */
 package org.openrepose.core.services.ratelimit.cache.util;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 public final class ObjectSerializer {
 
     private static final ObjectSerializer INSTANCE = new ObjectSerializer();
 
-    public static ObjectSerializer instance() {
-        return INSTANCE;
+    private ObjectSerializer() {
     }
 
-    private ObjectSerializer() {
+    public static ObjectSerializer instance() {
+        return INSTANCE;
     }
 
     public byte[] writeObject(Serializable o) throws IOException {

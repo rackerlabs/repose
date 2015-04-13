@@ -43,13 +43,12 @@ import static org.mockito.Mockito.*;
 // TODO: Still depend on Repose core
 
 /**
-*
-* @author jhopper
-*/
+ * @author jhopper
+ */
 public class ManagedRateLimitCacheTest {
 
     private String ACCOUNT = "12345";
-    private int datastoreWarnLimit= 1000;
+    private int datastoreWarnLimit = 1000;
     private Datastore datastore;
     private ManagedRateLimitCache rateLimitCache;
     private ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
@@ -86,7 +85,7 @@ public class ManagedRateLimitCacheTest {
         HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
         limitMap.put("testKey", new CachedRateLimit(defaultConfig));
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
-        ArrayList< Pair<String, ConfiguredRatelimit> > matchingLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
+        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
         rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE, 5);
         verify(datastore).patch(eq("bob"), any(UserRateLimit.Patch.class), eq(1), eq(TimeUnit.MINUTES));
@@ -102,7 +101,7 @@ public class ManagedRateLimitCacheTest {
         UserRateLimit returnedLimit = spy(new UserRateLimit(limitMap));
         when(returnedLimit.getLowestLimit()).thenReturn(Pair.of(defaultConfig, cachedRateLimit));
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(returnedLimit);
-        ArrayList< Pair<String, ConfiguredRatelimit> > matchingLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
+        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
         NextAvailableResponse response = rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE, 5);
         assertThat(response, hasValues(true, now, 1));
@@ -113,9 +112,9 @@ public class ManagedRateLimitCacheTest {
             @Override
             protected boolean matchesSafely(NextAvailableResponse item) {
                 return (item.hasRequestsRemaining() == hasRequests) &&
-                       (item.getResetTime().getTime() > resetTime) &&
-                       (item.getResetTime().getTime() < (resetTime + 120000)) &&
-                       (item.getCurrentLimitAmount() == currentLimitAmount);
+                        (item.getResetTime().getTime() > resetTime) &&
+                        (item.getResetTime().getTime() < (resetTime + 120000)) &&
+                        (item.getCurrentLimitAmount() == currentLimitAmount);
             }
 
             @Override

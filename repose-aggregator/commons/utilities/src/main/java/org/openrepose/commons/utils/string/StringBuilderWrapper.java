@@ -20,7 +20,6 @@
 package org.openrepose.commons.utils.string;
 
 /**
- *
  * @author zinic
  */
 public class StringBuilderWrapper implements JCharSequence {
