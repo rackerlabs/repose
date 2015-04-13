@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package framework.mocks
+
 import groovy.text.SimpleTemplateEngine
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * Simulates responses from a Valkyrie Server
  */
@@ -60,7 +62,7 @@ class MockValkyrie {
     String device_id = ""
     String device_perm = ""
 
-    def sleeptime =0;
+    def sleeptime = 0;
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -113,15 +115,16 @@ class MockValkyrie {
         return new Response(501);
     }
 
-    static final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/devices\/by_contact\/([^\/]+)\/effective/
+    static
+    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/devices\/by_contact\/([^\/]+)\/effective/
 
     Response authorize(String tenant, String contact, Request request) {
 
         def params = [
-                contact     : contact,
-                tenant      : tenant,
-                deviceID   : device_id,
-                permission : device_perm
+                contact   : contact,
+                tenant    : tenant,
+                deviceID  : device_id,
+                permission: device_perm
         ];
 
         def code;
@@ -139,12 +142,11 @@ class MockValkyrie {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-        if(sleeptime > 0) {
+        if (sleeptime > 0) {
             sleep(sleeptime)
         }
         return new Response(code, null, headers, body.toString().getBytes(StandardCharsets.UTF_8))
     }
-
 
 
     def validationFailureTemplate =

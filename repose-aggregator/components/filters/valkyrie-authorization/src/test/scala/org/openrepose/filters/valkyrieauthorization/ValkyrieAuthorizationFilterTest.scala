@@ -1,3 +1,22 @@
+/*
+ * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+ * Repose
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ */
 package org.openrepose.filters.valkyrieauthorization
 
 import java.io.ByteArrayInputStream
@@ -271,7 +290,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
     List(null, new DelegatingType).foreach { delegation =>
-      it(s"should be able to mask 403 to a 404 ${if (delegation != null) { "using delegation" } else { "" }} ") {
+      it(s"should be able to mask 403 to a 404 ${
+        if (delegation != null) {
+          "using delegation"
+        } else {
+          ""
+        }
+      } ") {
         val request = RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
 
         val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "123456"), 200, createValkyrieResponse("123456", "view_product"))
@@ -325,8 +350,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def createValkyrieResponse(deviceId: String, permissionName: String): String = {
     s"""{
-         "contact_permissions" :[
-           {
+        "contact_permissions" :[ {
              "account_number":862323,
              "contact_id": 818029,
              "id": 0,
@@ -335,8 +359,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
              "item_type_name" : "devices",
              "permission_name" : "$permissionName",
              "permission_type_id" : 12
-           },
-           {
+           }, {
              "account_number":862323,
              "contact_id": 818029,
              "id": 0,
