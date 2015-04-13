@@ -55,7 +55,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   trait ValkyrieResult
   case class DeviceToPermission(device: Int, permission: String)
-  case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult
+  case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult //Vector because List isnt serializable until Scala 2.11
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
@@ -68,7 +68,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
 
-    val clientResponse = (requestedTenantId, requestedContactId, requestedDeviceId) match {
+    val clientResponse = ((requestedTenantId, requestedContactId, requestedDeviceId) match {
       case (None, _, _) => ResponseResult(502, "No tenant ID specified")
       case (_, None, _) => ResponseResult(403, "No contact ID specified")
       case (_, _, None) => ResponseResult(502, "No device ID specified")
@@ -78,6 +78,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case deviceList: DeviceList => authorize(device, deviceList.devices, mutableHttpRequest.getMethod)
         case result: ResponseResult => result
       }
+    }) match {
+      case ResponseResult(403,_) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+      case result => result
     }
 
     clientResponse match {
