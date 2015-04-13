@@ -32,6 +32,8 @@ class MergeHeaderTest extends ReposeValveTest {
 
     def cleanupSpec() {
         running = false
+        deproxy.shutdown()
+        repose.stop()
     }
 
     def setupSpec() {
@@ -43,7 +45,13 @@ class MergeHeaderTest extends ReposeValveTest {
 
         deproxy = new Deproxy()
         properties.targetPort = loop.port
+        //HEY HERES A DIRTY HAX IF IT PICKS THE SAME ONE
+        println("STARTING UP SOCKET SERVER ON $properties.targetPort REPOSE ON $properties.reposePort")
+        if(properties.targetPort == properties.reposePort) {
+            properties.reposePort += 1
+        }
         def params = properties.getDefaultTemplateParams()
+
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/mergeheader", params) //just a very simple config
@@ -105,13 +113,11 @@ class MergeHeaderTest extends ReposeValveTest {
      * I have to implement my own stupid HTTP server for the moment, in order to actually verify split headers and such
      */
     private class BasicLoop implements Runnable {
-        ServerSocket serverSocket = null
-        public int port = 0
+        ServerSocket serverSocket = new ServerSocket(0)
+        public int port = serverSocket.getLocalPort()
 
         @Override
         public void run() {
-            serverSocket = new ServerSocket(0)
-            port = serverSocket.getLocalPort()
             println("STARTING UP SERVER ON PORT: $port")
 
             int count = 1
