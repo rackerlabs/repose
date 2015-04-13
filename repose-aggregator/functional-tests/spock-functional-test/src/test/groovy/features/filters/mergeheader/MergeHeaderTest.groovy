@@ -112,14 +112,17 @@ class MergeHeaderTest extends ReposeValveTest {
         public void run() {
             serverSocket = new ServerSocket(0)
             port = serverSocket.getLocalPort()
+            println("STARTING UP SERVER ON PORT: $port")
 
             int count = 1
             while (running) {
                 try {
+                    println("WAITING FOR CONNECTION $count")
                     count += 1
 
                     Socket server = serverSocket.accept()
                     Thread.start {
+                        println("IN THREAD DOIN TEH WORK")
 
                         //Cannot just read all the lines, because yeah
                         boolean readHeader = false
