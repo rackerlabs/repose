@@ -19,8 +19,8 @@
  */
 package org.openrepose.filters.versioning;
 
+import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
@@ -36,9 +36,7 @@ import org.openrepose.filters.versioning.util.ContentTransformer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,6 +58,7 @@ public class VersioningHandlerTest {
     Node localHost;
     DestinationEndpoint localEndpoint;
     HttpServletRequest request;
+    private GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1);
 
     @Before
     public void setUp() {
@@ -224,9 +223,9 @@ public class VersioningHandlerTest {
         assertEquals("Response should still be set to Bad Gateway", director.getResponseStatusCode(), HttpServletResponse.SC_BAD_GATEWAY);
     }
 
-    @Ignore("Pretty sure this one is suffering from the same problem as the rate limting tests")
     @Test
     public void shouldSetAcceptFromMediaTypeParameter() {
+        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
         final String acceptHeader = "application/vnd.rackspace; x=v1; y=json";
         when(request.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singleton("Accept")));
         when(request.getRequestURI()).thenReturn("/somethingthere");

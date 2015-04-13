@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.ratelimiting;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -76,6 +77,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
     public static class WhenMakingValidRequests extends TestParent {
         private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
+        private GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1);
 
         @Before
         public void setup() {
@@ -203,11 +205,9 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertEquals("On rejected media type, returned status code must be 406", HttpServletResponse.SC_NOT_ACCEPTABLE, director.getResponseStatusCode());
         }
 
-        @Ignore("I have no idea what's going on with this test, this is some serious craziness," +
-                " it's definitely not working anymore because the splitting doesn't happen in the wrapper anymore," +
-                " but in actual usage they will be split")
         @Test
         public void shouldDescribeLimitsCallWithEmptyAcceptType() {
+            Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
             when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
