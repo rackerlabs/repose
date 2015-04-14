@@ -146,4 +146,9 @@
         <filter-name>herp</filter-name>
         <filter-class>org.openrepose.filters.herp.HerpFilter</filter-class>
     </filter>
+
+    <filter>
+        <filter-name>valkyrie-authorization</filter-name>
+        <filter-class>org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter</filter-class>
+    </filter>
 </web-fragment>
