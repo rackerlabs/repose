@@ -23,9 +23,9 @@ import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
-import com.rackspace.com.papi.components.checker.step.Result;
-import com.rackspace.com.papi.components.checker.step.Step;
-import com.rackspace.com.papi.components.checker.step.StepContext;
+import com.rackspace.com.papi.components.checker.step.results.Result;
+import com.rackspace.com.papi.components.checker.step.base.Step;
+import com.rackspace.com.papi.components.checker.step.base.StepContext;
 import org.w3c.dom.Document;
 import scala.Option;
 
