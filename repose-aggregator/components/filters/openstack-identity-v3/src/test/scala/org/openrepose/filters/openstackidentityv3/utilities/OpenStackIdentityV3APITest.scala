@@ -76,7 +76,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
 
     it("builds a JSON auth token request with a domain ID"){
       //Modify the identity config to include the domain
-      identityConfig.getOpenstackIdentityService.setDomain("867530nieeein")
+      identityConfig.getOpenstackIdentityService.setDomainId("867530nieeein")
       identityV3API = new OpenStackIdentityV3API(identityConfig, mockDatastore, mockAkkaServiceClient)
 
       val mockServiceClientResponse = mock[ServiceClientResponse]
@@ -94,7 +94,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
         contains(
           """
             |{"auth":{"identity":{"methods":["password"],"password":{"user":{"domain":{"id":"867530nieeein"},"name":"user","password":"password"}}}}}
-          """.stripMargin
+          """.stripMargin.trim
         ),
         any[MediaType]
       )
