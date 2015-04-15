@@ -90,7 +90,7 @@ public class PowerFilterChain implements FilterChain {
                     TimeUnit.MILLISECONDS);
         }
         splittabelHeaderUtil = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                                                        ExtendedHttpHeader.values());
+                ExtendedHttpHeader.values());
     }
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
@@ -281,7 +281,7 @@ public class PowerFilterChain implements FilterChain {
         List<String> finalValues = new ArrayList<>();
         for (String passedValue : headerValues) {
             String[] splitValues = passedValue.split(",");
-            for (String splitValue : splitValues)  {
+            for (String splitValue : splitValues) {
                 finalValues.add(splitValue);
             }
         }

@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.filters.ratelimiting
+
 import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.Assume
 import org.openrepose.commons.utils.http.PowerApiHeader
@@ -30,7 +31,6 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MediaType
 
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceHelperTest extends Specification {
