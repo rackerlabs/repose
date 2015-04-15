@@ -22,7 +22,7 @@ package org.openrepose.filters.apivalidator;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
-import com.rackspace.com.papi.components.checker.step.Result;
+import com.rackspace.com.papi.components.checker.step.results.Result;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

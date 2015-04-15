@@ -20,8 +20,8 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
-import com.rackspace.com.papi.components.checker.step.ErrorResult;
-import com.rackspace.com.papi.components.checker.step.Result;
+import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
+import com.rackspace.com.papi.components.checker.step.results.Result;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;

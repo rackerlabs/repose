@@ -26,7 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-class BasicValkyrieTest extends ReposeValveTest {
+class RaxDeviceValkyrieTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -44,6 +44,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/raxdevice", params);
 
         repose.start()
 
@@ -68,7 +69,6 @@ class BasicValkyrieTest extends ReposeValveTest {
             repose.stop()
         }
     }
-
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {

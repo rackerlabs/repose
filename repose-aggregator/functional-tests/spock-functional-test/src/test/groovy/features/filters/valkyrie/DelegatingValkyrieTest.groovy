@@ -89,8 +89,6 @@ class DelegatingValkyrieTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        "x-roles"     : "raxRolesDisabled",
-                        "X-Device-Id" : deviceID     /* remove this once we have the api-validator piece */
                 ]
         )
 
@@ -117,7 +115,6 @@ class DelegatingValkyrieTest extends ReposeValveTest {
         "PUT"    | randomTenant() | "520707" | "hezmol"       | "status_code=403"
         "POST"   | randomTenant() | "520707" | "_22_reimer"   | "status_code=403"
         "DELETE" | randomTenant() | "520707" | "blah"         | "status_code=403"
-        "DELETE" | randomTenant() | ""       | "blah"         | "status_code=502"
     }
 
     def String randomTenant() {

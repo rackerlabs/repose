@@ -7,7 +7,7 @@
             <resources base="http://localhost:${targetPort}">
                 <resource path="/resource">
                     <resource id="device" path="{id}">
-                        <param name="id" type="xsd:string" rax:captureHeader="X-DEVICE-ID" style="template">
+                        <param name="id" type="xsd:string" rax:device="true" style="template">
                             <doc>Identifies a device ID at this resource level</doc>
                         </param>
                         <method name="GET"/>
