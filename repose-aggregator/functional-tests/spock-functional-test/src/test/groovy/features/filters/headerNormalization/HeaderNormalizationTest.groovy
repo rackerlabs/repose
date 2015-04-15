@@ -245,8 +245,6 @@ class HeaderNormalizationTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
 
-
-
     def "Should not split request headers when configured as such with merge-header filter"() {
         given: "configurged to to split headers using the merge-header filter"
 
@@ -260,7 +258,8 @@ class HeaderNormalizationTest extends ReposeValveTest {
                 [
                         "user-agent": userAgentValue,
                         "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
+                        "accept"    : "application/xml;q=1 , application/json;q=0.5",
+                        "Accept-Charset" : "UTF-8, US-ASCII, ISO-8859-1, *"
                 ]
 
         when: "User sends a request through repose"
@@ -272,6 +271,8 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.handlings[0].request.headers['user-agent'] == userAgentValue
         mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
+        // split this header since it's not in merge-header config
+        mc.handlings[0].request.getHeaders().findAll("Accept-Charset").size() == 4
     }
 
     def "Should merge response headers when configured as such with merge-header filter"() {
