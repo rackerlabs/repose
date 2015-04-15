@@ -2,9 +2,7 @@
 
 <merge-header xmlns='http://docs.openrepose.org/repose/merge-header/v1.0'>
     <request>
-        <!-- always merge the accept-charset header on requests -->
         <header>x-pp-user</header>
-        <!-- this header may not always exist, so we'll verify that it doesn't get added -->
         <header>accept</header>
     </request>
     <response>
