@@ -157,12 +157,13 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
 
-        <!-- I cannot put this in test scope, because it overrides further down, thus breaking those projects -->
-        <!-- since the shading happens here, it ruins everything -->
+        <!--
+        this is only being used in the test scope, but a shading will ruin it and not include it in proper scope
+        in other projects :(
+        -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.4.1</version>
         </dependency>
 
     </dependencies>
