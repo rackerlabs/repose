@@ -156,10 +156,11 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="domain" type="xs:string" use="optional">
+        <xs:attribute name="domain-id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Optional domain to use when authenticating as an Admin User to OpenStack Identity.</html:p>
+                    <html:p>Optional domain id to use when authenticating as an Admin User to OpenStack Identity.</html:p>
+                    <html:p>This will end up in the domain: { "id": HERE } JSON structure</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
