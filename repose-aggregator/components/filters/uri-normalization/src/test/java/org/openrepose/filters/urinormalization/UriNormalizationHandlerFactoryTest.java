@@ -28,7 +28,8 @@ import org.openrepose.filters.urinormalization.config.UriNormalizationConfig;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class UriNormalizationHandlerFactoryTest {
@@ -68,12 +69,7 @@ public class UriNormalizationHandlerFactoryTest {
 
         UriNormalizationHandler handler = instance.buildHandler();
 
-        try {
-            FilterDirector filterDirector = handler.handleRequest(mockRequest, mockResponse);
-
-            assertEquals(FilterAction.PASS, filterDirector.getFilterAction());
-        } catch (Throwable t) {
-            fail();
-        }
+        FilterDirector filterDirector = handler.handleRequest(mockRequest, mockResponse);
+        assertEquals(FilterAction.PASS, filterDirector.getFilterAction());
     }
 }
