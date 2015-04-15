@@ -10,5 +10,6 @@
         <header>location</header>
         <!-- this one won't exist from teh origin, so we'll make sure I don't accidentally add it -->
         <header>via</header>
+        <header>accept</header>
     </response>
 </merge-header>
