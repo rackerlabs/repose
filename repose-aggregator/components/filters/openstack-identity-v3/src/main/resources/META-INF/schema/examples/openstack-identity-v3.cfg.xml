@@ -9,5 +9,9 @@
         <uri-pattern>/application\.wadl$</uri-pattern>
     </white-list>
 
-    <openstack-identity-service username="admin_username" password="admin_password" uri="http://identity.example.com"/>
+    <openstack-identity-service
+            username="admin_username"
+            password="admin_password"
+            domain="some.domain"
+            uri="http://identity.example.com"/>
 </openstack-identity-v3>
