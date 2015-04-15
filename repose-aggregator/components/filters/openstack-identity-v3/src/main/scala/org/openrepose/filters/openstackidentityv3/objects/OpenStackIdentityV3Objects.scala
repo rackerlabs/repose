@@ -124,7 +124,7 @@ case class AuthResponse(token: AuthenticateResponse
                          ) extends Serializable
 
 case class Domain(id: Option[String] = None,
-                  name: String,
+                  name: Option[String] = None,
                   enabled: Option[Boolean] = None
                    ) extends Serializable
 
