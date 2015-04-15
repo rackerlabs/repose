@@ -71,9 +71,36 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
   }
 
   describe("getAdminToken") {
+
     val getAdminToken = PrivateMethod[Try[String]]('getAdminToken)
 
-    it("should build a JSON auth token request without a domain ID") {
+    it("builds a JSON auth token request with a domain ID"){
+      //Modify the identity config to include the domain
+      identityConfig.getOpenstackIdentityService.setDomain("867530nieeein")
+      identityV3API = new OpenStackIdentityV3API(identityConfig, mockDatastore, mockAkkaServiceClient)
+
+      val mockServiceClientResponse = mock[ServiceClientResponse]
+
+      when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+      identityV3API invokePrivate getAdminToken(true)
+
+      verify(mockAkkaServiceClient).post(
+        anyString,
+        anyString,
+        anyMap.asInstanceOf[java.util.Map[String, String]],
+        contains(
+          """
+            |{"auth":{"identity":{"methods":["password"],"password":{"user":{"domain":{"id":"867530nieeein"},"name":"user","password":"password"}}}}}
+          """.stripMargin
+        ),
+        any[MediaType]
+      )
+    }
+
+    it("should build a JSON auth token request without a project ID") {
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
@@ -91,7 +118,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       )
     }
 
-    it("should build a JSON auth token request with a string domain ID") {
+    it("should build a JSON auth token request with a string project ID") {
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       identityConfig.getOpenstackIdentityService.setProjectId("projectId")
