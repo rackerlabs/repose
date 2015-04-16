@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                   xmlns='http://docs.openrepose.org/repose/uri-normalization/v1.0'
+                   xsi:schemaLocation='http://docs.openrepose.org/repose/uri-normalization/v1.0 ../config/uri-normalization-configuration.xsd'>
+</uri-normalization>
