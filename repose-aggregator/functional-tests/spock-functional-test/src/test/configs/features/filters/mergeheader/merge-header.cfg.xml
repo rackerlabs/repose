@@ -11,5 +11,6 @@
         <!-- this one won't exist from teh origin, so we'll make sure I don't accidentally add it -->
         <header>via</header>
         <header>accept</header>
+        <header>aurl</header>
     </response>
 </merge-header>
