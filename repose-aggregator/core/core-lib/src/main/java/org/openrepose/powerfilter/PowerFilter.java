@@ -21,6 +21,7 @@ package org.openrepose.powerfilter;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
@@ -343,9 +344,12 @@ public class PowerFilter extends DelegatingFilterProxy {
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
         try {
-            new URI(mutableHttpRequest.getRequestURI());
+            new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
+                if (StringUtilities.isBlank(mutableHttpRequest.getHeader("x-request-guid"))) { // todo: correct name
+                    mutableHttpRequest.addHeader("x-request-guid", UUID.randomUUID().toString());
+                }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
         } catch (URISyntaxException use) {
