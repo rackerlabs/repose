@@ -25,6 +25,7 @@ import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Functional test for the URI Normalization filter
  */
