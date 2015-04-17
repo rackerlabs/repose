@@ -87,7 +87,7 @@ class ReposeJettyServer(val clusterId: String,
 
       //TODO: do we make this a URL for realsies?
       //Get the configuration root from the core spring context, because we haven't fired up the app Context yet.
-      val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.CORE.CONFIG_ROOT)
+      val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
         cf.setKeyStorePath(configRoot + File.separator + ssl.getKeystoreFilename)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
@@ -95,6 +95,31 @@ class ReposeJettyServer(val clusterId: String,
 
         val sslConnector = new ServerConnector(s, cf)
         sslConnector.setPort(port)
+
+        //Handle the Protocols and Ciphers
+        //varargs are annoying, so lets deal with this using the scala methods
+        import scala.collection.JavaConversions._
+        Option(ssl.getExcludedProtocols).foreach(xp => cf.addExcludeProtocols(xp.getProtocol.toList: _*))
+        Option(ssl.getIncludedProtocols).foreach { ip =>
+          if (ip.getProtocol.nonEmpty) {
+            cf.setIncludeProtocols(ip.getProtocol.toList: _*)
+          }
+
+        }
+        Option(ssl.getExcludedCiphers).foreach { xc =>
+          cf.addExcludeCipherSuites(xc.getCipher.toList: _*)
+        }
+
+        Option(ssl.getIncludedCiphers).foreach { ic =>
+          if (ic.getCipher.nonEmpty) {
+            cf.setIncludeCipherSuites(ic.getCipher.toList: _*)
+          }
+        }
+
+        Option(ssl.isTlsRenegotiationAllowed).foreach { tls =>
+          cf.setRenegotiationAllowed(tls)
+        }
+
         sslConnector
       } getOrElse {
         //If we didn't have an SSL config, BOMBZ0R

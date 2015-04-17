@@ -44,6 +44,7 @@ import org.openrepose.nodeservice.request.RequestHeaderServiceImpl;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -135,7 +136,7 @@ public class RequestHeaderServiceContextTest {
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
-        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
+        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), any(URL.class), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
 
@@ -161,7 +162,7 @@ public class RequestHeaderServiceContextTest {
         UpdateListener<SystemModel> listenerObject;
         ArgumentCaptor<UpdateListener> listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class);
 
-        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class));
+        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), any(URL.class), listenerCaptor.capture(), eq(SystemModel.class));
 
         SystemModel systemModel = getValidSystemModel();
 

@@ -41,6 +41,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.net.URL;
 
 @Named
 public class RequestHeaderServiceImpl implements RequestHeaderService {
@@ -77,8 +78,11 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     @PostConstruct
     public void init() {
-        configurationService.subscribeTo("container.cfg.xml", containerConfigurationListener, ContainerConfiguration.class);
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+        URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+        URL systemModelXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+
+        configurationService.subscribeTo("container.cfg.xml", containerXsdURL, containerConfigurationListener, ContainerConfiguration.class);
+        configurationService.subscribeTo("system-model.cfg.xml", systemModelXsdURL, systemModelListener, SystemModel.class);
     }
 
     @PreDestroy

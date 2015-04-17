@@ -38,6 +38,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,7 +77,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         watcherThread = new DestroyableThreadWrapper(threadingService.newThread(containerConfigurationListener.getDirWatcher(), "Artifact Watcher Thread"),
                 containerConfigurationListener.getDirWatcher());
 
-        configurationService.subscribeTo("container.cfg.xml", containerConfigurationListener, ContainerConfiguration.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+        configurationService.subscribeTo("container.cfg.xml", xsdURL, containerConfigurationListener, ContainerConfiguration.class);
 
         eventService.listen(this, ApplicationArtifactEvent.class);
 
