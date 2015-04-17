@@ -239,7 +239,27 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     }
 
-    def "Should split request headers according to rfc by default"() {
+    def "When no media-variants config in the filter should not throw NPE"() {
+        setup:
+        reposeLogSearch.cleanLog()
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/mediavariantoptional", params, /*sleepTime*/ 25)
+
+        def path = "/no_media_variant/?filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space";
+
+        when: "A request is made to REPOSE"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET")
+
+        then: "Request is forwarded to origin service"
+        mc.handlings.size() == 1
+
+        then: "Repose will not throw NPE"
+        //should find config changed
+        reposeLogSearch.searchByString("Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig@(.*)[mediaVariants=<null>, uriFilters=<null>]").size() > 0
+        reposeLogSearch.searchByString("Failure in filter: UriNormalizationFilter").size() == 0
+        reposeLogSearch.searchByString("java.lang.NullPointerException").size() == 0
+    }
+
+    def "Should not split request headers according to rfc"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"

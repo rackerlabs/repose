@@ -21,11 +21,16 @@ package org.openrepose.filters.urinormalization;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.filters.urinormalization.config.UriNormalizationConfig;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
+import static org.mockito.Mockito.mock;
 
 public class UriNormalizationHandlerFactoryTest {
 
@@ -52,5 +57,19 @@ public class UriNormalizationHandlerFactoryTest {
 
         UriNormalizationHandler handler = instance.buildHandler();
         assertNotNull("Instance of Content Normalization Handler should not be null", handler);
+    }
+
+    @Test
+    public void shouldInitializeMediaTypeListenerWhenNoMediaVariantsProvided() throws Exception {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        ReadableHttpServletResponse mockResponse = mock(ReadableHttpServletResponse.class);
+
+        UriNormalizationConfig config = new UriNormalizationConfig();
+        instance.configurationUpdated(config);
+
+        UriNormalizationHandler handler = instance.buildHandler();
+
+        FilterDirector filterDirector = handler.handleRequest(mockRequest, mockResponse);
+        assertEquals(FilterAction.PASS, filterDirector.getFilterAction());
     }
 }
