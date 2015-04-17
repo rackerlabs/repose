@@ -32,6 +32,8 @@ import spock.lang.Unroll
  */
 class HeaderNormalizationTest extends ReposeValveTest {
 
+    static Map params = [:]
+
     def headers = [
             'user1'          : 'usertest1',
             'X-Auth-Token'   : '358484212:99493',
@@ -43,7 +45,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
     ]
 
     def setupSpec() {
-        def params = properties.defaultTemplateParams
+        params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/headerNormalization", params)
         repose.start()
@@ -146,7 +148,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
     }
 
-    def "Should not split request headers according to rfc"() {
+    def "Should split request headers according to rfc by default"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"

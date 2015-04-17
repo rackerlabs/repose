@@ -19,10 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http;
 
-import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.*;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -32,12 +31,9 @@ public class RequestHeaderContainer implements HeaderContainer {
     private final HttpServletRequest request;
     private final List<HeaderName> headerNames;
     private final Map<HeaderName, List<HeaderValue>> headerValues;
-    private SplittableHeaderUtil splittable;
 
 
     public RequestHeaderContainer(HttpServletRequest request) {
-        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                ExtendedHttpHeader.values());
         this.request = request;
         this.headerNames = extractHeaderNames();
         this.headerValues = extractHeaderValues();
@@ -63,12 +59,7 @@ public class RequestHeaderContainer implements HeaderContainer {
 
         if (request != null) {
             for (HeaderName wrappedName : getHeaderNames()) {
-                if (splittable.isSplitable(wrappedName.getName())) {
-                    HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(wrappedName.getName()), wrappedName.getName());
-                    valueMap.put(wrappedName, parser.parse());
-                } else {
-                    valueMap.put(wrappedName, extractValues(wrappedName));
-                }
+                valueMap.put(wrappedName, extractValues(wrappedName));
             }
         }
 

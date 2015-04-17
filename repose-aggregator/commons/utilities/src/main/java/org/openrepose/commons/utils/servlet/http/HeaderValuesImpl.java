@@ -19,10 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http;
 
-import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
-import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,13 +30,9 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     private static final String HEADERS_PREFIX = "repose.headers.";
     private final Map<HeaderName, List<HeaderValue>> headers;
-    private SplittableHeaderUtil splittable;
 
 
     private HeaderValuesImpl(HttpServletRequest request, HeaderContainer container) {
-        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
-                ExtendedHttpHeader.values());
-
         this.headers = initHeaders(request, container);
         cloneHeaders(container);
     }
@@ -101,11 +94,7 @@ public final class HeaderValuesImpl implements HeaderValues {
             headerValues = new LinkedList<HeaderValue>();
         }
 
-        if (splittable.isSplitable(name)) {
-            headerValues.addAll(parseHeaderValues(wrappedName, value));
-        } else {
-            headerValues.add(new HeaderValueImpl(value));
-        }
+        headerValues.add(new HeaderValueImpl(value));
 
         headers.put(wrappedName, headerValues);
     }

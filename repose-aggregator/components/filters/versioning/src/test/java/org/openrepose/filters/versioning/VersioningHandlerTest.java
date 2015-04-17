@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.versioning;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -35,9 +36,7 @@ import org.openrepose.filters.versioning.util.ContentTransformer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -59,6 +58,7 @@ public class VersioningHandlerTest {
     Node localHost;
     DestinationEndpoint localEndpoint;
     HttpServletRequest request;
+    private GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1);
 
     @Before
     public void setUp() {
@@ -225,6 +225,7 @@ public class VersioningHandlerTest {
 
     @Test
     public void shouldSetAcceptFromMediaTypeParameter() {
+        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
         final String acceptHeader = "application/vnd.rackspace; x=v1; y=json";
         when(request.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singleton("Accept")));
         when(request.getRequestURI()).thenReturn("/somethingthere");
@@ -233,8 +234,7 @@ public class VersioningHandlerTest {
         when(request.getHeader("Accept")).thenReturn(acceptHeader);
         when(request.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton(acceptHeader)));
         when(request.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(acceptHeader)));
-        FilterDirector director = new FilterDirectorImpl();
-        director = versioningHandler.handleRequest(request, null);
+        FilterDirector director = versioningHandler.handleRequest(request, null);
         assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.ACCEPT.toString())).contains("application/xml"));
     }
 }

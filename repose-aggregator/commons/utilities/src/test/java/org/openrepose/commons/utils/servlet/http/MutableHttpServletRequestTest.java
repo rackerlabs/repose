@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 
 import javax.servlet.ServletInputStream;
@@ -188,127 +186,6 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldReturnNullHeadersCollectionIsEmpty() {
             assertNull(HeaderValuesImpl.fromMap(headers, "ACCEPT-ENCODING"));
-        }
-    }
-
-    public static class WhenGettingPreferredHeaderValuesFromMap {
-
-        private HttpServletRequest request;
-        private Enumeration<String> headerNames;
-        private Enumeration<String> headerValues1;
-        private Enumeration<String> headerValues2;
-        private MutableHttpServletRequest wrappedRequest;
-
-        @Before
-        public void setup() {
-
-            headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING");
-
-            headerValues1 = createStringEnumeration("val1.1;q=0.1", "val1.2;q=0.5", "val1.3;q=0.2", "val1.4;q=0.5");
-            headerValues2 = createStringEnumeration("val2.1");
-
-            request = mock(HttpServletRequest.class);
-
-            when(request.getHeaderNames()).thenReturn(headerNames);
-            when(request.getHeaders("accept")).thenReturn(headerValues1);
-            when(request.getHeaders("ACCEPT-ENCODING")).thenReturn(headerValues2);
-
-            wrappedRequest = MutableHttpServletRequest.wrap(request);
-
-        }
-
-        @Test
-        public void shouldReturnFirstPreferredElementInMatchingHeader() {
-            final HeaderValue expected = new HeaderValueImpl("val1.2", 0.5);
-            final HeaderValue actual = wrappedRequest.getPreferredHeader("accept");
-
-            assertEquals(expected, actual);
-        }
-
-        @Test
-        public void shouldReturnPreferredElementsInMatchingHeader() {
-            final HeaderValue header1 = new HeaderValueImpl("val1.2", 0.5);
-            final HeaderValue header2 = new HeaderValueImpl("val1.4", 0.5);
-            final List<HeaderValue> expected = new ArrayList<HeaderValue>() {
-
-                {
-                    this.add(header1);
-                    this.add(header2);
-                }
-            };
-            final List<HeaderValue> actual = wrappedRequest.getPreferredHeaderValues("accept");
-
-            assertEquals(expected, actual);
-        }
-
-        @Test
-        public void shouldReturnNullIfNotFound() {
-            final HeaderValue actual = wrappedRequest.getPreferredHeader("headerZ");
-            assertNull(actual);
-        }
-
-        @Test
-        public void shouldReturnDefaultValueIfNotFound() {
-            final HeaderValue expected = new HeaderValueImpl("default");
-            final HeaderValue actual = wrappedRequest.getPreferredHeader("headerZ", expected);
-
-            assertEquals(expected, actual);
-        }
-
-        @Test
-        public void shouldReturnDefaultValuesIfNotFound() {
-            final HeaderValue defaultValue = new HeaderValueImpl("default", -1);
-            final List<HeaderValue> expected = new ArrayList<HeaderValue>() {
-
-                {
-                    this.add(defaultValue);
-                }
-            };
-            final List<HeaderValue> actual = wrappedRequest.getPreferredHeaderValues("headerZ", defaultValue);
-
-            assertEquals(expected, actual);
-        }
-    }
-
-    public static class WhenGettingPreferedOrderOfHeaders {
-
-        private HttpServletRequest request;
-        private Enumeration<String> headerNames;
-        private Enumeration<String> headerValues1;
-        private Enumeration<String> headerValues2;
-        private Enumeration<String> headerValues3;
-        private MutableHttpServletRequest wrappedRequest;
-
-        @Before
-        public void setup() {
-
-            headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING", "header3");
-
-            headerValues1 = createStringEnumeration("val1.1;q=1.0", "val1.2;q=0.5", "val1.5;q=1.0", "val1.3;q=0.2", "val1.4;q=0.5");
-            headerValues2 = createStringEnumeration("val2.1;q=0.8");
-            headerValues3 = createStringEnumeration("val3.1;q=1.0");
-
-
-            request = mock(HttpServletRequest.class);
-
-            when(request.getHeaderNames()).thenReturn(headerNames);
-            when(request.getHeaders("accept")).thenReturn(headerValues1);
-            when(request.getHeaders("ACCEPT-ENCODING")).thenReturn(headerValues2);
-            when(request.getHeaders("header3")).thenReturn(headerValues3);
-
-            wrappedRequest = MutableHttpServletRequest.wrap(request);
-        }
-
-        @Test
-        public void shouldReturnPreferedOrderListofHeaders() {
-            final HeaderValue defaultValue = new HeaderValueImpl("default", -1);
-
-            List<HeaderValue> list = wrappedRequest.getPreferredHeaders("accept", defaultValue);
-            assertEquals("First Element should be first occurrence of the highest quality value", list.get(0).getValue(), "val1.1");
-            assertEquals("Second Element should be the second occurrence of the highest quality value", list.get(1).getValue(), "val1.5");
-            assertEquals(list.get(4).getValue(), "val1.3");
-
-
         }
     }
 
