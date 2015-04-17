@@ -100,21 +100,22 @@ class DelegatingValkyrieTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains("q=0.7")
 
         where:
-        method   | tenantID       | deviceID | permission     | delegatedMsg
-        "PUT"    | randomTenant() | "520707" | "view_product" | "status_code=403"
-        "POST"   | randomTenant() | "520707" | "view_product" | "status_code=403"
-        "DELETE" | randomTenant() | "520707" | "view_product" | "status_code=403"
-        "PATCH"  | randomTenant() | "520707" | "view_product" | "status_code=403"
-        "GET"    | randomTenant() | "520707" | ""             | "status_code=403"
-        "HEAD"   | randomTenant() | "520707" | ""             | "status_code=403"
-        "PUT"    | randomTenant() | "520707" | ""             | "status_code=403"
-        "POST"   | randomTenant() | "520707" | ""             | "status_code=403"
-        "DELETE" | randomTenant() | "520707" | ""             | "status_code=403"
-        "GET"    | randomTenant() | "520707" | "shazbot_prod" | "status_code=403"
-        "HEAD"   | randomTenant() | "520707" | "prombol"      | "status_code=403"
-        "PUT"    | randomTenant() | "520707" | "hezmol"       | "status_code=403"
-        "POST"   | randomTenant() | "520707" | "_22_reimer"   | "status_code=403"
-        "DELETE" | randomTenant() | "520707" | "blah"         | "status_code=403"
+        method   | tenantID                   | deviceID | permission     | delegatedMsg
+        "GET"    | randomTenant() - "hybrid:" | "520707" | "view_product" | "status_code=403"
+        "PUT"    | randomTenant()             | "520707" | "view_product" | "status_code=403"
+        "POST"   | randomTenant()             | "520707" | "view_product" | "status_code=403"
+        "DELETE" | randomTenant()             | "520707" | "view_product" | "status_code=403"
+        "PATCH"  | randomTenant()             | "520707" | "view_product" | "status_code=403"
+        "GET"    | randomTenant()             | "520707" | ""             | "status_code=403"
+        "HEAD"   | randomTenant()             | "520707" | ""             | "status_code=403"
+        "PUT"    | randomTenant()             | "520707" | ""             | "status_code=403"
+        "POST"   | randomTenant()             | "520707" | ""             | "status_code=403"
+        "DELETE" | randomTenant()             | "520707" | ""             | "status_code=403"
+        "GET"    | randomTenant()             | "520707" | "shazbot_prod" | "status_code=403"
+        "HEAD"   | randomTenant()             | "520707" | "prombol"      | "status_code=403"
+        "PUT"    | randomTenant()             | "520707" | "hezmol"       | "status_code=403"
+        "POST"   | randomTenant()             | "520707" | "_22_reimer"   | "status_code=403"
+        "DELETE" | randomTenant()             | "520707" | "blah"         | "status_code=403"
     }
 
     def String randomTenant() {
