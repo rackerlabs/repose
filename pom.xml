@@ -43,9 +43,6 @@
     <profiles>
         <profile>
             <id>build-system-packages</id>
-            <modules>
-                <module>documentation/docbook</module>
-            </modules>
         </profile>
 
     </profiles>

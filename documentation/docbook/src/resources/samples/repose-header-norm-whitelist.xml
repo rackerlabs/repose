@@ -1,5 +1,0 @@
-<target uri-regex="/resource/(.*)" http-methods="POST PUT">
-    <whitelist id="modification">
-        <header id="X-Modify"/>
-    </whitelist>
-</target>
