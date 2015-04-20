@@ -22,6 +22,7 @@ package org.openrepose.powerfilter;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
@@ -348,8 +349,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().isTracingHeader() &&
-                        StringUtilities.isBlank(mutableHttpRequest.getHeader("x-request-guid"))) { // todo: correct name
-                    mutableHttpRequest.addHeader("x-request-guid", UUID.randomUUID().toString());
+                        StringUtilities.isBlank(mutableHttpRequest.getHeader(PowerApiHeader.REQUEST_GUID.toString()))) { // todo: correct name
+                    mutableHttpRequest.addHeader(PowerApiHeader.REQUEST_GUID.toString(), UUID.randomUUID().toString());
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
