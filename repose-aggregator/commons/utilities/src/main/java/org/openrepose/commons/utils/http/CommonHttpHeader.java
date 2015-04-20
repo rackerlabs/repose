@@ -30,6 +30,9 @@ public enum CommonHttpHeader implements HeaderConstant {
     AUTHORIZATION("Authorization"),
     WWW_AUTHENTICATE("WWW-Authenticate"),
 
+    //Tracing
+    REQUEST_GUID("X-Request-Guid"),
+
     //Standards
     HOST("Host"),
     RETRY_AFTER("Retry-After"),

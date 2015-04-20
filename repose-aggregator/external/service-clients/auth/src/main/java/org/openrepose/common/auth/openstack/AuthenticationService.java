@@ -29,10 +29,14 @@ import java.util.List;
 public interface AuthenticationService {
 
     AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException;
+    AuthenticateResponse validateToken(String tenant, String userToken, String requestGuid) throws AuthServiceException;
 
     List<Endpoint> getEndpointsForToken(String userToken) throws AuthServiceException;
+    List<Endpoint> getEndpointsForToken(String userToken, String requestGuid) throws AuthServiceException;
 
     AuthGroups getGroups(String userId) throws AuthServiceException;
+    AuthGroups getGroups(String userId, String requestGuid) throws AuthServiceException;
 
     String getBase64EndpointsStringForHeaders(String userToken, String format) throws AuthServiceException;
+    String getBase64EndpointsStringForHeaders(String userToken, String format, String requestGuid) throws AuthServiceException;
 }

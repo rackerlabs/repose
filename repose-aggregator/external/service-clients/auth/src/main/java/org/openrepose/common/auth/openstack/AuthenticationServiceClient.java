@@ -27,6 +27,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.openrepose.common.auth.*;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
@@ -108,11 +109,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
         delegationMessage.remove();
     }
 
+    //this is where we ask auth service if token is valid
     @Override
-    public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException { //this is where we ask auth service if token is valid
+    public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException {
+        return validateToken(tenant, userToken, null);
+    }
 
+    @Override
+    public AuthenticateResponse validateToken(String tenant, String userToken, String requestGuid) throws AuthServiceException {
         AuthenticateResponse authenticateResponse = null;
-        ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
+        ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false, requestGuid);
 
         switch (serviceResponse.getStatus()) {
             case HttpServletResponse.SC_OK:
@@ -155,9 +161,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AuthServiceException {
+        return validateUser(userToken, tenant, force, null);
+    }
+
+    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
+        if (requestGuid != null) {
+            headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+        }
         try {
             return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
         } catch (AkkaServiceClientException e) {
@@ -167,6 +180,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) throws AuthServiceException {
+        return getEndpointsForToken(userToken, null);
+    }
+
+    @Override
+    public List<Endpoint> getEndpointsForToken(String userToken, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         List<Endpoint> endpointList;
@@ -174,6 +192,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+            if (requestGuid != null) {
+                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+            }
 
             ServiceClientResponse endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
@@ -212,9 +233,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return endpointList;
     }
 
-    // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
     @Override
     public String getBase64EndpointsStringForHeaders(String userToken, String format) throws AuthServiceException {
+        return getBase64EndpointsStringForHeaders(userToken, format, null);
+    }
+
+    // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
+    @Override
+    public String getBase64EndpointsStringForHeaders(String userToken, String format, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         //defaulting to json format
@@ -229,8 +255,12 @@ public class AuthenticationServiceClient implements AuthenticationService {
             //telling the service what format to send the endpoints to us in
             headers.put(ACCEPT_HEADER, format);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+            if (requestGuid != null) {
+                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+            }
 
-            ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+            ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken,
+                    targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
             switch (serviceClientResponse.getStatus()) {
                 case HttpServletResponse.SC_OK:
@@ -292,6 +322,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     @Override
     public AuthGroups getGroups(String userId) throws AuthServiceException {
+        return getGroups(userId, null);
+    }
+
+    @Override
+    public AuthGroups getGroups(String userId, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
 
         AuthGroups authGroups;
@@ -299,7 +334,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
-
+            if (requestGuid != null) {
+                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+            }
 
             ServiceClientResponse serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 

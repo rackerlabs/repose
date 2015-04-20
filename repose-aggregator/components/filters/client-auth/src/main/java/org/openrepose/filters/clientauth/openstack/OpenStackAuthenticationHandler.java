@@ -107,14 +107,19 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     @Override
     public AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException {
+        return validateToken(account, token, null);
+    }
+
+    @Override
+    public AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) throws AuthServiceException {
         AuthToken authToken = null;
 
         if (account != null) {
-            AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token);
+            AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token, requestGuid);
             delegationMessage.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
             authToken = validateTenant(authResponse, account.getResult());
         } else {
-            AuthenticateResponse authResp = authenticationService.validateToken(null, token);
+            AuthenticateResponse authResp = authenticationService.validateToken(null, token, requestGuid);
             delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
             if (authResp != null) {
                 authToken = new OpenStackToken(authResp);
@@ -146,7 +151,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     @Override
     public AuthGroups getGroups(String group) throws AuthServiceException {
-        return authenticationService.getGroups(group);
+        return getGroups(group, null);
+    }
+
+    @Override
+    public AuthGroups getGroups(String group, String requestGuid) throws AuthServiceException {
+        return authenticationService.getGroups(group, requestGuid);
     }
 
     @Override
@@ -154,9 +164,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         return new OpenStackResponseHandler(response, wwwAuthHeaderContents).handle();
     }
 
-    @Override //getting the final encoded string
+    //getting the final encoded string
+    @Override
     protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException {
-        return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat());
+        return getEndpointsBase64(token, endpointsConfiguration, null);
+    }
+
+    @Override
+    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String requestGuid) throws AuthServiceException {
+        return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat(), requestGuid);
     }
 
     @Override

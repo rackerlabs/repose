@@ -27,7 +27,6 @@ public enum PowerApiHeader implements HeaderConstant {
     NEXT_ROUTE("X-PP-Next-Route"),
     USER("X-PP-User"),
     GROUPS("X-PP-Groups"),
-    REQUEST_GUID("X-Request-Guid"),
     X_CATALOG("x-catalog");
 
 
