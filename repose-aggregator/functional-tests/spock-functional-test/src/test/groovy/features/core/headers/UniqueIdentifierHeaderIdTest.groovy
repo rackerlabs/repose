@@ -18,15 +18,13 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.headers
-
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.ReposeValveTest
-import org.apache.commons.lang3.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 4/17/15.
  *  Repose to create a unique identifier for each request that comes in and
@@ -73,7 +71,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
     }
 
     @Unroll ("Request: #method")
-    def "Repose will add the unique identifier id to request"() {
+    def "Repose will add the tracing header if not present"() {
         setup:
         def headers = [
                 'Content-Length': '0',
@@ -87,7 +85,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("Accept")
-        mc.handlings[0].request.headers.contains("x-unique-id")
+        mc.handlings[0].request.headers.contains("x-request-guid")
         //def uniqueid = mc.handlings[0].request.headers.getFirstValue("x-unique-id")
 
         where:
@@ -95,14 +93,14 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
     }
 
     @Unroll ("Request: #method already have unique id")
-    def "Don't need to add the unique identifier if comming request already have one"() {
+    def "Don't need to add the tracing header if comming request already have one"() {
         setup:
-        def randomid = RandomStringUtils.random(10, charset)
+        def randomid = UUID.randomUUID().toString()
         def headers = [
                 'Content-Length': '0',
                 'Content-type' : "application/xml",
                 'Accept' : "application/xml",
-                'x-unique-id': randomid
+                'x-request-guid': randomid
         ]
         when: "When make request along with other headers"
 
@@ -111,11 +109,26 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("Accept")
-        mc.handlings[0].request.headers.contains("x-unique-id")
-        mc.handlings[0].request.headers.getFirstValue("x-unique-id") == randomid
+        mc.handlings[0].request.headers.contains("x-request-guid")
+        mc.handlings[0].request.headers.getFirstValue("x-request-guid") == randomid
 
         where:
-        method << ["GET", "POST"]
+        method  << ["GET", "POST"]
     }
 
+    def "Origin service http should include trace header id" (){
+        setup:
+        def headers = [
+                'Content-Length': '0',
+                'Content-type' : "application/xml",
+        ]
+
+        when: "Set default handler from origin"
+        MessageChain mc = deproxy.makeRequest(url: url, defaultHandler: { new Response(200, null, headers) })
+
+        then:
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains("Content-type")
+        mc.receivedResponse.headers.contains("x-request-guid")
+    }
 }
