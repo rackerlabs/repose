@@ -19,9 +19,9 @@
  */
 package org.openrepose.filters.ratelimiting.util.combine;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openrepose.commons.utils.transform.StreamTransform;
 import org.openrepose.core.services.ratelimit.RateLimitListBuilder;
@@ -34,9 +34,7 @@ import javax.xml.bind.JAXBContext;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +57,7 @@ public class CombineLimitsTransformTest {
     private final Pattern validationPattern = Pattern.compile(".*(<rates xmlns.*>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
     private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
+    GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1);
 
     @BeforeClass
     public static void setUpClass() {
@@ -76,6 +75,7 @@ public class CombineLimitsTransformTest {
 
     @Test
     public void shouldCombineInputStreamWithJaxbElement() throws Exception {
+        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
         final InputStream is = CombineLimitsTransformTest.class.getResourceAsStream(
                 "/META-INF/schema/examples/absolute-limits.xml");
 
@@ -115,8 +115,8 @@ public class CombineLimitsTransformTest {
     }
 
     @Test
-    @Ignore
     public void shouldCombineInputStreamWithJaxbElementJson() throws Exception {
+        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
         final InputStream is = CombineLimitsTransformTest.class.getResourceAsStream(
                 "/META-INF/schema/examples/absolute-limits.json");
 
