@@ -347,7 +347,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
-                if (StringUtilities.isBlank(mutableHttpRequest.getHeader("x-request-guid"))) { // todo: correct name
+                if (currentSystemModel.get().isTracingHeader() &&
+                        StringUtilities.isBlank(mutableHttpRequest.getHeader("x-request-guid"))) { // todo: correct name
                     mutableHttpRequest.addHeader("x-request-guid", UUID.randomUUID().toString());
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);

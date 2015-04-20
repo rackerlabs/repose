@@ -45,7 +45,7 @@
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="tracing-header" use="optional" default="true"/>
+        <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
     <xs:complexType name="Cluster">
