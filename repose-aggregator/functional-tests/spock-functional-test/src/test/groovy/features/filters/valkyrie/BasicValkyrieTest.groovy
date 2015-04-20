@@ -128,6 +128,47 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     }
 
+    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 403 if tenant comming from idendity prefix 'hybrid' is missing" () {
+        given: "A device ID with a particular permission level defined in Valykrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID                   | deviceID | permission      | responseCode
+        "GET"    | random.nextInt()           | "520707" | "view_product"  | "403"
+        "HEAD"   | random.nextInt()           | "520707" | "view_product"  | "403"
+        "GET"    | random.nextInt()           | "520707" | "admin_product" | "403"
+        "HEAD"   | random.nextInt()           | "520707" | "admin_product" | "403"
+        "PUT"    | random.nextInt()           | "520707" | "admin_product" | "403"
+        "POST"   | random.nextInt()           | "520707" | "admin_product" | "403"
+        "DELETE" | random.nextInt()           | "520707" | "admin_product" | "403"
+        "GET"    | random.nextInt()           | "520707" | "edit_product"  | "403"
+        "HEAD"   | random.nextInt()           | "520707" | "edit_product"  | "403"
+        "PUT"    | random.nextInt()           | "520707" | "edit_product"  | "403"
+        "POST"   | random.nextInt()           | "520707" | "edit_product"  | "403"
+        "DELETE" | random.nextInt()           | "520707" | "edit_product"  | "403"
+    }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
