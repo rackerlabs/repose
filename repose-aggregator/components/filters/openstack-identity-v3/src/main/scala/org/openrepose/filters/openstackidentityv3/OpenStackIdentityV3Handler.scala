@@ -100,7 +100,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       var failureInValidation = false
 
       // Extract the tracing GUID from the request
-      val requestGuid = request.getHeader(CommonHttpHeader.REQUEST_GUID.toString)
+      val requestGuid = Option(request.getHeader(CommonHttpHeader.REQUEST_GUID.toString))
 
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request, requestGuid) match {
@@ -238,7 +238,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterDirector
   }
 
-  private def authenticate(request: HttpServletRequest, requestGuid: String): Try[AuthenticateResponse] = {
+  private def authenticate(request: HttpServletRequest, requestGuid: Option[String] = None): Try[AuthenticateResponse] = {
     Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         identityAPI.validateToken(subjectToken, requestGuid)

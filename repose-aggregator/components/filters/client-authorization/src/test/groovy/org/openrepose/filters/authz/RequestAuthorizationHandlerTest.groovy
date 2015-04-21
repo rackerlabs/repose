@@ -97,9 +97,9 @@ class RequestAuthorizationHandlerTest extends Specification {
         endpointList.add(endpoint);
 
         mockedAuthService = mock(AuthenticationService.class);
-        when(mockedAuthService.getEndpointsForToken(UNAUTHORIZED_TOKEN)).thenReturn(Collections.EMPTY_LIST);
-        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
-        when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);
+        when(mockedAuthService.getEndpointsForToken(eq(UNAUTHORIZED_TOKEN), anyString())).thenReturn(Collections.EMPTY_LIST);
+        when(mockedAuthService.getEndpointsForToken(eq(AUTHORIZED_TOKEN), anyString())).thenReturn(endpointList);
+        when(mockedAuthService.getEndpointsForToken(eq(CACHED_TOKEN), anyString())).thenReturn(endpointList);
 
         serviceEndpoint = new ServiceEndpoint().with {
             href = PUBLIC_URL
@@ -224,7 +224,7 @@ class RequestAuthorizationHandlerTest extends Specification {
     def "#desc return a 500 when the auth returns a service exception"() {
         given:
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
-        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new RuntimeException("Service Exception"));
+        when(mockedAuthService.getEndpointsForToken(eq(AUTHORIZED_TOKEN), anyString())).thenThrow(new RuntimeException("Service Exception"));
         def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
 
         when:
@@ -248,7 +248,7 @@ class RequestAuthorizationHandlerTest extends Specification {
         retryCalendar.add(Calendar.MINUTE, 5)
         def retryString = new HttpDate(retryCalendar.getTime()).toRFC1123()
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
-        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new AuthServiceOverLimitException("Unable to get endpoints for token: $AUTHORIZED_TOKEN. Status code: $statusCode".toString(), statusCode, retryString));
+        when(mockedAuthService.getEndpointsForToken(eq(AUTHORIZED_TOKEN), anyString())).thenThrow(new AuthServiceOverLimitException("Unable to get endpoints for token: $AUTHORIZED_TOKEN. Status code: $statusCode".toString(), statusCode, retryString));
         def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, serviceEndpoint, null, delegable);
 
         when:
@@ -276,7 +276,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         verify(mockedCache, times(1)).getCachedEndpointsForToken(AUTHORIZED_TOKEN) == null
-        verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN) == null
+        verify(mockedAuthService, times(1)).getEndpointsForToken(eq(AUTHORIZED_TOKEN), anyString()) == null
         verify(mockedCache, times(1)).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
     }
 

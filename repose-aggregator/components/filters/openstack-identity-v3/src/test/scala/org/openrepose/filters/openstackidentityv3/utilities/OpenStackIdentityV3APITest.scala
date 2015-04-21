@@ -85,7 +85,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(true)
+      identityV3API invokePrivate getAdminToken(None, true)
 
       verify(mockAkkaServiceClient).post(
         anyString,
@@ -127,7 +127,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
 
-      identityV3API invokePrivate getAdminToken(true)
+      identityV3API invokePrivate getAdminToken(None, true)
 
       verify(mockAkkaServiceClient).post(
         anyString,
@@ -145,8 +145,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(true) shouldBe a[Failure[_]]
-      identityV3API.invokePrivate(getAdminToken(true)).failed.get shouldBe a[InvalidAdminCredentialsException]
+      identityV3API invokePrivate getAdminToken(None, true) shouldBe a[Failure[_]]
+      identityV3API.invokePrivate(getAdminToken(None, true)).failed.get shouldBe a[InvalidAdminCredentialsException]
     }
 
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
@@ -160,7 +160,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getAdminToken(true)
+          val value = identityV3API.getAdminToken(None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -184,7 +184,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getAdminToken(true)
+          val value = identityV3API.getAdminToken(None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -199,8 +199,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     it("should return a Success for a cached admin token") {
       when(mockDatastore.get(anyString)).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate getAdminToken(true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(getAdminToken(true)).get should startWith("test-admin-token")
+      identityV3API invokePrivate getAdminToken(None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getAdminToken(None, true)).get should startWith("test-admin-token")
     }
 
     it("should return an admin token as a string when the admin API call succeeds") {
@@ -212,8 +212,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(getAdminToken(true)).get should startWith("test-admin-token")
+      identityV3API invokePrivate getAdminToken(None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getAdminToken(None, true)).get should startWith("test-admin-token")
     }
 
     it("should return a new admin token (non-cached) if checkCache is set to false") {
@@ -226,8 +226,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(false) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(getAdminToken(false)).get should startWith("test-admin-token")
+      identityV3API invokePrivate getAdminToken(None, false) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getAdminToken(None, false)).get should startWith("test-admin-token")
     }
 
     it("should cache an admin token when the admin API call succeeds") {
@@ -239,7 +239,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(true)
+      identityV3API invokePrivate getAdminToken(None, true)
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), anyInt(), any[TimeUnit])
     }
@@ -256,7 +256,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API invokePrivate getAdminToken(true)
+      identityV3API invokePrivate getAdminToken(None, true)
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), argThat(is(theInstance(TimeUnit.MILLISECONDS))))
     }
@@ -272,15 +272,15 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate validateSubjectToken("test-subject-token", true) shouldBe a[Failure[_]]
-      an[InvalidSubjectTokenException] should be thrownBy identityV3API.invokePrivate(validateSubjectToken("test-subject-token", true)).get
+      identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Failure[_]]
+      an[InvalidSubjectTokenException] should be thrownBy identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get
     }
 
     it("should return a Success for a cached admin token") {
       when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, null, null, null), Nil: _*)
 
-      identityV3API invokePrivate validateSubjectToken("test-subject-token", true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", true)).get shouldBe an[AuthenticateResponse]
+      identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
     }
 
     it("should return a token object when x-subject-token validation succeeds") {
@@ -293,8 +293,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate validateSubjectToken("test-subject-token", true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", true)).get shouldBe an[AuthenticateResponse]
+      identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
     }
 
     it("should correctly map the default region to the authentication response") {
@@ -307,7 +307,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
       response.get.user.rax_default_region shouldBe Some("ORD")
     }
 
@@ -321,7 +321,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
       response.get.user.rax_default_region shouldBe None
     }
 
@@ -335,7 +335,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
       response.get.rax_impersonator.get.id.get shouldBe "567"
       response.get.rax_impersonator.get.name.get shouldBe "impersonator.joe"
     }
@@ -350,7 +350,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
       response.get.rax_impersonator shouldBe None
     }
 
@@ -365,7 +365,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate validateSubjectToken("test-subject-token", true)
+      identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true)
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
     }
@@ -381,7 +381,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.validateToken("test-subject-token", true)
+          val value = identityV3API.validateToken("test-subject-token", None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -405,7 +405,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.validateToken("test-subject-token", true)
+          val value = identityV3API.validateToken("test-subject-token", None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -418,8 +418,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     }
   }
 
-  describe("fetchGroups") {
-    val fetchGroups = PrivateMethod[Try[List[_]]]('getGroups)
+  describe("getGroups") {
+    val getGroups = PrivateMethod[Try[List[_]]]('getGroups)
 
     it("should return a Failure when x-subject-token validation fails") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
@@ -428,7 +428,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate fetchGroups("test-user-id", true) shouldBe a[Failure[_]]
+      identityV3API invokePrivate getGroups("test-user-id", None, true) shouldBe a[Failure[_]]
     }
 
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
@@ -442,7 +442,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", true)
+          val value = identityV3API.getGroups("test-user-id", None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -466,7 +466,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", true)
+          val value = identityV3API.getGroups("test-user-id", None, true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -481,8 +481,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
     it("should return a Success for cached groups") {
       when(mockDatastore.get(anyString)).thenReturn(List(Group("", "", "")).toBuffer.asInstanceOf[Serializable], Nil: _*)
 
-      identityV3API invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[_]]
+      identityV3API invokePrivate getGroups("test-user-id", None, false) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getGroups("test-user-id", None, false)).get shouldBe a[List[_]]
     }
 
     it("should return a list of groups when groups call succeeds") {
@@ -495,8 +495,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate fetchGroups("test-user-id", true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(fetchGroups("test-user-id", true)).get shouldBe a[List[_]]
+      identityV3API invokePrivate getGroups("test-user-id", None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getGroups("test-user-id", None, true)).get shouldBe a[List[_]]
     }
   }
 
