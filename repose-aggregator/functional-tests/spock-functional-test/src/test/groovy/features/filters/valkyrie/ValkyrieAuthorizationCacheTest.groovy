@@ -52,7 +52,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
             repose.stop()
         }
     }
-    def "Test Valkyrie Authorization Cach"() {
+    def "Test Valkyrie Authorization Cache"() {
         given: "A device ID with a particular permission level defined in Valykrie"
         def tenantID = randomTenant()
         fakeIdentityService.with {
