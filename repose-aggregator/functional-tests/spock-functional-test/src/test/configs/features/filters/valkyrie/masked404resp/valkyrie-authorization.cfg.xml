@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <valkyrie-authorization
-        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="3000">
+        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+        enable-masking-403s="true"
+        cache-timeout-millis="300000">
     <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
 </valkyrie-authorization>
