@@ -4,7 +4,11 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
+<<<<<<< HEAD
         <version>7.1.1.0-SNAPSHOT</version>
+=======
+        <version>7.1.0.3-SNAPSHOT</version>
+>>>>>>> [maven-release-plugin] prepare for next development iteration
     </parent>
 
     <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
