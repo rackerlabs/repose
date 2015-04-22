@@ -92,7 +92,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldReplaceTokenWithRequestGuid() {
-            final HttpLogFormatter formatter = newFormatter("%I");
+            final HttpLogFormatter formatter = newFormatter("%" + LogFormatArgument.REQUEST_GUID.toString());
             final String expected = "test-guid";
 
             Vector<String> reqGuidValues = new Vector<>();
