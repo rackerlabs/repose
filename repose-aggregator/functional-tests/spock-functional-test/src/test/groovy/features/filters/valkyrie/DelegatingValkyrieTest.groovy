@@ -92,7 +92,7 @@ class DelegatingValkyrieTest extends ReposeValveTest {
                 ]
         )
 
-        then: "origin service should be forworded errors from valkyrie filter in header"
+        then: "origin service should be forwarded errors from valkyrie filter in header"
         mc.receivedResponse.code == SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")

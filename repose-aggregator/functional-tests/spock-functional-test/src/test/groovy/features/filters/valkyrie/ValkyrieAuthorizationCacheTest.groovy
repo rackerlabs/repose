@@ -53,7 +53,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
         }
     }
     def "Test Valkyrie Authorization Cache"() {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
         def tenantID = randomTenant()
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -96,7 +96,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
     }
 
     def "Test Cache Timeout" () {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
         DateTime initialCacheValidation = DateTime.now()
         def tenantID = randomTenant()
         fakeIdentityService.with {
@@ -110,7 +110,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
             device_perm = "admin_product"
         }
 
-        when: "subsequence request with same device, permission same client_token not exceeding the cache expiration"
+        when: "sub-sequence request with same device, permission and client_token not exceeding the cache expiration"
         fakeValkyrie.resetCounts()
         DateTime minimumCacheExpiration = initialCacheValidation.plusMillis(3000)
         while (minimumCacheExpiration.isAfterNow()) {
@@ -123,7 +123,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
             mc.receivedResponse.code.equals('200')
         }
 
-        then: "should count for 1st time then all sub-sequence calls should hit cache"
+        then: "should count only for 1st time then all sub-sequence calls should hit cache"
         fakeValkyrie.getAuthorizationCount() == 1
 
         when: "Cache is expire"
