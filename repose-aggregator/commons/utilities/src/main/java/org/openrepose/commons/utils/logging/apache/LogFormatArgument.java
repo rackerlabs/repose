@@ -37,6 +37,7 @@ public enum LogFormatArgument {
     STATUS_CODE("s"),
     REMOTE_USER("u"),
     URL_REQUESTED("U"),
+    REQUEST_GUID("R"), //todo: make parsing take more than one character
     REQUEST_HEADER("i"),
     REQUEST_LINE("r"),
     REQUEST_PROTOCOL("H"),
