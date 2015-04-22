@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.clientauthn.tenantvalidation
+package features.filters.clientauthn.traceheader
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
@@ -25,7 +25,11 @@ import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class NonTenantedAuthTest extends ReposeValveTest {
+/**
+ * Created by jennyvo on 4/22/15.
+ *  Tracing header should include in request from Repose to services as Identity
+ */
+class TraceHeaderTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -39,6 +43,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/tenantlessValidation", params)
 
         repose.start()
 
@@ -55,38 +60,25 @@ class NonTenantedAuthTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "Validates a racker token"() {
+    def "Tracing header should include in request to Identity"() {
 
         fakeIdentityService.with {
-            client_token = "rackerButts"
+            client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_userid = "456"
+            client_tenant = "123456"
         }
 
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123456", method: 'GET',
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        mc.orphanedHandlings[0].request.headers.contains("x-request-guid")
+        mc.orphanedHandlings[1].request.headers.contains("x-request-guid")
+        mc.orphanedHandlings[2].request.headers.contains("x-request-guid")
+
     }
-
-    def "Fails when a racker token doesn't have the authorized role"() {
-        fakeIdentityService.with {
-            client_token = "rackerFailure"
-            tokenExpiresAt = DateTime.now().plusDays(1)
-            client_userid = "456"
-        }
-
-        when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "They should get denied because they don't have a tenant"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-    }
-
 }
