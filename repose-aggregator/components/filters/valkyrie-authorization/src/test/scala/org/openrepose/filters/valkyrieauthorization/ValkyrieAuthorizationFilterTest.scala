@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
-import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -325,6 +325,30 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
           assert(mockServletResponse.getStatusCode == 404)
         }
       }
+    }
+    it("should send a request guid to valkyrie if present in incoming request") {
+      val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456",
+        "X-Contact-Id" -> "123456", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid"))
+      val akkaServiceClient = mock[AkkaServiceClient]
+      Mockito.when(akkaServiceClient.get(
+        "someTenant123456",
+        "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid")))
+        .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createValkyrieResponse("123456", "view_product").getBytes)))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod(request.method)
+      request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+
+      val mockFilterChain = mock[FilterChain]
+      filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
+
+      Mockito.verify(akkaServiceClient).get("someTenant123456",
+        "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid"))
     }
   }
 

@@ -10,10 +10,9 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{OpenStackServiceHeader, ServiceClientResponse}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -67,6 +66,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
+    val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.REQUEST_GUID.toString)))
 
     val clientResponse = ((requestedTenantId, requestedContactId, requestedDeviceId) match {
       case (None, _, _) => ResponseResult(502, "No tenant ID specified")
@@ -74,11 +74,12 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case (_, None, _) => ResponseResult(403, "No contact ID specified")
       case (_, _, None) => ResponseResult(502, "No device ID specified")
       case (Some(tenant), Some(contact), Some(device)) =>
-      val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-      datastoreValue(transformedTenant, contact, configuration.getValkyrieServer) match {
-        case deviceList: DeviceList => authorize(device, deviceList.devices, mutableHttpRequest.getMethod)
-        case result: ResponseResult => result
-      }
+        val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
+
+        datastoreValue(transformedTenant, contact, configuration.getValkyrieServer, requestGuid) match {
+          case deviceList: DeviceList => authorize(device, deviceList.devices, mutableHttpRequest.getMethod)
+          case result: ResponseResult => result
+        }
     }) match {
       case ResponseResult(403,_) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
       case result => result
@@ -101,30 +102,39 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     transformedTenant + contactId
   }
 
-  def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer): ValkyrieResult = {
+  def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer, requestGuid: Option[String] = None): ValkyrieResult = {
+    def tryValkyrieCall(): Try[ServiceClientResponse] = {
+      import collection.JavaConversions._
+
+      val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid)).getOrElse(Map())
+      val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contactId/effective"
+      Try(akkaServiceClient.get(cacheKey(transformedTenant, contactId),
+        uri,
+        Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestGuidHeader)
+      )
+    }
+
+    def valkyrieAuthorize(): ValkyrieResult = {
+      tryValkyrieCall() match {
+        case Success(response) =>
+          if (response.getStatus == 200) {
+            parseDevices(response.getData) match {
+              case Success(deviceList) =>
+                datastore.put(cacheKey(transformedTenant, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
+                DeviceList(deviceList)
+              case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
+            }
+          } else {
+            ResponseResult(502, s"Valkyrie returned a ${response.getStatus}") //Didn't get a 200 from valkyrie
+          }
+        case Failure(exception) =>
+          ResponseResult(502, s"Unable to communicate with Valkyrie: ${exception.getMessage}")
+      }
+    }
+
     Option(datastore.get(cacheKey(transformedTenant, contactId))) match {
       case Some(x) => DeviceList(x.asInstanceOf[Vector[DeviceToPermission]])
-      case None => valkyrieAuthorize(valkyrieServer, transformedTenant, contactId)
-    }
-  }
-
-  def valkyrieAuthorize(valkyrieServer: ValkyrieServer, tenantId: String, contactId: String): ValkyrieResult = {
-    tryValkyrieCall(valkyrieServer, tenantId, contactId) match {
-      case Success(response) => {
-        if (response.getStatus == 200) {
-          parseDevices(response.getData) match {
-            case Success(deviceList) =>
-              datastore.put(cacheKey(tenantId, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
-              DeviceList(deviceList)
-            case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
-          }
-        } else {
-          ResponseResult(502, s"Valkyrie returned a ${response.getStatus}") //Didn't get a 200 from valkyrie
-        }
-      }
-      case Failure(exception) => {
-        ResponseResult(502, s"Unable to communicate with Valkyrie: ${exception.getMessage}")
-      }
+      case None => valkyrieAuthorize()
     }
   }
 
@@ -139,17 +149,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     } getOrElse {
       ResponseResult(403, "Not Authorized")
     }
-  }
-
-  def tryValkyrieCall(valkyrieServer: ValkyrieServer, tenantId: String, contactId: String): Try[ServiceClientResponse] = {
-    import collection.JavaConversions._
-
-    val uri = valkyrieServer.getUri + s"/account/$tenantId/permissions/contacts/devices/by_contact/$contactId/effective"
-    Try(akkaServiceClient.get(cacheKey(tenantId, contactId),
-      uri,
-      Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword))
-    )
-
   }
 
   def parseDevices(is: InputStream): Try[Vector[DeviceToPermission]] = {
