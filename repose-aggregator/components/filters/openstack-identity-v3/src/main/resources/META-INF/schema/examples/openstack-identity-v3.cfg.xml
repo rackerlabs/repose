@@ -12,6 +12,6 @@
     <openstack-identity-service
             username="admin_username"
             password="admin_password"
-            domain="some.domain"
+            domain-id="some.domain"
             uri="http://identity.example.com"/>
 </openstack-identity-v3>
