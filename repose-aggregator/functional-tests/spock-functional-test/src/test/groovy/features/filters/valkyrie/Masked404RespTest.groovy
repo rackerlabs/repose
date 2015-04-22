@@ -136,7 +136,7 @@ class Masked404RespTest extends ReposeValveTest {
     }
 
     @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
-    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing" () {
+    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
@@ -161,35 +161,35 @@ class Masked404RespTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method   | tenantID                   | deviceID | permission      | responseCode
-        "GET"    | random.nextInt()           | "520707" | "view_product"  | "404"
-        "HEAD"   | random.nextInt()           | "520707" | "view_product"  | "404"
-        "GET"    | random.nextInt()           | "520707" | "admin_product" | "404"
-        "HEAD"   | random.nextInt()           | "520707" | "admin_product" | "404"
-        "PUT"    | random.nextInt()           | "520707" | "admin_product" | "404"
-        "POST"   | random.nextInt()           | "520707" | "admin_product" | "404"
-        "PATCH"  | random.nextInt()           | "520707" | "admin_product" | "404"
-        "DELETE" | random.nextInt()           | "520707" | "admin_product" | "404"
-        "GET"    | random.nextInt()           | "520707" | "edit_product"  | "404"
-        "HEAD"   | random.nextInt()           | "520707" | "edit_product"  | "404"
-        "PUT"    | random.nextInt()           | "520707" | "edit_product"  | "404"
-        "POST"   | random.nextInt()           | "520707" | "edit_product"  | "404"
-        "PATCH"  | random.nextInt()           | "520707" | "edit_product"  | "404"
-        "DELETE" | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "GET"    | "dedicated:"+random.nextInt()| "520707" | "view_product"  | "404"
-        "HEAD"   | "dedicated:"+random.nextInt()| "520707" | "view_product"  | "404"
-        "GET"    | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "HEAD"   | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "PUT"    | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "POST"   | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "PATCH"  | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "DELETE" | "dedicated:"+random.nextInt()| "520707" | "admin_product" | "404"
-        "GET"    | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "HEAD"   | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "PUT"    | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "POST"   | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "PATCH"  | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404"
-        "DELETE" | "dedicated:"+random.nextInt()| "520707" | "edit_product"  | "404  "
+        method   | tenantID                        | deviceID | permission      | responseCode
+        "GET"    | random.nextInt()                | "520707" | "view_product"  | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "view_product"  | "404"
+        "GET"    | random.nextInt()                | "520707" | "admin_product" | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "admin_product" | "404"
+        "PUT"    | random.nextInt()                | "520707" | "admin_product" | "404"
+        "POST"   | random.nextInt()                | "520707" | "admin_product" | "404"
+        "PATCH"  | random.nextInt()                | "520707" | "admin_product" | "404"
+        "DELETE" | random.nextInt()                | "520707" | "admin_product" | "404"
+        "GET"    | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "PUT"    | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "POST"   | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "PATCH"  | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "view_product"  | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "view_product"  | "404"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "PUT"    | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "POST"   | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "PUT"    | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "POST"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404  "
     }
 
     def String randomTenant() {

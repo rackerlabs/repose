@@ -1,3 +1,22 @@
+/*
+ * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+ * Repose
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ */
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
@@ -52,6 +71,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
             repose.stop()
         }
     }
+
     def "Test Valkyrie Authorization Cache"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         def tenantID = randomTenant()
@@ -95,7 +115,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
         fakeValkyrie.getAuthorizationCount() == 0
     }
 
-    def "Test Cache Timeout" () {
+    def "Test Cache Timeout"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         DateTime initialCacheValidation = DateTime.now()
         def tenantID = randomTenant()
@@ -141,6 +161,7 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
         fakeValkyrie.getAuthorizationCount() == 1
 
     }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
