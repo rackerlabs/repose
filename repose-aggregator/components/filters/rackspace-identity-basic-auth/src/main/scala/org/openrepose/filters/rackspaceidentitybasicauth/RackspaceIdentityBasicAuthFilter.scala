@@ -30,7 +30,7 @@ import javax.ws.rs.core.MediaType
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.HttpDate
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
@@ -148,9 +148,11 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
         </auth>
       }
       // Request a User Token based on the extracted User Name/API Key.
+      val requestGuidHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.REQUEST_GUID.toString))
+        .map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid)).getOrElse(Map())
       val authTokenResponse = Option(akkaServiceClient.post(authValue,
         identityServiceUri,
-        Map[String, String]().asJava,
+        Map[String, String]().++(requestGuidHeader).asJava,
         createAuthRequest(authValue).toString(),
         MediaType.APPLICATION_XML_TYPE))
 

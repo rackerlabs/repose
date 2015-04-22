@@ -167,7 +167,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     private ServiceClientResponse validateUser(String userToken, String tenant, boolean force, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, force));
         if (requestGuid != null) {
             headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
         }
@@ -191,7 +191,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         try {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-            headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+            headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
                 headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
             }
@@ -206,7 +206,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                     LOG.error("Unable to get endpoints for user: " + endpointListResponse.getStatus() + " :admin token expired. " +
                             "Retrieving new admin token and retrying endpoints retrieval...");
 
-                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, true));
                     endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
                     if (endpointListResponse.getStatus() == HttpServletResponse.SC_OK) {
@@ -254,7 +254,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             //telling the service what format to send the endpoints to us in
             headers.put(ACCEPT_HEADER, format);
-            headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+            headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
                 headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
             }
@@ -269,7 +269,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 case HttpServletResponse.SC_UNAUTHORIZED:
                     LOG.error("Unable to get endpoints for user: " + serviceClientResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
 
-                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, true));
                     serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
                     if (serviceClientResponse.getStatus() == HttpServletResponse.SC_ACCEPTED) {
@@ -333,7 +333,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         try {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-            headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+            headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
                 headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
             }
@@ -347,7 +347,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 case HttpServletResponse.SC_UNAUTHORIZED:
                     LOG.error("Unable to get groups for user: " + serviceResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
 
-                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                    headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, true));
 
                     serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
@@ -393,15 +393,17 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private String getAdminToken(boolean force) throws AuthServiceException {
+    private String getAdminToken(String requestGuid, boolean force) throws AuthServiceException {
 
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         try {
             if (adminToken == null) {
+                Map<String, String> headerMap = new HashMap<>();
+                headerMap.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
                 final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
                         targetHostUri + "/tokens",
-                        new HashMap<String, String>(),
+                        headerMap,
                         requestBody,
                         MediaType.APPLICATION_XML_TYPE);
 
