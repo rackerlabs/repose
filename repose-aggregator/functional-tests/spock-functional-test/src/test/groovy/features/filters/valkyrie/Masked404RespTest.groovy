@@ -75,7 +75,7 @@ class Masked404RespTest extends ReposeValveTest {
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -136,8 +136,8 @@ class Masked404RespTest extends ReposeValveTest {
     }
 
     @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
-    def "Repose return 403 if tenant comming from idendity prefix 'hybrid' is missing" () {
-        given: "A device ID with a particular permission level defined in Valykrie"
+    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing" () {
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()

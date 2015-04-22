@@ -72,7 +72,7 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -133,8 +133,8 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 
     @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
-    def "Repose return 403 if tenant comming from idendity prefix 'hybrid' is missing" () {
-        given: "A device ID with a particular permission level defined in Valykrie"
+    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing" () {
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -190,8 +190,8 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 
     @Unroll("Without tenantId - permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
-    def "Repose return 403 if missing tenantid" () {
-        given: "A device ID with a particular permission level defined in Valykrie"
+    def "Repose return 502 if missing tenantId" () {
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -216,25 +216,25 @@ class BasicValkyrieTest extends ReposeValveTest {
 
         where:
         method   | deviceID | permission      | responseCode
-        "GET"    | "520707" | "view_product"  | "403"
-        "HEAD"   | "520707" | "view_product"  | "403"
-        "GET"    | "520707" | "admin_product" | "403"
-        "HEAD"   | "520707" | "admin_product" | "403"
-        "PUT"    | "520707" | "admin_product" | "403"
-        "POST"   | "520707" | "admin_product" | "403"
-        "PATCH"  | "520707" | "admin_product" | "403"
-        "DELETE" | "520707" | "admin_product" | "403"
-        "GET"    | "520707" | "edit_product"  | "403"
-        "HEAD"   | "520707" | "edit_product"  | "403"
-        "PUT"    | "520707" | "edit_product"  | "403"
-        "POST"   | "520707" | "edit_product"  | "403"
-        "PATCH"  | "520707" | "edit_product"  | "403"
-        "DELETE" | "520707" | "edit_product"  | "403"
+        "GET"    | "520707" | "view_product"  | "502"
+        "HEAD"   | "520707" | "view_product"  | "502"
+        "GET"    | "520707" | "admin_product" | "502"
+        "HEAD"   | "520707" | "admin_product" | "502"
+        "PUT"    | "520707" | "admin_product" | "502"
+        "POST"   | "520707" | "admin_product" | "502"
+        "PATCH"  | "520707" | "admin_product" | "502"
+        "DELETE" | "520707" | "admin_product" | "502"
+        "GET"    | "520707" | "edit_product"  | "502"
+        "HEAD"   | "520707" | "edit_product"  | "502"
+        "PUT"    | "520707" | "edit_product"  | "502"
+        "POST"   | "520707" | "edit_product"  | "502"
+        "PATCH"  | "520707" | "edit_product"  | "502"
+        "DELETE" | "520707" | "edit_product"  | "502"
     }
 
     @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if contact id missing" () {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
