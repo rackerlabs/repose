@@ -120,9 +120,6 @@ public class CoreSpringProvider {
             LOG.debug("Config Root: {}", configRoot);
             LOG.debug(" Insecurity: {}", insecure);
 
-            //Go ahead and print the narwhal banner at this point -- this is where startup happens
-            ReposeBanner.print(LOG);
-
             LOG.info("Starting up Repose Core Spring Context (logging may be redirected as the logging service comes up)");
             coreContext = new AnnotationConfigApplicationContext();
             coreContext.setDisplayName("ReposeCoreContext");
@@ -184,6 +181,9 @@ public class CoreSpringProvider {
             coreContext.registerBeanDefinition("jmxAttributeSource", jmxAttributeSource);
 
             coreContext.refresh();
+
+            //Here I can actually log the thing, and it'll go to the log instead of to the stdout
+            ReposeBanner.print(LOG);
 
             //Make sure that once it's configured, it's registered to be shut down
             coreContext.registerShutdownHook();
