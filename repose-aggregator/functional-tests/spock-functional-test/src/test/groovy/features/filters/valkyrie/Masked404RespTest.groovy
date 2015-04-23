@@ -189,7 +189,7 @@ class Masked404RespTest extends ReposeValveTest {
         "PUT"    | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
         "POST"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
         "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
-        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404  "
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
     }
 
     def String randomTenant() {
