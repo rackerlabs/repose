@@ -76,9 +76,9 @@ class TraceHeaderTest extends ReposeValveTest {
         then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings[0].request.headers.contains("x-request-guid")
-        mc.orphanedHandlings[1].request.headers.contains("x-request-guid")
-        mc.orphanedHandlings[2].request.headers.contains("x-request-guid")
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-request-guid")
+        }
 
     }
 }

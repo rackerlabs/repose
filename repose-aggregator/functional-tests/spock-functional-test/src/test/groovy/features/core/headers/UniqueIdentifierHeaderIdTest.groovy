@@ -130,6 +130,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
 
         then:
         mc.handlings.size() == 1
+        mc.handlings[0].response.headers.contains("Content-Length")
         mc.handlings[0].response.headers.contains("Content-type")
         mc.handlings[0].response.headers.contains("x-request-guid")
     }

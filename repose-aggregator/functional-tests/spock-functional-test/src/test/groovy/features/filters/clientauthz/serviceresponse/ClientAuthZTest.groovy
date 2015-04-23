@@ -210,4 +210,24 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.handlings.size() == 0
         mc.receivedResponse.code == "403"
     }
+
+    def "Tracing header should include in request to Identity"() {
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            endpointUrl = "localhost"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-request-guid")
+        }
+    }
 }
