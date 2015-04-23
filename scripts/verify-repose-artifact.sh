@@ -19,7 +19,16 @@ MVN_SEARCH="${MVN_HOST}/service/local/lucene/search"
 # Nexus content path/prefix.
 MVN_CONTENT="${MVN_HOST}/service/local/artifact/maven/content"
 # Nexus Groups to search.
-PACKAGES=("com.rackspace.papi.core" "org.openrepose" )
+PACKAGES=(
+	"com.rackspace.papi.commons"
+	"com.rackspace.papi.components"
+	"com.rackspace.papi.components.extensions"
+	"com.rackspace.papi.core"
+	"com.rackspace.papi."
+	"com.rackspace.papi."
+	"com.rackspace.papi."
+	"org.openrepose"
+)
 # Path to workspace directory.
 WORKSPACE_DIR='/root/workspace'
 #End of constants
@@ -252,7 +261,7 @@ for file in ${FILES[*]} ; do
 				fi
 				diff -rq -x '\pom.properties' -x '*_extract' -x '*_decompile' ${file}_extract ${known}_extract >> ${WORKSPACE_DIR}/repose/${version}/verify.txt 2>&1
 				if (( "$?" == "0" )); then
-					echo -en "      SUCCESS - with Known differences.\n" | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt
+					echo -en "      SUCCESS - with Known differences\n" | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt
 				elif [[ "${file##*.}" == "ear" || "${file##*.}" == "war" ]]; then
 					echo -en "\n      Re-Checking with internal archives extracted ... " | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
 					echo -en "\n" >> ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
@@ -262,8 +271,7 @@ for file in ${FILES[*]} ; do
 					if (( "$?" == "0" )); then
 						echo -en "      SUCCESS - No differences after extraction\n" | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt
 					else
-						echo -en "      Re-Checking with internal archives decompiled ... " | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
-						echo -en "\n" >> ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
+						echo -en "      Re-Checking with internal archives decompiled ... \n" | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
 						decompile_jars ${file} &&
 						decompile_jars ${known} &&
 						diff -rq -x '\pom.properties' -x '*.jar' -x '*_extract' ${file}_extract ${known}_extract >> ${WORKSPACE_DIR}/repose/${version}/verify.txt 2>&1
@@ -274,8 +282,7 @@ for file in ${FILES[*]} ; do
 						fi
 					fi
 				elif [ "${file##*.}" == "jar" ]; then
-					echo -en "      Re-Checking with archive decompiled ... " | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
-					echo -en "\n" >> ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
+					echo -en "      Re-Checking with archives decompiled ... \n" | tee -a  ${WORKSPACE_DIR}/repose/${version}/verify.txt &&
 					decompile_jar ${file} &&
 					decompile_jar ${known} &&
 					diff -r -x '\pom.properties' -x '*.jar' -x '*_extract' ${file}_decompile ${known}_decompile >> ${WORKSPACE_DIR}/repose/${version}/verify.txt 2>&1
