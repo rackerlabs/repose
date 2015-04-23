@@ -43,7 +43,6 @@ class TraceHeaderTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/tenantlessValidation", params)
 
         repose.start()
 

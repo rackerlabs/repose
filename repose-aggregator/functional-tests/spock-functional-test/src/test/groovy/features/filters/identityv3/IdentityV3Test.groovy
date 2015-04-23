@@ -107,7 +107,9 @@ class IdentityV3Test extends ReposeValveTest {
         mc.handlings.size() == 1
         // any requests send to identity also include tracing header
         mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-request-guid")
+            e ->
+                assert e.request.headers.contains("x-request-guid")
+                assert e.request.headers.getFirstValue("x-request-guid") == mc.handlings[0].request.headers.getFirstValue("x-request-guid")
         }
     }
 }

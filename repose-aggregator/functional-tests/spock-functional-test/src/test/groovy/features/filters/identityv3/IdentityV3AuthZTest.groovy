@@ -116,8 +116,13 @@ class IdentityV3AuthZTest extends ReposeValveTest {
         then: "User should receive a #statusCode response"
         mc.receivedResponse.code == statusCode
         mc.handlings.size() == handlings
+
         mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-request-guid")
+            e ->
+                assert e.request.headers.contains("x-request-guid")
+                if (mc.handlings.size() != 0) {
+                    assert e.request.headers.getFirstValue("x-request-guid") == mc.handlings[0].request.headers.getFirstValue("x-request-guid")
+                }
         }
 
         where:
