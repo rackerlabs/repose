@@ -14,6 +14,7 @@
                 xmlns:cadf="http://schemas.dmtf.org/cloud/audit/1.0/"
                 xmlns="http://schemas.dmtf.org/cloud/audit/1.0/"
                 id="{{guid}}"
+                requestID="{{requestGuid}}"
                 eventType="activity"
                 typeURI="http://schemas.dmtf.org/cloud/audit/1.0/event"
                 eventTime="{{cadfTimestamp timestamp}}"
