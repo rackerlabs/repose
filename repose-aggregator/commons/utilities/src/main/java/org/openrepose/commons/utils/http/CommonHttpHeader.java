@@ -32,7 +32,7 @@ public enum CommonHttpHeader implements HeaderConstant {
 
     //Tracing
     REQUEST_GUID("X-Request-Guid"), //todo: correct name
-    RESPONSE_GUID("X-Response-Guid"),
+    RESPONSE_GUID("X-Response-Guid"), //todo: this may also be unnecessary if we tie the response to the request guid
 
     //Standards
     HOST("Host"),
