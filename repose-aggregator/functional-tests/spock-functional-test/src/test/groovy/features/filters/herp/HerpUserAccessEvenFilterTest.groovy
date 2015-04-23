@@ -260,6 +260,87 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         "200"        | "admin"    | "123456"  | "tenantId=-123456"      | "POST"  | "OK"
     }
 
+    @Unroll("Tracing header test with #method, #tenantid, #parameters")
+    def "Tracing header test with user access event"() {
+        setup: "declare messageChain to be of type MessageChain"
+        List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "RequestID", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
+        def customHandler = ""
+
+        reposeLogSearch.cleanLog()
+        MessageChain mc
+        def Map<String, String> headers = [
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-tenant-id'        : tenantid,
+                'x-roles'            : 'default',
+                'x-user-name'        : 'randomuser',
+                'x-user-id'          : 'randomuser',
+                'x-impersonator-name': 'impersonateuser',
+                'x-impersonator-id'  : '123456'
+        ]
+        if (responseCode != "200") {
+            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+        }
+
+        when:
+        "When Requesting " + method + "server/abcd"
+        mc = deproxy.makeRequest(url: reposeEndpoint +
+                "/resource?" + parameters, method: method, headers: headers,
+                requestBody: "some data", defaultHandler: customHandler,
+                addDefaultHeaders: false
+        )
+        String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+        def map = buildParamList(parameters)
+        String postFilterLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.post.filter")
+        String pjsonpart = postFilterLine.substring(postFilterLine.indexOf("{"))
+        def pslurper = new JsonSlurper()
+        def presult = pslurper.parseText(pjsonpart)
+        def pmap = buildParamList(parameters)
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-request-guid")
+
+        then:
+        "result should be " + responseCode
+        mc.receivedResponse.code.equals(responseCode)
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.ProjectID[0] == tenantid
+        result.Request.UserName == "randomuser"
+        result.Request.ImpersonatorName == "impersonateuser"
+        result.Request.RequestID == requestid
+        result.Request.Method == method
+        (result.Request.URL).contains("/resource")
+        result.Response.Code == responseCode.toInteger()
+        result.Response.Message == respMsg
+        checkParams(jsonpart, map)
+        //Check post filter event log
+        checkAttribute(pjsonpart, listattr)
+        presult.ServiceCode == "repose"
+        presult.Region == "USA"
+        presult.DataCenter == "DFW"
+        presult.Request.ProjectID[0] == tenantid
+        presult.Request.UserName == "randomuser"
+        presult.Request.ImpersonatorName == "impersonateuser"
+        presult.Request.RequestID == requestid
+        presult.Request.Method == method
+        (presult.Request.URL).contains("/resource")
+        presult.Response.Code == responseCode.toInteger()
+        presult.Response.Message == respMsg
+        checkParams(pjsonpart, pmap)
+
+
+        where:
+        responseCode | tenantid | parameters       | method | respMsg
+        "200"        | "123456" | "username=test"  | "POST" | "OK"
+        "200"        | "test12" | "tenantId=12345" | "PUT"  | "OK"
+    }
+
     // Check all required attributes in the log
     private boolean checkAttribute(String jsonpart, List listattr) {
         def slurper = new JsonSlurper()
