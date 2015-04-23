@@ -283,6 +283,8 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
+    //todo: is it safe to assume that if a request guid header does not exist on the request, we should not add a
+    //response guid header to the response? if so, the addTraceHeader flag is unnecessary, as is the UUID generation.
     private void addResponseGuid(MutableHttpServletRequest request, MutableHttpServletResponse response) {
         if (addTraceHeader &&
                 StringUtilities.isBlank(response.getHeader(CommonHttpHeader.RESPONSE_GUID.toString()))) {
