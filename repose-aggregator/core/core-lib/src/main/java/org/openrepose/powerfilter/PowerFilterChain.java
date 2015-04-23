@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
@@ -73,18 +75,21 @@ public class PowerFilterChain implements FilterChain {
     private int position;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
+    private boolean addTraceHeader;
     private TimerByCategory filterTimer;
     private final SplittableHeaderUtil splittabelHeaderUtil;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
                             PowerFilterRouter router,
-                            MetricsService metricsService)
+                            MetricsService metricsService,
+                            boolean addTraceHeader)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.router = router;
+        this.addTraceHeader = addTraceHeader;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
@@ -261,6 +266,7 @@ public class PowerFilterChain implements FilterChain {
             mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mutableHttpResponse.setLastException(ex);
         }
+        addResponseGuid(mutableHttpRequest, mutableHttpResponse);
     }
 
     private void splitResponseHeaders(MutableHttpServletResponse mutableHttpResponse) {
@@ -273,6 +279,18 @@ public class PowerFilterChain implements FilterChain {
                         mutableHttpResponse.addHeader(headerName, splitValue);
                     }
                 }
+            }
+        }
+    }
+
+    private void addResponseGuid(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+        if (addTraceHeader &&
+                StringUtilities.isBlank(response.getHeader(CommonHttpHeader.RESPONSE_GUID.toString()))) {
+            String requestGuid = request.getHeader(CommonHttpHeader.REQUEST_GUID.toString());
+            if (StringUtilities.isNotBlank(requestGuid)) {
+                response.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), requestGuid);
+            } else {
+                response.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), UUID.randomUUID().toString());
             }
         }
     }

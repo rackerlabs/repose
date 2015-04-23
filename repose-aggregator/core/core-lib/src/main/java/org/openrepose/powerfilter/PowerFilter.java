@@ -322,7 +322,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 //Update the JMX bean with our status
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
-                requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService);
+                requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService, currentSystemModel.get().isTracingHeader());
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
@@ -349,7 +349,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().isTracingHeader() &&
-                        StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.REQUEST_GUID.toString()))) { // todo: correct name
+                        StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.REQUEST_GUID.toString()))) {
                     mutableHttpRequest.addHeader(CommonHttpHeader.REQUEST_GUID.toString(), UUID.randomUUID().toString());
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);

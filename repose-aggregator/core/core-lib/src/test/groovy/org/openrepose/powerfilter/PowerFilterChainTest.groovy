@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter
 
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
@@ -46,7 +47,7 @@ class PowerFilterChainTest extends Specification {
     def "startFilterChain correctly handles header #headerName"() {
         given:
         HttpServletRequest resultRequest = null
-        def powerFilterChain = new PowerFilterChain([], null, null, null) {
+        def powerFilterChain = new PowerFilterChain([], null, null, null, false) {
             @Override
             void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
                 resultRequest = (HttpServletRequest) servletRequest
@@ -115,7 +116,7 @@ class PowerFilterChainTest extends Specification {
                 }
             }
         }
-        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null)
+        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null, false)
         def mockRequest = new MockHttpServletRequest()
         //NOTE: The PowerFilterChain only works if the initial response it is given is one of our
         // MutableHttpServletResponses, because it never writes changes down into the response
@@ -167,6 +168,43 @@ class PowerFilterChainTest extends Specification {
         "X-CONTACT-ID"        | ["foo", "bar,baz"]             | 3
         "X-TTL"               | ["foo", "bar,baz"]             | 3
         "whatever"            | ["foo", "bar,baz"]             | 2
+    }
+
+    def "doRouting should add a response guid header if not present and configured to do so"() {
+        given:
+        def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
+        def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
+        def powerFilterChain = new PowerFilterChain([], mock(FilterChain.class), new PowerFilterRouter() {
+            @Override
+            void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
+                    throws IOException, ServletException, URISyntaxException {}
+        }, null, true)
+
+        when:
+        powerFilterChain.doRouting(mockReq, mockResp)
+
+        then:
+        mockResp.getHeaders(CommonHttpHeader.RESPONSE_GUID.toString()).size() == 1
+    }
+
+    def "doRouting should use the request guid on the response if possible"() {
+        given:
+        def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
+        def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
+        def powerFilterChain = new PowerFilterChain([], mock(FilterChain.class), new PowerFilterRouter() {
+            @Override
+            void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
+                    throws IOException, ServletException, URISyntaxException {
+                servletResponse.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), "test-guid")
+            }
+        }, null, true)
+
+        when:
+        powerFilterChain.doRouting(mockReq, mockResp)
+
+        then:
+        mockResp.getHeaders(CommonHttpHeader.RESPONSE_GUID.toString()).size() == 1
+        mockResp.getHeader(CommonHttpHeader.RESPONSE_GUID.toString()) == "test-guid"
     }
 
     def getEnumerationLength(Enumeration<String> enumeration) {
