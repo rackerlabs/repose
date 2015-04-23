@@ -38,6 +38,7 @@ public enum LogFormatArgument {
     REMOTE_USER("u"),
     URL_REQUESTED("U"),
     REQUEST_GUID("R"), //todo: make parsing take more than one character, would it be better to document that this can be extracted using ${X-REQUEST-GUID}i?
+    //todo: insert RESPONSE_GUID if ${X-RESPONSE-GUID}i is not acceptable
     REQUEST_HEADER("i"),
     REQUEST_LINE("r"),
     REQUEST_PROTOCOL("H"),
