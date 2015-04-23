@@ -111,6 +111,12 @@ class Valve {
         1
       } else {
         val logger = LoggerFactory.getLogger(this.getClass)
+
+        //If we're going to start up stuff for realsies, register a shutdown hook now.
+        sys.ShutdownHookThread {
+          shutdown()
+        }
+
         logger.info(banner)
 
         logger.info("Starting up Repose Core...")
