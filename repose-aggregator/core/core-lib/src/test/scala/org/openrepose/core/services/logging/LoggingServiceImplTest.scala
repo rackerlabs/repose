@@ -30,15 +30,17 @@ import org.apache.logging.log4j.status.StatusLogger
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.openrepose.core.services.config.ConfigurationService
+import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar {
+class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar with Eventually {
 
   import scala.collection.JavaConversions._
 
@@ -67,6 +69,7 @@ class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar {
     context.reconfigure
     StatusLogger.getLogger.reset
   }
+
   validExtensions.foreach { ext =>
     describe(s"On Startup with extension $ext, the system") {
       it("Loads a fully qualified URL.") {
@@ -350,60 +353,58 @@ class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar {
             LOG.debug("DEBUG LEVEL LOG STATEMENT 1")
             LOG.trace("TRACE LEVEL LOG STATEMENT 1")
 
-            var i = 5 + 1
-            LOG.debug(s"Waiting for one second longer than the monitor interval ($i)..")
-            System.out.print("Waiting for one second longer than the monitor interval..")
-            while (i > 0) {
-              System.out.print(". ")
-              Thread.sleep(1000)
-              i -= 1
-            }
-            System.out.println(".")
-
-            val content2 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List2.$ext")).mkString
-            Files.write(file1.toPath, content2.getBytes(StandardCharsets.UTF_8))
-
-            // This loop and sleep was adopted directly from the Log4J 2.x tests
-            // provides the tickling of the logging infrastructure to wake up and reload.
-            var j = 15
-            while (j > 0) {
-              LOG.trace(s"Reconfiguring LogManager... $j")
-              j -= 1
-            }
-            Thread.sleep(100)
-
-            LOG.error("ERROR LEVEL LOG STATEMENT 2")
-            LOG.warn("WARN  LEVEL LOG STATEMENT 2")
-            LOG.info("INFO  LEVEL LOG STATEMENT 2")
-            LOG.debug("DEBUG LEVEL LOG STATEMENT 2")
-            LOG.trace("TRACE LEVEL LOG STATEMENT 2")
-
+            //Assert existing config works.
             val events1 = app1.getEvents.toList.map(_.getMessage.getFormattedMessage)
             events1 should contain("ERROR LEVEL LOG STATEMENT 1")
             events1 should contain("WARN  LEVEL LOG STATEMENT 1")
             events1 should not contain "INFO  LEVEL LOG STATEMENT 1"
             events1 should not contain "DEBUG LEVEL LOG STATEMENT 1"
             events1 should not contain "TRACE LEVEL LOG STATEMENT 1"
-            events1 should not contain "ERROR LEVEL LOG STATEMENT 2"
-            events1 should not contain "WARN  LEVEL LOG STATEMENT 2"
-            events1 should not contain "INFO  LEVEL LOG STATEMENT 2"
-            events1 should not contain "DEBUG LEVEL LOG STATEMENT 2"
-            events1 should not contain "TRACE LEVEL LOG STATEMENT 2"
 
-            val config2 = context.getConfiguration
-            val app2 = config2.getAppender("List2").asInstanceOf[ListAppender]
-            app2 should not be null
-            val events2 = app2.getEvents.toList.map(_.getMessage.getFormattedMessage)
-            events2 should not contain "ERROR LEVEL LOG STATEMENT 1"
-            events2 should not contain "WARN  LEVEL LOG STATEMENT 1"
-            events2 should not contain "INFO  LEVEL LOG STATEMENT 1"
-            events2 should not contain "DEBUG LEVEL LOG STATEMENT 1"
-            events2 should not contain "TRACE LEVEL LOG STATEMENT 1"
-            events2 should contain("ERROR LEVEL LOG STATEMENT 2")
-            events2 should contain("WARN  LEVEL LOG STATEMENT 2")
-            events2 should contain("INFO  LEVEL LOG STATEMENT 2")
-            events2 should contain("DEBUG LEVEL LOG STATEMENT 2")
-            events2 should not contain "TRACE LEVEL LOG STATEMENT 2"
+            //Have the logs be silent for like 6 seconds before changing the config, this lets Log4j flush itself so
+            // it doesn't get upset about changing configs
+            Thread.sleep(6000)
+
+            //Change the configuration
+            val content2 = Source.fromInputStream(this.getClass.getResourceAsStream(s"/LoggingServiceImplTest/log4j2-List2.$ext")).mkString
+            Files.write(file1.toPath, content2.getBytes(StandardCharsets.UTF_8))
+
+            //Assert that new stuff ended up in the right logs using an eventually
+            implicit val patienceConfig = PatienceConfig(
+              timeout = scaled(Span(40, Seconds)),
+              interval = scaled(Span(1, Seconds))
+            )
+
+            eventually {
+              app1.clear()
+
+              LOG.error("ERROR LEVEL LOG STATEMENT 2")
+              LOG.warn("WARN  LEVEL LOG STATEMENT 2")
+              LOG.info("INFO  LEVEL LOG STATEMENT 2")
+              LOG.debug("DEBUG LEVEL LOG STATEMENT 2")
+              LOG.trace("TRACE LEVEL LOG STATEMENT 2")
+
+              events1 should not contain "ERROR LEVEL LOG STATEMENT 2"
+              events1 should not contain "WARN  LEVEL LOG STATEMENT 2"
+              events1 should not contain "INFO  LEVEL LOG STATEMENT 2"
+              events1 should not contain "DEBUG LEVEL LOG STATEMENT 2"
+              events1 should not contain "TRACE LEVEL LOG STATEMENT 2"
+
+              val config2 = context.getConfiguration
+              val app2 = config2.getAppender("List2").asInstanceOf[ListAppender]
+              app2 should not be null
+              val events2 = app2.getEvents.toList.map(_.getMessage.getFormattedMessage)
+              events2 should not contain "ERROR LEVEL LOG STATEMENT 1"
+              events2 should not contain "WARN  LEVEL LOG STATEMENT 1"
+              events2 should not contain "INFO  LEVEL LOG STATEMENT 1"
+              events2 should not contain "DEBUG LEVEL LOG STATEMENT 1"
+              events2 should not contain "TRACE LEVEL LOG STATEMENT 1"
+              events2 should contain("ERROR LEVEL LOG STATEMENT 2")
+              events2 should contain("WARN  LEVEL LOG STATEMENT 2")
+              events2 should contain("INFO  LEVEL LOG STATEMENT 2")
+              events2 should contain("DEBUG LEVEL LOG STATEMENT 2")
+              events2 should not contain "TRACE LEVEL LOG STATEMENT 2"
+            }
           }
         } finally {
           cleanupLoggerContext(context)
