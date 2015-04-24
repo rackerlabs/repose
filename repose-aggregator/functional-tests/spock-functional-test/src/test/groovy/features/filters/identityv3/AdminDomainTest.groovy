@@ -58,13 +58,9 @@ class AdminDomainTest extends ReposeValveTest {
     def "Test send request with user token"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
-        def reqUserId = fakeIdentityV3Service.client_userid
-
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_domainid = reqDomain
-            client_userid = reqUserId
         }
 
         when: "User passes a request through repose"
