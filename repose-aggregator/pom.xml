@@ -612,12 +612,12 @@
                                         if (upload_file.contains(".ear")){
                                             copyFile = new File('${project.basedir}' + copy_file + "-" + version +".ear")
                                         }
-                                        print "Actual Upload File: "+copyFile+"\n"
+                                        println "Actual Upload File: "+copyFile
 
                                         // workaround for the veracode-client-java not taking buildVersion as String
                                         def buildVersion = version - '-SNAPSHOT'
                                         buildVersion = buildVersion.replaceAll('\.','') + '${build.number}'
-                                        println "Uploading artifacts with version: " + buildVersion + "\n"
+                                        println "Uploading artifacts with version: " + buildVersion
                                         def buildVersionInt = buildVersion.toInteger()
 
                                         // workaround for veracode wanting the same filename for each scan
