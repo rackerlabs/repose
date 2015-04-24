@@ -68,12 +68,18 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         case _ => None
       }
 
+      val userDomain = Option(config.getOpenstackIdentityService.getDomainId) match {
+        case x:Some[String] => Some(Domain(id = x))
+        case _ => None
+      }
+
       AuthRequestRoot(
         AuthRequest(
           AuthIdentityRequest(
             methods = List("password"),
             password = Some(PasswordCredentials(
               UserNamePasswordRequest(
+                domain = userDomain,
                 name = Some(username),
                 password = password
               )
