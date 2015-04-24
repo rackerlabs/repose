@@ -29,7 +29,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 2/10/15.
  */
-class HerpUserAccessEvenFilterTest extends ReposeValveTest {
+class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()

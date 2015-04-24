@@ -12,7 +12,7 @@
         "DataCenter" : "{{dataCenter}}",
         "Timestamp" : "{{timestamp}}",
         "Request" : {
-        "RequestID": "{{requestGuid}}",
+        "RequestID": "{{guid}}",
         "Method" : "{{requestMethod}}",
         "URL" : "{{requestURL}}",
         "QueryString" : "{{requestQueryString}}",
