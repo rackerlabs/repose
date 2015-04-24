@@ -301,7 +301,7 @@ class HerpUserAccessEvenFilterTest extends ReposeValveTest {
         def pslurper = new JsonSlurper()
         def presult = pslurper.parseText(pjsonpart)
         def pmap = buildParamList(parameters)
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-request-guid")
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
 
         then:
         "result should be " + responseCode

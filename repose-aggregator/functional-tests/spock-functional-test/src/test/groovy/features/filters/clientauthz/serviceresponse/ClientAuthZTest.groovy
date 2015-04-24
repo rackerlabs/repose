@@ -227,7 +227,7 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-request-guid")
+            e -> assert e.request.headers.contains("x-trace-guid")
         }
     }
 }

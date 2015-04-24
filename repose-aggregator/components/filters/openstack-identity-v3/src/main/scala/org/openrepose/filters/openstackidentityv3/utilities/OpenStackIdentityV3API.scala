@@ -94,7 +94,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case Some(adminToken) if checkCache =>
         Success(adminToken)
       case _ =>
-        val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid))
+        val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
           .getOrElse(Map())
         val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestGuidHeader
         val authTokenResponse = Option(akkaServiceClient.post(
@@ -144,7 +144,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case None =>
         getAdminToken(requestGuid, checkCache) match {
           case Success(adminToken) =>
-            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid))
+            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -203,7 +203,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case None =>
         getAdminToken(requestGuid, checkCache) match {
           case Success(adminToken) =>
-            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid))
+            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,

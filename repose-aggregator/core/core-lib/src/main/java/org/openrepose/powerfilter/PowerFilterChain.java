@@ -75,21 +75,18 @@ public class PowerFilterChain implements FilterChain {
     private int position;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
-    private boolean addTraceHeader;
     private TimerByCategory filterTimer;
     private final SplittableHeaderUtil splittabelHeaderUtil;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
                             PowerFilterRouter router,
-                            MetricsService metricsService,
-                            boolean addTraceHeader)
+                            MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.router = router;
-        this.addTraceHeader = addTraceHeader;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
@@ -283,17 +280,16 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
-    //todo: is it safe to assume that if a request guid header does not exist on the request, we should not add a
-    //response guid header to the response? if so, the addTraceHeader flag is unnecessary, as is the UUID generation.
+    /**
+     * @param request the request to pull the tracing guid from
+     * @param response the response to put the tracing guid into
+     */
     private void addResponseGuid(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        if (addTraceHeader &&
-                StringUtilities.isBlank(response.getHeader(CommonHttpHeader.RESPONSE_GUID.toString()))) {
-            String requestGuid = request.getHeader(CommonHttpHeader.REQUEST_GUID.toString());
-            if (StringUtilities.isNotBlank(requestGuid)) {
-                response.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), requestGuid);
-            } else {
-                response.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), UUID.randomUUID().toString());
-            }
+        String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+        if (StringUtilities.isNotBlank(requestGuid)) {
+            //Note: addHeader(...) may be the appropriate method to call to prevent overwriting a tracing id used by
+            //the origin service, however multiple tracing id header values is not currently supported by Repose.
+            response.setHeader(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
         }
     }
 

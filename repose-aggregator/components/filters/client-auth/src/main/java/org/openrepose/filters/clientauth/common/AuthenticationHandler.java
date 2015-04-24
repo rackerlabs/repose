@@ -144,7 +144,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         filterDirector.setFilterAction(FilterAction.RETURN);
         int offset = getCacheOffset();
 
-        final String requestGuid = request.getHeader(CommonHttpHeader.REQUEST_GUID.toString());
+        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         ExtractorResult<String> account = null;
         AuthToken token = null;

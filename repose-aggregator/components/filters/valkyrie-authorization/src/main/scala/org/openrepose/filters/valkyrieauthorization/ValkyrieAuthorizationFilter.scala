@@ -66,7 +66,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
-    val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.REQUEST_GUID.toString)))
+    val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
 
     val clientResponse = ((requestedTenantId, requestedContactId, requestedDeviceId) match {
       case (None, _, _) => ResponseResult(502, "No tenant ID specified")
@@ -106,7 +106,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
 
-      val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.REQUEST_GUID.toString -> guid)).getOrElse(Map())
+      val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
       val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contactId/effective"
       Try(akkaServiceClient.get(cacheKey(transformedTenant, contactId),
         uri,

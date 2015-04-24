@@ -119,9 +119,9 @@ class IdentityV3AuthZTest extends ReposeValveTest {
 
         mc.orphanedHandlings.each {
             e ->
-                assert e.request.headers.contains("x-request-guid")
+                assert e.request.headers.contains("x-trace-guid")
                 if (mc.handlings.size() != 0) {
-                    assert e.request.headers.getFirstValue("x-request-guid") == mc.handlings[0].request.headers.getFirstValue("x-request-guid")
+                    assert e.request.headers.getFirstValue("x-trace-guid") == mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
                 }
         }
 

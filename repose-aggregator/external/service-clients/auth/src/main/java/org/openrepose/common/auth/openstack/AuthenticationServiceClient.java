@@ -169,7 +169,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, force));
         if (requestGuid != null) {
-            headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+            headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
         }
         try {
             return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
@@ -193,7 +193,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
             }
 
             ServiceClientResponse endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
@@ -256,7 +256,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, format);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
             }
 
             ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken,
@@ -335,7 +335,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
             }
 
             ServiceClientResponse serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
@@ -400,7 +400,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             if (adminToken == null) {
                 Map<String, String> headerMap = new HashMap<>();
-                headerMap.put(CommonHttpHeader.REQUEST_GUID.toString(), requestGuid);
+                headerMap.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
                 final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
                         targetHostUri + "/tokens",
                         headerMap,

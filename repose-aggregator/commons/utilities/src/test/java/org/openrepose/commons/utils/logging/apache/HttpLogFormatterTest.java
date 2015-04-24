@@ -92,13 +92,13 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldReplaceTokenWithRequestGuid() {
-            final HttpLogFormatter formatter = newFormatter("%" + LogFormatArgument.REQUEST_GUID.toString());
+            final HttpLogFormatter formatter = newFormatter("%" + LogFormatArgument.TRACE_GUID.toString());
             final String expected = "test-guid";
 
             Vector<String> reqGuidValues = new Vector<>();
             reqGuidValues.add("test-guid");
 
-            when(request.getHeaders(CommonHttpHeader.REQUEST_GUID.toString()))
+            when(request.getHeaders(CommonHttpHeader.TRACE_GUID.toString()))
                     .thenReturn(reqGuidValues.elements());
 
             assertEquals(expected, formatter.format(request, response));
@@ -282,7 +282,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestGuidHandler() {
-            LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_GUID.toString());
+            LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TRACE_GUID.toString());
 
             HttpLogFormatter.setLogic(extractor, formatter);
 

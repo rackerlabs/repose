@@ -47,7 +47,7 @@ class PowerFilterChainTest extends Specification {
     def "startFilterChain correctly handles header #headerName"() {
         given:
         HttpServletRequest resultRequest = null
-        def powerFilterChain = new PowerFilterChain([], null, null, null, false) {
+        def powerFilterChain = new PowerFilterChain([], null, null, null) {
             @Override
             void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
                 resultRequest = (HttpServletRequest) servletRequest
@@ -116,7 +116,7 @@ class PowerFilterChainTest extends Specification {
                 }
             }
         }
-        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null, false)
+        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null)
         def mockRequest = new MockHttpServletRequest()
         //NOTE: The PowerFilterChain only works if the initial response it is given is one of our
         // MutableHttpServletResponses, because it never writes changes down into the response
@@ -170,7 +170,7 @@ class PowerFilterChainTest extends Specification {
         "whatever"            | ["foo", "bar,baz"]             | 2
     }
 
-    def "doRouting should add a response guid header if not present and configured to do so"() {
+    def "doRouting should add a response guid header if one is present on the request"() {
         given:
         def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
         def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
@@ -178,33 +178,33 @@ class PowerFilterChainTest extends Specification {
             @Override
             void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
                     throws IOException, ServletException, URISyntaxException {}
-        }, null, true)
+        }, null)
+
+        mockReq.addHeader(CommonHttpHeader.TRACE_GUID.toString(), "test-guid")
 
         when:
         powerFilterChain.doRouting(mockReq, mockResp)
 
         then:
-        mockResp.getHeaders(CommonHttpHeader.RESPONSE_GUID.toString()).size() == 1
+        mockResp.getHeaders(CommonHttpHeader.TRACE_GUID.toString()).size() == 1
+        mockResp.getHeader(CommonHttpHeader.TRACE_GUID.toString()) == "test-guid"
     }
 
-    def "doRouting should use the request guid on the response if possible"() {
+    def "doRouting should not add a response guid header if one is not present on the request"() {
         given:
         def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
         def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
         def powerFilterChain = new PowerFilterChain([], mock(FilterChain.class), new PowerFilterRouter() {
             @Override
             void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
-                    throws IOException, ServletException, URISyntaxException {
-                servletResponse.addHeader(CommonHttpHeader.RESPONSE_GUID.toString(), "test-guid")
-            }
-        }, null, true)
+                    throws IOException, ServletException, URISyntaxException {}
+        }, null)
 
         when:
         powerFilterChain.doRouting(mockReq, mockResp)
 
         then:
-        mockResp.getHeaders(CommonHttpHeader.RESPONSE_GUID.toString()).size() == 1
-        mockResp.getHeader(CommonHttpHeader.RESPONSE_GUID.toString()) == "test-guid"
+        mockResp.getHeaders(CommonHttpHeader.TRACE_GUID.toString()).size() == 0
     }
 
     def getEnumerationLength(Enumeration<String> enumeration) {

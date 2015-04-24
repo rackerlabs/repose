@@ -328,12 +328,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
     it("should send a request guid to valkyrie if present in incoming request") {
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456",
-        "X-Contact-Id" -> "123456", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid"))
+        "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
       val akkaServiceClient = mock[AkkaServiceClient]
       Mockito.when(akkaServiceClient.get(
         "someTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid")))
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid")))
         .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createValkyrieResponse("123456", "view_product").getBytes)))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
@@ -348,7 +348,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       Mockito.verify(akkaServiceClient).get("someTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.REQUEST_GUID.toString -> "test-guid"))
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
     }
   }
 

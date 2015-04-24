@@ -169,8 +169,8 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code.equals("200")
-        mc.handlings[0].request.headers.getFirstValue("x-request-guid") == event.@requestID.text()
-        mc.receivedResponse.headers.getFirstValue("x-response-guid") == event.@requestID.text()
+        mc.handlings[0].request.headers.getFirstValue("x-trace-guid") == event.@requestID.text()
+        mc.receivedResponse.headers.getFirstValue("x-trace-guid") == event.@requestID.text()
 
         where:
         username | request                      | method   | reqBody | respMsg

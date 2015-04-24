@@ -100,7 +100,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       var failureInValidation = false
 
       // Extract the tracing GUID from the request
-      val requestGuid = Option(request.getHeader(CommonHttpHeader.REQUEST_GUID.toString))
+      val requestGuid = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString))
 
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request, requestGuid) match {

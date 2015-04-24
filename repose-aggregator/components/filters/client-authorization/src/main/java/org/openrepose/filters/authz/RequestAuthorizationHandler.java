@@ -86,7 +86,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         String message = "Failure in authorization component";
 
-        final String requestGuid = request.getHeader(CommonHttpHeader.REQUEST_GUID.toString());
+        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
         try {

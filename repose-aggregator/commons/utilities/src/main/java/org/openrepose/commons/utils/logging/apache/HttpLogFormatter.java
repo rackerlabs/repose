@@ -120,8 +120,8 @@ public class HttpLogFormatter {
             case ERROR_MESSAGE:
                 formatter.setLogic(new ResponseMessageHandler());
                 break;
-            case REQUEST_GUID:
-                formatter.setLogic(new RequestHeaderHandler(CommonHttpHeader.REQUEST_GUID.toString(), extractor.getArguments()));
+            case TRACE_GUID:
+                formatter.setLogic(new RequestHeaderHandler(CommonHttpHeader.TRACE_GUID.toString(), extractor.getArguments()));
                 break;
         }
     }

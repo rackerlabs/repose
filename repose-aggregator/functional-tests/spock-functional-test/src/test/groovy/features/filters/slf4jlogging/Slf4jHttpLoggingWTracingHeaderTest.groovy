@@ -52,7 +52,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-request-guid")
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
 
         then: "Request id from request handling should be the same as Request ID logging"
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Request ID=$requestid").size() == 1
