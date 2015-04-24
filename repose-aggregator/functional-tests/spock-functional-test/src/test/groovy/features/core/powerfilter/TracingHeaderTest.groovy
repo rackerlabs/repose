@@ -37,10 +37,10 @@ class TracingHeaderTest extends ReposeValveTest {
 
     def "should pass a tracing header through the filter chain if one was provided"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["x-trace-guid": "test-guid"])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["x-trans-id": "test-guid"])
 
         then:
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trace-guid").equals("test-guid")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trans-id").equals("test-guid")
     }
 
     def "should pass a new tracing header through the filter chain if one was not provided"() {
@@ -48,6 +48,6 @@ class TracingHeaderTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
 
         then:
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trace-guid").matches(".+-.+-.+-.+-.+")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trans-id").matches(".+-.+-.+-.+-.+")
     }
 }

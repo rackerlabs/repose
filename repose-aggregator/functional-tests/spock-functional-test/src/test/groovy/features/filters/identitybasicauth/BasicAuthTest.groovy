@@ -90,8 +90,8 @@ class BasicAuthTest extends ReposeValveTest {
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {
             e ->
-                assert e.request.headers.contains("x-trace-guid")
-                assert e.request.headers.getFirstValue("x-trace-guid") == mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
+                assert e.request.headers.contains("x-trans-id")
+                assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
     }
 
@@ -188,8 +188,8 @@ class BasicAuthTest extends ReposeValveTest {
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {
             e ->
-                assert e.request.headers.contains("x-trace-guid")
-                assert e.request.headers.getFirstValue("x-trace-guid") == mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
+                assert e.request.headers.contains("x-trans-id")
+                assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
     }
 }

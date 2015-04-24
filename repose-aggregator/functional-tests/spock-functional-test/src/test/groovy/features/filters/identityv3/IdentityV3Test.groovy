@@ -108,8 +108,8 @@ class IdentityV3Test extends ReposeValveTest {
         // any requests send to identity also include tracing header
         mc.orphanedHandlings.each {
             e ->
-                assert e.request.headers.contains("x-trace-guid")
-                assert e.request.headers.getFirstValue("x-trace-guid") == mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
+                assert e.request.headers.contains("x-trans-id")
+                assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
     }
 }

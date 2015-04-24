@@ -98,7 +98,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         //**This part for tracing header test REP-1704**
         // any requests send to identity also include tracing header
         mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-trace-guid")
+            e -> assert e.request.headers.contains("x-trans-id")
         }
 
         where:

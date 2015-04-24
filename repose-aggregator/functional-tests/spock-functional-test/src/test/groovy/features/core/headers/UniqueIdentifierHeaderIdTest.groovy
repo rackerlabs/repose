@@ -87,7 +87,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("Accept")
-        mc.handlings[0].request.headers.contains("x-trace-guid")
+        mc.handlings[0].request.headers.contains("x-trans-id")
         //def uniqueid = mc.handlings[0].request.headers.getFirstValue("x-unique-id")
 
         where:
@@ -102,7 +102,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
                 'Content-Length': '0',
                 'Content-type'  : "application/xml",
                 'Accept'        : "application/xml",
-                'x-trace-guid': randomid
+                'x-trans-id': randomid
         ]
         when: "When make request along with other headers"
 
@@ -111,8 +111,8 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("Accept")
-        mc.handlings[0].request.headers.contains("x-trace-guid")
-        mc.handlings[0].request.headers.getFirstValue("x-trace-guid") == randomid
+        mc.handlings[0].request.headers.contains("x-trans-id")
+        mc.handlings[0].request.headers.getFirstValue("x-trans-id") == randomid
 
         where:
         method << ["GET", "POST"]
@@ -132,6 +132,6 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.headers.contains("Content-Length")
         mc.receivedResponse.headers.contains("Content-type")
-        mc.receivedResponse.headers.contains("x-trace-guid")
+        mc.receivedResponse.headers.contains("x-trans-id")
     }
 }

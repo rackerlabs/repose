@@ -31,7 +31,7 @@ public enum CommonHttpHeader implements HeaderConstant {
     WWW_AUTHENTICATE("WWW-Authenticate"),
 
     //Tracing
-    TRACE_GUID("X-Trace-Guid"), //todo: correct name
+    TRACE_GUID("X-Trans-Id"),
 
     //Standards
     HOST("Host"),

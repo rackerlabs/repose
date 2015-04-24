@@ -301,7 +301,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         def pslurper = new JsonSlurper()
         def presult = pslurper.parseText(pjsonpart)
         def pmap = buildParamList(parameters)
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trace-guid")
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
 
         then:
         "result should be " + responseCode
