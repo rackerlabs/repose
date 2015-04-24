@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,11 +22,14 @@ package features.filters.valkyrie
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
+import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Unroll
 
-class RaxDeviceValkyrieTest extends ReposeValveTest {
+/**
+ * Created by jennyvo on 4/21/15.
+ */
+class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -44,7 +47,6 @@ class RaxDeviceValkyrieTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/raxdevice", params);
 
         repose.start()
 
@@ -70,10 +72,9 @@ class RaxDeviceValkyrieTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
-    def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
+    def "Test Valkyrie Authorization Cache"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
-
+        def tenantID = randomTenant()
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
@@ -81,12 +82,13 @@ class RaxDeviceValkyrieTest extends ReposeValveTest {
         }
 
         fakeValkyrie.with {
-            device_id = deviceID
-            device_perm = permission
+            device_id = "520707"
+            device_perm = "view_product"
         }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+        fakeValkyrie.resetCounts()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/520707", method: "GET",
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
@@ -94,36 +96,69 @@ class RaxDeviceValkyrieTest extends ReposeValveTest {
         )
 
         then: "check response"
-        mc.receivedResponse.code == responseCode
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        fakeValkyrie.getAuthorizationCount() == 1
 
-        where:
-        method   | tenantID       | deviceID | permission      | responseCode
-        "GET"    | randomTenant() | "520707" | "view_product"  | "200"
-        "HEAD"   | randomTenant() | "520707" | "view_product"  | "200"
-        "PUT"    | randomTenant() | "520707" | "view_product"  | "403"
-        "POST"   | randomTenant() | "520707" | "view_product"  | "403"
-        "DELETE" | randomTenant() | "520707" | "view_product"  | "403"
-        "PATCH"  | randomTenant() | "520707" | "view_product"  | "403"
-        "GET"    | randomTenant() | "520707" | "admin_product" | "200"
-        "HEAD"   | randomTenant() | "520707" | "admin_product" | "200"
-        "PUT"    | randomTenant() | "520707" | "admin_product" | "200"
-        "POST"   | randomTenant() | "520707" | "admin_product" | "200"
-        "DELETE" | randomTenant() | "520707" | "admin_product" | "200"
-        "GET"    | randomTenant() | "520707" | "edit_product"  | "200"
-        "HEAD"   | randomTenant() | "520707" | "edit_product"  | "200"
-        "PUT"    | randomTenant() | "520707" | "edit_product"  | "200"
-        "POST"   | randomTenant() | "520707" | "edit_product"  | "200"
-        "DELETE" | randomTenant() | "520707" | "edit_product"  | "200"
-        "GET"    | randomTenant() | "520707" | ""              | "403"
-        "HEAD"   | randomTenant() | "520707" | ""              | "403"
-        "PUT"    | randomTenant() | "520707" | ""              | "403"
-        "POST"   | randomTenant() | "520707" | ""              | "403"
-        "DELETE" | randomTenant() | "520707" | ""              | "403"
-        "GET"    | randomTenant() | "520707" | "shazbot_prod"  | "403"
-        "HEAD"   | randomTenant() | "520707" | "prombol"       | "403"
-        "PUT"    | randomTenant() | "520707" | "hezmol"        | "403"
-        "POST"   | randomTenant() | "520707" | "_22_reimer"    | "403"
-        "DELETE" | randomTenant() | "520707" | "blah"          | "403"
+        when: "send another request with same device, permission same client_token"
+        fakeValkyrie.resetCounts()
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/520707", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        fakeValkyrie.getAuthorizationCount() == 0
+    }
+
+    def "Test Cache Timeout"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+        DateTime initialCacheValidation = DateTime.now()
+        def tenantID = randomTenant()
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = "520708"
+            device_perm = "admin_product"
+        }
+
+        when: "sub-sequence request with same device, permission and client_token not exceeding the cache expiration"
+        fakeValkyrie.resetCounts()
+        DateTime minimumCacheExpiration = initialCacheValidation.plusMillis(3000)
+        while (minimumCacheExpiration.isAfterNow()) {
+            MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/520708", method: "GET",
+                    headers: [
+                            'content-type': 'application/json',
+                            'X-Auth-Token': fakeIdentityService.client_token,
+                    ]
+            )
+            mc.receivedResponse.code.equals('200')
+        }
+
+        then: "should count only for 1st time then all sub-sequence calls should hit cache"
+        fakeValkyrie.getAuthorizationCount() == 1
+
+        when: "Cache is expire"
+        fakeValkyrie.resetCounts()
+        sleep(500)
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/520708", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "should re-authenticate"
+        fakeValkyrie.getAuthorizationCount() == 1
 
     }
 

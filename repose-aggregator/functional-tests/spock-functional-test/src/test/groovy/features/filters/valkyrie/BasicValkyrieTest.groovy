@@ -72,7 +72,7 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
-        given: "A device ID with a particular permission level defined in Valykrie"
+        given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -97,34 +97,183 @@ class BasicValkyrieTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method   | tenantID       | deviceID | permission      | responseCode
-        "GET"    | randomTenant() | "520707" | "view_product"  | "200"
-        "HEAD"   | randomTenant() | "520707" | "view_product"  | "200"
-        "PUT"    | randomTenant() | "520707" | "view_product"  | "403"
-        "POST"   | randomTenant() | "520707" | "view_product"  | "403"
-        "DELETE" | randomTenant() | "520707" | "view_product"  | "403"
-        "PATCH"  | randomTenant() | "520707" | "view_product"  | "403"
-        "GET"    | randomTenant() | "520707" | "admin_product" | "200"
-        "HEAD"   | randomTenant() | "520707" | "admin_product" | "200"
-        "PUT"    | randomTenant() | "520707" | "admin_product" | "200"
-        "POST"   | randomTenant() | "520707" | "admin_product" | "200"
-        "DELETE" | randomTenant() | "520707" | "admin_product" | "200"
-        "GET"    | randomTenant() | "520707" | "edit_product"  | "200"
-        "HEAD"   | randomTenant() | "520707" | "edit_product"  | "200"
-        "PUT"    | randomTenant() | "520707" | "edit_product"  | "200"
-        "POST"   | randomTenant() | "520707" | "edit_product"  | "200"
-        "DELETE" | randomTenant() | "520707" | "edit_product"  | "200"
-        "GET"    | randomTenant() | "520707" | ""              | "403"
-        "HEAD"   | randomTenant() | "520707" | ""              | "403"
-        "PUT"    | randomTenant() | "520707" | ""              | "403"
-        "POST"   | randomTenant() | "520707" | ""              | "403"
-        "DELETE" | randomTenant() | "520707" | ""              | "403"
-        "GET"    | randomTenant() | "520707" | "shazbot_prod"  | "403"
-        "HEAD"   | randomTenant() | "520707" | "prombol"       | "403"
-        "PUT"    | randomTenant() | "520707" | "hezmol"        | "403"
-        "POST"   | randomTenant() | "520707" | "_22_reimer"    | "403"
-        "DELETE" | randomTenant() | "520707" | "blah"          | "403"
+        method   | tenantID                   | deviceID | permission      | responseCode
+        "GET"    | randomTenant()             | "520707" | "view_product"  | "200"
+        "HEAD"   | randomTenant()             | "520707" | "view_product"  | "200"
+        "GET"    | randomTenant() - "hybrid:" | "520707" | "view_product"  | "403"
+        "PUT"    | randomTenant()             | "520707" | "view_product"  | "403"
+        "POST"   | randomTenant()             | "520707" | "view_product"  | "403"
+        "DELETE" | randomTenant()             | "520707" | "view_product"  | "403"
+        "PATCH"  | randomTenant()             | "520707" | "view_product"  | "403"
+        "GET"    | randomTenant()             | "520707" | "admin_product" | "200"
+        "HEAD"   | randomTenant()             | "520707" | "admin_product" | "200"
+        "PUT"    | randomTenant()             | "520707" | "admin_product" | "200"
+        "POST"   | randomTenant()             | "520707" | "admin_product" | "200"
+        "PATCH"  | randomTenant()             | "520707" | "admin_product" | "200"
+        "DELETE" | randomTenant()             | "520707" | "admin_product" | "200"
+        "GET"    | randomTenant()             | "520707" | "edit_product"  | "200"
+        "HEAD"   | randomTenant()             | "520707" | "edit_product"  | "200"
+        "PUT"    | randomTenant()             | "520707" | "edit_product"  | "200"
+        "POST"   | randomTenant()             | "520707" | "edit_product"  | "200"
+        "PATCH"  | randomTenant()             | "520707" | "edit_product"  | "200"
+        "DELETE" | randomTenant()             | "520707" | "edit_product"  | "200"
+        "GET"    | randomTenant()             | "520707" | ""              | "403"
+        "HEAD"   | randomTenant()             | "520707" | ""              | "403"
+        "PUT"    | randomTenant()             | "520707" | ""              | "403"
+        "POST"   | randomTenant()             | "520707" | ""              | "403"
+        "PATCH"  | randomTenant()             | "520707" | ""              | "403"
+        "DELETE" | randomTenant()             | "520707" | ""              | "403"
+        "GET"    | randomTenant()             | "520707" | "shazbot_prod"  | "403"
+        "HEAD"   | randomTenant()             | "520707" | "prombol"       | "403"
+        "PUT"    | randomTenant()             | "520707" | "hezmol"        | "403"
+        "POST"   | randomTenant()             | "520707" | "_22_reimer"    | "403"
+        "PATCH"  | randomTenant()             | "520707" | "blah"          | "403"
+        "DELETE" | randomTenant()             | "520707" | "blah"          | "403"
 
+    }
+
+    @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID                        | deviceID | permission      | responseCode
+        "GET"    | random.nextInt()                | "520707" | "view_product"  | "403"
+        "HEAD"   | random.nextInt()                | "520707" | "view_product"  | "403"
+        "GET"    | random.nextInt()                | "520707" | "admin_product" | "403"
+        "HEAD"   | random.nextInt()                | "520707" | "admin_product" | "403"
+        "PUT"    | random.nextInt()                | "520707" | "admin_product" | "403"
+        "POST"   | random.nextInt()                | "520707" | "admin_product" | "403"
+        "PATCH"  | random.nextInt()                | "520707" | "admin_product" | "403"
+        "DELETE" | random.nextInt()                | "520707" | "admin_product" | "403"
+        "GET"    | random.nextInt()                | "520707" | "edit_product"  | "403"
+        "HEAD"   | random.nextInt()                | "520707" | "edit_product"  | "403"
+        "PUT"    | random.nextInt()                | "520707" | "edit_product"  | "403"
+        "POST"   | random.nextInt()                | "520707" | "edit_product"  | "403"
+        "PATCH"  | random.nextInt()                | "520707" | "edit_product"  | "403"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "view_product"  | "403"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "view_product"  | "403"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "PUT"    | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "POST"   | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "403"
+        "GET"    | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "PUT"    | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "POST"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+        "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
+    }
+
+    @Unroll("Without tenantId - permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 502 if missing tenantId"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = ""
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | deviceID | permission      | responseCode
+        "GET"    | "520707" | "view_product"  | "502"
+        "HEAD"   | "520707" | "view_product"  | "502"
+        "GET"    | "520707" | "admin_product" | "502"
+        "HEAD"   | "520707" | "admin_product" | "502"
+        "PUT"    | "520707" | "admin_product" | "502"
+        "POST"   | "520707" | "admin_product" | "502"
+        "PATCH"  | "520707" | "admin_product" | "502"
+        "DELETE" | "520707" | "admin_product" | "502"
+        "GET"    | "520707" | "edit_product"  | "502"
+        "HEAD"   | "520707" | "edit_product"  | "502"
+        "PUT"    | "520707" | "edit_product"  | "502"
+        "POST"   | "520707" | "edit_product"  | "502"
+        "PATCH"  | "520707" | "edit_product"  | "502"
+        "DELETE" | "520707" | "edit_product"  | "502"
+    }
+
+    @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 403 if contact id missing"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+            contact_id = ""
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID         | deviceID | permission      | responseCode
+        "GET"    | random.nextInt() | "520707" | "view_product"  | "403"
+        "HEAD"   | random.nextInt() | "520707" | "view_product"  | "403"
+        "GET"    | random.nextInt() | "520707" | "admin_product" | "403"
+        "HEAD"   | random.nextInt() | "520707" | "admin_product" | "403"
+        "PUT"    | random.nextInt() | "520707" | "admin_product" | "403"
+        "POST"   | random.nextInt() | "520707" | "admin_product" | "403"
+        "PATCH"  | random.nextInt() | "520707" | "admin_product" | "403"
+        "DELETE" | random.nextInt() | "520707" | "admin_product" | "403"
+        "GET"    | random.nextInt() | "520707" | "edit_product"  | "403"
+        "HEAD"   | random.nextInt() | "520707" | "edit_product"  | "403"
+        "PUT"    | random.nextInt() | "520707" | "edit_product"  | "403"
+        "POST"   | random.nextInt() | "520707" | "edit_product"  | "403"
+        "PATCH"  | random.nextInt() | "520707" | "edit_product"  | "403"
+        "DELETE" | random.nextInt() | "520707" | "edit_product"  | "403"
     }
 
     def String randomTenant() {
