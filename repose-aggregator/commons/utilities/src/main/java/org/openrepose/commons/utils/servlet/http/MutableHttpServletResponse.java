@@ -201,6 +201,9 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         }
     }
 
+    //this is why we are broke, this has to be called to commit to the stream of the passed request, but it can only be
+    // called at the end because we reuse the same instance of the wrapper to prevent constantly copyiong things around.
+    // the new solution is to stop reusing the same instance of the wrapper and use new instances, but only use the wrapper where needed
     public void commitBufferToServletOutputStream() throws IOException {
 
         if (outputStreamWriter != null) {
