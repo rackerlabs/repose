@@ -106,11 +106,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException {
-        return validateToken(account, token, null);
-    }
-
-    @Override
     public AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) throws AuthServiceException {
         AuthToken authToken = null;
 
@@ -150,11 +145,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthGroups getGroups(String group) throws AuthServiceException {
-        return getGroups(group, null);
-    }
-
-    @Override
     public AuthGroups getGroups(String group, String requestGuid) throws AuthServiceException {
         return authenticationService.getGroups(group, requestGuid);
     }
@@ -162,12 +152,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     @Override
     public FilterDirector processResponse(ReadableHttpServletResponse response) {
         return new OpenStackResponseHandler(response, wwwAuthHeaderContents).handle();
-    }
-
-    //getting the final encoded string
-    @Override
-    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException {
-        return getEndpointsBase64(token, endpointsConfiguration, null);
     }
 
     @Override

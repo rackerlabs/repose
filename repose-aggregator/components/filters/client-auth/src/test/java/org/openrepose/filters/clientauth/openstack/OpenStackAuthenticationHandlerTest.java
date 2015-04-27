@@ -691,7 +691,7 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should not be called if we found the token in the cache
-            verify(authService, times(0)).getGroups(anyString());
+            verify(authService, times(0)).getGroups(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -763,7 +763,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()));
             // Service should be called since token has expired
-            verify(authService, times(0)).getGroups(anyString());
+            verify(authService, times(0)).getGroups(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }

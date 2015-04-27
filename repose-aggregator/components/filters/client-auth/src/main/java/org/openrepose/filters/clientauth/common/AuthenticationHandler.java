@@ -95,15 +95,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.sendTenantIdQuality = configurables.sendTenantIdQuality();
     }
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException;
-
     protected abstract AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) throws AuthServiceException;
 
-    protected abstract AuthGroups getGroups(String group) throws AuthServiceException;
-
     protected abstract AuthGroups getGroups(String group, String requestGuid) throws AuthServiceException;
-
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException;
 
     protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String requestGuid) throws AuthServiceException;
 

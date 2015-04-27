@@ -27,6 +27,7 @@ import org.mockito.stubbing.Answer
 import org.openrepose.common.auth.AuthServiceException
 import org.openrepose.common.auth.AuthServiceOverLimitException
 import org.openrepose.common.auth.ResponseUnmarshaller
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
 import org.openrepose.core.filter.logic.FilterDirector
@@ -77,7 +78,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token, "")
 
         then:
         response.token.id == userToValidate.token
@@ -93,7 +94,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.validateToken("123456", "someToken")
+        client.validateToken("123456", "someToken", "")
 
         then:
         def e = thrown(AuthServiceException)
@@ -113,7 +114,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.validateToken("123456", "someToken")
+        client.validateToken("123456", "someToken", "")
 
         then:
         def e = thrown(AuthServiceOverLimitException)
@@ -138,8 +139,8 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.validateToken(userToValidate.tenant, userToValidate.token)
-        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+        client.validateToken(userToValidate.tenant, userToValidate.token, "")
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token, "")
 
         then:
         verifyAdminTokenRequest(akkaServiceClient, 1)
@@ -164,7 +165,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token, "")
 
         then:
         app.getEvents().find {
@@ -182,7 +183,7 @@ class AuthenticationServiceClientTest extends Specification {
 
         def akkaServiceClient = mock(AkkaServiceClient)
         mockAdminTokenRequest(akkaServiceClient, admin)
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()): ""]
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
@@ -195,7 +196,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.validateToken(userToValidate.tenant, userToValidate.token)
+        client.validateToken(userToValidate.tenant, userToValidate.token, "")
 
         then:
         app.getEvents().find {
@@ -217,7 +218,7 @@ class AuthenticationServiceClientTest extends Specification {
 
         def akkaServiceClient = mock(AkkaServiceClient)
         mockAdminTokenRequest(akkaServiceClient, admin, 200)
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()):""]
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
@@ -231,7 +232,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.validateToken(userToValidate.tenant, userToValidate.token)
+        client.validateToken(userToValidate.tenant, userToValidate.token, "")
 
         then:
         def e = thrown(AuthServiceException)
@@ -268,7 +269,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        def response = client.getEndpointsForToken(userToValidate.token)
+        def response = client.getEndpointsForToken(userToValidate.token, "")
 
         then:
         response[0].id == 12345
@@ -291,7 +292,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        def response = client.getEndpointsForToken(userToValidate.token)
+        def response = client.getEndpointsForToken(userToValidate.token, "")
 
         then:
         app.getEvents().find {
@@ -314,7 +315,7 @@ class AuthenticationServiceClientTest extends Specification {
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
         when:
-        client.getEndpointsForToken(userToValidate.token)
+        client.getEndpointsForToken(userToValidate.token, "")
 
         then:
         def e = thrown(AuthServiceOverLimitException)
@@ -340,7 +341,7 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     private void mockUserEndpointRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200, int timesCalled = 1) {
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()):""]
         when(akkaServiceClient.get("ENDPOINTS${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}/endpoints", authHeaders))
                 .thenReturn(new ServiceClientResponse(responseCode, new ByteArrayInputStream(createEndpointResponse().getBytes())))
     }
@@ -375,7 +376,7 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     LinkedHashMap<String, String> headersForUserAuthentication(String adminToken) {
-        ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken]
+        ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()): ""]
     }
 
     def createAuthenticationServiceClient(def adminUser, def adminPassword, def adminTenant, def akkaServiceClient) {

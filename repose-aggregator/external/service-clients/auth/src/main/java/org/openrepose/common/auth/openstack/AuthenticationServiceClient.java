@@ -21,6 +21,7 @@ package org.openrepose.common.auth.openstack;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.sun.corba.se.spi.presentation.rmi.StubAdapter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -109,12 +110,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         delegationMessage.remove();
     }
 
-    //this is where we ask auth service if token is valid
-    @Override
-    public AuthenticateResponse validateToken(String tenant, String userToken) throws AuthServiceException {
-        return validateToken(tenant, userToken, null);
-    }
-
     @Override
     public AuthenticateResponse validateToken(String tenant, String userToken, String requestGuid) throws AuthServiceException {
         AuthenticateResponse authenticateResponse = null;
@@ -134,7 +129,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             case HttpServletResponse.SC_UNAUTHORIZED:
                 LOG.error("Unable to validate token: " + userToken + " due to status code: " + serviceResponse.getStatus() + " :admin token expired. Retrieving new admin token and retrying token validation...");
 
-                serviceResponse = validateUser(userToken, tenant, true);
+                serviceResponse = validateUser(userToken, tenant, true, requestGuid);
 
                 if (serviceResponse.getStatus() == HttpServletResponse.SC_OK) {
                     authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
@@ -160,10 +155,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return authenticateResponse;
     }
 
-    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) throws AuthServiceException {
-        return validateUser(userToken, tenant, force, null);
-    }
-
     private ServiceClientResponse validateUser(String userToken, String tenant, boolean force, String requestGuid) throws AuthServiceException {
         final Map<String, String> headers = new HashMap<>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
@@ -176,11 +167,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         } catch (AkkaServiceClientException e) {
             throw new AuthServiceException("Unable to validate user.", e);
         }
-    }
-
-    @Override
-    public List<Endpoint> getEndpointsForToken(String userToken) throws AuthServiceException {
-        return getEndpointsForToken(userToken, null);
     }
 
     @Override
@@ -231,11 +217,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
 
         return endpointList;
-    }
-
-    @Override
-    public String getBase64EndpointsStringForHeaders(String userToken, String format) throws AuthServiceException {
-        return getBase64EndpointsStringForHeaders(userToken, format, null);
     }
 
     // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
@@ -318,11 +299,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
 
         return endpointList;
-    }
-
-    @Override
-    public AuthGroups getGroups(String userId) throws AuthServiceException {
-        return getGroups(userId, null);
     }
 
     @Override

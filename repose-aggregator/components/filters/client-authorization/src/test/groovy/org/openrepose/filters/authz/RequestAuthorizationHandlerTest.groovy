@@ -289,7 +289,7 @@ class RequestAuthorizationHandlerTest extends Specification {
 
         then:
         verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN) == null
-        verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN) == null
+        verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN, "") == null
         verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
     }
 
@@ -299,7 +299,7 @@ class RequestAuthorizationHandlerTest extends Specification {
         def requestAuthorizationHandler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, createConfiguredEndpoint(configUri, configRegion, configName, configType), null, null);
         List<Endpoint> endpointList = new LinkedList<Endpoint>();
         endpointList.add(createAuthEndpoint(endpointUri, endpointRegion, endpointName, endpointType))
-        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
+        when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN, "")).thenReturn(endpointList);
         mockedRequest.addHeader(CommonHttpHeader.AUTH_TOKEN.toString(), AUTHORIZED_TOKEN)
 
         when:
