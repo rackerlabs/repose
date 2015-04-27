@@ -67,6 +67,21 @@ class AtomFeedResponseSimulator {
         }
     }
 
+    def userUpdateHandler(String userId) {
+        { request ->
+            if (hasEntry) {
+                def params = [
+                        'atomPort': atomPort,
+                        'time'    : new DateTime().toString(DATE_FORMAT),
+                        'userId'  : userId
+                ]
+                hasEntry = false
+                new Response(200, 'OK', headers, templateEngine.createTemplate(userUpdateEvent).make(params))
+            }
+        }
+    }
+
+
     def handler = { request ->
 
         def template
@@ -200,5 +215,48 @@ class AtomFeedResponseSimulator {
         <atom:published>\${time}</atom:published>
     </atom:entry>
 </feed>
+"""
+
+    def userUpdateEvent =
+            """<?xml version="1.0" encoding="UTF-8"?>
+<atom:entry xmlns:atom="http://www.w3.org/2005/Atom">
+    <atom:id>urn:uuid:e29ac1ca-fd06-11e1-a80c-bb58fc4a6929</atom:id>
+    <atom:category term="rgn:DFW"/>
+    <atom:category term="dc:DFW1"/>
+    <atom:category term="rid:10031728"/>
+    <atom:category term="tid:123456"/>
+    <atom:category term="cloudidentity.user.user.update"/>
+    <atom:category term="type:cloudidentity.user.user.update"/>
+    <atom:category term="updatedAttributes:GROUPS"/>
+    <atom:title type="text">Identity Event</atom:title>
+    <atom:content type="application/xml">
+        <event xmlns="http://docs.rackspace.com/core/event"
+           xmlns:id="http://docs.rackspace.com/event/identity/user"
+           dataCenter="DFW1"
+           environment="PROD"
+           eventTime="\${time}"
+           tenantId="123456"
+           id="e29ac1ca-fd06-11e1-a80c-bb58fc4a6929"
+           region="DFW"
+           resourceId="\${userId}"
+           resourceName="testuser"
+           type="UPDATE"
+           version="1">
+            <id:product displayName="testUser"
+                  groups="group1 group2 group3"
+                  migrated="false"
+                  multiFactorEnabled="false"
+                  resourceType="USER"
+                  roles="admin RAX:admin role3"
+                  serviceCode="CloudIdentity"
+                  updatedAttributes="GROUPS"
+                  version="2"/>
+        </event>
+    </atom:content>
+    <atom:link href="http://localhost:\${atomPort}/feed/"
+             rel="self"/>
+    <atom:updated>\${time}</atom:updated>
+    <atom:published>\${time}</atom:published>
+</atom:entry>
 """
 }
