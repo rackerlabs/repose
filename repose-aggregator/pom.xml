@@ -917,6 +917,10 @@
                                         <option name="outputFile" value="${basedir}/target/CodeNarc.xml" />
                                         <option name="title" value="${project.name}" />
                                     </report>
+                                    <report type="html">
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.html" />
+                                        <option name="title" value="${project.name}" />
+                                    </report>
                                     <fileset dir="${basedir}/src/test/groovy" erroronmissingdir="false">
                                         <include name="**/*.groovy" />
                                     </fileset>
