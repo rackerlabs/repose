@@ -37,9 +37,13 @@ public class AuthGroupCache implements DeleteableCache {
     }
 
     public AuthGroups getUserGroup(String tenantId) {
-        AuthGroups candidate = (AuthGroups) store.get(cachePrefix + "." + tenantId);
+        AuthGroups candidate = (AuthGroups) store.get(cacheKey(tenantId));
 
         return validateGroup(candidate) ? candidate : null;
+    }
+
+    private String cacheKey(String id) {
+        return cachePrefix + "." + id;
     }
 
     public void storeGroups(String tenantId, AuthGroups groups, int ttl) throws IOException {
@@ -48,12 +52,12 @@ public class AuthGroupCache implements DeleteableCache {
             return;
         }
 
-        store.put(cachePrefix + "." + tenantId, groups, ttl, TimeUnit.MILLISECONDS);
+        store.put(cacheKey(tenantId), groups, ttl, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public boolean deleteCacheItem(String tenantId) {
-        return store.remove(cachePrefix + tenantId);
+        return store.remove(cacheKey(tenantId));
     }
 
     public boolean validateGroup(AuthGroups cachedValue) {

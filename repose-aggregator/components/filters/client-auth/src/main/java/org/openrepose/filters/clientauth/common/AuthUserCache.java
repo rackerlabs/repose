@@ -39,22 +39,25 @@ public class AuthUserCache implements DeleteableCache {
         this.cachePrefix = cachePrefix;
     }
 
+    private String cacheKey(String userId){
+        return cachePrefix + "." + userId;
+    }
+
     public void storeUserTokenList(String userId, Set<String> tokens, int ttl) throws IOException {
         if (userId == null || tokens == null || ttl < 0) {
             // TODO Should we throw an exception here?
             return;
         }
-
-        store.put(cachePrefix + "." + userId, (Serializable) tokens, ttl, TimeUnit.MILLISECONDS);
+        store.put(cacheKey(userId), (Serializable) tokens, ttl, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public boolean deleteCacheItem(String userId) {
-        return store.remove(cachePrefix + userId);
+        return store.remove(cacheKey(userId));
     }
 
     public Set<String> getUserTokenList(String userId) {
-        Set<String> candidate = (Set<String>) store.get(cachePrefix + "." + userId);
+        Set<String> candidate = (Set<String>) store.get(cacheKey(userId));
         return candidate;
     }
 }

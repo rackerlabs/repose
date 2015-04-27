@@ -329,6 +329,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         try {
             long ttl = userCacheTtl;
+            LOG.debug("STORING USER TOKEN LIST: {}", userKey);
             usrCache.storeUserTokenList(userKey, userTokenList, Long.valueOf(ttl).intValue());
         } catch (IOException ex) {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + REASON, ex);
@@ -368,6 +369,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
 
         try {
+            LOG.debug("STORING GROUPS FOR: {}", getGroupCacheKey(token));
             grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl(offset));
         } catch (IOException ex) {
             LOG.warn("Unable to cache user group information: " + token + REASON, ex);
@@ -381,6 +383,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
 
         try {
+            LOG.debug("STORING ENDPOINTS FOR: {}", token);
             endpointsCache.storeEndpoints(token, endpoints, safeEndpointsTtl());
         } catch (IOException ex) {
             LOG.warn("Unable to cache endpoints information: " + token + REASON, ex);
