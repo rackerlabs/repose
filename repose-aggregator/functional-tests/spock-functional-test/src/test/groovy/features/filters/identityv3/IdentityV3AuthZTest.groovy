@@ -32,7 +32,7 @@ class IdentityV3AuthZTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    //def static targetPort
+    def static targetPort
 
     static MockIdentityV3Service fakeIdentityV3Service
 
@@ -45,6 +45,7 @@ class IdentityV3AuthZTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/identityv3/authz", params)
         repose.start()
 
+        targetPort = properties.targetPort
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
@@ -98,5 +99,36 @@ class IdentityV3AuthZTest extends ReposeValveTest {
         //foundLogs.size() == 1
         mc.receivedResponse.code == "403"
         mc.handlings.size() == 0
+    }
+
+    @Unroll("Tracing header #endpointResponse status code #statusCode")
+    def "Tracing header should include in request to Identity"() {
+        given:
+        fakeIdentityV3Service.resetParameters()
+        fakeIdentityV3Service.with {
+            endpointUrl = endpointResponse
+            servicePort = targetPort
+        }
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: "http://localhost:${properties.reposePort}/v3/${fakeIdentityV3Service.client_token}/ss", method: 'GET', headers: ['X-Subject-Token': token])
+
+        then: "User should receive a #statusCode response"
+        mc.receivedResponse.code == statusCode
+        mc.handlings.size() == handlings
+
+        mc.orphanedHandlings.each {
+            e ->
+                assert e.request.headers.contains("x-trans-id")
+                if (mc.handlings.size() != 0) {
+                    assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+                }
+        }
+
+        where:
+        endpointResponse | statusCode | handlings | token
+        "localhost"      | "200"      | 1         | UUID.randomUUID().toString()
+        "myhost.com"     | "403"      | 0         | UUID.randomUUID().toString()
+
     }
 }

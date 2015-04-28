@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache;
 
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.logging.apache.constraint.StatusCodeConstraint;
 import org.openrepose.commons.utils.logging.apache.format.FormatArgumentHandler;
 import org.openrepose.commons.utils.logging.apache.format.LogArgumentFormatter;
@@ -118,6 +119,9 @@ public class HttpLogFormatter {
                 break;
             case ERROR_MESSAGE:
                 formatter.setLogic(new ResponseMessageHandler());
+                break;
+            case TRACE_GUID:
+                formatter.setLogic(new RequestHeaderHandler(CommonHttpHeader.TRACE_GUID.toString(), extractor.getArguments()));
                 break;
         }
     }

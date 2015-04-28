@@ -39,11 +39,13 @@
                 <html:p>Top level element for defining a power proxy system model</html:p>
             </xs:documentation>
         </xs:annotation>
-
+        
         <xs:sequence>
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+
+        <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
     <xs:complexType name="Cluster">

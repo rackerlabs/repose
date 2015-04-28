@@ -136,4 +136,49 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         "413"        | "reposeTest"  | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
         "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
+
+    def "Check Tracing header through HERP filter with UAE"() {
+        setup:
+        reposeLogSearch.cleanLog()
+        MessageChain mc
+        def Map<String, String> headers = [
+                'Accept'             : 'application/xml',
+                'Host'               : 'LocalHost',
+                'User-agent'         : 'gdeproxy',
+                'x-tenant-id'        : '123456',
+                'x-roles'            : 'default',
+                'x-user-name'        : username,
+                'x-user-id'          : username,
+                'x-impersonator-name': 'impersonateuser',
+                'x-impersonator-id'  : '123456'
+        ]
+
+        def customHandler = { return new Response("200", "0K", [], reqBody) }
+        when: "When Requesting"
+        mc = deproxy.makeRequest(url: reposeEndpoint +
+                request, method: method, headers: headers,
+                requestBody: reqBody, defaultHandler: customHandler,
+                addDefaultHeaders: false
+        )
+
+        String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
+        String eventxml = logLine.substring(logLine.indexOf("<?xml"), logLine.size() - 1)
+        println(eventxml)
+        def event = new XmlSlurper().parseText(eventxml).declareNamespace(au: "http://feeds.api.rackspacecloud.com/cadf/user-access-event")
+
+
+        then:
+        mc.receivedResponse.code.equals("200")
+        mc.handlings[0].request.headers.getFirstValue("x-trans-id") == event.@requestID.text()
+        mc.receivedResponse.headers.getFirstValue("x-trans-id") == event.@requestID.text()
+
+        where:
+        username | request                      | method   | reqBody | respMsg
+        "User"   | "/resource1/id/aaaaaaaaaaaa" | "GET"    | ""      | "OK"
+        "User1"  | "/resource1/id/aaaaaaaaaaaa" | "POST"   | ""      | "OK"
+        "User2"  | "/resource1/id/aaaaaaaaaaaa" | "PUT"    | ""      | "OK"
+        "User2"  | "/resource1/id/aaaaaaaaaaaa" | "PATCH"  | ""      | "OK"
+        "User3"  | "/resource1/id/aaaaaaaaaaaa" | "DELETE" | ""      | "OK"
+        "User3"  | "/resource1/id/aaaaaaaaaaaa" | "HEAD"   | ""      | "OK"
+    }
 }

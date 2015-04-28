@@ -87,6 +87,12 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
+        mc.orphanedHandlings.each {
+            e ->
+                assert e.request.headers.contains("x-trans-id")
+                assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        }
     }
 
     def "No HTTP Basic authentication header sent and no token."() {
@@ -179,5 +185,11 @@ class BasicAuthTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
+        //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
+        mc.orphanedHandlings.each {
+            e ->
+                assert e.request.headers.contains("x-trans-id")
+                assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        }
     }
 }

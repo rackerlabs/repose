@@ -99,8 +99,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
 
+      // Extract the tracing GUID from the request
+      val requestGuid = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+
       // Attempt to validate the request token with the Identity service
-      val token = authenticate(request) match {
+      val token = authenticate(request, requestGuid) match {
         case Success(tokenObject) =>
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
@@ -145,7 +148,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Attempt to fetch groups if configured to do so
       val userGroups = if (!failureInValidation && forwardGroups) {
         token.get.user.id map { userId =>
-          identityAPI.getGroups(userId) match {
+          identityAPI.getGroups(userId, requestGuid) match {
             case Success(groupsList) =>
               groupsList.map(_.name)
             case Failure(e: IdentityServiceOverLimitException) =>
@@ -235,10 +238,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterDirector
   }
 
-  private def authenticate(request: HttpServletRequest): Try[AuthenticateResponse] = {
+  private def authenticate(request: HttpServletRequest, requestGuid: Option[String] = None): Try[AuthenticateResponse] = {
     Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
-        identityAPI.validateToken(subjectToken)
+        identityAPI.validateToken(subjectToken, requestGuid)
       case None =>
         logger.error("No X-Subject-Token present -- a subject token was not provided to validate")
         Failure(new InvalidSubjectTokenException("A subject token was not provided to validate"))

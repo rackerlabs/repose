@@ -23,12 +23,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 import org.openrepose.commons.utils.logging.apache.format.LogArgumentFormatter;
 import org.openrepose.commons.utils.logging.apache.format.stock.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -83,6 +86,20 @@ public class HttpLogFormatterTest {
 
             final HttpLogFormatter formatter = newFormatter("%r");
             final String expected = "GET /index.html HTTP/1.1";
+
+            assertEquals(expected, formatter.format(request, response));
+        }
+
+        @Test
+        public void shouldReplaceTokenWithRequestGuid() {
+            final HttpLogFormatter formatter = newFormatter("%" + LogFormatArgument.TRACE_GUID.toString());
+            final String expected = "test-guid";
+
+            Vector<String> reqGuidValues = new Vector<>();
+            reqGuidValues.add("test-guid");
+
+            when(request.getHeaders(CommonHttpHeader.TRACE_GUID.toString()))
+                    .thenReturn(reqGuidValues.elements());
 
             assertEquals(expected, formatter.format(request, response));
         }
@@ -261,6 +278,15 @@ public class HttpLogFormatterTest {
             HttpLogFormatter.setLogic(extractor, formatter);
 
             assertTrue(formatter.getLogic() instanceof UrlRequestedHandler);
+        }
+
+        @Test
+        public void RequestGuidHandler() {
+            LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TRACE_GUID.toString());
+
+            HttpLogFormatter.setLogic(extractor, formatter);
+
+            assertTrue(formatter.getLogic() instanceof RequestHeaderHandler);
         }
     }
 }

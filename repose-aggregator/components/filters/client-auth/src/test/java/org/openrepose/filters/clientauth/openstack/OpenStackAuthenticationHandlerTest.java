@@ -272,7 +272,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
@@ -311,7 +311,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setUser(userForAuthenticateResponse);
 
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
@@ -341,7 +341,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setUser(userForAuthenticateResponse);
 
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
@@ -369,7 +369,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setUser(userForAuthenticateResponse);
 
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
@@ -416,7 +416,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setUser(userForAuthenticateResponse);
 
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
@@ -500,7 +500,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler2.handleRequest(request, response);
 
@@ -561,7 +561,7 @@ public class OpenStackAuthenticationHandlerTest {
             final AuthToken user = new OpenStackToken(authResponse);
 
             byte[] userInfoBytes = new ObjectSerializer(this.getClass().getClassLoader()).writeObject(user);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
@@ -573,21 +573,21 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedUserInfo() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should not be called if we found the token in the cache
-            verify(authService, times(0)).validateToken(anyString(), anyString());
+            verify(authService, times(0)).validateToken(anyString(), anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
         @Test
         public void shouldNotUseCachedUserInfoForExpired() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
             // Wait until token expires
@@ -596,7 +596,7 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should be called since token has expired
-            verify(authService, times(1)).validateToken(anyString(), anyString());
+            verify(authService, times(1)).validateToken(anyString(), anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -604,13 +604,13 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldNotUseCachedUserInfoForBadTokenId() throws Exception {
             authResponse.getToken().setId("differentId");
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(authService, times(1)).validateToken(anyString(), anyString());
+            verify(authService, times(1)).validateToken(anyString(), anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
@@ -668,7 +668,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldCheckCacheForGroup() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -679,7 +679,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedGroupInfo() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             final AuthGroup authGroup = new OpenStackGroup(group);
             final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
@@ -691,20 +691,20 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should not be called if we found the token in the cache
-            verify(authService, times(0)).getGroups(anyString());
+            verify(authService, times(0)).getGroups(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()));
             // Service should be called since token has expired
-            verify(authService, times(1)).getGroups(anyString());
+            verify(authService, times(1)).getGroups(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
@@ -757,13 +757,13 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws Exception {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()));
             // Service should be called since token has expired
-            verify(authService, times(0)).getGroups(anyString());
+            verify(authService, times(0)).getGroups(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
@@ -858,7 +858,7 @@ public class OpenStackAuthenticationHandlerTest {
             authResponse.getUser().setRoles(getTwoRoles());
             authResponse.getToken().setId("tokentokentoken");
 
-            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
             final FilterDirector director = handler.handleRequest(request, response);
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
@@ -1062,7 +1062,7 @@ public class OpenStackAuthenticationHandlerTest {
             retryCalendar.add(Calendar.SECOND, 5);
             String retryValue = new HttpDate(retryCalendar.getTime()).toRFC1123();
             int statusCode = HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE; // 413
-            when(authService.validateToken(anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
@@ -1075,7 +1075,7 @@ public class OpenStackAuthenticationHandlerTest {
             retryCalendar.add(Calendar.SECOND, 5);
             String retryValue = new HttpDate(retryCalendar.getTime()).toRFC1123();
             int statusCode = FilterDirector.SC_TOO_MANY_REQUESTS; // 429
-            when(authService.validateToken(anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenThrow(new AuthServiceOverLimitException("Rate limited by identity service", statusCode, retryValue));
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
             final FilterDirector requestDirector = handler.handleRequest(request, response);

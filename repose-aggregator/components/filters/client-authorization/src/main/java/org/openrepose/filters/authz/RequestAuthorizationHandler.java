@@ -86,6 +86,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         String message = "Failure in authorization component";
 
+        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
         try {
@@ -95,7 +96,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.debug(message);
                 myDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
             } else if (adminRoleMatchIgnoringCase(request.getHeaders(OpenStackServiceHeader.ROLES.toString())) ||
-                    isEndpointAuthorizedForToken(authenticationToken)) {
+                    isEndpointAuthorizedForToken(authenticationToken, requestGuid)) {
                 myDirector.setFilterAction(FilterAction.PASS);
             } else {
                 message = "User token: " + authenticationToken +
@@ -154,8 +155,8 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         return false;
     }
 
-    private boolean isEndpointAuthorizedForToken(String userToken) throws AuthServiceException {
-        List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken);
+    private boolean isEndpointAuthorizedForToken(String userToken, String requestGuid) throws AuthServiceException {
+        List<CachedEndpoint> cachedEndpoints = requestEndpointsForToken(userToken, requestGuid);
         if (cachedEndpoints != null) {
             return !Collections2.filter(cachedEndpoints, forMatchingEndpoint()).isEmpty();
         }
@@ -194,11 +195,11 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         };
     }
 
-    private List<CachedEndpoint> requestEndpointsForToken(String userToken) throws AuthServiceException {
+    private List<CachedEndpoint> requestEndpointsForToken(String userToken, String requestGuid) throws AuthServiceException {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
         if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
-            List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
+            List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken, requestGuid);
             if (authorizedEndpoints != null) {
                 cachedEndpoints = new LinkedList<>();
                 for (Endpoint ep : authorizedEndpoints) {

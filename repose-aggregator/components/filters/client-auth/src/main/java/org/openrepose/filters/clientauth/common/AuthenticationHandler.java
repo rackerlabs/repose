@@ -73,6 +73,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
     private int cacheOffset;
+
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.delegableQuality = configurables.getDelegableQuality();
@@ -94,11 +95,11 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.sendTenantIdQuality = configurables.sendTenantIdQuality();
     }
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token) throws AuthServiceException;
+    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) throws AuthServiceException;
 
-    protected abstract AuthGroups getGroups(String group) throws AuthServiceException;
+    protected abstract AuthGroups getGroups(String group, String requestGuid) throws AuthServiceException;
 
-    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) throws AuthServiceException;
+    protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String requestGuid) throws AuthServiceException;
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -137,6 +138,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         filterDirector.setFilterAction(FilterAction.RETURN);
         int offset = getCacheOffset();
 
+        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         ExtractorResult<String> account = null;
         AuthToken token = null;
@@ -155,18 +157,18 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 token = checkToken(account, authToken);
 
                 if (token == null) {
-                    token = validateToken(account, StringUriUtilities.encodeUri(authToken));
+                    token = validateToken(account, StringUriUtilities.encodeUri(authToken), requestGuid);
                     cacheUserInfo(token, offset);
                 }
             }
 
             if (token != null) {
-                groups = getAuthGroups(token, offset);
+                groups = getAuthGroups(token, offset, requestGuid);
                 contactId = token.getContactId();
 
                 //getting the encoded endpoints to pass into the header, if the endpoints config is not null
                 if (endpointsConfiguration != null) {
-                    endpointsInBase64 = getEndpointsInBase64(token);
+                    endpointsInBase64 = getEndpointsInBase64(token, requestGuid);
                 }
             }
         } catch (AuthServiceOverLimitException ex) {
@@ -206,7 +208,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     //check for null, check for it already in cache
-    private String getEndpointsInBase64(AuthToken token) throws AuthServiceException {
+    private String getEndpointsInBase64(AuthToken token, String requestGuid) throws AuthServiceException {
         String tokenId = null;
 
         if (token != null) {
@@ -217,7 +219,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         //if endpoints are not already in the cache then make a call for them and cache what comes back
         if (endpoints == null) {
-            endpoints = getEndpointsBase64(tokenId, endpointsConfiguration);
+            endpoints = getEndpointsBase64(tokenId, endpointsConfiguration, requestGuid);
             cacheEndpoints(tokenId, endpoints);
         }
 
@@ -233,14 +235,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) throws AuthServiceException {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset, String requestGuid) throws AuthServiceException {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);
 
             if (authGroups == null) {
 
-                authGroups = getGroups(token.getUserId());
+                authGroups = getGroups(token.getUserId(), requestGuid);
                 cacheGroupInfo(token, authGroups, offset);
             }
 

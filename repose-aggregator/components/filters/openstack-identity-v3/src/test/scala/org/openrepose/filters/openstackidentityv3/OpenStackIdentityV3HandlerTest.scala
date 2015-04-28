@@ -96,7 +96,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
           Option(List(Role("1", "admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
       val mockRequest = new MockHttpServletRequest()
@@ -112,7 +112,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not include X-Default-Region if rax_default_region is not available for the user") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
           Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
@@ -124,7 +124,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
           Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
       val mockRequest = new MockHttpServletRequest()
@@ -146,7 +146,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is not available") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
           Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
@@ -160,7 +160,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdToNotSee"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
@@ -177,7 +177,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should set the x-project-id header to the default project id if send all project ids is not set/false and there is no uri project id validation") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("DefaultProjectIdToSee"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
@@ -195,7 +195,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not set the x-project-id header if there is no default and send all project ids is not set/false and there is no uri project id validation") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None, None,
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
           Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
@@ -208,7 +208,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return default project id and roles project ids returned by identity as multiple x-project-id headers if all project ids is true and there is no uri project id validation") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
@@ -226,7 +226,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return all project ids returned by identity as multiple x-project-id headers if all project ids is true") {
-      when(identityAPI.validateToken("123456")).thenReturn(
+      when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
@@ -249,7 +249,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         val retryCalendar = new GregorianCalendar()
         retryCalendar.add(Calendar.SECOND, 5)
         val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-        when(identityAPI.validateToken("123456")).thenReturn(
+        when(identityAPI.validateToken("123456", None)).thenReturn(
           Failure(new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryString)))
         val mockRequest = new MockHttpServletRequest()
         mockRequest.setHeader("X-Subject-Token", "123456")
@@ -308,7 +308,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
           responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
           resultStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED
         )
-      ).map { parameterMap =>
+      ) foreach { parameterMap =>
         mockServletResponse.setStatus(parameterMap.get(responseStatus).get.asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
           mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap.get(responseWwwAuthenticate).get.asInstanceOf[String])
@@ -330,8 +330,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should return a Failure when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      identityV3Handler invokePrivate authenticate(mockRequest) shouldBe a[Failure[_]]
-      an[InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(mockRequest)).get
+      identityV3Handler invokePrivate authenticate(mockRequest, None) shouldBe a[Failure[_]]
+      an[InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(mockRequest, None)).get
     }
   }
 
