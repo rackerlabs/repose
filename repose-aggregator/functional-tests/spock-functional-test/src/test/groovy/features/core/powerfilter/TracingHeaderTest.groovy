@@ -50,4 +50,20 @@ class TracingHeaderTest extends ReposeValveTest {
         then:
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trans-id").matches(".+-.+-.+-.+-.+")
     }
+
+    def "should return a tracing header if one was provided"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["x-trans-id": "test-guid"])
+
+        then:
+        mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id").equals("test-guid")
+    }
+
+    def "should return a tracing header if one was not provided"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
+
+        then:
+        mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id").matches(".+-.+-.+-.+-.+")
+    }
 }

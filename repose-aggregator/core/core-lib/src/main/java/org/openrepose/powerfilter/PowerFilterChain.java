@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
@@ -150,7 +148,7 @@ public class PowerFilterChain implements FilterChain {
      * @return
      */
     private List<FilterContext> getFilterChainForRequest(String uri) {
-        List<FilterContext> filters = new LinkedList<FilterContext>();
+        List<FilterContext> filters = new LinkedList<>();
         for (FilterContext filter : filterChainCopy) {
             if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
                 filters.add(filter);
@@ -263,7 +261,6 @@ public class PowerFilterChain implements FilterChain {
             mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mutableHttpResponse.setLastException(ex);
         }
-        addResponseGuid(mutableHttpRequest, mutableHttpResponse);
     }
 
     private void splitResponseHeaders(MutableHttpServletResponse mutableHttpResponse) {
@@ -280,26 +277,11 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
-    /**
-     * @param request the request to pull the tracing guid from
-     * @param response the response to put the tracing guid into
-     */
-    private void addResponseGuid(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
-        if (StringUtilities.isNotBlank(requestGuid)) {
-            //Note: addHeader(...) may be the appropriate method to call to prevent overwriting a tracing id used by
-            //the origin service, however multiple tracing id header values is not currently supported by Repose.
-            response.setHeader(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
-        }
-    }
-
     private Collection<String> splitResponseHeaderValues(Collection<String> headerValues) {
         List<String> finalValues = new ArrayList<>();
         for (String passedValue : headerValues) {
             String[] splitValues = passedValue.split(",");
-            for (String splitValue : splitValues) {
-                finalValues.add(splitValue);
-            }
+            Collections.addAll(finalValues, splitValues);
         }
         return finalValues;
     }
