@@ -24,6 +24,8 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 4/22/15.
@@ -78,6 +80,39 @@ class TraceHeaderTest extends ReposeValveTest {
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
         }
+    }
 
+    @Unroll ("Failed response from repose with Identity respcode #identityrespcode")
+    def "Tracing header should include in Failed response from repose"() {
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = "123456"
+        }
+
+        fakeIdentityService.validateTokenHandler = {
+            tokenId, request, xml ->
+                return new Response(identityrespcode)
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123456", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then:
+        mc.receivedResponse.code == respcode
+        mc.receivedResponse.headers.contains("x-trans-id")
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+
+        where:
+        identityrespcode    | respcode
+        "401"               | "500"
+        "403"               | "500"
+        "413"               | "503"
+        "404"               | "401"
+        "500"               | "500"
     }
 }

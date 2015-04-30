@@ -88,7 +88,6 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("Accept")
         mc.handlings[0].request.headers.contains("x-trans-id")
-        //def uniqueid = mc.handlings[0].request.headers.getFirstValue("x-unique-id")
 
         where:
         method << ["GET", "POST"]
@@ -133,5 +132,33 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Content-Length")
         mc.receivedResponse.headers.contains("Content-type")
         mc.receivedResponse.headers.contains("x-trans-id")
+    }
+
+    @Unroll ("Failed response with status code #respcode")
+    def "Failed response from repose also include tracing header" () {
+        setup:
+        def headers = [
+                'Content-Length': '0',
+                'Content-type'  : "application/xml",
+        ]
+
+        when: "Set default handler from origin"
+        MessageChain mc = deproxy.makeRequest(url: url, defaultHandler: { new Response(respcode, body, headers) })
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+
+        then:
+        mc.receivedResponse.headers.contains("Content-Length")
+        mc.receivedResponse.headers.contains("Content-type")
+        mc.receivedResponse.headers.contains("x-trans-id")
+        mc.receivedResponse.headers.getFirstValue("x-trans-id") == requestid
+
+        where:
+        respcode    | body
+        "413"       | "Request Entity Too Large"
+        "400"       | "Bad Request"
+        "401"       | "Unauthorized"
+        "500"       | "Server Error"
+        "502"       | "Bad Gateway"
+
     }
 }
