@@ -82,7 +82,7 @@ class TraceHeaderTest extends ReposeValveTest {
         }
     }
 
-    @Unroll ("Failed response from repose with Identity respcode #identityrespcode")
+    @Unroll("Failed response from repose with Identity respcode #identityrespcode")
     def "Tracing header should include in Failed response from repose"() {
 
         fakeIdentityService.with {
@@ -108,11 +108,11 @@ class TraceHeaderTest extends ReposeValveTest {
         }
 
         where:
-        identityrespcode    | respcode
-        "401"               | "500"
-        "403"               | "500"
-        "413"               | "503"
-        "404"               | "401"
-        "500"               | "500"
+        identityrespcode | respcode
+        "401"            | "500"
+        "403"            | "500"
+        "413"            | "503"
+        "404"            | "401"
+        "500"            | "500"
     }
 }

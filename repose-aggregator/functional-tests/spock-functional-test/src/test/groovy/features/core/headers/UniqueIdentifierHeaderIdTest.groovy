@@ -101,7 +101,7 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
                 'Content-Length': '0',
                 'Content-type'  : "application/xml",
                 'Accept'        : "application/xml",
-                'x-trans-id': randomid
+                'x-trans-id'    : randomid
         ]
         when: "When make request along with other headers"
 
@@ -134,8 +134,8 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("x-trans-id")
     }
 
-    @Unroll ("Failed response with status code #respcode")
-    def "Failed response from repose also include tracing header" () {
+    @Unroll("Failed response with status code #respcode")
+    def "Failed response from repose also include tracing header"() {
         setup:
         def headers = [
                 'Content-Length': '0',
@@ -153,12 +153,12 @@ class UniqueIdentifierHeaderIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("x-trans-id") == requestid
 
         where:
-        respcode    | body
-        "413"       | "Request Entity Too Large"
-        "400"       | "Bad Request"
-        "401"       | "Unauthorized"
-        "500"       | "Server Error"
-        "502"       | "Bad Gateway"
+        respcode | body
+        "413"    | "Request Entity Too Large"
+        "400"    | "Bad Request"
+        "401"    | "Unauthorized"
+        "500"    | "Server Error"
+        "502"    | "Bad Gateway"
 
     }
 }
