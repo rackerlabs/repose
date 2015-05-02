@@ -177,11 +177,11 @@ class ReposeJettyServer(val clusterId: String,
   }
   private var isShutdown = false
 
-  def getHttpPort:Int = {
+  def runningHttpPort:Int = {
     httpConnector.map(_.getLocalPort).getOrElse(0)
   }
 
-  def getHttpsPort:Int = {
+  def runningHttpsPort:Int = {
     httpsConnector.map(_.getLocalPort).getOrElse(0)
   }
 

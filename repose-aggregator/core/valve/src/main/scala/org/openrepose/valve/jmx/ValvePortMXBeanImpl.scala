@@ -3,6 +3,7 @@ package org.openrepose.valve.jmx
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Named
 
+import org.openrepose.valve.ReposeJettyServer
 import org.springframework.jmx.export.annotation.{ManagedAttribute, ManagedResource}
 
 
@@ -13,8 +14,7 @@ import org.springframework.jmx.export.annotation.{ManagedAttribute, ManagedResou
 )
 class ValvePortMXBeanImpl extends ValvePortMXBean {
 
-  val nodePorts = new ConcurrentHashMap[String, Int]()
-  val nodeSslPorts = new ConcurrentHashMap[String, Int]()
+  val nodes = new ConcurrentHashMap[String, ReposeJettyServer]()
 
   def key(clusterId: String, nodeId: String): String = {
     clusterId + "-" + nodeId
@@ -22,26 +22,28 @@ class ValvePortMXBeanImpl extends ValvePortMXBean {
 
   @ManagedAttribute(description = "Returns the port of the selected node, or zero if it isn't set")
   override def getPort(clusterId: String, nodeId: String): Int = {
-    nodePorts.get(key(clusterId, nodeId))
+    Option(nodes.get(key(clusterId, nodeId))).map { node =>
+      node.runningHttpPort
+    } getOrElse 0
   }
 
   @ManagedAttribute(description = "Returns the SSL port of the selected node, or zero if it isn't set")
   override def getSslPort(clusterId: String, nodeId: String): Int = {
-    nodeSslPorts.get(key(clusterId, nodeId))
+    Option(nodes.get(key(clusterId, nodeId))).map { node =>
+      node.runningHttpsPort
+    } getOrElse 0
   }
 
-  def clearPort(clusterId: String, nodeId: String): Unit = {
+  def replaceNode(clusterId:String, nodeId:String, node:ReposeJettyServer):Unit = {
+    nodes.replace(key(clusterId, nodeId), node)
+  }
+
+  def removeNode(clusterId: String, nodeId: String): Unit = {
     val k = key(clusterId, nodeId)
-    nodePorts.remove(k)
-    nodeSslPorts.remove(k)
+    nodes.remove(k)
   }
 
-  def setPort(clusterId: String, nodeId: String, port: Int): Unit = {
-    nodePorts.put(key(clusterId, nodeId), port)
+  def addNode(clusterId: String, nodeId: String, jettyNode: ReposeJettyServer): Unit = {
+    nodes.put(key(clusterId, nodeId), jettyNode)
   }
-
-  def setSslPort(clusterId: String, nodeId: String, port: Int): Unit = {
-    nodeSslPorts.put(key(clusterId, nodeId), port)
-  }
-
 }

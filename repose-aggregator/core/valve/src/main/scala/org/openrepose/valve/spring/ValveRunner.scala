@@ -77,7 +77,7 @@ class ValveRunner @Inject()(
       mbs.unregisterMBean(objectName)
     } catch {
       case e: InstanceNotFoundException => {
-        logger.debug(s"Unable to unregister mbean by the name: ${ValvePortMXBean.OBJECT_NAME}", e)
+        logger.debug(s"Shut down before I could register the MXBean: ${ValvePortMXBean.OBJECT_NAME}", e)
       }
     }
   }
@@ -199,7 +199,7 @@ class ValveRunner @Inject()(
             activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
             stopList.foreach { node =>
               valvePortMXBean.foreach { mxbean =>
-                mxbean.clearPort(node.clusterId, node.nodeId)
+                mxbean.removeNode(node.clusterId, node.nodeId)
               }
               node.shutdown()
             }
@@ -212,8 +212,7 @@ class ValveRunner @Inject()(
                 node.start()
                 //Update the MX bean with port info
                 valvePortMXBean.foreach { mxbean =>
-                  mxbean.setSslPort(n.clusterId, n.nodeId, node.getHttpsPort)
-                  mxbean.setPort(n.clusterId, n.nodeId, node.getHttpPort)
+                  mxbean.addNode(n.clusterId, n.nodeId, node)
                 }
                 Some(node)
               } catch {
@@ -258,6 +257,10 @@ class ValveRunner @Inject()(
           activeNodes = activeNodes.map { node =>
             val n1 = node.restart()
             n1.start()
+            //Update the mx bean
+            valvePortMXBean.foreach{ mxbean =>
+              mxbean.replaceNode(node.clusterId, node.nodeId, n1)
+            }
             n1
           }
         }
