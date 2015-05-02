@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -72,6 +72,9 @@ class Valve {
       opt[Unit]('k', "insecure") action { (_, c) =>
         c.copy(insecure = true)
       } text "Ignore all SSL certificates validity and operate Very insecurely. Default: off (validate certs)"
+      opt[Unit]("test-mode") action { (_, c) =>
+        c.copy(testMode = true)
+      }
       opt[Unit]("show-ssl-params") action { (_, c) =>
         c.copy(showSslParams = true)
       } text "Display SSL Ciphers and Protocols, sorted by enabled by default and all available"
@@ -140,7 +143,7 @@ class Valve {
 
         //make it go
         //TODO: possibly a try/catch around this guy to deal with exceptions
-        valveRunner.run(valveConfig.configDirectory.getAbsolutePath, valveConfig.insecure)
+        valveRunner.run(valveConfig.configDirectory.getAbsolutePath, valveConfig.insecure, valveConfig.testMode)
       }
     } getOrElse {
       //Not a valid config!
@@ -170,7 +173,8 @@ class Valve {
                          insecure: Boolean = false,
                          showVersion: Boolean = false,
                          showUsage: Boolean = false,
-                         showSslParams: Boolean = false
+                         showSslParams: Boolean = false,
+                         testMode: Boolean = false
                           )
 
 }
