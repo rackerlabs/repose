@@ -82,7 +82,7 @@ class ReposeJettyServer(val clusterId: String,
     //Set up connectors
     val httpConnector: Option[ServerConnector] = httpPort.map { port =>
       val conn = new ServerConnector(s)
-      if(testMode) {
+      if (testMode) {
         conn.setPort(0)
       } else {
         conn.setPort(port)
@@ -102,7 +102,7 @@ class ReposeJettyServer(val clusterId: String,
         cf.setKeyManagerPassword(ssl.getKeyPassword)
 
         val sslConnector = new ServerConnector(s, cf)
-        if(testMode) {
+        if (testMode) {
           sslConnector.setPort(0)
         } else {
           sslConnector.setPort(port)
@@ -177,11 +177,11 @@ class ReposeJettyServer(val clusterId: String,
   }
   private var isShutdown = false
 
-  def runningHttpPort:Int = {
+  def runningHttpPort: Int = {
     httpConnector.map(_.getLocalPort).getOrElse(0)
   }
 
-  def runningHttpsPort:Int = {
+  def runningHttpsPort: Int = {
     httpsConnector.map(_.getLocalPort).getOrElse(0)
   }
 
