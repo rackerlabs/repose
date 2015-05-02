@@ -71,21 +71,26 @@ class ReposeJettyServer(val clusterId: String,
   appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))
   /**
-   * Create the jetty server for this guy
+   * Create the jetty server for this guy,
+   * and get back the connectors so I can ask for ports for them :D
    */
-  val server: Server = {
+  val (httpConnector: Option[ServerConnector], httpsConnector: Option[ServerConnector], server: Server) = {
     val s = new Server()
 
     //If I'm in test mode, then randomly select ports and register that port somehow with JMX...
 
     //Set up connectors
-    val httpConnector: Option[Connector] = httpPort.map { port =>
+    val httpConnector: Option[ServerConnector] = httpPort.map { port =>
       val conn = new ServerConnector(s)
-      conn.setPort(port)
+      if(testMode) {
+        conn.setPort(0)
+      } else {
+        conn.setPort(port)
+      }
       conn
     }
 
-    val httpsConnector: Option[Connector] = httpsPort.map { port =>
+    val httpsConnector: Option[ServerConnector] = httpsPort.map { port =>
       val cf = new SslContextFactory()
 
       //TODO: do we make this a URL for realsies?
@@ -97,7 +102,11 @@ class ReposeJettyServer(val clusterId: String,
         cf.setKeyManagerPassword(ssl.getKeyPassword)
 
         val sslConnector = new ServerConnector(s, cf)
-        sslConnector.setPort(port)
+        if(testMode) {
+          sslConnector.setPort(0)
+        } else {
+          sslConnector.setPort(port)
+        }
 
         //Handle the Protocols and Ciphers
         //varargs are annoying, so lets deal with this using the scala methods
@@ -137,7 +146,8 @@ class ReposeJettyServer(val clusterId: String,
     }
 
     //Hook up the port connectors!
-    s.setConnectors(connectors)
+    //Have to coerce the stuff here, because it makes it happier
+    s.setConnectors(connectors.asInstanceOf[Array[Connector]])
 
     val contextHandler = new ServletContextHandler()
     contextHandler.setContextPath("/")
@@ -163,9 +173,17 @@ class ReposeJettyServer(val clusterId: String,
 
     s.setHandler(contextHandler)
 
-    s
+    (httpConnector, httpsConnector, s)
   }
   private var isShutdown = false
+
+  def getHttpPort:Int = {
+    httpConnector.map(_.getLocalPort).getOrElse(0)
+  }
+
+  def getHttpsPort:Int = {
+    httpsConnector.map(_.getLocalPort).getOrElse(0)
+  }
 
   def start() = {
     if (isShutdown) {
@@ -180,7 +198,7 @@ class ReposeJettyServer(val clusterId: String,
    */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig)
+    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, testMode)
   }
 
   /**

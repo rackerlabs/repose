@@ -69,14 +69,14 @@ class ValveRunner @Inject()(
     }
   }
 
-  def removeMXBean():Unit = {
+  def removeMXBean(): Unit = {
     //Remove the mbean when we're done!
     try {
       val mbs = ManagementFactory.getPlatformMBeanServer
       val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
       mbs.unregisterMBean(objectName)
     } catch {
-      case e:InstanceNotFoundException => {
+      case e: InstanceNotFoundException => {
         logger.debug(s"Unable to unregister mbean by the name: ${ValvePortMXBean.OBJECT_NAME}", e)
       }
     }
@@ -93,7 +93,7 @@ class ValveRunner @Inject()(
     //Putting the config listeners in here, because I want the context for the configRoot, and the Insecure string
 
     //If I'm in test mode, set up the port mbean... Heck, can probably always set it up
-    val valvePortMBean: Option[ValvePortMXBeanImpl] = if (testMode) {
+    val valvePortMXBean: Option[ValvePortMXBeanImpl] = if (testMode) {
       logger.debug("Registering MBean for valve Port stuff")
       val mbs = ManagementFactory.getPlatformMBeanServer
       val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
@@ -198,15 +198,23 @@ class ValveRunner @Inject()(
             //Shutdown all the stop nodes
             activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
             stopList.foreach { node =>
+              valvePortMXBean.foreach { mxbean =>
+                mxbean.clearPort(node.clusterId, node.nodeId)
+              }
               node.shutdown()
             }
 
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig))
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), testMode)
               try {
                 node.start()
+                //Update the MX bean with port info
+                valvePortMXBean.foreach { mxbean =>
+                  mxbean.setSslPort(n.clusterId, n.nodeId, node.getHttpsPort)
+                  mxbean.setPort(n.clusterId, n.nodeId, node.getHttpPort)
+                }
                 Some(node)
               } catch {
                 case e: Exception => {

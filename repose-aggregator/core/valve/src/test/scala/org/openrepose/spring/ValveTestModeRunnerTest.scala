@@ -22,6 +22,7 @@ package org.openrepose.spring
 import java.lang.management.ManagementFactory
 import javax.management.{JMX, ObjectName}
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
@@ -36,7 +37,7 @@ import scala.concurrent.{Await, Future}
 
 
 @RunWith(classOf[JUnitRunner])
-class ValveTestModeRunnerTest extends FunSpec with Matchers {
+class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging {
   val log = LoggerFactory.getLogger(this.getClass)
 
   val fakeConfigService = new FakeConfigService()
@@ -146,7 +147,10 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers {
         updateContainerConfig("/valveTesting/without-keystore.xml")
 
         runner.getActiveNodes.size shouldBe 1
-        getValvePortMXBean.getPort("repose", "repose_node1") shouldNot be(0)
+        val port = getValvePortMXBean.getPort("repose", "repose_node1")
+        logger.debug(s"PORT IS: $port")
+        port shouldNot be(0)
+        port shouldNot be(10234) //It shouldn't match exactly what we configured...
       }
     }
     it("Starts up nodes as configured in the system-model when given a container config before a system-model") {
@@ -157,6 +161,10 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers {
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
+        val port = getValvePortMXBean.getPort("repose", "repose_node1")
+        logger.debug(s"PORT IS: $port")
+        port shouldNot be(0)
+        port shouldNot be(10234) //It shouldn't match exactly what we configured...
       }
     }
   }

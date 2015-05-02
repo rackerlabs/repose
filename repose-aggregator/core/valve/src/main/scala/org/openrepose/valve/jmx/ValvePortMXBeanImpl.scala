@@ -14,6 +14,7 @@ import org.springframework.jmx.export.annotation.{ManagedAttribute, ManagedResou
 class ValvePortMXBeanImpl extends ValvePortMXBean {
 
   val nodePorts = new ConcurrentHashMap[String, Int]()
+  val nodeSslPorts = new ConcurrentHashMap[String, Int]()
 
   def key(clusterId: String, nodeId: String): String = {
     clusterId + "-" + nodeId
@@ -24,9 +25,23 @@ class ValvePortMXBeanImpl extends ValvePortMXBean {
     nodePorts.get(key(clusterId, nodeId))
   }
 
+  @ManagedAttribute(description = "Returns the SSL port of the selected node, or zero if it isn't set")
+  override def getSslPort(clusterId: String, nodeId: String): Int = {
+    nodeSslPorts.get(key(clusterId, nodeId))
+  }
+
+  def clearPort(clusterId: String, nodeId: String): Unit = {
+    val k = key(clusterId, nodeId)
+    nodePorts.remove(k)
+    nodeSslPorts.remove(k)
+  }
+
   def setPort(clusterId: String, nodeId: String, port: Int): Unit = {
     nodePorts.put(key(clusterId, nodeId), port)
   }
 
-  override def getName(): String = ValvePortMXBean.OBJECT_NAME
+  def setSslPort(clusterId: String, nodeId: String, port: Int): Unit = {
+    nodeSslPorts.put(key(clusterId, nodeId), port)
+  }
+
 }
