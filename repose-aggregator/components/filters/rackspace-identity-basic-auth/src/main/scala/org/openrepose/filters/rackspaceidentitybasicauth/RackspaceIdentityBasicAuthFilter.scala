@@ -213,10 +213,13 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   }
 
   override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    logger.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus)
+    val responseStatus = httpServletResponse.getStatus
+    logger.debug("Handling HTTP Response. Incoming status code: " + responseStatus)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
-    if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
-      httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
+    filterDirector.setResponseStatusCode(responseStatus)
+    filterDirector.setFilterAction(FilterAction.PASS)
+    if (responseStatus == HttpServletResponse.SC_UNAUTHORIZED ||
+      responseStatus == HttpServletResponse.SC_FORBIDDEN) {
       filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
       withEncodedCredentials(httpServletRequest) { encodedCredentials =>
         datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
@@ -241,4 +244,5 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   }
 
   case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String, retry: String)
+
 }

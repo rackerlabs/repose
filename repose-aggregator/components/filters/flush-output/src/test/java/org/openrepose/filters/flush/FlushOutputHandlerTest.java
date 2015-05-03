@@ -24,12 +24,16 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.mockito.Mockito.*;
+import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
 public class FlushOutputHandlerTest {
@@ -48,6 +52,17 @@ public class FlushOutputHandlerTest {
         public void shouldCallCommitOutput() throws IOException {
             instance.handleResponse(mock(HttpServletRequest.class), response);
             verify(response).commitBufferToServletOutputStream();
+        }
+
+        @Test
+        public void shouldNotModifyResponse() {
+            final HttpServletRequest request = mock(HttpServletRequest.class);
+            when(response.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
+
+            final FilterDirector filterDirector = instance.handleResponse(request, response);
+
+            assertNotSame("Must not return an invalid FilterAction.", FilterAction.NOT_SET, filterDirector.getFilterAction());
+            assertEquals("Must return the received response status code", SC_UNSUPPORTED_RESPONSE_CODE, filterDirector.getResponseStatusCode());
         }
     }
 }
