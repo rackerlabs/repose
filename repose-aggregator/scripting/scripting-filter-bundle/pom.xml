@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>extensions-support</artifactId>
+        <version>7.1.0.3-SNAPSHOT</version>
+    </parent>
+
+    <name>Repose Components - Scripting EAR Bundle</name>
+    <artifactId>scripting-filter-bundle</artifactId>
+    <packaging>ear</packaging>
+
+    <description>
+        TODO
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>scripting-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>2.5</version>
+
+                <extensions>true</extensions>
+
+                <executions>
+                    <execution>
+                        <id>Package Ear Contents</id>
+
+                        <phase>package</phase>
+
+                        <goals>
+                            <goal>ear</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <generateApplicationXml>false</generateApplicationXml>
+
+                    <modules>
+                        <jarModule>
+                            <groupId>org.openrepose</groupId>
+                            <artifactId>scripting-filter</artifactId>
+                        </jarModule>
+                    </modules>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
