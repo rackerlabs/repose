@@ -79,4 +79,24 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
     filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
   }
 
+  it("can parse some lua to add a header with static value") {
+    val fakeConfigService = new FakeConfigService()
+    val filter = new ScriptingFilter(fakeConfigService)
+
+    val scriptingConfig = new ScriptingConfig()
+
+    val scriptData = new ScriptData()
+    scriptData.setValue(
+      """
+        |print("lol lua ftw")
+        |request:addHeader("lol", "butts")
+      """.stripMargin)
+    scriptData.setLanguage("lua")
+    scriptingConfig.getRequestScript.add(scriptData)
+
+    filter.configurationUpdated(scriptingConfig)
+
+    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
+  }
+
 }
