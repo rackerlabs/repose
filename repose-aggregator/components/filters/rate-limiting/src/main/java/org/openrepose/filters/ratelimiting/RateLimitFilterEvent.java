@@ -9,5 +9,5 @@ package org.openrepose.filters.ratelimiting;
  */
 public enum RateLimitFilterEvent {
 
-	OVER_LIMIT
+    OVER_LIMIT
 }
