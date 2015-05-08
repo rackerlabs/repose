@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,10 +19,12 @@
  */
 package org.openrepose.valve.spring
 
+import java.lang.management.ManagementFactory
 import java.net.{InetAddress, NetworkInterface, UnknownHostException}
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.{Inject, Named}
+import javax.management.{InstanceNotFoundException, ObjectName}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -30,6 +32,7 @@ import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.ReposeJettyServer
+import org.openrepose.valve.jmx.{ValvePortMXBean, ValvePortMXBeanImpl}
 import org.springframework.beans.factory.DisposableBean
 
 
@@ -66,12 +69,40 @@ class ValveRunner @Inject()(
     }
   }
 
+  def removeMXBean(): Unit = {
+    //Remove the mbean when we're done!
+    try {
+      val mbs = ManagementFactory.getPlatformMBeanServer
+      val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
+      mbs.unregisterMBean(objectName)
+    } catch {
+      case e: InstanceNotFoundException => {
+        logger.debug(s"Shut down before I could register the MXBean: ${ValvePortMXBean.OBJECT_NAME}", e)
+      }
+    }
+  }
+
   /**
    * This method should block, so that way the primary java method doesn't quit
+   * When testMode is set to true, valve will not honor the existing port configuration set in
+   * the system model, but will instead let the JVM select a random port.
+   * This port will then be provided via JMX
    * @return
    */
-  def run(configRoot: String, insecure: Boolean): Int = {
+  def run(configRoot: String, insecure: Boolean, testMode: Boolean = false): Int = {
     //Putting the config listeners in here, because I want the context for the configRoot, and the Insecure string
+
+    //If I'm in test mode, set up the port mbean... Heck, can probably always set it up
+    val valvePortMXBean: Option[ValvePortMXBeanImpl] = if (testMode) {
+      logger.debug("Registering MBean for valve Port stuff")
+      val mbs = ManagementFactory.getPlatformMBeanServer
+      val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
+      val valvePortMBean = new ValvePortMXBeanImpl()
+      mbs.registerMBean(valvePortMBean, objectName)
+      Some(valvePortMBean)
+    } else {
+      None
+    }
 
     def updateNodes(): Unit = {
       logger.debug("Updating nodes!")
@@ -167,15 +198,22 @@ class ValveRunner @Inject()(
             //Shutdown all the stop nodes
             activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
             stopList.foreach { node =>
+              valvePortMXBean.foreach { mxbean =>
+                mxbean.removeNode(node.clusterId, node.nodeId)
+              }
               node.shutdown()
             }
 
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig))
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), testMode)
               try {
                 node.start()
+                //Update the MX bean with port info
+                valvePortMXBean.foreach { mxbean =>
+                  mxbean.addNode(n.clusterId, n.nodeId, node)
+                }
                 Some(node)
               } catch {
                 case e: Exception => {
@@ -219,6 +257,10 @@ class ValveRunner @Inject()(
           activeNodes = activeNodes.map { node =>
             val n1 = node.restart()
             n1.start()
+            //Update the mx bean
+            valvePortMXBean.foreach{ mxbean =>
+              mxbean.replaceNode(node.clusterId, node.nodeId, n1)
+            }
             n1
           }
         }
@@ -247,7 +289,6 @@ class ValveRunner @Inject()(
         initialized
       }
     }
-
 
     //Only subscribe to the config files when told to start
     //Stupid APIs are stupid and also dumb
@@ -279,6 +320,7 @@ class ValveRunner @Inject()(
    * This will destroy the bean and shut it all down
    */
   override def destroy(): Unit = {
+    removeMXBean()
     runLatch.countDown()
   }
 }

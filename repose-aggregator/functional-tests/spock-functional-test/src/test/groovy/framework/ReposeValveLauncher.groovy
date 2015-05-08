@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@
 package framework
 
 import framework.client.jmx.JmxClient
+import org.apache.commons.io.FileUtils
 import org.linkedin.util.clock.SystemClock
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
@@ -28,14 +29,21 @@ import org.openrepose.core.systemmodel.SystemModel
 import org.rackspace.deproxy.PortFinder
 
 import javax.management.ObjectName
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeValveLauncher extends ReposeLauncher {
 
+    //Where the valve will be started in, stuff's gotta be copied into here, or linked
+    Path sandboxPath
+
     def boolean debugEnabled
     def boolean doSuspend
+    boolean keepSandbox = false
     def String reposeJar
     def String configDir
 
@@ -54,26 +62,98 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     def ReposeConfigurationProvider configurationProvider
 
+    @Deprecated
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         TestProperties properties) {
-        this(configurationProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
+        this(properties.reposeEndpoint, properties.reposePort, properties)
     }
 
+    /**
+     * @Deprecated : use the one that only takes a repose endpoint, even though I'm not sure that's useful either!
+     * @param configurationProvider
+     * @param reposeJar
+     * @param reposeEndpoint
+     * @param configDir
+     * @param reposePort
+     */
+    @Deprecated
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         String reposeJar,
                         String reposeEndpoint,
                         String configDir,
                         int reposePort) {
-        this.configurationProvider = configurationProvider
-        this.reposeJar = reposeJar
+        this(reposeEndpoint, reposePort, new TestProperties())
+    }
+
+    ReposeValveLauncher(String reposeEndpoint, int reposePort, TestProperties testProps) {
+        //Internal testProperties, so I can always have the build directory
+        //Sadly this isn't always passed in, and so it's a hot mess
+        sandboxPath = Files.createTempDirectory(Paths.get(testProps.projectBuildDirectory), "reposeValveTest")
+
+        testProps.configDirectory = sandboxPath.resolve("configs").toString()
+        testProps.reposeHome = sandboxPath.toString()
+
+        //Relativize all the jar files and war files to the new sandboxPath
+        //Sadly this is hardcoded, because things are dumb
+        testProps.glassfishJar = sandboxPath.resolve(fileNamePath(testProps.glassfishJar))
+        testProps.tomcatJar = sandboxPath.resolve(fileNamePath(testProps.tomcatJar))
+        testProps.mocksWar = sandboxPath.resolve(fileNamePath(testProps.mocksWar))
+        testProps.reposeJar = sandboxPath.resolve(fileNamePath(testProps.reposeJar))
+        testProps.reposeRootWar = sandboxPath.resolve(fileNamePath(testProps.reposeRootWar))
+
+        this.reposeJar = testProps.reposeJar
         this.reposeEndpoint = reposeEndpoint
-        this.reposePort = reposePort
-        this.configDir = configDir
+        this.reposePort = reposePort //TODO: deprecated in favor of auto-port-magics
+        this.configDir = testProps.configDirectory
+        this.configurationProvider = new ReposeConfigurationProvider(testProps)
+    }
+
+    static def fileNamePath(String wat) {
+        Paths.get(wat).getFileName().toString()
+    }
+
+    ReposeValveLauncher(TestProperties properties) {
+        this(properties.reposeEndpoint, properties.reposePort, properties)
+    }
+
+    /**
+     * Prepare this ReposeValveLauncher's sandbox directory and get everything set up
+     * Prepare should be idempotent, so if it's hit twice, no biggie
+     * @return
+     */
+    def prepare() {
+        //Set up a repose root in the build directory I think...
+        def itp = new TestProperties()
+
+        //Make sure we have this root directory
+        FileUtils.forceMkdir(sandboxPath.toFile())
+        //Create all the things from the repose_home into here again
+
+        //We'll use a HardLink, so that it's fast on the filesystem for things that are read only (artifacts!)
+        Path artifactsPath = sandboxPath.resolve("artifacts")
+        Path configPath = sandboxPath.resolve("config")
+        Path logsPath = sandboxPath.resolve("logs")
+
+        FileUtils.forceMkdir(artifactsPath.toFile())
+        FileUtils.forceMkdir(configPath.toFile())
+        FileUtils.forceMkdir(logsPath.toFile())
+
+        //Copy all artifacts from the repose_home/artifacts directory
+        Path reposeHome = Paths.get(itp.getReposeHome())
+        FileUtils.listFiles(new File(reposeHome.toFile(), "artifacts"), ["ear"] as String[], false).toList().each { artifact ->
+            Path existing = artifact.toPath()
+            Path newLink = artifactsPath.resolve(artifact.getName())
+            Files.createLink(newLink, existing) //LINK IT!
+        }
+
+        //link the root artifacts
+        FileUtils.listFiles(reposeHome.toFile(), ["war", "jar"] as String[], false).toList().each { rootArtifact ->
+            Path existing = rootArtifact.toPath()
+            Path newLink = sandboxPath.resolve(rootArtifact.getName())
+            Files.createLink(newLink, existing)
+        }
+        //Yay all the things are prepped
+        //Now I need to override the repose home, config dir and other properites to be relative to this guy
     }
 
     @Override
@@ -104,6 +184,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param waitOnJmxAfterStarting
      */
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
+        prepare()
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -122,42 +203,77 @@ class ReposeValveLauncher extends ReposeLauncher {
             })
         }
 
-        def jmxprops = ""
-        def debugProps = ""
-        def jacocoProps = ""
+        def jmxprops = []
+        def debugProps = []
+        def jacocoProps = []
         def classPath = ""
 
         if (debugEnabled) {
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
+            debugProps << "-Xdebug"
+            def debugTransport = "-Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {
-                debugProps += "y"
-                println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nConnect debugger to repose on port: ${debugPort}\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
+                debugTransport += "y"
+                println("""
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Connect debugger to repose on port: ${debugPort}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+""")
             } else {
-                debugProps += "n"
+                debugTransport += "n"
             }
+
+            debugProps << debugTransport
         }
 
         if (!jmxPort) {
             jmxPort = PortFinder.Singleton.getNextOpenPort()
         }
-        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        jmxprops << "-Dspock=spocktest" <<
+                "-Dcom.sun.management.jmxremote.port=${jmxPort}" <<
+                "-Dcom.sun.management.jmxremote.authenticate=false" <<
+                "-Dcom.sun.management.jmxremote.ssl=false" <<
+                "-Dcom.sun.management.jmxremote.local.only=true"
 
+        //the classpath property is just a single entry, not a sequence of arguments
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
         }
 
         if (System.getProperty('jacocoArguments')) {
-            jacocoProps = System.getProperty('jacocoArguments')
+            jacocoProps = System.getProperty('jacocoArguments').split(" ").toList()
         }
 
         //TODO: possibly add a -Dlog4j.configurationFile to the guy so that we can load a different log4j config for early logging
 
         //Prepended the JUL logging manager from log4j2 so I can capture JUL logs, which are things in the JVM (like JMX)
-        def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
-        println("Starting repose: ${cmd}")
+        Collection<String> cmd = ["java",
+                                  "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager",
+                                  "-Xmx1536M",
+                                  "-Xms1024M",
+                                  "-XX:+HeapDumpOnOutOfMemoryError",
+                                  "-XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof",
+                                  "-XX:MaxPermSize=128M",
+                                  "$classPath"] +
+                debugProps +
+                jmxprops +
+                jacocoProps +
+                ["-jar", reposeJar, "-c", configDir]
+
+        //Have to clean out empty things, because groovy can't do this all in one command :|
+        cmd = cmd.collect { item ->
+            if (!item.isEmpty())
+                item
+        }
+        cmd.removeAll([null]) //hooray mutability :(
+
+        println("Starting repose: ${cmd.join " "}")
 
         def th = new Thread({
             //Construct a new environment, including all from the previous, and then overriding with our new one
@@ -168,7 +284,8 @@ class ReposeValveLauncher extends ReposeLauncher {
                 newEnv.put(k, v) //Should override anything, if there's anything to override
             }
             def envList = newEnv.collect { k, v -> "$k=$v" }
-            this.process = cmd.execute(envList, null)
+
+            this.process = Runtime.getRuntime().exec(cmd as String[], envList as String[], null)
             this.process.consumeProcessOutput(System.out, System.err)
         });
 
@@ -238,7 +355,11 @@ class ReposeValveLauncher extends ReposeLauncher {
                 throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
             }
         } finally {
-            configurationProvider.cleanConfigDirectory()
+            //Clobber the entire sandbox dir, it's over
+            if (!keepSandbox) {
+                FileUtils.deleteDirectory(sandboxPath.toFile())
+            }
+            //Note, no need to clean the config dir.
         }
     }
 
@@ -256,6 +377,11 @@ class ReposeValveLauncher extends ReposeLauncher {
     @Override
     void addToClassPath(String path) {
         classPaths.add(path)
+    }
+
+    @Override
+    void keepSandbox() {
+        this.keepSandbox = true
     }
 
     /**
