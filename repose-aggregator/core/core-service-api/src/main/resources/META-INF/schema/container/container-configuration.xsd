@@ -61,7 +61,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        <html:strong>This attribute is depricated it and will be ignored.
+                        <html:strong>This attribute is deprecated it and will be ignored.
                             Use the system model to set ports.
                         </html:strong>
                     </html:p>
@@ -74,7 +74,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        <html:strong>This attribute is depricated it and will be ignored.
+                        <html:strong>This attribute is deprecated it and will be ignored.
                             Use the system model to set ports.
                         </html:strong>
                     </html:p>
@@ -86,7 +86,7 @@
         <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>An identifing string that will be returned in the Via header.</html:p>
+                    <html:p>An identifying string that will be returned in the Via header.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
