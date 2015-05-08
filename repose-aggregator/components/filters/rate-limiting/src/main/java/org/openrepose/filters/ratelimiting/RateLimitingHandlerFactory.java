@@ -56,7 +56,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     public RateLimitingHandlerFactory(DatastoreService datastoreService, EventService eventService) {
         this.datastoreService = datastoreService;
-
+        this.eventService = eventService;
     }
 
     @Override
