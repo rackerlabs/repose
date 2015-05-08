@@ -41,12 +41,16 @@ import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.core.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+
+import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,6 +58,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
@@ -227,6 +234,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
             assertTrue("Filter Director is set to add application/xml to the accept header",
                     director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+        }
+
+        @Test
+        public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
+            RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
+            RateLimitingHandler handler = new RateLimitingHandler(helper, eventService, true, Optional.<Pattern>of(Pattern.compile(".*")), false, 1);
+            OverLimitException exception = new OverLimitException("testmsg", "127.0.0.1;q=0.1", new Date(), 10, "10");
+            doThrow(exception).when(helper).trackLimits(mockedRequest, 1);
+            handler.handleRequest(mockedRequest, mockedResponse);
+            verify(eventService).newEvent(eq(RateLimitFilterEvent.OVER_LIMIT), any(OverLimitData.class));
         }
     }
 

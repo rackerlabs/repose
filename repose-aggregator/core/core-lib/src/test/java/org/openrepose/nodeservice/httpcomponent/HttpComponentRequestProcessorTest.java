@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class HttpComponentRequestProcessorTest {
@@ -128,6 +129,14 @@ public class HttpComponentRequestProcessorTest {
             processor.process(method);
 
             verify(method).setEntity(any(InputStreamEntity.class));
+        }
+
+        @Test
+        public void shouldGetPercentEncodedUri() throws Exception {
+            when(request.getParameterValues(eq("param1"))).thenReturn(new String[]{"hello+world"});
+            when(request.getParameterValues(eq("param2"))).thenReturn(new String[]{"hello%20world"});
+            URI uri = processor.getUri("www.proxy-openrepose.org");
+            assertEquals("www.proxy-openrepose.org?param1=hello%20world&param2=hello%20world", uri.toString());
         }
     }
 }
