@@ -36,6 +36,7 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
@@ -43,6 +44,7 @@ import org.openrepose.core.services.ratelimit.config.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -235,15 +237,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         protected HttpServletRequest mockedRequest;
         protected ReadableHttpServletResponse mockedResponse;
         protected DistributedDatastore datastore;
+        protected EventService eventService;
 
         @Before
         public void beforeAny() throws Exception {
             datastore = mock(DistributedDatastore.class);
+            eventService = mock(EventService.class);
             final DatastoreService service = mock(DatastoreService.class);
 
             when(service.getDistributedDatastore()).thenReturn(datastore);
 
-            handlerFactory = new RateLimitingHandlerFactory(service);
+            handlerFactory = new RateLimitingHandlerFactory(service, eventService);
             handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
 
             mockedRequest = mock(HttpServletRequest.class);

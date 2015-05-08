@@ -20,6 +20,7 @@
 package org.openrepose.filters.ratelimiting;
 
 import com.google.common.base.Optional;
+
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
@@ -33,6 +34,7 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
+import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceImpl;
 import org.openrepose.core.services.ratelimit.exception.CacheException;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -56,13 +59,15 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private MediaType originalPreferredAccept;
     private boolean overLimit429ResponseCode;
     private int datastoreWarnLimit;
+    private final EventService eventService;
 
-    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Optional<Pattern> describeLimitsUriPattern, boolean overLimit429ResponseCode, int datastoreWarnLimit) {
+    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, EventService eventService, boolean includeAbsoluteLimits, Optional<Pattern> describeLimitsUriPattern, boolean overLimit429ResponseCode, int datastoreWarnLimit) {
         this.includeAbsoluteLimits = includeAbsoluteLimits;
         this.describeLimitsUriPattern = describeLimitsUriPattern;
         this.rateLimitingServiceHelper = rateLimitingServiceHelper;
         this.overLimit429ResponseCode = overLimit429ResponseCode;
         this.datastoreWarnLimit = datastoreWarnLimit;
+        this.eventService = eventService;
     }
 
     @Override
@@ -172,7 +177,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
                 director.setResponseStatusCode(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
             }
             director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
-
+            eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, director.getResponseStatusCode()));
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits.", e);
 

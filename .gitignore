@@ -55,3 +55,10 @@ log.txt
 ## Python
 *.py[cod]
 .Python
+
+## Eclipse
+# eclipse specific git ignore
+.project
+.metadata
+.classpath
+.settings

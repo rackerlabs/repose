@@ -20,11 +20,13 @@
 package org.openrepose.filters.ratelimiting;
 
 import com.google.common.base.Optional;
+
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
 import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
@@ -50,8 +52,9 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
     private Optional<Pattern> describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
     private RateLimitingService service;
+    private EventService eventService;
 
-    public RateLimitingHandlerFactory(DatastoreService datastoreService) {
+    public RateLimitingHandlerFactory(DatastoreService datastoreService, EventService eventService) {
         this.datastoreService = datastoreService;
 
     }
@@ -114,7 +117,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
             includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
         }
 
-        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(), rateLimitingConfig.getDatastoreWarnLimit().intValue());
+        return new RateLimitingHandler(serviceHelper, eventService, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(), rateLimitingConfig.getDatastoreWarnLimit().intValue());
     }
 
     private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
