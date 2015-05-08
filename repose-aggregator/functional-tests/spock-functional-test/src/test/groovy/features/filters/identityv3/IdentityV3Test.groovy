@@ -24,6 +24,8 @@ import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/25/14.
@@ -83,13 +85,11 @@ class IdentityV3Test extends ReposeValveTest {
 
     def "Tracing header should include in request to Identity"() {
         def reqDomain = fakeIdentityV3Service.client_domainid
-        def reqUserId = fakeIdentityV3Service.client_userid
+
 
         fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_domainid = reqDomain
-            client_userid = reqUserId
         }
 
         when: "User passes a request through repose"
@@ -111,5 +111,44 @@ class IdentityV3Test extends ReposeValveTest {
                 assert e.request.headers.contains("x-trans-id")
                 assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
+    }
+
+    @Unroll("Failed response from repose with Identity respcode #identityrespcode")
+    def "Tracing header should include in Failed response from repose"() {
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        fakeIdentityV3Service.validateTokenHandler = {
+            tokenId, request ->
+                return new Response(identityrespcode)
+        }
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then:
+        mc.handlings.size() == 0
+        mc.receivedResponse.code == respcode
+        mc.receivedResponse.headers.contains("x-trans-id")
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+
+        where:
+        identityrespcode | respcode
+        "401"            | "500"
+        "403"            | "500"
+        "413"            | "503"
+        "404"            | "401"
+        "500"            | "500"
     }
 }
