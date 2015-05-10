@@ -37,6 +37,8 @@ import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.OverLimitData;
+import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;

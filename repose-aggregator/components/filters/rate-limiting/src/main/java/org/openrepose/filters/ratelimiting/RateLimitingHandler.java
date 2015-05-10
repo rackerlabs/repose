@@ -35,6 +35,8 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.OverLimitData;
+import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceImpl;
 import org.openrepose.core.services.ratelimit.exception.CacheException;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
