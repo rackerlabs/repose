@@ -613,7 +613,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'],
                 defaultHandler: { return new Response(302, "Redirect") })
 
-        then: "the request is rate-limited"
+        then: "the response code does not change"
         messageChain.receivedResponse.code.equals("302")
         messageChain.handlings.size() == 1
     }
