@@ -154,6 +154,38 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         ""            | 312            | "not-admin"           | "200"        | "Indeterminate" | ""
     }
 
+    def "when authenticating user in tenanted and delegable mode verify origin response code does not change"() {
+        given:
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID()
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = 320
+            client_userid = 320
+            service_admin_role = "not-admin"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/330",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+                defaultHandler: { return new Response(302, "Redirect") })
+
+        then: "Response code does not change"
+        mc.receivedResponse.code == "302"
+        mc.handlings.size() == 1
+
+        and: "If request made it to origin service"
+        def request2 = mc.handlings[0].request
+        assert (mc.handlings[0].endpoint == originEndpoint)
+        assert (request2.headers.contains("x-auth-token"))
+        assert (request2.headers.contains("x-identity-status"))
+        assert (request2.headers.contains("x-authorization"))
+        assert (request2.headers.getFirstValue("x-identity-status") == "Indeterminate")
+        assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+
+    }
+
     /*
         This test verify delegated message to service origin with tenanted
      */

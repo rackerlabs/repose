@@ -24,6 +24,12 @@
         <!-- This dependency will pull in an implementation of necessary javaee-api
              classes used during testing -->
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <scope>test</scope>

@@ -604,6 +604,20 @@ class RateLimitingTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
+
+
+
+    def "Origin response code should not change when using rate limiting filter"() {
+        when: "the user send their request"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
+                headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'],
+                defaultHandler: { return new Response(302, "Redirect") })
+
+        then: "the request is rate-limited"
+        messageChain.receivedResponse.code.equals("302")
+        messageChain.handlings.size() == 1
+    }
+
     // Helper methods
     // not using this parsing xml for now since get limits got inconsistent xml response
     private int parseRemainingFromXML(String s, int limit) {
