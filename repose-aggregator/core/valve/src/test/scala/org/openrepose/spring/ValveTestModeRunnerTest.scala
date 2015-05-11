@@ -99,7 +99,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
     containerListener
   }
 
-  it("has a blocking run method") {
+  it("still has a blocking run method") {
     val runner = new ValveRunner(fakeConfigService)
 
     val future = Future {
@@ -110,10 +110,6 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
     runner.destroy()
     Await.ready(future, 1 second)
     future.isCompleted shouldBe true
-  }
-
-  it("passes through configRoot and insecure to each node") {
-    pending
   }
 
   describe("Starting fresh") {
