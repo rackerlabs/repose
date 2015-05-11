@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.clientauth.openstack;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthServiceException;
@@ -26,7 +27,6 @@ import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
 import org.openrepose.common.auth.openstack.OpenStackToken;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -175,7 +175,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             case HttpServletResponse.SC_FORBIDDEN:
                 // If in the case that the origin service supports delegated authentication
                 // we should then communicate to the client how to authenticate with us
-                if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
+                if (!StringUtils.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
                     myDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
                 } else {
                     // In the case where authentication has failed and we did not receive
@@ -186,7 +186,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                 }
                 break;
             case HttpServletResponse.SC_NOT_IMPLEMENTED:
-                if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
+                if (!StringUtils.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
                     myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
                 } else {
