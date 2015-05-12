@@ -186,6 +186,8 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector director = new FilterDirectorImpl();
+        director.setResponseStatusCode(response.getStatus());
+        director.setFilterAction(FilterAction.PASS);
 
         try {
             final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
