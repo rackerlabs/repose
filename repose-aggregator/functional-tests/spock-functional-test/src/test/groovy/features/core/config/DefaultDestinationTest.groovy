@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,25 +67,12 @@ class DefaultDestinationTest extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
     }
 
     @Unroll("Fails to connect when defaults: #default1, #default2, #default3")
     def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
         given:
-        // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/common", params)
-
-        params += [
-                "default1": default1, "default2": default2, "default3": default3
-
-        ]
-        reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
-
         // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
@@ -95,8 +82,21 @@ class DefaultDestinationTest extends Specification {
                 reposePort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch = repose.getReposeLogSearch()
         reposeLogSearch.cleanLog()
+
+        // set the common and good configs
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
+
+        params += [
+                "default1": default1, "default2": default2, "default3": default3
+
+        ]
+        reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
+
+
 
 
         when: "starting Repose with more or less than one default destination endpoint"
@@ -150,7 +150,7 @@ class DefaultDestinationTest extends Specification {
                 reposePort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch = repose.getReposeLogSearch()
         reposeLogSearch.cleanLog()
 
 
@@ -193,7 +193,7 @@ class DefaultDestinationTest extends Specification {
                 reposePort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch = repose.getReposeLogSearch()
         reposeLogSearch.cleanLog()
 
 

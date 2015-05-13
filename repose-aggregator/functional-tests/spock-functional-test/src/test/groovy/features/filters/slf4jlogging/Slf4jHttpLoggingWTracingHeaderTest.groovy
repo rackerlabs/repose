@@ -32,7 +32,7 @@ import spock.lang.Unroll
 class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
     def setupSpec() {
         //remove old log
-        def logSearch = new ReposeLogSearch(properties.logFile)
+        def logSearch = repose.getReposeLogSearch()
         logSearch.cleanLog()
 
         def params = properties.defaultTemplateParams
@@ -47,7 +47,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
 
     @Unroll("Test slf4jlog entry with #method")
     def "Test check slf4log for various methods with tracing header request id"() {
-        def logSearch = new ReposeLogSearch(properties.logFile)
+        def logSearch = repose.getReposeLogSearch()
         logSearch.cleanLog()
 
         when:
@@ -74,7 +74,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
     def "Test slf4j log entry for failed tests with tracing header request id"() {
         given:
         def xmlResp = { request -> return new Response(responseCode) }
-        def logSearch = new ReposeLogSearch(properties.logFile)
+        def logSearch = repose.getReposeLogSearch()
         logSearch.cleanLog()
 
         when:

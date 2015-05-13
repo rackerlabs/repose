@@ -38,16 +38,7 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class ReposeValveLauncher extends ReposeLauncher {
 
-    //Where the valve will be started in, stuff's gotta be copied into here, or linked
-    Path sandboxPath
-
-    def boolean debugEnabled
-    def boolean doSuspend
-    boolean keepSandbox = false
     def String reposeJar
-    def String configDir
-
-    def clock = new SystemClock()
 
     def reposeEndpoint
     def int reposePort
@@ -55,12 +46,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     def JmxClient jmx
     def jmxPort = null
     def debugPort = null
-    def classPaths = []
     def additionalEnvironment = [:]
-
-    Process process
-
-    def ReposeConfigurationProvider configurationProvider
 
     @Deprecated
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
@@ -86,75 +72,17 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     ReposeValveLauncher(String reposeEndpoint, int reposePort, TestProperties testProps) {
-        //Internal testProperties, so I can always have the build directory
-        //Sadly this isn't always passed in, and so it's a hot mess
-        sandboxPath = Files.createTempDirectory(Paths.get(testProps.projectBuildDirectory), "reposeValveTest")
-
-        testProps.configDirectory = sandboxPath.resolve("configs").toString()
-        testProps.reposeHome = sandboxPath.toString()
-
-        //Relativize all the jar files and war files to the new sandboxPath
-        //Sadly this is hardcoded, because things are dumb
-        testProps.glassfishJar = sandboxPath.resolve(fileNamePath(testProps.glassfishJar))
-        testProps.tomcatJar = sandboxPath.resolve(fileNamePath(testProps.tomcatJar))
-        testProps.mocksWar = sandboxPath.resolve(fileNamePath(testProps.mocksWar))
-        testProps.reposeJar = sandboxPath.resolve(fileNamePath(testProps.reposeJar))
-        testProps.reposeRootWar = sandboxPath.resolve(fileNamePath(testProps.reposeRootWar))
+        super(testProps)
 
         this.reposeJar = testProps.reposeJar
         this.reposeEndpoint = reposeEndpoint
         this.reposePort = reposePort //TODO: deprecated in favor of auto-port-magics
-        this.configDir = testProps.configDirectory
-        this.configurationProvider = new ReposeConfigurationProvider(testProps)
-    }
-
-    static def fileNamePath(String wat) {
-        Paths.get(wat).getFileName().toString()
     }
 
     ReposeValveLauncher(TestProperties properties) {
         this(properties.reposeEndpoint, properties.reposePort, properties)
     }
 
-    /**
-     * Prepare this ReposeValveLauncher's sandbox directory and get everything set up
-     * Prepare should be idempotent, so if it's hit twice, no biggie
-     * @return
-     */
-    def prepare() {
-        //Set up a repose root in the build directory I think...
-        def itp = new TestProperties()
-
-        //Make sure we have this root directory
-        FileUtils.forceMkdir(sandboxPath.toFile())
-        //Create all the things from the repose_home into here again
-
-        //We'll use a HardLink, so that it's fast on the filesystem for things that are read only (artifacts!)
-        Path artifactsPath = sandboxPath.resolve("artifacts")
-        Path configPath = sandboxPath.resolve("config")
-        Path logsPath = sandboxPath.resolve("logs")
-
-        FileUtils.forceMkdir(artifactsPath.toFile())
-        FileUtils.forceMkdir(configPath.toFile())
-        FileUtils.forceMkdir(logsPath.toFile())
-
-        //Copy all artifacts from the repose_home/artifacts directory
-        Path reposeHome = Paths.get(itp.getReposeHome())
-        FileUtils.listFiles(new File(reposeHome.toFile(), "artifacts"), ["ear"] as String[], false).toList().each { artifact ->
-            Path existing = artifact.toPath()
-            Path newLink = artifactsPath.resolve(artifact.getName())
-            Files.createLink(newLink, existing) //LINK IT!
-        }
-
-        //link the root artifacts
-        FileUtils.listFiles(reposeHome.toFile(), ["war", "jar"] as String[], false).toList().each { rootArtifact ->
-            Path existing = rootArtifact.toPath()
-            Path newLink = sandboxPath.resolve(rootArtifact.getName())
-            Files.createLink(newLink, existing)
-        }
-        //Yay all the things are prepped
-        //Now I need to override the repose home, config dir and other properites to be relative to this guy
-    }
 
     @Override
     void start() {
@@ -184,8 +112,6 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param waitOnJmxAfterStarting
      */
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
-        prepare()
-
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
             throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
@@ -193,7 +119,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         File configFolder = new File(configDir)
         if (!configFolder.exists() || !configFolder.isDirectory()) {
-            throw new FileNotFoundException("Missing or invalid configuration folder.")
+            throw new FileNotFoundException("Missing or invalid configuration folder: $configDir")
         }
 
         if (killOthersBeforeStarting) {
@@ -363,26 +289,12 @@ Connect debugger to repose on port: ${debugPort}
         }
     }
 
-    @Override
-    void enableDebug() {
-        this.debugEnabled = true
-    }
-
-    @Override
-    void enableSuspend() {
-        this.debugEnabled = true
-        this.doSuspend = true
-    }
 
     @Override
     void addToClassPath(String path) {
         classPaths.add(path)
     }
 
-    @Override
-    void keepSandbox() {
-        this.keepSandbox = true
-    }
 
     /**
      * This takes a single string and will append it to the list of environment vars to be set for the .execute() method

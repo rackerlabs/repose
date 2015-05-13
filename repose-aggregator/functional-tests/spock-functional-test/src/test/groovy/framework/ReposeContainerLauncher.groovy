@@ -39,26 +39,23 @@ class ReposeContainerLauncher extends ReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
-    def classPaths = []
 
-    def boolean debugEnabled
-    def boolean doSuspend
 
-    def clock = new SystemClock()
-    def Process process
-
-    def ReposeConfigurationProvider configurationProvider
-
+    @Deprecated
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId, String nodeId,
                             String rootWarLocation, int reposePort, String... appWars) {
-        this.configurationProvider = configurationProvider
-        this.containerJar = containerJar
+        this(new TestProperties(), containerJar, clusterId, nodeId)
+    }
+
+    ReposeContainerLauncher(TestProperties testProps, String containerJar, String clusterId, String nodeId, String... appWars) {
+        super(testProps)
+
         this.clusterId = clusterId
         this.nodeId = nodeId
+        this.containerJar = containerJar
         this.reposePort = reposePort
         this.rootWarLocation = rootWarLocation
-
         this.appWars = appWars
     }
 
@@ -170,23 +167,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     }
 
     @Override
-    void enableDebug() {
-        this.debugEnabled = true
-    }
-
-    @Override
-    void enableSuspend() {
-        this.debugEnabled = true
-        this.doSuspend = true
-    }
-
-    @Override
     void addToClassPath(String path) {
         classPaths.add(path)
-    }
-
-    @Override
-    void keepSandbox() {
-        //Nothing?
     }
 }

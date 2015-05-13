@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,20 +61,11 @@ class InvalidServiceNameTest extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
     }
 
 
     def "start with invalid service name in system model configs, should log error and fail to connect"() {
         given:
-        // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/service-name-bad", params)
-        expectCleanShutdown = false
 
         // start repose
         repose = new ReposeValveLauncher(
@@ -85,7 +76,15 @@ class InvalidServiceNameTest extends Specification {
                 reposePort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+
+        // set the common and good configs
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/service-name-bad", params)
+        expectCleanShutdown = false
+
+        reposeLogSearch = repose.getReposeLogSearch()
         reposeLogSearch.cleanLog()
 
 
@@ -126,7 +125,7 @@ class InvalidServiceNameTest extends Specification {
                 reposePort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch = repose.getReposeLogSearch()
         reposeLogSearch.cleanLog()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
