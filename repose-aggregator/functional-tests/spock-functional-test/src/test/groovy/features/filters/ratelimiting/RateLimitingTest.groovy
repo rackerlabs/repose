@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -211,72 +211,6 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("413")
     }
 
-    @Unroll("when requesting rate limits for unlimited groups with #acceptHeader ")
-    def "When requesting rate limits for unlimited groups, should receive rate limits in request format"() {
-        when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
-                headers: ["X-PP-Groups": "unlimited;q=1.0", "X-PP-User": "unlimited-user"] + acceptHeader,
-                defaultHandler: absoluteLimitResponse
-        )
-
-        then:
-        messageChain.receivedResponse.code.equals("200")
-        messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
-        if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 0) == 15
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 1) == 10
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 2) == 5
-        } else {
-            assert parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
-        }
-
-        where:
-        path               | acceptHeader                   | expectedFormat
-        "/service2/limits" | ["Accept": "application/xml"]  | "application/xml"
-        "/service2/limits" | ["Accept": "application/json"] | "application/json"
-        "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
-        "/service2/limits" | ["Accept": "*/*"]              | "application/json"
-    }
-
-    @Unroll("when requesting rate limits for limited groups with #acceptHeader ")
-    def "When requesting rate limits for limited groups, should receive rate limits in request format"() {
-        when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
-                headers: ["X-PP-Groups": "customer;q=1.0", "X-PP-User": "user"] + acceptHeader,
-                defaultHandler: absoluteLimitResponse
-        )
-
-        then:
-        messageChain.receivedResponse.code.equals("200")
-        messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
-        if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 0, true) == 15
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 1, true) == 10
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 2, true) == 5
-        } else {
-            assert parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
-        }
-
-        where:
-        path               | acceptHeader                   | expectedFormat
-        "/service2/limits" | ["Accept": "application/xml"]  | "application/xml"
-        "/service2/limits" | ["Accept": "application/json"] | "application/json"
-        "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
-        "/service2/limits" | ["Accept": "*/*"]              | "application/json"
-    }
-
     def "When requesting rate limits with an invalid Accept header, Should receive 406 response when invalid Accept header"() {
         when:
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
@@ -284,35 +218,6 @@ class RateLimitingTest extends ReposeValveTest {
 
         then:
         messageChain.receivedResponse.code.equals("406")
-    }
-
-    @Unroll("When requesting rate limits for group with special characters with #acceptHeader ")
-    def "When requesting rate limits as json for group with special characters"() {
-        when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
-                headers: ["X-PP-Groups": "unique;q=1.0", "X-PP-User": "user"] + acceptHeader,
-                defaultHandler: absoluteLimitResponse
-        )
-
-        then:
-        messageChain.receivedResponse.code.equals("200")
-        messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
-        assert parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
-        assert messageChain.receivedResponse.body.contains("service/\\\\w*")
-        assert messageChain.receivedResponse.body.contains("service/\\\\s*")
-        assert messageChain.receivedResponse.body.contains("service/(\\\".+\\")
-        assert messageChain.receivedResponse.body.contains("service/\\\\d*")
-
-        where:
-        path               | acceptHeader                   | expectedFormat
-        "/service2/limits" | ["Accept": "application/json"] | "application/json"
-        "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
-        "/service2/limits" | ["Accept": "*/*"]              | "application/json"
     }
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
@@ -606,7 +511,6 @@ class RateLimitingTest extends ReposeValveTest {
     }
 
 
-
     def "Origin response code should not change when using rate limiting filter"() {
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -619,17 +523,6 @@ class RateLimitingTest extends ReposeValveTest {
     }
 
     // Helper methods
-    // not using this parsing xml for now since get limits got inconsistent xml response
-    private int parseRemainingFromXML(String s, int limit) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
-        factory.setNamespaceAware(true)
-        DocumentBuilder documentBuilder = factory.newDocumentBuilder()
-        Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
-
-        document.getDocumentElement().normalize()
-
-        return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("remaining").getNodeValue())
-    }
 
     private int parseAbsoluteFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
@@ -642,20 +535,6 @@ class RateLimitingTest extends ReposeValveTest {
         return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("value").getNodeValue())
     }
 
-    private int parseAbsoluteFromXML(String s, int limit, boolean useSlurper) {
-        if (!useSlurper)
-            return parseAbsoluteFromXML(s, limit)
-        else {
-            def xml = XmlSlurper.newInstance().parseText(s)
-            return Integer.parseInt(xml.children()[1][0].children()[limit].attributes()["value"])
-        }
-    }
-
-    private int parseAbsoluteFromJSON(String body, String limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.absolute[limit].value
-    }
-
     private int parseAbsoluteLimitFromJSON(String body, int limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate[limit].limit[0].value
@@ -665,17 +544,6 @@ class RateLimitingTest extends ReposeValveTest {
     private int parseRemainingFromJSON(String body, int limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate[limit].limit[0].remaining
-    }
-
-    private int parseRateCountFromXML(String body) {
-        def xml = XmlSlurper.newInstance().parseText(body)
-        return xml.limits.rates.size()
-    }
-
-
-    private int parseRateCountFromJSON(String body) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate.size()
     }
 
     private String getDefaultLimits(Map group = null) {
@@ -696,22 +564,6 @@ class RateLimitingTest extends ReposeValveTest {
     private void waitForLimitReset(Map group = null) {
         while (parseRemainingFromJSON(getDefaultLimits(group), 0) != parseAbsoluteLimitFromJSON(getDefaultLimits(group), 0)) {
             sleep(1000)
-        }
-    }
-
-    private void waitForAvailableRequest() {
-        while (parseRemainingFromXML(getDefaultLimits(), 0) == 0) {
-            sleep(1000)
-        }
-    }
-
-    private void useAllRemainingRequests() {
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
-
-        while (!messageChain.receivedResponse.code.equals("413")) {
-            messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                    headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
         }
     }
 
