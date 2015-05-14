@@ -94,6 +94,25 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
     }
 
+    def "Origin response code should not change when retrieving a token for an HTTP Basic authentication header with UserName/ApiKey"() {
+        given: "the HTTP Basic authentication header containing the User Name and API Key"
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers,
+                defaultHandler: { return new Response(302, "Redirect") })
+
+        then: "get a token for it"
+        mc.receivedResponse.code == "302"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
+        mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+    }
+
     @Unroll("#method with #caseDesc")
     def "No HTTP Basic authentication header sent and no token with delegating."() {
         when: "the request does not have an HTTP Basic authentication"

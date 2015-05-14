@@ -22,6 +22,7 @@ package features.filters.addheader
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 /**
  * Created by jennyvo on 12/11/14.
@@ -60,5 +61,26 @@ class AddHeaderTest extends ReposeValveTest {
         sentRequest.request.headers.getFirstValue("repose-test") == "this-is-a-test"
         mc.getReceivedResponse().headers.contains("response-header")
         mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
+    }
+
+    def "When using add-header filter the expected origin service response code should not change"() {
+        given:
+        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
+
+        when: "Request contains value(s) of the target header"
+        def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers,
+                                      defaultHandler: { return new Response(302, "Redirect") }])
+        def sentRequest = ((MessageChain) mc).getHandlings()[0]
+
+        then: "The request/response should contain additional header from add-header config"
+        sentRequest.request.headers.contains("x-rax-user")
+        sentRequest.request.headers.getFirstValue("x-rax-user") == "test-user"
+        sentRequest.request.headers.contains("x-rax-groups")
+        sentRequest.request.headers.getFirstValue("x-rax-groups") == "reposegroup1"
+        sentRequest.request.headers.contains("repose-test")
+        sentRequest.request.headers.getFirstValue("repose-test") == "this-is-a-test"
+        mc.getReceivedResponse().headers.contains("response-header")
+        mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
+        mc.receivedResponse.code == "302"
     }
 }

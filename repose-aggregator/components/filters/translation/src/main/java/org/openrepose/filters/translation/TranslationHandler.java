@@ -150,49 +150,46 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
         MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
         final FilterDirector filterDirector = new FilterDirectorImpl();
+        filterDirector.setResponseStatusCode(response.getStatus());
         filterDirector.setFilterAction(FilterAction.PASS);
         MediaType contentType = getContentType(response.getHeaderValue("Content-Type"));
         List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
         List<XmlChainPool> pools = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
-        if (pools.isEmpty()) {
-            filterDirector.setResponseStatusCode(response.getStatus());
-            return filterDirector;
-        }
+        if (!pools.isEmpty()) {
+            try {
+                InputStream in = response.getBufferedOutputAsInputStream();
+                if (in != null) {
 
-        try {
-            filterDirector.setResponseStatusCode(response.getStatus());
-            InputStream in = response.getBufferedOutputAsInputStream();
-            if (in != null) {
+                    TranslationResult result = null;
+                    for (XmlChainPool pool : pools) {
+                        if (in.available() > 0) {
+                            result = pool.executePool(
+                                    new TranslationPreProcessor(in, contentType, true).getBodyStream(),
+                                    filterDirector.getResponseOutputStream(),
+                                    getInputParameters(TranslationType.RESPONSE, request, response, result));
 
-                TranslationResult result = null;
-                for (XmlChainPool pool : pools) {
-                    if (in.available() > 0) {
-                        result = pool.executePool(
-                                new TranslationPreProcessor(in, contentType, true).getBodyStream(),
-                                filterDirector.getResponseOutputStream(),
-                                getInputParameters(TranslationType.RESPONSE, request, response, result));
-
-                        if (result.isSuccess()) {
-                            result.applyResults(filterDirector);
-                            if (StringUtilities.isNotBlank(pool.getResultContentType())) {
-                                filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
-                                contentType = getContentType(pool.getResultContentType());
+                            if (result.isSuccess()) {
+                                result.applyResults(filterDirector);
+                                if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                                    filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+                                    contentType = getContentType(pool.getResultContentType());
+                                }
+                                in = new ByteArrayInputStream(filterDirector.getResponseMessageBodyBytes());
+                            } else {
+                                filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                response.setContentLength(0);
+                                filterDirector.responseHeaderManager().removeHeader("Content-Length");
+                                break;
                             }
-                            in = new ByteArrayInputStream(filterDirector.getResponseMessageBodyBytes());
-                        } else {
-                            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                            response.setContentLength(0);
-                            filterDirector.responseHeaderManager().removeHeader("Content-Length");
-                            break;
                         }
                     }
                 }
+            } catch (IOException ex) {
+                LOG.error("Error executing response transformer chain", ex);
+                filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.setContentLength(0);
             }
-        } catch (IOException ex) {
-            LOG.error("Error executing response transformer chain", ex);
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.setContentLength(0);
         }
 
         return filterDirector;

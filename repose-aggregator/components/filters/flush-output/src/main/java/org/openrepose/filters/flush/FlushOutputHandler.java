@@ -53,6 +53,9 @@ public class FlushOutputHandler extends AbstractFilterLogicHandler {
             LOG.error("Failed to flush output", ex);
         }
 
-        return new FilterDirectorImpl();
+        final FilterDirector filterDirector = new FilterDirectorImpl();
+        filterDirector.setResponseStatusCode(response.getStatus());
+        filterDirector.setFilterAction(FilterAction.PASS);
+        return filterDirector;
     }
 }

@@ -95,11 +95,14 @@ class BasicValkyrieTest extends ReposeValveTest {
 
         then: "check response"
         mc.receivedResponse.code == responseCode
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
         //**This part for tracing header test REP-1704**
         // any requests send to identity also include tracing header
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
         }
+
 
         where:
         method   | tenantID                   | deviceID | permission      | responseCode

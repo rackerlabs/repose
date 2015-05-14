@@ -146,6 +146,7 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfterAl
       val filterDirector = filter.handleResponse(mockServletRequest, mockServletResponse)
 
       // then: "the filter's response status code should be No Content (204)"
+      filterDirector.getFilterAction should not be (FilterAction.NOT_SET)
       filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
     }
   }

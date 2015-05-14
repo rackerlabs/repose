@@ -350,10 +350,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   }
 
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    logger.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + response.getStatus)
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
     val responseStatus = response.getStatus
+    logger.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + responseStatus)
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
     filterDirector.setResponseStatusCode(responseStatus)
+    filterDirector.setFilterAction(FilterAction.PASS)
 
     /// The WWW Authenticate header can be used to communicate to the client
     // (since we are a proxy) how to correctly authenticate itself

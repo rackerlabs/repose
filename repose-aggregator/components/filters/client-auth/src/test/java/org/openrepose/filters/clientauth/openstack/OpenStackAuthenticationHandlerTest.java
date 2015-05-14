@@ -58,9 +58,9 @@ import java.util.regex.Pattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 
 /**
@@ -886,11 +886,12 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotModifyResponseOnResponseStatusCodeNotEqualTo401or403() {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-            when(response.getStatus()).thenReturn(200);
+            when(response.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must pass valid, delegated responses", FilterAction.NOT_SET, responseDirector.getFilterAction());
+            assertNotSame("Must not pass invalid FilterAction.", FilterAction.NOT_SET, responseDirector.getFilterAction());
+            assertEquals("Auth component must pass valid, delegated responses", SC_UNSUPPORTED_RESPONSE_CODE, responseDirector.getResponseStatusCode());
         }
 
         @Test

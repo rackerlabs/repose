@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {
@@ -201,6 +201,28 @@ public class TranslationHandlerTest {
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
             assertTrue(diff1.similar());
+        }
+
+        @Test
+        public void shouldNotModifyResponseStatusIf() throws Exception {
+            when(mockedRequest.getHeaderNames()).thenReturn(new Enumeration<String>() {
+                @Override
+                public boolean hasMoreElements() {
+                    return false;
+                }
+
+                @Override
+                public String nextElement() {
+                    return null;
+                }
+            });
+            when(mockedResponse.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
+            mutableHttpRequest = MutableHttpServletRequest.wrap(mockedRequest);
+            mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+
+            FilterDirector filterDirector = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+            assertNotSame("Must not return an invalid FilterAction.", FilterAction.NOT_SET, filterDirector.getFilterAction());
+            assertEquals("Must return the received response status code", SC_UNSUPPORTED_RESPONSE_CODE, filterDirector.getResponseStatusCode());
         }
     }
 

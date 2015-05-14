@@ -19,7 +19,6 @@
  */
 package org.openrepose.powerfilter
 
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
@@ -168,43 +167,6 @@ class PowerFilterChainTest extends Specification {
         "X-CONTACT-ID"        | ["foo", "bar,baz"]             | 3
         "X-TTL"               | ["foo", "bar,baz"]             | 3
         "whatever"            | ["foo", "bar,baz"]             | 2
-    }
-
-    def "doRouting should add a response guid header if one is present on the request"() {
-        given:
-        def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
-        def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
-        def powerFilterChain = new PowerFilterChain([], mock(FilterChain.class), new PowerFilterRouter() {
-            @Override
-            void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
-                    throws IOException, ServletException, URISyntaxException {}
-        }, null)
-
-        mockReq.addHeader(CommonHttpHeader.TRACE_GUID.toString(), "test-guid")
-
-        when:
-        powerFilterChain.doRouting(mockReq, mockResp)
-
-        then:
-        mockResp.getHeaders(CommonHttpHeader.TRACE_GUID.toString()).size() == 1
-        mockResp.getHeader(CommonHttpHeader.TRACE_GUID.toString()) == "test-guid"
-    }
-
-    def "doRouting should not add a response guid header if one is not present on the request"() {
-        given:
-        def mockReq = MutableHttpServletRequest.wrap(new MockHttpServletRequest())
-        def mockResp = MutableHttpServletResponse.wrap(mockReq, new MockHttpServletResponse())
-        def powerFilterChain = new PowerFilterChain([], mock(FilterChain.class), new PowerFilterRouter() {
-            @Override
-            void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse)
-                    throws IOException, ServletException, URISyntaxException {}
-        }, null)
-
-        when:
-        powerFilterChain.doRouting(mockReq, mockResp)
-
-        then:
-        mockResp.getHeaders(CommonHttpHeader.TRACE_GUID.toString()).size() == 0
     }
 
     def getEnumerationLength(Enumeration<String> enumeration) {
