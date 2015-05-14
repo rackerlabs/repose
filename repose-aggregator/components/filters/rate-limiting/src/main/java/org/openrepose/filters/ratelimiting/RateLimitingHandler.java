@@ -234,23 +234,16 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         director.setFilterAction(FilterAction.PASS);
 
         try {
-            //TODO: If the content type of our request is not XML, we have to handle it some other way
-            LOG.debug("HIT THE HANDLE RESPONSE FOR RATE LIMIT!");
-
             if (response.getContentType() != null) {
-                LOG.debug("WE HAVE A CONTENT TYPE");
-                //If we have a content type to process, then we should do something about it, else we shouldn't do anything...
-                //I think this only happens in test mode, with weird deproxy things...
+                //If we have a content type to process, then we should do something about it,
+                // else we should ensure that just the repose limits make it through...
                 if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
-                    LOG.debug("HANDLING A JSON CONTENT TYPE");
                     //Grab the absolute limits out of the structure, glue it into the existing limits structure, and ship it
                     //get the active limits into a JSON for me -- this is just the repose side of the limits
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     rateLimitingServiceHelper.queryActiveLimits(request,
                             new MediaType(MimeType.APPLICATION_JSON),
                             baos);
-
-                    LOG.debug("ACTIVE LIMITS CALL OUTPUT: {}", baos.toString());
 
                     //Convert the absolute limits structure into a JSON object
                     ObjectMapper mapper = new ObjectMapper();
@@ -262,24 +255,20 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
                     ObjectNode reposeNode = reposeParser.readValueAsTree();
                     jsonMerge(reposeNode, rootNode); //Merge the root node into the repose node!
 
-                    LOG.debug("FINAL VALUE: {}", mapper.writeValueAsString(reposeNode));
-
                     //Write it to the filter director for realsies
                     mapper.writeValue(director.getResponseOutputStream(), reposeNode);
                     director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
                 } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
-                    LOG.debug("HAVE AN XML RESPONSE TYPE, HANDLE THE OLD WAY");
                     //This section is if the upstream responded with XML and we'll do our XML-JSON magic, or not
                     final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
                     director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
                 } else {
-                    LOG.debug("NOT A SUPPORTED CONTENT TYPE WE CAN TALK ABOUT, KABOOM!");
-                    //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 503!
-                    //TODO: 502 and fail!
+                    LOG.error("Upstream limits call was not a content type we can understand! {}", response.getContentType());
+                    //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 502!
                     director.setResponseStatusCode(502);
                 }
             } else {
-                LOG.debug("Didn't get data from upstream, so just send regular limits");
+                LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so I think we send the regular stuff no matter what
                 noUpstreamResponse(request, director, originalPreferredAccept);
             }
