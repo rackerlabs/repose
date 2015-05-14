@@ -19,6 +19,7 @@
  */
 package features.filters.ratelimiting
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
@@ -31,13 +32,10 @@ import spock.lang.Unroll
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
-
 /**
  * Copied most of this from the RateLimitingTest
  */
 class AbsoluteRateLimitTest extends ReposeValveTest {
-    final handler = { return new Response(200, "OK") }
-
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
@@ -90,6 +88,8 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
         repose.start()
+
+        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
     def cleanupSpec() {
@@ -101,6 +101,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
 
     def cleanup() {
         waitForLimitReset()
+        reposeLogSearch.cleanLog()
     }
 
     @Unroll("XML UPSTREAM: when requesting rate limits for unlimited groups with #acceptHeader")
@@ -151,9 +152,9 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         messageChain.receivedResponse.body.length() > 0
 
         parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
 
         where:
         acceptHeader                   | expectedFormat
@@ -212,9 +213,9 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         messageChain.receivedResponse.body.length() > 0
 
         parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
 
         where:
         acceptHeader                   | expectedFormat
@@ -276,10 +277,12 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
         messageChain.receivedResponse.body.length() > 0
 
+        //This is mutable, and depends on prior test state...
         parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
+        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+
         messageChain.receivedResponse.body.contains("service/\\\\w*")
         messageChain.receivedResponse.body.contains("service/\\\\s*")
         messageChain.receivedResponse.body.contains("service/(\\\".+\\")
@@ -295,18 +298,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
 
     // Helper methods
     // TODO: So much of this is copy pasta from the other rate limiting test
-    // not using this parsing xml for now since get limits got inconsistent xml response
-    private int parseRemainingFromXML(String s, int limit) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
-        factory.setNamespaceAware(true)
-        DocumentBuilder documentBuilder = factory.newDocumentBuilder()
-        Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
-
-        document.getDocumentElement().normalize()
-
-        return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("remaining").getNodeValue())
-    }
-
     private int parseAbsoluteFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
         factory.setNamespaceAware(true)
@@ -367,5 +358,4 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
             sleep(1000)
         }
     }
-
 }
