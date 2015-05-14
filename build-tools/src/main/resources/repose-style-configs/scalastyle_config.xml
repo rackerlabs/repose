@@ -93,7 +93,8 @@
         <customMessage>Require space after comma, semicolon, and colon not in string</customMessage>
     </check>
 
-    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+    <!-- this causes too many false positives -->
+    <check enabled="false" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
             <parameter name="regex">\n\s*\{</parameter>
         </parameters>
