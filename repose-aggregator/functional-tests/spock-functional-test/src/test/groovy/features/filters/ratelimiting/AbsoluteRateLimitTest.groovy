@@ -31,6 +31,8 @@ import spock.lang.Unroll
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 
 /**
  * Copied most of this from the RateLimitingTest
@@ -151,14 +153,23 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
         messageChain.receivedResponse.body.length() > 0
 
-        parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+        if (expectedFormat.contains("xml")) {
+            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
+
+            //The JSON upstream doesn't match the simple XML upstream
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+        } else {
+            parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+        }
 
         where:
         acceptHeader                   | expectedFormat
-        ["Accept": "application/xml"]  | "application/json"
+        ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
         ["Accept": ""]                 | "application/json"
@@ -212,14 +223,23 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
         messageChain.receivedResponse.body.length() > 0
 
-        parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+        if (expectedFormat.contains("xml")) {
+            //The JSON upstream doesn't match the simple XML upstream
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+
+            parseRateCountFromXML(messageChain.receivedResponse.body) > 0
+        } else {
+            parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
+            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+        }
 
         where:
         acceptHeader                   | expectedFormat
-        ["Accept": "application/xml"]  | "application/json"
+        ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
         ["Accept": ""]                 | "application/json"
@@ -297,6 +317,26 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     // Helper methods
+
+    /**
+     * Must specify the full path to the actual value you want
+     * //absolute/limit[@name='lol']/@value
+     * @param xml
+     * @param xpathString
+     * @return
+     */
+    private int parseXpath(String xml, String xpathString) {
+
+        println("body is:\n$xml")
+
+        def builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        def inputStream = new ByteArrayInputStream(xml.bytes)
+        def records = builder.parse(inputStream).documentElement
+        def xpath = XPathFactory.newInstance().newXPath()
+
+        xpath.evaluate(xpathString, records, XPathConstants.NUMBER)
+    }
+
     // TODO: So much of this is copy pasta from the other rate limiting test
     private int parseAbsoluteFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
