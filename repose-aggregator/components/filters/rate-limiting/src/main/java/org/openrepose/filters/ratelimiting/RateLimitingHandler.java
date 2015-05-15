@@ -240,7 +240,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
         } catch (UpstreamException ue) {
             //I want a 502 returned when upstream didn't respond appropriately
-            consumeException(ue, director, 502);
+            consumeException(ue, director, HttpServletResponse.SC_BAD_GATEWAY);
         } catch (Exception e) {
             consumeException(e, director);
         }
