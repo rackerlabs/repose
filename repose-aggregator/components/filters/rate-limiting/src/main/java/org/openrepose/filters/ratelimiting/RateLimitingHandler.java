@@ -19,11 +19,6 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Optional;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -50,8 +45,9 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -126,11 +122,15 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         return request.getHeader(PowerApiHeader.USER.toString()) != null;
     }
 
-    private void consumeException(Exception e, FilterDirector director) {
+    private void consumeException(Exception e, FilterDirector director, int desiredStatus) {
         LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
 
         director.setFilterAction(FilterAction.RETURN);
-        director.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        director.setResponseStatusCode(desiredStatus);
+    }
+
+    private void consumeException(Exception e, FilterDirector director) {
+        consumeException(e, director, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
     private void describeLimitsForRequest(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
@@ -201,32 +201,6 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         return pass;
     }
 
-
-    /**
-     * Stole this from here: https://github.com/addthis/codec/blob/master/src/main/java/com/addthis/codec/jackson/Jackson.java#L138
-     * referenced here: https://github.com/FasterXML/jackson-databind/issues/584
-     * I need to do a deep merge on a pair of nodes
-     *
-     * @param primary
-     * @param backup
-     */
-    public static void jsonMerge(ObjectNode primary, ObjectNode backup) {
-        Iterator<String> fieldNames = backup.fieldNames();
-        while (fieldNames.hasNext()) {
-            String fieldName = fieldNames.next();
-            JsonNode primaryValue = primary.get(fieldName);
-            if (primaryValue == null) {
-                JsonNode backupValue = backup.get(fieldName).deepCopy();
-                primary.set(fieldName, backupValue);
-            } else if (primaryValue.isObject()) {
-                JsonNode backupValue = backup.get(fieldName);
-                if (backupValue.isObject()) {
-                    jsonMerge((ObjectNode) primaryValue, (ObjectNode) backupValue.deepCopy());
-                }
-            }
-        }
-    }
-
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector director = new FilterDirectorImpl();
@@ -237,42 +211,36 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             if (response.getContentType() != null) {
                 //If we have a content type to process, then we should do something about it,
                 // else we should ensure that just the repose limits make it through...
+
+                // I have to use mutable state, and that makes me sad, because If's aren't expressions
+                InputStream absoluteInputStream;
                 if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
-                    //Grab the absolute limits out of the structure, glue it into the existing limits structure, and ship it
-                    //get the active limits into a JSON for me -- this is just the repose side of the limits
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    rateLimitingServiceHelper.queryActiveLimits(request,
-                            new MediaType(MimeType.APPLICATION_JSON),
-                            baos);
+                    //New set up! Grab the upstream json, make it look like XML
+                    String newXml = UpstreamJsonToXml.convert(response.getInputStream());
 
-                    //Convert the absolute limits structure into a JSON object
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonParser absoluteParser = mapper.getFactory().createParser(response.getInputStream());
-                    ObjectNode rootNode = absoluteParser.readValueAsTree();
-
-                    //Consume our string of output into a JSON tree, and insert the absolute node under the limits node
-                    JsonParser reposeParser = mapper.getFactory().createParser(baos.toString());
-                    ObjectNode reposeNode = reposeParser.readValueAsTree();
-                    jsonMerge(reposeNode, rootNode); //Merge the root node into the repose node!
-
-                    //Write it to the filter director for realsies
-                    mapper.writeValue(director.getResponseOutputStream(), reposeNode);
-                    director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
+                    //Now we use the new XML we converted from the JSON as the input to the processing stream
+                    absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
                 } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
-                    //This section is if the upstream responded with XML and we'll do our XML-JSON magic, or not
-                    final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
-                    director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+                    //If we got XML from upstream, just read the stream directly
+                    absoluteInputStream = response.getBufferedOutputAsInputStream();
                 } else {
-                    LOG.error("Upstream limits call was not a content type we can understand! {}", response.getContentType());
+                    LOG.error("Upstream limits responded with a content type we cannot understand: {}", response.getContentType());
                     //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 502!
-                    director.setResponseStatusCode(502);
+                    throw new UpstreamException("Upstream limits responded with a content type we cannot understand: " + response.getContentType());
                 }
+
+                //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
+                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, director.getResponseOutputStream());
+                director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
-                //No data from upstream, so I think we send the regular stuff no matter what
+                //No data from upstream, so we send the regular stuff no matter what
                 noUpstreamResponse(request, director, originalPreferredAccept);
             }
 
+        } catch (UpstreamException ue) {
+            //I want a 502 returned when upstream didn't respond appropriately
+            consumeException(ue, director, 502);
         } catch (Exception e) {
             consumeException(e, director);
         }
@@ -293,5 +261,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
         return mediaTypes.get(0);
 
+    }
+
+    /**
+     * So I can have a different catch since I don't have nice pattern matching
+     */
+    private class UpstreamException extends Exception {
+        public UpstreamException(String message) {
+            super(message);
+        }
     }
 }
