@@ -58,7 +58,7 @@ class UpstreamJsonToXmlTest extends FunSpec with Matchers {
   it("Converts json upstream to the proper XML format") {
     val is = new ByteArrayInputStream(upstreamJson.getBytes(StandardCharsets.UTF_8))
     val converted = UpstreamJsonToXml.convert(is)
-    val parsedXml:Elem = XML.loadString(converted)
+    val parsedXml: Elem = XML.loadString(converted)
 
     for {
       limits <- parsedXml \ "absolute" \ "limit"
