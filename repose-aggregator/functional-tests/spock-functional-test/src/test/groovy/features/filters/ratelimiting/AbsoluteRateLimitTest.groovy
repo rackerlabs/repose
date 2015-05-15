@@ -154,7 +154,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         then:
         messageChain.receivedResponse.code.equals("502")
         //With the application/wat it's just an array of characters, so
-        messageChain.receivedResponse.body as ArrayList<Integer> == [76,79,76]  //LOL
+        messageChain.receivedResponse.body as ArrayList<Integer> == [76, 79, 76]  //LOL
 
         where:
         acceptHeader                   | expectedFormat
