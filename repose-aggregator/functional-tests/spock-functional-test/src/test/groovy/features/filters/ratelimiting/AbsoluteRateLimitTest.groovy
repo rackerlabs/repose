@@ -82,6 +82,10 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
 }""")
     }
 
+    final def watResponse = {
+        return new Response("200", "OK", ["Content-Type": "application/wat"], "LOL")
+    }
+
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -129,6 +133,28 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
             assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
             assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
         }
+
+        where:
+        acceptHeader                   | expectedFormat
+        ["Accept": "application/xml"]  | "application/xml"
+        ["Accept": "application/json"] | "application/json"
+        []                             | "application/json"
+        ["Accept": ""]                 | "application/json"
+        ["Accept": "*/*"]              | "application/json"
+    }
+
+    @Unroll("502 error if upstream responds with a media type we don't support")
+    def "502 error if upstream responds with a media type we don't support"() {
+        when:
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+                headers: ["X-PP-Groups": "unlimited;q=1.0", "X-PP-User": "unlimited-user"] + acceptHeader,
+                defaultHandler: watResponse
+        )
+
+        then:
+        messageChain.receivedResponse.code.equals("502")
+        //With the application/wat it's just an array of characters, so
+        messageChain.receivedResponse.body as ArrayList<Integer> == [76,79,76]  //LOL
 
         where:
         acceptHeader                   | expectedFormat
