@@ -130,13 +130,5 @@ public class HttpComponentRequestProcessorTest {
 
             verify(method).setEntity(any(InputStreamEntity.class));
         }
-
-        @Test
-        public void shouldGetPercentEncodedUri() throws Exception {
-            when(request.getParameterValues(eq("param1"))).thenReturn(new String[]{"hello+world"});
-            when(request.getParameterValues(eq("param2"))).thenReturn(new String[]{"hello%20world"});
-            URI uri = processor.getUri("www.proxy-openrepose.org");
-            assertEquals("www.proxy-openrepose.org?param1=hello%20world&param2=hello%20world", uri.toString());
-        }
     }
 }
