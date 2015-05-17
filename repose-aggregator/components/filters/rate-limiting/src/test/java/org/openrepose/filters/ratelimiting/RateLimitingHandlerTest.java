@@ -207,8 +207,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertTrue("Filter Director is set to add application/xml to the accept header",
                     director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
         }
-
-        @Test
         public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
             RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
@@ -220,26 +218,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         }
 
         @Test
-        public void shouldNotModifyValidResponse() throws Exception {
-            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
-            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
-            when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
-            when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
-            HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
-            CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
-            limitMap.put("252423958:46792755", cachedRateLimit);
-            when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
-            when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{}));
-            when(mockedResponse.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
-
-            final RateLimitingHandler rateLimitingHandler = handlerFactory.newHandler();
-            rateLimitingHandler.handleRequest(mockedRequest, null);
-            final FilterDirector filterDirector = rateLimitingHandler.handleResponse(mockedRequest, mockedResponse);
-
-            assertNotSame("Must not return an invalid FilterAction.", FilterAction.NOT_SET, filterDirector.getFilterAction());
-            assertEquals("Must return the received response status code", SC_UNSUPPORTED_RESPONSE_CODE, filterDirector.getResponseStatusCode());
-        }
-
     }
 
     @Ignore
