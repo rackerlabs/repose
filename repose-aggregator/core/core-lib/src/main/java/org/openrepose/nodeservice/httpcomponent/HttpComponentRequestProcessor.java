@@ -87,10 +87,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     public URI getUri(String target) throws URISyntaxException {
         URIBuilder builder = new URIBuilder(target);
         setRequestParameters(builder);
-        // URIBuilder encodes spaces into plus-sign '+' instead of unicode character '%20'
-        // URI's should be parameter encoded. Replacing all the '+' chars with '%20'
-        String parameterEncodedUri = builder.build().toString().replace("+", "%20");
-        return URI.create(parameterEncodedUri);
+        return builder.build();
     }
 
     /**
