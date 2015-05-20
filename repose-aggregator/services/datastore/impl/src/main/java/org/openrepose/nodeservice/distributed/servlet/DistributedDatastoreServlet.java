@@ -19,7 +19,10 @@
  */
 package org.openrepose.nodeservice.distributed.servlet;
 
+import org.apache.logging.log4j.ThreadContext;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.io.ObjectSerializer;
+import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.services.datastore.*;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.ClusterView;
@@ -97,7 +100,12 @@ public class DistributedDatastoreServlet extends HttpServlet {
             if ("PATCH".equals(request.getMethod())) {
                 doPatch(request, response);
             } else {
+                String traceGUID = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+                ThreadContext.put(TracingKey.TRACING_KEY, traceGUID);
+                LOG.trace("SERVICING DISTDATASTORE REQUEST");
                 super.service(request, response);
+                //Clear it!
+                ThreadContext.clearAll();
             }
         }
     }
