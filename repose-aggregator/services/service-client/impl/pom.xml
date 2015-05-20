@@ -93,6 +93,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- necessary to handle the Log4j thread context stuff -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>

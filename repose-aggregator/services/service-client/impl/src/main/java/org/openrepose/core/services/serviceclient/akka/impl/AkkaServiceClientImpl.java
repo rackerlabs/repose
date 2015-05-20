@@ -72,8 +72,10 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
                 .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
 
+
         tokenActorRef = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
+
                 return new AuthTokenFutureActor(serviceClient);
             }
         }).withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
@@ -127,6 +129,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
             @Override
             public Future<Object> call() throws Exception {
+
                 return ask(tokenActorRef, hashableRequest, timeout);
             }
         });

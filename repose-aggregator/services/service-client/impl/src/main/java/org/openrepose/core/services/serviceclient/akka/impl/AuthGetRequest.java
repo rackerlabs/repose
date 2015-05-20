@@ -23,7 +23,7 @@ import akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
 import java.util.Map;
 
-public class AuthGetRequest implements ConsistentHashable {
+public class AuthGetRequest extends ActorRequest implements ConsistentHashable {
 
     private String uri;
     private Map<String, String> headers;
