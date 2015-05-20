@@ -18,7 +18,6 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.ratelimiting
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import groovy.json.JsonSlurper
@@ -32,7 +31,6 @@ import spock.lang.Unroll
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-
 /*
  * Rate limiting tests ported over from python and JMeter
  *  update test to get limits response in json to parse response and calculate
@@ -114,6 +112,7 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.handlings.size() == 0
 
     }
+
 
     def "When a limit has not been reached, request should pass"() {
         given: "the rate-limit has not been reached"
@@ -510,7 +509,6 @@ class RateLimitingTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
 
-
     def "Origin response code should not change when using rate limiting filter"() {
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -522,8 +520,54 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
     }
 
-    // Helper methods
+    /*
+        REP-2181 Fix JSON support for rate limits get limits call
 
+    */
+    @Unroll("Check absolute and remaining limit for each limit group #limitgroup and #user")
+    def "Check absolute limit on json" () {
+        waitForLimitReset()
+        when: "the user send request to get rate limit with endpoint doesn't match with limit group"
+        MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+                headers: userHeaderDefault + limitgroup + acceptHeaderJson);
+        def jsonbody = mc1.receivedResponse.body
+        println jsonbody
+        def json = JsonSlurper.newInstance().parseText(jsonbody)
+        def listnode = json.limits.rate["limit"]
+        List limitlist = []
+        println listnode.size()
+        //for (int i=0; i < listnode.size(); i++) {
+        //    assert listnode[i].unit[0] == checklimit[i].unit
+        //   assert listnode[i].remaining[0] == checklimit[i].remaining
+        //    assert listnode[i].verb[0] == checklimit[i].verb
+        //    assert listnode[i].value[0] == checklimit[i].value
+        //}
+        listnode.each {limit ->
+            println limit.toString()
+            limitlist.add(limit[0])
+
+        }
+
+        then:
+        mc1.handlings.size() == 1
+        checkAbsoluteLimitJsonResponse(json, checklimit)
+
+        where:
+        limitgroup                          | user                          | checklimit
+        ["X-PP-Groups":"customer-limits"]   | ["X-PP-User": "customer"]     | customerlimit
+        ["X-PP-Groups":"higher-limits"]     | ["X-PP-User": "higher"]       | highlimit
+        ["X-PP-Groups":"reset-limits"]      | ["X-PP-User": "123"]          | resetlimit
+        ["X-PP-Groups":"unique"]            | ["X-PP-User": "unique"]       | uniquelimit
+        ["X-PP-Groups":"multiregex"]        | ["X-PP-User": "multi"]        | multiregexlimit
+        ["X-PP-Groups":"all-limits"]        | ["X-PP-User": "all"]          | alllimit
+        ["X-PP-Groups":"all-limits-small"]  | ["X-PP-User": "small"]        | allsmalllimit
+        ["X-PP-Groups":"multi-limits"]      | ["X-PP-User": "multiple"]     | multilimit
+        ["X-PP-Groups":"query-limits"]      | ["X-PP-User": "query"]        | querylimit
+        ["X-PP-Groups":"unlimited-limits"]  | ["X-PP-User": "unlimited"]    | unlimitedlimit
+        ["X-PP-Groups":"default"]           | ["X-PP-User": "default"]      | defaultlimit
+    }
+
+    // Helper methods
     private int parseAbsoluteFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
         factory.setNamespaceAware(true)
@@ -576,4 +620,89 @@ class RateLimitingTest extends ReposeValveTest {
                     headers: ["X-PP-User": user, "X-PP-Groups": group]);
         }
     }
+
+    private boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
+        //def json = JsonSlurper.newInstance().parseText(jsonbody)
+        boolean check = true
+        def listnode = json.limits.rate["limit"]
+        for (int i=0; i < listnode.size(); i++) {
+            if (listnode[i].unit[0] != checklimit[i].unit ||
+                listnode[i].remaining[0] != checklimit[i].remaining ||
+                listnode[i].verb[0] != checklimit[i].verb ||
+                listnode[i].value[0] != checklimit[i].value)
+            {
+                check = false
+            }
+        }
+        return check
+    }
+
+    // Describe the limits from limitgroups in the config
+    final static List <Map> customerlimit = [
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
+            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
+            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
+            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    ]
+
+    final static List <Map> highlimit = [
+            ['unit':'MINUTE', 'remaining':30, 'verb':'GET', 'value':30],
+            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50],
+            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100],
+            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
+    ]
+
+    final static List <Map> resetlimit = [
+            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
+            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+            ['unit':'SECOND', 'remaining':5, 'verb':'GET', 'value':5]
+    ]
+
+    final static List <Map> uniquelimit = [
+            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100],
+            ['unit':'MINUTE', 'remaining':30, 'verb':'GET', 'value':30],
+            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
+            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50]
+    ]
+
+    final static List <Map> multiregexlimit = [
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50],
+            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100]
+    ]
+
+    final static List <Map> alllimit = [
+            ['unit':'HOUR', 'remaining':50, 'verb':'ALL', 'value':50]
+    ]
+
+    final static List <Map> allsmalllimit = [
+            ['unit':'MINUTE', 'remaining':3, 'verb':'ALL', 'value':3]
+    ]
+    final static List <Map> multilimit = [
+            ['unit':'HOUR', 'remaining':1, 'verb':'GET', 'value':1],
+            ['unit':'HOUR', 'remaining':1, 'verb':'POST', 'value':1]
+    ]
+    final static List <Map> querylimit = [
+            ['unit':'HOUR', 'remaining':0, 'verb':'GET', 'value':1],
+    ]
+    final static List <Map> unlimitedlimit = [
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
+            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
+            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
+            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    ]
+    final static List <Map> defaultlimit = [
+            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
+            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
+            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
+            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
+            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    ]
 }
