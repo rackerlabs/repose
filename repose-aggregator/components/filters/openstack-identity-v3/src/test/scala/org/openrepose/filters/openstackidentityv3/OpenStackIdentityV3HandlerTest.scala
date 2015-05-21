@@ -316,6 +316,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
         val responseFilterDirector = identityV3Handler.handleResponse(mockServletRequest, MutableHttpServletResponse.wrap(mockServletRequest, mockServletResponse))
 
+        responseFilterDirector.getFilterAction should not be (FilterAction.NOT_SET)
         responseFilterDirector.getResponseStatusCode shouldBe parameterMap.get(resultStatus).get
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
           responseFilterDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString)) should contain(parameterMap.get(resultWwwAuthenticate).get)

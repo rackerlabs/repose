@@ -36,22 +36,33 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.OverLimitData;
+import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.core.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+
+import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
@@ -81,7 +92,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Before
         public void setup() {
-            List<String> headerNames = new ArrayList<String>();
+            final List<String> headerNames = new ArrayList<>();
             headerNames.add(PowerApiHeader.GROUPS.toString());
             headerNames.add(PowerApiHeader.USER.toString());
             headerNames.add("Accept");
@@ -93,7 +104,12 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             defaultConfig.setValue(10);
             defaultConfig.setUnit(org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE);
 
-            when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return Collections.enumeration(headerNames);
+                }
+            });
 
             when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -123,13 +139,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldPassValidRequests() {
-            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-                }
-            });
-
-            when(mockedRequest.getMethod()).thenReturn("GET");
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
             when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
@@ -146,13 +155,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldProcessResponseWhenAbsoluteLimitsIntegrationIsEnabled() {
-            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-                }
-            });
-
-            when(mockedRequest.getMethod()).thenReturn("GET");
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
             when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
@@ -165,17 +167,10 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldChangeAcceptTypeToXmlWhenJsonAbsoluteLimitsIsRequested() {
-            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-                }
-            });
-
-            when(mockedRequest.getMethod()).thenReturn("GET");
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
-            when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_XML.toString()));
+            when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_XML.toString());
+            when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_XML.toString()));
 
             final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
@@ -187,16 +182,9 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldRejectDescribeLimitsCallwith406() {
-            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-                }
-            });
-
-            when(mockedRequest.getMethod()).thenReturn("GET");
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-            when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
+            when(mockedRequest.getHeader("Accept")).thenReturn("leqz");
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
 
             final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
@@ -208,17 +196,10 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         @Test
         public void shouldDescribeLimitsCallWithEmptyAcceptType() {
             Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
-            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-                }
-            });
-
-            when(mockedRequest.getMethod()).thenReturn("GET");
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+            when(mockedRequest.getHeader("Accept")).thenReturn("");
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
-            when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
 
             final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
@@ -226,6 +207,39 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertTrue("Filter Director is set to add application/xml to the accept header",
                     director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
         }
+
+        @Test
+        public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
+            RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
+            RateLimitingHandler handler = new RateLimitingHandler(helper, eventService, true, Optional.<Pattern>of(Pattern.compile(".*")), false, 1);
+            OverLimitException exception = new OverLimitException("testmsg", "127.0.0.1;q=0.1", new Date(), 10, "10");
+            doThrow(exception).when(helper).trackLimits(mockedRequest, 1);
+            handler.handleRequest(mockedRequest, mockedResponse);
+            verify(eventService).newEvent(eq(RateLimitFilterEvent.OVER_LIMIT), any(OverLimitData.class));
+        }
+
+        @Test
+        public void shouldNotModifyValidResponse() throws Exception {
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
+            when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
+            when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
+            HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+            CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
+            limitMap.put("252423958:46792755", cachedRateLimit);
+            when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
+            when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{}));
+            when(mockedResponse.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
+
+            final RateLimitingHandler rateLimitingHandler = handlerFactory.newHandler();
+            rateLimitingHandler.handleRequest(mockedRequest, null);
+            final FilterDirector filterDirector = rateLimitingHandler.handleResponse(mockedRequest, mockedResponse);
+
+            assertNotSame("Must not return an invalid FilterAction.", FilterAction.NOT_SET, filterDirector.getFilterAction());
+            assertEquals("Must return the received response status code", SC_UNSUPPORTED_RESPONSE_CODE, filterDirector.getResponseStatusCode());
+        }
+
     }
 
     @Ignore
@@ -235,15 +249,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         protected HttpServletRequest mockedRequest;
         protected ReadableHttpServletResponse mockedResponse;
         protected DistributedDatastore datastore;
+        protected EventService eventService;
 
         @Before
         public void beforeAny() throws Exception {
             datastore = mock(DistributedDatastore.class);
+            eventService = mock(EventService.class);
             final DatastoreService service = mock(DatastoreService.class);
 
             when(service.getDistributedDatastore()).thenReturn(datastore);
 
-            handlerFactory = new RateLimitingHandlerFactory(service);
+            handlerFactory = new RateLimitingHandlerFactory(service, eventService);
             handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
 
             mockedRequest = mock(HttpServletRequest.class);

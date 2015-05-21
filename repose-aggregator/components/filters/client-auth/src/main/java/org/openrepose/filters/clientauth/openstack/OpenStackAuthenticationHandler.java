@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.clientauth.openstack;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.common.auth.AuthGroup;
 import org.openrepose.common.auth.AuthGroups;
 import org.openrepose.common.auth.AuthServiceException;
@@ -26,15 +27,19 @@ import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
 import org.openrepose.common.auth.openstack.OpenStackToken;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.filters.clientauth.common.*;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -44,6 +49,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
     private static final String WWW_AUTH_PREFIX = "Keystone uri=";
+    private static final String DELEGATED = "Delegated";
     private final String wwwAuthHeaderContents;
     private final AuthenticationService authenticationService;
     private final List<String> serviceAdminRoles;
@@ -151,7 +157,49 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     @Override
     public FilterDirector processResponse(ReadableHttpServletResponse response) {
-        return new OpenStackResponseHandler(response, wwwAuthHeaderContents).handle();
+        LOG.debug("Handling service response in OpenStack auth filter.");
+        final int responseStatus = response.getStatus();
+        LOG.debug("Incoming response code is " + responseStatus);
+        final FilterDirector myDirector = new FilterDirectorImpl();
+        myDirector.setResponseStatusCode(responseStatus);
+        myDirector.setFilterAction(FilterAction.PASS);
+
+        /// The WWW Authenticate header can be used to communicate to the client
+        // (since we are a proxy) how to correctly authenticate itself
+        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
+
+        switch (response.getStatus()) {
+            // NOTE: We should only mutate the WWW-Authenticate header on a
+            // 401 (unauthorized) or 403 (forbidden) response from the origin service
+            case HttpServletResponse.SC_UNAUTHORIZED:
+            case HttpServletResponse.SC_FORBIDDEN:
+                // If in the case that the origin service supports delegated authentication
+                // we should then communicate to the client how to authenticate with us
+                if (!StringUtils.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
+                    myDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
+                } else {
+                    // In the case where authentication has failed and we did not receive
+                    // a delegated WWW-Authenticate header, this means that our own authentication
+                    // with the origin service has failed and must then be communicated as
+                    // a 500 (internal server error) to the client
+                    myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+                break;
+            case HttpServletResponse.SC_NOT_IMPLEMENTED:
+                if (!StringUtils.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
+                    myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
+                } else {
+                    myDirector.setResponseStatusCode(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        LOG.debug("Outgoing response code is " + myDirector.getResponseStatusCode());
+        return myDirector;
     }
 
     @Override

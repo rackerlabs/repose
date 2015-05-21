@@ -52,6 +52,7 @@ class AddHeaderHandler(config: AddHeadersConfig) extends AbstractFilterLogicHand
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.responseHeaderManager()
+    filterDirector.setResponseStatusCode(response.getStatus)
     filterDirector.setFilterAction(FilterAction.PASS)
 
     Option(config.getResponse) foreach { httpMessage =>

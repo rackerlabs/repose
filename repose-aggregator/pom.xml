@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>repose</artifactId>
-        <version>7.1.0.3-SNAPSHOT</version>
+        <version>7.1.2.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Build Support Profiles</name>
@@ -632,7 +632,7 @@
                                         http.auth.basic '${veracode.username}', '${veracode.password}'
 
                                         println "Submitting /api/4.0/uploadfile.do"
-                                        http.request(POST) {req ->
+                                        http.request(POST) {req -&gt;
                                             uri.path='/api/4.0/uploadfile.do'
                                             requestContentType: "multipart/form-data"
                                             MultipartEntity multiPartContent = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
