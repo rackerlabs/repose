@@ -275,7 +275,7 @@
                                                 <filemode>444</filemode>
                                             </mapper>
                                             <src>
-                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                                ${basedir}/../../configs/docs/DEPENDENCIES.txt
                                             </src>
                                         </data>
                                     </dataSet>
