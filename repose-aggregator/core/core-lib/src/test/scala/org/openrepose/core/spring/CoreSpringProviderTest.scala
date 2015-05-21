@@ -20,19 +20,22 @@
 package org.openrepose.core.spring
 
 import javax.servlet.Filter
-
 import org.junit.runner.RunWith
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.ApplicationContext
+import com.anycompany.spring.test.foo.TestFooBean
+import com.anycompany.spring.test.TestBean
 
 @RunWith(classOf[JUnitRunner])
 class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundlerHelper {
-
+  
+  System.setProperty("extendedServicePackageName", "com.anycompany.spring.test")
   val coreSpringProvider = CoreSpringProvider.getInstance()
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
+  
 
   describe("The Core Spring Provider") {
     it("is a singleton as the primary interface") {
@@ -55,6 +58,12 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       derpBean shouldNot be(null)
       herpBean shouldNot be(null)
       fooBean shouldNot be(null)
+      
+      val testBean = coreContext.getBean[TestBean](classOf[TestBean])
+      val testFooBean = coreContext.getBean[TestFooBean](classOf[TestFooBean])
+      
+      testBean shouldNot be(null)
+      testFooBean shouldNot be(null)
 
     }
     it("has a meaningful name for the core Context") {

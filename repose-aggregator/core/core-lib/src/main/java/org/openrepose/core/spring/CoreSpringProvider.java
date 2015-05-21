@@ -155,9 +155,9 @@ public class CoreSpringProvider {
             
             final String extendedServicePackage = System.getProperty(extendedServicePackageNameKey);
             
-            if(!Strings.isNullOrEmpty(extendedServicePackage)){
-            	LOG.trace("extended services package name for scan = {}",extendedServicePackage);
-            	coreContext.scan(extendedServicePackage);
+            if (!Strings.isNullOrEmpty(extendedServicePackage)) {
+                coreContext.scan(extendedServicePackage);
+                LOG.trace("extended services 'package' name for scan = {}", extendedServicePackage);
             }
 
             //Have to set up the JMX stuff by hand
