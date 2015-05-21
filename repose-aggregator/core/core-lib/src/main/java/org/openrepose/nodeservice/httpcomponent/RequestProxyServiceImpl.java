@@ -53,6 +53,7 @@ import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 
@@ -199,7 +200,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
 
         //Tack on the tracing ID for requests via the dist datastore
-        String traceGUID = ThreadContext.get(TracingKey.TRACING_KEY);
+        String traceGUID = MDC.get(TracingKey.TRACING_KEY);
         base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
     }
 

@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.distributed.servlet;
 
-import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.core.logging.TracingKey;
@@ -30,6 +29,7 @@ import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -98,7 +98,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (isRequestValid(request, response)) {
             String traceGUID = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
-            ThreadContext.put(TracingKey.TRACING_KEY, traceGUID);
+            MDC.put(TracingKey.TRACING_KEY, traceGUID);
             LOG.trace("SERVICING DISTDATASTORE REQUEST");
 
             if ("PATCH".equals(request.getMethod())) {
@@ -106,7 +106,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } else {
                 super.service(request, response);
             }
-            ThreadContext.clearAll();
+            MDC.clear();
         }
     }
 

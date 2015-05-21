@@ -53,6 +53,7 @@ import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -353,8 +354,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             traceGUID = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
         }
 
-        ThreadContext.put(TracingKey.TRACING_KEY, traceGUID);
-
+        MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
             new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
@@ -398,7 +398,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
         //Clear out the tracing header, now that we're done with this request
-        ThreadContext.clearAll();
+        MDC.clear();
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
