@@ -97,22 +97,21 @@ public class DistributedDatastoreServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (isRequestValid(request, response)) {
+            String traceGUID = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+            ThreadContext.put(TracingKey.TRACING_KEY, traceGUID);
+            LOG.trace("SERVICING DISTDATASTORE REQUEST");
+
             if ("PATCH".equals(request.getMethod())) {
                 doPatch(request, response);
             } else {
-                String traceGUID = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
-                ThreadContext.put(TracingKey.TRACING_KEY, traceGUID);
-                LOG.trace("SERVICING DISTDATASTORE REQUEST");
                 super.service(request, response);
-                //Clear it!
-                ThreadContext.clearAll();
             }
+            ThreadContext.clearAll();
         }
     }
 
     @Override
-    protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
-    {
+    protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
