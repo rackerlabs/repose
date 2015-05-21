@@ -36,22 +36,32 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.OverLimitData;
+import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.core.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+
+import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
 import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
@@ -199,6 +209,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         }
 
         @Test
+        public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
+            RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
+            RateLimitingHandler handler = new RateLimitingHandler(helper, eventService, true, Optional.<Pattern>of(Pattern.compile(".*")), false, 1);
+            OverLimitException exception = new OverLimitException("testmsg", "127.0.0.1;q=0.1", new Date(), 10, "10");
+            doThrow(exception).when(helper).trackLimits(mockedRequest, 1);
+            handler.handleRequest(mockedRequest, mockedResponse);
+            verify(eventService).newEvent(eq(RateLimitFilterEvent.OVER_LIMIT), any(OverLimitData.class));
+        }
+
+        @Test
         public void shouldNotModifyValidResponse() throws Exception {
             when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
@@ -228,15 +249,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         protected HttpServletRequest mockedRequest;
         protected ReadableHttpServletResponse mockedResponse;
         protected DistributedDatastore datastore;
+        protected EventService eventService;
 
         @Before
         public void beforeAny() throws Exception {
             datastore = mock(DistributedDatastore.class);
+            eventService = mock(EventService.class);
             final DatastoreService service = mock(DatastoreService.class);
 
             when(service.getDistributedDatastore()).thenReturn(datastore);
 
-            handlerFactory = new RateLimitingHandlerFactory(service);
+            handlerFactory = new RateLimitingHandlerFactory(service, eventService);
             handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
 
             mockedRequest = mock(HttpServletRequest.class);

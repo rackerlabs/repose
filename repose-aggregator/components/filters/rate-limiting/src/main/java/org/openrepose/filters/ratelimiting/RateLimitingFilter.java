@@ -23,12 +23,14 @@ import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.DatastoreService;
+import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -41,13 +43,16 @@ public class RateLimitingFilter implements Filter {
     private final DatastoreService datastoreService;
     private String config;
     private RateLimitingHandlerFactory handlerFactory;
+    private EventService eventService;
 
     @Inject
     public RateLimitingFilter(
             DatastoreService datastoreService,
-            ConfigurationService configurationService) {
+            ConfigurationService configurationService,
+            EventService eventService) {
         this.datastoreService = datastoreService;
         this.configurationService = configurationService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class RateLimitingFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         filterConfig.getFilterName();
-        handlerFactory = new RateLimitingHandlerFactory(datastoreService);
+        handlerFactory = new RateLimitingHandlerFactory(datastoreService, eventService);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/rate-limiting-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, RateLimitingConfiguration.class);
     }
