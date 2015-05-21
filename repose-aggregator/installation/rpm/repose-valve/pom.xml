@@ -281,7 +281,7 @@
                                         </source>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                                ${basedir}/../../configs/docs/DEPENDENCIES.txt
                                             </location>
                                         </source>
                                     </sources>

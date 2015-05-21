@@ -146,7 +146,7 @@
                                         </source>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                                ${basedir}/../../configs/docs/DEPENDENCIES-EXTENSIONS-FILTER-BUNDLE.txt
                                             </location>
                                         </source>
                                     </sources>

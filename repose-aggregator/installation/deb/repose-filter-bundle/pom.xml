@@ -153,7 +153,7 @@
                                                 <filemode>444</filemode>
                                             </mapper>
                                             <src>
-                                                ${basedir}/../../../../DEPENDENCIES.txt
+                                                ${basedir}/../../configs/docs/DEPENDENCIES-FILTER-BUNDLE.txt
                                             </src>
                                         </data>
                                     </dataSet>

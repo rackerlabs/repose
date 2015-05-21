@@ -22,14 +22,12 @@ GROUP_IDS=(
     org.apache.tomcat.embed
     xerces
     com.rackspace.papi.components.api-checker
-    cglib
     org.rackspace
     net.sf.ehcache
     org.glassfish
     org.glassfish.main.extras
     org.codehaus.groovy
     com.google.guava
-    org.hamcrest
     com.github.jknack
     org.apache.httpcomponents
     com.fasterxml.jackson.core
@@ -50,16 +48,12 @@ GROUP_IDS=(
     junit
     org.linkedin
     org.apache.logging.log4j
-    org.mockito
-    com.mockrunner
     net.sourceforge.pjl-comp-filter
-    org.powermock
     org.slf4j
     net.sf.saxon
     org.scala-lang
     org.scalatest
     com.github.scopt
-    org.spockframework
     io.spray
     org.springframework
     com.typesafe.akka
@@ -67,9 +61,27 @@ GROUP_IDS=(
     com.typesafe.play
     com.typesafe.scala-logging
     xalan
-    com.xmlcalabash
-    xmlunit
     com.yammer.metrics
+)
+
+# All of the known and test dependencies.
+TEST_IDS=(
+    xmlunit
+    org.spockframework
+    org.powermock
+    org.mockito
+    com.mockrunner
+    org.hamcrest
+    org.jetbrains
+    junit
+    org.scalatest
+    cglib
+    javax.mail
+    org.glassfish
+    javax.transaction
+    javax
+    org.glassfish.jersey.core
+    com.xmlcalabash
 )
 
 echo ""
@@ -85,6 +97,9 @@ done
 EXCLUDE=" -e ':test$'"
 for groupId in ${GROUP_IDS[*]} ; do
     EXCLUDE="$EXCLUDE -e ${groupId}:"
+done
+for testId in ${TEST_IDS[*]} ; do
+    EXCLUDE="$EXCLUDE -e ${testId}:"
 done
 
 echo ""
