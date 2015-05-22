@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.ratelimiting
+
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
@@ -57,8 +58,9 @@ class CheckRateLimitWConfig extends ReposeValveTest {
     REP-2181 Fix JSON support for rate limits get limits call
 
 */
+
     @Unroll("Check absolute and remaining limit for each limit group #limitgroup and #user")
-    def "Check absolute limit on json" () {
+    def "Check absolute limit on json"() {
         when: "the user send request to get rate limit with endpoint doesn't match with limit group"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + limitgroup + acceptHeaderJson);
@@ -74,7 +76,7 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         //    assert listnode[i].verb[0] == checklimit[i].verb
         //    assert listnode[i].value[0] == checklimit[i].value
         //}
-        listnode.each {limit ->
+        listnode.each { limit ->
             println limit.toString()
             limitlist.add(limit[0])
 
@@ -85,18 +87,18 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         checkAbsoluteLimitJsonResponse(json, checklimit)
 
         where:
-        limitgroup                          | user                              | checklimit
-        ["X-PP-Groups":"customer"]          | ["X-PP-User": "customer"]         | customerlimit
-        ["X-PP-Groups":"higher"]            | ["X-PP-User": "test"]             | highlimit
-        ["X-PP-Groups":"reset-limits"]      | ["X-PP-User": "reset123"]         | resetlimit
-        ["X-PP-Groups":"unique"]            | ["X-PP-User": "user1"]            | uniquelimit
-        ["X-PP-Groups":"multiregex"]        | ["X-PP-User": "multiregex"]       | multiregexlimit
-        ["X-PP-Groups":"all-limits"]        | ["X-PP-User": "all"]              | alllimit
-        ["X-PP-Groups":"all-limits-small"]  | ["X-PP-User": "allsmall"]         | allsmalllimit
-        ["X-PP-Groups":"multi-limits"]      | ["X-PP-User": "multilimits"]      | multilimit
-        ["X-PP-Groups":"query-limits"]      | ["X-PP-User": "querylimits"]      | querylimit
-        ["X-PP-Groups":"unlimited"]         | ["X-PP-User": "unlimited"]        | unlimitedlimit
-        ["X-PP-Groups":"user"]              | ["X-PP-User": "default"]          | defaultlimit
+        limitgroup                          | user                         | checklimit
+        ["X-PP-Groups": "customer"]         | ["X-PP-User": "customer"]    | customerlimit
+        ["X-PP-Groups": "higher"]           | ["X-PP-User": "test"]        | highlimit
+        ["X-PP-Groups": "reset-limits"]     | ["X-PP-User": "reset123"]    | resetlimit
+        ["X-PP-Groups": "unique"]           | ["X-PP-User": "user1"]       | uniquelimit
+        ["X-PP-Groups": "multiregex"]       | ["X-PP-User": "multiregex"]  | multiregexlimit
+        ["X-PP-Groups": "all-limits"]       | ["X-PP-User": "all"]         | alllimit
+        ["X-PP-Groups": "all-limits-small"] | ["X-PP-User": "allsmall"]    | allsmalllimit
+        ["X-PP-Groups": "multi-limits"]     | ["X-PP-User": "multilimits"] | multilimit
+        ["X-PP-Groups": "query-limits"]     | ["X-PP-User": "querylimits"] | querylimit
+        ["X-PP-Groups": "unlimited"]        | ["X-PP-User": "unlimited"]   | unlimitedlimit
+        ["X-PP-Groups": "user"]             | ["X-PP-User": "default"]     | defaultlimit
     }
 
     private int parseAbsoluteLimitFromJSON(String body, int limit) {
@@ -128,12 +130,11 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         //def json = JsonSlurper.newInstance().parseText(jsonbody)
         boolean check = true
         def listnode = json.limits.rate["limit"]
-        for (int i=0; i < listnode.size(); i++) {
+        for (int i = 0; i < listnode.size(); i++) {
             if (listnode[i].unit[0] != checklimit[i].unit ||
                     listnode[i].remaining[0] != checklimit[i].remaining ||
                     listnode[i].verb[0] != checklimit[i].verb ||
-                    listnode[i].value[0] != checklimit[i].value)
-            {
+                    listnode[i].value[0] != checklimit[i].value) {
                 check = false
             }
         }
@@ -141,72 +142,72 @@ class CheckRateLimitWConfig extends ReposeValveTest {
     }
 
     // Describe the limits from limitgroups in the config
-    final static List <Map> customerlimit = [
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
-            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
-            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
-            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    final static List<Map> customerlimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
+            ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
+            ['unit': 'HOUR', 'remaining': 10, 'verb': 'POST', 'value': 10],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
     ]
 
-    final static List <Map> highlimit = [
-            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100],
-            ['unit':'MINUTE', 'remaining':30, 'verb':'GET', 'value':30],
-            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
-            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50]
+    final static List<Map> highlimit = [
+            ['unit': 'HOUR', 'remaining': 100, 'verb': 'POST', 'value': 100],
+            ['unit': 'MINUTE', 'remaining': 30, 'verb': 'GET', 'value': 30],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'PUT', 'value': 50],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
-    final static List <Map> resetlimit = [
-            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
-            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
-            ['unit':'SECOND', 'remaining':5, 'verb':'GET', 'value':5]
+    final static List<Map> resetlimit = [
+            ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
+            ['unit': 'SECOND', 'remaining': 5, 'verb': 'GET', 'value': 5]
     ]
 
-    final static List <Map> uniquelimit = [
-            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100],
-            ['unit':'MINUTE', 'remaining':30, 'verb':'GET', 'value':30],
-            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
-            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50]
+    final static List<Map> uniquelimit = [
+            ['unit': 'HOUR', 'remaining': 100, 'verb': 'POST', 'value': 100],
+            ['unit': 'MINUTE', 'remaining': 30, 'verb': 'GET', 'value': 30],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'PUT', 'value': 50],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
-    final static List <Map> multiregexlimit = [
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'DAY', 'remaining':50, 'verb':'PUT', 'value':50],
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'DAY', 'remaining':50, 'verb':'DELETE', 'value':50],
-            ['unit':'HOUR', 'remaining':100, 'verb':'POST', 'value':100]
+    final static List<Map> multiregexlimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'PUT', 'value': 50],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50],
+            ['unit': 'HOUR', 'remaining': 100, 'verb': 'POST', 'value': 100]
     ]
 
-    final static List <Map> alllimit = [
-            ['unit':'HOUR', 'remaining':50, 'verb':'ALL', 'value':50]
+    final static List<Map> alllimit = [
+            ['unit': 'HOUR', 'remaining': 50, 'verb': 'ALL', 'value': 50]
     ]
 
-    final static List <Map> allsmalllimit = [
-            ['unit':'MINUTE', 'remaining':3, 'verb':'ALL', 'value':3]
+    final static List<Map> allsmalllimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'ALL', 'value': 3]
     ]
-    final static List <Map> multilimit = [
-            ['unit':'HOUR', 'remaining':1, 'verb':'GET', 'value':1],
-            ['unit':'HOUR', 'remaining':1, 'verb':'POST', 'value':1]
+    final static List<Map> multilimit = [
+            ['unit': 'HOUR', 'remaining': 1, 'verb': 'GET', 'value': 1],
+            ['unit': 'HOUR', 'remaining': 1, 'verb': 'POST', 'value': 1]
     ]
-    final static List <Map> querylimit = [
-            ['unit':'HOUR', 'remaining':0, 'verb':'GET', 'value':1],
+    final static List<Map> querylimit = [
+            ['unit': 'HOUR', 'remaining': 0, 'verb': 'GET', 'value': 1],
     ]
-    final static List <Map> unlimitedlimit = [
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
-            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
-            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
-            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    final static List<Map> unlimitedlimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
+            ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
+            ['unit': 'HOUR', 'remaining': 10, 'verb': 'POST', 'value': 10],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
     ]
-    final static List <Map> defaultlimit = [
-            ['unit':'MINUTE', 'remaining':3, 'verb':'GET', 'value':3],
-            ['unit':'DAY', 'remaining':5, 'verb':'DELETE', 'value':5],
-            ['unit':'MINUTE', 'remaining':1000, 'verb':'GET', 'value':1000],
-            ['unit':'HOUR', 'remaining':10, 'verb':'POST', 'value':10],
-            ['unit':'DAY', 'remaining':5, 'verb':'PUT', 'value':5],
+    final static List<Map> defaultlimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
+            ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
+            ['unit': 'HOUR', 'remaining': 10, 'verb': 'POST', 'value': 10],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
     ]
 }
 
