@@ -47,6 +47,7 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/statemachine", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/statemachine/common", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -60,12 +61,17 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
+
+    def setup() {
+        reposeLogSearch.cleanLog()
+    }
+
     /*
         When enable-api-coverage is set to true, enable-rax-role is set to true,
         certain user roles will allow to access certain methods according to config in the wadl.
         i.e. 'GET' method only be available to access by a:observer and a:admin role
+        Also with enable-api-coverage set to true there should be paths logged to the api-coverage-logger.
     */
-
     @Unroll("enableapicoverage:headers=#headers,expected S0_a_admin:#S0_a_admin_count, SA:#SA_count")
     def "when enable-api-coverage is true, validate count at state level"() {
         given:
@@ -84,15 +90,12 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         getBeanObj.each {
             //println it.toString()
             def strIt = it.toString()
-            if (strIt.contains(s0str)) {
-                S0 = repose.jmx.getMBeanAttribute(it.toString(), "Count")
-            }
-
+            if (strIt.contains(s0str))
+                S0 = repose.jmx.getMBeanAttribute(strIt, "Count")
             if (strIt.contains(sastr))
-                SA = repose.jmx.getMBeanAttribute(it.toString(), "Count")
-
-            if (it.toString().contains(s0adminstr))
-                S0_a_admin = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+                SA = repose.jmx.getMBeanAttribute(strIt, "Count")
+            if (strIt.contains(s0adminstr))
+                S0_a_admin = repose.jmx.getMBeanAttribute(strIt, "Count")
         }
 
         then:
@@ -100,38 +103,40 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         S0 == s0_count
         SA == SA_count
         S0_a_admin == S0_a_admin_count
+        if(steps != null) {
+            reposeLogSearch.searchByString(steps).size() == 1
+        }
 
         where:
-        method   | headers                                             | responseCode | SA_count | S0_a_admin_count
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"        | 1        | 0
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"        | 2        | 0
-        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | 3        | 1
-        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | 4        | 2
-        "GET"    | ["x-roles": "raxRolesEnabled"]                      | "404"        | 4        | 2
-        "GET"    | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"        | 4        | 2
-        "GET"    | null                                                | "403"        | 4        | 2
-        "POST"   | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | 5        | 3
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | 6        | 4
-        "POST"   | ["x-roles": "raxRolesEnabled"]                      | "404"        | 6        | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:observer"]          | "405"        | 6        | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | 6        | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:observer"]   | "405"        | 6        | 4
-        "POST"   | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"        | 6        | 4
-        "POST"   | null                                                | "403"        | 6        | 4//this will not effect config change
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | 7        | 5
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin, a:bar"]      | "200"        | 8        | 6
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | 9        | 7
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:admin"] | "200"        | 10       | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | 10       | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"        | 10       | 8
-        "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "404"        | 10       | 8
-        "DELETE" | null                                                | "403"        | 10       | 8//this will not effect config change
+        method   | headers                                             | responseCode | steps                                                                                             | SA_count | S0_a_admin_count
+        "GET"    | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e4_a_observer\",\"SA\"\\]\\}" | 1        | 0
+        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e4_a_observer\",\"SA\"\\]\\}" | 2        | 0
+        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e4_a_observer\",\"SA\"\\]\\}"       | 3        | 1
+        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e4_a_observer\",\"SA\"\\]\\}"       | 4        | 2
+        "GET"    | ["x-roles": "raxRolesEnabled"]                      | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 4        | 2
+        "GET"    | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 4        | 2
+        "GET"    | null                                                | "403"        | null                                                                                              | 4        | 2
+        "POST"   | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e8_a_admin\",\"SA\"\\]\\}"          | 5        | 3
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e8_a_admin\",\"SA\"\\]\\}"          | 6        | 4
+        "POST"   | ["x-roles": "raxRolesEnabled"]                      | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 6        | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:observer"]          | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 6        | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 6        | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:observer"]   | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 6        | 4
+        "POST"   | ["x-roles": "raxRolesEnabled, a:creator"]           | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 6        | 4
+        "POST"   | null                                                | "403"        | null                                                                                              | 6        | 4//this will not effect config change
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e11_a_admin\",\"SA\"\\]\\}"         | 7        | 5
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin, a:bar"]      | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e11_a_admin\",\"SA\"\\]\\}"         | 8        | 6
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e11_a_admin\",\"SA\"\\]\\}"         | 9        | 7
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:admin"] | "200"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e11_a_admin\",\"SA\"\\]\\}"         | 10       | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "DELETE" | null                                                | "403"        | null                                                                                              | 10       | 8//this will not effect config change
         // PUT method is not available in wadl should expect to get 405 to whoever rax-role
-        "PUT" | ["x-roles": "raxRolesEnabled"] | "404" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar"] | "404" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"] | "405" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"] | "404" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"] | "405" | 10 | 9
+        "PUT" | ["x-roles": "raxRolesEnabled"]                         | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT" | ["x-roles": "raxRolesEnabled, a:bar"]                  | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]      | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 10       | 8
+        "PUT" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]       | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"]                | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 9
     }
-
 }
