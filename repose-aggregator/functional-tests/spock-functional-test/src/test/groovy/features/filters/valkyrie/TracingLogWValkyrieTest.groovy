@@ -139,6 +139,7 @@ class TracingLogWValkyrieTest extends ReposeValveTest {
         "PATCH"  | randomTenant()             | "520707" | "blah"          | "403"
 
     }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
