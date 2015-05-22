@@ -128,6 +128,7 @@ public class ValidatorConfigurator {
 
         if (validatorItem.isEnableApiCoverage()) {
             handlers.add(new InstrumentedHandler());
+            handlers.add(new ApiCoverageHandler());
         }
 
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
