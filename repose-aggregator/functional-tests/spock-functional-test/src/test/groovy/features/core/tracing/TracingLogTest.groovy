@@ -24,8 +24,6 @@ import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
-import spock.lang.Unroll
 
 /**
  * Specific tests for admin token
@@ -85,6 +83,8 @@ class TracingLogTest extends ReposeValveTest {
                         'X-Auth-Token': fakeIdentityService.client_token
                 ]
         )
+        // get tracing header from request
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
 
         then: "Make sure there are appropriate log messages with matching GUIDs"
         mc.receivedResponse.code == "200"
@@ -98,4 +98,34 @@ class TracingLogTest extends ReposeValveTest {
         actorLines.size() == 3
     }
 
+    def "Making a request through the akka service client tracing header should same as log"() {
+
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
+        // get tracing header from request
+        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        println requestid
+
+        then: "Make sure there are appropriate log messages with matching GUIDs"
+        mc.receivedResponse.code == "200"
+
+        // should be able to find the same tracing header from log
+        reposeLogSearch.searchByString("GUID:$requestid -.*AuthTokenFutureActor request!").size() > 0
+    }
 }
