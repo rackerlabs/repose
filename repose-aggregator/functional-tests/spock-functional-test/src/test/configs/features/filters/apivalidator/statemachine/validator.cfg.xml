@@ -6,15 +6,6 @@
                enable-rax-roles="true"
                mask-rax-roles-403="true"
                enable-api-coverage="true"
-               dot-output="output.dot">
-        <application xmlns:rax="http://docs.rackspace.com/api" xmlns="http://wadl.dev.java.net/2009/02">
-            <resources base="http://localhost:${targetPort}">
-                <resource path="/a">
-                    <method name="GET" rax:roles="a:observer a:admin"/>
-                    <method name="POST" rax:roles="a:admin"/>
-                    <method name="DELETE" rax:roles="a:admin"/>
-                </resource>
-            </resources>
-        </application>
-    </validator>
+               dot-output="output.dot"
+               wadl="statemachine.checker"/>
 </validators>
