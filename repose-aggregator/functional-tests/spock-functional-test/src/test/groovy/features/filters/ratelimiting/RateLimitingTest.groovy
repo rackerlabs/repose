@@ -20,6 +20,7 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
+import framework.category.Bug
 import framework.category.Slow
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
@@ -521,6 +522,25 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("302")
         messageChain.handlings.size() == 1
     }
+    //issue REP-2233
+    @Category(Bug.class)
+    def "Check limit group"() {
+        when: "the user send their request"
+        waitForLimitReset(["x-pp-group": "all-limits-small"])
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+                headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'] + acceptHeaderJson)
+        def jsonbody = messageChain.receivedResponse.body
+        println jsonbody
+        def json = JsonSlurper.newInstance().parseText(jsonbody)
+        def listnode = json.limits.rate["limit"]
+        List limitlist = []
+        println listnode.size()
+
+        then: "the response code does not change"
+        messageChain.receivedResponse.code.equals("200")
+        messageChain.handlings.size() == 1
+        checkAbsoluteLimitJsonResponse(json, allsmalllimit)
+    }
 
     // Helper methods
     private int parseAbsoluteFromXML(String s, int limit) {
@@ -575,4 +595,23 @@ class RateLimitingTest extends ReposeValveTest {
                     headers: ["X-PP-User": user, "X-PP-Groups": group]);
         }
     }
+
+    private boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
+        //def json = JsonSlurper.newInstance().parseText(jsonbody)
+        boolean check = true
+        def listnode = json.limits.rate["limit"]
+        for (int i = 0; i < listnode.size(); i++) {
+            if (listnode[i].unit[0] != checklimit[i].unit ||
+                    listnode[i].remaining[0] != checklimit[i].remaining ||
+                    listnode[i].verb[0] != checklimit[i].verb ||
+                    listnode[i].value[0] != checklimit[i].value) {
+                check = false
+            }
+        }
+        return check
+    }
+
+    final static List<Map> allsmalllimit = [
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'ALL', 'value': 3]
+    ]
 }
