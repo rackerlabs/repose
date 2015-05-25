@@ -19,8 +19,10 @@
  */
 package org.openrepose.core.spring;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.MutablePropertyValues;
@@ -148,6 +150,15 @@ public class CoreSpringProvider {
             }
 
             coreContext.scan(coreScanPackage);
+            
+            final String extendedServicePackageNameKey = conf.getString("extendedServicePackageNameKey");
+            
+            final String extendedServicePackage = System.getProperty(extendedServicePackageNameKey);
+            
+            if (!Strings.isNullOrEmpty(extendedServicePackage)) {
+                coreContext.scan(extendedServicePackage);
+                LOG.trace("extended services 'package' name for scan = {}", extendedServicePackage);
+            }
 
             //Have to set up the JMX stuff by hand
 
