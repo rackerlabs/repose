@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,11 +31,10 @@ import com.anycompany.spring.test.TestBean
 
 @RunWith(classOf[JUnitRunner])
 class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundlerHelper {
-  
-  System.setProperty("extendedServicePackageName", "com.anycompany.spring.test")
+
   val coreSpringProvider = CoreSpringProvider.getInstance()
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
-  
+
 
   describe("The Core Spring Provider") {
     it("is a singleton as the primary interface") {
@@ -58,10 +57,11 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       derpBean shouldNot be(null)
       herpBean shouldNot be(null)
       fooBean shouldNot be(null)
-      
+
+      //Also assert that the custom package path beans got scanned
       val testBean = coreContext.getBean[TestBean](classOf[TestBean])
       val testFooBean = coreContext.getBean[TestFooBean](classOf[TestFooBean])
-      
+
       testBean shouldNot be(null)
       testFooBean shouldNot be(null)
 
