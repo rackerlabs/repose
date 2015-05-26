@@ -131,13 +131,14 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         //def json = JsonSlurper.newInstance().parseText(jsonbody)
         boolean check = true
         def listnode = json.limits.rate["limit"]
-        for (int i = 0; i < listnode.size(); i++) {
-            if (listnode[i].unit[0] != checklimit[i].unit ||
-                    listnode[i].remaining[0] != checklimit[i].remaining ||
-                    listnode[i].verb[0] != checklimit[i].verb ||
-                    listnode[i].value[0] != checklimit[i].value) {
+        listnode.eachWithIndex { entry, int i ->
+            if (entry.unit[0] != checklimit[i].unit ||
+                    entry.remaining[0] != checklimit[i].remaining ||
+                    entry.verb[0] != checklimit[i].verb ||
+                    entry.value[0] != checklimit[i].value) {
                 check = false
             }
+
         }
         return check
     }
