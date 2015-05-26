@@ -26,6 +26,7 @@ import org.rackspace.deproxy.MessageChain
 class TracingHeaderTest extends ReposeValveTest {
 
     def setupSpec() {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -62,8 +63,12 @@ class TracingHeaderTest extends ReposeValveTest {
     def "should return a tracing header if one was not provided"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
+        def requestid = mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id")
+        println(requestid)
 
         then:
-        mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id").matches(".+-.+-.+-.+-.+")
+        requestid.matches(".+-.+-.+-.+-.+")
+        //**tracing header log REP-1828
+        reposeLogSearch.searchByString("GUID:$requestid -.*").size() > 0
     }
 }

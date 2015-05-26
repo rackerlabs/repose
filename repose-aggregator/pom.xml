@@ -26,6 +26,7 @@
         <jersey.version>1.19</jersey.version>
         <jackson.version>2.4.0</jackson.version>
         <yammer.version>2.2.0</yammer.version>
+        <log4j.version>2.3</log4j.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
         <!-- NOTE: the saxon version should match that of API-checker, because there is saxon in core :( -->
         <saxon.version>9.4.0.9</saxon.version>
@@ -307,37 +308,37 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-jul</artifactId>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-iostreams</artifactId>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <type>test-jar</type>
-                <version>2.1</version>
+                <version>${log4j.version}</version>
                 <scope>test</scope>
             </dependency>
 

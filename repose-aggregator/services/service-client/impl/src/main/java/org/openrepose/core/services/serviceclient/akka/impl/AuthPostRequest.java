@@ -24,7 +24,7 @@ import akka.routing.ConsistentHashingRouter.ConsistentHashable;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
-public class AuthPostRequest implements ConsistentHashable {
+public class AuthPostRequest extends ActorRequest implements ConsistentHashable {
 
     private String uri;
     private Map<String, String> headers;

@@ -23,8 +23,13 @@ package org.openrepose.core.services.serviceclient.akka.impl;
 import akka.actor.UntypedActor;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class AuthTokenFutureActor extends UntypedActor {
+
+    private Logger LOG = LoggerFactory.getLogger(AuthTokenFutureActor.class);
 
     private ServiceClient serviceClient;
 
@@ -34,6 +39,15 @@ public class AuthTokenFutureActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) throws Exception {
+        if (message instanceof ActorRequest) {
+            //Get the immutable map, and set all my thread context
+            final ActorRequest request = (ActorRequest) message;
+            for (String key : request.getLoggingContextMap().keySet()) {
+                Object value = request.getLoggingContextMap().get(key);
+                MDC.put(key, request.getLoggingContextMap().get(key));
+            }
+        }
+        LOG.trace("AuthTokenFutureActor request!");
 
         if (message instanceof AuthGetRequest) {
             final AuthGetRequest authRequest = (AuthGetRequest) message;
@@ -48,5 +62,7 @@ public class AuthTokenFutureActor extends UntypedActor {
         } else {
             unhandled(message);
         }
+
+        MDC.clear();
     }
 }

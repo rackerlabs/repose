@@ -116,7 +116,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
             serviceClientResponse should not be null
             serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
-            app.getEvents.size shouldBe 0
           }
 
           it("should Reuse Service Response") {
@@ -134,7 +133,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
 
             returnString1.trim shouldBe BODY_STRING
             returnString2.trim shouldBe BODY_STRING
-            app.getEvents.size shouldBe 0
           }
         }
 
@@ -175,7 +173,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               val content = io.Source.fromInputStream(inputStream).getLines().mkString
               inputStream.close()
               content.trim shouldBe BODY_STRING
-              app.getEvents.size shouldBe 0
             }
 
             it("should fail with a logged error when the server response time is MORE than the Socket timeout.") {

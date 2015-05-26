@@ -24,8 +24,10 @@ import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPatch
+import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
+import org.openrepose.core.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientResponse
@@ -83,4 +85,39 @@ class RequestProxyServiceImplTest extends Specification {
         response.status == 418
         returnedBytes == [1, 2, 3] as byte[]
     }
+
+    def "a request includes the x-trans-id header for tracing"() {
+        given:
+        ThreadContext.put(TracingKey.TRACING_KEY, "LOLOL")
+        StatusLine statusLine = mock(StatusLine)
+        when(statusLine.getStatusCode()).thenReturn(418)
+        HttpEntity httpEntity = mock(HttpEntity)
+        when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
+        HttpResponse httpResponse = mock(HttpResponse)
+        when(httpResponse.getStatusLine()).thenReturn(statusLine)
+        when(httpResponse.getEntity()).thenReturn(httpEntity)
+        ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
+        when(httpClient.execute(captor.capture())).thenReturn(httpResponse)
+
+        when:
+        byte[] sentBytes = [4, 5, 6] as byte[]
+        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
+        def request = captor.getValue()
+        byte[] readBytes = new byte[3]
+        request.getEntity().getContent().read(readBytes)
+        byte[] returnedBytes = new byte[3]
+        response.data.read(returnedBytes)
+
+        then:
+        request.getMethod() == "PATCH"
+        request.getURI().toString() == "http://www.google.com/key"
+        request.getHeaders("thing").first().value == "other thing"
+        request.getHeaders("X-Trans-Id").first().value == "LOLOL"
+        readBytes == sentBytes
+
+        response.status == 418
+        returnedBytes == [1, 2, 3] as byte[]
+        ThreadContext.clearAll()
+    }
+
 }

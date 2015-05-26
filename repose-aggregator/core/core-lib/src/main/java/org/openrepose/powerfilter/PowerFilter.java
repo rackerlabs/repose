@@ -20,6 +20,7 @@
 package org.openrepose.powerfilter;
 
 import com.google.common.base.Optional;
+import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -27,6 +28,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.proxy.ServletContextWrapper;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -51,6 +53,7 @@ import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -343,7 +346,15 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+        //Grab the traceGUID from the request if there is one, else create one
+        String traceGUID;
+        if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
+            traceGUID = UUID.randomUUID().toString();
+        } else {
+            traceGUID = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+        }
 
+        MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
             new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
@@ -351,7 +362,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 if (currentSystemModel.get().isTracingHeader()) {
                     if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
                         mutableHttpRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
-                                UUID.randomUUID().toString());
+                                traceGUID);
                     }
                     mutableHttpResponse.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
                             mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
@@ -386,6 +397,8 @@ public class PowerFilter extends DelegatingFilterProxy {
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
+        //Clear out the tracing header, now that we're done with this request
+        MDC.clear();
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {

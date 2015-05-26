@@ -29,13 +29,16 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
 import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.proxy.HttpException;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -50,6 +53,7 @@ import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 
@@ -194,6 +198,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         for (Map.Entry<String, String> entry : entries) {
             base.addHeader(entry.getKey(), entry.getValue());
         }
+
+        //Tack on the tracing ID for requests via the dist datastore
+        String traceGUID = MDC.get(TracingKey.TRACING_KEY);
+        base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
     }
 
     private ServiceClientResponse execute(HttpRequestBase base) {
