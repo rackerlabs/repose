@@ -48,6 +48,15 @@
         <module>functional-tests</module>
     </modules>
 
+    <repositories>
+        <!-- this repository is necessary for the play-json library < 3.0 It's not in maven central -->
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <!--For Javax Library Support support-->
@@ -291,6 +300,14 @@
                 <artifactId>scala-logging-slf4j_2.10</artifactId>
                 <version>2.1.2</version>
             </dependency>
+
+            <!-- this gets us the nice play-json support -->
+            <dependency>
+                <groupId>com.typesafe.play</groupId>
+                <artifactId>play-json_2.10</artifactId>
+                <version>2.3.4</version>
+            </dependency>
+
 
             <!-- For Joda Time support -->
             <dependency>

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,9 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -120,11 +122,15 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         return request.getHeader(PowerApiHeader.USER.toString()) != null;
     }
 
-    private void consumeException(Exception e, FilterDirector director) {
+    private void consumeException(Exception e, FilterDirector director, int desiredStatus) {
         LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
 
         director.setFilterAction(FilterAction.RETURN);
-        director.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        director.setResponseStatusCode(desiredStatus);
+    }
+
+    private void consumeException(Exception e, FilterDirector director) {
+        consumeException(e, director, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
     private void describeLimitsForRequest(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
@@ -139,17 +145,22 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
                 director.setFilterAction(FilterAction.PROCESS_RESPONSE);
                 director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
             } else {
-                try {
-                    final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, preferredMediaType, director.getResponseOutputStream());
-
-                    director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
-                    director.setFilterAction(FilterAction.RETURN);
-                    director.setResponseStatusCode(HttpServletResponse.SC_OK);
-                } catch (Exception e) {
-                    consumeException(e, director);
-                }
+                noUpstreamResponse(request, director, preferredMediaType);
             }
         }
+    }
+
+    private void noUpstreamResponse(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
+        try {
+            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, preferredMediaType, director.getResponseOutputStream());
+
+            director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+            director.setFilterAction(FilterAction.RETURN);
+            director.setResponseStatusCode(HttpServletResponse.SC_OK);
+        } catch (Exception e) {
+            consumeException(e, director);
+        }
+
     }
 
     /**
@@ -197,9 +208,39 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         director.setFilterAction(FilterAction.PASS);
 
         try {
-            final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
+            if (response.getContentType() != null) {
+                //If we have a content type to process, then we should do something about it,
+                // else we should ensure that just the repose limits make it through...
 
-            director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+                // I have to use mutable state, and that makes me sad, because If's aren't expressions
+                InputStream absoluteInputStream;
+                if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+                    //New set up! Grab the upstream json, make it look like XML
+                    String newXml = UpstreamJsonToXml.convert(response.getInputStream());
+
+                    //Now we use the new XML we converted from the JSON as the input to the processing stream
+                    absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
+                } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
+                    //If we got XML from upstream, just read the stream directly
+                    absoluteInputStream = response.getBufferedOutputAsInputStream();
+                } else {
+                    LOG.error("Upstream limits responded with a content type we cannot understand: {}", response.getContentType());
+                    //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 502!
+                    throw new UpstreamException("Upstream limits responded with a content type we cannot understand: " + response.getContentType());
+                }
+
+                //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
+                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, director.getResponseOutputStream());
+                director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+            } else {
+                LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
+                //No data from upstream, so we send the regular stuff no matter what
+                noUpstreamResponse(request, director, originalPreferredAccept);
+            }
+
+        } catch (UpstreamException ue) {
+            //I want a 502 returned when upstream didn't respond appropriately
+            consumeException(ue, director, HttpServletResponse.SC_BAD_GATEWAY);
         } catch (Exception e) {
             consumeException(e, director);
         }
@@ -220,5 +261,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
         return mediaTypes.get(0);
 
+    }
+
+    /**
+     * So I can have a different catch since I don't have nice pattern matching
+     */
+    private class UpstreamException extends Exception {
+        public UpstreamException(String message) {
+            super(message);
+        }
     }
 }
