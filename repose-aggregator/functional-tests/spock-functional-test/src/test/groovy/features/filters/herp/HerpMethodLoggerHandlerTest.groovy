@@ -84,9 +84,9 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest {
         where:
         method   | label         | headers
         "GET"    | 'Get Test'    | ["x-roles": "raxRolesEnabled, a:observer"]
-        "GET"    | ''            | ["x-roles": "raxRolesEnabled"]
+        "GET"    | 'Get Test'    | ["x-roles": "raxRolesEnabled"]
         "POST"   | 'Create Test' | ["x-roles": "raxRolesEnabled, a:admin"]
-        "POST"   | ''            | []
+        "POST"   | 'Create Test' | []
         "DELETE" | 'Delete Test' | []
     }
 
