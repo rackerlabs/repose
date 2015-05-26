@@ -137,6 +137,6 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         "PUT" | ["x-roles": "raxRolesEnabled, a:bar"]                  | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
         "PUT" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]      | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 10       | 8
         "PUT" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]       | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"]                | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 9
+        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"]                | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 10
     }
 }
