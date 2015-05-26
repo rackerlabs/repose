@@ -103,7 +103,7 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         S0 == s0_count
         SA == SA_count
         S0_a_admin == S0_a_admin_count
-        if(steps != null) {
+        if (steps != null) {
             reposeLogSearch.searchByString(steps).size() == 1
         }
 
