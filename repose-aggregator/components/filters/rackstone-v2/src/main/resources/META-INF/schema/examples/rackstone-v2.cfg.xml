@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rackstone-v2 xmlns="http://docs.openrepose.org/repose/rackstone-v2/v1.0">
+
+    <delegating quality="0.9"/>
+
+    <white-list>
+        <uri-pattern>/application\.wadl$</uri-pattern>
+    </white-list>
+
+    <!-- define overall caching strategy for both authentication and authorization -->
+    <cache-timeouts variability="100">
+        <token>60000</token>
+        <group>60000</group>
+        <endpoints>60000</endpoints>
+        <user>60000</user>
+    </cache-timeouts>
+
+    <identity-service
+            username="admin_username"
+            tenant-id="either me or the username"
+            password="password"
+            uri="https://some.identity.com"
+            connection-pool-id="wat"
+            />
+
+    <tenant-handling send-all-tenant-ids="true"
+                     send-tenant-id-quality="true">
+        <validate-tenant>
+            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+
+            <bypass-validation-roles>
+                <role>serviceAdmin</role>
+                <role>racker</role>
+            </bypass-validation-roles>
+        </validate-tenant>
+    </tenant-handling>
+
+    <forward>
+        <user-groups header="x-pp-groups"/>
+        <user-catalog header="x-catalog"/>
+    </forward>
+
+    <!-- authorization -->
+    <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute"/>
+
+</rackstone-v2>

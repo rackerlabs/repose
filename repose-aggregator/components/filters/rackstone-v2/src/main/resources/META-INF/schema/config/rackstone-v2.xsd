@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/rackstone-v2/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/rackstone-v2/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- Elements -->
+    <xs:element name="rackstone-v2" type="RackstoneV2Config"/>
+
+    <!-- Types -->
+    <xs:complexType name="RackstoneV2Config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Rackstone V2 filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="cache-timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="forward" type="ForwardType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="WhiteListType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of URI Regular expression patterns to bypass authentication and authorization</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="uri-pattern" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="IdentityServiceType">
+        <xs:attribute name="username" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin username to access Rackstone V2 identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+        </xs:attribute>
+        <xs:attribute name="tenant-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin tenant ID to access Rackstone V2 identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin user password to access Rackstone V2 identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Rackstone v2 Identity Endpoint URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Http Connection pool ID to use when talking to Rackstone V2 Identity</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1" test="count((@username, @tenant-id)) = 1">
+            <xs:annotation>
+                <xs:appinfo>
+                    Exactly one of the username attribute or tenant-id attribute can be specified, not both
+                </xs:appinfo>
+                <xs:documentation>
+                    According to stuff I've read on the internet, the above error message should be used when the
+                    assertion fails.
+                    It's not used :(
+                    This stuff: http://www.ibm.com/developerworks/library/x-xml11pt2/
+                </xs:documentation>
+            </xs:annotation>
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="TenantHandlingType">
+        <xs:attribute name="send-all-tenant-ids" default="false" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Send all the tenant IDs from the user and the roles the user has</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="send-tenant-id-quality" default="false" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Include Quality values on all the tenant ID headers sent,
+                        where the default tenant has the highest quality, followed by the one that matches the URI
+                        (if any), followed by the tenants from the roles.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:sequence>
+            <xs:element name="validate-tenant" type="ValidateTenantType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this element is included, tenant validation will be enforced based on the extraction URI.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ValidateTenantType">
+        <xs:sequence>
+            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Regular expression with a single matching group to extract the Tenant ID from the URI for
+                            validation.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Regular expression with a single matching group to extract the Tenant ID from the URI for
+                            validation.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ForwardType">
+        <xs:sequence>
+            <xs:element name="user-groups" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="header" type="xs:string" use="optional" default="x-pp-groups"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="user-catalog" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="header" type="xs:string" use="optional" default="x-catalog"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RolesList">
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceEndpointType">
+        <xs:attribute name="public-url" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Public URL to match on the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="region" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Region to match on the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Name of the service to match in the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Type to matchin the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="CacheTimeoutsType">
+        <xs:attribute name="variability" type="ZeroOrPositiveLong" default="0" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This value will be added or subtracted to the cache timeouts to make sure that the cached items
+                        have some variability so they don't all expire at the exact same time. (Defaults to no variability)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:sequence>
+            <xs:element name="token" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="group" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="endpoints" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="user" type="ZeroOrPositiveLong" default="60000"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means
+                    you do.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is
+                        eventually output.
+                        Default is 0.1
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ZeroOrPositiveInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ZeroOrPositiveLong">
+        <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
