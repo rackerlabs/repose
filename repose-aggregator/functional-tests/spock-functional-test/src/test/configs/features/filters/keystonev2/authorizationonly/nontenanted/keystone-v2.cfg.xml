@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service username="joe"
+                      password="secret"
+                      uri="http://localhost:${identityPort}"
+            />
+
+    <forward>
+        <user-groups/>
+    </forward>
+
+    <require-service-endpoint public-url="http://localhost2:${targetPort}/">
+        <bypass-validation-roles>
+            <role>admin</role>
+            <role>openstack:admin</role>
+        </bypass-validation-roles>
+    </require-service-endpoint>
+</keystone-v2>
