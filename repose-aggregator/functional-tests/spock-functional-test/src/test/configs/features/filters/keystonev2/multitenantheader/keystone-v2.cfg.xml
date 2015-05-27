@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <cache-settings>
+        <timeouts>
+            <token>600000</token>
+            <group>600000</group>
+        </timeouts>
+    </cache-settings>
+    <tenant-handling send-all-tenant-ids="true" send-tenant-id-quality="false">
+        <validate-tenant>
+            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+            <bypass-validation-roles>
+                <role>Racker</role>
+            </bypass-validation-roles>
+        </validate-tenant>
+    </tenant-handling>
+
+    <identity-service username="admin_username"
+                      password="admin_password"
+                      uri="http://localhost:${identityPort}"
+                      connection-pool-id="client-auth"/>
+</keystone-v2>

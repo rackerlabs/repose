@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service username="admin_username"
+                      password="admin_password"
+                      uri="http://localhost:${identityPort}"/>
+    <cache-settings>
+        <timeouts>
+            <token>0</token>
+            <group>600000</group>
+            <endpoints>600000</endpoints>
+        </timeouts>
+    </cache-settings>
+    <forward>
+        <user-catalog/>
+    </forward>
+</keystone-v2>
