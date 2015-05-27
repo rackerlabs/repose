@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rackspace-authorization xmlns='http://docs.openrepose.org/repose/openstack-identity/auth-z/v1.0'>
+
+    <authentication-server username="joe" password="secret" href="http://localhost:${identityPort}"/>
+    <service-endpoint href="http://localhost2:${targetPort}/"/>
+    <ignore-tenant-roles>
+        <ignore-tenant-role>admin</ignore-tenant-role>
+        <ignore-tenant-role>openstack:admin</ignore-tenant-role>
+    </ignore-tenant-roles>
+
+</rackspace-authorization>
