@@ -11,12 +11,12 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import org.openrepose.filters.keystonev2.config.{CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
-                                  akkaServiceClient: AkkaServiceClient,
-                                  datastoreService: DatastoreService)
+                                 akkaServiceClient: AkkaServiceClient,
+                                 datastoreService: DatastoreService)
   extends Filter
   with UpdateListener[KeystoneV2Config]
   with HttpDelegationManager
@@ -47,7 +47,21 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
   override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
-    configuration = configurationObject
+    def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
+      // LOLJAXB  	(╯°□°）╯︵ ┻━┻
+      //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
+      // I'm sorry
+      if (stupidConfig.getCacheSettings == null) {
+        stupidConfig.withCacheSettings(new CacheSettingsType().withTimeouts(new CacheTimeoutsType()))
+      } else if (stupidConfig.getCacheSettings.getTimeouts == null) {
+        stupidConfig.getCacheSettings.withTimeouts(new CacheTimeoutsType())
+        stupidConfig
+      } else {
+        stupidConfig
+      }
+    }
+
+    configuration = fixMyDefaults(configurationObject)
     initialized = true
   }
 
