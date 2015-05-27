@@ -60,6 +60,18 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
         </dependency>
+
+        <!-- Mockrunner for mock HttpServletRequest -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
