@@ -164,8 +164,7 @@
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
-                            Regular expression with a single matching group to extract the Tenant ID from the URI for
-                            validation.
+                            List of roles to bypass the tenant URI validation requirements.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
@@ -195,6 +194,18 @@
     </xs:complexType>
 
     <xs:complexType name="ServiceEndpointType">
+        <xs:sequence>
+            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            List of roles to bypass the service endpoint validation requirements.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
         <xs:attribute name="public-url" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
