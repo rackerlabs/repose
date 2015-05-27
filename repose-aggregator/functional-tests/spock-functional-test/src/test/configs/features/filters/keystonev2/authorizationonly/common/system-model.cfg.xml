@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="client-authorization"/>
+            <filter name="keystone-v2"/>
         </filters>
 
         <destinations>

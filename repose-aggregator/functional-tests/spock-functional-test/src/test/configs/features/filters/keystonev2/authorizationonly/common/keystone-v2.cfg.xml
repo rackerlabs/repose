@@ -10,15 +10,11 @@
     <identity-service username="joe"
                       password="secret"
                       uri="http://localhost:${identityPort}"
-                      connection-pool-id="client-auth-z"/>
+                      connection-pool-id="client-authorization"/>
 
     <forward>
         <user-groups/>
     </forward>
 
-    <require-service-endpoint
-            public-url="http://localhost:${targetPort}/"
-            region="ORD"
-            name="OpenStackService"
-            type="service"/>
+    <require-service-endpoint public-url="http://localhost:${targetPort}/" region="ORD" name="OpenStackService" type="service"/>
 </keystone-v2>
