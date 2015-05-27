@@ -6,11 +6,12 @@
         <group>600000</group>
     </cache-timeouts>
 
+    <identity-service username="admin_username"
+                      password="admin_password"
+                      uri="http://localhost:${identityPort}" />
+
     <forward>
         <user-groups/>
     </forward>
 
-    <identity-service username="admin_username"
-                      password="admin_password"
-                      uri="http://localhost:${identityPort}" />
 </keystone-v2>
