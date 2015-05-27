@@ -47,6 +47,11 @@
     </forward>
 
     <!-- authorization -->
-    <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute"/>
+    <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute">
+        <bypass-validation-roles>
+            <role>serviceAdmin</role>
+            <role>racker</role>
+        </bypass-validation-roles>
+    </require-service-endpoint>
 
 </keystone-v2>
