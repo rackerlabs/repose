@@ -40,7 +40,7 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
 
 
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", properties.defaultTemplateParams)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

@@ -40,8 +40,8 @@ class NonTenantedAuthZTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthz/nontenanted", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/nontenanted", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

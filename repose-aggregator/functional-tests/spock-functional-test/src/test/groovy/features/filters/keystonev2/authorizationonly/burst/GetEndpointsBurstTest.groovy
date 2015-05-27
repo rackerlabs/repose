@@ -38,7 +38,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/common", properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)

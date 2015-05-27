@@ -39,7 +39,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         deproxy = new Deproxy()
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
         repose.configurationProvider.applyConfigs(
-                "features/filters/clientauthn/nogroupsendpointsheader",
+                "features/filters/keystonev2/nogroupsendpointsheader",
                 properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

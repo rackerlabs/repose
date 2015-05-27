@@ -89,7 +89,7 @@ class AuthZConnectionPoolingTest extends Specification {
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/clientauthz/connectionpooling", params)
+        reposeConfigProvider.applyConfigs("features/filters/keystonev2/authorizationonly/connectionpooling", params)
         repose.start()
     }
 

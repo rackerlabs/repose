@@ -38,7 +38,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthz/servicelist", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/servicelist", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
