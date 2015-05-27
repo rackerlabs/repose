@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+           elementFormDefault="qualified">
+
+    <!-- Elements -->
+    <xs:element name="simple-rbac" type="SimpleRbacConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="SimpleRbacConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Simple RBAC filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="resources" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            This is a list of resources, HTTP methods, and roles allowed to access them.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="roles-header-name" type="xs:string" use="optional" default="X-ROLES">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the name of the header where that roles are passed in.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="resources-file-name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the name of a file containing a list of resources, HTTP methods, and roles allowed to access them.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-masking-403s" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Instead of returning a FORBIDDEN (403), return a NOT FOUND (404) or METHOD NOT ALLOWED (405) as appropriate.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <!-- http://stackoverflow.com/a/16674043/423218 -->
+        <xs:assert vc:minVersion="1.1" test="count((@resources-file-name, resources)) = 1"
+                   xerces:message="Exactly one of the resources attribute or resources element can be specified, but not both."
+                   saxon:message="Exactly one of the resources attribute or resources element can be specified, but not both."/>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.
+                        Default is 0.1
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
