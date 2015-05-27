@@ -118,6 +118,17 @@
     </xs:complexType>
 
     <xs:complexType name="TenantHandlingType">
+        <xs:sequence>
+            <xs:element name="validate-tenant" type="ValidateTenantType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this element is included, tenant validation will be enforced based on the extraction URI.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
         <xs:attribute name="send-all-tenant-ids" default="false" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -135,18 +146,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:sequence>
-            <xs:element name="validate-tenant" type="ValidateTenantType" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            If this element is included, tenant validation will be enforced based on the extraction URI.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="ValidateTenantType">
@@ -235,6 +234,12 @@
     </xs:complexType>
 
     <xs:complexType name="CacheTimeoutsType">
+        <xs:sequence>
+            <xs:element name="token" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="group" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="endpoints" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="user" type="ZeroOrPositiveLong" default="60000"/>
+        </xs:sequence>
         <xs:attribute name="variability" type="ZeroOrPositiveLong" default="0" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -245,12 +250,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:sequence>
-            <xs:element name="token" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="group" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="endpoints" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="user" type="ZeroOrPositiveLong" default="60000"/>
-        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="DelegatingType">
