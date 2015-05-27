@@ -7,8 +7,8 @@
         <version>7.1.2.0-SNAPSHOT</version>
     </parent>
 
-    <name>Repose Components - Rackstone v2</name>
-    <artifactId>rackstone-v2</artifactId>
+    <name>Repose Components - Keystone v2</name>
+    <artifactId>keystone-v2</artifactId>
     <packaging>jar</packaging>
 
     <description>

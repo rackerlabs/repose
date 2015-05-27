@@ -47,7 +47,7 @@
         <module>iri-validator</module>
         <module>herp</module>
         <module>valkyrie-authorization</module>
-        <module>rackstone-v2</module>
+        <module>keystone-v2</module>
     </modules>
 
     <properties>
