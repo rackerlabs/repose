@@ -123,7 +123,26 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
     }
     it("sets the default delegating quality to 0.7") {
-      pending
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+      filter.isInitialized shouldNot be(true)
+
+      val configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |<delegating/>
+          |<identity-service
+          |  username="user"
+          |  password="pass"
+          |  uri="https://lol.com"
+          |  />
+          |</keystone-v2>
+        """.stripMargin)
+
+      filter.configurationUpdated(configuration)
+
+      val timeouts = filter.configuration.getCacheSettings.getTimeouts
+      filter.configuration.getDelegating.getQuality should be(0.7)
     }
   }
 }
