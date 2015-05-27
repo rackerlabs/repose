@@ -8,13 +8,18 @@
         <uri-pattern>/application\.wadl$</uri-pattern>
     </white-list>
 
-    <!-- define overall caching strategy for both authentication and authorization -->
-    <cache-timeouts variability="100">
-        <token>60000</token>
-        <group>60000</group>
-        <endpoints>60000</endpoints>
-        <user>60000</user>
-    </cache-timeouts>
+
+    <cache-settings>
+        <timeouts variability="100">
+            <token>60000</token>
+            <group>60000</group>
+            <endpoints>60000</endpoints>
+            <user>60000</user>
+        </timeouts>
+        <eviction-feeds check-interval="10000">
+            <rs-identity-feed id="butts" uri="http://some-feed"/>
+        </eviction-feeds>
+    </cache-settings>
 
     <identity-service
             username="admin_username"
