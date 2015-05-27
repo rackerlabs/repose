@@ -42,7 +42,7 @@
         <xs:sequence>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="cache-timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="cache-settings" type="CacheSettingsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
             <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="forward" type="ForwardType" minOccurs="0" maxOccurs="1"/>
@@ -233,6 +233,14 @@
         </xs:attribute>
     </xs:complexType>
 
+
+    <xs:complexType name="CacheSettingsType">
+        <xs:sequence>
+            <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="eviction-feeds" type="AtomFeeds" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="CacheTimeoutsType">
         <xs:sequence>
             <xs:element name="token" type="ZeroOrPositiveLong" default="60000" minOccurs="0" maxOccurs="1"/>
@@ -245,7 +253,8 @@
                 <xs:documentation>
                     <html:p>
                         This value will be added or subtracted to the cache timeouts to make sure that the cached items
-                        have some variability so they don't all expire at the exact same time. (Defaults to no variability)
+                        have some variability so they don't all expire at the exact same time. (Defaults to no
+                        variability)
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -272,6 +281,85 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="AtomFeeds">
+
+        <xs:sequence>
+            <xs:element name="rs-identity-feed" type="RackspaceIdentityFeedType" minOccurs="1"
+                        maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="check-interval" type="ZeroOrPositiveLong" use="optional" default="60000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Interval between requesting atom feeds to purge cache. Default is one minute</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(*/@id)) = count(*/@id)"
+                   xerces:message="Each Atom Feed must have a unique id"
+                   saxon:message="Each Atom Feed must have a unique id">
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="RackspaceIdentityFeedType">
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Atom Feed URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Unique id of Atom Feed</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="auth-uri" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>URI to auth against if different from client-auth uri</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="user" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Auth Admin username</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Auth Admin password</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1" test="if (@auth-uri) then (@user) else true()"
+                   xerces:message="If auth-url is configured then user and password must be supplied"
+                   saxon:message="If auth-url is configured then user and password must be supplied"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (@auth-uri) then (@password) else true()"
+                   xerces:message="If auth-url is configured then user and password must be supplied"
+                   saxon:message="If auth-url is configured then user and password must be supplied"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (@user) then (@auth-uri) else true()"
+                   xerces:message="If user is configured then auth-url must be configured"
+                   saxon:message="If auth-url is configured then user and password must be supplied"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (@password) then (@auth-uri) else true()"
+                   xerces:message="If user is configured then auth-url must be configured"
+                   saxon:message="If auth-url is configured then user and password must be supplied"/>
     </xs:complexType>
 
     <xs:simpleType name="QualityType">
