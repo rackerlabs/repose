@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <cache-timeouts>
-        <token>0</token>
-        <group>600000</group>
-    </cache-timeouts>
+    <cache-settings>
+        <timeouts>
+            <token>0</token>
+            <group>600000</group>
+        </timeouts>
+    </cache-settings>
 
     <identity-service username="admin_username"
                       password="admin_password"
