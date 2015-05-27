@@ -39,11 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>http-delegation</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
@@ -154,6 +149,23 @@
 
                     <strict>true</strict>
                     <verbose>false</verbose>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xdefault-value</arg>
+                        <arg>-Xfluent-api</arg>
+                    </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-default-value</artifactId>
+                            <version>1.1</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-fluent-api</artifactId>
+                            <version>3.0</version>
+                        </plugin>
+                    </plugins>
                 </configuration>
             </plugin>
         </plugins>
