@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rackstone-v2 xmlns="http://docs.openrepose.org/repose/rackstone-v2/v1.0">
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
 
     <delegating quality="0.9"/>
 
@@ -44,4 +44,4 @@
     <!-- authorization -->
     <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute"/>
 
-</rackstone-v2>
+</keystone-v2>
