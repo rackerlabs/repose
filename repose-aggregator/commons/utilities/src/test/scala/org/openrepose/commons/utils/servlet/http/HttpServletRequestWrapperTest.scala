@@ -65,4 +65,51 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       }
     }
   }
+
+  describe("the addHeader method") {
+    it("Should increase the size of the HttpServletRequestWrapper by 1") {
+      val sizeOfHeaderList = wrappedRequest.getHeaderList("foo").size
+      wrappedRequest.addHeader("foo", "foo")
+      wrappedRequest.getHeaderList("foo").size shouldBe sizeOfHeaderList + 1
+    }
+  }
+
+  describe("the addHeader method with quality") {
+    it("Should increase the size of the HttpServletRequestWrapper by 1 with a quality value") {
+      val sizeOfHeaderList = wrappedRequest.getHeaderList("foo").size
+      wrappedRequest.addHeader("foo", "foo", 0.5)
+      wrappedRequest.getHeaderList("foo").size shouldBe sizeOfHeaderList + 1
+      /* TODO: Add way to check the quality is set */
+    }
+  }
+
+  /* TODO: Add getPreffereedSplittableHeader test
+  * TODO: Add appendHeader test
+  * TODO: Add appendHeader with quality parameter test
+  */
+
+  describe("the removeHeader method") {
+    List("foo", "banana-phone", "cup", "ornament", "thumbs").foreach { case (headerName) =>
+      it(s"Should remove the header from the wrapper: $headerName") {
+        wrappedRequest.removeHeader(headerName)
+        wrappedRequest.getHeaderList(headerName).size shouldBe 0
+      }
+    }
+  }
+
+  describe("the getPreffereedHeader method") {
+    it("Should return value with largest quality value for ornament") {
+      val preferred = wrappedRequest.getPrefferedHeader("ornament")
+      preferred shouldBe "santa"
+    }
+    it("Should return value with largest quality value for cup") {
+      val preferred = wrappedRequest.getPrefferedHeader("cup")
+      preferred shouldBe "blue"
+    }
+  }
+
+  /* TODO: Add replaceHeader test
+  * TODO: Add replaceHeader with quality parameter test
+  * TODO: Add getSplittableHeader test
+  */
 }
