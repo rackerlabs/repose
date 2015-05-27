@@ -235,10 +235,10 @@
 
     <xs:complexType name="CacheTimeoutsType">
         <xs:sequence>
-            <xs:element name="token" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="group" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="endpoints" type="ZeroOrPositiveLong" default="60000"/>
-            <xs:element name="user" type="ZeroOrPositiveLong" default="60000"/>
+            <xs:element name="token" type="ZeroOrPositiveLong" default="60000" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group" type="ZeroOrPositiveLong" default="60000" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="endpoints" type="ZeroOrPositiveLong" default="60000" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="user" type="ZeroOrPositiveLong" default="60000" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="variability" type="ZeroOrPositiveLong" default="0" use="optional">
             <xs:annotation>
