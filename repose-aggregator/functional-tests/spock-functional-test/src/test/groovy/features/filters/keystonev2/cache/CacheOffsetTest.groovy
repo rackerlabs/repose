@@ -37,7 +37,7 @@ class CacheOffsetTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/cacheoffset", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/cacheoffset", properties.defaultTemplateParams)
         repose.start()
         waitUntilReadyToServiceRequests('401')
     }

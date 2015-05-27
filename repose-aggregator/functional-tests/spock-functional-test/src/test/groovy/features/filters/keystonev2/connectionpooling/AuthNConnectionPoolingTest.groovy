@@ -88,8 +88,8 @@ class AuthNConnectionPoolingTest extends Specification {
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/keystone-v2/connectionpooling", params)
-        reposeConfigProvider.applyConfigs("features/filters/keystone-v2/connectionpooling2", params)
+        reposeConfigProvider.applyConfigs("features/filters/keystonev2/connectionpooling", params)
+        reposeConfigProvider.applyConfigs("features/filters/keystonev2/connectionpooling2", params)
         repose.start()
     }
 

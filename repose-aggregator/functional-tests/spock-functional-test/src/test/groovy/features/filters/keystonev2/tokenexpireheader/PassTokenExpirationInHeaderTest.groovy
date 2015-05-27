@@ -92,8 +92,8 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/tokenexpireheader", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/connectionpooling", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/tokenexpireheader", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/connectionpooling", params)
         repose.start()
     }
 

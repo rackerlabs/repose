@@ -118,8 +118,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/atom", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/atom", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

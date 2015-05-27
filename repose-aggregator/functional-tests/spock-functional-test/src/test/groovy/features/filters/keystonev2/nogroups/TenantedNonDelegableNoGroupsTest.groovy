@@ -46,7 +46,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/nogroups", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/nogroups", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
