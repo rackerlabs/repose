@@ -43,8 +43,8 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/delegable", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/delegable", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

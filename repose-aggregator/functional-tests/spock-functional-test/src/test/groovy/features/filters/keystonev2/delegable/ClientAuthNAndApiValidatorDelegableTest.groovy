@@ -42,8 +42,8 @@ class ClientAuthNAndApiValidatorDelegableTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/delegable", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/delegable/withapivalidator", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/delegable", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/delegable/withapivalidator", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

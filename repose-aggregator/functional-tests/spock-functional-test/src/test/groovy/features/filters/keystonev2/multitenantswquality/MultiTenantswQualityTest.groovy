@@ -44,8 +44,8 @@ class MultiTenantswQualityTest extends ReposeValveTest {
 
         params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantswquality", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/multitenantswquality", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

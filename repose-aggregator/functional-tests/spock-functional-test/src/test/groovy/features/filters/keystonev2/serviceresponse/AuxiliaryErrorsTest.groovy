@@ -45,9 +45,9 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/zerocachetime", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/zerocachetime", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/connectionpooling", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

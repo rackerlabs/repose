@@ -40,8 +40,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant/tenanteddelegable", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/removetenant", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/removetenant/tenanteddelegable", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

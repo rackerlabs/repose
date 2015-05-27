@@ -74,8 +74,8 @@ class PassUserAttributesInHeaderTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/userAttributeHeaders", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/userAttributeHeaders", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystone-v2/connectionpooling", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
