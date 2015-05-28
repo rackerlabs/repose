@@ -119,6 +119,10 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should return a list of all the header names") {
       wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs")
     }
+
+    it("should not contain a header name that was not added") {
+      wrappedRequest.getHeaderNamesList.asScala shouldNot contain theSameElementsAs List("notAHeader")
+    }
   }
 
   describe("the getHeadersList method") {
@@ -132,6 +136,10 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
         returnedValues.size shouldBe headerValues.size
         returnedValues.asScala should contain theSameElementsAs headerValues
       }
+    }
+
+    it("should return an empty list") {
+      wrappedRequest.getHeadersList("notAHeader").size shouldBe 0
     }
   }
 
@@ -169,7 +177,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  describe("the getPreffereedHeader method") {
+  describe("the getPreferredHeader method") {
     it("Should return value with largest quality value for ornament") {
       val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "santa"
