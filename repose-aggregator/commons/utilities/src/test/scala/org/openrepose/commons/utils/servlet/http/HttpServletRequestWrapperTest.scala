@@ -99,11 +99,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getPreffereedHeader method") {
     it("Should return value with largest quality value for ornament") {
-      val preferred = wrappedRequest.getPrefferedHeader("ornament")
+      val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "santa"
     }
     it("Should return value with largest quality value for cup") {
-      val preferred = wrappedRequest.getPrefferedHeader("cup")
+      val preferred = wrappedRequest.getPreferredHeader("cup")
       preferred shouldBe "blue"
     }
   }

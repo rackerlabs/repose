@@ -31,8 +31,8 @@ public interface HeaderInteractor {
     List<String> getHeaderNamesList();
     List<String> getHeadersList(String headerName);
     List<String> getSplittableHeader(String headerName);
-    String getPrefferedHeader(String headerName);
-    String getPreffereedSplittableHeader(String headerName);
+    String getPreferredHeader(String headerName);
+    String getPreferredSplittableHeader(String headerName);
     void addHeader(String headerName, String headerValue);
     void addHeader(String headerName, String headerValue, double quality);
     void replaceHeader(String headerName, String headerValue);

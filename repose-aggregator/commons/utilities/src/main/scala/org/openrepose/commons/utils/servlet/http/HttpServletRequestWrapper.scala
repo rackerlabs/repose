@@ -55,7 +55,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
-  override def getPreffereedSplittableHeader(headerName: String): String = ???
+  override def getPreferredSplittableHeader(headerName: String): String = ???
 
   override def appendHeader(headerName: String, headerValue: String): Unit = ???
 
@@ -63,7 +63,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def removeHeader(headerName: String): Unit = ???
 
-  override def getPrefferedHeader(headerName: String): String = ???
+  override def getPreferredHeader(headerName: String): String = ???
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = ???
 
