@@ -49,17 +49,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     mockRequest.addHeader("ornament", "santa?q=0.9")
     mockRequest.addHeader("ornament", "droopy tree?q=0.3")
     mockRequest.addHeader("thumbs", "2")
+    mockRequest.addHeader("awesomeTime", "Fri, 29 May 2015 12:12:12 CST")
     wrappedRequest = new HttpServletRequestWrapper(mockRequest)
   }
 
   describe("the getHeaderNames method") {
     it("should return all the header names from the original request") {
-      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "awesomeTime")
     }
 
     it("should return all the header names including the ones that were added") {
       wrappedRequest.addHeader("butts", "butts")
-      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "butts")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "butts", "awesomeTime")
     }
   }
 
@@ -82,18 +83,22 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       "banana-phone" -> List("ring,ring,ring"),
       "cup" -> List("blue,orange?q=0.5"),
       "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
-      "thumbs" -> List("2")).foreach { case (headerName, headerValues) =>
+      "thumbs" -> List("2"), "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST")).foreach { case (headerName, headerValues) =>
       it(s"should return the appropriate elements for header: $headerName") {
         val returnedValues: List[String] = wrappedRequest.getHeaders(headerName).asScala.toList
         returnedValues.size shouldBe headerValues.size
         returnedValues should contain theSameElementsAs headerValues
       }
     }
+
+    it("should return an empty list") {
+      wrappedRequest.getHeaders("notAHeader").asScala.toList.size shouldBe 0
+    }
   }
 
   describe("the getDateHeader method") {
     it("should return the date as a long") {
-      pending
+      assert(wrappedRequest.getDateHeader("awesomeTime") === 1432923132000L)
     }
 
     it("should return -1 because of no date header") {
@@ -117,7 +122,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getHeaderNamesList method") {
     it("should return a list of all the header names") {
-      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs")
+      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "awesomeTime")
     }
 
     it("should not contain a header name that was not added") {
@@ -130,7 +135,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       "banana-phone" -> List("ring,ring,ring"),
       "cup" -> List("blue,orange?q=0.5"),
       "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
-      "thumbs" -> List("2")).foreach { case (headerName, headerValues) =>
+      "thumbs" -> List("2"), "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST")).foreach { case (headerName, headerValues) =>
       it(s"should return the appropriate elements for header: $headerName") {
         val returnedValues: util.List[String] = wrappedRequest.getHeadersList(headerName)
         returnedValues.size shouldBe headerValues.size
