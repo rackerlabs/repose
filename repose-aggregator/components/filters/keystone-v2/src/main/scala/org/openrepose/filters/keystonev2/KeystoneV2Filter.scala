@@ -36,6 +36,7 @@ import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
 
+import scala.annotation.tailrec
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -78,25 +79,29 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
 
-    val authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN)
+    val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
 
-    validateToken(authToken) match {
-      case Success(x) => {
-        if(!x) {
-          response.setStatus(403) //NOPE
-        } else {
-          chain.doFilter(request, response)
+    authTokenValue.map { authToken =>
+      validateToken(authToken) match {
+        case Success(x) => {
+          if (!x) {
+            response.setStatus(403) //NOPE
+          } else {
+            chain.doFilter(request, response)
+          }
+        }
+        case Failure(x) => {
+          response.setStatus(500) //TODO: this isn't complete!
         }
       }
-      case Failure(x) => {
-        response.setStatus(500) //TODO: this isn't complete!
-      }
+    } getOrElse {
+      response.setStatus(403)
     }
-
   }
 
-  def validateToken(token: String): Try[Boolean] = {
-    getAdminToken match {
+  @tailrec
+  final def validateToken(token: String, doRetry: Boolean = true): Try[Boolean] = {
+    requestAdminToken match {
       case Success(adminToken) => {
         val identityEndpoint = configuration.getIdentityService.getUri
 
@@ -108,26 +113,34 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case Success(serviceClientResponse) => {
             //DEAL WITH IT
             //Parse the response for validating a token?
+            logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
+            logger.debug(s"Admin Token: ${adminToken}")
             serviceClientResponse.getStatus match {
               case 200 | 203 => {
                 Success(true)
               }
-              case 400 => Failure(new Exception("Bad Admin Token authentication request to identity!")) //500 class
-              case 401 => ??? //TODO: CLEAR AND REGET ADMIN TOKEN
-              case 403 => ??? //TODO: CLEAR AND REGET ADMIN TOKEN?
+              case 400 => Failure(new Exception("Bad Token Validation request to identity!")) //500 class
+              case 401 | 403 => {
+                if (doRetry) {
+                  //Clear the cache, call this method again
+                  validateToken(token, doRetry = false)
+                } else {
+                  Failure(new Exception("Admin user is not authorized to validate tokens"))
+                }
+              }
               case 404 => Success(false)
               case 503 => Failure(new Exception("Identity Service not avaialable to authenticate token")) //502
               case _ => Failure(new Exception("Unhandled response from Identity, unable to continue")) //502
             }
           }
-          case Failure(x) => Failure(x)
+          case Failure(x) => Failure(new Exception("Communication error with Identity to validate a token", x))
         }
       }
-      case Failure(x) => Failure(x)
+      case Failure(x) => Failure(new Exception("Unable to acquire admin token", x))
     }
   }
 
-  def getAdminToken: Try[String] = {
+  def requestAdminToken: Try[String] = {
     //authenticate, or get the admin token
     val identityEndpoint = configuration.getIdentityService.getUri
 
@@ -158,10 +171,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val json = Json.parse(jsonResponse)
         Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
           case Success(s) => s
-          case Failure(f) => Failure(f)
+          case Failure(f) => Failure(new Exception("Token not found in identity response", f))
         }
       }
-      case Failure(x) => Failure(x)
+      case Failure(x) => Failure(new Exception("Failure communicating with identity", x))
     }
   }
 
