@@ -47,7 +47,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeaderNamesList: util.List[String] = getHeaderNames.asScala.toList.asJava
 
-  override def getHeaderList(headerName: String): util.List[String] = {
+  override def getHeadersList(headerName: String): util.List[String] = {
     originalRequest.getHeaders(headerName).asScala.toList.asJava
   }
 

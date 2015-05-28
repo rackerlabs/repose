@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface HeaderInteractor {
     List<String> getHeaderNamesList();
-    List<String> getHeaderList(String headerName);
+    List<String> getHeadersList(String headerName);
     List<String> getSplittableHeader(String headerName);
     String getPrefferedHeader(String headerName);
     String getPreffereedSplittableHeader(String headerName);

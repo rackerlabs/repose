@@ -57,7 +57,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  describe("the getHeaderList method") {
+  describe("the getHeadersList method") {
     Map("foo" -> List("bar", "baz"),
       "banana-phone" -> List("ring,ring,ring"),
       "cup" -> List("blue,orange?q=0.5"),
@@ -65,7 +65,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       "thumbs" -> List("2")).foreach { case (headerName, headerValues) =>
       it(s"should return the appropriate elements for header: $headerName") {
 
-        val returnedValues: util.List[String] = wrappedRequest.getHeaderList(headerName)
+        val returnedValues: util.List[String] = wrappedRequest.getHeadersList(headerName)
         returnedValues.size shouldBe headerValues.size
         returnedValues.asScala should contain theSameElementsAs headerValues
       }
@@ -74,31 +74,25 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the addHeader method") {
     it("Should increase the size of the HttpServletRequestWrapper by 1") {
-      val sizeOfHeaderList = wrappedRequest.getHeaderList("foo").size
+      val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo")
-      wrappedRequest.getHeaderList("foo").size shouldBe sizeOfHeaderList + 1
+      wrappedRequest.getHeadersList("foo").size shouldBe sizeOfHeaderList + 1
     }
   }
 
   describe("the addHeader method with quality") {
     it("Should increase the size of the HttpServletRequestWrapper by 1 with a quality value") {
-      val sizeOfHeaderList = wrappedRequest.getHeaderList("foo").size
+      val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeaderList("foo").size shouldBe sizeOfHeaderList + 1
-      /* TODO: Add way to check the quality is set */
+      wrappedRequest.getHeadersList("foo").size shouldBe sizeOfHeaderList + 1
     }
   }
-
-  /* TODO: Add getPreffereedSplittableHeader test
-  * TODO: Add appendHeader test
-  * TODO: Add appendHeader with quality parameter test
-  */
 
   describe("the removeHeader method") {
     List("foo", "banana-phone", "cup", "ornament", "thumbs").foreach { case (headerName) =>
       it(s"Should remove the header from the wrapper: $headerName") {
         wrappedRequest.removeHeader(headerName)
-        wrappedRequest.getHeaderList(headerName).size shouldBe 0
+        wrappedRequest.getHeadersList(headerName).size shouldBe 0
       }
     }
   }
@@ -114,8 +108,4 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  /* TODO: Add replaceHeader test
-  * TODO: Add replaceHeader with quality parameter test
-  * TODO: Add getSplittableHeader test
-  */
 }
