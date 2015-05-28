@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
@@ -119,7 +119,7 @@ class ReposeStartupTest extends ReposeValveTest {
         waitForCondition(clock, "60s", "2s") {
             try {
                 print(".")
-                HttpClient client = new DefaultHttpClient()
+                HttpClient client = HttpClientBuilder.create().build()
                 int status = client.execute(new HttpGet(url)).statusLine.statusCode
                 println status
                 status != 500

@@ -29,7 +29,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
-import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;

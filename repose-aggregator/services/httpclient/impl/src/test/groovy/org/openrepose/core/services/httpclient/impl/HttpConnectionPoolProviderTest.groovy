@@ -63,7 +63,7 @@ class HttpConnectionPoolProviderTest {
     @Test
     public void shouldCreateClientWithPassedConfigurationObject() {
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType);
+        HttpClient client = HttpConnectionPoolProvider.genClient(poolType);
 
         Map props = client.connectionManager.properties;
         assertEquals(client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH), MAX_LINE);

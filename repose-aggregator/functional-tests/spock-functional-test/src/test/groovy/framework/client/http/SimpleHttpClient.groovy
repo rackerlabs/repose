@@ -22,7 +22,7 @@ package framework.client.http
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.*
 import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
 
 import java.nio.charset.Charset
 
@@ -52,7 +52,7 @@ class SimpleHttpClient {
         def HttpClient client
 
         try {
-            client = new DefaultHttpClient()
+            client = HttpClientBuilder.create().build()
 
             requestHeaders.each { key, value ->
                 httpMethod.addHeader(key, value)
