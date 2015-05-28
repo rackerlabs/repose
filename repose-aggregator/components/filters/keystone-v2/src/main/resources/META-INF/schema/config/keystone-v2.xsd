@@ -41,15 +41,14 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
+        <xs:all>
+            <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="cache-settings" type="CacheSettingsType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
             <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="forward" type="ForwardType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
+        </xs:all>
     </xs:complexType>
 
     <xs:complexType name="WhiteListType">
@@ -59,7 +58,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="uri-pattern" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="uri-regex" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -100,6 +99,20 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Http Connection pool ID to use when talking to Rackspace Keystone V2 Identity</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="set-groups-in-header" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's groups in the x-pp-groups header</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="set-catalog-in-header" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's service catalog, base64 encoded in the X-Catalog header.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -170,21 +183,6 @@
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="ForwardType">
-        <xs:sequence>
-            <xs:element name="user-groups" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:attribute name="header" type="xs:string" use="optional" default="x-pp-groups"/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="user-catalog" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:attribute name="header" type="xs:string" use="optional" default="x-catalog"/>
-                </xs:complexType>
             </xs:element>
         </xs:sequence>
     </xs:complexType>

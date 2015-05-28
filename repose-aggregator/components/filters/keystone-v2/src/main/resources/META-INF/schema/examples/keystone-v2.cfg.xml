@@ -20,11 +20,20 @@
   -->
 
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service
+            username="admin_username"
+            tenant-id="either me or the username"
+            password="password"
+            uri="https://some.identity.com"
+            connection-pool-id="wat"
+            set-groups-in-header="true"
+            set-catalog-in-header="false"
+            />
 
     <delegating quality="0.9"/>
 
     <white-list>
-        <uri-pattern>/application\.wadl$</uri-pattern>
+        <uri-regex>/application\.wadl$</uri-regex>
     </white-list>
 
 
@@ -40,13 +49,6 @@
         </eviction-feeds>
     </cache-settings>
 
-    <identity-service
-            username="admin_username"
-            tenant-id="either me or the username"
-            password="password"
-            uri="https://some.identity.com"
-            connection-pool-id="wat"
-            />
 
     <tenant-handling send-all-tenant-ids="true"
                      send-tenant-id-quality="true">
@@ -60,12 +62,7 @@
         </validate-tenant>
     </tenant-handling>
 
-    <forward>
-        <user-groups header="x-pp-groups"/>
-        <user-catalog header="x-catalog"/>
-    </forward>
-
-    <!-- authorization -->
+   <!-- authorization -->
     <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute">
         <bypass-validation-roles>
             <role>serviceAdmin</role>
