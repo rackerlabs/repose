@@ -110,13 +110,14 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       timeouts.getUser should be(60000)
       timeouts.getVariability should be(0)
 
+      filter.configuration.getIdentityService.isSetGroupsInHeader should be(true)
+      filter.configuration.getIdentityService.isSetCatalogInHeader should be(false)
+
       filter.configuration.getDelegating should be(null)
 
       filter.configuration.getWhiteList should be(null)
 
       filter.configuration.getTenantHandling should be(null)
-
-      filter.configuration.getForward should be(null)
 
       filter.configuration.getRequireServiceEndpoint should be(null)
 
