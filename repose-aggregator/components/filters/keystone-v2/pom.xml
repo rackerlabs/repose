@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -47,7 +48,6 @@
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_2.10</artifactId>
-            <version>2.3.4</version>
         </dependency>
 
         <!-- Http Delegation Library for delegating requests -->
@@ -99,6 +99,11 @@
             <artifactId>mockrunner-servlet</artifactId>
             <version>1.0.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
 
         <dependency>
