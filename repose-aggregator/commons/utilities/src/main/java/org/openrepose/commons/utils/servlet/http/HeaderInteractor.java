@@ -28,6 +28,7 @@ import java.util.List;
  * Time: 10:31 AM
  */
 public interface HeaderInteractor {
+    List<String> getHeaderNamesList();
     List<String> getHeaderList(String headerName);
     List<String> getSplittableHeader(String headerName);
     String getPrefferedHeader(String headerName);
