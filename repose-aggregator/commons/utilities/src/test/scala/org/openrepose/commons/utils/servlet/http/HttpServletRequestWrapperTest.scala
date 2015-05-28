@@ -130,10 +130,19 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   }
 
   describe("the addHeader method") {
-    it("Should increase the size of the HttpServletRequestWrapper by 1") {
+    it("Should add an additional value to an existing header") {
       val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo")
-      wrappedRequest.getHeadersList("foo").size shouldBe sizeOfHeaderList + 1
+      val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("foo").asScala
+      returnedValues.size shouldBe sizeOfHeaderList + 1
+      returnedValues should contain ("foo")
+    }
+
+    it("Should add a brand new header if it didn't exist before") {
+      wrappedRequest.addHeader("butts", "butts")
+      val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("butts").asScala
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts")
     }
   }
 
