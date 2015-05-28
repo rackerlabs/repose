@@ -98,7 +98,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getDateHeader method") {
     it("should return the date as a long") {
-      wrappedRequest.getDateHeader("awesomeTime") shouldBe 0
+      wrappedRequest.getDateHeader("awesomeTime") shouldBe 1432923132000L
     }
 
     it("should return -1 because of no date header") {
