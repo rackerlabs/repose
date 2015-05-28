@@ -69,26 +69,26 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       val resultShould: Int => String = { int => if (int == SC_OK) "should" else "should not" }
       val conditionsThis: List[(String, String, Int, Int)] = List(
         //Method    Role      Result        Masked
-        ("GET", "role1", SC_OK, SC_OK),
-        ("PUT", "role1", SC_OK, SC_OK),
-        ("POST", "role1", SC_OK, SC_OK),
-        ("DELETE", "role1", SC_OK, SC_OK),
-        ("GET", "role2", SC_OK, SC_OK),
-        ("PUT", "role2", SC_OK, SC_OK),
-        ("POST", "role2", SC_OK, SC_OK),
-        ("DELETE", "role2", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("GET", "role3", SC_OK, SC_OK),
-        ("PUT", "role3", SC_OK, SC_OK),
-        ("POST", "role3", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("DELETE", "role3", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("GET", "role4", SC_OK, SC_OK),
-        ("PUT", "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("POST", "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("DELETE", "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("GET", "role5", SC_FORBIDDEN, SC_NOT_FOUND),
-        ("PUT", "role5", SC_FORBIDDEN, SC_NOT_FOUND),
-        ("POST", "role5", SC_FORBIDDEN, SC_NOT_FOUND),
-        ("DELETE", "role5", SC_FORBIDDEN, SC_NOT_FOUND)
+        ("GET",     "role1",  SC_OK,        SC_OK),
+        ("PUT",     "role1",  SC_OK,        SC_OK),
+        ("POST",    "role1",  SC_OK,        SC_OK),
+        ("DELETE",  "role1",  SC_OK,        SC_OK),
+        ("GET",     "role2",  SC_OK,        SC_OK),
+        ("PUT",     "role2",  SC_OK,        SC_OK),
+        ("POST",    "role2",  SC_OK,        SC_OK),
+        ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("GET",     "role3",  SC_OK,        SC_OK),
+        ("PUT",     "role3",  SC_OK,        SC_OK),
+        ("POST",    "role3",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("DELETE",  "role3",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("GET",     "role4",  SC_OK,        SC_OK),
+        ("PUT",     "role4",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("POST",    "role4",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("DELETE",  "role4",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("GET",     "role5",  SC_FORBIDDEN, SC_NOT_FOUND),
+        ("PUT",     "role5",  SC_FORBIDDEN, SC_NOT_FOUND),
+        ("POST",    "role5",  SC_FORBIDDEN, SC_NOT_FOUND),
+        ("DELETE",  "role5",  SC_FORBIDDEN, SC_NOT_FOUND)
       )
       conditionsThis.foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method ${method} and having role ${role}.") {
@@ -112,14 +112,18 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
 
       val conditionsThat: List[(String, String, Int, Int)] = List(
         //Method    Role      Result        Masked
-        ("GET", "role1", SC_OK, SC_OK),
-        ("PUT", "role1", SC_OK, SC_OK),
-        ("POST", "role1", SC_OK, SC_OK),
-        ("DELETE", "role1", SC_OK, SC_OK),
-        ("GET", "role2", SC_OK, SC_OK),
-        ("PUT", "role2", SC_OK, SC_OK),
-        ("POST", "role2", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("DELETE", "role2", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
+        ("GET",     "role1",  SC_OK,        SC_OK),
+        ("PUT",     "role1",  SC_OK,        SC_OK),
+        ("POST",    "role1",  SC_OK,        SC_OK),
+        ("DELETE",  "role1",  SC_OK,        SC_OK),
+        ("GET",     "role2",  SC_OK,        SC_OK),
+        ("PUT",     "role2",  SC_OK,        SC_OK),
+        ("POST",    "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("GET",     "role3",  SC_OK,        SC_OK),
+        ("PUT",     "role3",  SC_OK,        SC_OK),
+        ("POST",    "role3",  SC_FORBIDDEN, SC_NOT_FOUND),
+        ("DELETE",  "role3",  SC_FORBIDDEN, SC_NOT_FOUND)
       )
       conditionsThat.foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method ${method} and having role ${role}.") {
