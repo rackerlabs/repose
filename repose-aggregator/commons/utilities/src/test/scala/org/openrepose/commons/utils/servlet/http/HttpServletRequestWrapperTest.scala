@@ -59,6 +59,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return all the header names including the ones that were added") {
+      pending
       wrappedRequest.addHeader("butts", "butts")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "butts", "awesomeTime")
     }
@@ -150,6 +151,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the addHeader method") {
     it("Should add an additional value to an existing header") {
+      pending
       val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo")
       val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("foo").asScala
@@ -158,6 +160,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("Should add a brand new header if it didn't exist before") {
+      pending
       wrappedRequest.addHeader("butts", "butts")
       val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("butts").asScala
       returnedValues.size shouldBe 1
@@ -166,28 +169,44 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   }
 
   describe("the addHeader method with quality") {
-    it("Should increase the size of the HttpServletRequestWrapper by 1 with a quality value") {
+    it("Should add an additional value to an existing header") {
+      pending
       val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo", 0.5)
       wrappedRequest.getHeadersList("foo").size shouldBe sizeOfHeaderList + 1
     }
+
+    it("Should add a brand new header if it didn't exist before") {
+      pending
+      wrappedRequest.addHeader("butts", "butts", 0.5)
+      val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("butts").asScala
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts")
+    }
   }
 
   describe("the removeHeader method") {
-    List("foo", "banana-phone", "cup", "ornament", "thumbs").foreach { case (headerName) =>
+    List("foo", "banana-phone", "cup", "ornament", "thumbs", "awesomeTime").foreach { case (headerName) =>
       it(s"Should remove the header from the wrapper: $headerName") {
+        pending
         wrappedRequest.removeHeader(headerName)
         wrappedRequest.getHeadersList(headerName).size shouldBe 0
       }
+    }
+
+    it("should try to remove a header that does not exist") {
+      pending
     }
   }
 
   describe("the getPreferredHeader method") {
     it("Should return value with largest quality value for ornament") {
+      pending
       val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "santa"
     }
     it("Should return value with largest quality value for cup") {
+      pending
       val preferred = wrappedRequest.getPreferredHeader("cup")
       preferred shouldBe "blue"
     }
