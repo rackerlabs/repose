@@ -119,11 +119,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         ("GET",     "role2",  SC_OK,        SC_OK),
         ("PUT",     "role2",  SC_OK,        SC_OK),
         ("POST",    "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-        ("GET",     "role3",  SC_OK,        SC_OK),
-        ("PUT",     "role3",  SC_OK,        SC_OK),
-        ("POST",    "role3",  SC_FORBIDDEN, SC_NOT_FOUND),
-        ("DELETE",  "role3",  SC_FORBIDDEN, SC_NOT_FOUND)
+        ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
       )
       conditionsThat.foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method ${method} and having role ${role}.") {
