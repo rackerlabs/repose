@@ -27,6 +27,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,6 +50,62 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     mockRequest.addHeader("ornament", "droopy tree?q=0.3")
     mockRequest.addHeader("thumbs", "2")
     wrappedRequest = new HttpServletRequestWrapper(mockRequest)
+  }
+
+  describe("the getHeaderNames method") {
+    it("should return all the header names from the original request") {
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs")
+    }
+
+    it("should return all the header names including the ones that were added") {
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs List("foo", "banana-phone", "cup", "ornament", "thumbs", "butts")
+    }
+  }
+
+  describe("the getIntHeader method") {
+    it("should return an int value when one is available") {
+      wrappedRequest.getIntHeader("thumbs") shouldBe 2
+    }
+
+    it("should return -1 when the header doesn't exist") {
+      wrappedRequest.getIntHeader("butts") shouldBe -1
+    }
+
+    it("should throw an exception when the header isn't an int") {
+      a [NumberFormatException] should be thrownBy wrappedRequest.getIntHeader("cup")
+    }
+  }
+
+  describe("the getHeaders method") {
+    Map("foo" -> List("bar", "baz"),
+      "banana-phone" -> List("ring,ring,ring"),
+      "cup" -> List("blue,orange?q=0.5"),
+      "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
+      "thumbs" -> List("2")).foreach { case (headerName, headerValues) =>
+      it(s"should return the appropriate elements for header: $headerName") {
+
+        val returnedValues: List[String] = wrappedRequest.getHeaders(headerName).asScala.toList
+        returnedValues.size shouldBe headerValues.size
+        returnedValues should contain theSameElementsAs headerValues
+      }
+    }
+  }
+
+  describe("the getDateHeader method") {
+    it("should do something") {
+      pending
+    }
+  }
+
+  describe("the getHeader method") {
+    it("should return the first value for a given header") {
+      wrappedRequest.getHeader("foo") shouldBe "bar"
+    }
+
+    it("should return null for an unknown header") {
+      wrappedRequest.getHeader("butts") shouldBe null
+    }
   }
 
   describe("the getHeaderNamesList method") {
