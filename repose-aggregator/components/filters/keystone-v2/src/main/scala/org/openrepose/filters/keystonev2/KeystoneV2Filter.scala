@@ -22,15 +22,22 @@ package org.openrepose.filters.Keystonev2
 import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.{ServiceClientResponse, CommonHttpHeader}
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, MutableHttpServletRequest}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
+
+import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
@@ -63,7 +70,100 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     configurationService.unsubscribeFrom(configurationFile, this)
   }
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
+  implicit val autoHeaderToString: CommonHttpHeader => String = { chh =>
+    chh.toString
+  }
+
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
+    val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+    val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
+
+    val authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN)
+
+    validateToken(authToken) match {
+      case Success(x) => {
+        if(!x) {
+          response.setStatus(403) //NOPE
+        } else {
+          chain.doFilter(request, response)
+        }
+      }
+      case Failure(x) => {
+        response.setStatus(500) //TODO: this isn't complete!
+      }
+    }
+
+  }
+
+  def validateToken(token: String): Try[Boolean] = {
+    getAdminToken match {
+      case Success(adminToken) => {
+        val identityEndpoint = configuration.getIdentityService.getUri
+
+        import scala.collection.JavaConverters._
+        Try(akkaServiceClient.get(token,
+          identityEndpoint,
+          Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)
+        ) match {
+          case Success(serviceClientResponse) => {
+            //DEAL WITH IT
+            //Parse the response for validating a token?
+            serviceClientResponse.getStatus match {
+              case 200 | 203 => {
+                Success(true)
+              }
+              case 400 => Failure(new Exception("Bad Admin Token authentication request to identity!")) //500 class
+              case 401 => ??? //TODO: CLEAR AND REGET ADMIN TOKEN
+              case 403 => ??? //TODO: CLEAR AND REGET ADMIN TOKEN?
+              case 404 => Success(false)
+              case 503 => Failure(new Exception("Identity Service not avaialable to authenticate token")) //502
+              case _ => Failure(new Exception("Unhandled response from Identity, unable to continue")) //502
+            }
+          }
+          case Failure(x) => Failure(x)
+        }
+      }
+      case Failure(x) => Failure(x)
+    }
+  }
+
+  def getAdminToken: Try[String] = {
+    //authenticate, or get the admin token
+    val identityEndpoint = configuration.getIdentityService.getUri
+
+    import play.api.libs.json._
+    val adminUsername = configuration.getIdentityService.getUsername
+    val adminPassword = configuration.getIdentityService.getPassword
+
+    val authenticationPayload = Json.obj(
+      "auth" -> Json.obj(
+        "passwordCredentials" -> Json.obj(
+          "username" -> adminUsername,
+          "password" -> adminPassword
+        )
+      )
+    )
+
+    import scala.collection.JavaConversions._
+    val akkaResponse = Try(akkaServiceClient.post("v2AdminTokenAuthentication",
+      identityEndpoint,
+      Map.empty[String, String],
+      Json.stringify(authenticationPayload),
+      MediaType.APPLICATION_JSON_TYPE
+    ))
+
+    akkaResponse match {
+      case Success(x) => {
+        val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
+        val json = Json.parse(jsonResponse)
+        Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
+          case Success(s) => s
+          case Failure(f) => Failure(f)
+        }
+      }
+      case Failure(x) => Failure(x)
+    }
+  }
 
   override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
     def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
