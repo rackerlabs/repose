@@ -311,6 +311,29 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "santa"
     }
+
+    it("should return added value if quality is larger than original") {
+      pending
+      wrappedRequest.addHeader("ornament", "reindeer", 0.95)
+      val preferred = wrappedRequest.getPreferredHeader("ornament")
+      preferred shouldBe "reindeer"
+    }
+
+    it("should not return added value if quality is smaller than original") {
+      pending
+      val oldPreferred = wrappedRequest.getPreferredHeader("ornament")
+      wrappedRequest.addHeader("ornament", "reindeer", 0.85)
+      val preferred = wrappedRequest.getPreferredHeader("ornament")
+      preferred shouldBe "santa"
+      preferred shouldBe oldPreferred
+    }
+
+    it("No quality specified should set quality to 1") {
+      pending
+      wrappedRequest.addHeader("ornament", "reindeer")
+      val preferred = wrappedRequest.getPreferredHeader("ornament")
+      preferred shouldBe "reindeer"
+    }
   }
 
 }
