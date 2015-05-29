@@ -19,25 +19,29 @@
  */
 package org.openrepose.filters.simplerbac
 
+import java.net.URL
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED, SC_NOT_FOUND, SC_OK}
 
+import com.mockrunner.mock.web.MockFilterConfig
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.junit.runner.RunWith
+import org.mockito.{Matchers, Mockito, ArgumentCaptor}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
+import org.openrepose.filters.simplerbac.config.{DelegatingType, SimpleRbacConfig}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with Matchers with MockitoSugar with LazyLogging {
+class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar with LazyLogging {
   var filter: SimpleRbacFilter = _
   var config: SimpleRbacConfig = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
   var mockConfigService: ConfigurationService = _
+  var mockFilterConfig: MockFilterConfig = _
 
   override def beforeAll() {
     System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
@@ -49,6 +53,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
+    mockFilterConfig = new MockFilterConfig
     filter = new SimpleRbacFilter(mockConfigService)
     config = new SimpleRbacConfig
     config.setResources(
@@ -61,6 +66,131 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         |/path/to/that  ALL       role1
         | """.stripMargin.trim()
     )
+  }
+
+  describe("when the configuration is updated") {
+    it("should have a default Delegation Type") {
+      Given("an un-initialized filter and the default configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(config)
+
+      Then("the Delegating Type should be default")
+      assert(filter.configuration.getDelegating == null)
+    }
+    it("should have a default Delegation Quality") {
+      Given("an un-initialized filter and the default configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+
+      When("the Delegating Type is set with a default and the configuration is updated")
+      config.setDelegating(new DelegatingType)
+      filter.configurationUpdated(config)
+
+      Then("the Delegating Quality should be default")
+      assert(filter.configuration.getDelegating.getQuality == .1)
+    }
+    it("should have a default Roles Header Name") {
+      Given("an un-initialized filter and the default configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(config)
+
+      Then("the Roles Header Name should be default")
+      assert(filter.configuration.getRolesHeaderName == "X-ROLES")
+    }
+    it("should have a default Enable Masking 403's") {
+      Given("an un-initialized filter and the default configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(config)
+
+      Then("the Enable Masking 403's should be default")
+      assert(!filter.configuration.isEnableMasking403S)
+    }
+    it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
+      Given("an un-initialized filter and a modified configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      val configuration = new SimpleRbacConfig
+      val delegatingType = new DelegatingType
+      delegatingType.setQuality(1.0d)
+      configuration.setDelegating(delegatingType)
+      configuration.setRolesHeaderName("NEW-HEADER-NAME")
+      configuration.setEnableMasking403S(true)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(configuration)
+
+      Then("the filter's configuration should be modified")
+      assert(filter.isInitialized)
+      assert(filter.configuration == configuration)
+      assert(filter.configuration.getDelegating.getQuality == 1.0d)
+      assert(filter.configuration.getRolesHeaderName == "NEW-HEADER-NAME")
+      assert(filter.configuration.isEnableMasking403S)
+    }
+  }
+
+  describe("when initializing the filter") {
+    it("should initialize the configuration to the default configuration") {
+      Given("an un-initialized filter and a mock'd Filter Config")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      mockFilterConfig.setFilterName("SimpleRbacFilter")
+      val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
+
+      When("the filter is initialized")
+      filter.init(mockFilterConfig)
+
+      Then("the filter should register with the ConfigurationService")
+      Mockito.verify(mockConfigService).subscribeTo(
+        Matchers.eq("SimpleRbacFilter"),
+        Matchers.eq("simple-rbac.cfg.xml"),
+        resourceCaptor.capture,
+        Matchers.eq(filter),
+        Matchers.eq(classOf[SimpleRbacConfig]))
+
+      assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/simple-rbac.xsd"))
+    }
+    it("should initialize the configuration to the given configuration") {
+      Given("an un-initialized filter and a mock'd Filter Config")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+
+      When("the filter is initialized")
+      filter.init(mockFilterConfig)
+
+      Then("the filter should register with the ConfigurationService")
+      Mockito.verify(mockConfigService).subscribeTo(
+        Matchers.anyString,
+        Matchers.eq("another-name.cfg.xml"),
+        Matchers.any(classOf[URL]),
+        Matchers.any(classOf[SimpleRbacFilter]),
+        Matchers.eq(classOf[SimpleRbacConfig]))
+    }
+  }
+
+  describe("when destroying the filter") {
+    it("should unregister the configuration from the configuration service") {
+      Given("an un-initialized filter and a mock'd Filter Config")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+
+      When("the filter is initialized and destroyed")
+      filter.init(mockFilterConfig)
+      filter.destroy()
+
+      Then("the filter should unregister with the ConfigurationService")
+      Mockito.verify(mockConfigService).unsubscribeFrom("another-name.cfg.xml", filter)
+    }
   }
 
   List(false, true).foreach { case (isMasked) =>
