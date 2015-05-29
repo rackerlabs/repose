@@ -226,6 +226,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           servletRequest.setRequestURI("/path/to/this")
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, role)
+          config.setEnableMasking403S(isMasked)
           filter.configurationUpdated(config)
 
           When("the protected resource is requested")
@@ -233,9 +234,9 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
 
           Then(s"the request ${resultShould(result)} be allowed access")
           if (isMasked) {
-            servletResponse.getStatus shouldBe result
-          } else {
             servletResponse.getStatus shouldBe masked
+          } else {
+            servletResponse.getStatus shouldBe result
           }
         }
       }
@@ -257,6 +258,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           servletRequest.setRequestURI("/path/to/that")
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, role)
+          config.setEnableMasking403S(isMasked)
           filter.configurationUpdated(config)
 
           When("the request is to access a protected resource")
@@ -264,9 +266,9 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
 
           Then(s"the request ${resultShould(result)} be allowed access")
           if (isMasked) {
-            servletResponse.getStatus shouldBe result
-          } else {
             servletResponse.getStatus shouldBe masked
+          } else {
+            servletResponse.getStatus shouldBe result
           }
         }
       }
