@@ -24,14 +24,20 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOW
 
 import com.mockrunner.mock.web.MockFilterConfig
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.{Matchers, Mockito, ArgumentCaptor}
+import org.openrepose.commons.config.resource.{ConfigurationResource, ConfigurationResourceResolver}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.simplerbac.config.{DelegatingType, SimpleRbacConfig}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+
+import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar with LazyLogging {
@@ -193,6 +199,78 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     }
   }
 
+  describe("when the configured resources list has a bad line") {
+    it("should log the bad line") {
+      Given("an un-initialized filter and a configuration with a malformed resource in the list")
+      val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      config.setResources(
+        """
+          |/path/to/good  ALL       ANY
+          |/path/to/bad   ALL
+          | """.stripMargin.trim()
+      )
+
+      When("the configuration is updated")
+      filter.configurationUpdated(config)
+
+      Then("the filter's configuration should be modified")
+      assert(filter.isInitialized)
+      val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
+      events.count(_.contains("Malformed RBAC Resource: ")) shouldBe 1
+    }
+  }
+
+  describe("when the configured resources are in a file") {
+    it("should load the file") {
+      Given("an un-initialized filter and a configuration with the resources in a file")
+      val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      val configuration = new SimpleRbacConfig
+      val rbacFileName = "/rbac/test.rbac"
+      configuration.setResourcesFileName(rbacFileName)
+      val resourceResolver: ConfigurationResourceResolver = mock[ConfigurationResourceResolver]
+      val configurationResource: ConfigurationResource = mock[ConfigurationResource]
+      org.mockito.Mockito.when(configurationResource.newInputStream).thenReturn(this.getClass.getResourceAsStream(rbacFileName))
+      org.mockito.Mockito.when(resourceResolver.resolve(rbacFileName)).thenReturn(configurationResource)
+      org.mockito.Mockito.when(mockConfigService.getResourceResolver).thenReturn(resourceResolver)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(configuration)
+
+      Then("the filter's configuration should be modified")
+      assert(filter.isInitialized)
+      val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
+      events.count(_.contains("Malformed RBAC Resource: /path/to/file")) shouldBe 1
+    }
+
+    it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
+      Given("an un-initialized filter and a modified configuration")
+      assert(filter.configuration == null)
+      assert(!filter.isInitialized)
+      val configuration = new SimpleRbacConfig
+      val delegatingType = new DelegatingType
+      delegatingType.setQuality(1.0d)
+      configuration.setDelegating(delegatingType)
+      configuration.setRolesHeaderName("NEW-HEADER-NAME")
+      configuration.setEnableMasking403S(true)
+
+      When("the configuration is updated")
+      filter.configurationUpdated(configuration)
+
+      Then("the filter's configuration should be modified")
+      assert(filter.isInitialized)
+      assert(filter.configuration == configuration)
+      assert(filter.configuration.getDelegating.getQuality == 1.0d)
+      assert(filter.configuration.getRolesHeaderName == "NEW-HEADER-NAME")
+      assert(filter.configuration.isEnableMasking403S)
+    }
+  }
+
   List(false, true).foreach { case (isMasked) =>
     val maskWith: Boolean => String = { boolean => if (boolean) "with" else "without" }
     describe(s"Simple RBAC ${maskWith(isMasked)} masked roles") {
@@ -254,10 +332,70 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       )
       conditionsThat.foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method $method and having role $role.") {
-          Given("a request without proper roles")
+          Given("a request with roles")
           servletRequest.setRequestURI("/path/to/that")
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, role)
+          config.setEnableMasking403S(isMasked)
+          filter.configurationUpdated(config)
+
+          When("the request is to access a protected resource")
+          filter.doFilter(servletRequest, servletResponse, filterChain)
+
+          Then(s"the request ${resultShould(result)} be allowed access")
+          if (isMasked) {
+            servletResponse.getStatus shouldBe masked
+          } else {
+            servletResponse.getStatus shouldBe result
+          }
+        }
+      }
+
+      val conditionsNone: List[(String, Int, Int)] = List(
+        //Method    Result        Masked
+        ("GET",     SC_OK,        SC_OK),
+        ("PUT",     SC_OK,        SC_OK),
+        ("POST",    SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("DELETE",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
+      )
+      conditionsNone.foreach { case (method, result, masked) =>
+        it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method $method and having no roles.") {
+          Given("a request without roles")
+          servletRequest.setRequestURI("/path/to/that")
+          servletRequest.setMethod(method)
+          config.setEnableMasking403S(isMasked)
+          filter.configurationUpdated(config)
+
+          When("the request is to access a protected resource")
+          filter.doFilter(servletRequest, servletResponse, filterChain)
+
+          Then(s"the request ${resultShould(result)} be allowed access")
+          if (isMasked) {
+            servletResponse.getStatus shouldBe masked
+          } else {
+            servletResponse.getStatus shouldBe result
+          }
+        }
+      }
+
+      val conditionsMulti: List[(String, String, String, Int, Int)] = List(
+        //Method    RolesA          RolesB          Result        Masked
+        ("GET",     "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
+        ("PUT",     "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
+        ("POST",    "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
+        ("DELETE",  "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
+        ("GET",     "role4, roleA", "role5, roleB", SC_OK,        SC_OK),
+        ("PUT",     "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("POST",    "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+        ("DELETE",  "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
+      )
+      conditionsMulti.foreach { case (method, rolesa, rolesb, result, masked) =>
+        it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method $method and having the roles $rolesa and $rolesb.") {
+          Given("a request multiple roles")
+          servletRequest.setRequestURI("/path/to/this")
+          servletRequest.setMethod(method)
+          servletRequest.addHeader(config.getRolesHeaderName, rolesa)
+          servletRequest.addHeader(config.getRolesHeaderName, rolesb)
           config.setEnableMasking403S(isMasked)
           filter.configurationUpdated(config)
 

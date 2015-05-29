@@ -96,7 +96,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       val resourceRequest = new ResourceRequest(
         mutableHttpRequest.getRequestURI,
         mutableHttpRequest.getMethod,
-        mutableHttpRequest.getHeaders(configuration.getRolesHeaderName).toSet
+        mutableHttpRequest.getHeaders(configuration.getRolesHeaderName).toSet[String].flatMap(parseMethodsRoles)
       )
       if (resources.exists(_.satisfiesRequest(resourceRequest))) {
         mutableHttpResponse.setStatus(SC_OK) // 200
@@ -140,9 +140,9 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
           readResource(
             configurationService.getResourceResolver.resolve(configuration.getResourcesFileName).newInputStream()
           ).getOrElse("")
-        ).orNull
+        ).getOrElse(List.empty)
       } else {
-        null
+        List.empty
       }
     )
     initialized = true
@@ -177,14 +177,14 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   }
 
   def readResource(resourceStream: InputStream): Option[String] = {
-    Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))
+    Try(Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))).getOrElse(None)
   }
 
   private def parseResources(lines: String): Option[List[Resource]] = {
     if (lines == null) {
       None
     } else {
-      Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine(_).orNull))
+      Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine(_).orNull).filter(_ != null))
     }
   }
 
@@ -193,11 +193,12 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
     if (values.length == 3) {
       Some(new Resource(values(0), parseMethodsRoles(values(1)), parseMethodsRoles(values(2))))
     } else {
+      logger.warn(s"Malformed RBAC Resource: $line")
       None
     }
   }
 
   private def parseMethodsRoles(value: String): Set[String] = {
-    Try(value.split(',').toSet).getOrElse(null)
+    Try(value.split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
   }
 }
