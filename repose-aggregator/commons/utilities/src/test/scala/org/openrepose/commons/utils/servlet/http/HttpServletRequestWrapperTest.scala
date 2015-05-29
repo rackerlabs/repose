@@ -334,6 +334,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "reindeer"
     }
+
+    it("should return the first occurrence of highest quality duplicate values") {
+      pending
+      val preferred = wrappedRequest.getPreferredHeader("foo")
+      preferred shouldBe "bar"
+    }
   }
 
 }
