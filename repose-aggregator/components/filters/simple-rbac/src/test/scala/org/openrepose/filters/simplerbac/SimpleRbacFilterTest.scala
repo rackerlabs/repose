@@ -91,7 +91,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         ("DELETE",  "role5",  SC_FORBIDDEN, SC_NOT_FOUND)
       )
       conditionsThis.foreach { case (method, role, result, masked) =>
-        it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method ${method} and having role ${role}.") {
+        it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method $method and having role $role.") {
           Given(s"a request using HTTP method $method and having role $role")
           servletRequest.setRequestURI("/path/to/this")
           servletRequest.setMethod(method)
@@ -122,7 +122,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
       )
       conditionsThat.foreach { case (method, role, result, masked) =>
-        it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method ${method} and having role ${role}.") {
+        it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method $method and having role $role.") {
           Given("a request without proper roles")
           servletRequest.setRequestURI("/path/to/that")
           servletRequest.setMethod(method)
