@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.simplerbac
 
+import java.io.InputStream
 import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -33,6 +34,10 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
 
+import scala.collection.JavaConversions._
+import scala.io.Source
+import scala.util.Try
+
 @Named
 class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   extends Filter
@@ -45,6 +50,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: SimpleRbacConfig = _
   var initialized = false
+  var resources: List[Resource] = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -72,7 +78,51 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
       logger.trace("Simple RBAC filter processing request...")
-      mutableHttpResponse.setStatus(SC_NOT_IMPLEMENTED) // 501
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      // IF any Resources satisfy the Request,                                //
+      //    THEN continue with a status code of OK (200);                     //
+      // ELSE:                                                                //
+      //    IF no Resources satisfy the Request's Path,                       //
+      //       THEN return with a status code of NOT FOUND (404);             //
+      //    ELSE IF any Resources satisfy the Request's Roles, THEN:          //
+      //       IF Mask Roles is Enabled,                                      //
+      //          THEN return with a status code of METHOD NOT ALLOWED (405); //
+      //       ELSE return with a status code of FORBIDDEN (403).             //
+      //    ELSE no Resources satisfy the Request's Method, SO:               //
+      //       IF Mask Roles is Enabled,                                      //
+      //          THEN return with a status code of NOT FOUND (404);          //
+      //       ELSE return with a status code of FORBIDDEN (403).             //
+      //////////////////////////////////////////////////////////////////////////
+      val resourceRequest = new ResourceRequest(
+        mutableHttpRequest.getRequestURI,
+        mutableHttpRequest.getMethod,
+        mutableHttpRequest.getHeaders(configuration.getRolesHeaderName).toSet
+      )
+      if (resources.exists(_.satisfiesRequest(resourceRequest))) {
+        mutableHttpResponse.setStatus(SC_OK) // 200
+      } else {
+        val paths = resources.filter(_.satisfiesPath(resourceRequest))
+        if (paths.isEmpty) {
+          mutableHttpResponse.setStatus(SC_OK) // 200
+        } else {
+          if (paths.exists(_.satisfiesRoles(resourceRequest))) {
+            if (configuration.isEnableMasking403S) {
+              mutableHttpResponse.setStatus(SC_METHOD_NOT_ALLOWED) // 405
+            } else {
+              mutableHttpResponse.setStatus(SC_FORBIDDEN) // 403
+            }
+          } else {
+            if (configuration.isEnableMasking403S) {
+              mutableHttpResponse.setStatus(SC_NOT_FOUND) // 404
+            } else {
+              mutableHttpResponse.setStatus(SC_FORBIDDEN) // 403
+            }
+          }
+        }
+      }
+      //////////////////////////////////////////////////////
+      //mutableHttpResponse.setStatus(SC_NOT_IMPLEMENTED) // 501
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
       if (mutableHttpResponse.getStatus == SC_OK) {
         logger.trace("Simple RBAC filter passing request...")
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
@@ -84,8 +134,68 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
 
   override def configurationUpdated(configurationObject: SimpleRbacConfig): Unit = {
     configuration = configurationObject
+    resources = parseResources(configuration.getResources).getOrElse(
+      if (configuration.getResourcesFileName != null) {
+        parseResources(
+          readResource(
+            configurationService.getResourceResolver.resolve(configuration.getResourcesFileName).newInputStream()
+          ).getOrElse("")
+        ).orNull
+      } else {
+        null
+      }
+    )
     initialized = true
   }
 
   override def isInitialized: Boolean = initialized
+
+  case class ResourceRequest(path: String, method: String, roles: Set[String])
+
+  case class Resource(path: String, methods: Set[String], roles: Set[String]) {
+    def satisfiesRequest(request: ResourceRequest): Boolean = {
+      satisfiesPath(request) &&
+        satisfiesMethods(request) &&
+        satisfiesRoles(request)
+    }
+
+    def satisfiesPath(request: ResourceRequest): Boolean = {
+      this.path == request.path
+    }
+
+    def satisfiesMethods(request: ResourceRequest): Boolean = {
+      this.methods.contains("ALL") ||
+        this.methods.contains(request.method)
+    }
+
+    def satisfiesRoles(request: ResourceRequest): Boolean = {
+      this.roles.contains("ALL") ||
+        this.roles.intersect(request.roles).nonEmpty
+    }
+  }
+
+  def readResource(resourceStream: InputStream): Option[String] = {
+    Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))
+  }
+
+  private def parseResources(lines: String): Option[List[Resource]] = {
+    if (lines == null) {
+      None
+    } else {
+      Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine(_).orNull))
+    }
+  }
+
+  private def parseLine(line: String): Option[Resource] = {
+    val values = line.split("\\s+")
+    if (values.length == 3) {
+      Some(new Resource(values(0), parseMethodsRoles(values(1)), parseMethodsRoles(values(2))))
+    } else {
+      None
+    }
+  }
+
+  private def parseMethodsRoles(value: String): Set[String] = {
+    Try(value.split(',').toSet).getOrElse(null)
+  }
 }
