@@ -162,6 +162,25 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should return null for an unknown header") {
       wrappedRequest.getHeader("butts") shouldBe null
     }
+
+    it("should continue to return the first original value even if a value has been added") {
+      pending
+      wrappedRequest.addHeader("foo", "foo")
+      wrappedRequest.getHeader("foo") shouldBe "bar"
+    }
+
+    it("should return the first value for entirely new headers") {
+      pending
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.addHeader("butts", "shazbot")
+      wrappedRequest.getHeader("butts") shouldBe "butts"
+    }
+
+    it("should return null for removed headers") {
+      pending
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeader("foo") shouldBe null
+    }
   }
 
   describe("the getHeaderNamesList method") {
