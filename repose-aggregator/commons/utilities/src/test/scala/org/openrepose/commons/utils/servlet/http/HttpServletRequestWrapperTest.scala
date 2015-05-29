@@ -194,6 +194,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
+  describe("the getPreferredSplittableHeader method") {
+    it("Should return value with largest quality value for cup") {
+      pending
+      val preferred = wrappedRequest.getPreferredSplittableHeader("cup")
+      preferred shouldBe "blue"
+    }
+  }
+
   describe("the removeHeader method") {
     headerMap.keys.foreach { headerName =>
       it(s"Should remove the header from the wrapper: $headerName") {
@@ -213,11 +221,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       pending
       val preferred = wrappedRequest.getPreferredHeader("ornament")
       preferred shouldBe "santa"
-    }
-    it("Should return value with largest quality value for cup") {
-      pending
-      val preferred = wrappedRequest.getPreferredHeader("cup")
-      preferred shouldBe "blue"
     }
   }
 
