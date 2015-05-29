@@ -145,6 +145,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should throw IllegalArgumentException if value is not a Date") {
       an [IllegalArgumentException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
+
+    it("should provide a value for an added header") {
+      pending
+      wrappedRequest.addHeader("awesomeTime", "Thu, 1 Jan 1970 00:00:00 GMT")
+      wrappedRequest.getDateHeader("awesomeTime") shouldBe 0L
+    }
+
+    it("should return -1 for a removed header") {
+      pending
+      wrappedRequest.removeHeader("awesomeTime")
+      wrappedRequest.getDateHeader("awesomeTime") shouldBe -1
+    }
   }
 
   describe("the getHeader method") {
