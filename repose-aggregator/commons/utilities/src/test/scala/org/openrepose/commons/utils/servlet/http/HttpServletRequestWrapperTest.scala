@@ -220,7 +220,30 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return an empty list") {
-      wrappedRequest.getHeadersList("notAHeader").size shouldBe 0
+      wrappedRequest.getHeadersList("notAHeader") shouldBe empty
+    }
+
+    it("should include a newly added header") {
+      pending
+      wrappedRequest.addHeader("bar", "foo")
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("bar").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain theSameElementsAs List("foo")
+    }
+
+    it("should include a newly added header with foo") {
+      pending
+      val originalValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      wrappedRequest.addHeader("foo", "foo")
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      returnedValues.size shouldBe originalValues.size + 1
+      returnedValues should contain theSameElementsAs originalValues ++ ("foo")
+    }
+
+    it("should return an empty list when header is removed") {
+      pending
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeadersList("foo") shouldBe empty
     }
   }
 
