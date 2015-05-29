@@ -164,12 +164,14 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
     }
 
     def satisfiesMethods(request: ResourceRequest): Boolean = {
-      this.methods.contains("ALL") ||
+      this.methods.contains("ANY") ||
+        this.methods.contains("ALL") ||
         this.methods.contains(request.method)
     }
 
     def satisfiesRoles(request: ResourceRequest): Boolean = {
-      this.roles.contains("ALL") ||
+      this.roles.contains("ANY") ||
+        this.roles.contains("ALL") ||
         this.roles.intersect(request.roles).nonEmpty
     }
   }

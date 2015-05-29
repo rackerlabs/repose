@@ -62,7 +62,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         |/path/to/this  PUT       role1,role2,role3
         |/path/to/this  POST      role1,role2
         |/path/to/this  DELETE    role1
-        |/path/to/that  GET,PUT   ALL
+        |/path/to/that  GET,PUT   ANY
         |/path/to/that  ALL       role1
         | """.stripMargin.trim()
     )
