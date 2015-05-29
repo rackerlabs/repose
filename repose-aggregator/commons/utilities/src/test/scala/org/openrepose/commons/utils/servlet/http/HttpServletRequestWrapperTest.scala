@@ -107,13 +107,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       }
     }
 
-    it("should increase returnValue list by 1 when another header is added") {
-      pending
-      val returnedValuesSize = wrappedRequest.getHeaders("foo").asScala.toList.size
-      wrappedRequest.addHeader("foo", "foo")
-      wrappedRequest.getHeaders("foo").asScala.toList.size shouldBe returnedValuesSize + 1
-    }
-
     it("should return an empty list for unknown header") {
       wrappedRequest.getHeaders("notAHeader").asScala.toList shouldBe empty
     }
