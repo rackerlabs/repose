@@ -65,21 +65,21 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
-      logger.error("HERP filter has not yet initialized...")
+      logger.error("Simple RBAC filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
       val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
       val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
-      logger.trace("HERP filter processing request...")
+      logger.trace("Simple RBAC filter processing request...")
       mutableHttpResponse.setStatus(SC_NOT_IMPLEMENTED) // 501
       if (mutableHttpResponse.getStatus == SC_OK) {
-        logger.trace("HERP filter passing request...")
+        logger.trace("Simple RBAC filter passing request...")
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-        logger.trace("HERP filter handling response...")
+        logger.trace("Simple RBAC filter handling response...")
       }
     }
-    logger.trace("HERP filter returning response...")
+    logger.trace("Simple RBAC filter returning response...")
   }
 
   override def configurationUpdated(configurationObject: SimpleRbacConfig): Unit = {
