@@ -196,6 +196,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should not contain a header name that was not added") {
       wrappedRequest.getHeaderNamesList.asScala shouldNot contain theSameElementsAs List("notAHeader")
     }
+
+    it("should include a newly added header name") {
+      pending
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs headerMap.keys ++ "butts"
+    }
+
+    it("should not included removed headers") {
+      pending
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+    }
   }
 
   describe("the getHeadersList method") {
