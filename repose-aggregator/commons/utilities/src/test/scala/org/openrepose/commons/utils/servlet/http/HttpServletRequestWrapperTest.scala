@@ -19,8 +19,6 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.util
-
 import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -66,6 +64,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("butts", "butts")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys ++ "butts"
     }
+
+    it("should return a list that is missing any deleted headers") {
+      pending
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+    }
   }
 
   describe("the getIntHeader method") {
@@ -80,6 +84,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should throw an exception when the header isn't an int") {
       a [NumberFormatException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
+
+    it("should provide a value for an added header") {
+      pending
+      wrappedRequest.addHeader("butts", "42")
+      wrappedRequest.getIntHeader("butts") shouldBe 42
+    }
+
+    it("should not return the value for a deleted header") {
+      pending
+      wrappedRequest.removeHeader("thumbs")
+      wrappedRequest.getIntHeader("thumbs") shouldBe -1
+    }
   }
 
   describe("the getHeaders method") {
@@ -91,8 +107,29 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       }
     }
 
-    it("should return an empty list") {
-      wrappedRequest.getHeaders("notAHeader").asScala.toList.size shouldBe 0
+    it("should return an empty list for unknown header") {
+      wrappedRequest.getHeaders("notAHeader").asScala.toList shouldBe empty
+    }
+
+    it("should return all values for a header including added ones") {
+      pending
+      val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
+      wrappedRequest.addHeader("foo", "foo")
+      val returnedValues: List[String] = wrappedRequest.getHeaders("foo").asScala.toList
+      returnedValues.size shouldBe sizeOfHeaderList + 1
+      returnedValues should contain ("foo")
+    }
+
+    it("should return value for a brand new header") {
+      pending
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.getHeaders("butts").asScala.toList should contain ("butts")
+    }
+
+    it("should return an empty list for a deleted header") {
+      pending
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeaders("foo").asScala.toList shouldBe empty
     }
   }
 
@@ -133,9 +170,9 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   describe("the getHeadersList method") {
     headerMap.foreach { case (headerName, headerValues) =>
       it(s"should return the appropriate elements for header: $headerName") {
-        val returnedValues: util.List[String] = wrappedRequest.getHeadersList(headerName)
+        val returnedValues: List[String] = wrappedRequest.getHeadersList(headerName).asScala.toList
         returnedValues.size shouldBe headerValues.size
-        returnedValues.asScala should contain theSameElementsAs headerValues
+        returnedValues should contain theSameElementsAs headerValues
       }
     }
 
@@ -149,7 +186,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       pending
       val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
       wrappedRequest.addHeader("foo", "foo")
-      val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("foo").asScala
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe sizeOfHeaderList + 1
       returnedValues should contain ("foo")
     }
