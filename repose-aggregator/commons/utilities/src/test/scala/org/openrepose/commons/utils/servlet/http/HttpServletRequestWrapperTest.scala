@@ -80,6 +80,13 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should throw an exception when the header isn't an int") {
       a [NumberFormatException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
+
+    it("should return added Int header") {
+      pending
+      wrappedRequest.getIntHeader("butts") shouldBe -1
+      wrappedRequest.addHeader("butts", "3")
+      wrappedRequest.getIntHeader("butts") shouldBe 3
+    }
   }
 
   describe("the getHeaders method") {
@@ -89,6 +96,13 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
         returnedValues.size shouldBe headerValues.size
         returnedValues should contain theSameElementsAs headerValues
       }
+    }
+
+    it("should increase returnValue list by 1 when another header is added") {
+      pending
+      val returnedValuesSize = wrappedRequest.getHeaders("foo").asScala.toList.size
+      wrappedRequest.addHeader("foo", "foo")
+      wrappedRequest.getHeaders("foo").asScala.toList.size shouldBe returnedValuesSize + 1
     }
 
     it("should return an empty list") {
