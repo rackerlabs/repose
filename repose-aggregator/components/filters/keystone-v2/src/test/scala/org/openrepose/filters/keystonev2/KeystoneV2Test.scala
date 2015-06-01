@@ -8,6 +8,7 @@ import org.mockito.Mockito
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.filters.Keystonev2.KeystoneV2Filter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -34,28 +35,43 @@ with IdentityResponses {
     mockAkkaServiceClient.reset()
   }
 
+  //TODO: pull all this up into some trait for use in testing
+  //Used to unify an exception and a proper response to make it easier to handle in code
+  trait AkkaParent
 
   object AkkaServiceClientResponse {
-    def apply(status: Int, body: String): ServiceClientResponse = {
-      new ServiceClientResponse(status, new ByteArrayInputStream(body.getBytes))
+    def apply(status: Int, body: String): ServiceClientResponse with AkkaParent = {
+      new ServiceClientResponse(status, new ByteArrayInputStream(body.getBytes)) with AkkaParent
+    }
+
+    def failure(reason: String, parent: Throwable = null) = {
+      new AkkaServiceClientException(reason, parent) with AkkaParent
     }
   }
 
-  def mockAkkaAdminTokenResponse(response: ServiceClientResponse): Unit = {
+  def mockAkkaAdminTokenResponse(response: AkkaParent): Unit = {
     mockAkkaAdminTokenResponses(Seq(response))
   }
 
-  def mockAkkaAdminTokenResponses(responses: Seq[ServiceClientResponse]): Unit = {
-    mockAkkaServiceClient.postResponses ++= responses.reverse
+  def mockAkkaAdminTokenResponses(responses: Seq[AkkaParent]): Unit = {
+    mockAkkaServiceClient.postResponses ++= responses.reverse.map {
+      case x: ServiceClientResponse => Left(x)
+      case x: AkkaServiceClientException => Right(x)
+    }
   }
 
-  def mockAkkaValidateTokenResponse(forToken: String)(adminToken: String, response: ServiceClientResponse): Unit = {
+  def mockAkkaValidateTokenResponse(forToken: String)(adminToken: String, response: AkkaParent): Unit = {
     mockAkkaValidateTokenResponses(forToken)(Seq(adminToken -> response))
   }
 
-  def mockAkkaValidateTokenResponses(forToken: String)(responses: Seq[(String, ServiceClientResponse)]): Unit = {
+  def mockAkkaValidateTokenResponses(forToken: String)(responses: Seq[(String, AkkaParent)]): Unit = {
     responses.foreach { case (adminToken, response) =>
-      mockAkkaServiceClient.getResponses.put((adminToken, forToken), response)
+      val key = (adminToken, forToken)
+      val value = response match {
+        case x: ServiceClientResponse => Left(x)
+        case x: AkkaServiceClientException => Right(x)
+      }
+      mockAkkaServiceClient.getResponses.put(key, value)
     }
   }
 
@@ -174,10 +190,61 @@ with IdentityResponses {
       mockAkkaServiceClient.validate()
     }
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
-      pending
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", "aValidToken")
+
+      //Our admin token is good every time
+      mockAkkaAdminTokenResponses {
+        Seq(
+          AkkaServiceClientResponse(200, authenticateTokenResponse()),
+          AkkaServiceClientResponse(200, authenticateTokenResponse(token = "morty"))
+        )
+      }
+
+      //When validating a token, we're going to not be authorized the first time,
+      // Then we'll be authorized
+      mockAkkaValidateTokenResponses("aValidToken") {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(403, ""),
+          "morty" -> AkkaServiceClientResponse(403, "")
+        )
+      }
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus should be(500)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
+
     it("rejects with 502 if we cannot reach identity") {
-      pending
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", "aValidToken")
+
+      //Our admin token is good every time
+      //Need to throw an exception from akka when trying to talk to it
+      //The admin token retry logic doesn't retry when it's a 500 class error
+      mockAkkaAdminTokenResponses {
+        Seq(
+          AkkaServiceClientResponse.failure("Unable to reach identity!")
+        )
+      }
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus should be(502)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
+
     }
     it("rejects with 502 if we cannot authenticate as the admin user") {
       pending

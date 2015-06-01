@@ -6,14 +6,15 @@ import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientException, AkkaServiceClient}
 
 import scala.collection.mutable
 
 class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
+  type AkkaResponse = Either[ServiceClientResponse, AkkaServiceClientException]
 
-  val getResponses: mutable.Map[(String, String), ServiceClientResponse] = mutable.Map.empty[(String, String), ServiceClientResponse]
-  val postResponses: mutable.ArrayStack[ServiceClientResponse] = new mutable.ArrayStack[ServiceClientResponse]()
+  val getResponses: mutable.Map[(String, String), AkkaResponse] = mutable.Map.empty[(String, String), AkkaResponse]
+  val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
   val oversteppedValidateToken = new AtomicBoolean(false)
   val oversteppedAdminAuthentication = new AtomicBoolean(false)
 
@@ -24,10 +25,10 @@ class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
     if (postResponses.nonEmpty) {
       throw new AssertionError(s"ALL ADMIN TOKEN AUTHENTICATION RESPONSES NOT CONSUMED: $postResponses")
     }
-    if(oversteppedValidateToken.get()) {
+    if (oversteppedValidateToken.get()) {
       throw new AssertionError("REQUESTED TOO MANY VALIDATE TOKEN RESPONSES")
     }
-    if(oversteppedValidateToken.get()) {
+    if (oversteppedValidateToken.get()) {
       throw new AssertionError("REQUESTED TOO MANY AUTHENTICATE ADMIN RESPONSES")
     }
   }
@@ -40,10 +41,15 @@ class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
   override def get(token: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
     logger.debug(getResponses.mkString("\n"))
     val adminToken = headers.get("x-auth-token")
-    getResponses.remove((adminToken, token)).getOrElse {
-      logger.error("NO REMAINING VALIDATE TOKEN RESPONSES!")
-      oversteppedValidateToken.set(true)
-      throw new Exception("OVERSTEPPED BOUNDARIES")
+    logger.debug(s"handling $adminToken, $token")
+    getResponses.remove((adminToken, token)) match {
+      case None => {
+        logger.error("NO REMAINING VALIDATE TOKEN RESPONSES!")
+        oversteppedValidateToken.set(true)
+        throw new Exception("OVERSTEPPED BOUNDARIES")
+      }
+      case Some(Left(x)) => x
+      case Some(Right(x)) => throw x
     }
   }
 
@@ -52,9 +58,12 @@ class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
                     headers: util.Map[String, String],
                     payload: String,
                     contentMediaType: MediaType): ServiceClientResponse = {
-    if(postResponses.nonEmpty) {
-      postResponses.pop()
-    }else {
+    if (postResponses.nonEmpty) {
+      postResponses.pop() match {
+        case Left(x) => x
+        case Right(x) => throw x
+      }
+    } else {
       oversteppedAdminAuthentication.set(true)
       throw new Exception("OVERSTEPPED BOUNDARIES")
     }

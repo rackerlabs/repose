@@ -54,6 +54,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   var configuration: KeystoneV2Config = _
   var initialized = false
 
+  trait IdentityExceptions
+
+  case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
+
+  case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
+
+  case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
+
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
@@ -75,27 +83,65 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     chh.toString
   }
 
+  trait KeystoneV2Result
+
+  case object Pass extends KeystoneV2Result
+
+  case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
+
+
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
 
     val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
+    //Pull in the status codes, because I'm using them a bunch
+    import HttpServletResponse._
 
-    authTokenValue.map { authToken =>
+    val result: KeystoneV2Result = authTokenValue.map { authToken =>
       validateToken(authToken) match {
         case Success(x) => {
           if (!x) {
-            response.setStatus(403) //NOPE
+            Reject(SC_FORBIDDEN)
           } else {
-            chain.doFilter(request, response)
+            Pass
           }
         }
+        case Failure(x: IdentityAdminTokenException) => {
+          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+        }
+        case Failure(x: IdentityCommuncationException) => {
+          Reject(SC_BAD_GATEWAY, failure = Some(x))
+        }
         case Failure(x) => {
-          response.setStatus(500) //TODO: this isn't complete!
+          //TODO: this isn't yet complete
+          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
         }
       }
     } getOrElse {
-      response.setStatus(403)
+      Reject(SC_FORBIDDEN, Some("Token did not validate"))
+    }
+
+    result match {
+      case rejection: Reject => {
+        val message: Option[String] = rejection match {
+          case Reject(_, Some(x), _) => Some(x)
+          case Reject(code, None, Some(failure)) => {
+            logger.debug(s"Rejecting with status $code", failure)
+            Some(failure.getMessage)
+          }
+          case _ => None
+        }
+        message.map { m =>
+          logger.debug(s"Rejection message: $m")
+          response.sendError(rejection.status, m)
+        } getOrElse {
+          response.sendError(rejection.status)
+        }
+      }
+      case Pass => {
+        chain.doFilter(request, response)
+      }
     }
   }
 
@@ -114,29 +160,29 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             //DEAL WITH IT
             //Parse the response for validating a token?
             logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
-            logger.debug(s"Admin Token: ${adminToken}")
+            logger.debug(s"Admin Token: $adminToken")
             serviceClientResponse.getStatus match {
               case 200 | 203 => {
                 Success(true)
               }
-              case 400 => Failure(new Exception("Bad Token Validation request to identity!")) //500 class
+              case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!")) //500 class
               case 401 | 403 => {
                 if (doRetry) {
                   //Clear the cache, call this method again
                   validateToken(token, doRetry = false)
                 } else {
-                  Failure(new Exception("Admin user is not authorized to validate tokens"))
+                  Failure(IdentityAdminTokenException("Admin user is not authorized to validate tokens"))
                 }
               }
               case 404 => Success(false)
-              case 503 => Failure(new Exception("Identity Service not avaialable to authenticate token")) //502
-              case _ => Failure(new Exception("Unhandled response from Identity, unable to continue")) //502
+              case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token")) //502
+              case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue")) //502
             }
           }
-          case Failure(x) => Failure(new Exception("Communication error with Identity to validate a token", x))
+          case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
         }
       }
-      case Failure(x) => Failure(new Exception("Unable to acquire admin token", x))
+      case Failure(x) => Failure(x) //Just rebox it directly and use the same exception
     }
   }
 
@@ -171,10 +217,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val json = Json.parse(jsonResponse)
         Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
           case Success(s) => s
-          case Failure(f) => Failure(new Exception("Token not found in identity response", f))
+          case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
         }
       }
-      case Failure(x) => Failure(new Exception("Failure communicating with identity", x))
+      case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
     }
   }
 
