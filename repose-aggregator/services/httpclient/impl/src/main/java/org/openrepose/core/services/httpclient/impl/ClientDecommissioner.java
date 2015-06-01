@@ -19,43 +19,43 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Thread runner which will  monitor and shutdown when no active connections are being processed by passed
+ * Thread runner which will monitor and shutdown when no active connections are being processed by passed
  * HttpClient(s)
  */
 public class ClientDecommissioner implements Runnable {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissioner.class);
-
     private static final long DEFAULT_INTERVAL = 5000;
-    List<HttpClient> clientList;
-    HttpClientUserManager userManager;
+
+    private final Object listLock;
+
     private boolean done;
-    private Object listLock;
+
+    List<ExtendedHttpClient> clientList;
+    HttpClientUserManager userManager;
 
     public ClientDecommissioner(HttpClientUserManager userManager) {
-
         clientList = new ArrayList<>();
         listLock = new Object();
         done = false;
         this.userManager = userManager;
     }
 
-    public void addClientToBeDecommissioned(HttpClient client) {
-
+    public void addClientToBeDecommissioned(ExtendedHttpClient client) {
         synchronized (listLock) {
-            PoolingClientConnectionManager connMan = (PoolingClientConnectionManager) client.getConnectionManager();
-            connMan.closeExpiredConnections();
-            connMan.setMaxTotal(1);
-            connMan.setDefaultMaxPerRoute(1);
+            PoolingHttpClientConnectionManager connectionManager = client.getConnectionManager();
+            connectionManager.close();
+            connectionManager.setMaxTotal(1);
+            connectionManager.setDefaultMaxPerRoute(1);
             clientList.add(client);
         }
     }
@@ -68,14 +68,13 @@ public class ClientDecommissioner implements Runnable {
     public void run() {
         while (!this.done) {
             synchronized (listLock) {
-
                 LOG.trace("Iterating through decommissioned clients...");
 
-                List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
+                List<ExtendedHttpClient> clientsToRemove = new ArrayList<>();
 
-                for (HttpClient client : clientList) {
+                for (ExtendedHttpClient client : clientList) {
 
-                    String clientId = client.getParams().getParameter(HttpConnectionPoolProvider.CLIENT_INSTANCE_ID).toString();
+                    String clientId = client.getClientInstanceId();
 
                     if (userManager.hasUsers(clientId)) {
                         LOG.warn("Failed to shutdown connection pool client {} due to a connection still in " +
@@ -83,18 +82,22 @@ public class ClientDecommissioner implements Runnable {
                         break;
                     }
 
-                    PoolingClientConnectionManager connMan = (PoolingClientConnectionManager) client.getConnectionManager();
+                    PoolingHttpClientConnectionManager connMan = client.getConnectionManager();
                     PoolStats stats = connMan.getTotalStats();
 
                     if (stats.getLeased() == 0) {   // if no active connections we will shutdown this client
                         LOG.debug("Shutting down client {}", clientId);
-                        connMan.shutdown();
+                        try {
+                            client.getHttpClient().close();
+                        } catch (IOException ioe) {
+                            LOG.error("Could not close HTTP Client: {}", clientId);
+                        }
                         clientsToRemove.add(client);
                     }
                 }
-                for (HttpClient client : clientsToRemove) {
+                for (ExtendedHttpClient client : clientsToRemove) {
                     clientList.remove(client);
-                    LOG.info("HTTP connection pool {} has been destroyed.", client.getParams().getParameter(HttpConnectionPoolProvider.CLIENT_INSTANCE_ID));
+                    LOG.info("HTTP connection pool {} has been destroyed.", client.getClientInstanceId());
                 }
             }
 

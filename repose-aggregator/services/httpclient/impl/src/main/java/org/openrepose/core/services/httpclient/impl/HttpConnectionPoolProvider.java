@@ -19,13 +19,15 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.*;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.MessageConstraints;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.openrepose.core.service.httpclient.config.PoolType;
@@ -37,16 +39,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.UUID;
 
+/**
+ * A helper class to construct HttpClient instances from some configuration.
+ */
 public final class HttpConnectionPoolProvider {
 
-    public static final String CLIENT_INSTANCE_ID = "CLIENT_INSTANCE_ID";
     private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolProvider.class);
-    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(PoolType poolConf) {
+    public static ExtendedHttpClient genClient(PoolType poolConf) {
         //Generate a UUID for this client
         String uuid = UUID.randomUUID().toString();
 
@@ -90,12 +93,6 @@ public final class HttpConnectionPoolProvider {
                 .setTcpNoDelay(poolConf.isHttpTcpNodelay())
                 .build();
 
-        //todo: Actually, this won't work. A HttpClient object does not appear to be able to store state without using deprecated methods.
-        Registry registry = RegistryBuilder.create()
-                .register(CLIENT_INSTANCE_ID, uuid)
-                .register(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding())
-                .build();
-
         //Configure the HttpClientBuilder with the configuration from above
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
                 .disableRedirectHandling()
@@ -113,6 +110,10 @@ public final class HttpConnectionPoolProvider {
 
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
-        return httpClient;
+        return new ExtendedHttpClient(httpClient,
+                requestConfig,
+                poolingConnectionManager,
+                uuid,
+                poolConf.isChunkedEncoding());
     }
 }
