@@ -26,8 +26,6 @@ import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK                  // 200
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN           // 403
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND           // 404
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED  // 405
 
 /**
  * Created by jennyvo on 6/1/15.
