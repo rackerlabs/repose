@@ -103,7 +103,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       } else {
         val paths = resources.filter(_.satisfiesPath(resourceRequest))
         if (paths.isEmpty) {
-          mutableHttpResponse.setStatus(SC_OK) // 200
+          mutableHttpResponse.setStatus(SC_NOT_FOUND) // 404
         } else {
           if (paths.exists(_.satisfiesRoles(resourceRequest))) {
             if (configuration.isEnableMasking403S) {
