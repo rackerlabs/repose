@@ -247,27 +247,23 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
       events.count(_.contains("Malformed RBAC Resource: /path/to/file")) shouldBe 1
     }
+  }
 
-    it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
-      Given("an un-initialized filter and a modified configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
-      val configuration = new SimpleRbacConfig
-      val delegatingType = new DelegatingType
-      delegatingType.setQuality(1.0d)
-      configuration.setDelegating(delegatingType)
-      configuration.setRolesHeaderName("NEW-HEADER-NAME")
-      configuration.setEnableMasking403S(true)
+  describe(s"when attempting to access a resource that is not in the list") {
+    List("GET", "PUT", "POST", "DELETE").foreach { case (method) =>
+      it(s"should not allow the request to the resource when using HTTP method $method.") {
+        Given(s"a request using HTTP method $method")
+        servletRequest.setRequestURI("/path/to/bad")
+        servletRequest.setMethod(method)
+        servletRequest.addHeader(config.getRolesHeaderName, "role1")
+        filter.configurationUpdated(config)
 
-      When("the configuration is updated")
-      filter.configurationUpdated(configuration)
+        When("the protected resource is requested")
+        filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      Then("the filter's configuration should be modified")
-      assert(filter.isInitialized)
-      assert(filter.configuration == configuration)
-      assert(filter.configuration.getDelegating.getQuality == 1.0d)
-      assert(filter.configuration.getRolesHeaderName == "NEW-HEADER-NAME")
-      assert(filter.configuration.isEnableMasking403S)
+        Then(s"the request should not be allowed access")
+          servletResponse.getStatus shouldBe SC_NOT_FOUND
+      }
     }
   }
 
