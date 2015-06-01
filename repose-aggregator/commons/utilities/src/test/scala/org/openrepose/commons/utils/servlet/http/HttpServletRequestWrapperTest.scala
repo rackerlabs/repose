@@ -286,6 +286,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the appendHeader method") {
     it("should append a value on an existing header") {
+      pending
       wrappedRequest.appendHeader("abc", "4")
       val result = wrappedRequest.getPreferredSplittableHeader("abc")
       result shouldBe "1,2,3,4"
@@ -294,6 +295,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the appendHeader method with quality") {
     it("should append a value on an existing header") {
+      pending
       wrappedRequest.appendHeader("abc", "4", 0.1)
       val result = wrappedRequest.getPreferredSplittableHeader("abc")
       result shouldBe "1,2,3,4?q=0.1"
