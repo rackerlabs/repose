@@ -42,6 +42,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     "cup" -> List("blue,orange?q=0.5"),
     "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
     "thumbs" -> List("2"),
+    "abc" -> List("1", "2", "3"),
     "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST"))
 
   before {
@@ -342,4 +343,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
+  describe("the getSplittableHeader method") {
+    it("Should return the values in a header if splittable as a list") {
+      pending
+      val split = wrappedRequest.getSplittableHeader("abc")
+      split.asScala.toList should contain theSameElementsAs List("1", "2", "3")
+    }
+
+    it("Should return a splittable list when added") {
+      pending
+      wrappedRequest.appendHeader("banana-phone", "hello")
+      val split = wrappedRequest.getSplittableHeader("banana-phone")
+      split.asScala.toList should contain theSameElementsAs List("ring,ring,ring", "hello")
+    }
+  }
 }
