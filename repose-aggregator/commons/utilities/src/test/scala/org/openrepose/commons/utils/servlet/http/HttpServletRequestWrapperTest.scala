@@ -288,8 +288,15 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should append a value on an existing header") {
       pending
       wrappedRequest.appendHeader("abc", "4")
-      val result = wrappedRequest.getPreferredSplittableHeader("abc")
-      result shouldBe "1,2,3,4"
+      val result = wrappedRequest.getHeadersList("abc").asScala
+      result should contain theSameElementsAs List("1,2,3,4")
+    }
+
+    it("should create a new header if the name does not yet exist") {
+      pending
+      wrappedRequest.appendHeader("butts", "butts")
+      val result = wrappedRequest.getHeadersList("butts").asScala
+      result should contain theSameElementsAs List("butts")
     }
   }
 
@@ -297,8 +304,15 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should append a value on an existing header") {
       pending
       wrappedRequest.appendHeader("abc", "4", 0.1)
-      val result = wrappedRequest.getPreferredSplittableHeader("abc")
-      result shouldBe "1,2,3,4?q=0.1"
+      val result = wrappedRequest.getHeadersList("abc").asScala
+      result should contain theSameElementsAs List("1,2,3,4?q=0.1")
+    }
+
+    it("should create a new header if the name does not yet exist") {
+      pending
+      wrappedRequest.appendHeader("butts", "butts", 0.1)
+      val result = wrappedRequest.getHeadersList("butts").asScala
+      result should contain theSameElementsAs List("butts?q=0.1")
     }
   }
 
