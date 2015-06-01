@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+             roles-header-name="X-ROLES"
+             enable-masking-403s="false">
+    <resources>
+        [<![CDATA[
+/service/*  GET       user,admin,useradmin
+/service/*  PUT       admin,useradmin
+/service/*  POST      admin,useradmin
+/service/*  DELETE    admin,useradmin
+/test/*     GET,PUT   ALL
+/server/*   ALL       useradmin, admin
+        ]]>
+    </resources>
+</simple-rbac>
