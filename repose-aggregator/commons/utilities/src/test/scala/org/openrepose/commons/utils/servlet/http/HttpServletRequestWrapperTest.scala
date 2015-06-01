@@ -343,6 +343,24 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
+  describe("the replaceHeader method") {
+    it("should replace a header that already exists") {
+      pending
+      wrappedRequest.replaceHeader("foo", "foo")
+      val result = wrappedRequest.getHeadersList("foo")
+      result should contain theSameElementsAs List("foo")
+    }
+  }
+
+  describe("the replaceHeader method with quality") {
+    it("should replace a header that already exists") {
+      pending
+      wrappedRequest.replaceHeader("foo", "foo", 0.5)
+      val result = wrappedRequest.getHeadersList("foo")
+      result should contain theSameElementsAs List("foo")
+    }
+  }
+
   describe("the getSplittableHeader method") {
     it("Should return the values in a header if splittable as a list") {
       pending
