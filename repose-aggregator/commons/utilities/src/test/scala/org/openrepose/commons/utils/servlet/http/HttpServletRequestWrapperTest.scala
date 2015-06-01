@@ -42,7 +42,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     "cup" -> List("blue,orange?q=0.5"),
     "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
     "thumbs" -> List("2"),
-    "abc" -> List("1", "2", "3"),
+    "abc" -> List("1,2,3"),
     "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST"))
 
   before {
