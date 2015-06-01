@@ -19,16 +19,18 @@
  */
 package org.openrepose.filters.Keystonev2
 
+import java.io.InputStream
 import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import javax.ws.rs.core.MediaType
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{ServiceClientResponse, CommonHttpHeader}
+import org.openrepose.commons.utils.http.{PowerApiHeader, ServiceClientResponse, CommonHttpHeader}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, MutableHttpServletRequest}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -83,12 +85,25 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     chh.toString
   }
 
-  trait KeystoneV2Result
+  sealed trait KeystoneV2Result
 
-  case object Pass extends KeystoneV2Result
+  case class Pass(headersToAdd: Map[String, String]) extends KeystoneV2Result
 
   case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
 
+
+  /**
+   * Get the user's endpoints, and validate that the configured restrictions match
+   * @param result
+   * @return
+   */
+  def performAuthorization(result: KeystoneV2Result): KeystoneV2Result = {
+    result match {
+      case x: Pass => ???
+      //Get the endpoints, and see if they've got their endpoint configured
+      case a: Reject => a
+    }
+  }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
@@ -100,12 +115,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     val result: KeystoneV2Result = authTokenValue.map { authToken =>
       validateToken(authToken) match {
-        case Success(x) => {
-          if (!x) {
-            Reject(SC_FORBIDDEN)
-          } else {
-            Pass
-          }
+        case Success(InvalidToken) => {
+          Reject(SC_FORBIDDEN)
+        }
+        case Success(validToken: ValidToken) => {
+          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+          Pass(groupsHeader)
         }
         case Failure(x: IdentityAdminTokenException) => {
           Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
@@ -113,17 +128,22 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         case Failure(x: IdentityCommuncationException) => {
           Reject(SC_BAD_GATEWAY, failure = Some(x))
         }
-        case Failure(x) => {
+        case Failure(x) =>
           //TODO: this isn't yet complete
           Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-        }
       }
     } getOrElse {
       Reject(SC_FORBIDDEN, Some("Token did not validate"))
     }
 
+
+    //TODO: working on this
+    if (false) {
+      val result2 = performAuthorization(result)
+    }
+
     result match {
-      case rejection: Reject => {
+      case rejection: Reject =>
         val message: Option[String] = rejection match {
           case Reject(_, Some(x), _) => Some(x)
           case Reject(code, None, Some(failure)) => {
@@ -138,15 +158,47 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         } getOrElse {
           response.sendError(rejection.status)
         }
-      }
-      case Pass => {
+
+      case p: Pass =>
+        //If the token validation passed and we're configured to do more things, we can do additional authorizations
+
+
+        //Modify the request to add stuff
+        p.headersToAdd.foreach { case (k, v) =>
+          request.addHeader(k, v)
+        }
         chain.doFilter(request, response)
-      }
     }
   }
 
+  //Token Validation stuffs
+  sealed trait TokenValidationResult
+
+  case class ValidToken(groups: Seq[String]) extends TokenValidationResult
+
+  case object InvalidToken extends TokenValidationResult
+
   @tailrec
-  final def validateToken(token: String, doRetry: Boolean = true): Try[Boolean] = {
+  final def validateToken(token: String, doRetry: Boolean = true): Try[TokenValidationResult] = {
+
+    def extractTokenInformation(inputStream: InputStream): Try[ValidToken] = {
+      import play.api.libs.functional.syntax._
+      import play.api.libs.json.Reads._
+      import play.api.libs.json._
+
+      val input: String = Source.fromInputStream(inputStream).getLines mkString ""
+      try {
+        val json = Json.parse(input)
+        val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String])
+        Success(ValidToken(roleNames))
+      } catch {
+        case oops@(_: JsResultException | _: JsonProcessingException) =>
+          Failure(new IdentityCommuncationException("Unable to parse JSON from identity validate token response", oops))
+      }
+    }
+
+    //TODO: set up caching of the admin token!
+    //TODO: wrap this requestAdminToken logic in a function for reuse
     requestAdminToken match {
       case Success(adminToken) => {
         val identityEndpoint = configuration.getIdentityService.getUri
@@ -163,7 +215,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             logger.debug(s"Admin Token: $adminToken")
             serviceClientResponse.getStatus match {
               case 200 | 203 => {
-                Success(true)
+                //Extract the groups from the JSON and stick it in the ValidToken result
+                extractTokenInformation(serviceClientResponse.getData)
               }
               case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!")) //500 class
               case 401 | 403 => {
@@ -174,7 +227,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   Failure(IdentityAdminTokenException("Admin user is not authorized to validate tokens"))
                 }
               }
-              case 404 => Success(false)
+              case 404 => Success(InvalidToken)
               case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token")) //502
               case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue")) //502
             }
@@ -185,6 +238,25 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       case Failure(x) => Failure(x) //Just rebox it directly and use the same exception
     }
   }
+
+  /**
+   * Provides a simple-ish way to do something with an admin token
+   * @param function The function you want to call that needs an admin function
+   * @tparam T The return type of your function
+   * @return
+   */
+  def withAdminToken[T](function: String => T): Try[T] = {
+
+    //TODO: Check the cache for the admin token, and hand that to the function
+    //If there's no cached token, request it!
+    requestAdminToken match {
+      case Success(token) => {
+        Success(function(token))
+      }
+      case Failure(x) => Failure(x)
+    }
+  }
+
 
   def requestAdminToken: Try[String] = {
     //authenticate, or get the admin token
@@ -221,6 +293,33 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
       case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
+    }
+  }
+
+  //TODO: put the endpoint related stuff into an object we can call
+  case class Endpoint(region: String, name: String, endpointType: String, publicURL: String)
+
+  @tailrec
+  final def requestEndpointsForToken(forToken: String, doRetry: Boolean = true): Try[List[Endpoint]] = {
+    val identityEndpoint = configuration.getIdentityService.getUri
+
+    import scala.collection.JavaConverters._
+
+    val adminToken = ""
+    Try(akkaServiceClient.get(s"${forToken}Endpoints",
+      s"$identityEndpoint/tokens/$forToken/endpoints",
+      Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)) match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case 200 | 203 => ??? //TODO: extract endpoints and return
+          case 401 | 403 =>
+            if (doRetry) {
+              requestEndpointsForToken(forToken, doRetry = false)
+            } else {
+              Failure(IdentityAdminTokenException(s"Admin user is not authorized to get endpoints for token $forToken"))
+            }
+        }
+      case Failure(x) => Failure(x)
     }
   }
 

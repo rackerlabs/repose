@@ -20,16 +20,16 @@ class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
 
   def validate(): Unit = {
     if (getResponses.nonEmpty) {
-      throw new AssertionError(s"ALL VALIDATE TOKEN RESPONSES NOT CONSUMED: $getResponses")
+      throw new AssertionError(s"ALL GET RESPONSES NOT CONSUMED: $getResponses")
     }
     if (postResponses.nonEmpty) {
-      throw new AssertionError(s"ALL ADMIN TOKEN AUTHENTICATION RESPONSES NOT CONSUMED: $postResponses")
+      throw new AssertionError(s"ALL POST RESPONSES NOT CONSUMED: $postResponses")
     }
     if (oversteppedValidateToken.get()) {
-      throw new AssertionError("REQUESTED TOO MANY VALIDATE TOKEN RESPONSES")
+      throw new AssertionError("REQUESTED TOO MANY GET RESPONSES")
     }
     if (oversteppedValidateToken.get()) {
-      throw new AssertionError("REQUESTED TOO MANY AUTHENTICATE ADMIN RESPONSES")
+      throw new AssertionError("REQUESTED TOO MANY POST RESPONSES")
     }
   }
 
@@ -38,13 +38,20 @@ class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
     postResponses.clear()
   }
 
+  /**
+   * The token param is literally a UUID for the request...
+   * @param token
+   * @param uri
+   * @param headers
+   * @return
+   */
   override def get(token: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
     logger.debug(getResponses.mkString("\n"))
     val adminToken = headers.get("x-auth-token")
     logger.debug(s"handling $adminToken, $token")
     getResponses.remove((adminToken, token)) match {
       case None => {
-        logger.error("NO REMAINING VALIDATE TOKEN RESPONSES!")
+        logger.error("NO REMAINING GET RESPONSES!")
         oversteppedValidateToken.set(true)
         throw new Exception("OVERSTEPPED BOUNDARIES")
       }

@@ -5,13 +5,17 @@ import org.joda.time.format.DateTimeFormat
 
 trait IdentityResponses {
 
-  def authenticateTokenResponse(token:String = "glibglob",
-                                 expires:DateTime = DateTime.now()):String = {
+  protected final val VALID_TOKEN = "validToken"
 
-
+  def tokenDateFormat(dateTime:DateTime): String = {
     val tokenExpiryFormat ="yyyy-MM-dd'THH:mm:ss.SSS'Z"
     val fmt = DateTimeFormat.forPattern(tokenExpiryFormat)
-    val formattedTime = fmt.print(expires.withZone(DateTimeZone.forOffsetHours(0)))
+    fmt.print(dateTime.withZone(DateTimeZone.forOffsetHours(0)))
+  }
+
+  def adminAuthenticationTokenResponse(token:String = "glibglob",
+                                 expires:DateTime = DateTime.now()):String = {
+    val formattedTime = tokenDateFormat(expires)
 
     s"""
       |{
@@ -292,6 +296,113 @@ trait IdentityResponses {
       |      "RAX-AUTH:defaultRegion": "IAD"
       |    }
       |  }
+      |}
+    """.stripMargin
+  }
+
+  def validateTokenResponse(token:String = VALID_TOKEN):String = {
+    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
+
+    s"""
+      |{
+      |    "access":{
+      |        "token":{
+      |            "id":"$token",
+      |            "expires":"$expiryTime",
+      |            "tenant":{
+      |                "id": "345",
+      |                "name": "My Project"
+      |            }
+      |        },
+      |        "user":{
+      |            "RAX-AUTH:defaultRegion": "DFW",
+      |            "id":"123",
+      |            "name":"testuser",
+      |            "roles":[{
+      |                    "id":"123",
+      |                    "name":"compute:admin"
+      |                },
+      |                {
+      |                    "id":"234",
+      |                    "name":"object-store:admin"
+      |                }
+      |            ]
+      |        }
+      |    }
+      |}
+    """.stripMargin
+  }
+
+  def endpointsResponse(): String = {
+    """
+      |{
+      |    "endpoints":[{
+      |                "id":1,
+      |                "tenantId":"1",
+      |                "region":"North",
+      |                "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            },
+      |            {
+      |                "id":2,
+      |                "tenantId":"1",
+      |                "region":"South",
+      |                 "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            },
+      |            {
+      |                "id":3,
+      |                "tenantId":"1",
+      |                "region":"East",
+      |                "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            },
+      |            {
+      |                "id":4,
+      |                "tenantId":"1",
+      |                "region":"West",
+      |                 "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            },
+      |            {
+      |                "id":5,
+      |                "tenantId":"1",
+      |                "region":"Global",
+      |                 "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            }
+      |        ],
+      |    "endpoints_links":[]
       |}
     """.stripMargin
   }

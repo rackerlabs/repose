@@ -1,11 +1,14 @@
 package org.openrepose.filters.keystonev2
 
 import java.io.ByteArrayInputStream
+import javax.servlet.http.HttpServletRequest
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
@@ -75,7 +78,7 @@ with IdentityResponses {
     }
   }
 
-  describe("Configured simply to authenticate tokens") {
+  describe("Configured simply to authenticate tokens, defaults for everything else") {
     //Configure the filter
     val configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
@@ -100,16 +103,16 @@ with IdentityResponses {
     it("Validates a token allowing through the filter") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "aValidToken")
+      request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaAdminTokenResponse {
-        AkkaServiceClientResponse(200, authenticateTokenResponse())
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaValidateTokenResponse("aValidToken")(
-        "glibglob", AkkaServiceClientResponse(200, "")
+      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -128,7 +131,7 @@ with IdentityResponses {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaAdminTokenResponse {
-        AkkaServiceClientResponse(200, authenticateTokenResponse())
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
       //Urgh, I have to hit the akka service client twice
       mockAkkaValidateTokenResponse("notValidToken")(
@@ -163,22 +166,22 @@ with IdentityResponses {
     it("retries authentication as the admin user if the admin token is not valid") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "aValidToken")
+      request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
         Seq(
-          AkkaServiceClientResponse(200, authenticateTokenResponse()),
-          AkkaServiceClientResponse(200, authenticateTokenResponse(token = "morty"))
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse()),
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse(token = "morty"))
         )
       }
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaValidateTokenResponses("aValidToken") {
+      mockAkkaValidateTokenResponses(VALID_TOKEN) {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(403, ""),
-          "morty" -> AkkaServiceClientResponse(200, "")
+          "morty" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
       }
       val response = new MockHttpServletResponse
@@ -192,19 +195,19 @@ with IdentityResponses {
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "aValidToken")
+      request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
         Seq(
-          AkkaServiceClientResponse(200, authenticateTokenResponse()),
-          AkkaServiceClientResponse(200, authenticateTokenResponse(token = "morty"))
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse()),
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse(token = "morty"))
         )
       }
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaValidateTokenResponses("aValidToken") {
+      mockAkkaValidateTokenResponses(VALID_TOKEN) {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(403, ""),
           "morty" -> AkkaServiceClientResponse(403, "")
@@ -224,7 +227,7 @@ with IdentityResponses {
     it("rejects with 502 if we cannot reach identity") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "aValidToken")
+      request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Our admin token is good every time
       //Need to throw an exception from akka when trying to talk to it
@@ -247,18 +250,124 @@ with IdentityResponses {
 
     }
     it("rejects with 502 if we cannot authenticate as the admin user") {
-      pending
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Our admin token is good every time
+      mockAkkaAdminTokenResponses {
+        Seq(
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        )
+      }
+
+      //When validating a token, we're going to not be authorized the first time,
+      // Then we'll be authorized
+      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse.failure("Unable to talk to identity!")
+        )
+      }
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus should be(502)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
     it("includes the user's groups in the x-pp-group header in the request") {
-      pending
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Our admin token is good every time
+      mockAkkaAdminTokenResponses {
+        Seq(
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        )
+      }
+
+      //Validate the token response with groups to grab them!
+      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+        )
+      }
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader("x-pp-groups") should be("compute:admin,object-store:admin")
+
+      mockAkkaServiceClient.validate()
     }
   }
 
-  describe("Authorization parts") {
-    it("ensures that a valid user has the required service endpoint") {
-      pending
+  describe("Configured to authenticate and authorize a specific service endpoint") {
+    val configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="admin_username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            connection-pool-id="wat"
+        |            set-groups-in-header="true"
+        |            set-catalog-in-header="false"
+        |            />
+        |
+        |    <require-service-endpoint public-url="https://compute.north.public.com/v1" region="Global" name="Compute" type="compute">
+        |        <bypass-validation-roles>
+        |            <role>serviceAdmin</role>
+        |            <role>racker</role>
+        |        </bypass-validation-roles>
+        |    </require-service-endpoint>
+        |
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.configurationUpdated(configuration)
+
+    it("allows a user through if they have the endpoint configured in their endpoints list") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Pretend like identity is going to give us a valid admin token
+      mockAkkaAdminTokenResponse {
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      }
+
+      //Urgh, I have to hit the akka service client twice
+      mockAkkaValidateTokenResponses(VALID_TOKEN)(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse()),
+          "glibglobEndpoints" -> AkkaServiceClientResponse(200, endpointsResponse())
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      //Continues with the chain
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
     }
     it("bypasses validation if the user has the role listed in bypass-validation-roles") {
+      pending
+    }
+    it("rejects with 403 if the user does not have the required endpoint") {
       pending
     }
   }
