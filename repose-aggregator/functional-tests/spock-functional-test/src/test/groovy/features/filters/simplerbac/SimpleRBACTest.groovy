@@ -24,6 +24,11 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_OK                  // 200
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN           // 403
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND           // 404
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED  // 405
+
 /**
  * Created by jennyvo on 6/1/15.
  */
@@ -36,6 +41,7 @@ class SimpleRBACTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/simplerbac", params)
+        repose.configurationProvider.applyConfigs("features/filters/simplerbac/notmasked", params)
         repose.start()
     }
 
@@ -46,43 +52,79 @@ class SimpleRBACTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll("Test with with #path, #method, #roles")
-    def "Test simple RBAC" () {
+    @Unroll("Test with #path, #method, #roles")
+    def "Test simple RBAC with single role" () {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
 
         then:
-        mc.receivedResponse.code == respcode
+        mc.receivedResponse.code == respcode.toString()
 
         where:
         path                | method    | roles             | respcode
-        "/service/test"     | "GET"     | "user"            | "200"
-        "/service/abc"      | "GET"     | "useradmin"       | "200"
-        "/service/test"     | "POST"    | "user"            | "403"
-        "/service/test"     | "POST"    | "useradmin"       | "200"
-        "/service/test"     | "PUT"     | "useradmin"       | "200"
-        "/service/test"     | "DELETE"  | "useradmin"       | "200"
-        "/service/test"     | "POST"    | "useradmin"       | "200"
-        "/service/test"     | "POST"    | "useradmin"       | "200"
-        "/service/test"     | "POST"    | "user,admin"      | "200"
-        "/service/test"     | "DELETE"  | "user,useradmin"  | "200"
-        "/test/one"         | "GET"     | "user"            | "200"
-        "/test/two"         | "PUT"     | "user"            | "200"
-        "/test/three"       | "GET"     | "useradmin"       | "200"
-        "/test/four"        | "GET"     | "admin"           | "200"
-        "/test/five"        | "PUT"     | "admin"           | "200"
-        "/test/six"         | "POST"    | "admin"           | "405"
-        "/server/test1"     | "GET"     | "user"            | "403"
-        "/server/test2"     | "POST"    | "user"            | "403"
-        "/server/test3"     | "PUT"     | "user"            | "403"
-        "/server/test4"     | "DELETE"  | "user"            | "403"
-        "/server/test5"     | "GET"     | "useradmin"       | "200"
-        "/server/test6"     | "POST"    | "user,admin"      | "200"
-        "/server/test7"     | "PUT"     | "user,useradmin"  | "200"
-        "/server/test8"     | "DELETE"  | "admin"           | "200"
-        "/custom/test"      | "GET"     | "admin"           | "405"
-        "/custom/test"      | "POST"    | "useradmin"       | "405"
-        "/custom/test"      | "PUT"     | "user"            | "405"
-        "/custom/test"      | "DELETE"  | "admin"           | "405"
+        "/path/to/this"     | "GET"     | "super"           | SC_OK
+        "/path/to/this"     | "PUT"     | "super"           | SC_OK
+        "/path/to/this"     | "POST"    | "super"           | SC_OK
+        "/path/to/this"     | "DELETE"  | "super"           | SC_OK
+        "/path/to/this"     | "GET"     | "useradmin"       | SC_OK
+        "/path/to/this"     | "PUT"     | "useradmin"       | SC_OK
+        "/path/to/this"     | "POST"    | "useradmin"       | SC_OK
+        "/path/to/this"     | "DELETE"  | "useradmin"       | SC_FORBIDDEN
+        "/path/to/this"     | "GET"     | "admin"           | SC_OK
+        "/path/to/this"     | "PUT"     | "admin"           | SC_OK
+        "/path/to/this"     | "POST"    | "admin"           | SC_FORBIDDEN
+        "/path/to/this"     | "DELETE"  | "admin"           | SC_FORBIDDEN
+        "/path/to/this"     | "GET"     | "user"            | SC_OK
+        "/path/to/this"     | "PUT"     | "user"            | SC_FORBIDDEN
+        "/path/to/this"     | "POST"    | "user"            | SC_FORBIDDEN
+        "/path/to/this"     | "DELETE"  | "user"            | SC_FORBIDDEN
+        "/path/to/this"     | "GET"     | "none"            | SC_FORBIDDEN
+        "/path/to/this"     | "PUT"     | "none"            | SC_FORBIDDEN
+        "/path/to/this"     | "POST"    | "none"            | SC_FORBIDDEN
+        "/path/to/this"     | "DELETE"  | "none"            | SC_FORBIDDEN
+        "/path/to/that"     | "GET"     | "super"           | SC_OK
+        "/path/to/that"     | "PUT"     | "super"           | SC_OK
+        "/path/to/that"     | "POST"    | "super"           | SC_OK
+        "/path/to/that"     | "DELETE"  | "super"           | SC_OK
+        "/path/to/that"     | "GET"     | "useradmin"       | SC_OK
+        "/path/to/that"     | "PUT"     | "useradmin"       | SC_OK
+        "/path/to/that"     | "POST"    | "useradmin"       | SC_FORBIDDEN
+        "/path/to/that"     | "DELETE"  | "useradmin"       | SC_FORBIDDEN
+    }
+
+    @Unroll("Test with #path, #method")
+    def "Test simple RBAC w/o Roles" () {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
+
+        then:
+        mc.receivedResponse.code == respcode.toString()
+
+        where:
+        path                | method    | respcode
+        "/path/to/that"     | "GET"     | SC_OK
+        "/path/to/that"     | "PUT"     | SC_OK
+        "/path/to/that"     | "POST"    | SC_FORBIDDEN
+        "/path/to/that"     | "DELETE"  | SC_FORBIDDEN
+    }
+
+    @Unroll("Test with #path, #method, #roles")
+    def "Test simple RBAC with multiple roles" () {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
+
+        then:
+        mc.receivedResponse.code == respcode.toString()
+
+        where:
+        path                | method    | roles                 | respcode
+        "/path/to/this"     | "GET"     | "roleX,super,none"    | SC_OK
+        "/path/to/this"     | "PUT"     | "roleX,super,none"    | SC_OK
+        "/path/to/this"     | "POST"    | "roleX,super,none"    | SC_OK
+        "/path/to/this"     | "DELETE"  | "roleX,super,none"    | SC_OK
+        "/path/to/this"     | "GET"     | "roleX,user,none"     | SC_OK
+        "/path/to/this"     | "PUT"     | "roleX,user,none"     | SC_FORBIDDEN
+        "/path/to/this"     | "POST"    | "roleX,user,none"     | SC_FORBIDDEN
+        "/path/to/this"     | "DELETE"  | "roleX,user,none"     | SC_FORBIDDEN
     }
 }
