@@ -34,8 +34,14 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
+  private var wrapperHeader :Map[String, List[String]] = Map[String, List[String]]()
 
-  override def getHeaderNames: util.Enumeration[String] = super.getHeaderNames
+  override def getHeaderNames: util.Enumeration[String] = {
+    Option(super.getHeaderNames) match {
+      case Some(originalHeaderNames) => (wrapperHeader.keySet ++ originalHeaderNames.asScala.toList).toIterator.asJavaEnumeration
+      case None => null
+    }
+  }
 
   override def getIntHeader(s: String): Int = super.getIntHeader(s)
 
@@ -45,13 +51,18 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeader(s: String): String = super.getHeader(s)
 
-  override def getHeaderNamesList: util.List[String] = getHeaderNames.asScala.toList.asJava
-
-  override def getHeadersList(headerName: String): util.List[String] = {
-    originalRequest.getHeaders(headerName).asScala.toList.asJava
+  override def getHeaderNamesList: util.List[String] = {
+    getHeaderNames.asScala.toList.asJava
   }
 
-  override def addHeader(headerName: String, headerValue: String): Unit = ???
+  override def getHeadersList(headerName: String): util.List[String] = {
+    (originalRequest.getHeaders(headerName).asScala.toList ++ wrapperHeader.get(headerName).getOrElse(List())).asJava
+  }
+
+  override def addHeader(headerName: String, headerValue: String): Unit = {
+    val wrapperValues :List[String] = wrapperHeader.get(headerName).getOrElse(List()) :+ headerValue
+    wrapperHeader = wrapperHeader + (headerName -> wrapperValues)
+  }
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
