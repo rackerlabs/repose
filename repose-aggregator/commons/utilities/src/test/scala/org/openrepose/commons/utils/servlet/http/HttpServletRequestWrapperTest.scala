@@ -389,7 +389,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       pending
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
       val result = wrappedRequest.getHeadersList("foo")
-      result should contain theSameElementsAs List("foo")
+      result should contain theSameElementsAs List("foo?q=0.5")
     }
   }
 
