@@ -324,6 +324,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val preferred = wrappedRequest.getPreferredSplittableHeader("cup")
       preferred shouldBe "blue"
     }
+
+    it("Should return the first entity if the quantities are the same") {
+      pending
+      val preferred = wrappedRequest.getPreferredSplittableHeader("abc")
+      preferred shouldBe "1"
+    }
   }
 
   describe("the removeHeader method") {
