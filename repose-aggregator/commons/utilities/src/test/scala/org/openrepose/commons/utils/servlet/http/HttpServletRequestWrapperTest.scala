@@ -284,6 +284,22 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
+  describe("the appendHeader method") {
+    it("should append a value on an existing header") {
+      wrappedRequest.appendHeader("abc", "4")
+      val result = wrappedRequest.getPreferredSplittableHeader("abc")
+      result shouldBe "1,2,3,4"
+    }
+  }
+
+  describe("the appendHeader method with quality") {
+    it("should append a value on an existing header") {
+      wrappedRequest.appendHeader("abc", "4", 0.1)
+      val result = wrappedRequest.getPreferredSplittableHeader("abc")
+      result shouldBe "1,2,3,4?q=0.1"
+    }
+  }
+
   describe("the getPreferredSplittableHeader method") {
     it("Should return value with largest quality value for cup") {
       pending
@@ -370,9 +386,9 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("Should return a splittable list when added") {
       pending
-      wrappedRequest.appendHeader("banana-phone", "hello")
-      val split = wrappedRequest.getSplittableHeader("banana-phone")
-      split.asScala.toList should contain theSameElementsAs List("ring,ring,ring", "hello")
+      wrappedRequest.appendHeader("abc", "4")
+      val split = wrappedRequest.getSplittableHeader("abc")
+      split.asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
     }
   }
 }
