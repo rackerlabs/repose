@@ -103,7 +103,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                 }
             }
 
-            delegationMessage.set("Unable to validate token for tenant. Invalid token: " + authToken.getTokenId() + ".");
+            DELEGATION_MESSAGE.set("Unable to validate token for tenant. Invalid token: " + authToken.getTokenId() + ".");
             LOG.error("Unable to validate token for tenant. Invalid token: " + authToken.getTokenId() + ".");
             return null;
         } else {
@@ -117,11 +117,11 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
         if (account != null) {
             AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token, requestGuid);
-            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
+            DELEGATION_MESSAGE.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
             authToken = validateTenant(authResponse, account.getResult());
         } else {
             AuthenticateResponse authResp = authenticationService.validateToken(null, token, requestGuid);
-            delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
+            DELEGATION_MESSAGE.set(AuthenticationServiceClient.getDelegationMessage());
             if (authResp != null) {
                 authToken = new OpenStackToken(authResp);
             }
@@ -142,7 +142,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             if (!ignoreTenantRequirement) {
                 if (authToken.getTenantId() == null || authToken.getTenantName() == null) {
                     //Moved this check from within the OpenStackToken into here
-                    delegationMessage.set("Invalid Response from Auth for token: " + authToken.getTokenId() + ". Token object must have a tenant");
+                    DELEGATION_MESSAGE.set("Invalid Response from Auth for token: " + authToken.getTokenId() + ". Token object must have a tenant");
                     throw new IllegalArgumentException("Invalid Response from Auth for token: " + authToken.getTokenId() + ". Token object must have a tenant");
                 }
             }
