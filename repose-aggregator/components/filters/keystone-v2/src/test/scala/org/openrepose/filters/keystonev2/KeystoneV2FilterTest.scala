@@ -1,17 +1,12 @@
 package org.openrepose.filters.keystonev2
 
-import java.io.ByteArrayInputStream
 import javax.servlet.http.HttpServletRequest
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.filters.Keystonev2.KeystoneV2Filter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -22,14 +17,14 @@ class KeystoneV2FilterTest extends FunSpec
 with Matchers
 with BeforeAndAfter
 with MockitoSugar
-with IdentityResponses {
+with IdentityResponses
+with MockedAkkaServiceClient {
   System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
     "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
 
   val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-  val mockAkkaServiceClient = new MockAkkaServiceClient
   val mockConfigService = mock[ConfigurationService]
 
   before {
@@ -38,45 +33,6 @@ with IdentityResponses {
     mockAkkaServiceClient.reset()
   }
 
-  //TODO: pull all this up into some trait for use in testing
-  //Used to unify an exception and a proper response to make it easier to handle in code
-  trait AkkaParent
-
-  object AkkaServiceClientResponse {
-    def apply(status: Int, body: String): ServiceClientResponse with AkkaParent = {
-      new ServiceClientResponse(status, new ByteArrayInputStream(body.getBytes)) with AkkaParent
-    }
-
-    def failure(reason: String, parent: Throwable = null) = {
-      new AkkaServiceClientException(reason, parent) with AkkaParent
-    }
-  }
-
-  def mockAkkaAdminTokenResponse(response: AkkaParent): Unit = {
-    mockAkkaAdminTokenResponses(Seq(response))
-  }
-
-  def mockAkkaAdminTokenResponses(responses: Seq[AkkaParent]): Unit = {
-    mockAkkaServiceClient.postResponses ++= responses.reverse.map {
-      case x: ServiceClientResponse => Left(x)
-      case x: AkkaServiceClientException => Right(x)
-    }
-  }
-
-  def mockAkkaValidateTokenResponse(forToken: String)(adminToken: String, response: AkkaParent): Unit = {
-    mockAkkaValidateTokenResponses(forToken)(Seq(adminToken -> response))
-  }
-
-  def mockAkkaValidateTokenResponses(forToken: String)(responses: Seq[(String, AkkaParent)]): Unit = {
-    responses.foreach { case (adminToken, response) =>
-      val key = (adminToken, forToken)
-      val value = response match {
-        case x: ServiceClientResponse => Left(x)
-        case x: AkkaServiceClientException => Right(x)
-      }
-      mockAkkaServiceClient.getResponses.put(key, value)
-    }
-  }
 
   describe("Configured simply to authenticate tokens, defaults for everything else") {
     //Configure the filter
@@ -124,6 +80,16 @@ with IdentityResponses {
 
       mockAkkaServiceClient.validate()
     }
+
+    it("caches the admin token request for 10 minutes"){
+      //Can only make sure it was put into the cache with a 10 minute timeout...
+
+      pending
+    }
+    it("caches the token validity for 10 minutes") {
+      //Can only make sure it was put into the cache with a 10 minute timeout
+      pending
+    }
     it("rejects with 403 an invalid token") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -147,6 +113,7 @@ with IdentityResponses {
       response.getStatus should be(403)
       mockAkkaServiceClient.validate()
     }
+
     it("rejects with 403 if no x-auth-token is present") {
       //No auth token, no interactions with identity at all!
       val request = new MockHttpServletRequest()
@@ -192,6 +159,7 @@ with IdentityResponses {
       filterChain.getLastResponse shouldNot be(null)
       mockAkkaServiceClient.validate()
     }
+
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -249,6 +217,7 @@ with IdentityResponses {
       mockAkkaServiceClient.validate()
 
     }
+
     it("rejects with 502 if we cannot authenticate as the admin user") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -278,6 +247,7 @@ with IdentityResponses {
       filterChain.getLastResponse should be(null)
       mockAkkaServiceClient.validate()
     }
+
     it("includes the user's groups in the x-pp-group header in the request") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
