@@ -21,6 +21,7 @@ package org.openrepose.filters.Keystonev2
 
 import java.io.InputStream
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -238,6 +239,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
         logger.debug(s"Admin Token: $authenticatingToken")
         serviceClientResponse.getStatus match {
+          //TODO: magic numbers?
           case 200 | 203 =>
             //Extract the groups from the JSON and stick it in the ValidToken result
             extractUserInformation(serviceClientResponse.getData)
@@ -291,7 +293,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
           val json = Json.parse(jsonResponse)
           Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
-            case Success(s) => s
+            case Success(s) =>
+              datastore.put(ADMIN_TOKEN_KEY, s, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.MILLISECONDS)
+              s
             case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
           }
         }
@@ -317,6 +321,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         serviceClientResponse.getStatus match {
           case 200 | 203 => ??? //TODO: extract endpoints and return
           case 401 | 403 =>
+            //TODO: use the recoverWith logic here also SRSLY
             if (doRetry) {
               requestEndpointsForToken(forToken, doRetry = false)
             } else {
