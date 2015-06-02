@@ -3,8 +3,6 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-
-import static javax.servlet.http.HttpServletResponse.*
 /**
  * Created by jennyvo on 6/2/15.
  */
@@ -17,7 +15,7 @@ class SimpleRBACwDelegatingTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/simplerbac", params)
-        repose.configurationProvider.applyConfigs("features/filters/simplerbac/notmasked", params)
+        repose.configurationProvider.applyConfigs("features/filters/simplerbac/delegating", params)
         repose.start()
     }
 
@@ -40,46 +38,46 @@ class SimpleRBACwDelegatingTest extends ReposeValveTest {
 
         where:
         path                 | method   | roles       | delegateMsg
-        "/path/to/this"      | "GET"    | "super"     | SC_OK
-        "/path/to/this"      | "PUT"    | "super"     | SC_OK
-        "/path/to/this"      | "POST"   | "super"     | SC_OK
-        "/path/to/this"      | "DELETE" | "super"     | SC_OK
-        "/path/to/this"      | "GET"    | "useradmin" | SC_OK
-        "/path/to/this"      | "PUT"    | "useradmin" | SC_OK
-        "/path/to/this"      | "POST"   | "useradmin" | SC_OK
-        "/path/to/this"      | "DELETE" | "useradmin" | SC_FORBIDDEN
-        "/path/to/this"      | "GET"    | "admin"     | SC_OK
-        "/path/to/this"      | "PUT"    | "admin"     | SC_OK
-        "/path/to/this"      | "POST"   | "admin"     | SC_FORBIDDEN
-        "/path/to/this"      | "DELETE" | "admin"     | SC_FORBIDDEN
-        "/path/to/this"      | "GET"    | "user"      | SC_OK
-        "/path/to/this"      | "PUT"    | "user"      | SC_FORBIDDEN
-        "/path/to/this"      | "POST"   | "user"      | SC_FORBIDDEN
-        "/path/to/this"      | "DELETE" | "user"      | SC_FORBIDDEN
-        "/path/to/this"      | "GET"    | "none"      | SC_FORBIDDEN
-        "/path/to/this"      | "PUT"    | "none"      | SC_FORBIDDEN
-        "/path/to/this"      | "POST"   | "none"      | SC_FORBIDDEN
-        "/path/to/this"      | "DELETE" | "none"      | SC_FORBIDDEN
-        "/path/to/that"      | "GET"    | "super"     | SC_OK
-        "/path/to/that"      | "PUT"    | "super"     | SC_OK
-        "/path/to/that"      | "POST"   | "super"     | SC_OK
-        "/path/to/that"      | "DELETE" | "super"     | SC_OK
-        "/path/to/that"      | "GET"    | "useradmin" | SC_OK
-        "/path/to/that"      | "PUT"    | "useradmin" | SC_OK
-        "/path/to/that"      | "POST"   | "user"      | SC_FORBIDDEN
-        "/path/to/that"      | "DELETE" | "admin"     | SC_FORBIDDEN
-        "/path/to/that"      | "POST"   | "super"     | SC_OK
-        "/path/to/that"      | "DELETE" | "super"     | SC_OK
-        "/path/to/test"      | "GET"    | "user"      | SC_OK
-        "/path/to/test"      | "POST"   | "useradmin" | SC_OK
-        "/path/to/test"      | "GET"    | "admin"     | SC_FORBIDDEN
-        "/path/to/test"      | "POST"   | "super"     | SC_FORBIDDEN
-        "/path/to/test"      | "PUT"    | "user"      | SC_METHOD_NOT_ALLOWED
-        "/path/to/test"      | "DELETE" | "useradmin" | SC_METHOD_NOT_ALLOWED
-        "/path/to/something" | "GET"    | "user"      | SC_NOT_FOUND
-        "/path/to/something" | "GET"    | "super"     | SC_NOT_FOUND
-        "/path/to/something" | "GET"    | "admin"     | SC_NOT_FOUND
-        "/path/to/something" | "POST"   | "none"      | SC_NOT_FOUND
-        "/path/to/something" | "PUT"    | "useradmin" | SC_NOT_FOUND
+        "/path/to/this"      | "GET"    | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "PUT"    | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "POST"   | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "DELETE" | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "GET"    | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "PUT"    | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "POST"   | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "DELETE" | "useradmin" | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "GET"    | "admin"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "PUT"    | "admin"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "POST"   | "admin"     | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "DELETE" | "admin"     | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "GET"    | "user"      | "status_code=200`component=simple-rbac`message=OK: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "PUT"    | "user"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "POST"   | "user"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "DELETE" | "user"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "GET"    | "none"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "PUT"    | "none"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "POST"   | "none"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/this"      | "DELETE" | "none"      | "status_code=403`component=simple-rbac`message=FORBIDDEN: /{/path/to/this};q=0.5"
+        "/path/to/that"      | "GET"    | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "PUT"    | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "POST"   | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "DELETE" | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "GET"    | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "PUT"    | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "POST"   | "user"      | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "DELETE" | "admin"     | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "POST"   | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/that"      | "DELETE" | "super"     | "status_code=200`component=simple-rbac`message=OK: /{/path/to/that};q=0.5"
+        "/path/to/test"      | "GET"    | "user"      | "status_code=200`component=simple-rbac`message=OK: /{/path/to/test};q=0.5"
+        "/path/to/test"      | "POST"   | "useradmin" | "status_code=200`component=simple-rbac`message=OK: /{/path/to/test};q=0.5"
+        "/path/to/test"      | "GET"    | "admin"     | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/test};q=0.5"
+        "/path/to/test"      | "POST"   | "super"     | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/test};q=0.5"
+        "/path/to/test"      | "PUT"    | "user"      | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/test};q=0.5"
+        "/path/to/test"      | "DELETE" | "useradmin" | "status_code=403`component=simple-rbac`message=Forbidden: /{/path/to/test};q=0.5"
+        "/path/to/something" | "GET"    | "user"      | "status_code=404`component=simple-rbac`message=Not Found: /{/path/to/something};q=0.5"
+        "/path/to/something" | "GET"    | "super"     | "status_code=404`component=simple-rbac`message=Not Found: /{/path/to/something};q=0.5"
+        "/path/to/something" | "GET"    | "admin"     | "status_code=404`component=simple-rbac`message=Not Found: /{/path/to/something};q=0.5"
+        "/path/to/something" | "POST"   | "none"      | "status_code=404`component=simple-rbac`message=Not Found: /{/path/to/something};q=0.5"
+        "/path/to/something" | "PUT"    | "useradmin" | "status_code=404`component=simple-rbac`message=Not Found: /{/path/to/something};q=0.5"
     }
 }
