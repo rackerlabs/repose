@@ -18,14 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.simplerbac
-
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_OK                  // 200
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN           // 403
+import static javax.servlet.http.HttpServletResponse.*
+// 200
+// 403
 
 /**
  * Created by jennyvo on 6/1/15.
@@ -86,8 +86,13 @@ class SimpleRBACTest extends ReposeValveTest {
         "/path/to/that"     | "DELETE"  | "super"           | SC_OK
         "/path/to/that"     | "GET"     | "useradmin"       | SC_OK
         "/path/to/that"     | "PUT"     | "useradmin"       | SC_OK
-        "/path/to/that"     | "POST"    | "useradmin"       | SC_FORBIDDEN
-        "/path/to/that"     | "DELETE"  | "useradmin"       | SC_FORBIDDEN
+        "/path/to/that"     | "POST"    | "user"            | SC_METHOD_NOT_ALLOWED
+        "/path/to/that"     | "DELETE"  | "super"           | SC_METHOD_NOT_ALLOWED
+        "/path/to/something"| "GET"     | "user"            | SC_NOT_FOUND
+        "/path/to/something"| "GET"     | "super"           | SC_NOT_FOUND
+        "/path/to/something"| "GET"     | "admin"           | SC_NOT_FOUND
+        "/path/to/something"| "POST"    | "none"            | SC_NOT_FOUND
+        "/path/to/something"| "PUT"     | "useradmin"       | SC_NOT_FOUND
     }
 
     @Unroll("Test with #path, #method")
