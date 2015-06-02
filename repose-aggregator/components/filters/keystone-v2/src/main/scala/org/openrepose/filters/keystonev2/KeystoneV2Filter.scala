@@ -52,13 +52,21 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   with LazyLogging {
 
   private val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+  val ADMIN_TOKEN_KEY = "KEYSTONE-V2-ADMIN-TOKEN" //NOTE when using the self-validating we probably won't cache anything?
+
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: KeystoneV2Config = _
   var initialized = false
 
+  val datastore = datastoreService.getDefaultDatastore
+
+  //Which happens to be the local datastore
+
   trait IdentityExceptions
 
   case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
+
+  case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
 
   case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
 
@@ -113,29 +121,46 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     //Pull in the status codes, because I'm using them a bunch
     import HttpServletResponse._
 
+    //Get the authenticating token!
     val result: KeystoneV2Result = authTokenValue.map { authToken =>
-      validateToken(authToken) match {
-        case Success(InvalidToken) => {
-          Reject(SC_FORBIDDEN)
-        }
-        case Success(validToken: ValidToken) => {
-          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-          Pass(groupsHeader)
-        }
-        case Failure(x: IdentityAdminTokenException) => {
-          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-        }
-        case Failure(x: IdentityCommuncationException) => {
-          Reject(SC_BAD_GATEWAY, failure = Some(x))
-        }
+      getAdminToken match {
+        case Success(authenticatingToken) =>
+          validateToken(authenticatingToken, authToken).recoverWith {
+            //Recover if the exception is an AdminTokenUnauthorizedException
+            //This way we can specify however we want to what we want to do to retry.
+            //Also it only retries ONCE! No loops or anything. Fails gloriously
+            case unauth: AdminTokenUnauthorizedException =>
+              //Clear the cache, call this method again
+              datastore.remove(ADMIN_TOKEN_KEY)
+              getAdminToken match {
+                case Success(newAdminToken) =>
+                  validateToken(newAdminToken, authToken)
+                case Failure(x) => Failure(IdentityAdminTokenException("Unable to reaquire admin token", x))
+              }
+          } match {
+            case Success(InvalidToken) => {
+              Reject(SC_FORBIDDEN)
+            }
+            case Success(validToken: ValidToken) => {
+              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+              Pass(groupsHeader)
+            }
+            case Failure(x: IdentityAdminTokenException) => {
+              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+            }
+            case Failure(x: IdentityCommuncationException) => {
+              Reject(SC_BAD_GATEWAY, failure = Some(x))
+            }
+            case Failure(x) =>
+              //TODO: this isn't yet complete
+              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+          }
         case Failure(x) =>
-          //TODO: this isn't yet complete
-          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+          Reject(SC_BAD_GATEWAY, Some("Unable to acquire admin token"), Some(x))
       }
     } getOrElse {
       Reject(SC_FORBIDDEN, Some("Token did not validate"))
     }
-
 
     //TODO: working on this
     if (false) {
@@ -178,8 +203,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   case object InvalidToken extends TokenValidationResult
 
-  final def validateToken(token: String, doRetry: Boolean = true): Try[TokenValidationResult] = {
-
+  final def validateToken(authenticatingToken: String, token: String): Try[TokenValidationResult] = {
     /**
      * Extract the user's information from the validate token response
      * @param inputStream the validate token response!
@@ -200,96 +224,79 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    withAdminToken[TokenValidationResult] { adminToken =>
-      val identityEndpoint = configuration.getIdentityService.getUri
-
-      import scala.collection.JavaConverters._
-      Try(akkaServiceClient.get(token,
-        identityEndpoint,
-        Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)
-      ) match {
-        case Success(serviceClientResponse) => {
-          //DEAL WITH IT
-          //Parse the response for validating a token?
-          logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
-          logger.debug(s"Admin Token: $adminToken")
-          serviceClientResponse.getStatus match {
-            case 200 | 203 => {
-              //Extract the groups from the JSON and stick it in the ValidToken result
-              extractUserInformation(serviceClientResponse.getData)
-            }
-            case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!")) //500 class
-            case 401 | 403 => {
-              if (doRetry) {
-                //Clear the cache, call this method again
-                validateToken(token, doRetry = false) //Aww the "with admin token" bit broke the tail recursion
-              } else {
-                Failure(IdentityAdminTokenException("Admin user is not authorized to validate tokens"))
-              }
-            }
-            case 404 => Success(InvalidToken)
-            case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token")) //502
-            case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue")) //502
-          }
-        }
-        case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
-      }
-    }
-  }
-
-  /**
-   * Provides a simple-ish way to do something with an admin token
-   * @param function The function you want to call that needs an admin function
-   * @tparam T The return type of your function
-   * @return
-   */
-  def withAdminToken[T](function: String => Try[T]): Try[T] = {
-    //TODO: Check the cache for the admin token, and hand that to the function
-    //If there's no cached token, request it!
-    requestAdminToken match {
-      case Success(token) => {
-        function(token)
-      }
-      case Failure(x) => Failure(x)
-    }
-  }
-
-
-  def requestAdminToken: Try[String] = {
-    //authenticate, or get the admin token
+    //TODO: pass in the configuration as well, because state change
     val identityEndpoint = configuration.getIdentityService.getUri
 
-    import play.api.libs.json._
-    val adminUsername = configuration.getIdentityService.getUsername
-    val adminPassword = configuration.getIdentityService.getPassword
-
-    val authenticationPayload = Json.obj(
-      "auth" -> Json.obj(
-        "passwordCredentials" -> Json.obj(
-          "username" -> adminUsername,
-          "password" -> adminPassword
-        )
-      )
-    )
-
-    import scala.collection.JavaConversions._
-    val akkaResponse = Try(akkaServiceClient.post("v2AdminTokenAuthentication",
+    import scala.collection.JavaConverters._
+    Try(akkaServiceClient.get(token,
       identityEndpoint,
-      Map.empty[String, String],
-      Json.stringify(authenticationPayload),
-      MediaType.APPLICATION_JSON_TYPE
-    ))
-
-    akkaResponse match {
-      case Success(x) => {
-        val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
-        val json = Json.parse(jsonResponse)
-        Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
-          case Success(s) => s
-          case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
+      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)
+    ) match {
+      case Success(serviceClientResponse) => {
+        //DEAL WITH IT
+        //Parse the response for validating a token?
+        logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
+        logger.debug(s"Admin Token: $authenticatingToken")
+        serviceClientResponse.getStatus match {
+          case 200 | 203 =>
+            //Extract the groups from the JSON and stick it in the ValidToken result
+            extractUserInformation(serviceClientResponse.getData)
+          case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
+          case 401 | 403 => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
+          case 404 => Success(InvalidToken)
+          case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
+          case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
         }
       }
-      case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
+      case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
+    }
+  }
+
+
+  /**
+   * Call the cache to get the authenticating token
+   * @return
+   */
+  def getAdminToken: Try[String] = {
+    //Check the cache first, then try the request
+    Option(datastore.get(ADMIN_TOKEN_KEY)).map { value =>
+      Success(value.asInstanceOf[String])
+    } getOrElse {
+      //authenticate, or get the admin token
+      val identityEndpoint = configuration.getIdentityService.getUri
+
+      import play.api.libs.json._
+      val adminUsername = configuration.getIdentityService.getUsername
+      val adminPassword = configuration.getIdentityService.getPassword
+
+      val authenticationPayload = Json.obj(
+        "auth" -> Json.obj(
+          "passwordCredentials" -> Json.obj(
+            "username" -> adminUsername,
+            "password" -> adminPassword
+          )
+        )
+      )
+
+      import scala.collection.JavaConversions._
+      val akkaResponse = Try(akkaServiceClient.post("v2AdminTokenAuthentication",
+        identityEndpoint,
+        Map.empty[String, String],
+        Json.stringify(authenticationPayload),
+        MediaType.APPLICATION_JSON_TYPE
+      ))
+
+      akkaResponse match {
+        case Success(x) => {
+          val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
+          val json = Json.parse(jsonResponse)
+          Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
+            case Success(s) => s
+            case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
+          }
+        }
+        case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
+      }
     }
   }
 
