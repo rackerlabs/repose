@@ -217,8 +217,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val input: String = Source.fromInputStream(inputStream).getLines mkString ""
       try {
         val json = Json.parse(input)
-        val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String])
-        Success(ValidToken(roleNames))
+        //Have to convert it to a vector, because List isn't serializeable in 2.10
+        val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
+        val validToken = ValidToken(roleNames)
+        datastore.put(token, validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+        Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
           Failure(new IdentityCommuncationException("Unable to parse JSON from identity validate token response", oops))
@@ -245,7 +248,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             extractUserInformation(serviceClientResponse.getData)
           case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
           case 401 | 403 => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
-          case 404 => Success(InvalidToken)
+          case 404 => {
+            datastore.put(token, InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+            Success(InvalidToken)
+          }
           case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
         }
@@ -294,7 +300,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           val json = Json.parse(jsonResponse)
           Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
             case Success(s) =>
-              datastore.put(ADMIN_TOKEN_KEY, s, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.MILLISECONDS)
+              datastore.put(ADMIN_TOKEN_KEY, s.get, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
               s
             case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
           }

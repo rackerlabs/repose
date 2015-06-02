@@ -1,10 +1,12 @@
 package org.openrepose.filters.keystonev2
 
+import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.filters.Keystonev2.KeystoneV2Filter
@@ -83,13 +85,98 @@ with MockedAkkaServiceClient {
 
     it("caches the admin token request for 10 minutes"){
       //Can only make sure it was put into the cache with a 10 minute timeout...
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
 
+      //Pretend like identity is going to give us a valid admin token
+      mockAkkaAdminTokenResponse {
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      }
+
+      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
+    }
+
+    it("caches a valid token for 10 minutes") {
+      //Can only make sure it was put into the cache with a 10 minute timeout...
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Pretend like identity is going to give us a valid admin token
+      mockAkkaAdminTokenResponse {
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      }
+
+      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+      //Have to cache the result of the stuff
+      Mockito.verify(mockDatastore).put(VALID_TOKEN, filter.ValidToken(Vector("compute:admin", "object-store:admin")), 600, TimeUnit.SECONDS)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
+    }
+
+    it("caches an INvalid token for 10 minutes") {
+      //Can only make sure it was put into the cache with a 10 minute timeout...
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", "INVALID_TOKEN")
+
+      //Pretend like identity is going to give us a valid admin token
+      mockAkkaAdminTokenResponse {
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      }
+
+      mockAkkaValidateTokenResponse("INVALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(404, "")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+      //Have to cache the result of the stuff
+      Mockito.verify(mockDatastore).put("INVALID_TOKEN", filter.InvalidToken, 600, TimeUnit.SECONDS)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+
+      response.getStatus should be(403)
+      mockAkkaServiceClient.validate()
+    }
+
+    it("won't make a call to validate the token if the token is already cached") {
       pending
     }
-    it("caches the token validity for 10 minutes") {
-      //Can only make sure it was put into the cache with a 10 minute timeout
+
+    it("Will not get an admin token, if the token validity is already cached") {
       pending
     }
+
     it("rejects with 403 an invalid token") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
