@@ -37,11 +37,12 @@
 
 
     <cache-settings>
-        <timeouts variability="100">
-            <token>60000</token>
-            <group>60000</group>
-            <endpoints>60000</endpoints>
-            <user>60000</user> <!-- TODO: I think this is obsolete, user information comes back when we validate the token -->
+        <timeouts variability="10">
+            <!-- Datastore can only take integers, so we're operating in Int also, so this is just Seconds
+            <token>600</token> <!-- TODO: is this how long the admin token is cached also? -->
+            <group>600</group>
+            <endpoints>600</endpoints>
+            <user>600</user> <!-- TODO: I think this is obsolete, user information comes back when we validate the token -->
         </timeouts>
         <eviction-feeds check-interval="10000">
             <rs-identity-feed id="butts" uri="http://some-feed"/>
