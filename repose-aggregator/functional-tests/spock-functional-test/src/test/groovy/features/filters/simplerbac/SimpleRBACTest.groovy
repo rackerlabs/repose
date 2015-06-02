@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.simplerbac
+
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+
 // 200
 // 403
 
@@ -51,7 +53,7 @@ class SimpleRBACTest extends ReposeValveTest {
     }
 
     @Unroll("Test with #path, #method, #roles")
-    def "Test simple RBAC with single role" () {
+    def "Test simple RBAC with single role"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
 
@@ -59,52 +61,52 @@ class SimpleRBACTest extends ReposeValveTest {
         mc.receivedResponse.code == respcode.toString()
 
         where:
-        path                | method    | roles             | respcode
-        "/path/to/this"     | "GET"     | "super"           | SC_OK
-        "/path/to/this"     | "PUT"     | "super"           | SC_OK
-        "/path/to/this"     | "POST"    | "super"           | SC_OK
-        "/path/to/this"     | "DELETE"  | "super"           | SC_OK
-        "/path/to/this"     | "GET"     | "useradmin"       | SC_OK
-        "/path/to/this"     | "PUT"     | "useradmin"       | SC_OK
-        "/path/to/this"     | "POST"    | "useradmin"       | SC_OK
-        "/path/to/this"     | "DELETE"  | "useradmin"       | SC_FORBIDDEN
-        "/path/to/this"     | "GET"     | "admin"           | SC_OK
-        "/path/to/this"     | "PUT"     | "admin"           | SC_OK
-        "/path/to/this"     | "POST"    | "admin"           | SC_FORBIDDEN
-        "/path/to/this"     | "DELETE"  | "admin"           | SC_FORBIDDEN
-        "/path/to/this"     | "GET"     | "user"            | SC_OK
-        "/path/to/this"     | "PUT"     | "user"            | SC_FORBIDDEN
-        "/path/to/this"     | "POST"    | "user"            | SC_FORBIDDEN
-        "/path/to/this"     | "DELETE"  | "user"            | SC_FORBIDDEN
-        "/path/to/this"     | "GET"     | "none"            | SC_FORBIDDEN
-        "/path/to/this"     | "PUT"     | "none"            | SC_FORBIDDEN
-        "/path/to/this"     | "POST"    | "none"            | SC_FORBIDDEN
-        "/path/to/this"     | "DELETE"  | "none"            | SC_FORBIDDEN
-        "/path/to/that"     | "GET"     | "super"           | SC_OK
-        "/path/to/that"     | "PUT"     | "super"           | SC_OK
-        "/path/to/that"     | "POST"    | "super"           | SC_OK
-        "/path/to/that"     | "DELETE"  | "super"           | SC_OK
-        "/path/to/that"     | "GET"     | "useradmin"       | SC_OK
-        "/path/to/that"     | "PUT"     | "useradmin"       | SC_OK
-        "/path/to/that"     | "POST"    | "user"            | SC_FORBIDDEN
-        "/path/to/that"     | "DELETE"  | "admin"           | SC_FORBIDDEN
-        "/path/to/that"     | "POST"    | "super"           | SC_OK
-        "/path/to/that"     | "DELETE"  | "super"           | SC_OK
-        "/path/to/test"     | "GET"     | "user"            | SC_OK
-        "/path/to/test"     | "POST"    | "useradmin"       | SC_OK
-        "/path/to/test"     | "GET"     | "admin"           | SC_FORBIDDEN
-        "/path/to/test"     | "POST"    | "super"           | SC_FORBIDDEN
-        "/path/to/test"     | "PUT"     | "user"            | SC_METHOD_NOT_ALLOWED
-        "/path/to/test"     | "DELETE"  | "useradmin"       | SC_METHOD_NOT_ALLOWED
-        "/path/to/something"| "GET"     | "user"            | SC_NOT_FOUND
-        "/path/to/something"| "GET"     | "super"           | SC_NOT_FOUND
-        "/path/to/something"| "GET"     | "admin"           | SC_NOT_FOUND
-        "/path/to/something"| "POST"    | "none"            | SC_NOT_FOUND
-        "/path/to/something"| "PUT"     | "useradmin"       | SC_NOT_FOUND
+        path                 | method   | roles       | respcode
+        "/path/to/this"      | "GET"    | "super"     | SC_OK
+        "/path/to/this"      | "PUT"    | "super"     | SC_OK
+        "/path/to/this"      | "POST"   | "super"     | SC_OK
+        "/path/to/this"      | "DELETE" | "super"     | SC_OK
+        "/path/to/this"      | "GET"    | "useradmin" | SC_OK
+        "/path/to/this"      | "PUT"    | "useradmin" | SC_OK
+        "/path/to/this"      | "POST"   | "useradmin" | SC_OK
+        "/path/to/this"      | "DELETE" | "useradmin" | SC_FORBIDDEN
+        "/path/to/this"      | "GET"    | "admin"     | SC_OK
+        "/path/to/this"      | "PUT"    | "admin"     | SC_OK
+        "/path/to/this"      | "POST"   | "admin"     | SC_FORBIDDEN
+        "/path/to/this"      | "DELETE" | "admin"     | SC_FORBIDDEN
+        "/path/to/this"      | "GET"    | "user"      | SC_OK
+        "/path/to/this"      | "PUT"    | "user"      | SC_FORBIDDEN
+        "/path/to/this"      | "POST"   | "user"      | SC_FORBIDDEN
+        "/path/to/this"      | "DELETE" | "user"      | SC_FORBIDDEN
+        "/path/to/this"      | "GET"    | "none"      | SC_FORBIDDEN
+        "/path/to/this"      | "PUT"    | "none"      | SC_FORBIDDEN
+        "/path/to/this"      | "POST"   | "none"      | SC_FORBIDDEN
+        "/path/to/this"      | "DELETE" | "none"      | SC_FORBIDDEN
+        "/path/to/that"      | "GET"    | "super"     | SC_OK
+        "/path/to/that"      | "PUT"    | "super"     | SC_OK
+        "/path/to/that"      | "POST"   | "super"     | SC_OK
+        "/path/to/that"      | "DELETE" | "super"     | SC_OK
+        "/path/to/that"      | "GET"    | "useradmin" | SC_OK
+        "/path/to/that"      | "PUT"    | "useradmin" | SC_OK
+        "/path/to/that"      | "POST"   | "user"      | SC_FORBIDDEN
+        "/path/to/that"      | "DELETE" | "admin"     | SC_FORBIDDEN
+        "/path/to/that"      | "POST"   | "super"     | SC_OK
+        "/path/to/that"      | "DELETE" | "super"     | SC_OK
+        "/path/to/test"      | "GET"    | "user"      | SC_OK
+        "/path/to/test"      | "POST"   | "useradmin" | SC_OK
+        "/path/to/test"      | "GET"    | "admin"     | SC_FORBIDDEN
+        "/path/to/test"      | "POST"   | "super"     | SC_FORBIDDEN
+        "/path/to/test"      | "PUT"    | "user"      | SC_METHOD_NOT_ALLOWED
+        "/path/to/test"      | "DELETE" | "useradmin" | SC_METHOD_NOT_ALLOWED
+        "/path/to/something" | "GET"    | "user"      | SC_NOT_FOUND
+        "/path/to/something" | "GET"    | "super"     | SC_NOT_FOUND
+        "/path/to/something" | "GET"    | "admin"     | SC_NOT_FOUND
+        "/path/to/something" | "POST"   | "none"      | SC_NOT_FOUND
+        "/path/to/something" | "PUT"    | "useradmin" | SC_NOT_FOUND
     }
 
     @Unroll("Test with #path, #method")
-    def "Test simple RBAC w/o Roles" () {
+    def "Test simple RBAC w/o Roles"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
 
@@ -112,15 +114,15 @@ class SimpleRBACTest extends ReposeValveTest {
         mc.receivedResponse.code == respcode.toString()
 
         where:
-        path                | method    | respcode
-        "/path/to/that"     | "GET"     | SC_OK
-        "/path/to/that"     | "PUT"     | SC_OK
-        "/path/to/that"     | "POST"    | SC_FORBIDDEN
-        "/path/to/that"     | "DELETE"  | SC_FORBIDDEN
+        path            | method   | respcode
+        "/path/to/that" | "GET"    | SC_OK
+        "/path/to/that" | "PUT"    | SC_OK
+        "/path/to/that" | "POST"   | SC_FORBIDDEN
+        "/path/to/that" | "DELETE" | SC_FORBIDDEN
     }
 
     @Unroll("Test with #path, #method, #roles")
-    def "Test simple RBAC with multiple roles" () {
+    def "Test simple RBAC with multiple roles"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
 
@@ -128,14 +130,14 @@ class SimpleRBACTest extends ReposeValveTest {
         mc.receivedResponse.code == respcode.toString()
 
         where:
-        path                | method    | roles                 | respcode
-        "/path/to/this"     | "GET"     | "roleX,super,none"    | SC_OK
-        "/path/to/this"     | "PUT"     | "roleX,super,none"    | SC_OK
-        "/path/to/this"     | "POST"    | "roleX,super,none"    | SC_OK
-        "/path/to/this"     | "DELETE"  | "roleX,super,none"    | SC_OK
-        "/path/to/this"     | "GET"     | "roleX,user,none"     | SC_OK
-        "/path/to/this"     | "PUT"     | "roleX,user,none"     | SC_FORBIDDEN
-        "/path/to/this"     | "POST"    | "roleX,user,none"     | SC_FORBIDDEN
-        "/path/to/this"     | "DELETE"  | "roleX,user,none"     | SC_FORBIDDEN
+        path            | method   | roles              | respcode
+        "/path/to/this" | "GET"    | "roleX,super,none" | SC_OK
+        "/path/to/this" | "PUT"    | "roleX,super,none" | SC_OK
+        "/path/to/this" | "POST"   | "roleX,super,none" | SC_OK
+        "/path/to/this" | "DELETE" | "roleX,super,none" | SC_OK
+        "/path/to/this" | "GET"    | "roleX,user,none"  | SC_OK
+        "/path/to/this" | "PUT"    | "roleX,user,none"  | SC_FORBIDDEN
+        "/path/to/this" | "POST"   | "roleX,user,none"  | SC_FORBIDDEN
+        "/path/to/this" | "DELETE" | "roleX,user,none"  | SC_FORBIDDEN
     }
 }
