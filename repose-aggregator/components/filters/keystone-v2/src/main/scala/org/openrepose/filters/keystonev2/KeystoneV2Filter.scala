@@ -124,43 +124,51 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     //Get the authenticating token!
     val result: KeystoneV2Result = authTokenValue.map { authToken =>
-      getAdminToken match {
-        case Success(authenticatingToken) =>
-          validateToken(authenticatingToken, authToken).recoverWith {
-            //Recover if the exception is an AdminTokenUnauthorizedException
-            //This way we can specify however we want to what we want to do to retry.
-            //Also it only retries ONCE! No loops or anything. Fails gloriously
-            case unauth: AdminTokenUnauthorizedException =>
-              //Clear the cache, call this method again
-              datastore.remove(ADMIN_TOKEN_KEY)
-              getAdminToken match {
-                case Success(newAdminToken) =>
-                  validateToken(newAdminToken, authToken)
-                case Failure(x) => Failure(IdentityAdminTokenException("Unable to reaquire admin token", x))
+      Option(datastore.get(authToken)).map {
+        //TODO: COPYPASTA
+        case InvalidToken => Reject(SC_UNAUTHORIZED)
+        case ValidToken(groups) =>
+          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(","))
+          Pass(groupsHeader)
+      } getOrElse {
+        getAdminToken match {
+          case Success(authenticatingToken) =>
+            validateToken(authenticatingToken, authToken).recoverWith {
+              //Recover if the exception is an AdminTokenUnauthorizedException
+              //This way we can specify however we want to what we want to do to retry.
+              //Also it only retries ONCE! No loops or anything. Fails gloriously
+              case unauth: AdminTokenUnauthorizedException =>
+                //Clear the cache, call this method again
+                datastore.remove(ADMIN_TOKEN_KEY)
+                getAdminToken match {
+                  case Success(newAdminToken) =>
+                    validateToken(newAdminToken, authToken)
+                  case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                }
+            } match {
+              case Success(InvalidToken) => {
+                Reject(SC_FORBIDDEN)
               }
-          } match {
-            case Success(InvalidToken) => {
-              Reject(SC_FORBIDDEN)
+              case Success(validToken: ValidToken) => {
+                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+                Pass(groupsHeader)
+              }
+              case Failure(x: IdentityAdminTokenException) => {
+                Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+              }
+              case Failure(x: IdentityCommuncationException) => {
+                Reject(SC_BAD_GATEWAY, failure = Some(x))
+              }
+              case Failure(x) =>
+                //TODO: this isn't yet complete
+                Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
             }
-            case Success(validToken: ValidToken) => {
-              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-              Pass(groupsHeader)
-            }
-            case Failure(x: IdentityAdminTokenException) => {
-              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-            }
-            case Failure(x: IdentityCommuncationException) => {
-              Reject(SC_BAD_GATEWAY, failure = Some(x))
-            }
-            case Failure(x) =>
-              //TODO: this isn't yet complete
-              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-          }
-        case Failure(x) =>
-          Reject(SC_BAD_GATEWAY, Some("Unable to acquire admin token"), Some(x))
+          case Failure(x) =>
+            Reject(SC_BAD_GATEWAY, Some("Unable to acquire admin token"), Some(x))
+        }
       }
     } getOrElse {
-      Reject(SC_FORBIDDEN, Some("Token did not validate"))
+      Reject(SC_FORBIDDEN, Some("Auth token not specified"))
     }
 
     //TODO: working on this
