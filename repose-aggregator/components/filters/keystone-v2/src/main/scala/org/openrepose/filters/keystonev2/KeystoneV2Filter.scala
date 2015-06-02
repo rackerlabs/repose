@@ -254,8 +254,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
 
   /**
-   * Call the cache to get the authenticating token
-   * @return
+   * Check the cache, or call to identity to get the admin token
+   * @return Returns a Successful token, or a Failure
    */
   def getAdminToken: Try[String] = {
     //Check the cache first, then try the request
