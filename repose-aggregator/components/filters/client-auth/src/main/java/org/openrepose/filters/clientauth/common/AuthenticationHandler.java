@@ -277,11 +277,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
 
         AuthToken token = checkTokenCache(authToken);
-        if (token != null) {
-            if (tenanted) {
-
+        if (token != null && tenanted) {
                 return StringUtilities.nullSafeEqualsIgnoreCase(account.getResult(), token.getTenantId()) ? token : null;
-            }
         }
         return token;
 
