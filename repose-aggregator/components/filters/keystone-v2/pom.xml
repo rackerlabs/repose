@@ -50,6 +50,11 @@
             <artifactId>play-json_2.10</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
         <!-- Http Delegation Library for delegating requests -->
         <dependency>
             <groupId>org.openrepose</groupId>
