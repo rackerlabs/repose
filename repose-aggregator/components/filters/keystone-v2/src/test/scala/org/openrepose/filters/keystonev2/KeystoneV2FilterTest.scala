@@ -165,7 +165,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(403)
+      response.getStatus should be(401)
       mockAkkaServiceClient.validate()
     }
 
@@ -216,7 +216,7 @@ with MockedAkkaServiceClient {
     }
 
 
-    it("rejects with 403 an invalid token") {
+    it("rejects with 401 an invalid token") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader("x-auth-token", "notValidToken")
@@ -236,7 +236,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(403)
+      response.getStatus should be(401)
       mockAkkaServiceClient.validate()
     }
 
