@@ -124,16 +124,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     //Get the authenticating token!
     val result: KeystoneV2Result = authTokenValue.map { authToken =>
-      Option(datastore.get(authToken)).map {
-        //TODO: COPYPASTA
-        case InvalidToken => Reject(SC_UNAUTHORIZED)
-        case ValidToken(groups) =>
-          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(","))
-          Pass(groupsHeader)
-      } getOrElse {
-        getAdminToken match {
-          case Success(authenticatingToken) =>
-            validateToken(authenticatingToken, authToken).recoverWith {
+      //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
+      val tokenValidationResult: Try[TokenValidationResult] =
+        Option(datastore.get(authToken).asInstanceOf[TokenValidationResult]).map { validationResult =>
+          Success(validationResult)
+        } getOrElse {
+          //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
+          getAdminToken.flatMap { adminToken =>
+            validateToken(adminToken, authToken).recoverWith {
               //Recover if the exception is an AdminTokenUnauthorizedException
               //This way we can specify however we want to what we want to do to retry.
               //Also it only retries ONCE! No loops or anything. Fails gloriously
@@ -145,30 +143,26 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                     validateToken(newAdminToken, authToken)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
-            } match {
-              case Success(InvalidToken) => {
-                Reject(SC_FORBIDDEN)
-              }
-              case Success(validToken: ValidToken) => {
-                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-                Pass(groupsHeader)
-              }
-              case Failure(x: IdentityAdminTokenException) => {
-                Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-              }
-              case Failure(x: IdentityCommuncationException) => {
-                Reject(SC_BAD_GATEWAY, failure = Some(x))
-              }
-              case Failure(x) =>
-                //TODO: this isn't yet complete
-                Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
             }
-          case Failure(x) =>
-            Reject(SC_BAD_GATEWAY, Some("Unable to acquire admin token"), Some(x))
+          }
         }
+
+      tokenValidationResult match {
+        case Success(InvalidToken) =>
+          Reject(SC_UNAUTHORIZED)
+        case Success(validToken: ValidToken) =>
+          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+          Pass(groupsHeader)
+        case Failure(x: IdentityAdminTokenException) =>
+          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+        case Failure(x: IdentityCommuncationException) =>
+          Reject(SC_BAD_GATEWAY, failure = Some(x))
+        case Failure(x) =>
+          //TODO: this isn't yet complete
+          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
       }
-    } getOrElse {
-      Reject(SC_FORBIDDEN, Some("Auth token not specified"))
+    } getOrElse { //Don't have an auth token to validate
+      Reject(SC_FORBIDDEN, Some("Auth token not found in headers"))
     }
 
     //TODO: working on this
@@ -176,6 +170,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val result2 = performAuthorization(result)
     }
 
+    //Handle the result of the filter to apply to the
     result match {
       case rejection: Reject =>
         val message: Option[String] = rejection match {
@@ -195,8 +190,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       case p: Pass =>
         //If the token validation passed and we're configured to do more things, we can do additional authorizations
-
-
+        //TODO: potentially more authorization
         //Modify the request to add stuff
         p.headersToAdd.foreach { case (k, v) =>
           request.addHeader(k, v)
@@ -204,6 +198,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         chain.doFilter(request, response)
     }
   }
+
 
   //Token Validation stuffs
   sealed trait TokenValidationResult
