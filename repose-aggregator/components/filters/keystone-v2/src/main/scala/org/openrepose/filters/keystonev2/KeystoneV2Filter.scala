@@ -178,11 +178,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   case object InvalidToken extends TokenValidationResult
 
-  @tailrec
   final def validateToken(token: String, doRetry: Boolean = true): Try[TokenValidationResult] = {
 
-    def extractTokenInformation(inputStream: InputStream): Try[ValidToken] = {
-      import play.api.libs.functional.syntax._
+    /**
+     * Extract the user's information from the validate token response
+     * @param inputStream the validate token response!
+     * @return a success or failure of ValidToken information
+     */
+    def extractUserInformation(inputStream: InputStream): Try[ValidToken] = {
       import play.api.libs.json.Reads._
       import play.api.libs.json._
 
@@ -197,45 +200,40 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    //TODO: set up caching of the admin token!
-    //TODO: wrap this requestAdminToken logic in a function for reuse
-    requestAdminToken match {
-      case Success(adminToken) => {
-        val identityEndpoint = configuration.getIdentityService.getUri
+    withAdminToken[TokenValidationResult] { adminToken =>
+      val identityEndpoint = configuration.getIdentityService.getUri
 
-        import scala.collection.JavaConverters._
-        Try(akkaServiceClient.get(token,
-          identityEndpoint,
-          Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)
-        ) match {
-          case Success(serviceClientResponse) => {
-            //DEAL WITH IT
-            //Parse the response for validating a token?
-            logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
-            logger.debug(s"Admin Token: $adminToken")
-            serviceClientResponse.getStatus match {
-              case 200 | 203 => {
-                //Extract the groups from the JSON and stick it in the ValidToken result
-                extractTokenInformation(serviceClientResponse.getData)
-              }
-              case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!")) //500 class
-              case 401 | 403 => {
-                if (doRetry) {
-                  //Clear the cache, call this method again
-                  validateToken(token, doRetry = false)
-                } else {
-                  Failure(IdentityAdminTokenException("Admin user is not authorized to validate tokens"))
-                }
-              }
-              case 404 => Success(InvalidToken)
-              case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token")) //502
-              case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue")) //502
+      import scala.collection.JavaConverters._
+      Try(akkaServiceClient.get(token,
+        identityEndpoint,
+        Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)
+      ) match {
+        case Success(serviceClientResponse) => {
+          //DEAL WITH IT
+          //Parse the response for validating a token?
+          logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
+          logger.debug(s"Admin Token: $adminToken")
+          serviceClientResponse.getStatus match {
+            case 200 | 203 => {
+              //Extract the groups from the JSON and stick it in the ValidToken result
+              extractUserInformation(serviceClientResponse.getData)
             }
+            case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!")) //500 class
+            case 401 | 403 => {
+              if (doRetry) {
+                //Clear the cache, call this method again
+                validateToken(token, doRetry = false) //Aww the "with admin token" bit broke the tail recursion
+              } else {
+                Failure(IdentityAdminTokenException("Admin user is not authorized to validate tokens"))
+              }
+            }
+            case 404 => Success(InvalidToken)
+            case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token")) //502
+            case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue")) //502
           }
-          case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
         }
+        case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
       }
-      case Failure(x) => Failure(x) //Just rebox it directly and use the same exception
     }
   }
 
@@ -245,13 +243,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
    * @tparam T The return type of your function
    * @return
    */
-  def withAdminToken[T](function: String => T): Try[T] = {
-
+  def withAdminToken[T](function: String => Try[T]): Try[T] = {
     //TODO: Check the cache for the admin token, and hand that to the function
     //If there's no cached token, request it!
     requestAdminToken match {
       case Success(token) => {
-        Success(function(token))
+        function(token)
       }
       case Failure(x) => Failure(x)
     }
