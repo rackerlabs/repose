@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.ratelimiting.util.combine;
 
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,19 +28,24 @@ import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.openrepose.filters.ratelimiting.util.TransformHelper;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.regex.Matcher;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-//TODO: this test fails sometimes!
 public class CombineLimitsTransformTest {
 
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";
@@ -54,10 +58,8 @@ public class CombineLimitsTransformTest {
     public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     public static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
 
-    private final Pattern validationPattern = Pattern.compile(".*(<rates xmlns.*>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
-    private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
-    GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1);
+    private DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 
     @BeforeClass
     public static void setUpClass() {
@@ -75,7 +77,6 @@ public class CombineLimitsTransformTest {
 
     @Test
     public void shouldCombineInputStreamWithJaxbElement() throws Exception {
-        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
         final InputStream is = CombineLimitsTransformTest.class.getResourceAsStream(
                 "/META-INF/schema/examples/absolute-limits.xml");
 
@@ -86,53 +87,12 @@ public class CombineLimitsTransformTest {
         combiner.transform(tPair, output);
 
         final String actual = output.toString();
-        final Matcher matcher = validationPattern.matcher(actual);
 
-        try {
-            assertTrue("Combined limits must match expected output pattern", matcher.matches());
-            assertNotNull("Combined limits must include rate limits", matcher.group(1));
-            assertNotNull("Combined limits must include absolute limits", matcher.group(2));
-        } catch (AssertionError e) {
-            System.err.println("================================================================================");
-            System.err.println("This is the CombineLimitsTransformTest AssertionError output:");
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("is = " + is);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("rll = " + rll);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("tPair = " + tPair);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("output = " + output);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("combiner = " + combiner);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("actual = " + actual);
-            System.err.println("--------------------------------------------------------------------------------");
-            System.err.println("matcher = " + matcher);
-            System.err.println("================================================================================");
-            throw e;
-        }
-    }
+        Document doc = getDocument(actual);
+        XPath xpath = getxPath();
 
-    @Test
-    public void shouldCombineInputStreamWithJaxbElementJson() throws Exception {
-        Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
-        final InputStream is = CombineLimitsTransformTest.class.getResourceAsStream(
-                "/META-INF/schema/examples/absolute-limits.json");
-
-        RateLimitList rll = createRateLimitList();
-
-        final LimitsTransformPair tPair = new LimitsTransformPair(is, rll);
-        final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        combiner.transform(tPair, output);
-
-        final String actual = output.toString();
-        final Matcher matcher = validationPatternJson.matcher(actual);
-
-        assertTrue("Combined limits must match expected output pattern", matcher.matches());
-
-        assertNotNull("Combined limits must include rate limits", matcher.group(1));
-        assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+        assertNotNull("Combined limits must include rate limits", xpath.compile("/limits/rates").evaluate(doc, XPathConstants.NODE));
+        assertNotNull("Combined limits must include absolute limits", xpath.compile("/limits/absolute").evaluate(doc, XPathConstants.NODE));
     }
 
     private RateLimitList createRateLimitList() {
@@ -177,4 +137,15 @@ public class CombineLimitsTransformTest {
 
         return configuredRateLimit;
     }
+
+    private XPath getxPath() {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        return xPathfactory.newXPath();
+    }
+
+    private Document getDocument(String actual) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        return builder.parse(new ByteArrayInputStream(actual.getBytes()));
+    }
+
 }
