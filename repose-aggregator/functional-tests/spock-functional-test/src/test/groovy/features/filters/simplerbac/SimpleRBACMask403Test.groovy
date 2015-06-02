@@ -18,15 +18,15 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.simplerbac
-
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_OK                  // 200
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND           // 404
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED  // 405
+import static javax.servlet.http.HttpServletResponse.*
+// 200
+// 404
+// 405
 
 /**
  * Created by jennyvo on 6/1/15.
@@ -89,6 +89,17 @@ class SimpleRBACMask403Test extends ReposeValveTest {
         "/path/to/that"     | "PUT"     | "useradmin"       | SC_OK
         "/path/to/that"     | "POST"    | "useradmin"       | SC_METHOD_NOT_ALLOWED
         "/path/to/that"     | "DELETE"  | "useradmin"       | SC_METHOD_NOT_ALLOWED
+        "/path/to/test"      | "GET"    | "user"            | SC_OK
+        "/path/to/test"      | "POST"   | "useradmin"       | SC_OK
+        "/path/to/test"      | "GET"    | "admin"           | SC_NOT_FOUND
+        "/path/to/test"      | "POST"   | "super"           | SC_NOT_FOUND
+        "/path/to/test"      | "PUT"    | "user"            | SC_METHOD_NOT_ALLOWED
+        "/path/to/test"      | "DELETE" | "useradmin"       | SC_METHOD_NOT_ALLOWED
+        "/path/to/something" | "GET"    | "user"            | SC_NOT_FOUND
+        "/path/to/something" | "GET"    | "super"           | SC_NOT_FOUND
+        "/path/to/something" | "GET"    | "admin"           | SC_NOT_FOUND
+        "/path/to/something" | "POST"   | "none"            | SC_NOT_FOUND
+        "/path/to/something" | "PUT"    | "useradmin"       | SC_NOT_FOUND
     }
 
     @Unroll("Test with #path, #method")
