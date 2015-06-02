@@ -208,6 +208,8 @@ public class CoreSpringProvider {
      * Bleh
      * This isn't really reliable to use in production code, and you don't need to, so don't
      * Going to mark it deprecated so it's obvious
+     *
+     * @deprecated
      */
     @Deprecated
     public void reInitializeCoreContext(String configRoot,
