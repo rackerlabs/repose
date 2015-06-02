@@ -18,7 +18,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class KeystoneV2Test extends FunSpec
+class KeystoneV2FilterTest extends FunSpec
 with Matchers
 with BeforeAndAfter
 with MockitoSugar
