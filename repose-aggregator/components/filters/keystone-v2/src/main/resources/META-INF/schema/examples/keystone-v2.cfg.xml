@@ -38,7 +38,7 @@
 
     <cache-settings>
         <timeouts variability="10">
-            <!-- Datastore can only take integers, so we're operating in Int also, so this is just Seconds
+            <!-- Datastore can only take integers, so we're operating in Int also, so this is just Seconds -->
             <token>600</token> <!-- TODO: is this how long the admin token is cached also? -->
             <group>600</group>
             <endpoints>600</endpoints>
