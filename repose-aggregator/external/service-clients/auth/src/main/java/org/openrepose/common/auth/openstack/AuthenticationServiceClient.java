@@ -21,7 +21,6 @@ package org.openrepose.common.auth.openstack;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import com.sun.corba.se.spi.presentation.rmi.StubAdapter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
