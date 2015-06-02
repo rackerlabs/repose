@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*
 public class RateLimitingServiceHelperTest extends Specification {
     private static final String MOST_QUALIFIED_USER = "the best user of them all"
     private static final String MOST_QUALIFIED_GROUP = "the best group of them all"
-    def splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1)
+    def splodeDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1)
 
     @Shared
     private RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null)

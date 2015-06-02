@@ -57,7 +57,7 @@ public class CombineLimitsTransformTest {
     private final Pattern validationPattern = Pattern.compile(".*(<rates xmlns.*>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
     private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
-    GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.JUNE, 1);
+    GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1);
 
     @BeforeClass
     public static void setUpClass() {
