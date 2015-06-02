@@ -83,7 +83,7 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
-    it("caches the admin token request for 10 minutes"){
+    it("caches the admin token request for 10 minutes") {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -169,13 +169,52 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
-    it("won't make a call to validate the token if the token is already cached") {
-      pending
+    it("Makes no other calls if the token is already cached with a valid result") {
+      //Can only make sure it was put into the cache with a 10 minute timeout...
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //When the user's token details are cached, no calls to identity should take place
+
+      //When we ask the cache for our token, it works
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken(Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      //So because we didn't add any interactions, this guy will validate with no interactions
+      mockAkkaServiceClient.validate()
     }
 
-    it("Will not get an admin token, if the token validity is already cached") {
-      pending
+    it("Makes no other calls if the token is already cached with a token not valid result") {
+      //Can only make sure it was put into the cache with a 10 minute timeout...
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", "LOLNOPE")
+
+      //When the user's token details are cached, no calls to identity should take place
+
+      //When we ask the cache for our token, it works
+      Mockito.when(mockDatastore.get("LOLNOPE")).thenReturn(filter.InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+
+      response.getStatus should be(401)
+
+      //So because we didn't add any interactions, this guy will validate with no interactions
+      mockAkkaServiceClient.validate()
     }
+
 
     it("rejects with 403 an invalid token") {
       //make a request and validate that it called the akka service client?
