@@ -414,13 +414,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
         String retryValue = null;
         int statusCode = serviceClientResponse.getStatus();
         Header[] headers = serviceClientResponse.getHeaders();
-        if (headers != null)
+        if (headers != null) {
             for (Header header : headers) {
                 if (header.getName().equals(HttpHeaders.RETRY_AFTER)) {
                     retryValue = header.getValue();
                     break;
                 }
             }
+        }
         if (retryValue == null) {
             LOG.info("Missing {} header on Auth Response status code: {}", HttpHeaders.RETRY_AFTER, statusCode);
             Calendar retryCalendar = new GregorianCalendar();
