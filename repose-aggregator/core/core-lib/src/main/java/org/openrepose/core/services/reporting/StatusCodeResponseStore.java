@@ -21,7 +21,7 @@ package org.openrepose.core.services.reporting;
 
 public class StatusCodeResponseStore {
 
-    private static final long LONG_ZERO = 0l;
+    private static final long LONG_ZERO = 0L;
     private static final int HASH = 67;
     private static final int SHIFT = 32;
     private long totalCount = LONG_ZERO;
