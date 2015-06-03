@@ -89,8 +89,6 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = addHeader(headerName, headerValue + ";q=" + quality)
 
-  override def getPreferredSplittableHeader(headerName: String): String = ???
-
   override def appendHeader(headerName: String, headerValue: String): Unit = {
     val existingHeaders: List[String] = getHeadersScalaList(headerName)
     existingHeaders.headOption match {
@@ -141,9 +139,13 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     }
   }
 
-  override def getPreferredHeader(headerName: String): String = {
-    getValueWithQuality(filterToQualityParameters(breakoutHeaderParameters(getHeadersScalaList(headerName)))).sortWith(_.quality > _.quality).headOption.map(_.value).orNull
+  def getPreferredHeader(headerValues :List[String]) :String = {
+    getValueWithQuality(filterToQualityParameters(breakoutHeaderParameters(headerValues))).sortWith(_.quality > _.quality).headOption.map(_.value).orNull
   }
+
+  override def getPreferredHeader(headerName: String): String = getPreferredHeader(getHeadersScalaList(headerName))
+
+  override def getPreferredSplittableHeader(headerName: String): String = getPreferredHeader(getSplittableHeader(headerName).asScala.toList)
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
