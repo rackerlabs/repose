@@ -176,6 +176,16 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.removeHeader("awesomeTime")
       wrappedRequest.getDateHeader("awesomeTime") shouldBe -1
     }
+
+    it("should return 0L when header replaced") {
+      wrappedRequest.replaceHeader("awesomeTime", "Thu, 1 Jan 1970 00:00:00 GMT")
+      wrappedRequest.getDateHeader("awesomeTime") shouldBe 0L
+    }
+
+    it("should provide a value for a new appended header in RFC1123") {
+      wrappedRequest.appendHeader("newAwesomeTime", "Thu, 1 Jan 1970 00:00:00 GMT")
+      wrappedRequest.getDateHeader("newAwesomeTime") shouldBe 0L
+    }
   }
 
   describe("the getHeader method") {
