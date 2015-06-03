@@ -19,11 +19,10 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 
 import static junit.framework.Assert.assertNotNull
 import static org.junit.Assert.assertEquals
@@ -42,7 +41,6 @@ class HttpConnectionPoolProviderTest {
 
     @Before
     public final void beforeAll() {
-
         poolType = new PoolType();
 
         poolType.setHttpConnectionMaxHeaderCount(MAX_HEADERS);
@@ -56,26 +54,22 @@ class HttpConnectionPoolProviderTest {
         poolType.setHttpTcpNodelay(TCP_NODELAY);
         poolType.setKeepaliveTimeout(6000);
         poolType.setId("testPool");
-
     }
-
 
     @Test
     public void shouldCreateClientWithPassedConfigurationObject() {
-
-        HttpClient client = HttpConnectionPoolProvider.genClient(poolType);
+        ExtendedHttpClient client = HttpConnectionPoolProvider.genClient(poolType);
 
         Map props = client.connectionManager.properties;
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH), MAX_LINE);
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.CONNECTION_TIMEOUT), CONN_TIMEOUT)
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.MAX_HEADER_COUNT), MAX_HEADERS);
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), TCP_NODELAY);
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT), SOC_TIMEOUT);
-        assertEquals(client.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE), SOC_BUFF_SZ);
+        assertEquals(client.messageConstraints.maxLineLength, MAX_LINE);
+        assertEquals(client.requestConfig.connectTimeout, CONN_TIMEOUT)
+        assertEquals(client.messageConstraints.maxHeaderCount, MAX_HEADERS);
+        assertEquals(client.socketConfig.tcpNoDelay, TCP_NODELAY);
+        assertEquals(client.requestConfig.socketTimeout, SOC_TIMEOUT);
+        assertEquals(client.connectionConfig.bufferSize, SOC_BUFF_SZ);
         assertEquals(props.get("defaultMaxPerRoute"), MAX_PER_ROUTE);
         assertEquals(props.get("maxTotal"), MAX_TOTAL);
-        assertEquals(client.getConnectionKeepAliveStrategy().timeout, 6000);
-
+        assertEquals(client.getKeepAliveStrategy().timeout, 6000);
     }
 
     @Test

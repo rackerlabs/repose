@@ -19,14 +19,13 @@
  */
 package org.openrepose.services.httpclient.impl
 
-import org.apache.http.client.HttpClient
-import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.impl.HttpConnectionPoolServiceImpl
 
@@ -50,17 +49,16 @@ class HttpConnectionPoolServiceImplEmptyPoolTest {
         srv.configure(poolCfg);
     }
 
-
     @Test
     void getDefaultClientPoolByPassingUnk() {
-        HttpClient client = srv.getClient(POOLU_ID).getHttpClient();
-        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
+        ExtendedHttpClient client = srv.getClient(POOLU_ID).getExtendedHttpClient();
+        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getSocketConfig().getSoTimeout());
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
-        HttpClient client = srv.getClient(null).getHttpClient();
-        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
+        ExtendedHttpClient client = srv.getClient(null).getExtendedHttpClient();
+        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getSocketConfig().getSoTimeout());
     }
 
     @Test
@@ -72,12 +70,12 @@ class HttpConnectionPoolServiceImplEmptyPoolTest {
     void shouldReleaseUserFromClientWhenBothAreValid() {
         HttpClientResponse clientResponse = srv.getClient(POOLU_ID);
 
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
-        assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.getExtendedHttpClient().getClientInstanceId()))
+        assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.getExtendedHttpClient().getClientInstanceId()).size())
 
         srv.releaseClient(clientResponse)
 
-        assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
+        assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.getExtendedHttpClient().getClientInstanceId()).size())
     }
 
     @Test

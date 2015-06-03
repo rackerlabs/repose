@@ -21,6 +21,7 @@ package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class ClientDecommissioner implements Runnable {
     public void addClientToBeDecommissioned(ExtendedHttpClient client) {
         synchronized (listLock) {
             PoolingHttpClientConnectionManager connectionManager = client.getConnectionManager();
-            connectionManager.close();
+            connectionManager.closeExpiredConnections();
             connectionManager.setMaxTotal(1);
             connectionManager.setDefaultMaxPerRoute(1);
             clientList.add(client);
@@ -73,7 +74,6 @@ public class ClientDecommissioner implements Runnable {
                 List<ExtendedHttpClient> clientsToRemove = new ArrayList<>();
 
                 for (ExtendedHttpClient client : clientList) {
-
                     String clientId = client.getClientInstanceId();
 
                     if (userManager.hasUsers(clientId)) {

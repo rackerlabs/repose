@@ -20,17 +20,19 @@
 package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.openrepose.core.service.httpclient.config.PoolType;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +75,9 @@ public final class HttpConnectionPoolProvider {
         poolingConnectionManager.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
         poolingConnectionManager.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
 
+        ConnectionKeepAliveStrategy keepAliveStrategy =
+                new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout());
+
         MessageConstraints messageConstraints = MessageConstraints.custom()
                 .setMaxHeaderCount(poolConf.getHttpConnectionMaxHeaderCount())
                 .setMaxLineLength(poolConf.getHttpConnectionMaxLineLength())
@@ -90,6 +95,7 @@ public final class HttpConnectionPoolProvider {
                 .build();
 
         SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(poolConf.getHttpSocketTimeout())
                 .setTcpNoDelay(poolConf.isHttpTcpNodelay())
                 .build();
 
@@ -103,16 +109,20 @@ public final class HttpConnectionPoolProvider {
                 .setConnectionManager(poolingConnectionManager)
                 .setSslcontext(sslContext)
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
+                .setKeepAliveStrategy(keepAliveStrategy);
 
         //Build a configured HttpClient
         CloseableHttpClient httpClient = httpClientBuilder.build();
 
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
-        return new ExtendedHttpClient(httpClient,
+        return new ExtendedHttpClientImpl(httpClient,
+                messageConstraints,
                 requestConfig,
+                connectionConfig,
+                socketConfig,
                 poolingConnectionManager,
+                keepAliveStrategy,
                 uuid,
                 poolConf.isChunkedEncoding());
     }

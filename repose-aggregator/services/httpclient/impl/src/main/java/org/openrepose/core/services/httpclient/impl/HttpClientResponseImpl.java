@@ -19,37 +19,28 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.client.HttpClient;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.openrepose.core.services.httpclient.HttpClientResponse;
 
 /**
  * An HttpClientResponse that generates a unique UUID
  */
 public class HttpClientResponseImpl implements HttpClientResponse {
-
-    private HttpClient httpClient;
-    private String clientId;
-    private String clientInstanceId;
+    private ExtendedHttpClient httpClient;
     private String userId;
 
-    public HttpClientResponseImpl(HttpClient httpClient, String clientId, String clientInstanceId, String userId) {
+    public HttpClientResponseImpl(ExtendedHttpClient httpClient, String userId) {
         this.httpClient = httpClient;
-        this.clientId = clientId;
-        this.clientInstanceId = clientInstanceId;
         this.userId = userId;
     }
 
     @Override
-    public HttpClient getHttpClient() {
+    public ExtendedHttpClient getExtendedHttpClient() {
         return httpClient;
     }
 
-    public String getClientInstanceId() {
-        return clientInstanceId;
-    }
-
+    @Override
     public String getUserId() {
         return userId;
     }
-
 }

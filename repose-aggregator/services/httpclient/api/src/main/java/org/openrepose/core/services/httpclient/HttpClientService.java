@@ -51,6 +51,7 @@ public interface HttpClientService {
      *
      * @param httpClientResponse Response received by the user from the getClient() call
      */
+    //todo: release after retrieving? that seems very wrong. what if the client is closed (decommissioned) before being used?
     void releaseClient(HttpClientResponse httpClientResponse);
 
     /**

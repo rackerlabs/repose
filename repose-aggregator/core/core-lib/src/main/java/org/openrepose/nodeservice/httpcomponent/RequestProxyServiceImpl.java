@@ -76,7 +76,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private final ConfigurationService configurationService;
     private final SystemModelListener systemModelListener;
@@ -100,7 +99,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
         this.systemModelListener = new SystemModelListener();
         healthCheckServiceProxy = healthCheckService.register();
-
     }
 
     @PostConstruct
@@ -138,7 +136,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         HttpClientResponse httpClientResponse = getClient();
 
         try {
-            final boolean isChunkedConfigured = httpClientResponse.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
+            final boolean isChunkedConfigured = httpClientResponse.getExtendedHttpClient().getChunkedEncoding();
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
             final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, isChunkedConfigured);
@@ -163,7 +161,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         HttpClientResponse httpClientResponse = getClient();
 
         try {
-            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(httpMethodProxyRequest);
+            HttpResponse httpResponse = httpClientResponse.getExtendedHttpClient().getHttpClient().execute(httpMethodProxyRequest);
             HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
@@ -188,11 +186,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             httpClientService.releaseClient(httpClientResponse);
         }
         return 1;
-
     }
 
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
-
         final Set<Map.Entry<String, String>> entries = headers.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             base.addHeader(entry.getKey(), entry.getValue());
@@ -206,7 +202,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ServiceClientResponse execute(HttpRequestBase base) {
         HttpClientResponse httpClientResponse = getClient();
         try {
-            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base);
+            HttpResponse httpResponse = httpClientResponse.getExtendedHttpClient().getHttpClient().execute(base);
             HttpEntity entity = httpResponse.getEntity();
             HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
 

@@ -27,6 +27,7 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.core.services.httpclient.HttpClientResponse;
 import org.openrepose.core.services.httpclient.HttpClientService;
@@ -42,9 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-//todo: maintaining a poolmap of clients may not work anymore since clients /should/ be immutable.
-// the de-commissioner becomes useless if we do not build the HttpClients from the pool configuration since the
-// lifecycle of a HttpClient will be managed by the current users of this service.
 @Named
 public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
@@ -137,12 +135,12 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         LOG.trace("Client requested, pool currently leased: {}, available: {}, pending: {}, max: {}",
                 poolStats.getLeased(), poolStats.getAvailable(), poolStats.getPending(), poolStats.getMax());
 
-        return new HttpClientResponseImpl(requestedClient.getHttpClient(), clientId, clientInstanceId, userId);
+        return new HttpClientResponseImpl(requestedClient, userId);
     }
 
     @Override
     public void releaseClient(HttpClientResponse httpClientResponse) {
-        String clientInstanceId = httpClientResponse.getClientInstanceId();
+        String clientInstanceId = httpClientResponse.getExtendedHttpClient().getClientInstanceId();
         String userId = httpClientResponse.getUserId();
 
         httpClientUserManager.removeUser(clientInstanceId, userId);

@@ -62,7 +62,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private final Datastore datastore;
     private final HttpClientService httpClientService;
     private AuthenticationHandler authenticationModule;
-    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
+    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<>();
     private UriMatcher uriMatcher;
     private FeedListenerManager manager;
     private AkkaServiceClient akkaServiceClient;
@@ -76,7 +76,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
-        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
+        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<>();
         listenerMap.put(ClientAuthConfig.class, new ClientAuthConfigurationListener());
 
         return listenerMap;
@@ -118,7 +118,6 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
         @Override
         public void configurationUpdated(ClientAuthConfig modifiedConfig) throws UpdateFailedException {
-
             updateUriMatcher(modifiedConfig.getWhiteList());
 
             accountRegexExtractor.clear();
@@ -148,9 +147,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 LOG.error("Authentication module is not understood or supported. Please check your configuration.");
             }
 
-
             isInitialized = true;
-
         }
 
         //Launch listener for atom-feeds if config present
@@ -165,6 +162,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             for (RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()) {
 
                 SaxAuthFeedReader rdr = new SaxAuthFeedReader(
+                        //todo: HttpContext would handle Auth stuff
                         new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(), httpClientService),
                         akkaServiceClient,
                         feed.getUri(),

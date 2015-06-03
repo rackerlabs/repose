@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.slf4j.Logger;
 
 import java.util.Map;

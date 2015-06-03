@@ -4,7 +4,7 @@
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
  * Copyright (C) 2010 - 2015 Rackspace US, Inc.
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -20,51 +20,52 @@
 package org.openrepose.core.services.httpclient.impl
 
 import org.apache.http.HttpResponse
-import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.params.ClientPNames
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.impl.conn.PoolingClientConnectionManager
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 
 class ClientDecommissionerTest {
 
-    ClientDecommissionManager decomm;
-    HttpClient client;
-    ServerSocket welcomeSocket1, welcomeSocket2;
-    int socketPort;
-    boolean listen;
-    PoolingClientConnectionManager connMan
-    URI uri1, uri2;
-
+    ClientDecommissionManager decomm
+    ExtendedHttpClient client
+    ServerSocket welcomeSocket1, welcomeSocket2
+    boolean listen
+    PoolingHttpClientConnectionManager connMan
+    URI uri1, uri2
 
     @Before
     void setUp() {
-
-        welcomeSocket1 = new ServerSocket(0);
-        welcomeSocket2 = new ServerSocket(0);
+        welcomeSocket1 = new ServerSocket(0)
+        welcomeSocket2 = new ServerSocket(0)
 
         println("port1: " + welcomeSocket1.getLocalPort())
         println("port2: " + welcomeSocket2.getLocalPort())
-        listen = true;
+        listen = true
 
-        decomm = new ClientDecommissionManager();
+        decomm = new ClientDecommissionManager()
 
-        connMan = new PoolingClientConnectionManager();
-        connMan.setMaxTotal(10);
+        connMan = new PoolingHttpClientConnectionManager()
+        connMan.setMaxTotal(10)
         connMan.setDefaultMaxPerRoute(10)
 
+        client = new ExtendedHttpClientImpl(
+                HttpClientBuilder.create().disableRedirectHandling().setConnectionManager(connMan).build(),
+                null,
+                null,
+                null,
+                null,
+                connMan,
+                null,
+                null,
+                false)
 
-        client = new DefaultHttpClient(connMan);
-        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-
-
-        uri1 = new URI("http://localhost:" + welcomeSocket1.getLocalPort() + "/blah");
-        uri2 = new URI("http://localhost:" + welcomeSocket2.getLocalPort() + "/");
+        uri1 = new URI("http://localhost:" + welcomeSocket1.getLocalPort() + "/blah")
+        uri2 = new URI("http://localhost:" + welcomeSocket2.getLocalPort() + "/")
 
         decomm.startThread()
-
     }
 
     @Test
@@ -73,19 +74,19 @@ class ClientDecommissionerTest {
         Thread serverThread = Thread.start {
 
             //Wait for connection
-            Socket connSocket1 = welcomeSocket1.accept();
+            Socket connSocket1 = welcomeSocket1.accept()
 
             //Connection Established
             try {
-                BufferedReader inBound = new BufferedReader(new InputStreamReader(connSocket1.getInputStream()));
-                DataOutputStream outToClient = new DataOutputStream(connSocket1.getOutputStream());
+                BufferedReader inBound = new BufferedReader(new InputStreamReader(connSocket1.getInputStream()))
+                DataOutputStream outToClient = new DataOutputStream(connSocket1.getOutputStream())
 
-                String inputLine;
+                String inputLine
                 while (!(inputLine = inBound.readLine()).equals(""))
-                    System.out.println(inputLine);
-                inBound.close();
+                    System.out.println(inputLine)
+                inBound.close()
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(10000)
                 } catch (InterruptedException ex) {
                 }
 
@@ -106,26 +107,23 @@ class ClientDecommissionerTest {
                 println("closing...")
                 connSocket1.close()
 
-
                 println("Socket1 shutdown? " + connSocket1.isClosed())
                 println("Socket1 connected? " + connSocket1.isConnected())
             }
         }
 
         Thread serverThread2 = Thread.start {
-
             //Wait for connection
-            Socket connSocket2 = welcomeSocket2.accept();
+            Socket connSocket2 = welcomeSocket2.accept()
 
             //Connection Established
-            BufferedReader inBound = new BufferedReader(new InputStreamReader(connSocket2.getInputStream()));
-            DataOutputStream outToClient = new DataOutputStream(connSocket2.getOutputStream());
+            BufferedReader inBound = new BufferedReader(new InputStreamReader(connSocket2.getInputStream()))
+            DataOutputStream outToClient = new DataOutputStream(connSocket2.getOutputStream())
 
-
-            String inputLine;
+            String inputLine
             while (!(inputLine = inBound.readLine()).equals(""))
-                System.out.println(inputLine);
-            inBound.close();
+                System.out.println(inputLine)
+            inBound.close()
 
             String strresponse = "HTTP/1.1 200 OK"
             PrintWriter writer = new PrintWriter(outToClient, true)
@@ -145,8 +143,8 @@ class ClientDecommissionerTest {
         assert connMan.getTotalStats().max == 10
 
         Thread getThread = Thread.start {
-            HttpGet get = new HttpGet(uri1);
-            HttpResponse rsp;
+            HttpGet get = new HttpGet(uri1)
+            HttpResponse rsp
 
             try {
 
@@ -157,7 +155,7 @@ class ClientDecommissionerTest {
 //                GetMethod get1 = new GetMethod("http://localhost:" + welcomeSocket1.getLocalPort() + "/")
 //                get1.setFollowRedirects(true)
 
-                rsp = client.execute(get);
+                rsp = client.getHttpClient().execute(get)
 
             } catch (IOException ex) {
             } finally {
@@ -165,23 +163,21 @@ class ClientDecommissionerTest {
             }
 
             Thread.currentThread().interrupt()
-            return;
+            return
         }
 
         decomm.decommissionClient(client)
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(5000)
         } catch (InterruptedException ex) {
         }
 
         Thread get2 = Thread.start {
-
-            HttpGet get = new HttpGet(uri2);
+            HttpGet get = new HttpGet(uri2)
             get.addHeader("Request", "Two")
 
-            HttpResponse response = client.execute(get);
-
+            HttpResponse response = client.getHttpClient().execute(get)
         }
 
         //Makes sure that only one connection is established.
@@ -195,6 +191,5 @@ class ClientDecommissionerTest {
         get2.interrupt()
 
         decomm.stopThread()
-
     }
 }

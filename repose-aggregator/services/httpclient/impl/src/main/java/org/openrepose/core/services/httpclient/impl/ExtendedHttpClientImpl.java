@@ -20,63 +20,80 @@
 package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.MessageConstraints;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.pool.ConnPoolControl;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 
 /**
  * A POJO to hold a HttpClient and related information
  */
-public class ExtendedHttpClient {
+public class ExtendedHttpClientImpl implements ExtendedHttpClient {
     private final CloseableHttpClient httpClient;
+    private final MessageConstraints messageConstraints;
     private final RequestConfig requestConfig;
+    private final ConnectionConfig connectionConfig;
+    private final SocketConfig socketConfig;
     private final PoolingHttpClientConnectionManager connectionManager;
+    private final ConnectionKeepAliveStrategy keepAliveStrategy;
     private final String clientInstanceId;
     private final boolean chunkedEncoding;
 
-    public ExtendedHttpClient(CloseableHttpClient httpClient,
-                              RequestConfig requestConfig,
-                              PoolingHttpClientConnectionManager connectionManager,
-                              String clientInstanceId,
-                              boolean chunkedEncoding) {
+    public ExtendedHttpClientImpl(CloseableHttpClient httpClient,
+                                  MessageConstraints messageConstraints,
+                                  RequestConfig requestConfig,
+                                  ConnectionConfig connectionConfig,
+                                  SocketConfig socketConfig,
+                                  PoolingHttpClientConnectionManager connectionManager,
+                                  ConnectionKeepAliveStrategy keepAliveStrategy,
+                                  String clientInstanceId,
+                                  boolean chunkedEncoding) {
         this.httpClient = httpClient;
+        this.messageConstraints = messageConstraints;
         this.requestConfig = requestConfig;
+        this.connectionConfig = connectionConfig;
+        this.socketConfig = socketConfig;
         this.connectionManager = connectionManager;
+        this.keepAliveStrategy = keepAliveStrategy;
         this.clientInstanceId = clientInstanceId;
         this.chunkedEncoding = chunkedEncoding;
     }
 
-    /**
-     * @return the wrapped {@link CloseableHttpClient}
-     */
     public CloseableHttpClient getHttpClient() {
         return httpClient;
     }
 
-    /**
-     * @return the {@link RequestConfig} used to construct the wrapped {@link CloseableHttpClient}
-     */
+    public MessageConstraints getMessageConstraints() {
+        return messageConstraints;
+    }
+
     public RequestConfig getRequestConfig() {
         return requestConfig;
     }
 
-    /**
-     * @return the {@link ConnPoolControl} which provides control over the connection pool used by the wrapped {@link CloseableHttpClient}
-     */
+    public ConnectionConfig getConnectionConfig() {
+        return connectionConfig;
+    }
+
+    public SocketConfig getSocketConfig() {
+        return socketConfig;
+    }
+
     public PoolingHttpClientConnectionManager getConnectionManager() {
         return connectionManager;
     }
 
-    /**
-     * @return a string which uniquely identifies the wrapped {@link CloseableHttpClient}
-     */
+    public ConnectionKeepAliveStrategy getKeepAliveStrategy() {
+        return keepAliveStrategy;
+    }
+
     public String getClientInstanceId() {
         return clientInstanceId;
     }
 
-    /**
-     * @return a boolean indicating whether or not chunked encoding should be used
-     */
     public boolean getChunkedEncoding() {
         return chunkedEncoding;
     }

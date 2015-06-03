@@ -23,9 +23,6 @@ import org.apache.http.Header;
 
 import java.io.InputStream;
 
-/**
- * @author Dan Daley
- */
 public class ServiceClientResponse {
 
     private final InputStream data;
