@@ -94,6 +94,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
 
+    //todo: fix this test -- it should not be case sensitive
     it("should return the same list when Foo is added") {
       wrappedRequest.addHeader("Foo", "foo")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys

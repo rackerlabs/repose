@@ -23,9 +23,9 @@ import java.util
 import javax.servlet.http.HttpServletRequest
 
 import org.apache.http.client.utils.DateUtils
-import org.openrepose.commons.utils.http.header.HeaderName
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.{TreeMap, TreeSet}
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,11 +37,15 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  private var headerMap :Map[HeaderName, List[String]] = Map[HeaderName, List[String]]()
-  private var removedHeaders :Set[HeaderName] = Set[HeaderName]()
+  private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(CaseInsensitiveStringOrdering)
+  private var removedHeaders: Set[String] = new TreeSet[String]()(CaseInsensitiveStringOrdering)
+
+  object CaseInsensitiveStringOrdering extends Ordering[String] {
+    override def compare(x: String, y: String): Int = x compareToIgnoreCase y
+  }
 
   def getHeaderNamesSet: Set[String] = {
-    (super.getHeaderNames.asScala.toSet.map(HeaderName.wrap).filterNot(removedHeaders.contains) ++ headerMap.keySet).map(_.getName)
+    super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains) ++ headerMap.keySet
   }
 
   override def getHeaderNames: util.Enumeration[String] = getHeaderNamesSet.toIterator.asJavaEnumeration
@@ -65,26 +69,24 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeader(headerName: String): String = getHeadersScalaList(headerName).headOption.orNull
 
-  def getHeadersScalaList(headerName: String) :List[String] = {
-    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
-    if (removedHeaders.contains(wrappedHeaderName)) {
+  def getHeadersScalaList(headerName: String): List[String] = {
+    if (removedHeaders.contains(headerName)) {
       List[String]()
     }
     else {
-      headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList)
+      headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
     }
   }
 
   override def getHeadersList(headerName: String): util.List[String] = getHeadersScalaList(headerName).asJava
 
   override def addHeader(headerName: String, headerValue: String): Unit = {
-    val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
     val existingHeaders: List[String] = getHeadersScalaList(headerName) //this has to be done before we remove from the list,
                                                                         // because getting this list is partially based on the contents of the removed list
-    if (removedHeaders.contains(wrappedHeaderName)) {
-      removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
+    if (removedHeaders.contains(headerName)) {
+      removedHeaders = removedHeaders.filterNot(_.equalsIgnoreCase(headerName))
     }
-    headerMap = headerMap + (wrappedHeaderName ->  (existingHeaders :+ headerValue))
+    headerMap = headerMap + (headerName -> (existingHeaders :+ headerValue))
   }
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = addHeader(headerName, headerValue + ";q=" + quality)
@@ -92,40 +94,40 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   override def appendHeader(headerName: String, headerValue: String): Unit = {
     val existingHeaders: List[String] = getHeadersScalaList(headerName)
     existingHeaders.headOption match {
-      case(Some(value)) => {
-        val newHeadValue :String = value + "," + headerValue
-        headerMap = headerMap + (HeaderName.wrap(headerName) -> (newHeadValue +: existingHeaders.tail))
+      case (Some(value)) => {
+        val newHeadValue: String = value + "," + headerValue
+        headerMap = headerMap + (headerName -> (newHeadValue +: existingHeaders.tail))
       }
-        case(None) => addHeader(headerName, headerValue)
+      case (None) => addHeader(headerName, headerValue)
     }
   }
 
   override def appendHeader(headerName: String, headerValue: String, quality: Double): Unit = appendHeader(headerName, headerValue + ";q=" + quality)
 
   override def removeHeader(headerName: String): Unit = {
-    val wrappedHeaderName: HeaderName = HeaderName.wrap(headerName)
-    removedHeaders = removedHeaders + wrappedHeaderName
-    headerMap = headerMap.filterKeys(!_.equals(wrappedHeaderName))
+    removedHeaders = removedHeaders + headerName
+    headerMap = headerMap.filterKeys(!_.equalsIgnoreCase(headerName))
   }
 
-  case class HeaderWithParameters(value :String, parameters :Map[String, String])
-  case class HeaderWithQuailty(value :String, quality :Double)
+  case class HeaderWithParameters(value: String, parameters: Map[String, String])
 
-  def getValueWithQuality(headerValues :List[HeaderWithParameters]) :List[HeaderWithQuailty] = {
+  case class HeaderWithQuality(value: String, quality: Double)
+
+  def getValueWithQuality(headerValues: List[HeaderWithParameters]): List[HeaderWithQuality] = {
     headerValues.map { header =>
-      HeaderWithQuailty(header.value, Option(header.parameters.getOrElse("q", "1.0")).map(_.toDouble).getOrElse(0.0))
+      HeaderWithQuality(header.value, Option(header.parameters.getOrElse("q", "1.0")).map(_.toDouble).getOrElse(0.0))
     }
   }
 
-  def filterToQualityParameters(headerValues :List[HeaderWithParameters]) :List[HeaderWithParameters] = {
+  def filterToQualityParameters(headerValues: List[HeaderWithParameters]): List[HeaderWithParameters] = {
     headerValues.map { header =>
       HeaderWithParameters(header.value, header.parameters.filterKeys(_.equals("q")))
     }
   }
 
-  def breakoutHeaderParameters(headerValues :List[String]) :List[HeaderWithParameters] = {
+  def breakoutHeaderParameters(headerValues: List[String]): List[HeaderWithParameters] = {
     headerValues.map { headerValue =>
-      val splitValues :Array[String] = headerValue.split(";")
+      val splitValues: Array[String] = headerValue.split(";")
       val parametersList = splitValues.tail.map { parameterString =>
         val parameterParts: Array[String] = parameterString.split("=", 2)
         if (parameterParts.length == 2) {
@@ -139,7 +141,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     }
   }
 
-  def getPreferredHeader(headerValues :List[String]) :String = {
+  def getPreferredHeader(headerValues: List[String]): String = {
     getValueWithQuality(filterToQualityParameters(breakoutHeaderParameters(headerValues))).sortWith(_.quality > _.quality).headOption.map(_.value).orNull
   }
 
@@ -148,9 +150,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   override def getPreferredSplittableHeader(headerName: String): String = getPreferredHeader(getSplittableHeader(headerName).asScala.toList)
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
-    val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
-    headerMap = headerMap + (wrappedHeaderName ->  List(headerValue))
-    removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
+    headerMap = headerMap + (headerName -> List(headerValue))
+    removedHeaders = removedHeaders.filterNot(_.equalsIgnoreCase(headerName))
   }
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
