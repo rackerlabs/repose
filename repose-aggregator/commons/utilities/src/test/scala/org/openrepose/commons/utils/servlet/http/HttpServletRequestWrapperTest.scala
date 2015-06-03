@@ -57,6 +57,27 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     wrappedRequest = new HttpServletRequestWrapper(mockRequest)
   }
 
+  describe("the getHeadersNamesSet method") {
+    it("should return all the header names from the original request") {
+      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+    }
+
+    it("should return all the header names including the ones that were added") {
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys ++ List("butts")
+    }
+
+    it("should return a list that is missing any deleted headers") {
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+    }
+
+    it("should return the same list when Foo is added") {
+      wrappedRequest.addHeader("Foo", "foo")
+      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+    }
+  }
+
   describe("the getHeaderNames method") {
     it("should return all the header names from the original request") {
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys
