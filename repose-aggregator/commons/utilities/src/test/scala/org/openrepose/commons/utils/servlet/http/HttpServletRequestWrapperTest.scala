@@ -41,8 +41,8 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   val headerMap :Map[String, List[String]] = Map(
     "foo" -> List("bar", "baz"),
     "banana-phone" -> List("ring,ring,ring"),
-    "cup" -> List("blue,orange?q=0.5"),
-    "ornament" -> List("weird penguin?q=0.8", "santa?q=0.9", "droopy tree?q=0.3"),
+    "cup" -> List("blue,orange;q=0.5"),
+    "ornament" -> List("weird penguin;q=0.8", "santa;q=0.9", "droopy tree;q=0.3"),
     "thumbs" -> List("2"),
     "abc" -> List("1,2,3"),
     "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST"))
@@ -283,14 +283,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "foo", 0.5)
       val result = wrappedRequest.getHeadersList("foo")
       result.size shouldBe headerList.size + 1
-      result should contain theSameElementsAs headerList ++ List("foo?q=0.5")
+      result should contain theSameElementsAs headerList ++ List("foo;q=0.5")
     }
 
     it("Should add a brand new header if it didn't exist before") {
       wrappedRequest.addHeader("butts", "butts", 0.5)
       val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("butts").asScala
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts?q=0.5")
+      returnedValues should contain ("butts;q=0.5")
     }
 
     it("should add a header even if it's already been deleted") {
@@ -298,7 +298,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "foo", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("foo?q=0.5")
+      returnedValues should contain ("foo;q=0.5")
     }
 
     it("should add a header even if one was added then deleted") {
@@ -307,7 +307,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "butts", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts?q=0.5")
+      returnedValues should contain ("butts;q=0.5")
     }
   }
 
@@ -341,18 +341,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   describe("the appendHeader method with quality") {
     it("should append a value on an existing header") {
       wrappedRequest.appendHeader("abc", "4", 0.1)
-      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("1,2,3,4?q=0.1")
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("1,2,3,4;q=0.1")
     }
 
     it("should create a new header if the name does not yet exist") {
       wrappedRequest.appendHeader("butts", "butts", 0.1)
-      wrappedRequest.getHeadersList("butts").asScala should contain theSameElementsAs List("butts?q=0.1")
+      wrappedRequest.getHeadersList("butts").asScala should contain theSameElementsAs List("butts;q=0.1")
     }
 
     it("should append a header even if the original has been deleted") {
       wrappedRequest.removeHeader("abc")
       wrappedRequest.appendHeader("abc", "4", 0.5)
-      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("4?q=0.5")
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("4;q=0.5")
     }
 
     it("should append a header even if one was created then deleted") {
@@ -361,7 +361,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.appendHeader("butts", "butts", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("butts").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts?q=0.5")
+      returnedValues should contain ("butts;q=0.5")
     }
   }
 
@@ -473,7 +473,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should return the appropriate value when a higher quality is appended onto a line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
-      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin?q=0.8,star"
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin;q=0.8,star"
     }
 
     it("should return an added value when it's the only value") {
@@ -519,25 +519,25 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   describe("the replaceHeader method with quality") {
     it("should replace a header that already exists") {
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo?q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo;q=0.5")
     }
 
     it("should add a new header when by itself") {
       wrappedRequest.replaceHeader("butts", "butts", 0.5)
-      wrappedRequest.getHeadersList("butts") should contain ("butts?q=0.5")
+      wrappedRequest.getHeadersList("butts") should contain ("butts;q=0.5")
     }
 
     it("should add a header even when existing ones have been removed") {
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeadersList("foo") should contain ("foo?q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain ("foo;q=0.5")
     }
 
     it("should add a header when some have been added, removed then re added") {
       wrappedRequest.addHeader("foo", "butts")
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeadersList("foo") should contain ("foo?q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain ("foo;q=0.5")
     }
   }
 
