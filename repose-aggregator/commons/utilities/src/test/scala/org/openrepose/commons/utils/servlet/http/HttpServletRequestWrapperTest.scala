@@ -19,6 +19,8 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
+import java.util
+
 import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -432,6 +434,15 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getHeadersList("butts") shouldBe empty
       wrappedRequest.removeHeader("butts")
       wrappedRequest.getHeadersList("butts") shouldBe empty
+    }
+
+    it("should only have the new recently added value after a delete not any values prior to deletion") {
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.addHeader("butts", "foo")
+      val returnedValues: util.List[String] = wrappedRequest.getHeadersList("butts")
+      returnedValues.size shouldBe 1
+      returnedValues should contain theSameElementsAs List("foo")
     }
   }
 
