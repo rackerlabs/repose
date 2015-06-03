@@ -260,16 +260,33 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       returnedValues.size shouldBe 1
       returnedValues should contain theSameElementsAs List("butts")
     }
+
+    it("should add a header even if it's already been deleted") {
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.addHeader("foo", "foo")
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("foo")
+    }
+
+    it("should add a header even if one was added then deleted") {
+      wrappedRequest.addHeader("foo", "foo")
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.addHeader("foo", "butts")
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts")
+    }
   }
 
   describe("the addHeader method with quality") {
     it("Should add an additional value to an existing header") {
       pending
-      val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
+      val headerList = wrappedRequest.getHeadersList("foo").asScala.toList
       wrappedRequest.addHeader("foo", "foo", 0.5)
       val result = wrappedRequest.getHeadersList("foo")
-      result.size shouldBe sizeOfHeaderList + 1
-      result should contain theSameElementsAs List("foo?q=0.5")
+      result.size shouldBe headerList.size + 1
+      result should contain theSameElementsAs headerList ++ List("foo?q=0.5")
     }
 
     it("Should add a brand new header if it didn't exist before") {
@@ -279,21 +296,51 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       returnedValues.size shouldBe 1
       returnedValues should contain ("butts?q=0.5")
     }
+
+    it("should add a header even if it's already been deleted") {
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.addHeader("foo", "foo", 0.5)
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("foo?q=0.5")
+    }
+
+    it("should add a header even if one was added then deleted") {
+      wrappedRequest.addHeader("foo", "foo")
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.addHeader("foo", "butts", 0.5)
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts?q=0.5")
+    }
   }
 
   describe("the appendHeader method") {
     it("should append a value on an existing header") {
       pending
       wrappedRequest.appendHeader("abc", "4")
-      val result = wrappedRequest.getHeadersList("abc").asScala
-      result should contain theSameElementsAs List("1,2,3,4")
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("1,2,3,4")
     }
 
     it("should create a new header if the name does not yet exist") {
       pending
       wrappedRequest.appendHeader("butts", "butts")
-      val result = wrappedRequest.getHeadersList("butts").asScala
-      result should contain theSameElementsAs List("butts")
+      wrappedRequest.getHeadersList("butts").asScala should contain theSameElementsAs List("butts")
+    }
+
+    it("should append a header even if the original has been deleted") {
+      wrappedRequest.removeHeader("abc")
+      wrappedRequest.appendHeader("abc", "4")
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("4")
+    }
+
+    it("should append a header even if one was created then deleted") {
+      wrappedRequest.appendHeader("butts", "foo")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.appendHeader("butts", "butts")
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("butts").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts")
     }
   }
 
@@ -301,29 +348,73 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should append a value on an existing header") {
       pending
       wrappedRequest.appendHeader("abc", "4", 0.1)
-      val result = wrappedRequest.getHeadersList("abc").asScala
-      result should contain theSameElementsAs List("1,2,3,4?q=0.1")
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("1,2,3,4?q=0.1")
     }
 
     it("should create a new header if the name does not yet exist") {
       pending
       wrappedRequest.appendHeader("butts", "butts", 0.1)
-      val result = wrappedRequest.getHeadersList("butts").asScala
-      result should contain theSameElementsAs List("butts?q=0.1")
+      wrappedRequest.getHeadersList("butts").asScala should contain theSameElementsAs List("butts?q=0.1")
+    }
+
+    it("should append a header even if the original has been deleted") {
+      wrappedRequest.removeHeader("abc")
+      wrappedRequest.appendHeader("abc", "4", 0.5)
+      wrappedRequest.getHeadersList("abc").asScala should contain theSameElementsAs List("4?q=0.5")
+    }
+
+    it("should append a header even if one was created then deleted") {
+      wrappedRequest.appendHeader("butts", "foo")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.appendHeader("butts", "butts", 0.5)
+      val returnedValues: List[String] = wrappedRequest.getHeadersList("butts").asScala.toList
+      returnedValues.size shouldBe 1
+      returnedValues should contain ("butts?q=0.5")
     }
   }
 
   describe("the getPreferredSplittableHeader method") {
-    it("Should return value with largest quality value for cup") {
+    it("Should return value with largest quality value") {
       pending
-      val preferred = wrappedRequest.getPreferredSplittableHeader("cup")
-      preferred shouldBe "blue"
+      wrappedRequest.getPreferredSplittableHeader("cup") shouldBe "blue"
     }
 
     it("Should return the first entity if the quantities are the same") {
       pending
-      val preferred = wrappedRequest.getPreferredSplittableHeader("abc")
-      preferred shouldBe "1"
+      wrappedRequest.getPreferredSplittableHeader("abc") shouldBe "1"
+    }
+
+    it("should give the highest quality even with the added value being highest") {
+      wrappedRequest.addHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "star"
+    }
+
+    it("should give the highest quality even with the an added value being in the middle") {
+      wrappedRequest.addHeader("ornament", "star", 0.85)
+      wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "santa"
+    }
+
+    it("should give the highest value even if the orignals were removed and then a new added") {
+      wrappedRequest.removeHeader("cup")
+      wrappedRequest.addHeader("cup", "red", 0.1)
+      wrappedRequest.getPreferredSplittableHeader("cup") shouldBe "red"
+    }
+
+    it("should give the highest single value wehn a value had been added, all removed, then another added") {
+      wrappedRequest.addHeader("cup", "purple", 0.7)
+      wrappedRequest.removeHeader("cup")
+      wrappedRequest.addHeader("cup", "red", 0.1)
+      wrappedRequest.getPreferredSplittableHeader("cup") shouldBe "red"
+    }
+
+    it("should give the highest quality even with an appended value being highest") {
+      wrappedRequest.appendHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "star"
+    }
+
+    it("should give the highest quality even with a replaced value being highest") {
+      wrappedRequest.replaceHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "star"
     }
   }
 
@@ -332,49 +423,78 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       it(s"Should remove the header from the wrapper: $headerName") {
         pending
         wrappedRequest.removeHeader(headerName)
-        wrappedRequest.getHeadersList(headerName).size shouldBe 0
+        wrappedRequest.getHeadersList(headerName) shouldBe empty
       }
     }
 
+    it("should remove a header that was added") {
+      wrappedRequest.addHeader("butts", "butts")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.getHeadersList("butts") shouldBe empty
+    }
+
+    it("should remove a header that was added to an existing header") {
+      wrappedRequest.addHeader("foo", "butts")
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.getHeadersList("foo") shouldBe empty
+    }
+
+    it("should remove a header that was appended") {
+      wrappedRequest.appendHeader("butts", "butts")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.getHeadersList("butts") shouldBe empty
+    }
+
+    it("should remove a header that was replaced") {
+      wrappedRequest.replaceHeader("butts", "butts")
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.getHeadersList("butts") shouldBe empty
+    }
+
     it("should try to remove a header that does not exist") {
-      pending
+      wrappedRequest.getHeadersList("butts") shouldBe empty
+      wrappedRequest.removeHeader("butts")
+      wrappedRequest.getHeadersList("butts") shouldBe empty
     }
   }
 
   describe("the getPreferredHeader method") {
     it("Should return value with largest quality value for ornament") {
       pending
-      val preferred = wrappedRequest.getPreferredHeader("ornament")
-      preferred shouldBe "santa"
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
     }
 
     it("should return added value if quality is larger than original") {
       pending
       wrappedRequest.addHeader("ornament", "reindeer", 0.95)
-      val preferred = wrappedRequest.getPreferredHeader("ornament")
-      preferred shouldBe "reindeer"
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "reindeer"
     }
 
     it("should not return added value if quality is smaller than original") {
       pending
-      val oldPreferred = wrappedRequest.getPreferredHeader("ornament")
       wrappedRequest.addHeader("ornament", "reindeer", 0.85)
-      val preferred = wrappedRequest.getPreferredHeader("ornament")
-      preferred shouldBe "santa"
-      preferred shouldBe oldPreferred
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
+    }
+
+    it("should return the appropriate value when a higher quality is appended onto a line") {
+      wrappedRequest.appendHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin?q=0.8,star"
+    }
+
+    it("should return an added value when it's the only value") {
+      wrappedRequest.addHeader("butts", "butts", 0.5)
+      wrappedRequest.getPreferredHeader("butts") shouldBe "butts"
     }
 
     it("No quality specified should set quality to 1") {
       pending
       wrappedRequest.addHeader("ornament", "reindeer")
-      val preferred = wrappedRequest.getPreferredHeader("ornament")
-      preferred shouldBe "reindeer"
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "reindeer"
     }
 
     it("should return the first occurrence of highest quality duplicate values") {
       pending
-      val preferred = wrappedRequest.getPreferredHeader("foo")
-      preferred shouldBe "bar"
+      wrappedRequest.getPreferredHeader("foo") shouldBe "bar"
     }
   }
 
@@ -382,8 +502,25 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should replace a header that already exists") {
       pending
       wrappedRequest.replaceHeader("foo", "foo")
-      val result = wrappedRequest.getHeadersList("foo")
-      result should contain theSameElementsAs List("foo")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo")
+    }
+
+    it("should add a new header when by itself") {
+      wrappedRequest.replaceHeader("butts", "butts")
+      wrappedRequest.getHeadersList("butts") should contain ("butts")
+    }
+
+    it("should add a header even when existing ones have been removed") {
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.replaceHeader("foo", "foo")
+      wrappedRequest.getHeadersList("foo") should contain ("foo")
+    }
+
+    it("should add a header when some have been added, removed then re added") {
+      wrappedRequest.addHeader("foo", "butts")
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.replaceHeader("foo", "foo")
+      wrappedRequest.getHeadersList("foo") should contain ("foo")
     }
   }
 
@@ -391,23 +528,48 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should replace a header that already exists") {
       pending
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      val result = wrappedRequest.getHeadersList("foo")
-      result should contain theSameElementsAs List("foo?q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo?q=0.5")
+    }
+
+    it("should add a new header when by itself") {
+      wrappedRequest.replaceHeader("butts", "butts", 0.5)
+      wrappedRequest.getHeadersList("butts") should contain ("butts?q=0.5")
+    }
+
+    it("should add a header even when existing ones have been removed") {
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.replaceHeader("foo", "foo", 0.5)
+      wrappedRequest.getHeadersList("foo") should contain ("foo?q=0.5")
+    }
+
+    it("should add a header when some have been added, removed then re added") {
+      wrappedRequest.addHeader("foo", "butts")
+      wrappedRequest.removeHeader("foo")
+      wrappedRequest.replaceHeader("foo", "foo", 0.5)
+      wrappedRequest.getHeadersList("foo") should contain ("foo?q=0.5")
     }
   }
 
   describe("the getSplittableHeader method") {
     it("Should return the values in a header if splittable as a list") {
       pending
-      val split = wrappedRequest.getSplittableHeader("abc")
-      split.asScala.toList should contain theSameElementsAs List("1", "2", "3")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3")
+    }
+
+    it("should return a split list when a value is added") {
+      wrappedRequest.addHeader("abc", "4")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
     }
 
     it("Should return a splittable list when added") {
       pending
       wrappedRequest.appendHeader("abc", "4")
-      val split = wrappedRequest.getSplittableHeader("abc")
-      split.asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
+    }
+
+    it("should split correctly when a replace is done") {
+      wrappedRequest.replaceHeader("abc", "5,6,7,8")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("5", "6", "7", "8")
     }
   }
 }
