@@ -86,7 +86,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def appendHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
-  override def removeHeader(headerName: String): Unit = ???
+  override def removeHeader(headerName: String): Unit = { removedHeaders = removedHeaders + HeaderName.wrap(headerName)}
 
   override def getPreferredHeader(headerName: String): String = ???
 
