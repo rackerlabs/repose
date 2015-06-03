@@ -514,6 +514,90 @@ with MockedAkkaServiceClient {
 
       mockAkkaServiceClient.validate()
     }
+    describe("when endpoints are cached") {
+      it("will reject if the user doesn't have the endpoint") {
+        //make a request and validate that it called the akka service client?
+        val request = new MockHttpServletRequest()
+        request.addHeader("x-auth-token", VALID_TOKEN)
+
+        //Pretend like the admin token is cached all the time
+        Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+        //Urgh, I have to hit the akka service client twice
+        mockAkkaGetResponses(VALID_TOKEN)(
+          Seq(
+            "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+          )
+        )
+
+        val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
+        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        response.getStatus shouldBe 403
+        filterChain.getLastRequest should be(null)
+        filterChain.getLastResponse should be(null)
+
+        mockAkkaServiceClient.validate()
+      }
+      it("will allow through if the user has the endpoint") {
+        //make a request and validate that it called the akka service client?
+        val request = new MockHttpServletRequest()
+        request.addHeader("x-auth-token", VALID_TOKEN)
+
+        //Pretend like the admin token is cached all the time
+        Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+        //Urgh, I have to hit the akka service client twice
+        mockAkkaGetResponses(VALID_TOKEN)(
+          Seq(
+            "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+          )
+        )
+
+        val endpointsList = Vector(filter.Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
+        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        filterChain.getLastRequest shouldNot be(null)
+        filterChain.getLastResponse shouldNot be(null)
+
+        mockAkkaServiceClient.validate()
+      }
+      it("will allow through if the user matches the bypass roles") {
+        //make a request and validate that it called the akka service client?
+        val request = new MockHttpServletRequest()
+        request.addHeader("x-auth-token", VALID_TOKEN)
+
+        //Pretend like the admin token is cached all the time
+        Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+        //Urgh, I have to hit the akka service client twice
+        mockAkkaGetResponses(VALID_TOKEN)(
+          Seq(
+            "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
+          )
+        )
+
+        val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
+        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        filterChain.getLastRequest shouldNot be(null)
+        filterChain.getLastResponse shouldNot be(null)
+
+        mockAkkaServiceClient.validate()
+      }
+    }
   }
 
   describe("when delegating") {

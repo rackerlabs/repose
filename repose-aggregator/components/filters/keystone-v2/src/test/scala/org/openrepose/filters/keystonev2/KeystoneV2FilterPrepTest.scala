@@ -104,10 +104,10 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.configurationUpdated(configuration)
 
       val timeouts = filter.configuration.getCacheSettings.getTimeouts
-      timeouts.getEndpoints should be(60000)
-      timeouts.getGroup should be(60000)
-      timeouts.getToken should be(60000)
-      timeouts.getUser should be(60000)
+      timeouts.getEndpoints should be(600)
+      timeouts.getGroup should be(600)
+      timeouts.getToken should be(600)
+      timeouts.getUser should be(600)
       timeouts.getVariability should be(0)
 
       filter.configuration.getIdentityService.isSetGroupsInHeader should be(true)

@@ -397,8 +397,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
    */
   def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[Vector[Endpoint]]] = {
     Option(configuration.getRequireServiceEndpoint).map { requireServiceEndpoint =>
-      Option(datastore.get(s"${authToken}Endpoints").asInstanceOf[Vector[Endpoint]]).map { cached =>
-        Success(cached)
+      Option(datastore.get(s"${authToken}Endpoints").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
+        Success(endpoints)
       } getOrElse {
         logger.debug("WAT")
         getAdminToken.flatMap { adminToken =>
@@ -413,36 +413,38 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
           } flatMap { endpointList =>
-            //Create the endpoint requirement from teh configuration
-            //  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
-            def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
-              Endpoint(
-                publicURL = cfg.getPublicUrl,
-                name = Option(cfg.getName),
-                endpointType = Option(cfg.getType),
-                region = Option(cfg.getRegion)
-              )
-            }
-            //Have to see if they have a list of roles...
-            //Have to use slightly more annoying parenthesis to make sure the for-comprehension does what I want
-            val bypassRoles: List[String] = (for {
-              jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
-              rolesList <- Option(jaxbIntermediaryObject.getRole)
-            } yield {
-                import scala.collection.JavaConversions._
-                rolesList.toList
-              }) getOrElse {
-              List.empty[String]
-            }
-
-
-            if (bypassRoles.intersect(validToken.groups).nonEmpty ||
-              endpointList.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
-              Success(endpointList)
-            } else {
-              Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
-            }
+            Success(endpointList)
           }
+        }
+      } flatMap { endpointList =>
+        logger.debug("FIGURING OUT THINGIES")
+        //Create the endpoint requirement from teh configuration
+        //  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
+        def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
+          Endpoint(
+            publicURL = cfg.getPublicUrl,
+            name = Option(cfg.getName),
+            endpointType = Option(cfg.getType),
+            region = Option(cfg.getRegion)
+          )
+        }
+        //Have to see if they have a list of roles...
+        //Have to use slightly more annoying parenthesis to make sure the for-comprehension does what I want
+        val bypassRoles: List[String] = (for {
+          jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
+          rolesList <- Option(jaxbIntermediaryObject.getRole)
+        } yield {
+            import scala.collection.JavaConversions._
+            rolesList.toList
+          }) getOrElse {
+          List.empty[String]
+        }
+
+        if (bypassRoles.intersect(validToken.groups).nonEmpty ||
+          endpointList.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
+          Success(endpointList)
+        } else {
+          Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
         }
       }
     }
