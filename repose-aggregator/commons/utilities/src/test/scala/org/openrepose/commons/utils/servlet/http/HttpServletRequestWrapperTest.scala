@@ -41,6 +41,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   val headerMap :Map[String, List[String]] = Map(
     "foo" -> List("bar", "baz"),
     "banana-phone" -> List("ring,ring,ring"),
+    "ghost" -> List("spooky;q=.90,sexy;q=1.0", "scary;q=.95"),
     "cup" -> List("blue,orange;q=0.5"),
     "ornament" -> List("weird penguin;q=0.8", "santa;q=0.9", "droopy tree;q=0.3"),
     "thumbs" -> List("2"),
@@ -509,6 +510,10 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   describe("the getPreferredHeader method") {
     it("Should return value with largest quality value for ornament") {
       wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
+    }
+
+    it("should return the value with the highest quality when multiple values are on the same line") {
+      wrappedRequest.getPreferredHeader("ghost") shouldBe "sexy"
     }
 
     it("should return added value if quality is larger than original") {
