@@ -95,7 +95,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     headerMap = headerMap + (wrappedHeaderName ->  (existingHeaders :+ headerValue))
   }
 
-  override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
+  override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = addHeader(headerName, headerValue + ";q=" + quality)
 
   override def getPreferredSplittableHeader(headerName: String): String = ???
 
@@ -110,7 +110,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     }
   }
 
-  override def appendHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
+  override def appendHeader(headerName: String, headerValue: String, quality: Double): Unit = appendHeader(headerName, headerValue + ";q=" + quality)
 
   override def removeHeader(headerName: String): Unit = {
     val wrappedHeaderName: HeaderName = HeaderName.wrap(headerName)
@@ -126,7 +126,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
   }
 
-  override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
+  override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
 
   override def getSplittableHeader(headerName: String): util.List[String] = {
     var splittableHeader :List[String] = List[String]()
