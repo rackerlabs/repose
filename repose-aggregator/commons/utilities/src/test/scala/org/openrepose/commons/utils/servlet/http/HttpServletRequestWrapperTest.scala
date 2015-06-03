@@ -142,9 +142,19 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       an [IllegalArgumentException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
 
-    it("should provide a value for an added header") {
-      wrappedRequest.addHeader("awesomeTime", "Thu, 1 Jan 1970 00:00:00 GMT")
-      wrappedRequest.getDateHeader("awesomeTime") shouldBe 0L
+    it("should provide a value for an added header in RFC1123") {
+      wrappedRequest.addHeader("newAwesomeTime", "Thu, 1 Jan 1970 00:00:00 GMT")
+      wrappedRequest.getDateHeader("newAwesomeTime") shouldBe 0L
+    }
+
+    it("should provide a value for an added header in RFC1036") {
+      wrappedRequest.addHeader("newAwesomeTime", "Friday, 29-May-2015 12:12:12 CST")
+      wrappedRequest.getDateHeader("newAwesomeTime") shouldBe 1432923132000L
+    }
+
+    it("should provide a value for an added header in asctime") {
+      wrappedRequest.addHeader("newAwesomeTime", "Thu Jan 1 00:00:00 1970")
+      wrappedRequest.getDateHeader("newAwesomeTime") shouldBe 0L
     }
 
     it("should return -1 for a removed header") {

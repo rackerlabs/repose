@@ -22,6 +22,7 @@ package org.openrepose.commons.utils.servlet.http
 import java.util
 import javax.servlet.http.HttpServletRequest
 
+import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.http.header.HeaderName
 
 import scala.collection.JavaConverters._
@@ -48,9 +49,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   override def getHeaderNamesList: util.List[String] = getHeaderNamesSet.toList.asJava
 
   override def getIntHeader(headerName: String): Int = {
-    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
     val header : String = getHeader(headerName)
-    if(header == null || removedHeaders.contains(wrappedHeaderName)) {
+    if(header == null) {
       -1
     }
     else {
@@ -60,7 +60,16 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeaders(headerName: String): util.Enumeration[String] = getHeadersScalaList(headerName).toIterator.asJavaEnumeration
 
-  override def getDateHeader(headerName: String): Long = super.getDateHeader(headerName)
+  override def getDateHeader(headerName: String): Long = {
+    Option(getHeader(headerName)) match {
+      case Some(headerValue) =>
+        Option(DateUtils.parseDate(headerValue)) match {
+          case Some(parsedDate) => parsedDate.getTime
+          case None => throw new IllegalArgumentException("Header value could not be converted to a date")
+        }
+      case None => -1
+    }
+  }
 
   override def getHeader(headerName: String): String = getHeadersScalaList(headerName).headOption.orNull
 
