@@ -400,9 +400,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       Option(datastore.get(s"${authToken}Endpoints").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
         Success(endpoints)
       } getOrElse {
-        logger.debug("WAT")
         getAdminToken.flatMap { adminToken =>
-          logger.debug("GOT AN ADMIN TOKEN")
           getEndpointsForToken(adminToken, authToken).recoverWith {
             case unauth: AdminTokenUnauthorizedException =>
               //Clear the cache, call this method again
@@ -417,9 +415,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           }
         }
       } flatMap { endpointList =>
-        logger.debug("FIGURING OUT THINGIES")
         //Create the endpoint requirement from teh configuration
-        //  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
         def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
           Endpoint(
             publicURL = cfg.getPublicUrl,
