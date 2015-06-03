@@ -38,7 +38,7 @@ trait MockedAkkaServiceClient {
     }
 
     def reset(): Unit = {
-      getResponses.empty
+      getResponses.clear()
       postResponses.clear()
     }
 
