@@ -560,5 +560,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.replaceHeader("abc", "5,6,7,8")
       wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("5", "6", "7", "8")
     }
+
+    it("should return list for header that is already split") {
+      wrappedRequest.getSplittableHeader("foo").asScala.toList should contain theSameElementsAs List("bar", "baz")
+    }
+
+    it("should return empty list if header does not exist") {
+      wrappedRequest.getSplittableHeader("notAHeader").asScala.toList shouldBe List[String]()
+    }
+
+    it("should return empty list if header is removed") {
+      wrappedRequest.removeHeader("abc")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe List[String]()
+    }
   }
 }
