@@ -120,7 +120,11 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getPreferredHeader(headerName: String): String = ???
 
-  override def replaceHeader(headerName: String, headerValue: String): Unit = ???
+  override def replaceHeader(headerName: String, headerValue: String): Unit = {
+    val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
+    headerMap = headerMap + (wrappedHeaderName ->  List(headerValue))
+    removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
+  }
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
