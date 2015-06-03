@@ -48,15 +48,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeaderNamesList: util.List[String] = getHeaderNamesSet.toList.asJava
 
-  override def getIntHeader(headerName: String): Int = {
-    val header : String = getHeader(headerName)
-    if(header == null) {
-      -1
-    }
-    else {
-      header.toInt
-    }
-  }
+  override def getIntHeader(headerName: String): Int = Option(getHeader(headerName)).getOrElse("-1").toInt
 
   override def getHeaders(headerName: String): util.Enumeration[String] = getHeadersScalaList(headerName).toIterator.asJavaEnumeration
 
@@ -128,7 +120,5 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
 
-  override def getSplittableHeader(headerName: String): util.List[String] = {
-    getHeadersScalaList(headerName).foldLeft(List[String]())((list, s) => list ++ s.split(",")).asJava
-  }
+  override def getSplittableHeader(headerName: String): util.List[String] = getHeadersScalaList(headerName).foldLeft(List[String]())((list, s) => list ++ s.split(",")).asJava
 }
