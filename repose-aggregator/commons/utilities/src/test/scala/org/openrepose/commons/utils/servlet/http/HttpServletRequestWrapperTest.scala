@@ -483,7 +483,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should return the appropriate value when a higher quality is appended onto a line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
-      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin;q=0.8,star"
+      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin"
     }
 
     it("should return an added value when it's the only value") {

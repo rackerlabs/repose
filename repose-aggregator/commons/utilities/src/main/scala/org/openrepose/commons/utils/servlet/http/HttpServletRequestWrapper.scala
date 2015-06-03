@@ -110,7 +110,40 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     headerMap = headerMap.filterKeys(!_.equals(wrappedHeaderName))
   }
 
-  override def getPreferredHeader(headerName: String): String = ???
+  case class HeaderWithParameters(value :String, parameters :Map[String, String])
+  case class HeaderWithQuailty(value :String, quality :Double)
+
+  def getValueWithQuality(headerValues :List[HeaderWithParameters]) :List[HeaderWithQuailty] = {
+    headerValues.map { header =>
+      HeaderWithQuailty(header.value, Option(header.parameters.getOrElse("q", "1.0")).map(_.toDouble).getOrElse(0.0))
+    }
+  }
+
+  def filterToQualityParameters(headerValues :List[HeaderWithParameters]) :List[HeaderWithParameters] = {
+    headerValues.map { header =>
+      HeaderWithParameters(header.value, header.parameters.filterKeys(_.equals("q")))
+    }
+  }
+
+  def breakoutHeaderParameters(headerValues :List[String]) :List[HeaderWithParameters] = {
+    headerValues.map { headerValue =>
+      val splitValues :Array[String] = headerValue.split(";")
+      val parametersList = splitValues.tail.map { parameterString =>
+        val parameterParts: Array[String] = parameterString.split("=", 2)
+        if (parameterParts.length == 2) {
+          (parameterParts(0), parameterParts(1))
+        }
+        else {
+          (parameterParts(0), "")
+        }
+      }
+      HeaderWithParameters(splitValues.head, parametersList.toMap)
+    }
+  }
+
+  override def getPreferredHeader(headerName: String): String = {
+    getValueWithQuality(filterToQualityParameters(breakoutHeaderParameters(getHeadersScalaList(headerName)))).sortWith(_.quality > _.quality).headOption.map(_.value).orNull
+  }
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
