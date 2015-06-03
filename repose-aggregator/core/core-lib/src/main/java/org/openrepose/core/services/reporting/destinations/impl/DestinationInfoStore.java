@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class DestinationInfoStore {
 
-    private static final long LONG_ZERO = 0l;
+    private static final long LONG_ZERO = 0L;
     private final String destinationId;
     private final long startTime;
     private long totalRequests = LONG_ZERO;
