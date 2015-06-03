@@ -54,7 +54,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
     private static final String DEFAULT_POOL_ID = "DEFAULT_POOL";
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
-    private static final String httpConnectionPoolServiceReport = "HttpConnectionPoolServiceReport";
+    private static final String HTTP_CONNECTION_POOL_SERVICE_REPORT = "HttpConnectionPoolServiceReport";
     private static PoolType DEFAULT_POOL = new PoolType();
     private final ConfigurationService configurationService;
     private final HttpClientUserManager httpClientUserManager;
@@ -87,7 +87,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
         //Set up the configuration listener
 
-        healthCheckServiceProxy.reportIssue(httpConnectionPoolServiceReport, "Http Client Service Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(HTTP_CONNECTION_POOL_SERVICE_REPORT, "Http Client Service Configuration Error", Severity.BROKEN);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, HttpConnectionPoolConfig.class);
 
@@ -96,7 +96,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         // and the initial health check error should be cleared.
         try {
             if (!configurationListener.isInitialized() && !configurationService.getResourceResolver().resolve(DEFAULT_CONFIG_NAME).exists()) {
-                healthCheckServiceProxy.resolveIssue(httpConnectionPoolServiceReport);
+                healthCheckServiceProxy.resolveIssue(HTTP_CONNECTION_POOL_SERVICE_REPORT);
             }
         } catch (IOException io) {
             LOG.error("Error attempting to search for {}", DEFAULT_CONFIG_NAME, io);
@@ -222,7 +222,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         public void configurationUpdated(HttpConnectionPoolConfig poolConfig) {
             configure(poolConfig);
             initialized = true;
-            healthCheckServiceProxy.resolveIssue(httpConnectionPoolServiceReport);
+            healthCheckServiceProxy.resolveIssue(HTTP_CONNECTION_POOL_SERVICE_REPORT);
         }
 
         @Override
