@@ -71,6 +71,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.removeHeader("foo")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
+
+    it("should return the same list when Foo is added") {
+      wrappedRequest.addHeader("Foo", "foo")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys
+    }
   }
 
   describe("the getIntHeader method") {
