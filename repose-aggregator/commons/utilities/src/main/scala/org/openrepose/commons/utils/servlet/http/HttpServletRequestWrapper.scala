@@ -39,8 +39,16 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   private var headerMap :Map[HeaderName, List[String]] = Map[HeaderName, List[String]]()
   private var removedHeaders :Set[HeaderName] = Set[HeaderName]()
 
+  def getHeaderNamesSet: Set[String] = {
+    (super.getHeaderNames.asScala.toSet.map(HeaderName.wrap).filterNot(removedHeaders.contains) ++ headerMap.keySet).map(_.getName)
+  }
+
   override def getHeaderNames: util.Enumeration[String] = {
-    getHeaderNamesList.asScala.toIterator.asJavaEnumeration
+    getHeaderNamesSet.toIterator.asJavaEnumeration
+  }
+
+  override def getHeaderNamesList: util.List[String] = {
+    getHeaderNamesSet.toList.asJava
   }
 
   override def getIntHeader(s: String): Int = super.getIntHeader(s)
@@ -51,31 +59,28 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeader(s: String): String = super.getHeader(s)
 
-  override def getHeaderNamesList: util.List[String] = {
-    (super.getHeaderNames.asScala.toSet.map(HeaderName.wrap).filterNot(removedHeaders.contains) ++ headerMap.keySet).map(_.getName).toList.asJava
+  def getHeadersScalaList(headerName: String) :List[String] = {
+    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
+    if (removedHeaders.contains(wrappedHeaderName)) {
+      List[String]()
+    }
+    else {
+      headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList)
+    }
   }
 
   override def getHeadersList(headerName: String): util.List[String] = {
-    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
-    if (removedHeaders.contains(wrappedHeaderName)) {
-      List[String]().asJava
-    }
-    else {
-      headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList).asJava
-    }
+    getHeadersScalaList(headerName).asJava
   }
 
   override def addHeader(headerName: String, headerValue: String): Unit = {
     val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
-    var headerValues :List[String] = List()
+    val existingHeaders: List[String] = getHeadersScalaList(headerName) //this has to be done before we remove from the list,
+                                                                        // because getting this list is partially based on the contents of the removed list
     if (removedHeaders.contains(wrappedHeaderName)) {
       removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
     }
-    else {
-      headerValues = headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList)
-    }
-    headerValues = headerValues :+ headerValue
-    headerMap = headerMap + (wrappedHeaderName -> headerValues)
+    headerMap = headerMap + (wrappedHeaderName ->  (existingHeaders :+ headerValue))
   }
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
