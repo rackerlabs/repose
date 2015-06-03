@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.test.mocks;
 
 import org.openrepose.commons.utils.test.mocks.providers.MockServiceProvider;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -38,8 +39,6 @@ import java.net.URISyntaxException;
 public class MockServiceResource {
 
     private MockServiceProvider provider;
-    private static final String CONTENT_TYPE = "content-type";
-    private static final String CONTENT_LENGTH = "Content-Length";
 
     public MockServiceResource() {
         provider = new MockServiceProvider();
@@ -70,11 +69,11 @@ public class MockServiceResource {
     @Path("{prefix: .*}/echobody")
     public Response echoBody(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         Response.ResponseBuilder response = Response.ok();
-        String type = headers.getRequestHeader(CONTENT_TYPE).isEmpty() ? "" : headers.getRequestHeader(CONTENT_TYPE).get(0);
+        String type = headers.getRequestHeader(CommonHttpHeader.CONTENT_TYPE.toString()).isEmpty() ? "" : headers.getRequestHeader(CommonHttpHeader.CONTENT_TYPE.toString()).get(0);
         if (type.length() > 0) {
             response = response.type(type);
         }
-        return response.entity(body).header(CONTENT_LENGTH, body.length()).build();
+        return response.entity(body).header(CommonHttpHeader.CONTENT_LENGTH.toString(), body.length()).build();
     }
 
     @PUT
@@ -87,11 +86,11 @@ public class MockServiceResource {
     @Path("{prefix: .*}/echobody")
     public Response echoBodyPut(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         Response.ResponseBuilder response = Response.ok();
-        String type = headers.getRequestHeader(CONTENT_TYPE).isEmpty() ? "" : headers.getRequestHeader(CONTENT_TYPE).get(0);
+        String type = headers.getRequestHeader(CommonHttpHeader.CONTENT_TYPE.toString()).isEmpty() ? "" : headers.getRequestHeader(CommonHttpHeader.CONTENT_TYPE.toString()).get(0);
         if (type.length() > 0) {
             response = response.type(type);
         }
-        return response.entity(body).header(CONTENT_LENGTH, body.length()).build();
+        return response.entity(body).header(CommonHttpHeader.CONTENT_LENGTH.toString(), body.length()).build();
     }
 
     @POST
