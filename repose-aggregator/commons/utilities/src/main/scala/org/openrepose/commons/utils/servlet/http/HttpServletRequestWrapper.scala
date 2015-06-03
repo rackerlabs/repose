@@ -99,7 +99,16 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getPreferredSplittableHeader(headerName: String): String = ???
 
-  override def appendHeader(headerName: String, headerValue: String): Unit = ???
+  override def appendHeader(headerName: String, headerValue: String): Unit = {
+    val existingHeaders: List[String] = getHeadersScalaList(headerName)
+    existingHeaders.headOption match {
+      case(Some(value)) => {
+        val newHeadValue :String = value + "," + headerValue
+        headerMap = headerMap + (HeaderName.wrap(headerName) -> (newHeadValue +: existingHeaders.tail))
+      }
+        case(None) => addHeader(headerName, headerValue)
+    }
+  }
 
   override def appendHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
