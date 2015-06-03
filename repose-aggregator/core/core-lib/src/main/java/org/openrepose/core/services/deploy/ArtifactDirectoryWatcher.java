@@ -41,7 +41,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         this.eventManagerReference = eventManagerReference;
         this.checkIntervalInMilliseconds = DEFAULT_DIRECTORY_CHECK_INTERVAL;
 
-        artifactModificationTimes = new HashMap<String, Long>();
+        artifactModificationTimes = new HashMap<>();
     }
 
     public synchronized void updateCheckInterval(int checkInterval) {
@@ -57,7 +57,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         shouldContinue = true;
 
         while (shouldContinue) {
-            checkArtifacts(artifactDirectory);
+            checkArtifacts();
 
             try {
                 wait(checkIntervalInMilliseconds);
@@ -71,17 +71,21 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
     }
 
     // TODO: decompose
-    private void checkArtifacts(final File artifactDirectoryReference) {
-        final Set<String> removedArtifacts = new HashSet<String>(artifactModificationTimes.keySet());
 
-        if (artifactDirectoryReference == null) {
+    /**
+     * @return true if artifacts were modified, false otherwise
+     */
+    public synchronized boolean checkArtifacts() {
+        final Set<String> removedArtifacts = new HashSet<>(artifactModificationTimes.keySet());
+
+        if (artifactDirectory == null) {
             throw new DeploymentDirectoryNotFoundException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");
         }
 
-        List<ArtifactDirectoryItem> items = new ArrayList<ArtifactDirectoryItem>();
+        List<ArtifactDirectoryItem> items = new ArrayList<>();
 
-        for (String artifactPath : artifactDirectoryReference.list(EarFilenameFilter.getInstance())) {
-            final File artifactFile = new File(artifactDirectoryReference, artifactPath);
+        for (String artifactPath : artifactDirectory.list(EarFilenameFilter.getInstance())) {
+            final File artifactFile = new File(artifactDirectory, artifactPath);
             final long lastModifiedTime = artifactFile.lastModified();
 
             if (artifactModificationTimes.containsKey(artifactPath)) {
@@ -101,7 +105,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         }
 
         for (String artifactPath : removedArtifacts) {
-            final File artifactFile = new File(artifactDirectoryReference, artifactPath);
+            final File artifactFile = new File(artifactDirectory, artifactPath);
 
             artifactModificationTimes.remove(artifactPath);
             items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath()));
@@ -110,6 +114,8 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         if (!items.isEmpty()) {
             eventManagerReference.newEvent(ApplicationArtifactEvent.ARTIFACTS_MODIFIED, items);
         }
+
+        return !items.isEmpty();
     }
 
     @Override

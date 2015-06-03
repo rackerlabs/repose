@@ -224,6 +224,11 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     }
 
     @Override
+    public boolean allArtifactsLoaded() {
+        return !containerConfigurationListener.getDirWatcher().checkArtifacts();
+    }
+
+    @Override
     public Collection<EarClassLoaderContext> getLoadedApplications() {
         return Collections.unmodifiableCollection(classLoaderContextMap.values());
     }
