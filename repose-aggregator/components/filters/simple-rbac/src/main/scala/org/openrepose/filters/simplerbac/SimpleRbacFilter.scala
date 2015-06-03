@@ -19,22 +19,27 @@
  */
 package org.openrepose.filters.simplerbac
 
-import java.io.InputStream
+import java.io.{ByteArrayInputStream, File, IOException, InputStream}
 import java.net.URL
+import java.util
+import java.util.UUID
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.http.HttpServletResponse._
+import javax.xml.transform.stream.StreamSource
 
+import com.rackspace.com.papi.components.checker.handler._
+import com.rackspace.com.papi.components.checker.{Config, Validator}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
 
-import scala.collection.JavaConversions._
 import scala.io.Source
 import scala.util.Try
 
@@ -50,7 +55,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: SimpleRbacConfig = _
   var initialized = false
-  var resources: List[Resource] = _
+  var validator: Validator = _
+  val config = new Config
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -78,127 +84,148 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
       logger.trace("Simple RBAC filter processing request...")
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      // IF any Resources satisfy the Request,                                //
-      //    THEN continue with a status code of OK (200);                     //
-      // ELSE:                                                                //
-      //    IF no Resources satisfy the Request's Path,                       //
-      //       THEN return with a status code of NOT FOUND (404);             //
-      //    ELSE IF any Resources satisfy the Request's Roles, THEN:          //
-      //       IF Mask Roles is Enabled,                                      //
-      //          THEN return with a status code of METHOD NOT ALLOWED (405); //
-      //       ELSE return with a status code of FORBIDDEN (403).             //
-      //    ELSE no Resources satisfy the Request's Method, SO:               //
-      //       IF Mask Roles is Enabled,                                      //
-      //          THEN return with a status code of NOT FOUND (404);          //
-      //       ELSE return with a status code of FORBIDDEN (403).             //
-      //////////////////////////////////////////////////////////////////////////
-      val resourceRequest = new ResourceRequest(
-        mutableHttpRequest.getRequestURI,
-        mutableHttpRequest.getMethod,
-        mutableHttpRequest.getHeaders(configuration.getRolesHeaderName).toSet[String].flatMap(parseMethodsRoles)
-      )
-      if (resources.exists(_.satisfiesRequest(resourceRequest))) {
-        mutableHttpResponse.setStatus(SC_OK) // 200
-      } else {
-        val paths = resources.filter(_.satisfiesPath(resourceRequest))
-        if (paths.isEmpty) {
-          mutableHttpResponse.setStatus(SC_NOT_FOUND) // 404
-        } else {
-          if (paths.exists(_.satisfiesRoles(resourceRequest))) {
-            if (configuration.isEnableMasking403S) {
-              mutableHttpResponse.setStatus(SC_METHOD_NOT_ALLOWED) // 405
-            } else {
-              mutableHttpResponse.setStatus(SC_FORBIDDEN) // 403
-            }
-          } else {
-            if (configuration.isEnableMasking403S) {
-              mutableHttpResponse.setStatus(SC_NOT_FOUND) // 404
-            } else {
-              mutableHttpResponse.setStatus(SC_FORBIDDEN) // 403
-            }
-          }
-        }
-      }
-      //////////////////////////////////////////////////////
-      //mutableHttpResponse.setStatus(SC_NOT_IMPLEMENTED) // 501
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      if (mutableHttpResponse.getStatus == SC_OK) {
-        logger.trace("Simple RBAC filter passing request...")
-        filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-        logger.trace("Simple RBAC filter handling response...")
-      }
+      validator.validate(mutableHttpRequest,mutableHttpResponse,filterChain)
     }
     logger.trace("Simple RBAC filter returning response...")
   }
 
   override def configurationUpdated(configurationObject: SimpleRbacConfig): Unit = {
     configuration = configurationObject
-    resources = parseResources(configuration.getResources).getOrElse(
+    val isDelegating = configuration.getDelegating != null
+    val delegationQuality = if (isDelegating) configuration.getDelegating.getQuality else 0.0
+    config.enableRaxRolesExtension = true
+    config.checkPlainParams = true
+    config.maskRaxRoles403 = configuration.isEnableMasking403S
+    config.setResultHandler(getHandlers(
+      isDelegating,
+      delegationQuality,
+      true,
+      "/tmp",
+      "simple-rbac.dot"
+    ))
+    val rbacWadl = rbacToWadl(configuration.getResources).getOrElse(
       if (configuration.getResourcesFileName != null) {
-        parseResources(
+        rbacToWadl(
           readResource(
             configurationService.getResourceResolver.resolve(configuration.getResourcesFileName).newInputStream()
           ).getOrElse("")
-        ).getOrElse(List.empty)
+        ).getOrElse("")
       } else {
-        List.empty
+        ""
       }
+    )
+    val uuid = UUID.randomUUID
+    validator = Validator.apply(
+      s"SimpleRbacValidator_$uuid",
+      new StreamSource(new ByteArrayInputStream(rbacWadl.getBytes), "file://simple-rbac.wadl"),
+      config
     )
     initialized = true
   }
 
   override def isInitialized: Boolean = initialized
 
-  case class ResourceRequest(path: String, method: String, roles: Set[String])
-
-  case class Resource(path: String, methods: Set[String], roles: Set[String]) {
-    def satisfiesRequest(request: ResourceRequest): Boolean = {
-      satisfiesPath(request) &&
-        satisfiesMethods(request) &&
-        satisfiesRoles(request)
+  private def getHandlers(isDelegating: Boolean,
+                          delegationQuality: Double,
+                          isEnableApiCoverage: Boolean,
+                          configRoot: String,
+                          dotOutput: String): DispatchHandler = {
+    val handlers: util.List[ResultHandler] = new util.ArrayList[ResultHandler]
+    if (isDelegating) {
+      handlers.add(new MethodLabelHandler)
+      handlers.add(new DelegationHandler(delegationQuality))
+    } else {
+      handlers.add(new ServletResultHandler)
     }
-
-    def satisfiesPath(request: ResourceRequest): Boolean = {
-      this.path == request.path
+    if (isEnableApiCoverage) {
+      handlers.add(new InstrumentedHandler)
+      handlers.add(new ApiCoverageHandler)
     }
-
-    def satisfiesMethods(request: ResourceRequest): Boolean = {
-      this.methods.contains("ANY") ||
-        this.methods.contains("ALL") ||
-        this.methods.contains(request.method)
+    if (StringUtils.isNotBlank(dotOutput)) {
+      val dotPath: String = StringUriUtilities.formatUri(getPath(dotOutput, configRoot))
+      val out: File = new File(dotPath)
+      try {
+        if (out.exists && out.canWrite || !out.exists && out.createNewFile) {
+          handlers.add(new SaveDotHandler(out, isEnableApiCoverage, true))
+        } else {
+          logger.warn("Cannot write to DOT file: " + dotPath)
+        }
+      } catch {
+        case ex: IOException => {
+          logger.warn("Cannot write to DOT file: " + dotPath, ex)
+        }
+      }
     }
+    new DispatchHandler(handlers.toArray(new Array[ResultHandler](0)))
+  }
 
-    def satisfiesRoles(request: ResourceRequest): Boolean = {
-      this.roles.contains("ANY") ||
-        this.roles.contains("ALL") ||
-        this.roles.intersect(request.roles).nonEmpty
+  private def getPath(path: String, configRoot: String): String = {
+    val file: File = new File(path)
+    if (file.isAbsolute) {
+      file.getAbsolutePath
+    } else {
+      new File(configRoot, path).getAbsolutePath
     }
   }
 
-  def readResource(resourceStream: InputStream): Option[String] = {
+  private def readResource(resourceStream: InputStream): Option[String] = {
     Try(Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))).getOrElse(None)
   }
 
-  private def parseResources(lines: String): Option[List[Resource]] = {
-    if (lines == null) {
-      None
-    } else {
-      Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine(_).orNull).filter(_ != null))
-    }
-  }
-
-  private def parseLine(line: String): Option[Resource] = {
-    val values = line.split("\\s+")
-    if (values.length == 3) {
-      Some(new Resource(values(0), parseMethodsRoles(values(1)), parseMethodsRoles(values(2))))
-    } else {
-      logger.warn(s"Malformed RBAC Resource: $line")
-      None
-    }
-  }
-
-  private def parseMethodsRoles(value: String): Set[String] = {
-    Try(value.split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
+  private def rbacToWadl(rbac: String): Option[String] = {
+    val targetPort = 8080
+//    val wadl = s"""<application xmlns:rax="http://docs.rackspace.com/api"
+//                  |          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+//                  |          xmlns="http://wadl.dev.java.net/2009/02"
+//                  |     >
+//                  | <resources base="http://localhost">
+//                  |     <resource id="first" path="path">
+//                  |         <resource id="second" path="to">
+//                  |             <resource id="this" path="this">
+//                  |                 <method name="GET"      id="getMethodThis"      rax:roles="role1 role2 role3 role4"/>
+//                  |                 <method name="PUT"      id="putMethodThis"      rax:roles="role1 role2 role3"/>
+//                  |                 <method name="POST"     id="postMethodThis"     rax:roles="role1 role2"/>
+//                  |                 <method name="DELETE"   id="deleteMethodThis"   rax:roles="role1"/>
+//                  |             </resource>
+//                  |             <resource id="that" path="that">
+//                  |                 <method name="GET"      id="getMethodThat"/>
+//                  |                 <method name="PUT"      id="putMethodThat"/>
+//                  |                 <method name="POST"     id="postMethodThat"     rax:roles="role1"/>
+//                  |                 <method name="DELETE"   id="deleteMethodThat"   rax:roles="role1"/>
+//                  |             </resource>
+//                  |         </resource>
+//                  |     </resource>
+//                  | </resources>
+//                  |</application>
+//                  | """.stripMargin.trim()
+    val wadl = s"""<application xmlns:rax="http://docs.rackspace.com/api"
+                  |          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  |          xmlns="http://wadl.dev.java.net/2009/02"
+                  |     >
+                  | <resources base="http://localhost">
+                  |     <resource id="first" path="path">
+                  |         <resource id="second" path="to">
+                  |             <resource id="this" path="this">
+                  |                 <method name="GET"      id="getMethodThis"      rax:roles="super useradmin admin user"/>
+                  |                 <method name="PUT"      id="putMethodThis"      rax:roles="super useradmin admin"/>
+                  |                 <method name="POST"     id="postMethodThis"     rax:roles="super useradmin"/>
+                  |                 <method name="DELETE"   id="deleteMethodThis"   rax:roles="super"/>
+                  |             </resource>
+                  |             <resource id="that" path="that">
+                  |                 <method name="GET"      id="getMethodThat"/>
+                  |                 <method name="PUT"      id="putMethodThat"/>
+                  |                 <method name="POST"     id="postMethodThat"     rax:roles="super"/>
+                  |                 <method name="DELETE"   id="deleteMethodThat"   rax:roles="super"/>
+                  |             </resource>
+                  |             <resource id="test" path="test">
+                  |                 <method name="GET"      id="getMethodTest"      rax:roles="useradmin user"/>
+                  |                 <method name="POST"     id="putMethodTest"      rax:roles="useradmin user"/>
+                  |             </resource>
+                  |         </resource>
+                  |     </resource>
+                  | </resources>
+                  |</application>
+                  | """.stripMargin.trim()
+    Some(wadl)
   }
 }
