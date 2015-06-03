@@ -581,12 +581,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return empty list if header does not exist") {
-      wrappedRequest.getSplittableHeader("notAHeader").asScala.toList shouldBe List[String]()
+      wrappedRequest.getSplittableHeader("notAHeader").asScala.toList shouldBe empty
     }
 
     it("should return empty list if header is removed") {
       wrappedRequest.removeHeader("abc")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe List[String]()
+      wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe empty
     }
   }
 }
