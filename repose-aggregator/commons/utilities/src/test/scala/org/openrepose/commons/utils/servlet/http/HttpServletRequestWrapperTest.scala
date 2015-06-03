@@ -431,6 +431,10 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.replaceHeader("ornament", "star", 0.95)
       wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "star"
     }
+
+    it("should work with headers that are already split") {
+      wrappedRequest.getPreferredSplittableHeader("ornament") shouldBe "santa"
+    }
   }
 
   describe("the removeHeader method") {
