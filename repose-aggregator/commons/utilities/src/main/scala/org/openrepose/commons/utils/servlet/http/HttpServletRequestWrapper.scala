@@ -128,5 +128,12 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
 
-  override def getSplittableHeader(headerName: String): util.List[String] = ???
+  override def getSplittableHeader(headerName: String): util.List[String] = {
+    var splittableHeader :List[String] = List[String]()
+    val headersList :List[String] = getHeadersScalaList(headerName)
+    for(headerValue <- headersList) {
+      splittableHeader = splittableHeader ++ headerValue.split(",")
+    }
+    splittableHeader.asJava
+  }
 }
