@@ -47,7 +47,7 @@ public abstract class DelegatingServletContext implements ServletContext {
 
     @Override
     public ServletContext getContext(String uripath) {
-        return context.getContext((uripath));
+        return context.getContext(uripath);
     }
 
     @Override
