@@ -332,6 +332,56 @@ trait IdentityResponses {
       |}
     """.stripMargin
   }
+  def validateRackerTokenResponse(token:String = VALID_TOKEN):String = {
+    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
+
+    s"""
+       |{
+       |    "access":{
+       |        "token":{
+       |            "id":"$token",
+       |            "expires":"$expiryTime",
+       |            "tenant":{
+       |                "id": "345",
+       |                "name": "My Project"
+       |            }
+       |        },
+       |        "user":{
+       |            "RAX-AUTH:defaultRegion": "DFW",
+       |            "id":"123",
+       |            "name":"testuser",
+       |            "roles":[{
+       |                    "id":"123",
+       |                    "name":"racker"
+       |                }
+       |            ]
+       |        }
+       |    }
+       |}
+    """.stripMargin
+  }
+
+  def oneEndpointResponse():String = {
+    """
+      |{
+      |    "endpoints":[{
+      |                "id":1,
+      |                "tenantId":"1",
+      |                "region":"North",
+      |                "name": "Compute",
+      |                "type":"compute",
+      |                "publicURL":"https://compute.north.public.com/v1",
+      |                "internalURL":"https://compute.north.internal.com/v1",
+      |                "adminURL" : "https://compute.north.internal.com/v1",
+      |                "versionId":"1",
+      |                "versionInfo":"https://compute.north.public.com/v1/",
+      |                "versionList":"https://compute.north.public.com/"
+      |            }
+      |        ],
+      |    "endpoints_links":[]
+      |}
+    """.stripMargin
+  }
 
   def endpointsResponse(): String = {
     """

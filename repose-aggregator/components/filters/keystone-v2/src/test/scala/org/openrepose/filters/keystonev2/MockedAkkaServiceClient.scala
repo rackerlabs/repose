@@ -97,7 +97,7 @@ trait MockedAkkaServiceClient {
     }
   }
 
-  def mockAkkaAdminTokenResponse(response: AkkaParent): Unit = {
+  def mockAkkaPostResponse(response: AkkaParent): Unit = {
     mockAkkaAdminTokenResponses(Seq(response))
   }
 
@@ -108,11 +108,11 @@ trait MockedAkkaServiceClient {
     }
   }
 
-  def mockAkkaValidateTokenResponse(forToken: String)(adminToken: String, response: AkkaParent): Unit = {
-    mockAkkaValidateTokenResponses(forToken)(Seq(adminToken -> response))
+  def mockAkkaGetResponse(forToken: String)(adminToken: String, response: AkkaParent): Unit = {
+    mockAkkaGetResponses(forToken)(Seq(adminToken -> response))
   }
 
-  def mockAkkaValidateTokenResponses(forToken: String)(responses: Seq[(String, AkkaParent)]): Unit = {
+  def mockAkkaGetResponses(forToken: String)(responses: Seq[(String, AkkaParent)]): Unit = {
     responses.foreach { case (adminToken, response) =>
       val key = (adminToken, forToken)
       val value = response match {

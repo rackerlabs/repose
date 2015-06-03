@@ -64,12 +64,12 @@ with MockedAkkaServiceClient {
       request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
+      mockAkkaPostResponse {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(VALID_TOKEN)(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -90,11 +90,11 @@ with MockedAkkaServiceClient {
       request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
+      mockAkkaPostResponse {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(VALID_TOKEN)(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -117,11 +117,11 @@ with MockedAkkaServiceClient {
       request.addHeader("x-auth-token", VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
+      mockAkkaPostResponse {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaValidateTokenResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(VALID_TOKEN)(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -146,11 +146,11 @@ with MockedAkkaServiceClient {
       request.addHeader("x-auth-token", "INVALID_TOKEN")
 
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
+      mockAkkaPostResponse {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaValidateTokenResponse("INVALID_TOKEN")(
+      mockAkkaGetResponse("INVALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(404, "")
       )
 
@@ -222,11 +222,11 @@ with MockedAkkaServiceClient {
       request.addHeader("x-auth-token", "notValidToken")
 
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
+      mockAkkaPostResponse {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
       //Urgh, I have to hit the akka service client twice
-      mockAkkaValidateTokenResponse("notValidToken")(
+      mockAkkaGetResponse("notValidToken")(
         "glibglob", AkkaServiceClientResponse(404, "")
       )
       val response = new MockHttpServletResponse
@@ -271,9 +271,9 @@ with MockedAkkaServiceClient {
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(VALID_TOKEN) {
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(403, ""),
+          "glibglob" -> AkkaServiceClientResponse(401, ""),
           "morty" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
       }
@@ -294,17 +294,15 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
         Seq(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse()),
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse(token = "morty"))
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
         )
       }
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(VALID_TOKEN) {
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(403, ""),
-          "morty" -> AkkaServiceClientResponse(403, "")
+          "glibglob" -> AkkaServiceClientResponse(403, "")
         )
       }
       val response = new MockHttpServletResponse
@@ -358,7 +356,7 @@ with MockedAkkaServiceClient {
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(VALID_TOKEN) {
         Seq(
           "glibglob" -> AkkaServiceClientResponse.failure("Unable to talk to identity!")
         )
@@ -387,7 +385,7 @@ with MockedAkkaServiceClient {
       }
 
       //Validate the token response with groups to grab them!
-      mockAkkaValidateTokenResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(VALID_TOKEN) {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
@@ -437,17 +435,17 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.addHeader("x-auth-token", VALID_TOKEN)
 
-      //Pretend like identity is going to give us a valid admin token
-      mockAkkaAdminTokenResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
-      }
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaValidateTokenResponses(VALID_TOKEN)(
+      mockAkkaGetResponses(VALID_TOKEN)(
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse()),
-          "glibglobEndpoints" -> AkkaServiceClientResponse(200, endpointsResponse())
+          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
+      )
+      mockAkkaGetResponse("validTokenEndpoints")(
+        "glibglob", AkkaServiceClientResponse(200, endpointsResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -460,11 +458,61 @@ with MockedAkkaServiceClient {
 
       mockAkkaServiceClient.validate()
     }
-    it("bypasses validation if the user has the role listed in bypass-validation-roles") {
-      pending
-    }
     it("rejects with 403 if the user does not have the required endpoint") {
-      pending
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      mockAkkaGetResponses(VALID_TOKEN)(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+        )
+      )
+      mockAkkaGetResponse("validTokenEndpoints")(
+        "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldBe 403
+      //Continues with the chain
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+
+      mockAkkaServiceClient.validate()
+    }
+    it("bypasses validation if the user has the role listed in bypass-validation-roles") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      mockAkkaGetResponses(VALID_TOKEN)(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
+        )
+      )
+      mockAkkaGetResponse("validTokenEndpoints")(
+        "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
     }
   }
 

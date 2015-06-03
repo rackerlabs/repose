@@ -37,7 +37,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.keystonev2.config.{CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
+import org.openrepose.filters.keystonev2.config.{ServiceEndpointType, CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
 
 import scala.annotation.tailrec
 import scala.io.Source
@@ -73,6 +73,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
 
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
+
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
@@ -101,19 +103,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
 
 
-  /**
-   * Get the user's endpoints, and validate that the configured restrictions match
-   * @param result
-   * @return
-   */
-  def performAuthorization(result: KeystoneV2Result): KeystoneV2Result = {
-    result match {
-      case x: Pass => ???
-      //Get the endpoints, and see if they've got their endpoint configured
-      case a: Reject => a
-    }
-  }
-
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
@@ -125,8 +114,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     //Get the authenticating token!
     val result: KeystoneV2Result = authTokenValue.map { authToken =>
       //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
-      val tokenValidationResult: Try[TokenValidationResult] =
-        Option(datastore.get(authToken).asInstanceOf[TokenValidationResult]).map { validationResult =>
+      val tokenValidationResult: Try[AuthResult] =
+        Option(datastore.get(authToken).asInstanceOf[AuthResult]).map { validationResult =>
           Success(validationResult)
         } getOrElse {
           //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
@@ -151,8 +140,26 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         case Success(InvalidToken) =>
           Reject(SC_UNAUTHORIZED)
         case Success(validToken: ValidToken) =>
-          val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-          Pass(groupsHeader)
+          //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
+          val endpointDetails = endpointAuthorization(authToken, validToken)
+          endpointDetails match {
+            case Some(Success(endpointVector)) => {
+              //If I'm configured to put the endpoints into a x-catalog do it
+              //Do more things in here
+              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+              Pass(groupsHeader)
+
+            }
+            case Some(Failure(x)) => {
+              //Reject them with 403
+              Reject(SC_FORBIDDEN, failure = Some(x))
+            }
+            case None => {
+              //Do more things in here
+              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+              Pass(groupsHeader)
+            }
+          }
         case Failure(x: IdentityAdminTokenException) =>
           Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
         case Failure(x: IdentityCommuncationException) =>
@@ -161,13 +168,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           //TODO: this isn't yet complete
           Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
       }
-    } getOrElse { //Don't have an auth token to validate
+    } getOrElse {
+      //Don't have an auth token to validate
       Reject(SC_FORBIDDEN, Some("Auth token not found in headers"))
-    }
-
-    //TODO: working on this
-    if (false) {
-      val result2 = performAuthorization(result)
     }
 
     //Handle the result of the filter to apply to the
@@ -201,13 +204,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
 
   //Token Validation stuffs
-  sealed trait TokenValidationResult
+  sealed trait AuthResult
 
-  case class ValidToken(groups: Seq[String]) extends TokenValidationResult
+  case class ValidToken(groups: Seq[String]) extends AuthResult
 
-  case object InvalidToken extends TokenValidationResult
+  case object InvalidToken extends AuthResult
 
-  final def validateToken(authenticatingToken: String, token: String): Try[TokenValidationResult] = {
+  final def validateToken(authenticatingToken: String, token: String): Try[AuthResult] = {
     /**
      * Extract the user's information from the validate token response
      * @param inputStream the validate token response!
@@ -223,6 +226,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         //Have to convert it to a vector, because List isn't serializeable in 2.10
         val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
         val validToken = ValidToken(roleNames)
+        //TODO: if I cache this here, I don't know if I'll get endpoints :|
         datastore.put(token, validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
         Success(validToken)
       } catch {
@@ -250,7 +254,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             //Extract the groups from the JSON and stick it in the ValidToken result
             extractUserInformation(serviceClientResponse.getData)
           case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
-          case 401 | 403 => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
+          case 401 => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
+          case 403 => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case 404 => {
             datastore.put(token, InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
             Success(InvalidToken)
@@ -314,30 +319,132 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   //TODO: put the endpoint related stuff into an object we can call
-  case class Endpoint(region: String, name: String, endpointType: String, publicURL: String)
+  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
 
-  @tailrec
-  final def requestEndpointsForToken(forToken: String, doRetry: Boolean = true): Try[List[Endpoint]] = {
+
+    /**
+     * Determines whether or not this endpoint meets the requirements set forth by the values contained in
+     * endpointRequirement for the purpose of authorization.
+     *
+     * @param endpointRequirement an endpoint containing fields with required values
+     * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
+     */
+    def meetsRequirement(endpointRequirement: Endpoint) = {
+      def compare(available: Option[String], required: Option[String]) = (available, required) match {
+        case (Some(x), Some(y)) => x == y
+        case (None, Some(_)) => false
+        case _ => true
+      }
+
+      this.publicURL == endpointRequirement.publicURL &&
+        compare(this.region, endpointRequirement.region) &&
+        compare(this.name, endpointRequirement.name) &&
+        compare(this.endpointType, endpointRequirement.endpointType)
+    }
+
+  }
+
+  final def getEndpointsForToken(authenticatingToken: String, forToken: String, doRetry: Boolean = true): Try[Vector[Endpoint]] = {
     val identityEndpoint = configuration.getIdentityService.getUri
+    /**
+     * Extract the user's endpoints from the endpoints call
+     * @param inputStream the Identity Endpoints call body
+     * @return a success or failure of a Vector[Endpoint] information
+     */
+    def extractEndpointInfo(inputStream: InputStream): Try[Vector[Endpoint]] = {
+      import play.api.libs.functional.syntax._
+      import play.api.libs.json.Reads._
+      import play.api.libs.json._
+
+
+      implicit val endpointsReader = (
+        (JsPath \ "region").readNullable[String] and
+          (JsPath \ "name").readNullable[String] and
+          (JsPath \ "type").readNullable[String] and
+          (JsPath \ "publicURL").read[String]
+        )(Endpoint.apply _)
+
+      val input: String = Source.fromInputStream(inputStream).getLines mkString ""
+      val json = Json.parse(input)
+      //Have to convert it to a vector, because List isn't serializeable in 2.10
+      (json \ "endpoints").validate[Vector[Endpoint]] match {
+        case s: JsSuccess[Vector[Endpoint]] => Success(s.get)
+        case f: JsError =>
+          Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
+      }
+    }
 
     import scala.collection.JavaConverters._
 
-    val adminToken = ""
     Try(akkaServiceClient.get(s"${forToken}Endpoints",
       s"$identityEndpoint/tokens/$forToken/endpoints",
-      Map(CommonHttpHeader.AUTH_TOKEN.toString -> adminToken).asJava)) match {
+      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
-          case 200 | 203 => ??? //TODO: extract endpoints and return
-          case 401 | 403 =>
-            //TODO: use the recoverWith logic here also SRSLY
-            if (doRetry) {
-              requestEndpointsForToken(forToken, doRetry = false)
-            } else {
-              Failure(IdentityAdminTokenException(s"Admin user is not authorized to get endpoints for token $forToken"))
-            }
+          case 200 | 203 => extractEndpointInfo(serviceClientResponse.getData)
+          case 403 => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
+          case 401 => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
         }
       case Failure(x) => Failure(x)
+    }
+  }
+
+  /**
+   * Get the user's endpoints, and validate that the configured restrictions match
+   * Also handles caching of the result
+   * @param authToken Assuming the auth token has been validated already
+   * @return
+   */
+  def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[Vector[Endpoint]]] = {
+    Option(configuration.getRequireServiceEndpoint).map { requireServiceEndpoint =>
+      Option(datastore.get(s"${authToken}Endpoints").asInstanceOf[Vector[Endpoint]]).map { cached =>
+        Success(cached)
+      } getOrElse {
+        logger.debug("WAT")
+        getAdminToken.flatMap { adminToken =>
+          logger.debug("GOT AN ADMIN TOKEN")
+          getEndpointsForToken(adminToken, authToken).recoverWith {
+            case unauth: AdminTokenUnauthorizedException =>
+              //Clear the cache, call this method again
+              datastore.remove(ADMIN_TOKEN_KEY)
+              getAdminToken match {
+                case Success(newAdminToken) =>
+                  getEndpointsForToken(newAdminToken, authToken)
+                case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+              }
+          } flatMap { endpointList =>
+            //Create the endpoint requirement from teh configuration
+            //  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
+            def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
+              Endpoint(
+                publicURL = cfg.getPublicUrl,
+                name = Option(cfg.getName),
+                endpointType = Option(cfg.getType),
+                region = Option(cfg.getRegion)
+              )
+            }
+            //Have to see if they have a list of roles...
+            //Have to use slightly more annoying parenthesis to make sure the for-comprehension does what I want
+            val bypassRoles: List[String] = (for {
+              jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
+              rolesList <- Option(jaxbIntermediaryObject.getRole)
+            } yield {
+                import scala.collection.JavaConversions._
+                rolesList.toList
+              }) getOrElse {
+              List.empty[String]
+            }
+
+
+            if (bypassRoles.intersect(validToken.groups).nonEmpty ||
+              endpointList.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
+              Success(endpointList)
+            } else {
+              Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
+            }
+          }
+        }
+      }
     }
   }
 
