@@ -51,7 +51,16 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     getHeaderNamesSet.toList.asJava
   }
 
-  override def getIntHeader(s: String): Int = super.getIntHeader(s)
+  override def getIntHeader(headerName: String): Int = {
+    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
+    val header : String = getHeader(headerName)
+    if(header == null || removedHeaders.contains(wrappedHeaderName)) {
+      -1
+    }
+    else {
+      header.toInt
+    }
+  }
 
   override def getHeaders(s: String): util.Enumeration[String] = super.getHeaders(s)
 
