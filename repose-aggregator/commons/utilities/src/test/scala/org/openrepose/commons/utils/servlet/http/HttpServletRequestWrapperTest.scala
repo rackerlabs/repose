@@ -95,6 +95,16 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.removeHeader("thumbs")
       wrappedRequest.getIntHeader("thumbs") shouldBe -1
     }
+
+    it("should return a value for a replaced header") {
+      wrappedRequest.replaceHeader("foo", "42")
+      wrappedRequest.getIntHeader("foo") shouldBe 42
+    }
+
+    it("should return a value for an appended header with no other values") {
+      wrappedRequest.appendHeader("new-header", "42")
+      wrappedRequest.getIntHeader("new-header") shouldBe 42
+    }
   }
 
   describe("the getHeaders method") {
