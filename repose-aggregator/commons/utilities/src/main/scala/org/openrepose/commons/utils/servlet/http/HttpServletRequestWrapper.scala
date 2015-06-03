@@ -43,21 +43,17 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     (super.getHeaderNames.asScala.toSet.map(HeaderName.wrap).filterNot(removedHeaders.contains) ++ headerMap.keySet).map(_.getName)
   }
 
-  override def getHeaderNames: util.Enumeration[String] = {
-    getHeaderNamesSet.toIterator.asJavaEnumeration
-  }
+  override def getHeaderNames: util.Enumeration[String] = getHeaderNamesSet.toIterator.asJavaEnumeration
 
-  override def getHeaderNamesList: util.List[String] = {
-    getHeaderNamesSet.toList.asJava
-  }
+  override def getHeaderNamesList: util.List[String] = getHeaderNamesSet.toList.asJava
 
-  override def getIntHeader(s: String): Int = super.getIntHeader(s)
+  override def getIntHeader(headerName: String): Int = super.getIntHeader(headerName)
 
-  override def getHeaders(s: String): util.Enumeration[String] = super.getHeaders(s)
+  override def getHeaders(headerName: String): util.Enumeration[String] = getHeadersScalaList(headerName).toIterator.asJavaEnumeration
 
-  override def getDateHeader(s: String): Long = super.getDateHeader(s)
+  override def getDateHeader(headerName: String): Long = super.getDateHeader(headerName)
 
-  override def getHeader(s: String): String = super.getHeader(s)
+  override def getHeader(headerName: String): String = getHeadersScalaList(headerName).headOption.orNull
 
   def getHeadersScalaList(headerName: String) :List[String] = {
     val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
@@ -69,9 +65,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     }
   }
 
-  override def getHeadersList(headerName: String): util.List[String] = {
-    getHeadersScalaList(headerName).asJava
-  }
+  override def getHeadersList(headerName: String): util.List[String] = getHeadersScalaList(headerName).asJava
 
   override def addHeader(headerName: String, headerValue: String): Unit = {
     val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
