@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ReposeInfoLogic implements ReposeInfo {
 
-    private static final long LONG_ZERO = 0l;
+    private static final long LONG_ZERO = 0L;
     private static final int INT_ONE = 1;
     private static final double DOUBLE_ZERO = 0.0d;
     private static final int RESPONSE_CODE_SEPERATOR = 100;
