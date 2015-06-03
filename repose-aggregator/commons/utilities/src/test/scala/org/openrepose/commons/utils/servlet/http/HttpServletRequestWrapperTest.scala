@@ -126,16 +126,16 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return all values for a header including added ones") {
-      val sizeOfHeaderList = wrappedRequest.getHeadersList("foo").size
+      val headerList = wrappedRequest.getHeadersList("foo")
       wrappedRequest.addHeader("foo", "foo")
       val returnedValues: List[String] = wrappedRequest.getHeaders("foo").asScala.toList
-      returnedValues.size shouldBe sizeOfHeaderList + 1
-      returnedValues should contain ("foo")
+      returnedValues.size shouldBe headerList.size + 1
+      returnedValues should contain theSameElementsAs headerList.asScala ++ List("foo")
     }
 
     it("should return value for a brand new header") {
       wrappedRequest.addHeader("butts", "butts")
-      wrappedRequest.getHeaders("butts").asScala.toList should contain ("butts")
+      wrappedRequest.getHeaders("butts").asScala.toList should contain theSameElementsAs List("butts")
     }
 
     it("should return an empty list for a deleted header") {
@@ -279,7 +279,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "foo")
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("foo")
+      returnedValues should contain theSameElementsAs List("foo")
     }
 
     it("should add a header even if one was added then deleted") {
@@ -288,7 +288,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "butts")
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts")
+      returnedValues should contain theSameElementsAs List("butts")
     }
   }
 
@@ -305,7 +305,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("butts", "butts", 0.5)
       val returnedValues: mutable.Buffer[String] = wrappedRequest.getHeadersList("butts").asScala
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts;q=0.5")
+      returnedValues should contain theSameElementsAs List("butts;q=0.5")
     }
 
     it("should add a header even if it's already been deleted") {
@@ -313,7 +313,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "foo", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("foo;q=0.5")
+      returnedValues should contain theSameElementsAs List("foo;q=0.5")
     }
 
     it("should add a header even if one was added then deleted") {
@@ -322,7 +322,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("foo", "butts", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts;q=0.5")
+      returnedValues should contain theSameElementsAs List("butts;q=0.5")
     }
   }
 
@@ -349,7 +349,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.appendHeader("butts", "butts")
       val returnedValues: List[String] = wrappedRequest.getHeadersList("butts").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts")
+      returnedValues should contain theSameElementsAs List("butts")
     }
   }
 
@@ -376,7 +376,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.appendHeader("butts", "butts", 0.5)
       val returnedValues: List[String] = wrappedRequest.getHeadersList("butts").asScala.toList
       returnedValues.size shouldBe 1
-      returnedValues should contain ("butts;q=0.5")
+      returnedValues should contain theSameElementsAs List("butts;q=0.5")
     }
   }
 
@@ -514,20 +514,20 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should add a new header when by itself") {
       wrappedRequest.replaceHeader("butts", "butts")
-      wrappedRequest.getHeadersList("butts") should contain ("butts")
+      wrappedRequest.getHeadersList("butts") should contain theSameElementsAs List("butts")
     }
 
     it("should add a header even when existing ones have been removed") {
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo")
-      wrappedRequest.getHeadersList("foo") should contain ("foo")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo")
     }
 
     it("should add a header when some have been added, removed then re added") {
       wrappedRequest.addHeader("foo", "butts")
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo")
-      wrappedRequest.getHeadersList("foo") should contain ("foo")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo")
     }
   }
 
@@ -539,20 +539,20 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should add a new header when by itself") {
       wrappedRequest.replaceHeader("butts", "butts", 0.5)
-      wrappedRequest.getHeadersList("butts") should contain ("butts;q=0.5")
+      wrappedRequest.getHeadersList("butts") should contain theSameElementsAs List("butts;q=0.5")
     }
 
     it("should add a header even when existing ones have been removed") {
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeadersList("foo") should contain ("foo;q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo;q=0.5")
     }
 
     it("should add a header when some have been added, removed then re added") {
       wrappedRequest.addHeader("foo", "butts")
       wrappedRequest.removeHeader("foo")
       wrappedRequest.replaceHeader("foo", "foo", 0.5)
-      wrappedRequest.getHeadersList("foo") should contain ("foo;q=0.5")
+      wrappedRequest.getHeadersList("foo") should contain theSameElementsAs List("foo;q=0.5")
     }
   }
 
