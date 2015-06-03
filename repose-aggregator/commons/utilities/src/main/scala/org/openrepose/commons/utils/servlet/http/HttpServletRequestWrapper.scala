@@ -22,6 +22,8 @@ package org.openrepose.commons.utils.servlet.http
 import java.util
 import javax.servlet.http.HttpServletRequest
 
+import org.openrepose.commons.utils.http.header.HeaderName
+
 import scala.collection.JavaConverters._
 
 /**
@@ -34,13 +36,11 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  private var wrapperHeader :Map[String, List[String]] = Map[String, List[String]]()
+  private var headerMap :Map[HeaderName, List[String]] = Map[HeaderName, List[String]]()
+  private var removedHeaders :Set[HeaderName] = Set[HeaderName]()
 
   override def getHeaderNames: util.Enumeration[String] = {
-    Option(super.getHeaderNames) match {
-      case Some(originalHeaderNames) => (wrapperHeader.keySet ++ originalHeaderNames.asScala.toList).toIterator.asJavaEnumeration
-      case None => null
-    }
+    getHeaderNamesList.asScala.toIterator.asJavaEnumeration
   }
 
   override def getIntHeader(s: String): Int = super.getIntHeader(s)
@@ -52,16 +52,30 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   override def getHeader(s: String): String = super.getHeader(s)
 
   override def getHeaderNamesList: util.List[String] = {
-    getHeaderNames.asScala.toList.asJava
+    (super.getHeaderNames.asScala.toSet.map(HeaderName.wrap).filterNot(removedHeaders.contains) ++ headerMap.keySet).map(_.getName).toList.asJava
   }
 
   override def getHeadersList(headerName: String): util.List[String] = {
-    (originalRequest.getHeaders(headerName).asScala.toList ++ wrapperHeader.get(headerName).getOrElse(List())).asJava
+    val wrappedHeaderName : HeaderName = HeaderName.wrap(headerName)
+    if (removedHeaders.contains(wrappedHeaderName)) {
+      List[String]().asJava
+    }
+    else {
+      headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList).asJava
+    }
   }
 
   override def addHeader(headerName: String, headerValue: String): Unit = {
-    val wrapperValues :List[String] = wrapperHeader.get(headerName).getOrElse(List()) :+ headerValue
-    wrapperHeader = wrapperHeader + (headerName -> wrapperValues)
+    val wrappedHeaderName :HeaderName = HeaderName.wrap(headerName)
+    var headerValues :List[String] = List()
+    if (removedHeaders.contains(wrappedHeaderName)) {
+      removedHeaders = removedHeaders.filterNot(_.equals(wrappedHeaderName))
+    }
+    else {
+      headerValues = headerMap.getOrElse(wrappedHeaderName, super.getHeaders(headerName).asScala.toList)
+    }
+    headerValues = headerValues :+ headerValue
+    headerMap = headerMap + (wrappedHeaderName -> headerValues)
   }
 
   override def addHeader(headerName: String, headerValue: String, quality: Double): Unit = ???
