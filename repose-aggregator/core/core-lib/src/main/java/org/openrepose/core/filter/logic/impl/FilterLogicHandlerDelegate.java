@@ -82,6 +82,9 @@ public class FilterLogicHandlerDelegate {
                 case RETURN:
                     requestFilterDirector.applyTo(mutableHttpResponse);
                     break;
+
+                default:
+                    break;
             }
         }
     }
