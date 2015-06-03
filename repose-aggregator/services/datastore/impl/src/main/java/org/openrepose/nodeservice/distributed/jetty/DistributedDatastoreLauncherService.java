@@ -64,7 +64,7 @@ public class DistributedDatastoreLauncherService {
     private final DatastoreService datastoreService;
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
     private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
-    private final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
+    private static final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
     private volatile boolean isRunning = false;
     private Optional<DistributedDatastoreServer> ddServer = Optional.absent();
     private DistributedDatastoreServlet ddServlet = null;
