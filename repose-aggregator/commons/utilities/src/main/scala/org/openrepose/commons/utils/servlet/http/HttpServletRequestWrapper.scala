@@ -37,16 +37,12 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(CaseInsensitiveStringOrdering)
-  private var removedHeaders: Set[String] = new TreeSet[String]()(CaseInsensitiveStringOrdering)
+  val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
-  object CaseInsensitiveStringOrdering extends Ordering[String] {
-    override def compare(x: String, y: String): Int = x compareToIgnoreCase y
-  }
+  private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
+  private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
 
-  def getHeaderNamesScala: Set[String] = {
-    super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains) ++ headerMap.keySet
-  }
+  def getHeaderNamesScala: Set[String] = headerMap.keySet ++ super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains)
 
   override def getHeaderNames: util.Enumeration[String] = getHeaderNamesScala.toIterator.asJavaEnumeration
 
@@ -110,9 +106,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   def getPreferredHeader(headerName: String, getFun: String => List[String]): String = {
     def parseQuality(headerValue: String): Double = {
-      //todo: what if the parameter value is not a number? Try and default to 1.0?
       headerValue.split(";").tail.find(param => "q".equalsIgnoreCase(param.split("=")(0).trim))
-        .map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
+        .map(_.split("=", 2)(1).toDouble).getOrElse(0.0)
     }
 
     getFun(headerName) match {
@@ -121,13 +116,9 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     }
   }
 
-  override def getPreferredHeader(headerName: String): String = {
-    getPreferredHeader(headerName, getHeadersScala)
-  }
+  override def getPreferredHeader(headerName: String): String = getPreferredHeader(headerName, getHeadersScala)
 
-  override def getPreferredSplittableHeader(headerName: String): String = {
-    getPreferredHeader(headerName, getSplittableHeaderScala)
-  }
+  override def getPreferredSplittableHeader(headerName: String): String = getPreferredHeader(headerName, getSplittableHeaderScala)
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     headerMap = headerMap + (headerName -> List(headerValue))
@@ -136,7 +127,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
 
-  def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List[String]())((list, s) => list ++ s.split(","))
+  def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
 
   override def getSplittableHeader(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
 }
