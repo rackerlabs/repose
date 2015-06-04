@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,19 +20,21 @@
 package org.openrepose.core.spring
 
 import javax.servlet.Filter
-
 import org.junit.runner.RunWith
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.ApplicationContext
+import com.anycompany.spring.test.foo.TestFooBean
+import com.anycompany.spring.test.TestBean
 
 @RunWith(classOf[JUnitRunner])
 class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundlerHelper {
 
   val coreSpringProvider = CoreSpringProvider.getInstance()
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
+
 
   describe("The Core Spring Provider") {
     it("is a singleton as the primary interface") {
@@ -55,6 +57,13 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       derpBean shouldNot be(null)
       herpBean shouldNot be(null)
       fooBean shouldNot be(null)
+
+      //Also assert that the custom package path beans got scanned
+      val testBean = coreContext.getBean[TestBean](classOf[TestBean])
+      val testFooBean = coreContext.getBean[TestFooBean](classOf[TestFooBean])
+
+      testBean shouldNot be(null)
+      testFooBean shouldNot be(null)
 
     }
     it("has a meaningful name for the core Context") {

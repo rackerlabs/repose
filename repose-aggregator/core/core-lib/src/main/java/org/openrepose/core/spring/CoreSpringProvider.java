@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,10 @@
  */
 package org.openrepose.core.spring;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.MutablePropertyValues;
@@ -148,6 +150,13 @@ public class CoreSpringProvider {
             }
 
             coreContext.scan(coreScanPackage);
+
+            //Additionally, if configured to, scan another package
+            if (conf.hasPath("extendedSpringContextPath")) {
+                final String extendedServicePackage = conf.getString("extendedSpringContextPath");
+                coreContext.scan(extendedServicePackage);
+                LOG.info("Scanning additional service path = {}", extendedServicePackage);
+            }
 
             //Have to set up the JMX stuff by hand
 
