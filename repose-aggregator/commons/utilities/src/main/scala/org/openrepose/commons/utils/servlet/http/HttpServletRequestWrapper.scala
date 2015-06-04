@@ -84,7 +84,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
     val existingHeaders: List[String] = getHeadersScala(headerName) //this has to be done before we remove from the list,
                                                                     // because getting this list is partially based on the contents of the removed list
     if (removedHeaders.contains(headerName)) {
-      removedHeaders = removedHeaders.filterNot(_.equalsIgnoreCase(headerName))
+      removedHeaders = removedHeaders - headerName
     }
     headerMap = headerMap + (headerName -> (existingHeaders :+ headerValue))
   }
@@ -105,7 +105,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def removeHeader(headerName: String): Unit = {
     removedHeaders = removedHeaders + headerName
-    headerMap = headerMap.filterKeys(!_.equalsIgnoreCase(headerName))
+    headerMap = headerMap - headerName
   }
 
   def getPreferredHeader(headerName: String, getFun: String => List[String]): String = {
@@ -131,7 +131,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     headerMap = headerMap + (headerName -> List(headerValue))
-    removedHeaders = removedHeaders.filterNot(_.equalsIgnoreCase(headerName))
+    removedHeaders = removedHeaders - headerName
   }
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
