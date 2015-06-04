@@ -19,7 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
+import java.io.{InputStreamReader, BufferedReader}
 import java.util
+import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
 
 import org.apache.http.client.utils.DateUtils
@@ -33,14 +35,20 @@ import scala.collection.immutable.{TreeMap, TreeSet}
  * Date: 5/27/15
  * Time: 10:25 AM
  */
-class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
+class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
+
+  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream())
 
   val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
+
+  override def getInputStream: ServletInputStream = inputStream
+
+  override def getReader: BufferedReader = new BufferedReader(new InputStreamReader(getInputStream, "UTF-8"))
 
   def getHeaderNamesScala: Set[String] = headerMap.keySet ++ super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains)
 
