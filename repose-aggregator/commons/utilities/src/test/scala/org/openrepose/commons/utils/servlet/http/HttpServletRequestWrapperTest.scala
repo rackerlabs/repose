@@ -598,7 +598,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should return a split list when a value is added") {
       wrappedRequest.addHeader("abc", "4")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
+      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsInOrderAs List("1", "2", "3", "4")
     }
 
     it("Should return a splittable list when added") {
