@@ -41,7 +41,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   val headerMap :Map[String, List[String]] = Map(
     "foo" -> List("bar", "baz"),
     "banana-phone" -> List("ring,ring,ring"),
-    "ghost" -> List("spooky;q=.90,sexy;q=1.0", "scary;q=.95"),
     "cup" -> List("blue,orange;q=0.5"),
     "ornament" -> List("weird penguin;q=0.8", "santa;q=0.9", "droopy tree;q=0.3"),
     "thumbs" -> List("2"),
@@ -60,22 +59,23 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getHeadersNamesSet method") {
     it("should return all the header names from the original request") {
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys
     }
 
     it("should return all the header names including the ones that were added") {
       wrappedRequest.addHeader("butts", "butts")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys ++ List("butts")
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys ++ List("butts")
     }
 
     it("should return a list that is missing any deleted headers") {
       wrappedRequest.removeHeader("foo")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
 
+    //todo: fix this test -- it should not be case sensitive
     it("should return the same list when Foo is added") {
       wrappedRequest.addHeader("Foo", "foo")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys
     }
   }
 
@@ -513,10 +513,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
     }
 
-    it("should return the value with the highest quality when multiple values are on the same line") {
-      wrappedRequest.getPreferredHeader("ghost") shouldBe "sexy"
-    }
-
     it("should return added value if quality is larger than original") {
       wrappedRequest.addHeader("ornament", "reindeer", 0.95)
       wrappedRequest.getPreferredHeader("ornament") shouldBe "reindeer"
@@ -527,6 +523,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
     }
 
+    //todo: fix this test -- shouldn't the higher quality value be returned?
     it("should return the appropriate value when a higher quality is appended onto a line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
       wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin"
