@@ -130,6 +130,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       configuration.setDelegating(delegatingType)
       configuration.setRolesHeaderName("NEW-HEADER-NAME")
       configuration.setEnableMasking403S(true)
+      configuration.setResources("/path/to/good  ALL       ANY")
 
       When("the configuration is updated")
       filter.configurationUpdated(configuration)
