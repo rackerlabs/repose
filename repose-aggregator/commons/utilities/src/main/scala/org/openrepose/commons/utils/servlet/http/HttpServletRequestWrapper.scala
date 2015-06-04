@@ -147,7 +147,18 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getPreferredHeader(headerName: String): String = getPreferredHeader(getHeadersScalaList(headerName))
 
-  override def getPreferredSplittableHeader(headerName: String): String = getPreferredHeader(getSplittableHeader(headerName).asScala.toList)
+  override def getPreferredSplittableHeader(headerName: String): String = {
+    def parseQuality(headerValue: String): Double = {
+      //todo: what if the parameter value is not a number? Try and default to 1.0?
+      headerValue.split(";").tail.find(param => "q".equalsIgnoreCase(param.split("=")(0).trim))
+        .map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
+    }
+
+    getSplittableHeaderScala(headerName) match {
+      case Nil => null
+      case nonEmptyList => nonEmptyList.maxBy(parseQuality).split(";")(0)
+    }
+  }
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     headerMap = headerMap + (headerName -> List(headerValue))
@@ -156,5 +167,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def replaceHeader(headerName: String, headerValue: String, quality: Double): Unit = replaceHeader(headerName, headerValue + ";q=" + quality)
 
-  override def getSplittableHeader(headerName: String): util.List[String] = getHeadersScalaList(headerName).foldLeft(List[String]())((list, s) => list ++ s.split(",")).asJava
+  def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScalaList(headerName).foldLeft(List[String]())((list, s) => list ++ s.split(","))
+
+  override def getSplittableHeader(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
 }
