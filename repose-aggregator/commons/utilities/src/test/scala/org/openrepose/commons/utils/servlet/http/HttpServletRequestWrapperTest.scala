@@ -59,22 +59,22 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getHeadersNamesSet method") {
     it("should return all the header names from the original request") {
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys
     }
 
     it("should return all the header names including the ones that were added") {
       wrappedRequest.addHeader("butts", "butts")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys ++ List("butts")
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys ++ List("butts")
     }
 
     it("should return a list that is missing any deleted headers") {
       wrappedRequest.removeHeader("foo")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
 
     it("should return the same list when Foo is added") {
       wrappedRequest.addHeader("Foo", "foo")
-      wrappedRequest.getHeaderNamesSet should contain theSameElementsAs headerMap.keys
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys
     }
   }
 
@@ -521,9 +521,9 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
     }
 
-    it("should return the appropriate value when a higher quality is appended onto a line") {
+    it("should throw an exception when quality becomes unreadable in a single line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
-      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin"
+      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredHeader("ornament")
     }
 
     it("should return an added value when it's the only value") {
@@ -622,6 +622,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should return empty list if header is removed") {
       wrappedRequest.removeHeader("abc")
       wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe empty
+    }
+
+    it("should throw an exception when quality is garbage") {
+      wrappedRequest.addHeader("cup", "butts;q=butts")
+      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeader("cup")
     }
   }
 }
