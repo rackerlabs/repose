@@ -103,24 +103,30 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       "/tmp",
       "simple-rbac.dot"
     ))
-    val rbacWadl = rbacToWadl(configuration.getResources).getOrElse(
-      if (configuration.getResourcesFileName != null) {
-        rbacToWadl(
-          readResource(
-            configurationService.getResourceResolver.resolve(configuration.getResourcesFileName).newInputStream()
-          ).getOrElse("")
-        ).getOrElse("")
-      } else {
-        ""
+
+    val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
+      Option(configuration.getResourcesFileName: String) match {
+        case Some(n) =>
+          rbacToWadl(readResource(
+              configurationService.getResourceResolver.resolve(n).newInputStream()
+          ))
+        case _ =>
+          None
       }
     )
-    val uuid = UUID.randomUUID
-    validator = Validator.apply(
-      s"SimpleRbacValidator_$uuid",
-      new StreamSource(new ByteArrayInputStream(rbacWadl.getBytes), "file://simple-rbac.wadl"),
-      config
-    )
-    initialized = true
+    rbacWadl match {
+      case Some(r) =>
+        logger.debug(s"Generated WADL:\n\n$r\n")
+        val uuid = UUID.randomUUID
+        validator = Validator.apply(
+          s"SimpleRbacValidator_$uuid",
+          new StreamSource(new ByteArrayInputStream(r.getBytes), "file://simple-rbac.wadl"),
+          config
+        )
+        initialized = true
+      case _ =>
+        logger.warn("Unable to generate the WADL; check the provided resources.")
+    }
   }
 
   override def isInitialized: Boolean = initialized
@@ -151,9 +157,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
           logger.warn("Cannot write to DOT file: " + dotPath)
         }
       } catch {
-        case ex: IOException => {
+        case ex: IOException =>
           logger.warn("Cannot write to DOT file: " + dotPath, ex)
-        }
       }
     }
     new DispatchHandler(handlers.toArray(new Array[ResultHandler](0)))
@@ -168,64 +173,77 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  private def readResource(resourceStream: InputStream): Option[String] = {
+  case class Resource(path: String, methods: Set[String], roles: Set[String])
+
+  def readResource(resourceStream: InputStream): Option[String] = {
     Try(Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))).getOrElse(None)
   }
 
-  private def rbacToWadl(rbac: String): Option[String] = {
-    val targetPort = 8080
-//    val wadl = s"""<application xmlns:rax="http://docs.rackspace.com/api"
-//                  |          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-//                  |          xmlns="http://wadl.dev.java.net/2009/02"
-//                  |     >
-//                  | <resources base="http://localhost">
-//                  |     <resource id="first" path="path">
-//                  |         <resource id="second" path="to">
-//                  |             <resource id="this" path="this">
-//                  |                 <method name="GET"      id="getMethodThis"      rax:roles="role1 role2 role3 role4"/>
-//                  |                 <method name="PUT"      id="putMethodThis"      rax:roles="role1 role2 role3"/>
-//                  |                 <method name="POST"     id="postMethodThis"     rax:roles="role1 role2"/>
-//                  |                 <method name="DELETE"   id="deleteMethodThis"   rax:roles="role1"/>
-//                  |             </resource>
-//                  |             <resource id="that" path="that">
-//                  |                 <method name="GET"      id="getMethodThat"/>
-//                  |                 <method name="PUT"      id="putMethodThat"/>
-//                  |                 <method name="POST"     id="postMethodThat"     rax:roles="role1"/>
-//                  |                 <method name="DELETE"   id="deleteMethodThat"   rax:roles="role1"/>
-//                  |             </resource>
-//                  |         </resource>
-//                  |     </resource>
-//                  | </resources>
-//                  |</application>
-//                  | """.stripMargin.trim()
-    val wadl = s"""<application xmlns:rax="http://docs.rackspace.com/api"
-                  |          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                  |          xmlns="http://wadl.dev.java.net/2009/02"
-                  |     >
-                  | <resources base="http://localhost">
-                  |     <resource id="first" path="path">
-                  |         <resource id="second" path="to">
-                  |             <resource id="this" path="this">
-                  |                 <method name="GET"      id="getMethodThis"      rax:roles="super useradmin admin user"/>
-                  |                 <method name="PUT"      id="putMethodThis"      rax:roles="super useradmin admin"/>
-                  |                 <method name="POST"     id="postMethodThis"     rax:roles="super useradmin"/>
-                  |                 <method name="DELETE"   id="deleteMethodThis"   rax:roles="super"/>
-                  |             </resource>
-                  |             <resource id="that" path="that">
-                  |                 <method name="GET"      id="getMethodThat"/>
-                  |                 <method name="PUT"      id="putMethodThat"/>
-                  |                 <method name="POST"     id="postMethodThat"     rax:roles="super"/>
-                  |                 <method name="DELETE"   id="deleteMethodThat"   rax:roles="super"/>
-                  |             </resource>
-                  |             <resource id="test" path="test">
-                  |                 <method name="GET"      id="getMethodTest"      rax:roles="useradmin user"/>
-                  |                 <method name="POST"     id="putMethodTest"      rax:roles="useradmin user"/>
-                  |             </resource>
-                  |         </resource>
-                  |     </resource>
-                  | </resources>
-                  |</application>
-                  | """.stripMargin.trim()
-    Some(wadl)
+  private def rbacToWadl(rbac: Option[String]): Option[String] = {
+    val parsed = parseResources(rbac)
+    parsed match {
+      case Some(_) =>
+        val header = s"""<application xmlns:rax="http://docs.rackspace.com/api"
+                        |         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        |         xmlns="http://wadl.dev.java.net/2009/02"
+                        |    >
+                        |  <resources base="http://localhost">""".stripMargin
+        val resources = parsed.getOrElse(List.empty[Resource]).map { r =>
+          def toMethods(resource: Resource, uuid: UUID) = {
+            val roles = resource.roles.mkString(" ")
+            val raxRoles = roles match {
+              case a if roles.equalsIgnoreCase("ANY") || roles.equalsIgnoreCase("ALL") => ""
+              case _ =>
+                s"""rax:roles="$roles""""
+            }
+            resource.methods.map {
+              _ match {
+                case a if a.equalsIgnoreCase("ANY") || a.equalsIgnoreCase("ALL") =>
+                  s"""      <method name="GET"    id="_$uuid-GET"    $raxRoles/>
+                     |      <method name="PUT"    id="_$uuid-PUT"    $raxRoles/>
+                     |      <method name="POST"   id="_$uuid-POST"   $raxRoles/>
+                     |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles/>""".stripMargin
+                case m =>
+                  s"""      <method name="$m"   id="_$uuid-$m"    $raxRoles/>"""
+              }
+            }.mkString("\n")
+          }
+          val path = r.path
+          val uuid = UUID.randomUUID
+          val methods = toMethods(r, uuid)
+          s"""    <resource id="_$uuid" path=\"$path">
+             |$methods
+             |    </resource>""".stripMargin
+        }.mkString("\n")
+        val footer = s"""  </resources>
+                        |</application>""".stripMargin
+
+        Some(s"$header\n$resources\n$footer")
+      case _ =>
+        None
+    }
+  }
+
+  private def parseResources(lines: Option[String]): Option[List[Resource]] = {
+    lines match {
+      case Some(l) =>
+        Some(l.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
+      case _ =>
+        None
+    }
+  }
+
+  private def parseLine(line: String): Option[Resource] = {
+    val values = line.split("\\s+")
+    if (values.length == 3) {
+      Some(new Resource(values(0), parseMethodsRoles(values(1)), parseMethodsRoles(values(2))))
+    } else {
+      logger.warn(s"Malformed RBAC Resource: $line")
+      None
+    }
+  }
+
+  private def parseMethodsRoles(value: String): Set[String] = {
+    Try(value.split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
   }
 }
