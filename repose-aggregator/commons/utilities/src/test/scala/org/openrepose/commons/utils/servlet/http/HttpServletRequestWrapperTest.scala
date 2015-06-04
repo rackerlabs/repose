@@ -29,6 +29,8 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+import scala.io.Source
+
 /**
  * Created with IntelliJ IDEA.
  * User: adrian
@@ -54,7 +56,22 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
         mockRequest.addHeader(headerName, headerValue)
       }
     }
+    mockRequest.setBodyContent("i like pie\nyummy yummy\n")
     wrappedRequest = new HttpServletRequestWrapper(mockRequest)
+  }
+
+  describe("the getInputStream method") {
+    it("tests that the body matches") {
+      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      output shouldBe "i like pie\nyummy yummy\n"
+    }
+  }
+
+  describe("the getReader method") {
+    it("tests that the body matches") {
+      val output :String = Stream.continually(wrappedRequest.getReader.readLine()).takeWhile(_ != null).mkString("\n")
+      output shouldBe "i like pie\nyummy yummy\n"
+    }
   }
 
   describe("the getHeadersNamesSet method") {
