@@ -106,8 +106,13 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   def getPreferredHeader(headerName: String, getFun: String => List[String]): String = {
     def parseQuality(headerValue: String): Double = {
-      headerValue.split(";").tail.find(param => "q".equalsIgnoreCase(param.split("=")(0).trim))
-        .map(_.split("=", 2)(1).toDouble).getOrElse(0.0)
+      try {
+        headerValue.split(";").tail.find(param => "q".equalsIgnoreCase(param.split("=")(0).trim))
+          .map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
+      }
+      catch {
+        case e :NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
+      }
     }
 
     getFun(headerName) match {

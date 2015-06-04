@@ -72,7 +72,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
 
-    //todo: fix this test -- it should not be case sensitive
     it("should return the same list when Foo is added") {
       wrappedRequest.addHeader("Foo", "foo")
       wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys
@@ -94,7 +93,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
     }
 
-    //todo: fix this test -- it should not be case sensitive
     it("should return the same list when Foo is added") {
       wrappedRequest.addHeader("Foo", "foo")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys
@@ -523,10 +521,9 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getPreferredHeader("ornament") shouldBe "santa"
     }
 
-    //todo: fix this test -- shouldn't the higher quality value be returned?
-    it("should return the appropriate value when a higher quality is appended onto a line") {
+    it("should throw an exception when quality becomes unreadable in a single line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
-      wrappedRequest.getPreferredHeader("ornament") shouldBe "weird penguin"
+      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredHeader("ornament")
     }
 
     it("should return an added value when it's the only value") {
@@ -625,6 +622,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should return empty list if header is removed") {
       wrappedRequest.removeHeader("abc")
       wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe empty
+    }
+
+    it("should throw an exception when quality is garbage") {
+      wrappedRequest.addHeader("cup", "butts;q=butts")
+      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeader("cup")
     }
   }
 }
