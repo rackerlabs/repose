@@ -61,16 +61,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest)
 
   override def getHeaders(headerName: String): util.Enumeration[String] = getHeadersScala(headerName).toIterator.asJavaEnumeration
 
-  override def getDateHeader(headerName: String): Long = {
-    Option(getHeader(headerName)) match {
-      case Some(headerValue) =>
-        Option(DateUtils.parseDate(headerValue)) match {
-          case Some(parsedDate) => parsedDate.getTime
-          case None => throw new IllegalArgumentException("Header value could not be converted to a date")
-        }
-      case None => -1
-    }
-  }
+  override def getDateHeader(headerName: String): Long = Option(getHeader(headerName)).map(DateUtils.parseDate(_).getTime).getOrElse(-1)
 
   override def getHeader(headerName: String): String = getHeadersScala(headerName).headOption.orNull
 
