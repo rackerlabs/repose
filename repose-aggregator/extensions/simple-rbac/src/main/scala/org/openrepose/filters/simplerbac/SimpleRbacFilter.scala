@@ -30,7 +30,6 @@ import javax.xml.transform.stream.StreamSource
 
 import com.rackspace.com.papi.components.checker.handler._
 import com.rackspace.com.papi.components.checker.{Config, Validator}
-import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
@@ -38,8 +37,10 @@ import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.apivalidator.DispatchHandler
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
 
+import scala.collection.JavaConversions._
 import scala.io.Source
 import scala.util.Try
 
@@ -47,7 +48,6 @@ import scala.util.Try
 class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   extends Filter
   with UpdateListener[SimpleRbacConfig]
-  with HttpDelegationManager
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "simple-rbac.cfg.xml"
@@ -161,7 +161,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
           logger.warn("Cannot write to DOT file: " + dotPath, ex)
       }
     }
-    new DispatchHandler(handlers.toArray(new Array[ResultHandler](0)))
+    new DispatchHandler(handlers.toList:_*)
   }
 
   private def getPath(path: String, configRoot: String): String = {
@@ -173,14 +173,35 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  case class Resource(path: String, methods: Set[String], roles: Set[String])
-
   def readResource(resourceStream: InputStream): Option[String] = {
     Try(Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))).getOrElse(None)
   }
 
   private def rbacToWadl(rbac: Option[String]): Option[String] = {
-    val parsed = parseResources(rbac)
+
+    case class Resource(path: String, methods: Set[String], roles: Set[String])
+
+    def parseLine(line: String): Option[Resource] = {
+      val values = line.split("\\s+")
+      if (values.length == 3) {
+        Some(new Resource(
+          values(0),
+          Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
+          Try(values(2).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
+        ))
+      } else {
+        logger.warn(s"Malformed RBAC Resource: $line")
+        None
+      }
+    }
+
+    val parsed = rbac match {
+      case Some(l) =>
+        Some(l.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
+      case _ =>
+        None
+    }
+
     parsed match {
       case Some(_) =>
         val header = s"""<application xmlns:rax="http://docs.rackspace.com/api"
@@ -222,28 +243,5 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       case _ =>
         None
     }
-  }
-
-  private def parseResources(lines: Option[String]): Option[List[Resource]] = {
-    lines match {
-      case Some(l) =>
-        Some(l.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
-      case _ =>
-        None
-    }
-  }
-
-  private def parseLine(line: String): Option[Resource] = {
-    val values = line.split("\\s+")
-    if (values.length == 3) {
-      Some(new Resource(values(0), parseMethodsRoles(values(1)), parseMethodsRoles(values(2))))
-    } else {
-      logger.warn(s"Malformed RBAC Resource: $line")
-      None
-    }
-  }
-
-  private def parseMethodsRoles(value: String): Set[String] = {
-    Try(value.split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
   }
 }

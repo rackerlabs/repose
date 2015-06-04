@@ -26,6 +26,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>simple-rbac</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,6 +61,10 @@
                         <jarModule>
                             <groupId>org.openrepose</groupId>
                             <artifactId>api-validator</artifactId>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.openrepose</groupId>
+                            <artifactId>simple-rbac</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

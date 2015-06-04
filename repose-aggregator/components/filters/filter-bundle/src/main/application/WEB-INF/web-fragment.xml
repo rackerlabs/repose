@@ -157,9 +157,4 @@
         <filter-class>org.openrepose.filters.mergeheader.MergeHeaderFilter</filter-class>
     </filter>
 
-    <filter>
-        <filter-name>simple-rbac</filter-name>
-        <filter-class>org.openrepose.filters.simplerbac.SimpleRbacFilter</filter-class>
-    </filter>
-
 </web-fragment>
