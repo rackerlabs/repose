@@ -22,6 +22,7 @@ package org.openrepose.filters.Keystonev2
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -107,70 +108,90 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
 
+    //Check our whitelist
+    val whiteListURIs: Option[List[String]] = (for {
+      jaxbIntermediary <- Option(configuration.getWhiteList)
+      regexList <- Option(jaxbIntermediary.getUriRegex)
+    } yield {
+        import scala.collection.JavaConversions._
+        Some(regexList.toList)
+      }).getOrElse(None)
+
+    val whiteListMatch: Boolean = whiteListURIs.exists { uriList =>
+      uriList.exists { pattern =>
+        logger.debug(s"checking ${request.getRequestURI} against ${pattern}")
+        request.getRequestURI.matches(pattern)
+      }
+    }
+
     val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
     //Pull in the status codes, because I'm using them a bunch
     import HttpServletResponse._
 
     //Get the authenticating token!
-    val result: KeystoneV2Result = authTokenValue.map { authToken =>
-      //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
-      val tokenValidationResult: Try[AuthResult] =
-        Option(datastore.get(authToken).asInstanceOf[AuthResult]).map { validationResult =>
-          Success(validationResult)
-        } getOrElse {
-          //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
-          getAdminToken.flatMap { adminToken =>
-            validateToken(adminToken, authToken).recoverWith {
-              //Recover if the exception is an AdminTokenUnauthorizedException
-              //This way we can specify however we want to what we want to do to retry.
-              //Also it only retries ONCE! No loops or anything. Fails gloriously
-              case unauth: AdminTokenUnauthorizedException =>
-                //Clear the cache, call this method again
-                datastore.remove(ADMIN_TOKEN_KEY)
-                getAdminToken match {
-                  case Success(newAdminToken) =>
-                    validateToken(newAdminToken, authToken)
-                  case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
-                }
+    val result: KeystoneV2Result = if (whiteListMatch) {
+      Pass(Map.empty[String, String])
+    } else {
+      authTokenValue.map { authToken =>
+        //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
+        val tokenValidationResult: Try[AuthResult] =
+          Option(datastore.get(authToken).asInstanceOf[AuthResult]).map { validationResult =>
+            Success(validationResult)
+          } getOrElse {
+            //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
+            getAdminToken.flatMap { adminToken =>
+              validateToken(adminToken, authToken).recoverWith {
+                //Recover if the exception is an AdminTokenUnauthorizedException
+                //This way we can specify however we want to what we want to do to retry.
+                //Also it only retries ONCE! No loops or anything. Fails gloriously
+                case unauth: AdminTokenUnauthorizedException =>
+                  //Clear the cache, call this method again
+                  datastore.remove(ADMIN_TOKEN_KEY)
+                  getAdminToken match {
+                    case Success(newAdminToken) =>
+                      validateToken(newAdminToken, authToken)
+                    case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                  }
+              }
             }
           }
+
+        tokenValidationResult match {
+          case Success(InvalidToken) =>
+            Reject(SC_UNAUTHORIZED)
+          case Success(validToken: ValidToken) =>
+            //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
+            val endpointDetails = endpointAuthorization(authToken, validToken)
+            endpointDetails match {
+              case Some(Success(endpointVector)) => {
+                //If I'm configured to put the endpoints into a x-catalog do it
+                //Do more things in here
+                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+                Pass(groupsHeader)
+
+              }
+              case Some(Failure(x)) => {
+                //Reject them with 403
+                Reject(SC_FORBIDDEN, failure = Some(x))
+              }
+              case None => {
+                //Do more things in here
+                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
+                Pass(groupsHeader)
+              }
+            }
+          case Failure(x: IdentityAdminTokenException) =>
+            Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+          case Failure(x: IdentityCommuncationException) =>
+            Reject(SC_BAD_GATEWAY, failure = Some(x))
+          case Failure(x) =>
+            //TODO: this isn't yet complete
+            Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
         }
-
-      tokenValidationResult match {
-        case Success(InvalidToken) =>
-          Reject(SC_UNAUTHORIZED)
-        case Success(validToken: ValidToken) =>
-          //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
-          val endpointDetails = endpointAuthorization(authToken, validToken)
-          endpointDetails match {
-            case Some(Success(endpointVector)) => {
-              //If I'm configured to put the endpoints into a x-catalog do it
-              //Do more things in here
-              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-              Pass(groupsHeader)
-
-            }
-            case Some(Failure(x)) => {
-              //Reject them with 403
-              Reject(SC_FORBIDDEN, failure = Some(x))
-            }
-            case None => {
-              //Do more things in here
-              val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-              Pass(groupsHeader)
-            }
-          }
-        case Failure(x: IdentityAdminTokenException) =>
-          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-        case Failure(x: IdentityCommuncationException) =>
-          Reject(SC_BAD_GATEWAY, failure = Some(x))
-        case Failure(x) =>
-          //TODO: this isn't yet complete
-          Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+      } getOrElse {
+        //Don't have an auth token to validate
+        Reject(SC_FORBIDDEN, Some("Auth token not found in headers"))
       }
-    } getOrElse {
-      //Don't have an auth token to validate
-      Reject(SC_FORBIDDEN, Some("Auth token not found in headers"))
     }
 
     //Handle the result of the filter to apply to the
@@ -355,7 +376,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       import play.api.libs.functional.syntax._
       import play.api.libs.json.Reads._
       import play.api.libs.json._
-
 
       implicit val endpointsReader = (
         (JsPath \ "region").readNullable[String] and

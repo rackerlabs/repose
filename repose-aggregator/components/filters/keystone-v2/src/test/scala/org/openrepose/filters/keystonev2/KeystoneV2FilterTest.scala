@@ -616,8 +616,45 @@ with MockedAkkaServiceClient {
   }
 
   describe("when whitelist is configured for a particular URI") {
-    it("will not perform authentication or authorization for that URI") {
-      pending
+    val configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="admin_username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            connection-pool-id="wat"
+        |            set-groups-in-header="true"
+        |            set-catalog-in-header="false"
+        |            />
+        |
+        |    <white-list>
+        |        <uri-regex>.*/application\.wadl$</uri-regex>
+        |    </white-list>
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.configurationUpdated(configuration)
+
+    it("will not perform authentication or authorization the URI that matches") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
+
     }
     it("will not perform authentication or authorization for several URIS") {
       pending
