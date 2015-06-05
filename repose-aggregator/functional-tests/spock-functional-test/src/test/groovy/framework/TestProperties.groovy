@@ -30,6 +30,7 @@ class TestProperties {
     String configTemplates
     String connFramework
     String reposeContainer = "valve"
+    String reposeVersion
     String reposeHome
     String projectBuildDirectory
 
@@ -42,6 +43,11 @@ class TestProperties {
     String tomcatJar
     String reposeRootWar
     String mocksWar
+
+    int reposeMajorVersion
+    int reposeMinorVersion
+    int reposeFilterVersion
+    int reposePatchVersion
 
     int reposePort
 
@@ -94,6 +100,13 @@ class TestProperties {
             atomPort = PortFinder.Singleton.getNextOpenPort()
             targetHostname = properties.getProperty("target.hostname")
             rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
+            reposeVersion = properties.getProperty("repose.version")
+
+            def reposeVersionMatcher = reposeVersion =~ /\.?(\d)/
+            reposeMajorVersion = Integer.parseInt(reposeVersionMatcher[0][1] as String)
+            reposeMinorVersion = Integer.parseInt(reposeVersionMatcher[1][1] as String)
+            reposeFilterVersion = Integer.parseInt(reposeVersionMatcher[2][1] as String)
+            reposePatchVersion = Integer.parseInt(reposeVersionMatcher[3][1] as String)
             reposeHome = properties.getProperty("repose.home")
             mocksWar = properties.getProperty("mocks.war")
 
