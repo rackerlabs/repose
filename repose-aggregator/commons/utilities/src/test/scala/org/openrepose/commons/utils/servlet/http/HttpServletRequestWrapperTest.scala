@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
+import java.io.BufferedReader
 import java.util
 
 import com.mockrunner.mock.web.MockHttpServletRequest
@@ -69,8 +70,9 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getReader method") {
     it("tests that the body matches") {
-      val output :String = Stream.continually(wrappedRequest.getReader.readLine()).takeWhile(_ != null).mkString("\n")
-      output shouldBe "i like pie\nyummy yummy\n"
+      val br :BufferedReader = wrappedRequest.getReader
+      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      output shouldBe "i like pieyummy yummy"
     }
   }
 
