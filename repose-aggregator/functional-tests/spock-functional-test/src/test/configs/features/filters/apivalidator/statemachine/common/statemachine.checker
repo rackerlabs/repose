@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<checker xmlns="http://www.rackspace.com/repose/wadl/checker"
+         xmlns:json="http://json-schema.org/schema#"
+         xmlns:util="http://www.rackspace.com/repose/wadl/checker/util"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <meta>
+        <built-by>builder</built-by>
+        <created-by>API Checker CLI WADL2Checker (1.1.1)</created-by>
+        <created-on>2015-05-22T13:00:00.000-05:00</created-on>
+        <created-from>
+            file:/repose/repose-aggregator/functional-tests/spock-functional-test/src/test/configs/features/filters/apivalidator/statemachine/common/statemachine.wadl
+        </created-from>
+        <config option="enableIgnoreJSONSchemaExtension" value="true"/>
+        <config option="enableMessageExtension" value="true"/>
+        <config option="joinXPathChecks" value="false"/>
+        <config option="doXSDGrammarTransform" value="false"/>
+        <config option="enablePreProcessExtension" value="true"/>
+        <config option="removeDups" value="false"/>
+        <config option="checkXSDGrammar" value="false"/>
+        <config option="enableCaptureHeaderExtension" value="true"/>
+        <config option="xpathVersion" value="1"/>
+        <config option="checkPlainParams" value="true"/>
+        <config option="checkWellFormed" value="false"/>
+        <config option="enableIgnoreXSDExtension" value="true"/>
+        <config option="checkJSONGrammar" value="false"/>
+        <config option="checkElements" value="false"/>
+        <config option="preserveRequestBody" value="false"/>
+        <config option="checkHeaders" value="false"/>
+        <config option="enableRaxRolesExtension" value="true"/>
+        <config option="maskRaxRoles403" value="true"/>
+    </meta>
+    <step id="S0" type="START" next="S0_a_observer S0_a_admin S0UF_ S0MF_"/>
+    <step id="S0_a_observer" type="HEADER_ANY" name="X-ROLES" match="a:observer" priority="5"
+          next="d58e4_a_observer S0UF_a_observer S0MF_a_observer"/>
+    <step id="SA" type="ACCEPT" priority="100004"/>
+    <step id="d58e4UF_a_observer" type="URL_FAIL" priority="10003"/>
+    <step id="d58e4MF_a_observer" type="METHOD_FAIL" notMatch="GET" priority="20053"/>
+    <step id="S0UF_a_observer" type="URL_FAIL" notMatch="a" priority="10052"/>
+    <step id="S0MF_a_observer" type="METHOD_FAIL" priority="20002"/>
+    <step id="S0_a_admin" type="HEADER_ANY" name="X-ROLES" match="a:admin" priority="5"
+          next="d58e4_a_admin S0UF_a_admin S0MF_a_admin"/>
+    <step id="d58e4UF_a_admin" type="URL_FAIL" priority="10003"/>
+    <step id="d58e4MF_a_admin" type="METHOD_FAIL" notMatch="DELETE|GET|POST" priority="20153"/>
+    <step id="S0UF_a_admin" type="URL_FAIL" notMatch="a" priority="10052"/>
+    <step id="S0MF_a_admin" type="METHOD_FAIL" priority="20002"/>
+    <step id="S0UF_" type="URL_FAIL" priority="10001"/>
+    <step id="S0MF_" type="METHOD_FAIL" priority="20001"/>
+    <step id="d58e4_a_observer" type="URL" match="a" next="d58e5_a_observer d58e4UF_a_observer d58e4MF_a_observer"/>
+    <step id="d58e5_a_observer" type="METHOD" match="GET" next="SA"/>
+    <step id="d58e4_a_admin" type="URL" match="a"
+          next="d58e5_a_admin d58e9_a_admin d58e12_a_admin d58e4UF_a_admin d58e4MF_a_admin"/>
+    <step id="d58e5_a_admin" type="METHOD" match="GET" next="SA"/>
+    <step id="d58e9_a_admin" type="METHOD" match="POST" next="SA"/>
+    <step id="d58e12_a_admin" type="METHOD" match="DELETE" next="SA"/>
+</checker>

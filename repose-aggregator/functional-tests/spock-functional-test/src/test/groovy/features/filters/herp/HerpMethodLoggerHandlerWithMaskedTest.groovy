@@ -26,12 +26,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-/**
- * Created by jennyvo on 2/3/15.
- *  When using with api validator with enable-api-coverage
- *  method name should be moved forward to log
- */
-class HerpMethodLoggerHandlerTest extends ReposeValveTest {
+class HerpMethodLoggerHandlerWithMaskedTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -40,7 +35,7 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachine", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatorstatemachinemasked", params)
         repose.start()
     }
 
@@ -84,9 +79,9 @@ class HerpMethodLoggerHandlerTest extends ReposeValveTest {
         where:
         method   | label         | headers
         "GET"    | 'Get Test'    | ["x-roles": "raxRolesEnabled, a:observer"]
-        "GET"    | 'Get Test'    | ["x-roles": "raxRolesEnabled"]
+        "GET"    | ''            | ["x-roles": "raxRolesEnabled"]
         "POST"   | 'Create Test' | ["x-roles": "raxRolesEnabled, a:admin"]
-        "POST"   | 'Create Test' | []
+        "POST"   | ''            | []
         "DELETE" | 'Delete Test' | []
     }
 

@@ -20,6 +20,7 @@
 package org.openrepose.filters.apivalidator
 
 import com.rackspace.com.papi.components.checker.Config
+import com.rackspace.com.papi.components.checker.handler.ApiCoverageHandler
 import com.rackspace.com.papi.components.checker.handler.DelegationHandler
 import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
 import com.rackspace.com.papi.components.checker.handler.MethodLabelHandler
@@ -75,6 +76,7 @@ class ValidatorConfiguratorTest {
 
         DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
         assert handlers.handlers[0] instanceof InstrumentedHandler
+        assert handlers.handlers[1] instanceof ApiCoverageHandler
     }
 
     @Test

@@ -40,6 +40,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/statemachine/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/statemachine/enableapicoveragefalse", params)
         repose.start()
 
@@ -52,12 +53,17 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
+
+    def setup() {
+        reposeLogSearch.cleanLog()
+    }
+
     /*
         When enable-api-coverage is set to false, enable-rax-role is set to true,
         certain user roles will allow to access certain methods according to config in the wadl.
         i.e. 'GET' method only be available to access by a:observer and a:admin role
+        Also with enable-api-coverage set to false there should be NO paths logged to the api-coverage-logger.
     */
-
     @Unroll("enableapicoverage false:headers=#headers")
     def "when enable-api-coverage is false, validate count at state level"() {
         given:
@@ -86,6 +92,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         messageChain.getReceivedResponse().getCode().equals(responseCode)
         getBeanObj.size() == 0      // not using handler
         check == true
+        reposeLogSearch.searchByString("\\{\"steps\":\\[").size() == 0
 
         where:
         method | headers                                           | responseCode
