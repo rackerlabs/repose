@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,32 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.classloader;
+package features.core.startup
 
-import org.openrepose.commons.utils.Destroyable;
-import org.openrepose.commons.utils.classloader.EarClassLoaderContext;
+import framework.ReposeValveTest
+import org.rackspace.deproxy.Deproxy
 
-import java.util.Collection;
+class StartupErrorLogTest extends ReposeValveTest {
 
-public interface ClassLoaderManagerService extends Destroyable {
+    def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
 
-    boolean hasFilter(String contextName);
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/startup/filterloading", params)
+    }
 
-    boolean allArtifactsLoaded();
+    def "Repose should not log erroneous missing artifact messages on startup"() {
+        given:
+        assert properties.reposeMajorVersion < 8
+        reposeLogSearch.cleanLog()
+        repose.start()
 
-    Collection<EarClassLoaderContext> getLoadedApplications();
+        when:
+        waitUntilReadyToServiceRequests('200', true, false)
+
+        then:
+        reposeLogSearch.searchByString("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named").size() == 0
+    }
 }

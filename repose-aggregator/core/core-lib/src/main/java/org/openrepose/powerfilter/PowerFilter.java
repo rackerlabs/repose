@@ -34,6 +34,7 @@ import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.container.ContainerConfigurationService;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
+import org.openrepose.core.services.deploy.ArtifactManager;
 import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.common.Event;
 import org.openrepose.core.services.event.common.EventListener;
@@ -107,6 +108,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final MetricsService metricsService;
     private final ConfigurationInformation configurationInformation;
     private final RequestProxyService requestProxyService;
+    private final ArtifactManager artifactManager;
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private MeterByCategory mbcResponseCodes;
@@ -130,6 +132,7 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param filterContextFactory          A factory that builds filter contexts
      * @param configurationInformation      allows JMX to see when this powerfilter is ready
      * @param requestProxyService           Only needed by the servletconfigwrapper thingy, no other way to get it in there
+     * @param artifactManager               Needed to poll artifact loading to prevent prematurely constructing a PowerFilterChain
      */
     @Inject
     public PowerFilter(
@@ -146,7 +149,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             ResponseMessageService responseMessageService,
             FilterContextFactory filterContextFactory,
             ConfigurationInformation configurationInformation,
-            RequestProxyService requestProxyService
+            RequestProxyService requestProxyService,
+            ArtifactManager artifactManager
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -155,6 +159,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.metricsService = metricsService;
         this.configurationInformation = configurationInformation;
         this.requestProxyService = requestProxyService;
+        this.artifactManager = artifactManager;
 
         // Set up the configuration listeners
         systemModelConfigurationListener = new SystemModelConfigListener();
@@ -197,7 +202,7 @@ public class PowerFilter extends DelegatingFilterProxy {
      * Triggered each time the event service triggers an app deploy and when the system model is updated.
      */
     private void configurationHeartbeat() {
-        if (currentSystemModel.get() != null) {
+        if (currentSystemModel.get() != null && artifactManager.allArtifactsLoaded()) {
             synchronized (configurationLock) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
                 SystemModel systemModel = currentSystemModel.get();
