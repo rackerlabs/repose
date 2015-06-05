@@ -48,7 +48,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   override def getInputStream: ServletInputStream = inputStream
 
-  override def getReader: BufferedReader = new BufferedReader(new InputStreamReader(getInputStream, "UTF-8"))
+  override def getReader: BufferedReader = new BufferedReader(new InputStreamReader(getInputStream))
 
   def getHeaderNamesScala: Set[String] = headerMap.keySet ++ super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains)
 
