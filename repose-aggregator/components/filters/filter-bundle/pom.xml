@@ -189,12 +189,12 @@
             <artifactId>valkyrie-authorization</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>merge-header</artifactId>
             <version>${project.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
