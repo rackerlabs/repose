@@ -101,8 +101,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("tests IllegalStateException is thrown if getInputStream is already called") {
       val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
-      val br :BufferedReader = wrappedRequest.getReader
-      an [IllegalStateException] should be thrownBy Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      an [IllegalStateException] should be thrownBy wrappedRequest.getReader
     }
   }
 

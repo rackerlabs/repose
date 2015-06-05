@@ -39,6 +39,12 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
+  object RequestBodyStatus extends Enumeration {
+    val Available, InputStream, Reader = Value
+  }
+
+  private var status = RequestBodyStatus.Available
+
   def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream())
 
   val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
@@ -46,9 +52,15 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
 
-  override def getInputStream: ServletInputStream = inputStream
+  override def getInputStream: ServletInputStream = {
+    if (status == RequestBodyStatus.Reader) throw new IllegalStateException else status = RequestBodyStatus.InputStream
+    inputStream
+  }
 
-  override def getReader: BufferedReader = new BufferedReader(new InputStreamReader(getInputStream))
+  override def getReader: BufferedReader = {
+    if (status == RequestBodyStatus.InputStream) throw new IllegalStateException else status = RequestBodyStatus.Reader
+    new BufferedReader(new InputStreamReader(inputStream))
+  }
 
   def getHeaderNamesScala: Set[String] = headerMap.keySet ++ super.getHeaderNames.asScala.toSet.filterNot(removedHeaders.contains)
 
