@@ -35,6 +35,7 @@ class StartupErrorLogTest extends ReposeValveTest {
 
     def "Repose should not log erroneous missing artifact messages on startup"() {
         given:
+        assert properties.reposeMajorVersion < 8
         reposeLogSearch.cleanLog()
         repose.start()
 
