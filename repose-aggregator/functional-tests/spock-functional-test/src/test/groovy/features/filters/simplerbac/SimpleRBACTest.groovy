@@ -96,8 +96,8 @@ class SimpleRBACTest extends ReposeValveTest {
         "/path/to/test"      | "POST"   | "useradmin" | SC_OK
         "/path/to/test"      | "GET"    | "admin"     | SC_FORBIDDEN
         "/path/to/test"      | "POST"   | "super"     | SC_FORBIDDEN
-        "/path/to/test"      | "PUT"    | "user"      | SC_FORBIDDEN
-        "/path/to/test"      | "DELETE" | "useradmin" | SC_FORBIDDEN
+        "/path/to/test"      | "PUT"    | "user"      | SC_METHOD_NOT_ALLOWED
+        "/path/to/test"      | "DELETE" | "useradmin" | SC_METHOD_NOT_ALLOWED
         "/path/to/something" | "GET"    | "user"      | SC_NOT_FOUND
         "/path/to/something" | "GET"    | "super"     | SC_NOT_FOUND
         "/path/to/something" | "GET"    | "admin"     | SC_NOT_FOUND
