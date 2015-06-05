@@ -21,6 +21,7 @@ package org.openrepose.filters.simplerbac
 
 import java.io.{ByteArrayInputStream, File, IOException, InputStream}
 import java.net.URL
+import java.nio.file.{Path, Paths, Files}
 import java.util
 import java.util.UUID
 import javax.inject.{Inject, Named}
@@ -37,15 +38,19 @@ import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.apivalidator.DispatchHandler
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
+import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
 import scala.io.Source
 import scala.util.Try
 
 @Named
-class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
+class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
+                                 @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configurationRoot: String)
+
   extends Filter
   with UpdateListener[SimpleRbacConfig]
   with LazyLogging {
@@ -100,8 +105,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       isDelegating,
       delegationQuality,
       true,
-      "/tmp",
-      "simple-rbac.dot"
+      configuration.getDotOutput
     ))
 
     val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
@@ -116,7 +120,25 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
     )
     rbacWadl match {
       case Some(r) =>
-        logger.debug(s"Generated WADL:\n\n$r\n")
+        Option(configuration.getWadlOutput: String) match {
+          case Some(wadlOutput) =>
+            val wadlPath: Path = Paths.get(StringUriUtilities.formatUri(getPath(wadlOutput, configurationRoot))).toAbsolutePath
+            try {
+              if (Files.exists(wadlPath) && Files.isWritable(wadlPath) || !Files.exists(wadlPath) && Files.createFile(wadlPath) != null) {
+                Files.write(wadlPath, r.getBytes)
+                logger.debug("Saved WADL to: " + wadlPath)
+              } else {
+                logger.warn("Cannot write to WADL file: " + wadlPath)
+                logger.debug(s"Generated WADL:\n\n$r\n")
+              }
+            } catch {
+              case ex: IOException =>
+                logger.warn("Cannot write to WADL file: " + wadlPath, ex)
+                logger.debug(s"Generated WADL:\n\n$r\n")
+            }
+          case _ =>
+            logger.debug(s"Generated WADL:\n\n$r\n")
+        }
         val uuid = UUID.randomUUID
         validator = Validator.apply(
           s"SimpleRbacValidator_$uuid",
@@ -134,7 +156,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
   private def getHandlers(isDelegating: Boolean,
                           delegationQuality: Double,
                           isEnableApiCoverage: Boolean,
-                          configRoot: String,
                           dotOutput: String): DispatchHandler = {
     val handlers: util.List[ResultHandler] = new util.ArrayList[ResultHandler]
     if (isDelegating) {
@@ -148,7 +169,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService)
       handlers.add(new ApiCoverageHandler)
     }
     if (StringUtils.isNotBlank(dotOutput)) {
-      val dotPath: String = StringUriUtilities.formatUri(getPath(dotOutput, configRoot))
+      val dotPath: String = StringUriUtilities.formatUri(getPath(dotOutput, configurationRoot))
       val out: File = new File(dotPath)
       try {
         if (out.exists && out.canWrite || !out.exists && out.createNewFile) {

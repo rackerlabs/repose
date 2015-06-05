@@ -20,6 +20,7 @@
 package org.openrepose.filters.simplerbac
 
 import java.net.URL
+import java.io.File
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED, SC_NOT_FOUND, SC_OK}
 
 import com.mockrunner.mock.web.MockFilterConfig
@@ -60,8 +61,10 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
     mockFilterConfig = new MockFilterConfig
-    filter = new SimpleRbacFilter(mockConfigService)
+    filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/functional-tests/spock-functional-test/target/repose_home/logs").getAbsolutePath)
     config = new SimpleRbacConfig
+    config.setWadlOutput("simple-rbac.wadl")
+    config.setDotOutput("simple-rbac.dot")
     config.setResources(
       """
         |/path/to/this  GET       role1,role2,role3,role4

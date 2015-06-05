@@ -58,6 +58,28 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="dot-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        dot output file for this validator
+                        DOT is a plain text graph description language.
+                        It is a simple way of describing graphs that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="wadl-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        wadl output file for this validator
+                        WADL is the Web Application Description Language.
+                        It is a way of describing the API of a Web Application that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <!-- http://stackoverflow.com/a/16674043/423218 -->
         <xs:assert vc:minVersion="1.1" test="count((@resources-file-name, ./rbac:resources)) = 1"

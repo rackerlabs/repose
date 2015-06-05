@@ -3,4 +3,6 @@
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-ROLES"
              enable-masking-403s="true"
-             resources-file-name="test.rbac"/>
+             resources-file-name="test.rbac"
+             wadl-output="test.wadl"
+             dot-output="test.dot"/>
