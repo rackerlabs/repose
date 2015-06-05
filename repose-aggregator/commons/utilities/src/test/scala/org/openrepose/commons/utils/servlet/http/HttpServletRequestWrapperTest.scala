@@ -66,6 +66,20 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
     }
+
+    it("tests the body is consumed after one call to getInputStream") {
+      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      output shouldBe "i like pie\nyummy yummy\n"
+      val output2 :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      output2 shouldBe ""
+    }
+
+    it("tests IllegalStateException is thrown if getReader is already called") {
+      val br :BufferedReader = wrappedRequest.getReader
+      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      output shouldBe "i like pieyummy yummy"
+      an [IllegalStateException] should be thrownBy Source.fromInputStream(wrappedRequest.getInputStream).mkString
+    }
   }
 
   describe("the getReader method") {
@@ -73,6 +87,22 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val br :BufferedReader = wrappedRequest.getReader
       val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
       output shouldBe "i like pieyummy yummy"
+    }
+
+    it("tests the body is consumed after one call to getReader") {
+      val br :BufferedReader = wrappedRequest.getReader
+      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      output shouldBe "i like pieyummy yummy"
+      val br2 :BufferedReader = wrappedRequest.getReader
+      val output2 :String = Stream.continually(br2.readLine()).takeWhile(_ != null).mkString
+      output2 shouldBe ""
+    }
+
+    it("tests IllegalStateException is thrown if getInputStream is already called") {
+      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      output shouldBe "i like pie\nyummy yummy\n"
+      val br :BufferedReader = wrappedRequest.getReader
+      an [IllegalStateException] should be thrownBy Stream.continually(br.readLine()).takeWhile(_ != null).mkString
     }
   }
 
