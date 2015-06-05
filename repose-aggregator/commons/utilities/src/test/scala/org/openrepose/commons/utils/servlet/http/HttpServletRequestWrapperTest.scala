@@ -19,8 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.BufferedReader
+import java.io.{IOException, BufferedReader}
 import java.util
+import javax.servlet.ServletInputStream
 
 import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.runner.RunWith
@@ -80,6 +81,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       output shouldBe "i like pieyummy yummy"
       an [IllegalStateException] should be thrownBy Source.fromInputStream(wrappedRequest.getInputStream).mkString
     }
+
+    it("tests IOException is thrown") {
+      val is :ServletInputStream = wrappedRequest.getInputStream
+      is.close
+      an [IOException] should be thrownBy is.reset
+    }
   }
 
   describe("the getReader method") {
@@ -102,6 +109,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
       an [IllegalStateException] should be thrownBy wrappedRequest.getReader
+    }
+
+    it("tests IOException is thrown") {
+      val br :BufferedReader = wrappedRequest.getReader
+      br.close
+      an [IOException] should be thrownBy br.reset
     }
   }
 
