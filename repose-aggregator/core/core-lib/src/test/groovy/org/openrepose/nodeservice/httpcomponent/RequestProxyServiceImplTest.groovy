@@ -20,16 +20,17 @@
 package org.openrepose.nodeservice.httpcomponent
 
 import org.apache.http.HttpEntity
-import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
-import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPatch
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.openrepose.core.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.HttpClientService
 import spock.lang.Specification
@@ -39,12 +40,15 @@ import static org.mockito.Mockito.when
 
 class RequestProxyServiceImplTest extends Specification {
     RequestProxyServiceImpl requestProxyService
-    HttpClient httpClient
+    ExtendedHttpClient httpExtendedClient
+    CloseableHttpClient httpClient
 
     def setup() {
-        httpClient = mock(HttpClient)
+        httpExtendedClient = mock(ExtendedHttpClient)
+        httpClient = mock(CloseableHttpClient)
         HttpClientResponse httpClientResponse = mock(HttpClientResponse)
-        when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
+        when(httpClientResponse.getExtendedHttpClient()).thenReturn(httpExtendedClient)
+        when(httpExtendedClient.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
         when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)
         requestProxyService = new RequestProxyServiceImpl(
@@ -61,7 +65,7 @@ class RequestProxyServiceImplTest extends Specification {
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
-        HttpResponse httpResponse = mock(HttpResponse)
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse)
         when(httpResponse.getStatusLine()).thenReturn(statusLine)
         when(httpResponse.getEntity()).thenReturn(httpEntity)
         ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
@@ -93,7 +97,7 @@ class RequestProxyServiceImplTest extends Specification {
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
-        HttpResponse httpResponse = mock(HttpResponse)
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse)
         when(httpResponse.getStatusLine()).thenReturn(statusLine)
         when(httpResponse.getEntity()).thenReturn(httpEntity)
         ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)

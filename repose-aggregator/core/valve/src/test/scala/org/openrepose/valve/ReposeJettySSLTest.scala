@@ -237,6 +237,11 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
 
   }
   it("creates a jetty server that does not allow TLS renegotiation") {
+    pendingUntilFixed {
+      if ("Mac OS X".equalsIgnoreCase(System.getProperty("os.name"))) {
+        throw new Exception("This test will not run, by default, on Mac OS X")
+      }
+    }
     val repose = new ReposeJettyServer(
       "cluster",
       "node",

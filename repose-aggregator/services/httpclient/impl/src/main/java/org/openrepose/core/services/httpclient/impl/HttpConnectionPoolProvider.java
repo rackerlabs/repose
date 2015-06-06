@@ -19,69 +19,111 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.MessageConstraints;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.openrepose.core.service.httpclient.config.PoolType;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 
+/**
+ * A helper class to construct HttpClient instances from some configuration.
+ */
 public final class HttpConnectionPoolProvider {
 
-    public static final String CLIENT_INSTANCE_ID = "CLIENT_INSTANCE_ID";
     private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolProvider.class);
-    private static final int DEFAULT_HTTPS_PORT = 443;
-    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(PoolType poolConf) {
+    public static ExtendedHttpClient genClient(PoolType poolConf) {
+        //Generate a UUID for this client
+        String uuid = UUID.randomUUID().toString();
 
-        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
+        //SSL Configuration
+        //todo: it seems odd that we trust /all/ certs. note that TrustSelfSignedStrategy.INSTANCE exists.
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustStrategy() {
+                //Trust all certificates
+                @Override
+                public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    return true;
+                }
+            }).build();
+        } catch (Exception e) {
+            LOG.error("Problem creating SSL context: ", e);
+        }
 
-        cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
-        cm.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
+        //Configuration for the HttpClientBuilder
+        PoolingHttpClientConnectionManager poolingConnectionManager = new PoolingHttpClientConnectionManager();
+        poolingConnectionManager.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
+        poolingConnectionManager.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
 
-        //Set all the params up front, instead of mutating them? Maybe this matters
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
-        params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, poolConf.getHttpSocketTimeout());
-        params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, poolConf.getHttpConnectionTimeout());
-        params.setParameter(CoreConnectionPNames.TCP_NODELAY, poolConf.isHttpTcpNodelay());
-        params.setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
-        params.setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
-        params.setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
-        params.setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
+        ConnectionKeepAliveStrategy keepAliveStrategy =
+                new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout());
 
-        final String uuid = UUID.randomUUID().toString();
-        params.setParameter(CLIENT_INSTANCE_ID, uuid);
+        MessageConstraints messageConstraints = MessageConstraints.custom()
+                .setMaxHeaderCount(poolConf.getHttpConnectionMaxHeaderCount())
+                .setMaxLineLength(poolConf.getHttpConnectionMaxLineLength())
+                .build();
 
-        //Pass in the params and the connection manager
-        DefaultHttpClient client = new DefaultHttpClient(cm, params);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setRedirectsEnabled(false)
+                .setSocketTimeout(poolConf.getHttpSocketTimeout())
+                .setConnectTimeout(poolConf.getHttpConnectionTimeout())
+                .build();
 
-        SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
-        SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        SchemeRegistry registry = cm.getSchemeRegistry();
-        Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
-        registry.register(scheme);
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setBufferSize(poolConf.getHttpSocketBufferSize())
+                .setMessageConstraints(messageConstraints)
+                .build();
 
-        client.setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(poolConf.getHttpSocketTimeout())
+                .setTcpNoDelay(poolConf.isHttpTcpNodelay())
+                .build();
+
+        //Configure the HttpClientBuilder with the configuration from above
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
+                .disableRedirectHandling()
+                .disableCookieManagement()
+                .setDefaultConnectionConfig(connectionConfig)
+                .setDefaultSocketConfig(socketConfig)
+                .setDefaultRequestConfig(requestConfig)
+                .setConnectionManager(poolingConnectionManager)
+                .setSslcontext(sslContext)
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setKeepAliveStrategy(keepAliveStrategy);
+
+        //Build a configured HttpClient
+        CloseableHttpClient httpClient = httpClientBuilder.build();
 
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
-        return client;
+        return new ExtendedHttpClientImpl(httpClient,
+                messageConstraints,
+                requestConfig,
+                connectionConfig,
+                socketConfig,
+                poolingConnectionManager,
+                keepAliveStrategy,
+                uuid,
+                poolConf.isChunkedEncoding());
     }
 }

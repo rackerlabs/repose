@@ -19,13 +19,14 @@
  */
 package org.openrepose.commons.utils.http
 
-import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
-import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.impl.client.CloseableHttpClient
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.HttpClientService
 
@@ -42,20 +43,23 @@ class ServiceClientTest {
 
     private ServiceClient serviceClient
 
-    private HttpClient mockHttpClient
+    private ExtendedHttpClient mockExtendedHttpClient
+    private CloseableHttpClient mockHttpClient
     private ArgumentCaptor<HttpRequestBase> requestCaptor
 
     @Before
     void setup() {
         HttpClientService mockClientService = mock(HttpClientService)
         HttpClientResponse mockClientResponse = mock(HttpClientResponse)
-        HttpResponse mockHttpResponse = mock(HttpResponse)
+        CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse)
         StatusLine mockStatusLine = mock(StatusLine)
-        mockHttpClient = mock(HttpClient)
+        mockExtendedHttpClient = mock(ExtendedHttpClient)
+        mockHttpClient = mock(CloseableHttpClient)
         requestCaptor = ArgumentCaptor.forClass(HttpRequestBase)
 
         when(mockClientService.getClient(anyString())).thenReturn(mockClientResponse)
-        when(mockClientResponse.getHttpClient()).thenReturn(mockHttpClient)
+        when(mockClientResponse.getExtendedHttpClient()).thenReturn(mockExtendedHttpClient)
+        when(mockExtendedHttpClient.getHttpClient()).thenReturn(mockHttpClient)
         when(mockHttpClient.execute(requestCaptor.capture())).thenReturn(mockHttpResponse)
         when(mockHttpResponse.getAllHeaders()).thenReturn(null)
         when(mockHttpResponse.getStatusLine()).thenReturn(mockStatusLine)

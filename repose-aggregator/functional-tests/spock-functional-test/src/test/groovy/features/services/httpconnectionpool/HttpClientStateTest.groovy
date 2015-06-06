@@ -22,11 +22,10 @@ package features.services.httpconnectionpool
 import framework.ReposeValveTest
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClients
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.server.handler.DefaultHandler
 import org.eclipse.jetty.server.handler.HandlerList
 import org.eclipse.jetty.server.session.SessionHandler
 import org.eclipse.jetty.servlet.ServletHandler
@@ -62,7 +61,6 @@ class HttpClientStateTest extends ReposeValveTest {
         ServletHandler servlet = new ServletHandler()
         servlet.addServletWithMapping(SimpleServlet.class, "/*")
 
-        DefaultHandler defaultHandler = new DefaultHandler()
         handlers.setHandlers([handler, servlet].toArray() as Handler[])
         server.setHandler(handlers)
 
@@ -95,7 +93,7 @@ class HttpClientStateTest extends ReposeValveTest {
         //TODO: make a pile of requests, and for all of them each one should have a different session, not one should be reused
         (1..1000).each { count ->
             defer {
-                HttpClient client = new DefaultHttpClient()
+                HttpClient client = HttpClients.createDefault()
                 def response = client.execute(new HttpGet("http://localhost:${properties.reposePort}/"))
                 String content = response.getEntity().getContent().getText()
                 sessionIds.add(content) //Just store it for later verification

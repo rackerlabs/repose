@@ -20,7 +20,6 @@
 package org.openrepose.core.services.httpclient.impl
 
 import org.apache.http.HttpResponse
-import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.junit.Before
 import org.junit.Test
@@ -28,6 +27,7 @@ import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 import org.openrepose.core.services.httpclient.HttpClientResponse
 
 import static org.junit.Assert.assertEquals
@@ -81,14 +81,14 @@ class MultiThreadHttpClientUserTest {
 
                 for (y in 1..2) {
                     HttpClientResponse clientResponse = httpClientService.getClient("pool1")
-                    HttpClient httpClient = clientResponse.getHttpClient();
+                    ExtendedHttpClient httpClient = clientResponse.getExtendedHttpClient();
                     HttpGet get
                     HttpResponse rsp
                     try {
                         get = new HttpGet(uri1);
                         get.addHeader("Thread", threadName)
                         Thread.sleep(500 + rand.nextInt(3000))
-                        rsp = httpClient.execute(get);
+                        rsp = httpClient.getHttpClient().execute(get);
                     } catch (Exception e) {
                         totalErrors++
                     } finally {

@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class HttpComponentRequestProcessorTest {

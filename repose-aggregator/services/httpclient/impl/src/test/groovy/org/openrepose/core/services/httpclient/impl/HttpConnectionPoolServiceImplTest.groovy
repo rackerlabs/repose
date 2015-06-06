@@ -20,15 +20,15 @@
 package org.openrepose.core.services.httpclient.impl
 
 import org.apache.http.client.HttpClient
-import org.apache.http.conn.ClientConnectionManager
-import org.apache.http.impl.conn.PoolingClientConnectionManager
-import org.apache.http.params.CoreConnectionPNames
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
+import org.openrepose.core.services.httpclient.ExtendedHttpClient
 import org.openrepose.core.services.httpclient.HttpClientResponse
 
 import static org.junit.Assert.*
@@ -74,8 +74,8 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void testGetClient() {
-        HttpClient client = srv.getClient(POOL1_ID).getHttpClient();
-        assertEquals("Should retrieve requested client", POOL1_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
+        ExtendedHttpClient client = srv.getClient(POOL1_ID).getExtendedHttpClient();
+        assertEquals("Should retrieve requested client", POOL1_SO_TIMEOUT, client.getSocketConfig().getSoTimeout());
     }
 
     @Test
@@ -85,14 +85,14 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void testHttpRandomConnectionPool() {
-        HttpClient client = srv.getClient(POOLU_ID).getHttpClient();
-        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
+        ExtendedHttpClient client = srv.getClient(POOLU_ID).getExtendedHttpClient();
+        assertEquals("Should retrieve default client", POOLU_SO_TIMEOUT, client.getSocketConfig().getSoTimeout());
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
-        HttpClient client = srv.getClient(null).getHttpClient();
-        assertEquals("Should retrieve default client", POOL2_SO_TIMEOUT, client.getParams().getParameter(CoreConnectionPNames.SO_TIMEOUT));
+        ExtendedHttpClient client = srv.getClient(null).getExtendedHttpClient();
+        assertEquals("Should retrieve default client", POOL2_SO_TIMEOUT, client.getSocketConfig().getSoTimeout());
     }
 
     @Test
@@ -107,29 +107,29 @@ class HttpConnectionPoolServiceImplTest {
         HttpClientResponse clientResponse = cpool.getClient(null);
 
         assertNotNull(clientResponse);
-        assertNotNull(clientResponse.getHttpClient());
+        assertNotNull(clientResponse.getExtendedHttpClient());
     }
 
     @Test
     void shouldHaveSameDefaultSettingsWhenNoConfigVsDefaultConfig() {
         // Create a pool service with NO configuration and obtain an HttpClient
         HttpConnectionPoolServiceImpl poolNotConfigured = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
-        HttpClient client1 = poolNotConfigured.getClient(null).getHttpClient();
+        ExtendedHttpClient client1 = poolNotConfigured.getClient(null).getExtendedHttpClient();
 
         // Create a pool service with a default only configuration and obtain an HttpClient
         HttpConnectionPoolServiceImpl poolConfiguredWithDefault = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
         HttpConnectionPoolConfig poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.add(new PoolType())
         poolConfiguredWithDefault.configure(poolCfg)
-        HttpClient client2 = poolNotConfigured.getClient(null).getHttpClient();
+        ExtendedHttpClient client2 = poolNotConfigured.getClient(null).getExtendedHttpClient();
 
         // Verify that all parameters are the same when NO config vs default config
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH), client2.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH));
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.CONNECTION_TIMEOUT), client2.getParams().getParameter(CoreConnectionPNames.CONNECTION_TIMEOUT))
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.MAX_HEADER_COUNT), client2.getParams().getParameter(CoreConnectionPNames.MAX_HEADER_COUNT));
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), client2.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY));
-        assertEquals(client1.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE), client2.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE));
-        assertEquals(client1.getConnectionKeepAliveStrategy().timeout, client2.getConnectionKeepAliveStrategy().timeout);
+        assertEquals(client1.getMessageConstraints().getMaxLineLength(), client2.getMessageConstraints().getMaxLineLength());
+        assertEquals(client1.getRequestConfig().getConnectTimeout(), client2.getRequestConfig().getConnectTimeout())
+        assertEquals(client1.getMessageConstraints().getMaxHeaderCount(), client2.getMessageConstraints().getMaxHeaderCount());
+        assertEquals(client1.getSocketConfig().isTcpNoDelay(), client2.getSocketConfig().isTcpNoDelay());
+        assertEquals(client1.getConnectionConfig().getBufferSize(), client2.getConnectionConfig().getBufferSize());
+        assertEquals(client1.getKeepAliveStrategy().timeout, client2.getKeepAliveStrategy().timeout);
 
         Map props1 = client1.connectionManager.properties;
         Map props2 = client1.connectionManager.properties;
@@ -141,10 +141,10 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void shouldShutdownAllConnectionPools() {
         HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class));
-        HttpClient mockClient = mock(HttpClient.class)
-        ClientConnectionManager mockConnMgr = mock(ClientConnectionManager.class)
-        cpool.poolMap.put("MOCK", mockClient)
-        when(mockClient.getConnectionManager()).thenReturn(mockConnMgr)
+        ExtendedHttpClient mockExtendedClient = mock(ExtendedHttpClient.class)
+        CloseableHttpClient mockClient = mock(CloseableHttpClient.class)
+        cpool.poolMap.put("MOCK", mockExtendedClient)
+        when(mockExtendedClient.getHttpClient()).thenReturn(mockClient)
 
         try {
             cpool.shutdown()
@@ -152,13 +152,13 @@ class HttpConnectionPoolServiceImplTest {
             //TODO: THIS IS A SUPER DIRTY HACK BECAUSE THIS TES IT JUST BEING SHOVED INTO HERE.
             //TODO: THIS CLASS NEEDS TO BE REFACTORED TO NOT FAIL LIKE THIS
         }
-        verify(mockConnMgr).shutdown()
+        verify(mockClient).close()
     }
 
     @Test
     void shouldShutdownAllExistingConnectionPoolsDuringReconfigure() {
-        HttpClient mockClient = mock(HttpClient.class)
-        ClientConnectionManager mockConnMgr = mock(PoolingClientConnectionManager.class)
+        ExtendedHttpClient mockClient = mock(ExtendedHttpClient.class)
+        PoolingHttpClientConnectionManager mockConnMgr = mock(PoolingHttpClientConnectionManager.class)
         when(mockClient.getConnectionManager()).thenReturn(mockConnMgr)
 
         srv.poolMap.put("MOCK", mockClient)
@@ -172,40 +172,40 @@ class HttpConnectionPoolServiceImplTest {
     void shouldRegisterUserWhenGettingNullClient() {
         HttpClientResponse clientResponse = srv.getClient(null);
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.extendedHttpClient.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingEmptyClient() {
         HttpClientResponse clientResponse = srv.getClient("");
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.extendedHttpClient.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingNamedDefaultClient() {
         HttpClientResponse clientResponse = srv.getClient(HttpConnectionPoolServiceImpl.DEFAULT_POOL_ID);
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.extendedHttpClient.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingNonDefaultClient() {
         HttpClientResponse clientResponse = srv.getClient(POOLU_ID);
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.extendedHttpClient.clientInstanceId))
     }
 
     @Test
     void shouldReleaseUserFromClientWhenBothAreValid() {
         HttpClientResponse clientResponse = srv.getClient(POOLU_ID);
 
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
-        assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.extendedHttpClient.clientInstanceId))
+        assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.extendedHttpClient.clientInstanceId).size())
 
         srv.releaseClient(clientResponse)
 
-        assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
+        assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.extendedHttpClient.clientInstanceId).size())
     }
 
     @Test

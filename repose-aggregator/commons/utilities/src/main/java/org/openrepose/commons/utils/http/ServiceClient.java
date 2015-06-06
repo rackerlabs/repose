@@ -21,20 +21,13 @@ package org.openrepose.commons.utils.http;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.auth.params.AuthPNames;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.core.services.httpclient.HttpClientResponse;
@@ -58,9 +51,6 @@ import java.util.Set;
  */
 public class ServiceClient {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
-    private String targetHostUri;
-    private String username;
-    private String password;
     private String connectionPoolId;
 
     private HttpClientService httpClientService;
@@ -70,38 +60,12 @@ public class ServiceClient {
         this.httpClientService = httpClientService;
     }
 
-    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId, HttpClientService httpClientService) {
-        this.targetHostUri = targetHostUri;
-        this.username = username;
-        this.password = password;
-        this.connectionPoolId = connectionPoolId;
-        this.httpClientService = httpClientService;
-
-    }
-
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
         HttpClientResponse clientResponse = null;
 
         try {
-
             clientResponse = httpClientService.getClient(connectionPoolId);
-            final HttpClient client = clientResponse.getHttpClient();
-
-            if (!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) && !StringUtilities.isEmpty(password)) {
-
-                client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
-
-                CredentialsProvider credsProvider = new BasicCredentialsProvider();
-
-                credsProvider.setCredentials(
-                        new AuthScope(targetHostUri, AuthScope.ANY_PORT),
-                        new UsernamePasswordCredentials(username, password));
-                client.getParams().setParameter("http.authentication.credential-provider", credsProvider);
-
-            }
-
-            return client;
-
+            return clientResponse.getExtendedHttpClient().getHttpClient();
         } catch (HttpClientNotFoundException e) {
             LOG.error("Failed to obtain an HTTP default client connection");
             throw new ServiceClientException("Failed to obtain an HTTP default client connection", e);
@@ -110,25 +74,18 @@ public class ServiceClient {
                 httpClientService.releaseClient(clientResponse);
             }
         }
-
     }
 
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
-
         final Set<Map.Entry<String, String>> entries = headers.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             base.addHeader(entry.getKey(), entry.getValue());
         }
     }
 
-    private ServiceClientResponse execute(HttpRequestBase base, String... queryParameters) {
+    private ServiceClientResponse execute(HttpRequestBase base) {
         try {
-
             HttpClient client = getClientWithBasicAuth();
-
-            for (int index = 0; index < queryParameters.length; index = index + 2) {
-                client.getParams().setParameter(queryParameters[index], queryParameters[index + 1]);
-            }
 
             HttpResponse httpResponse = client.execute(base);
             HttpEntity entity = httpResponse.getEntity();

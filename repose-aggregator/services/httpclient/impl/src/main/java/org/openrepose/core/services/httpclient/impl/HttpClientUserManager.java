@@ -24,10 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpClientUserManager {
 
-    private Map<String, List<String>> registeredClientUsers = new ConcurrentHashMap<String, List<String>>();
+    private Map<String, List<String>> registeredClientUsers = new ConcurrentHashMap<>();
 
     String addUser(String clientInstanceId) {
-
         if (clientInstanceId == null || clientInstanceId.isEmpty()) {
             throw new IllegalArgumentException("No client ID provided!");
         }
@@ -47,7 +46,6 @@ public class HttpClientUserManager {
     }
 
     void removeUser(String clientInstanceId, String userId) {
-
         if (clientInstanceId == null || clientInstanceId.isEmpty() || userId == null || userId.isEmpty()) {
             throw new IllegalArgumentException("No client and/or user ID provided!");
         }
@@ -58,10 +56,7 @@ public class HttpClientUserManager {
     }
 
     public boolean hasUsers(String clientInstanceId) {
-        if (!registeredClientUsers.containsKey(clientInstanceId) || registeredClientUsers.get(clientInstanceId).size() == 0) {
-            return false;
-        }
-
-        return true;
+        return registeredClientUsers.containsKey(clientInstanceId)
+                && registeredClientUsers.get(clientInstanceId).size() != 0;
     }
 }

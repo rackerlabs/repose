@@ -36,9 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /*
@@ -49,7 +47,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SaxAuthFeedReader.class);
     private final String feedId;
     private final String feedHead;
-    List<String> cacheKeys = new ArrayList<String>();
     private String targetFeed;
     private String curResource;
     private ServiceClient client;
@@ -85,16 +82,13 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
     @Override
     public CacheKeys getCacheKeys() throws FeedException {
-
         moreData = true;
         ServiceClientResponse resp;
         resultKeys = new FeedCacheKeys();
         while (moreData) {
-
             resp = getFeed();
 
             if (resp.getStatus() == HttpServletResponse.SC_OK) {
-
                 try {
                     SAXParser parser = factory.newSAXParser();
 
@@ -115,7 +109,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private ServiceClientResponse getFeed() throws FeedException {
 
         ServiceClientResponse resp;
-        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> headers = new HashMap<>();
 
         if (isAuthed) {
             headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
@@ -157,7 +151,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
     @Override
     public void startDocument() {
-
         moreData = false;
     }
 

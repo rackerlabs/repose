@@ -25,9 +25,12 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.io.IOUtils
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.params.CoreConnectionPNames
+import org.apache.http.config.{ConnectionConfig, MessageConstraints, SocketConfig}
+import org.apache.http.conn.ConnectionKeepAliveStrategy
+import org.apache.http.impl.client.{CloseableHttpClient, HttpClientBuilder}
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -38,7 +41,7 @@ import org.mockito.AdditionalMatchers.or
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.core.services.httpclient.{ExtendedHttpClient, HttpClientResponse, HttpClientService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -154,16 +157,33 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
         val timeouts = List(2000 /*, 30000, 45000, 55000, 90000*/)
         timeouts.foreach { timeout =>
           describe(s"with the Socket timeout set to $timeout millis") {
-            val httpClientDefault = new DefaultHttpClient
-            val params = httpClientDefault.getParams
+            val httpClientBuilder = HttpClientBuilder.create()
+            val socketConfig = SocketConfig.custom()
 
             when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
-            when(httpClientResponse.getHttpClient).thenReturn(httpClientDefault)
+            when(httpClientResponse.getExtendedHttpClient).thenReturn(new ExtendedHttpClient {
+              override def getKeepAliveStrategy: ConnectionKeepAliveStrategy = ???
+
+              override def getConnectionManager: PoolingHttpClientConnectionManager = ???
+
+              override def getClientInstanceId: String = ???
+
+              override def getConnectionConfig: ConnectionConfig = ???
+
+              override def getRequestConfig: RequestConfig = ???
+
+              override def getMessageConstraints: MessageConstraints = ???
+
+              override def getHttpClient: CloseableHttpClient = httpClientBuilder.build()
+
+              override def getChunkedEncoding: Boolean = ???
+
+              override def getSocketConfig: SocketConfig = ???
+            })
 
             it("should succeed when the server response time is LESS than the Socket timeout.") {
               when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
-              params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
-              httpClientDefault.setParams(params)
+              httpClientBuilder.setDefaultSocketConfig(socketConfig.setSoTimeout(timeout).build())
               val headers = Map(HEADER_SLEEP -> (timeout - 2000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
@@ -177,8 +197,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
 
             it("should fail with a logged error when the server response time is MORE than the Socket timeout.") {
               when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
-              params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
-              httpClientDefault.setParams(params)
+              httpClientBuilder.setDefaultSocketConfig(socketConfig.setSoTimeout(timeout).build())
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
               intercept[AkkaServiceClientException] {

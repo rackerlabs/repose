@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import org.apache.http.client.HttpClient;
+import org.openrepose.core.services.httpclient.ExtendedHttpClient;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -43,22 +43,20 @@ public class ClientDecommissionManager {
     }
 
     public void stopThread() {
-
         LOG.info("Shutting down HttpClient Service Decommissioner");
         decommissioner.stop();
         decommThread.interrupt();
     }
 
-    public void decommissionClient(Map<String, HttpClient> clients) {
+    public void decommissionClient(Map<String, ExtendedHttpClient> clients) {
+        Set<Entry<String, ExtendedHttpClient>> entrySet = clients.entrySet();
 
-        Set<Entry<String, HttpClient>> entrySet = clients.entrySet();
-
-        for (Map.Entry<String, HttpClient> clientEntry : entrySet) {
+        for (Map.Entry<String, ExtendedHttpClient> clientEntry : entrySet) {
             decommissioner.addClientToBeDecommissioned(clientEntry.getValue());
         }
     }
 
-    public void decommissionClient(HttpClient client) {
+    public void decommissionClient(ExtendedHttpClient client) {
         decommissioner.addClientToBeDecommissioned(client);
     }
 }
