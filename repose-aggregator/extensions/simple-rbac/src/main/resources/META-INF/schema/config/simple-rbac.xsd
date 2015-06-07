@@ -93,7 +93,7 @@
                 <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="quality" type="QualityType" use="optional" default="0.1">
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.3">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
