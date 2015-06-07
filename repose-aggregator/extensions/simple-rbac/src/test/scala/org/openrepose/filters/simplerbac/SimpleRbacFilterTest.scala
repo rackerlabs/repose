@@ -61,7 +61,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
     mockFilterConfig = new MockFilterConfig
-    filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/functional-tests/spock-functional-test/target/repose_home/logs").getAbsolutePath)
+    filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/extensions/simple-rbac/target").getAbsolutePath)
     config = new SimpleRbacConfig
     config.setWadlOutput("simple-rbac.wadl")
     config.setDotOutput("simple-rbac.dot")
@@ -99,7 +99,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(config)
 
       Then("the Delegating Quality should be default")
-      assert(filter.configuration.getDelegating.getQuality == .1)
+      assert(filter.configuration.getDelegating.getQuality == .3)
     }
     it("should have a default Roles Header Name") {
       Given("an un-initialized filter and the default configuration")
