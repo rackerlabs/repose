@@ -21,7 +21,7 @@ package org.openrepose.filters.simplerbac
 
 import java.io.{ByteArrayInputStream, File, IOException, InputStream}
 import java.net.URL
-import java.nio.file.{Path, Paths, Files}
+import java.nio.file.{Files, Path, Paths}
 import java.util
 import java.util.UUID
 import javax.inject.{Inject, Named}
@@ -96,17 +96,10 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
   override def configurationUpdated(configurationObject: SimpleRbacConfig): Unit = {
     configuration = configurationObject
-    val isDelegating = configuration.getDelegating != null
-    val delegationQuality = if (isDelegating) configuration.getDelegating.getQuality else 0.0
     config.enableRaxRolesExtension = true
     config.checkPlainParams = true
     config.maskRaxRoles403 = configuration.isEnableMasking403S
-    config.setResultHandler(getHandlers(
-      isDelegating,
-      delegationQuality,
-      true,
-      configuration.getDotOutput
-    ))
+    config.setResultHandler(getHandlers)
 
     val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
       Option(configuration.getResourcesFileName: String) match {
@@ -153,34 +146,34 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
   override def isInitialized: Boolean = initialized
 
-  private def getHandlers(isDelegating: Boolean,
-                          delegationQuality: Double,
-                          isEnableApiCoverage: Boolean,
-                          dotOutput: String): DispatchHandler = {
+  private def getHandlers: DispatchHandler = {
     val handlers: util.List[ResultHandler] = new util.ArrayList[ResultHandler]
-    if (isDelegating) {
-      handlers.add(new MethodLabelHandler)
-      handlers.add(new DelegationHandler(delegationQuality))
-    } else {
-      handlers.add(new ServletResultHandler)
+    Option(configuration.getDelegating) match {
+      case Some(d) =>
+        handlers.add(new MethodLabelHandler)
+        handlers.add(new DelegationHandler(d.getQuality))
+      case _ =>
+        handlers.add(new ServletResultHandler)
     }
-    if (isEnableApiCoverage) {
-      handlers.add(new InstrumentedHandler)
-      handlers.add(new ApiCoverageHandler)
-    }
-    if (StringUtils.isNotBlank(dotOutput)) {
-      val dotPath: String = StringUriUtilities.formatUri(getPath(dotOutput, configurationRoot))
-      val out: File = new File(dotPath)
-      try {
-        if (out.exists && out.canWrite || !out.exists && out.createNewFile) {
-          handlers.add(new SaveDotHandler(out, isEnableApiCoverage, true))
-        } else {
-          logger.warn("Cannot write to DOT file: " + dotPath)
+    handlers.add(new InstrumentedHandler)
+    handlers.add(new ApiCoverageHandler)
+    Option(configuration.getDotOutput) match {
+      case Some(d) =>
+        if (StringUtils.isNotBlank(d)) {
+          val dotPath: String = StringUriUtilities.formatUri(getPath(d, configurationRoot))
+          val out: File = new File(dotPath)
+          try {
+            if (out.exists && out.canWrite || !out.exists && out.createNewFile) {
+              handlers.add(new SaveDotHandler(out, true, true))
+            } else {
+              logger.warn("Cannot write to DOT file: " + dotPath)
+            }
+          } catch {
+            case ex: IOException =>
+              logger.warn("Cannot write to DOT file: " + dotPath, ex)
+          }
         }
-      } catch {
-        case ex: IOException =>
-          logger.warn("Cannot write to DOT file: " + dotPath, ex)
-      }
+      case _ =>
     }
     new DispatchHandler(handlers.toList:_*)
   }
