@@ -90,9 +90,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   override def addHeader(headerName: String, headerValue: String): Unit = {
     val existingHeaders: List[String] = getHeadersScala(headerName) //this has to be done before we remove from the list,
                                                                     // because getting this list is partially based on the contents of the removed list
-    if (removedHeaders.contains(headerName)) {
-      removedHeaders = removedHeaders - headerName
-    }
+    removedHeaders = removedHeaders - headerName
     headerMap = headerMap + (headerName -> (existingHeaders :+ headerValue))
   }
 
