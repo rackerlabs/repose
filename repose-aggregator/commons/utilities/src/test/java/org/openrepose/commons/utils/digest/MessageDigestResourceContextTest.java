@@ -34,9 +34,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -80,6 +80,18 @@ public class MessageDigestResourceContextTest {
             context = new MessageDigestResourceContext(iStream);
 
             context.perform(MessageDigest.getInstance("MD5"));
+        }
+
+        @Test
+        public void shouldReturnOutput() throws IOException, NoSuchAlgorithmException {
+            InputStream iStream = mock(InputStream.class);
+
+            when(iStream.read(any(byte[].class))).thenReturn(0).thenReturn(-1);
+            context = new MessageDigestResourceContext(iStream);
+
+            byte[] str = context.perform(MessageDigest.getInstance("MD5"));
+            assertTrue(str.length > 0);
+            verify(iStream, times(2)).read(any(byte[].class));
         }
     }
 }
