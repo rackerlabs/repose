@@ -132,6 +132,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                 logger.debug(s"Generated WADL:\n\n$wadl\n")
             }
            logger.debug(s"Generated WADL:\n\n$wadl\n")
+          case _ =>
         }
         validatorLock synchronized {
           initialized = reinitValidator(
@@ -152,7 +153,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       case Some(delegating) =>
         handlers.add(new MethodLabelHandler)
         handlers.add(new DelegationHandler(delegating.getQuality))
-       handlers.add(new ServletResultHandler)
+        handlers.add(new ServletResultHandler)
+      case _ =>
     }
     if (configuration.isEnableApiCoverage) {
       handlers.add(new InstrumentedHandler)
@@ -212,18 +214,18 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
     val parsed = rbac match {
       case Some(lines) =>
-        Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine))
+        Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
       case _ => None
     }
 
     parsed match {
-      case Some(_) =>
+      case Some(values) =>
         val header = s"""<application xmlns:rax="http://docs.rackspace.com/api"
                         |         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                         |         xmlns="http://wadl.dev.java.net/2009/02"
                         |    >
                         |  <resources base="http://localhost">""".stripMargin
-        val resources = parsed.getOrElse(List.empty[Resource]).map { resource =>
+        val resources = values.map { value =>
           def toMethods(resource: Resource, uuid: UUID) = {
             val roles = resource.roles.mkString(" ")
             val raxRoles = roles match {
@@ -242,9 +244,9 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
               }
             }.mkString("\n")
           }
-          val path = resource.path
+          val path = value.path
           val uuid = UUID.randomUUID
-          val methods = toMethods(resource, uuid)
+          val methods = toMethods(value, uuid)
           s"""    <resource id="_$uuid" path=\"$path">
              |$methods
              |    </resource>""".stripMargin
