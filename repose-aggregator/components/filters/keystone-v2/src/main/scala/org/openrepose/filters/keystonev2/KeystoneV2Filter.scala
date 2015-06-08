@@ -59,9 +59,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   var configuration: KeystoneV2Config = _
   var initialized = false
 
-  val datastore = datastoreService.getDefaultDatastore
-
-  //Which happens to be the local datastore
+  val datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
 
   trait IdentityExceptions
 
@@ -101,7 +99,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   case class Pass(headersToAdd: Map[String, String]) extends KeystoneV2Result
 
   case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
-
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
@@ -215,7 +212,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-
   //Token Validation stuffs
   sealed trait AuthResult
 
@@ -278,7 +274,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-
   /**
    * Check the cache, or call to identity to get the admin token
    * @return Returns a Successful token, or a Failure
@@ -330,7 +325,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   //TODO: put the endpoint related stuff into an object we can call
   case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
 
-
     /**
      * Determines whether or not this endpoint meets the requirements set forth by the values contained in
      * endpointRequirement for the purpose of authorization.
@@ -350,7 +344,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         compare(this.name, endpointRequirement.name) &&
         compare(this.endpointType, endpointRequirement.endpointType)
     }
-
   }
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String, doRetry: Boolean = true): Try[Vector[Endpoint]] = {

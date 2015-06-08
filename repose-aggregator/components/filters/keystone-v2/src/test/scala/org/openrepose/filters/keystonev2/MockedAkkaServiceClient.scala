@@ -54,11 +54,10 @@ trait MockedAkkaServiceClient {
       val adminToken = headers.get("x-auth-token")
       logger.debug(s"handling $adminToken, $token")
       getResponses.remove((adminToken, token)) match {
-        case None => {
+        case None =>
           logger.error("NO REMAINING GET RESPONSES!")
           oversteppedValidateToken.set(true)
           throw new Exception("OVERSTEPPED BOUNDARIES")
-        }
         case Some(Left(x)) => x
         case Some(Right(x)) => throw x
       }
@@ -102,7 +101,7 @@ trait MockedAkkaServiceClient {
   }
 
   def mockAkkaAdminTokenResponses(responses: Seq[AkkaParent]): Unit = {
-    mockAkkaServiceClient.postResponses ++= responses.reverse.map {
+    mockAkkaServiceClient.postResponses ++= responses.reverseMap {
       case x: ServiceClientResponse => Left(x)
       case x: AkkaServiceClientException => Right(x)
     }

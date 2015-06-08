@@ -711,6 +711,4 @@ with MockedAkkaServiceClient {
       pending
     }
   }
-
-
 }
