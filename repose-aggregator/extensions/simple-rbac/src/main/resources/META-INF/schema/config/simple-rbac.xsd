@@ -79,6 +79,17 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="enable-api-coverage" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true, this filter will record, via JMX, the number of times each state in the
+                        generated state machine (the underlying mechanism) is accessed. These values may
+                        be used to determine api usage and coverage.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="dot-output" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
