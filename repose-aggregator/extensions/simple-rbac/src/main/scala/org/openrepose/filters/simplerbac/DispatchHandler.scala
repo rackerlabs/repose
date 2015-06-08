@@ -19,15 +19,14 @@
  */
 package org.openrepose.filters.simplerbac
 
+import javax.servlet.FilterChain
+
 import com.rackspace.com.papi.components.checker.Validator
 import com.rackspace.com.papi.components.checker.handler.ResultHandler
-import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest
-import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse
+import com.rackspace.com.papi.components.checker.servlet.{CheckerServletRequest, CheckerServletResponse}
+import com.rackspace.com.papi.components.checker.step.base.{Step, StepContext}
 import com.rackspace.com.papi.components.checker.step.results.Result
-import com.rackspace.com.papi.components.checker.step.base.Step
-import com.rackspace.com.papi.components.checker.step.base.StepContext
 import org.w3c.dom.Document
-import javax.servlet.FilterChain
 
 class DispatchHandler(handlers: ResultHandler*) extends ResultHandler {
 
@@ -39,9 +38,7 @@ class DispatchHandler(handlers: ResultHandler*) extends ResultHandler {
     Option(handlers).getOrElse(List.empty[ResultHandler]).foreach(_.handle(request, response, chain, result))
   }
 
-  override def inStep(currentStep: Step, request: CheckerServletRequest, response: CheckerServletResponse, context: StepContext): StepContext = {
-    var newContext: StepContext = context
-    Option(handlers).getOrElse(List.empty[ResultHandler]).foreach(handler => newContext = handler.inStep(currentStep, request, response, newContext))
-    newContext
+  override def inStep(currentStep: Step, request: CheckerServletRequest, response: CheckerServletResponse, currentContext: StepContext): StepContext = {
+    Option(handlers).getOrElse(List.empty[ResultHandler]).foldLeft(currentContext)((context, handler) => handler.inStep(currentStep, request, response, context))
   }
 }
