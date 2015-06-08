@@ -123,7 +123,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
         qualityParameters.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
       }
       catch {
-        case e :NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
+        case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
       }
     }
 

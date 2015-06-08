@@ -41,8 +41,8 @@ import scala.io.Source
  */
 @RunWith(classOf[JUnitRunner])
 class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Matchers {
-  var wrappedRequest :HttpServletRequestWrapper = _
-  val headerMap :Map[String, List[String]] = Map(
+  var wrappedRequest: HttpServletRequestWrapper = _
+  val headerMap: Map[String, List[String]] = Map(
     "foo" -> List("bar", "baz"),
     "banana-phone" -> List("ring,ring,ring"),
     "cup" -> List("blue,orange;q=0.5"),
@@ -64,57 +64,57 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the getInputStream method") {
     it("tests that the body matches") {
-      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      val output: String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
     }
 
     it("tests the body is consumed after one call to getInputStream") {
-      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      val output: String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
-      val output2 :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      val output2: String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output2 shouldBe ""
     }
 
     it("tests IllegalStateException is thrown if getReader is already called") {
-      val br :BufferedReader = wrappedRequest.getReader
-      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      val br: BufferedReader = wrappedRequest.getReader
+      val output: String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
       output shouldBe "i like pieyummy yummy"
-      an [IllegalStateException] should be thrownBy Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      an[IllegalStateException] should be thrownBy Source.fromInputStream(wrappedRequest.getInputStream).mkString
     }
 
     it("tests IOException is thrown") {
-      val is :ServletInputStream = wrappedRequest.getInputStream
+      val is: ServletInputStream = wrappedRequest.getInputStream
       is.close
-      an [IOException] should be thrownBy is.reset
+      an[IOException] should be thrownBy is.reset
     }
   }
 
   describe("the getReader method") {
     it("tests that the body matches") {
-      val br :BufferedReader = wrappedRequest.getReader
-      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      val br: BufferedReader = wrappedRequest.getReader
+      val output: String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
       output shouldBe "i like pieyummy yummy"
     }
 
     it("tests the body is consumed after one call to getReader") {
-      val br :BufferedReader = wrappedRequest.getReader
-      val output :String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
+      val br: BufferedReader = wrappedRequest.getReader
+      val output: String = Stream.continually(br.readLine()).takeWhile(_ != null).mkString
       output shouldBe "i like pieyummy yummy"
-      val br2 :BufferedReader = wrappedRequest.getReader
-      val output2 :String = Stream.continually(br2.readLine()).takeWhile(_ != null).mkString
+      val br2: BufferedReader = wrappedRequest.getReader
+      val output2: String = Stream.continually(br2.readLine()).takeWhile(_ != null).mkString
       output2 shouldBe ""
     }
 
     it("tests IllegalStateException is thrown if getInputStream is already called") {
-      val output :String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
+      val output: String = Source.fromInputStream(wrappedRequest.getInputStream).mkString
       output shouldBe "i like pie\nyummy yummy\n"
-      an [IllegalStateException] should be thrownBy wrappedRequest.getReader
+      an[IllegalStateException] should be thrownBy wrappedRequest.getReader
     }
 
     it("tests IOException is thrown") {
-      val br :BufferedReader = wrappedRequest.getReader
+      val br: BufferedReader = wrappedRequest.getReader
       br.close
-      an [IOException] should be thrownBy br.reset
+      an[IOException] should be thrownBy br.reset
     }
   }
 
@@ -130,7 +130,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should return a list that is missing any deleted headers") {
       wrappedRequest.removeHeader("foo")
-      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+      wrappedRequest.getHeaderNamesScala should contain theSameElementsAs headerMap.keys.filterNot(_ == "foo")
     }
 
     it("should return the same list when Foo is added") {
@@ -151,7 +151,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should return a list that is missing any deleted headers") {
       wrappedRequest.removeHeader("foo")
-      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+      wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys.filterNot(_ == "foo")
     }
 
     it("should return the same list when Foo is added") {
@@ -170,7 +170,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should throw an exception when the header isn't an int") {
-      a [NumberFormatException] should be thrownBy wrappedRequest.getIntHeader("cup")
+      a[NumberFormatException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
 
     it("should provide a value for an added header") {
@@ -236,7 +236,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should throw IllegalArgumentException if value is not a Date") {
-      an [IllegalArgumentException] should be thrownBy wrappedRequest.getIntHeader("cup")
+      an[IllegalArgumentException] should be thrownBy wrappedRequest.getIntHeader("cup")
     }
 
     it("should provide a value for an added header in RFC1123") {
@@ -312,7 +312,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should not included removed headers") {
       wrappedRequest.removeHeader("foo")
-      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs headerMap.keys.filterNot( _ == "foo")
+      wrappedRequest.getHeaderNamesList.asScala should contain theSameElementsAs headerMap.keys.filterNot(_ == "foo")
     }
   }
 
@@ -352,7 +352,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("the addHeader method") {
     it("Should add an additional value to an existing header") {
-      val headerList :List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
+      val headerList: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       wrappedRequest.addHeader("foo", "foo")
       val returnedValues: List[String] = wrappedRequest.getHeadersList("foo").asScala.toList
       returnedValues.size shouldBe headerList.size + 1
@@ -584,7 +584,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should throw an exception when quality becomes unreadable in a single line") {
       wrappedRequest.appendHeader("ornament", "star", 0.95)
-      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredHeader("ornament")
+      a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredHeader("ornament")
     }
 
     it("should return an added value when it's the only value") {
@@ -687,7 +687,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should throw an exception when quality is garbage") {
       wrappedRequest.addHeader("cup", "butts;q=butts")
-      a [QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeader("cup")
+      a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeader("cup")
     }
   }
 }
