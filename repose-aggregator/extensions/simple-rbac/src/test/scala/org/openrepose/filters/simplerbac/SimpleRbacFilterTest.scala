@@ -24,7 +24,6 @@ import java.io.File
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED, SC_NOT_FOUND, SC_OK}
 
 import com.mockrunner.mock.web.MockFilterConfig
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -41,7 +40,7 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar with LazyLogging {
+class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar {
   var filter: SimpleRbacFilter = _
   var config: SimpleRbacConfig = _
   var servletRequest: MockHttpServletRequest = _
@@ -80,53 +79,53 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
   describe("when the configuration is updated") {
     it("should have a default Delegation Type") {
       Given("an un-initialized filter and the default configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
 
       When("the configuration is updated")
       filter.configurationUpdated(config)
 
       Then("the Delegating Type should be default")
-      assert(filter.configuration.getDelegating == null)
+      filter.configuration.getDelegating shouldBe null
     }
     it("should have a default Delegation Quality") {
       Given("an un-initialized filter and the default configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
 
       When("the Delegating Type is set with a default and the configuration is updated")
       config.setDelegating(new DelegatingType)
       filter.configurationUpdated(config)
 
       Then("the Delegating Quality should be default")
-      assert(filter.configuration.getDelegating.getQuality == .3)
+      filter.configuration.getDelegating.getQuality shouldBe .3
     }
     it("should have a default Roles Header Name") {
       Given("an un-initialized filter and the default configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
 
       When("the configuration is updated")
       filter.configurationUpdated(config)
 
       Then("the Roles Header Name should be default")
-      assert(filter.configuration.getRolesHeaderName == "X-ROLES")
+      filter.configuration.getRolesHeaderName shouldBe "X-ROLES"
     }
     it("should have a default Enable Masking 403's") {
       Given("an un-initialized filter and the default configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
 
       When("the configuration is updated")
       filter.configurationUpdated(config)
 
       Then("the Enable Masking 403's should be default")
-      assert(!filter.configuration.isEnableMasking403S)
+      !filter.configuration.isEnableMasking403S
     }
     it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
       Given("an un-initialized filter and a modified configuration")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       val configuration = new SimpleRbacConfig
       val delegatingType = new DelegatingType
       delegatingType.setQuality(1.0d)
@@ -139,19 +138,19 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(configuration)
 
       Then("the filter's configuration should be modified")
-      assert(filter.isInitialized)
-      assert(filter.configuration == configuration)
-      assert(filter.configuration.getDelegating.getQuality == 1.0d)
-      assert(filter.configuration.getRolesHeaderName == "NEW-HEADER-NAME")
-      assert(filter.configuration.isEnableMasking403S)
+      filter.isInitialized)
+      filter.configuration shouldBe configuration
+      filter.configuration.getDelegating.getQuality shouldBe 1.0d
+      filter.configuration.getRolesHeaderName shouldBe "NEW-HEADER-NAME"
+      filter.configuration.isEnableMasking403S
     }
   }
 
   describe("when initializing the filter") {
     it("should initialize the configuration to the default configuration") {
       Given("an un-initialized filter and a mock'd Filter Config")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       mockFilterConfig.setFilterName("SimpleRbacFilter")
       val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
 
@@ -166,12 +165,12 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         Matchers.eq(filter),
         Matchers.eq(classOf[SimpleRbacConfig]))
 
-      assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/simple-rbac.xsd"))
+      resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/simple-rbac.xsd")
     }
     it("should initialize the configuration to the given configuration") {
       Given("an un-initialized filter and a mock'd Filter Config")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized")
@@ -190,8 +189,8 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
   describe("when destroying the filter") {
     it("should unregister the configuration from the configuration service") {
       Given("an un-initialized filter and a mock'd Filter Config")
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized and destroyed")
@@ -208,8 +207,8 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       Given("an un-initialized filter and a configuration with a malformed resource in the list")
       val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
       val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       config.setResources(
         """
           |/path/to/good  ALL       ANY
@@ -221,7 +220,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(config)
 
       Then("the filter's configuration should be modified")
-      assert(filter.isInitialized)
+      filter.isInitialized
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
       events.count(_.contains("Malformed RBAC Resource: ")) shouldBe 1
     }
@@ -232,8 +231,8 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       Given("an un-initialized filter and a configuration with the resources in a file")
       val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
       val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
-      assert(filter.configuration == null)
-      assert(!filter.isInitialized)
+      filter.configuration shouldBe null
+      !filter.isInitialized
       val configuration = new SimpleRbacConfig
       val rbacFileName = "/rbac/test.rbac"
       configuration.setResourcesFileName(rbacFileName)
@@ -247,7 +246,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(configuration)
 
       Then("the filter's configuration should be modified")
-      assert(filter.isInitialized)
+      filter.isInitialized
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
       events.count(_.contains("Malformed RBAC Resource: /path/to/file")) shouldBe 1
     }
