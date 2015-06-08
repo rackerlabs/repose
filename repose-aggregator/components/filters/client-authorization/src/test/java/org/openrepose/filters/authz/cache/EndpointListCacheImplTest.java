@@ -74,7 +74,7 @@ public class EndpointListCacheImplTest {
         }
 
         @Test
-        public void shouldGetCachedEnpointLists() throws Exception {
+        public void shouldGetCachedEndpointLists() throws Exception {
             final List<CachedEndpoint> endpointList = cache.getCachedEndpointsForToken(CACHED_TOKEN);
 
             assertNotNull("Cached endpoint list must not be null", endpointList);
@@ -83,6 +83,9 @@ public class EndpointListCacheImplTest {
             final CachedEndpoint onlyEndpoint = endpointList.get(0);
 
             assertEquals("Cache must return valid endpoints", PUBLIC_URL, onlyEndpoint.getPublicUrl());
+            assertEquals("Cache must return valid endpoint region", REGION, onlyEndpoint.getRegion());
+            assertEquals("Cache must return valid endpoint name", NAME, onlyEndpoint.getName());
+            assertEquals("Cache must return valid endpoint type", TYPE, onlyEndpoint.getType());
         }
 
         @Test
