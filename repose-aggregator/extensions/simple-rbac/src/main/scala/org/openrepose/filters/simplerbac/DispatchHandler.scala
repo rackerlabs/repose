@@ -32,35 +32,16 @@ import javax.servlet.FilterChain
 class DispatchHandler(handlers: ResultHandler*) extends ResultHandler {
 
   def init(vldtr: Validator, option: Option[Document]) {
-    Option(handlers) match {
-      case Some(h) => h.foreach(_.init(vldtr, option))
-      case _ =>
-    }
+    Option(handlers).getOrElse(List.empty[ResultHandler]).foreach(_.init(vldtr, option))
   }
 
   def handle(request: CheckerServletRequest, response: CheckerServletResponse, chain: FilterChain, result: Result) {
-    Option(handlers) match {
-      case Some(h) => h.foreach(_.handle(request, response, chain, result))
-      case _ =>
-    }
+    Option(handlers).getOrElse(List.empty[ResultHandler]).foreach(_.handle(request, response, chain, result))
   }
 
   override def inStep(currentStep: Step, request: CheckerServletRequest, response: CheckerServletResponse, context: StepContext): StepContext = {
     var newContext: StepContext = context
-    if (handlers != null) {
-      for (handler <- handlers) {
-        newContext = handler.inStep(currentStep, request, response, newContext)
-      }
-    }
-    newContext
-  }
-
-  /*override*/ def inStepBroke(currentStep: Step, request: CheckerServletRequest, response: CheckerServletResponse, context: StepContext): StepContext = {
-    var newContext: StepContext = context
-    Option(handlers) match {
-      case Some(h) => //h.foreach(newContext = _.inStep(currentStep, request, response, newContext))
-      case _ =>
-    }
+    Option(handlers).getOrElse(List.empty[ResultHandler]).foreach(handler => newContext = handler.inStep(currentStep, request, response, newContext))
     newContext
   }
 }
