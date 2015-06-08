@@ -158,6 +158,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.addHeader("Foo", "foo")
       wrappedRequest.getHeaderNames.asScala.toList should contain theSameElementsAs headerMap.keys
     }
+
+    it("should return empty enumeration") {
+      val mockRequest = new MockHttpServletRequest
+      wrappedRequest = new HttpServletRequestWrapper(mockRequest)
+      wrappedRequest.getHeaderNames.hasMoreElements shouldBe false
+    }
   }
 
   describe("the getIntHeader method") {
