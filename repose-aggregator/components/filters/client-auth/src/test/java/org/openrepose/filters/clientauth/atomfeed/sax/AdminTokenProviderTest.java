@@ -96,8 +96,6 @@ public class AdminTokenProviderTest {
 
     @Test
     public void shouldRetrieveAdminToken() throws Exception {
-
-
         JAXBContext coreJaxbContext = JAXBContext.newInstance(
                 org.openstack.docs.identity.api.v2.ObjectFactory.class,
                 com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
@@ -117,6 +115,30 @@ public class AdminTokenProviderTest {
         provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
 
         String adminToken = provider.getAdminToken();
+        assertTrue(adminToken.equals("tokenid"));
+    }
+
+    @Test
+    public void shouldRetrieveFreshAdminToken() throws Exception {
+        JAXBContext coreJaxbContext = JAXBContext.newInstance(
+                org.openstack.docs.identity.api.v2.ObjectFactory.class,
+                com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        AuthenticateResponse response = getServiceResponse();
+        ObjectFactory factory = new ObjectFactory();
+        Marshaller marshaller = coreJaxbContext.createMarshaller();
+        marshaller.marshal(factory.createAccess(response), baos);
+
+        baos.flush();
+        baos.close();
+
+        InputStream is = new ByteArrayInputStream(baos.toByteArray());
+        ServiceClientResponse resp = new ServiceClientResponse(200, is);
+        when(client.post(anyString(), anyString(), anyMapOf(String.class, String.class), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
+        provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
+
+        String adminToken = provider.getFreshAdminToken();
         assertTrue(adminToken.equals("tokenid"));
     }
 }
