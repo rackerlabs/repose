@@ -39,7 +39,6 @@ import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, Mut
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.filters.apivalidator.DispatchHandler
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
 import org.springframework.beans.factory.annotation.Value
 
