@@ -142,6 +142,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           )
         }
        logger.error("Unable to generate the WADL; check the provided resources.")
+      case _ =>
     }
   }
 
@@ -153,8 +154,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       case Some(delegating) =>
         handlers.add(new MethodLabelHandler)
         handlers.add(new DelegationHandler(delegating.getQuality))
-        handlers.add(new ServletResultHandler)
       case _ =>
+        handlers.add(new ServletResultHandler)
     }
     if (configuration.isEnableApiCoverage) {
       handlers.add(new InstrumentedHandler)
@@ -275,7 +276,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  def clearValidator() {
+  private def clearValidator() {
     Option(validator) match {
       case Some(_) =>
         logger.debug (s"Destroying: $validator. From thread {}", Thread.currentThread.getName)
@@ -285,7 +286,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  def reinitValidator(name : String, source : javax.xml.transform.Source, config : com.rackspace.com.papi.components.checker.Config): Boolean = {
+  private def reinitValidator(name : String, source : javax.xml.transform.Source, config : com.rackspace.com.papi.components.checker.Config): Boolean = {
     clearValidator()
     initValidator(name, source, config)
   }

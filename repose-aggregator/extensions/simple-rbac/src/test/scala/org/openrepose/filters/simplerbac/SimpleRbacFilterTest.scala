@@ -76,6 +76,10 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     )
   }
 
+  after {
+    if (filter.isInitialized) filter.destroy()
+  }
+
   describe("when the configuration is updated") {
     it("should have a default Delegation Type") {
       Given("an un-initialized filter and the default configuration")
@@ -138,7 +142,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(configuration)
 
       Then("the filter's configuration should be modified")
-      filter.isInitialized)
+      filter.isInitialized
       filter.configuration shouldBe configuration
       filter.configuration.getDelegating.getQuality shouldBe 1.0d
       filter.configuration.getRolesHeaderName shouldBe "NEW-HEADER-NAME"
