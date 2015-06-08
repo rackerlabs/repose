@@ -66,6 +66,15 @@ public class DatastoreServiceImplTest {
     }
 
     @Test
+    public void shouldDeleteAllDataStores() {
+        datastoreService.distributedManagers.put("foo", remoteManager)
+        assertNotNull(datastoreService.getDatastore("foo"));
+        datastoreService.destroy();
+        assertNull(datastoreService.getDatastore("foo"));
+        assertNull(datastoreService.getDistributedDatastore());
+    }
+
+    @Test
     public void shouldGetRemoteDatastoreByName() {
         datastoreService.distributedManagers.put("foo", remoteManager)
         assertNotNull(datastoreService.getDatastore("foo"));
@@ -83,5 +92,4 @@ public class DatastoreServiceImplTest {
 
         assertNotNull(availableDistributedDatastores);
     }
-
 }
