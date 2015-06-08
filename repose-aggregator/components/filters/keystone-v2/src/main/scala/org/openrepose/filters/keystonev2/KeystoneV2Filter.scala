@@ -118,7 +118,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     val whiteListMatch: Boolean = whiteListURIs.exists { uriList =>
       uriList.exists { pattern =>
-        logger.debug(s"checking ${request.getRequestURI} against ${pattern}")
+        logger.debug(s"checking ${request.getRequestURI} against $pattern")
         request.getRequestURI.matches(pattern)
       }
     }
@@ -160,22 +160,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
             val endpointDetails = endpointAuthorization(authToken, validToken)
             endpointDetails match {
-              case Some(Success(endpointVector)) => {
+              case Some(Success(endpointVector)) =>
                 //If I'm configured to put the endpoints into a x-catalog do it
                 //Do more things in here
                 val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
                 Pass(groupsHeader)
-
-              }
-              case Some(Failure(x)) => {
+              case Some(Failure(x)) =>
                 //Reject them with 403
                 Reject(SC_FORBIDDEN, failure = Some(x))
-              }
-              case None => {
+              case None =>
                 //Do more things in here
                 val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
                 Pass(groupsHeader)
-              }
             }
           case Failure(x: IdentityAdminTokenException) =>
             Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
@@ -196,17 +192,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       case rejection: Reject =>
         val message: Option[String] = rejection match {
           case Reject(_, Some(x), _) => Some(x)
-          case Reject(code, None, Some(failure)) => {
+          case Reject(code, None, Some(failure)) =>
             logger.debug(s"Rejecting with status $code", failure)
             Some(failure.getMessage)
-          }
           case _ => None
         }
-        message.map { m =>
-          logger.debug(s"Rejection message: $m")
-          response.sendError(rejection.status, m)
-        } getOrElse {
-          response.sendError(rejection.status)
+        message match {
+          case Some(m) =>
+            logger.debug(s"Rejection message: $m")
+            response.sendError(rejection.status, m)
+          case None => response.sendError(rejection.status)
         }
 
       case p: Pass =>
@@ -261,7 +256,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       identityEndpoint,
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)
     ) match {
-      case Success(serviceClientResponse) => {
+      case Success(serviceClientResponse) =>
         //DEAL WITH IT
         //Parse the response for validating a token?
         logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
@@ -273,14 +268,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case SC_BAD_REQUEST => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
-          case SC_NOT_FOUND => {
+          case SC_NOT_FOUND =>
             datastore.put(token, InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
             Success(InvalidToken)
-          }
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
         }
-      }
       case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
     }
   }
@@ -320,7 +313,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       ))
 
       akkaResponse match {
-        case Success(x) => {
+        case Success(x) =>
           val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
           val json = Json.parse(jsonResponse)
           Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
@@ -329,7 +322,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               s
             case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
           }
-        }
         case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
       }
     }
