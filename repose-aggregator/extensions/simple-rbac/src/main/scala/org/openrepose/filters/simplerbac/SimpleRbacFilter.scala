@@ -62,6 +62,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
   var initialized = false
   var validator: Validator = _
   val config = new Config
+  val validatorLock = new AnyRef
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -78,6 +79,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
   override def destroy(): Unit = {
     configurationService.unsubscribeFrom(configurationFile, this)
+    clearValidator()
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
@@ -89,7 +91,9 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
       logger.trace("Simple RBAC filter processing request...")
-      validator.validate(mutableHttpRequest,mutableHttpResponse,filterChain)
+      validatorLock synchronized {
+        validator.validate(mutableHttpRequest, mutableHttpResponse, filterChain)
+      }
     }
     logger.trace("Simple RBAC filter returning response...")
   }
@@ -103,44 +107,41 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
     val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
       Option(configuration.getResourcesFileName: String) match {
-        case Some(n) =>
+        case Some(fileName) =>
           rbacToWadl(readResource(
-              configurationService.getResourceResolver.resolve(n).newInputStream()
+              configurationService.getResourceResolver.resolve(fileName).newInputStream()
           ))
-        case _ =>
-          None
+        case _ => None
       }
     )
     rbacWadl match {
-      case Some(r) =>
+      case Some(wadl) =>
         Option(configuration.getWadlOutput: String) match {
           case Some(wadlOutput) =>
             val wadlPath: Path = Paths.get(StringUriUtilities.formatUri(getPath(wadlOutput, configurationRoot))).toAbsolutePath
             try {
               if (Files.exists(wadlPath) && Files.isWritable(wadlPath) || !Files.exists(wadlPath) && Files.createFile(wadlPath) != null) {
-                Files.write(wadlPath, r.getBytes)
+                Files.write(wadlPath, wadl.getBytes)
                 logger.debug("Saved WADL to: " + wadlPath)
               } else {
                 logger.warn("Cannot write to WADL file: " + wadlPath)
-                logger.debug(s"Generated WADL:\n\n$r\n")
+                logger.debug(s"Generated WADL:\n\n$wadl\n")
               }
             } catch {
               case ex: IOException =>
                 logger.warn("Cannot write to WADL file: " + wadlPath, ex)
-                logger.debug(s"Generated WADL:\n\n$r\n")
+                logger.debug(s"Generated WADL:\n\n$wadl\n")
             }
-          case _ =>
-            logger.debug(s"Generated WADL:\n\n$r\n")
+           logger.debug(s"Generated WADL:\n\n$wadl\n")
         }
-        val uuid = UUID.randomUUID
-        validator = Validator.apply(
-          s"SimpleRbacValidator_$uuid",
-          new StreamSource(new ByteArrayInputStream(r.getBytes), "file://simple-rbac.wadl"),
-          config
-        )
-        initialized = true
-      case _ =>
-        logger.warn("Unable to generate the WADL; check the provided resources.")
+        validatorLock synchronized {
+          initialized = reinitValidator(
+            s"SimpleRbacValidator",
+            new StreamSource(new ByteArrayInputStream(wadl.getBytes), "file://simple-rbac.wadl"),
+            config
+          )
+        }
+       logger.error("Unable to generate the WADL; check the provided resources.")
     }
   }
 
@@ -149,18 +150,19 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
   private def getHandlers: DispatchHandler = {
     val handlers: util.List[ResultHandler] = new util.ArrayList[ResultHandler]
     Option(configuration.getDelegating) match {
-      case Some(d) =>
+      case Some(delegating) =>
         handlers.add(new MethodLabelHandler)
-        handlers.add(new DelegationHandler(d.getQuality))
-      case _ =>
-        handlers.add(new ServletResultHandler)
+        handlers.add(new DelegationHandler(delegating.getQuality))
+       handlers.add(new ServletResultHandler)
     }
-    handlers.add(new InstrumentedHandler)
-    handlers.add(new ApiCoverageHandler)
+    if (configuration.isEnableApiCoverage) {
+      handlers.add(new InstrumentedHandler)
+      handlers.add(new ApiCoverageHandler)
+    }
     Option(configuration.getDotOutput) match {
-      case Some(d) =>
-        if (StringUtils.isNotBlank(d)) {
-          val dotPath: String = StringUriUtilities.formatUri(getPath(d, configurationRoot))
+      case Some(dotName) =>
+        if (StringUtils.isNotBlank(dotName)) {
+          val dotPath: String = StringUriUtilities.formatUri(getPath(dotName, configurationRoot))
           val out: File = new File(dotPath)
           try {
             if (out.exists && out.canWrite || !out.exists && out.createNewFile) {
@@ -210,10 +212,9 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     }
 
     val parsed = rbac match {
-      case Some(l) =>
-        Some(l.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
-      case _ =>
-        None
+      case Some(lines) =>
+        Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.map(parseLine))
+      case _ => None
     }
 
     parsed match {
@@ -223,29 +224,28 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                         |         xmlns="http://wadl.dev.java.net/2009/02"
                         |    >
                         |  <resources base="http://localhost">""".stripMargin
-        val resources = parsed.getOrElse(List.empty[Resource]).map { r =>
+        val resources = parsed.getOrElse(List.empty[Resource]).map { resource =>
           def toMethods(resource: Resource, uuid: UUID) = {
             val roles = resource.roles.mkString(" ")
             val raxRoles = roles match {
-              case a if roles.equalsIgnoreCase("ANY") || roles.equalsIgnoreCase("ALL") => ""
-              case _ =>
-                s"""rax:roles="$roles""""
+              case anyAll if roles.equalsIgnoreCase("ANY") || roles.equalsIgnoreCase("ALL") => ""
+              case _ => s"""rax:roles="$roles""""
             }
             resource.methods.map {
               _ match {
-                case a if a.equalsIgnoreCase("ANY") || a.equalsIgnoreCase("ALL") =>
+                case anyAll if anyAll.equalsIgnoreCase("ANY") || anyAll.equalsIgnoreCase("ALL") =>
                   s"""      <method name="GET"    id="_$uuid-GET"    $raxRoles/>
                      |      <method name="PUT"    id="_$uuid-PUT"    $raxRoles/>
                      |      <method name="POST"   id="_$uuid-POST"   $raxRoles/>
                      |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles/>""".stripMargin
-                case m =>
-                  s"""      <method name="$m"   id="_$uuid-$m"    $raxRoles/>"""
+                case method =>
+                  s"""      <method name="$method"   id="_$uuid-$method"    $raxRoles/>"""
               }
             }.mkString("\n")
           }
-          val path = r.path
+          val path = resource.path
           val uuid = UUID.randomUUID
-          val methods = toMethods(r, uuid)
+          val methods = toMethods(resource, uuid)
           s"""    <resource id="_$uuid" path=\"$path">
              |$methods
              |    </resource>""".stripMargin
@@ -254,8 +254,38 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                         |</application>""".stripMargin
 
         Some(s"$header\n$resources\n$footer")
-      case _ =>
-        None
+      case _ => None
     }
+  }
+
+  private def initValidator(name : String, source : javax.xml.transform.Source, config : com.rackspace.com.papi.components.checker.Config): Boolean = {
+    Option(validator) match {
+      case Some(_) => true
+      case _ =>
+        try {
+          logger.debug(s"Calling the validator creation method for $name. From thread {}", Thread.currentThread.getName)
+          validator = Validator.apply(name + System.currentTimeMillis, source, config)
+          true
+        } catch {
+          case ex: Throwable =>
+            logger.warn("Error loading validator for WADL!!! ", ex)
+            false
+        }
+    }
+  }
+
+  def clearValidator() {
+    Option(validator) match {
+      case Some(_) =>
+        logger.debug (s"Destroying: $validator. From thread {}", Thread.currentThread.getName)
+        validator.destroy
+        validator = null
+      case _ =>
+    }
+  }
+
+  def reinitValidator(name : String, source : javax.xml.transform.Source, config : com.rackspace.com.papi.components.checker.Config): Boolean = {
+    clearValidator()
+    initValidator(name, source, config)
   }
 }
