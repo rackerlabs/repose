@@ -24,6 +24,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
@@ -123,8 +124,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
-    //Pull in the status codes, because I'm using them a bunch
-    import HttpServletResponse._
 
     //Get the authenticating token!
     val result: KeystoneV2Result = if (whiteListMatch) {
@@ -268,18 +267,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
         logger.debug(s"Admin Token: $authenticatingToken")
         serviceClientResponse.getStatus match {
-          //TODO: magic numbers?
-          case 200 | 203 =>
+          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
             //Extract the groups from the JSON and stick it in the ValidToken result
             extractUserInformation(serviceClientResponse.getData)
-          case 400 => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
-          case 401 => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
-          case 403 => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
-          case 404 => {
+          case SC_BAD_REQUEST => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
+          case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
+          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
+          case SC_NOT_FOUND => {
             datastore.put(token, InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
             Success(InvalidToken)
           }
-          case 503 => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
+          case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
         }
       }
@@ -399,9 +397,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
-          case 200 | 203 => extractEndpointInfo(serviceClientResponse.getData)
-          case 403 => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
-          case 401 => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
+          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION => extractEndpointInfo(serviceClientResponse.getData)
+          case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
+          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
         }
       case Failure(x) => Failure(x)
     }
