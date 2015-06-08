@@ -17,30 +17,28 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.Keystonev2
+package org.openrepose.filters.keystonev2
 
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{PowerApiHeader, ServiceClientResponse, CommonHttpHeader}
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, MutableHttpServletRequest}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, PowerApiHeader}
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.keystonev2.config.{ServiceEndpointType, CacheTimeoutsType, CacheSettingsType, KeystoneV2Config}
+import org.openrepose.filters.keystonev2.config.{CacheSettingsType, CacheTimeoutsType, KeystoneV2Config, ServiceEndpointType}
 
-import scala.annotation.tailrec
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 

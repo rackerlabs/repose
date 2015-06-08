@@ -6,10 +6,8 @@ import javax.servlet.http.HttpServletRequest
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.filters.Keystonev2.KeystoneV2Filter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
