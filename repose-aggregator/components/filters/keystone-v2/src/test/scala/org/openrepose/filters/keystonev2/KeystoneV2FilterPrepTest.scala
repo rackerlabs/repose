@@ -8,7 +8,6 @@ import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.Keystonev2.KeystoneV2Filter
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
