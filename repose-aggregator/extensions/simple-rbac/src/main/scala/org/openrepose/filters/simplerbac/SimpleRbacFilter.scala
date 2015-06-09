@@ -61,7 +61,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
   var initialized = false
   var validator: Validator = _
   val config = new Config
-  val validatorLock = new AnyRef
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -90,9 +89,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
       logger.trace("Simple RBAC filter processing request...")
-      validatorLock synchronized {
-        validator.validate(mutableHttpRequest, mutableHttpResponse, filterChain)
-      }
+      validator.validate(mutableHttpRequest, mutableHttpResponse, filterChain)
     }
     logger.trace("Simple RBAC filter returning response...")
   }
@@ -134,13 +131,11 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
            logger.debug(s"Generated WADL:\n\n$wadl\n")
           case _ =>
         }
-        validatorLock synchronized {
-          initialized = reinitValidator(
-            s"SimpleRbacValidator",
-            new StreamSource(new ByteArrayInputStream(wadl.getBytes), "file://simple-rbac.wadl"),
-            config
-          )
-        }
+        initialized = reinitValidator(
+          s"SimpleRbacValidator",
+          new StreamSource(new ByteArrayInputStream(wadl.getBytes), "file://simple-rbac.wadl"),
+          config
+        )
        logger.error("Unable to generate the WADL; check the provided resources.")
       case _ =>
     }
