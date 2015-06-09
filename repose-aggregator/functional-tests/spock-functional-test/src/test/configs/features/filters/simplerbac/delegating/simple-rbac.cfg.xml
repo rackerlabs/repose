@@ -2,10 +2,9 @@
 
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-ROLES"
-             enable-masking-403s="false">
+             mask-rax-roles-403="false">
     <delegating quality="0.5" />
     <resources>
-        [<![CDATA[
 /path/to/this  GET       super,useradmin,admin,user
 /path/to/this  PUT       super,useradmin,admin
 /path/to/this  POST      super,useradmin
@@ -13,6 +12,5 @@
 /path/to/that  GET,PUT   ANY
 /path/to/that  ALL       super
 /path/to/test  GET,POST  user,useradmin
-        ]]>
     </resources>
 </simple-rbac>

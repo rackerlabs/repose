@@ -25,7 +25,6 @@
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           xmlns:rbac="http://docs.openrepose.org/repose/simple-rbac/v1.0"
            xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/simple-rbac/v1.0"
            elementFormDefault="qualified">
@@ -43,15 +42,7 @@
 
         <xs:sequence>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="resources" type="xs:string" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            This is a list of resources, HTTP methods, and roles allowed to access them.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
+            <xs:element name="resources" type="ResourcesType" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="roles-header-name" type="xs:string" use="optional" default="X-ROLES">
@@ -63,19 +54,15 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="resources-file-name" type="xs:string" use="optional">
+        <xs:attribute name="mask-rax-roles-403" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        This is the name of a file containing a list of resources, HTTP methods, and roles allowed to access them.
+                        Mask rax-roles with NOT FOUND (404) and METHOD NOT ALLOWED (405) errors.
+                        By default rax-roles responds with a FORBIDDEN (403) if there is a role mismatch,
+                        if this is set to true, then the response will be NOT FOUND (404) if no methods are
+                        accessible or METHOD NOT ALLOWED (405) if some methods are available.
                     </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="enable-masking-403s" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Instead of returning a FORBIDDEN (403), return a NOT FOUND (404) or METHOD NOT ALLOWED (405) as appropriate.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -112,11 +99,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <!-- http://stackoverflow.com/a/16674043/423218 -->
-        <xs:assert vc:minVersion="1.1" test="count((@resources-file-name, ./rbac:resources)) = 1"
-                   xerces:message="Exactly one of the resources attribute or resources element can be specified, but not both."
-                   saxon:message="Exactly one of the resources attribute or resources element can be specified, but not both."/>
     </xs:complexType>
 
     <xs:complexType name="DelegatingType">
@@ -142,6 +124,58 @@
         <xs:restriction base="xs:double">
             <xs:minInclusive value="0"/>
             <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ResourcesType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is a list of resources, HTTP methods, and roles allowed to access them.
+
+                    The special HTTP methods ANY and ALL are shorthand for the four standard REST methods
+                    (GET, PUT, POST, DELETE). Others methods are supported, but they may must be explicitly stated.
+                    If a given Resource line has the HTTP method of ANY/ALL, then only the four are utilized.
+                    If more methods need to be supported by a particular Resource, then put them on another Resource
+                    line.
+
+                    The Simple RBAC resources can be either linked via an href attribute or defined directly in this
+                    element.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="ResourcesString">
+                <xs:attribute name="href" type="xs:anyURI" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Specifies a location to an external file which contains the Simple RBAC resources.
+                                If the message element has a value and the href attribute is configured,
+                                Response Messaging Service will use what is configured with href to send the message.
+                                If the file to which an href attribute of a message element is pointed is modified,
+                                Response Messaging Service will need to reload the configurations to
+                                guarantee that the changes will appear in the responses.
+                                Any changes to the config file itself will cause a configuration reload.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:assert vc:minVersion="1.1" test="if (text()) then not (@href) else true()"
+                           xerces:message="Cannot define message inline and reference to external message file"
+                           saxon:message="Cannot define message inline and reference to external message file"/>
+                <xs:assert vc:minVersion="1.1" test="if (@href) then not (text()) else true()"
+                           xerces:message="Cannot define message inline and reference to external message file"
+                           saxon:message="Cannot define message inline and reference to external message file"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="ResourcesString">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="preserve"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

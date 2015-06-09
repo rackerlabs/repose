@@ -2,7 +2,8 @@
 
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-ROLES"
-             enable-masking-403s="true"
-             resources-file-name="test.rbac"
+             mask-rax-roles-403="true"
              wadl-output="test.wadl"
-             dot-output="test.dot"/>
+             dot-output="test.dot">
+    <resources href="test.rbac"/>
+</simple-rbac>

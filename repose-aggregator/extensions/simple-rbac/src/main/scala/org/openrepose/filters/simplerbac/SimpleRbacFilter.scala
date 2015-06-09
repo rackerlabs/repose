@@ -22,7 +22,6 @@ package org.openrepose.filters.simplerbac
 import java.io.{ByteArrayInputStream, File, IOException, InputStream}
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
-import java.util
 import java.util.UUID
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -42,7 +41,6 @@ import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.simplerbac.config.SimpleRbacConfig
 import org.springframework.beans.factory.annotation.Value
 
-import scala.collection.JavaConversions._
 import scala.io.Source
 import scala.util.Try
 
@@ -98,22 +96,20 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     configuration = configurationObject
     config.enableRaxRolesExtension = true
     config.checkPlainParams = true
-    config.maskRaxRoles403 = configuration.isEnableMasking403S
+    config.maskRaxRoles403 = configuration.isMaskRaxRoles403
     config.setResultHandler(getHandler)
 
-    val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
-      Option(configuration.getResourcesFileName: String) match {
-        case Some(fileName) =>
-          rbacToWadl(readResource(
-              configurationService.getResourceResolver.resolve(fileName).newInputStream()
-          ))
-        case _ => None
-      }
-    )
-    rbacWadl match {
-      case Some(wadl) =>
-        Option(configuration.getWadlOutput: String) match {
-          case Some(wadlOutput) =>
+    val rbacWadl = Option(configuration.getResources).flatMap { resources =>
+        rbacToWadl(Option(resources.getValue).filter(_.trim.nonEmpty)).orElse(
+          Option(resources.getHref).flatMap { fileName =>
+              rbacToWadl(readResource(
+                configurationService.getResourceResolver.resolve(fileName).newInputStream()
+              ))
+          }
+        )
+    }
+    rbacWadl.foreach { wadl =>
+        Option(configuration.getWadlOutput).foreach { wadlOutput =>
             val wadlPath: Path = Paths.get(StringUriUtilities.formatUri(getPath(wadlOutput, configurationRoot))).toAbsolutePath
             try {
               if (Files.exists(wadlPath) && Files.isWritable(wadlPath) || !Files.exists(wadlPath) && Files.createFile(wadlPath) != null) {
@@ -129,7 +125,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                 logger.debug(s"Generated WADL:\n\n$wadl\n")
             }
            logger.debug(s"Generated WADL:\n\n$wadl\n")
-          case _ =>
         }
         initialized = reinitValidator(
           s"SimpleRbacValidator",
@@ -137,7 +132,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           config
         )
        logger.error("Unable to generate the WADL; check the provided resources.")
-      case _ =>
     }
   }
 
@@ -156,8 +150,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       dispatchResultHandler.addHandler(new InstrumentedHandler)
       dispatchResultHandler.addHandler(new ApiCoverageHandler)
     }
-    Option(configuration.getDotOutput) match {
-      case Some(dotName) =>
+    Option(configuration.getDotOutput).foreach { dotName =>
         if (StringUtils.isNotBlank(dotName)) {
           val dotPath: String = StringUriUtilities.formatUri(getPath(dotName, configurationRoot))
           val out: File = new File(dotPath)
@@ -172,7 +165,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
               logger.warn("Cannot write to DOT file: " + dotPath, ex)
           }
         }
-      case _ =>
     }
     dispatchResultHandler
   }
@@ -208,14 +200,11 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    val parsed = rbac match {
-      case Some(lines) =>
+    val parsed = rbac.flatMap { lines =>
         Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
-      case _ => None
     }
 
-    parsed match {
-      case Some(values) =>
+    parsed.flatMap { values =>
         val header = s"""<application xmlns:rax="http://docs.rackspace.com/api"
                         |         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                         |         xmlns="http://wadl.dev.java.net/2009/02"
@@ -252,7 +241,6 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                         |</application>""".stripMargin
 
         Some(s"$header\n$resources\n$footer")
-      case _ => None
     }
   }
 

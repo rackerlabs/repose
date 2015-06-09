@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 import org.mockito.{Matchers, Mockito, ArgumentCaptor}
 import org.openrepose.commons.config.resource.{ConfigurationResource, ConfigurationResourceResolver}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.simplerbac.config.{DelegatingType, SimpleRbacConfig}
+import org.openrepose.filters.simplerbac.config.{ResourcesType, DelegatingType, SimpleRbacConfig}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -64,7 +64,8 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     config = new SimpleRbacConfig
     config.setWadlOutput("simple-rbac.wadl")
     config.setDotOutput("simple-rbac.dot")
-    config.setResources(
+    val resources = new ResourcesType
+    resources.setValue(
       """
         |/path/to/this  get       role1,role2,role3,role4
         |/path/to/this  PUT       role1,role2,role3
@@ -74,6 +75,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
         |/path/to/that  ALL       role1
         | """.stripMargin.trim()
     )
+    config.setResources(resources)
   }
 
   after {
@@ -124,7 +126,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configurationUpdated(config)
 
       Then("the Enable Masking 403's should be default")
-      !filter.configuration.isEnableMasking403S
+      !filter.configuration.isMaskRaxRoles403
     }
     it("should set the current configuration on the filter with the defaults initially and flag that it is initialized") {
       Given("an un-initialized filter and a modified configuration")
@@ -135,8 +137,10 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       delegatingType.setQuality(1.0d)
       configuration.setDelegating(delegatingType)
       configuration.setRolesHeaderName("NEW-HEADER-NAME")
-      configuration.setEnableMasking403S(true)
-      configuration.setResources("/path/to/good  ALL       ANY")
+      configuration.setMaskRaxRoles403(true)
+      val resources = new ResourcesType
+      resources.setValue("/path/to/good  ALL       ANY")
+      configuration.setResources(resources)
 
       When("the configuration is updated")
       filter.configurationUpdated(configuration)
@@ -146,7 +150,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       filter.configuration shouldBe configuration
       filter.configuration.getDelegating.getQuality shouldBe 1.0d
       filter.configuration.getRolesHeaderName shouldBe "NEW-HEADER-NAME"
-      filter.configuration.isEnableMasking403S
+      filter.configuration.isMaskRaxRoles403
     }
   }
 
@@ -213,12 +217,14 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
       filter.configuration shouldBe null
       !filter.isInitialized
-      config.setResources(
+      val resources = new ResourcesType
+      resources.setValue(
         """
           |/path/to/good  ALL       ANY
           |/path/to/bad   ALL
           | """.stripMargin.trim()
       )
+      config.setResources(resources)
 
       When("the configuration is updated")
       filter.configurationUpdated(config)
@@ -239,7 +245,9 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
       !filter.isInitialized
       val configuration = new SimpleRbacConfig
       val rbacFileName = "/rbac/test.rbac"
-      configuration.setResourcesFileName(rbacFileName)
+      val resources = new ResourcesType
+      resources.setHref(rbacFileName)
+      configuration.setResources(resources)
       val resourceResolver: ConfigurationResourceResolver = mock[ConfigurationResourceResolver]
       val configurationResource: ConfigurationResource = mock[ConfigurationResource]
       org.mockito.Mockito.when(configurationResource.newInputStream).thenReturn(this.getClass.getResourceAsStream(rbacFileName))
@@ -333,7 +341,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           servletRequest.setRequestURI("/path/to/this")
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, role)
-          config.setEnableMasking403S(isMasked)
+          config.setMaskRaxRoles403(isMasked)
           filter.configurationUpdated(config)
 
           When("the protected resource is requested")
@@ -365,7 +373,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           servletRequest.setRequestURI("/path/to/that")
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, role)
-          config.setEnableMasking403S(isMasked)
+          config.setMaskRaxRoles403(isMasked)
           filter.configurationUpdated(config)
 
           When("the request is to access a protected resource")
@@ -392,7 +400,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           Given("a request without roles")
           servletRequest.setRequestURI("/path/to/that")
           servletRequest.setMethod(method)
-          config.setEnableMasking403S(isMasked)
+          config.setMaskRaxRoles403(isMasked)
           filter.configurationUpdated(config)
 
           When("the request is to access a protected resource")
@@ -425,7 +433,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
           servletRequest.setMethod(method)
           servletRequest.addHeader(config.getRolesHeaderName, rolesa)
           servletRequest.addHeader(config.getRolesHeaderName, rolesb)
-          config.setEnableMasking403S(isMasked)
+          config.setMaskRaxRoles403(isMasked)
           filter.configurationUpdated(config)
 
           When("the request is to access a protected resource")
