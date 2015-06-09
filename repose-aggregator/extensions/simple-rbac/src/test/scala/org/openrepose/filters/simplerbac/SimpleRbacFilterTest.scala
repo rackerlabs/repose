@@ -256,6 +256,32 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
     }
   }
 
+  List((false, 0), (true, 1)).foreach { case (isEnabled, total) =>
+    val enableDis: Boolean => String = { boolean => if (boolean) "enables" else "disables" }
+    val enableShould: Boolean => String = { boolean => if (boolean) "should" else "should not" }
+    describe(s"when the configuration ${enableDis(isEnabled)} API Coverage") {
+      List("GET", "PUT", "POST", "DELETE").foreach { case (method) =>
+        it(s"${enableShould(isEnabled)} log the API Checker when enabled path when using HTTP method $method.") {
+          Given(s"a request using HTTP method $method")
+          val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+          val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
+          servletRequest.setRequestURI("/path/to/bad")
+          servletRequest.setMethod(method)
+          servletRequest.addHeader(config.getRolesHeaderName, "role1")
+          config.setEnableApiCoverage(isEnabled)
+          filter.configurationUpdated(config)
+
+          When("the resource is requested")
+          filter.doFilter(servletRequest, servletResponse, filterChain)
+
+          Then(s"the API Checker path ${enableShould(isEnabled)} be logged.")
+          val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
+          events.count(_.contains("{\"steps\":[\"S0\",\"")) shouldBe total
+        }
+      }
+    }
+  }
+
   describe(s"when attempting to access a resource that is not in the list") {
     List("GET", "PUT", "POST", "DELETE").foreach { case (method) =>
       it(s"should not allow the request to the resource when using HTTP method $method.") {
