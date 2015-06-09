@@ -102,7 +102,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     config.enableRaxRolesExtension = true
     config.checkPlainParams = true
     config.maskRaxRoles403 = configuration.isEnableMasking403S
-    config.setResultHandler(getHandlers)
+    config.setResultHandler(getHandler)
 
     val rbacWadl = rbacToWadl(Option(configuration.getResources)).orElse(
       Option(configuration.getResourcesFileName: String) match {
@@ -148,18 +148,18 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
 
   override def isInitialized: Boolean = initialized
 
-  private def getHandlers: DispatchHandler = {
-    val handlers: util.List[ResultHandler] = new util.ArrayList[ResultHandler]
+  private def getHandler: ResultHandler = {
+    val dispatchResultHandler = new DispatchResultHandler
     Option(configuration.getDelegating) match {
       case Some(delegating) =>
-        handlers.add(new MethodLabelHandler)
-        handlers.add(new DelegationHandler(delegating.getQuality))
+        dispatchResultHandler.addHandler(new MethodLabelHandler)
+        dispatchResultHandler.addHandler(new DelegationHandler(delegating.getQuality))
       case _ =>
-        handlers.add(new ServletResultHandler)
+        dispatchResultHandler.addHandler(new ServletResultHandler)
     }
     if (configuration.isEnableApiCoverage) {
-      handlers.add(new InstrumentedHandler)
-      handlers.add(new ApiCoverageHandler)
+      dispatchResultHandler.addHandler(new InstrumentedHandler)
+      dispatchResultHandler.addHandler(new ApiCoverageHandler)
     }
     Option(configuration.getDotOutput) match {
       case Some(dotName) =>
@@ -168,7 +168,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           val out: File = new File(dotPath)
           try {
             if (out.exists && out.canWrite || !out.exists && out.createNewFile) {
-              handlers.add(new SaveDotHandler(out, true, true))
+              dispatchResultHandler.addHandler(new SaveDotHandler(out, true, true))
             } else {
               logger.warn("Cannot write to DOT file: " + dotPath)
             }
@@ -179,7 +179,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
         }
       case _ =>
     }
-    new DispatchHandler(handlers.toList:_*)
+    dispatchResultHandler
   }
 
   private def getPath(path: String, configRoot: String): String = {
@@ -241,7 +241,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                      |      <method name="POST"   id="_$uuid-POST"   $raxRoles/>
                      |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles/>""".stripMargin
                 case method =>
-                  s"""      <method name="$method"   id="_$uuid-$method"    $raxRoles/>"""
+                  val methodToUpper = method.toUpperCase
+                  s"""      <method name="$methodToUpper"   id="_$uuid-$methodToUpper"    $raxRoles/>"""
               }
             }.mkString("\n")
           }
