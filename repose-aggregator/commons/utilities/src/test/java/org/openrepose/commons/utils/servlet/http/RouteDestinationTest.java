@@ -97,7 +97,23 @@ public class RouteDestinationTest {
 
         @Test
         public void shouldGetDestinationId() {
-            assertFalse("Compare RouteDestination to String", routeDst1.getDestinationId().equals("dst1"));
+            assertTrue("Compare destinationId to String", routeDst1.getDestinationId().equals("dst1"));
+        }
+
+        @Test
+        public void shouldGetUri() {
+            assertTrue("Compare uri to String", routeDst1.getUri().equals("/service/dst1"));
+        }
+
+        @Test
+        public void shouldGetQuality() {
+            assertTrue("Compare quality to number", routeDst1.getQuality() == 1.0);
+        }
+
+        @Test
+        public void shouldSetAndGetContextRemoved() {
+            routeDst1.setContextRemoved("context");
+            assertTrue("Context should equal getContext", routeDst1.getContextRemoved().equals("context"));
         }
     }
 }
