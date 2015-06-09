@@ -74,5 +74,30 @@ public class RouteDestinationTest {
             Integer h2 = routeDst2.hashCode();
             assertFalse(h1.equals(h2));
         }
+
+        @Test(expected=IllegalArgumentException.class)
+        public void shouldThrowErrorWhenIdIsNull() {
+            new RouteDestination(null, null, 0);
+        }
+
+        @Test(expected=IllegalArgumentException.class)
+        public void shouldThrowErrorWhenCompareNotRouteDestination() {
+            routeDst1.compareTo("invalid");
+        }
+
+        @Test
+        public void shouldNotBeEqual() {
+            assertFalse("RouteDestination objects should not be equal", routeDst1.equals(routeDst2));
+        }
+
+        @Test
+        public void shouldReturnFalseWhenObjectNotRouteDestination() {
+            assertFalse("Compare RouteDestination to String", routeDst1.equals("invalid"));
+        }
+
+        @Test
+        public void shouldGetDestinationId() {
+            assertFalse("Compare RouteDestination to String", routeDst1.getDestinationId().equals("dst1"));
+        }
     }
 }
