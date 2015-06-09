@@ -22,114 +22,118 @@ package org.openrepose.commons.utils.servlet.http;
 import java.util.List;
 
 /**
- * An interface for a HttpServletRequestWrapper. It allows the user to
- * edit the HTTP Request Header by adding custom headers.
+ * An interface that defines all the operations with headers one might want to do.
  */
 public interface HeaderInteractor {
     /**
-     * Gets a list of names for Request Headers
+     * Gets a list of names of all available headers
      *
-     * @return
+     * @return the header names
      */
     List<String> getHeaderNamesList();
 
     /**
-     * Gets a list of values associated with a Request Header.
-     * <p/>
+     * Gets a list of values associated with a given header. Will return one value per header.
      * Does not split values if splittable.
      *
-     * @param headerName
-     * @return
+     * @param headerName the name of the header to get values for
+     * @return a list of values one per header entry
      */
     List<String> getHeadersList(String headerName);
 
     /**
-     * Gets a list of values associated with a Request Header, and splits them if necessary.
+     * Gets a list of values associated with a Header, and splits them on commas as necessary.
      *
-     * @param headerName
-     * @return
+     * @param headerName the name of the header to get values for
+     * @return a flattened list of values with all of the first header's values appearing before the second, the second before the third, etc.
      */
     List<String> getSplittableHeader(String headerName);
 
     /**
-     * Returns the headerValue with the highest quality. The default quality is 1.0.
+     * Returns the header value with the highest quality. The default quality is 1.0 if unspecified.
+     * This treats each header entry as if it's one value, should there be multiple values per header entry
+     * exceptions are likely to occur.
      *
-     * @param headerName
-     * @return
-     * @throws QualityFormatException when quantity cannot be parsed
+     * @param headerName the name of the header to get the preferred value for
+     * @return the highest qualitied value
+     * @throws QualityFormatException when quantity exists but cannot be parsed
      */
     String getPreferredHeader(String headerName);
 
     /**
-     * Returns the headerValue with the highest quality. The default quality is 1.0.
+     * Returns the header value with the highest quality, but will try to split all headers on commas before trying to evaluate.
+     * The default quality is 1.0 if unspecified.
      *
-     * @param headerName
-     * @return
-     * @throws QualityFormatException when quantity cannot be parsed
+     * @param headerName the name of the header to get the preferred value for
+     * @return the value with the highest quality after headers ahve been split
+     * @throws QualityFormatException when quantity is present but cannot be parsed
      */
     String getPreferredSplittableHeader(String headerName);
 
     /**
-     * Adds the specified Request Header with the headerName and headerValue pair.
+     * Adds the specified header with the header name and header value pair.
+     * This creates a new header entry under the given name.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      */
     void addHeader(String headerName, String headerValue);
 
     /**
-     * Adds the specified Request Header with the headerName and headerValue pair.
-     * <p/>
+     * Adds the specified header with the header name and header value pair.
      * The quality is appended to headerValue.
+     * This creates a new header entry under the given name.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      * @param quality a double from 0.0 to 1.0
      */
     void addHeader(String headerName, String headerValue, double quality);
 
     /**
-     * Replaces the specified Request Header with the headerName and headerValue pair.
+     * Replaces the specified header with the header name and header value pair.
+     * This replaces all values of a header with that name.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      */
     void replaceHeader(String headerName, String headerValue);
 
     /**
-     * Replaces the specified Request Header with the headerName and headerValue pair.
-     * <p/>
-     * The quality is appended to headerValue.
+     * Replaces the specified header with the header name and header value pair.
+     * The quality is appended to header value.
+     * This replaces all values of a header with that name.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      * @param quality a double from 0.0 to 1.0
      */
     void replaceHeader(String headerName, String headerValue, double quality);
 
     /**
-     * Appends headerValue to the end of the first header line for the specified Request Header.
+     * Appends header value to the end of the first header value for the specified header.
+     * This is accomplished by adding a comma first, and then the new value.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      */
     void appendHeader(String headerName, String headerValue);
 
     /**
-     * Appends headerValue to the end of the first header line for the specified Request Header.
-     * <p/>
-     * The quality is appended to headerValue.
+     * Appends header value to the end of the first header value for the specified header.
+     * The quality is appended to header value.
+     * This is accomplished by adding a comma first, and then the new value.
      *
-     * @param headerName
-     * @param headerValue
+     * @param headerName the name of the header
+     * @param headerValue the value of the header
      * @param quality a double from 0.0 to 1.0
      */
     void appendHeader(String headerName, String headerValue, double quality);
 
     /**
-     * Removes the specified Request Header and all associated values.
+     * Removes the specified header and all associated values.
      *
-     * @param headerName
+     * @param headerName the name of the header
      */
     void removeHeader(String headerName);
 }
