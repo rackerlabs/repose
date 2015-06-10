@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+             roles-header-name="X-ROLES"
+             mask-rax-roles-403="true"
+             wadl-output="test.wadl"
+             dot-output="test.dot">
+    <resources href="test.rbac"/>
+</simple-rbac>

@@ -1,0 +1,7 @@
+/path/to/this  GET       super,useradmin,admin,user
+/path/to/this  PUT       super,useradmin,admin
+/path/to/this  POST      super,useradmin
+/path/to/this  DELETE    super
+/path/to/that  GET,PUT   ANY
+/path/to/that  ALL       super
+/path/to/test  GET,POST  user,useradmin
