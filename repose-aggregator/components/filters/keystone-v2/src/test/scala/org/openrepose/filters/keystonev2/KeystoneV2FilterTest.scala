@@ -749,16 +749,59 @@ with MockedAkkaServiceClient {
       pending
     }
     it("bypasses the URI tenant validation check when a user has a role in the bypass-validation-roles list") {
-      pending
+      configuration.getTenantHandling.getValidateTenant.setBypassValidationRoles(???)
+      filter.configurationUpdated(configuration)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      ???
     }
     it("does not fail if the user doesn't have any tenants") {
       pending
     }
     it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
-      pending
+      configuration.getTenantHandling.withSendAllTenantIds(false)
+      configuration.getTenantHandling.setValidateTenant(???)
+      filter.configurationUpdated(configuration)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/morty/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("morty")
     }
     it("sends the user's default tenant, if validate-tenant is not enabled") {
-      pending
+      configuration.getTenantHandling.withSendAllTenantIds(false)
+      filter.configurationUpdated(configuration)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant")
     }
     describe("sending all tenant ids") {
       it("sends the URI tenant with the highest quality") {
