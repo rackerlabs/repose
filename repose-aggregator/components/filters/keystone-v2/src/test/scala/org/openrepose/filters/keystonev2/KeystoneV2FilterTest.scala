@@ -1,16 +1,19 @@
 package org.openrepose.filters.keystonev2
 
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterTest extends FunSpec
@@ -129,7 +132,7 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put(VALID_TOKEN, filter.ValidToken(Vector("compute:admin", "object-store:admin")), 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(VALID_TOKEN, filter.ValidToken("345", List.empty[String], Vector("compute:admin", "object-store:admin")), 600, TimeUnit.SECONDS)
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -176,7 +179,7 @@ with MockedAkkaServiceClient {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken(Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("", Seq.empty[String], Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -370,7 +373,7 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
-    it("includes the user's groups in the x-pp-group header in the request") {
+    it("includes the user's roles in the x-roles header in the request") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader("x-auth-token", VALID_TOKEN)
@@ -382,7 +385,7 @@ with MockedAkkaServiceClient {
         )
       }
 
-      //Validate the token response with groups to grab them!
+      //Validate the token response with roles to grab them!
       mockAkkaGetResponses(VALID_TOKEN) {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
@@ -393,7 +396,7 @@ with MockedAkkaServiceClient {
       filter.doFilter(request, response, filterChain)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader("x-pp-groups") should be("compute:admin,object-store:admin")
+      processedRequest.getHeader("x-roles") should be("compute:admin,object-store:admin")
 
       mockAkkaServiceClient.validate()
     }
@@ -666,13 +669,80 @@ with MockedAkkaServiceClient {
   }
 
   describe("when tenant handling is enabled") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="true"
+          |            set-catalog-in-header="false"
+          |            />
+          |    <tenant-handling send-all-tenant-ids="true">
+          |        <validate-tenant>
+          |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
+          |            <bypass-validation-roles>
+          |                <role>serviceAdmin</role>
+          |                <role>racker</role>
+          |            </bypass-validation-roles>
+          |        </validate-tenant>
+          |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin)
+
+      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+      val config: MockFilterConfig = new MockFilterConfig
+      filter.init(config)
+      filter.configurationUpdated(configuration)
+
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
-      pending
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+    it("will extract the tenant from the URI and reject if the user does not have that tenant in their list") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.wasErrorSent shouldBe true
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
     it("sends all tenant IDs when configured to") {
-      pending
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader("x-auth-token", VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant", "rick", "morty")
     }
-    it("sends all tenant IDs with a quality when both are configured") {
+    it("sends all tenant IDs with a quality when all three are configured") {
       pending
     }
     it("sends tenant quality when not configured to send all tenant IDs") {

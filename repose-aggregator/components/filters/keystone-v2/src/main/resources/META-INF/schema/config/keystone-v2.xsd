@@ -94,6 +94,13 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="set-roles-in-header" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's roles in the x-roles header</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="set-groups-in-header" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
@@ -121,21 +128,26 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="send-tenant-id-quality" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Include Quality values on all the tenant ID headers sent,
+                            where the default tenant has the highest quality, followed by the one that matches the URI
+                            (if any), followed by the tenants from the roles.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:attribute name="default-tenant-quality" type="QualityType" default="0.9" use="optional"/>
+                    <xs:attribute name="uri-tenant-quality" type="QualityType" default="0.7" use="optional"/>
+                    <xs:attribute name="roles-tenant-quality" type="QualityType" default="0.5" use="optional"/>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
-        <xs:attribute name="send-all-tenant-ids" default="false" use="optional">
+        <xs:attribute name="send-all-tenant-ids" type="xs:boolean" default="false" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Send all the tenant IDs from the user and the roles the user has</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="send-tenant-id-quality" default="false" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Include Quality values on all the tenant ID headers sent,
-                        where the default tenant has the highest quality, followed by the one that matches the URI
-                        (if any), followed by the tenants from the roles.
-                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

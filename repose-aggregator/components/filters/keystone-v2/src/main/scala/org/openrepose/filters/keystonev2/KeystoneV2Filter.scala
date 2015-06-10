@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, PowerApiHeader}
+import org.openrepose.commons.utils.http.{OpenStackServiceHeader, CommonHttpHeader, PowerApiHeader}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -52,8 +52,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   with HttpDelegationManager
   with LazyLogging {
 
-  private val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
-  val ADMIN_TOKEN_KEY = "KEYSTONE-V2-ADMIN-TOKEN" //NOTE when using the self-validating we probably won't cache anything?
+  private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+
+  final val TOKEN_ENDPOINT = "/v2.0/tokens"
+  final val GROUPS_ENDPOINT = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP" //TODO: Rackspace Extension
+  final val ENDPOINTS_ENDPOINT = (token: String) => s"/v2.0/tokens/$token/endpoints"
+  final val ADMIN_TOKEN_KEY = "IDENTITY:V2:ADMIN_TOKEN"
+  final val TOKEN_KEY_PREFIX = "IDENTITY:V2:TOKEN:"
+  final val GROUPS_KEY_PREFIX = "IDENTITY:V2:GROUPS:"
+  final val ENDPOINTS_KEY_PREFIX = "IDENTITY:V2:ENDPOINTS:"
 
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: KeystoneV2Config = _
@@ -155,21 +162,25 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Reject(SC_UNAUTHORIZED)
           case Success(validToken: ValidToken) =>
             //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
-            val endpointDetails = endpointAuthorization(authToken, validToken)
-            endpointDetails match {
+            //TODO: tenant authorization
+//            tenantAuthorization(extractTenant(request.getRequestURI), validToken) match {
+//              case _ => ??? //TODO
+//            }
+            endpointAuthorization(authToken, validToken) match {
               case Some(Success(endpointVector)) =>
                 //If I'm configured to put the endpoints into a x-catalog do it
                 //Do more things in here
-                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-                Pass(groupsHeader)
+                val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
+                Pass(rolesHeader)
               case Some(Failure(x)) =>
                 //Reject them with 403
                 Reject(SC_FORBIDDEN, failure = Some(x))
               case None =>
                 //Do more things in here
-                val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> validToken.groups.mkString(","))
-                Pass(groupsHeader)
+                val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
+                Pass(rolesHeader)
             }
+            //TODO: Get groups
           case Failure(x: IdentityAdminTokenException) =>
             Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
           case Failure(x: IdentityCommuncationException) =>
@@ -215,7 +226,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   //Token Validation stuffs
   sealed trait AuthResult
 
-  case class ValidToken(groups: Seq[String]) extends AuthResult
+  case class ValidToken(defaultTenantId: String, tenantIds: Seq[String], roles: Seq[String]) extends AuthResult
 
   case object InvalidToken extends AuthResult
 
@@ -234,7 +245,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val json = Json.parse(input)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
         val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
-        val validToken = ValidToken(roleNames)
+        val defaultTenantId: String = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
+        val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
+        val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
         //TODO: if I cache this here, I don't know if I'll get endpoints :|
         datastore.put(token, validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
         Success(validToken)
@@ -248,7 +261,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val identityEndpoint = configuration.getIdentityService.getUri
 
     import scala.collection.JavaConverters._
-    Try(akkaServiceClient.get(token,
+    Try(akkaServiceClient.get(token, //TODO: I think this is the wrong call (wrong URL and ambiguous key)
       identityEndpoint,
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)
     ) match {
@@ -259,7 +272,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         logger.debug(s"Admin Token: $authenticatingToken")
         serviceClientResponse.getStatus match {
           case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
-            //Extract the groups from the JSON and stick it in the ValidToken result
+            //Extract the roles from the JSON and stick it in the ValidToken result
             extractUserInformation(serviceClientResponse.getData)
           case SC_BAD_REQUEST => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
@@ -300,8 +313,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       )
 
       import scala.collection.JavaConversions._
-      val akkaResponse = Try(akkaServiceClient.post("v2AdminTokenAuthentication",
-        identityEndpoint,
+      val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
+        identityEndpoint, //TODO: wrong URL
         Map.empty[String, String],
         Json.stringify(authenticationPayload),
         MediaType.APPLICATION_JSON_TYPE
@@ -390,6 +403,36 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
+  def extractTenant(s: String): String = ???
+
+  def tenantAuthorization(expectedTenant: String, validToken: ValidToken): Option[Try[Vector[String]]] = {
+    //TODO: Handle qualities
+    Option(configuration.getTenantHandling.getValidateTenant) map { validateTenant =>
+      // CONFIGURED TO VALIDATE TENANT
+      val tenants: Seq[String] = validToken.tenantIds
+      Option(tenants) match {
+        case Some(tenant) => ???
+        case None => ???
+      }
+    } getOrElse {
+      // CONFIGURED NOT TO VALIDATE TENANT
+      Option(configuration.getTenantHandling.getSendTenantIdQuality) match {
+        case Some(qualityHolder) =>
+          if (configuration.getTenantHandling.isSendAllTenantIds) {
+            ???
+          } else {
+            ???
+          }
+        case None =>
+          if (configuration.getTenantHandling.isSendAllTenantIds) {
+            Some(Success((Set(validToken.defaultTenantId) ++ validToken.tenantIds).toVector))
+          } else {
+            Some(Success(Vector(validToken.defaultTenantId)))
+          }
+      }
+    }
+  }
+
   /**
    * Get the user's endpoints, and validate that the configured restrictions match
    * Also handles caching of the result
@@ -437,7 +480,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           List.empty[String]
         }
 
-        if (bypassRoles.intersect(validToken.groups).nonEmpty ||
+        if (bypassRoles.intersect(validToken.roles).nonEmpty ||
           endpointList.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
           Success(endpointList)
         } else {
