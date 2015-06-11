@@ -755,7 +755,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant;q=1.0", "rick;q=0.7", "morty;q=0.5")
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant;q=0.9", "rick;q=0.7", "morty;q=0.5")
     }
     it("sends tenant quality when not configured to send all tenant IDs") {
       val modifiedConfig = configuration

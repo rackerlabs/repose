@@ -42,6 +42,7 @@ import org.openrepose.filters.keystonev2.config.{CacheSettingsType, CacheTimeout
 
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
+import scala.util.matching.Regex
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
@@ -403,9 +404,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  def extractTenant(s: String): String = ???
+  def extractTenant(s: String): Option[String] = {
+    val regex = configuration.getTenantHandling.getValidateTenant.getUriExtractionRegex.r
+    s match {
+      case regex(tenantId, _*) => Some(tenantId)
+      case _ => None
+    }
+  }
 
-  def tenantAuthorization(expectedTenant: String, validToken: ValidToken): Option[Try[Vector[String]]] = {
+  def tenantAuthorization(expectedTenant: Option[String], validToken: ValidToken): Option[Try[Vector[String]]] = {
     //TODO: Handle qualities. What if a tenant is both a default and a uri-matching tenant?
     Option(configuration.getTenantHandling.getValidateTenant) map { validateTenant =>
       // CONFIGURED TO VALIDATE TENANT
