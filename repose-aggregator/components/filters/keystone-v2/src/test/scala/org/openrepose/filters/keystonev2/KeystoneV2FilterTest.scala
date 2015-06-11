@@ -726,7 +726,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.wasErrorSent shouldBe true
+      response.wasErrorSent shouldBe true //TODO: Broken. Due to wrapping?
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
     it("sends all tenant IDs when configured to") {

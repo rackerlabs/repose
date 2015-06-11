@@ -131,7 +131,8 @@
             <xs:element name="send-tenant-id-quality" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                        <html:p>Include Quality values on all the tenant ID headers sent,
+                        <html:p>
+                            If this element is included, include Quality parameters on all the tenant ID headers sent,
                             where the default tenant has the highest quality, followed by the one that matches the URI
                             (if any), followed by the tenants from the roles.
                         </html:p>
