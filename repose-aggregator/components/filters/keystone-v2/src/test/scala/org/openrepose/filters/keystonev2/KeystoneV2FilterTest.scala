@@ -6,9 +6,10 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.openrepose.commons.utils.http.OpenStackServiceHeader
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.filters.keystonev2.config.RolesList
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -62,7 +63,7 @@ with MockedAkkaServiceClient {
     it("Validates a token allowing through the filter") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
@@ -88,7 +89,7 @@ with MockedAkkaServiceClient {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
@@ -115,7 +116,7 @@ with MockedAkkaServiceClient {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
@@ -144,7 +145,7 @@ with MockedAkkaServiceClient {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "INVALID_TOKEN")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
@@ -174,7 +175,7 @@ with MockedAkkaServiceClient {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //When the user's token details are cached, no calls to identity should take place
 
@@ -196,7 +197,7 @@ with MockedAkkaServiceClient {
       //Can only make sure it was put into the cache with a 10 minute timeout...
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "LOLNOPE")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "LOLNOPE")
 
       //When the user's token details are cached, no calls to identity should take place
 
@@ -220,7 +221,7 @@ with MockedAkkaServiceClient {
     it("rejects with 401 an invalid token") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", "notValidToken")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "notValidToken")
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
@@ -260,7 +261,7 @@ with MockedAkkaServiceClient {
     it("retries authentication as the admin user if the admin token is not valid") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
@@ -290,7 +291,7 @@ with MockedAkkaServiceClient {
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
@@ -320,7 +321,7 @@ with MockedAkkaServiceClient {
     it("rejects with 502 if we cannot reach identity") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
       //Need to throw an exception from akka when trying to talk to it
@@ -346,7 +347,7 @@ with MockedAkkaServiceClient {
     it("rejects with 502 if we cannot authenticate as the admin user") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
@@ -376,7 +377,7 @@ with MockedAkkaServiceClient {
     it("includes the user's roles in the x-roles header in the request") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
       mockAkkaAdminTokenResponses {
@@ -434,7 +435,7 @@ with MockedAkkaServiceClient {
     it("allows a user through if they have the endpoint configured in their endpoints list") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -462,7 +463,7 @@ with MockedAkkaServiceClient {
     it("rejects with 403 if the user does not have the required endpoint") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -491,7 +492,7 @@ with MockedAkkaServiceClient {
     it("bypasses validation if the user has the role listed in bypass-validation-roles") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -519,7 +520,7 @@ with MockedAkkaServiceClient {
       it("will reject if the user doesn't have the endpoint") {
         //make a request and validate that it called the akka service client?
         val request = new MockHttpServletRequest()
-        request.addHeader("x-auth-token", VALID_TOKEN)
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -547,7 +548,7 @@ with MockedAkkaServiceClient {
       it("will allow through if the user has the endpoint") {
         //make a request and validate that it called the akka service client?
         val request = new MockHttpServletRequest()
-        request.addHeader("x-auth-token", VALID_TOKEN)
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -574,7 +575,7 @@ with MockedAkkaServiceClient {
       it("will allow through if the user matches the bypass roles") {
         //make a request and validate that it called the akka service client?
         val request = new MockHttpServletRequest()
-        request.addHeader("x-auth-token", VALID_TOKEN)
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -669,40 +670,40 @@ with MockedAkkaServiceClient {
   }
 
   describe("when tenant handling is enabled") {
-      def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
-          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-          |    <identity-service
-          |            username="username"
-          |            password="password"
-          |            uri="https://some.identity.com"
-          |            set-groups-in-header="true"
-          |            set-catalog-in-header="false"
-          |            />
-          |    <tenant-handling send-all-tenant-ids="true">
-          |        <validate-tenant>
-          |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
-          |            <bypass-validation-roles>
-          |                <role>serviceAdmin</role>
-          |                <role>racker</role>
-          |            </bypass-validation-roles>
-          |        </validate-tenant>
-          |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
-          |    </tenant-handling>
-          |</keystone-v2>
-        """.stripMargin)
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            set-groups-in-header="true"
+        |            set-catalog-in-header="false"
+        |            />
+        |    <tenant-handling send-all-tenant-ids="true">
+        |        <validate-tenant>
+        |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
+        |            <bypass-validation-roles>
+        |                <role>serviceAdmin</role>
+        |                <role>racker</role>
+        |            </bypass-validation-roles>
+        |        </validate-tenant>
+        |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
+        |    </tenant-handling>
+        |</keystone-v2>
+      """.stripMargin)
 
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
 
-      val config: MockFilterConfig = new MockFilterConfig
-      filter.init(config)
-      filter.configurationUpdated(configuration)
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.configurationUpdated(configuration)
 
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Nil), Nil: _*)
 
@@ -717,7 +718,7 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
 
@@ -732,7 +733,7 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
@@ -743,19 +744,47 @@ with MockedAkkaServiceClient {
       request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant", "rick", "morty")
     }
     it("sends all tenant IDs with a quality when all three are configured") {
-      pending
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/rick/test")
+      request.setRequestURI("/rick/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant;q=1.0", "rick;q=0.7", "morty;q=0.5")
     }
     it("sends tenant quality when not configured to send all tenant IDs") {
-      pending
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/rick/test")
+      request.setRequestURI("/rick/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
     }
     it("bypasses the URI tenant validation check when a user has a role in the bypass-validation-roles list") {
-      configuration.getTenantHandling.getValidateTenant.setBypassValidationRoles(???)
-      filter.configurationUpdated(configuration)
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.getValidateTenant.setBypassValidationRoles(new RolesList().withRole("not-tenant"))
+      filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
 
@@ -763,20 +792,18 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      ???
-    }
-    it("does not fail if the user doesn't have any tenants") {
-      pending
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
     }
     it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
-      configuration.getTenantHandling.withSendAllTenantIds(false)
-      configuration.getTenantHandling.setValidateTenant(???)
-      filter.configurationUpdated(configuration)
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
+      filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURL("http://www.sample.com/morty/test")
       request.setRequestURI("/morty/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
@@ -784,24 +811,27 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("morty")
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "morty"
     }
     it("sends the user's default tenant, if validate-tenant is not enabled") {
-      configuration.getTenantHandling.withSendAllTenantIds(false)
-      filter.configurationUpdated(configuration)
+      val modifiedConfig = configuration
+      modifiedConfig.setTenantHandling(null)
+      filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
-      request.setRequestURI("/tenant/test")
-      request.addHeader("x-auth-token", VALID_TOKEN)
+      request.setRequestURL("http://www.sample.com/years/test")
+      request.setRequestURI("/years/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant")
+      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
     }
     describe("sending all tenant ids") {
       it("sends the URI tenant with the highest quality") {

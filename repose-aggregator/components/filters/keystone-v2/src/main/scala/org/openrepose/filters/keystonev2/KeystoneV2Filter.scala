@@ -406,7 +406,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   def extractTenant(s: String): String = ???
 
   def tenantAuthorization(expectedTenant: String, validToken: ValidToken): Option[Try[Vector[String]]] = {
-    //TODO: Handle qualities
+    //TODO: Handle qualities. What if a tenant is both a default and a uri-matching tenant?
     Option(configuration.getTenantHandling.getValidateTenant) map { validateTenant =>
       // CONFIGURED TO VALIDATE TENANT
       val tenants: Seq[String] = validToken.tenantIds
