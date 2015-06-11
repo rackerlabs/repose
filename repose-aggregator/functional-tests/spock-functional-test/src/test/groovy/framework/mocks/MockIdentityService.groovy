@@ -41,6 +41,7 @@ class MockIdentityService {
     public MockIdentityService(int identityPort, int originServicePort) {
 
         resetHandlers()
+        resetDefaultParameters()
 
         this.port = identityPort
         this.originServicePort = originServicePort
@@ -147,6 +148,28 @@ class MockIdentityService {
     def additionalRolesXml = ""
     def additionalRolesJson = ""
     Validator validator;
+
+    void resetDefaultParameters() {
+        client_token = 'this-is-the-token';
+        client_tenant = 'this-is-the-tenant';
+        client_tenant_file = 'this-is-the-nast-id'
+        client_username = 'username';
+        client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
+        client_apikey = 'this-is-the-api-key';
+        admin_token = 'this-is-the-admin-token';
+        admin_tenant = 'this-is-the-admin-tenant'
+        admin_username = 'admin_username';
+        service_admin_role = 'service:admin-role1';
+        endpointUrl = "localhost"
+        region = "ORD"
+        admin_userid = 67890;
+        sleeptime =0;
+        contact_id = "${random.nextInt()}"
+        contactIdJson = ""
+        contactIdXml = ""
+        additionalRolesXml = ""
+        additionalRolesJson = ""
+    }
 
     def templateEngine = new SimpleTemplateEngine();
 
