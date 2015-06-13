@@ -68,3 +68,6 @@ PLATFORMS
 DEPENDENCIES
   compass
   github-pages
+
+BUNDLED WITH
+   1.10.3

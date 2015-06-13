@@ -1,31 +1,33 @@
---- 
-layout: default 
-title: First Page 
 ---
-
+layout: default
+title: Repose
+---
 <div class="slide slide-1">
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns text-center">
             <h1 class="logo-text">
                 <img src="{{ site.baseurl }}/img/repose-text.png" alt="">
             </h1>
+
             <p>Repose provides solutions to API processing tasks such as<br>
                 <strong>authentication</strong>,
                 <strong>rate limiting</strong>,
                 <strong>API validation</strong>,
-                <strong>HTTP Request logging</strong>, and much more. It is an open-source RESTful middleware platform that is highly scalable and extensible.
-                </p>
+                <strong>HTTP Request logging</strong>, and much more. It is an open-source RESTful middleware platform
+                that is highly scalable and extensible.
+            </p>
             <img class="narwhal-landing" src="{{ site.baseurl }}/img/repose-narwhal-landing.png" alt="">
         </div>
     </div>
 </div>
 
-
 <div class="slide slide-2">
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2>What is Repose?</h2>
+
             <p>Repose enables downstream services to trust incoming requests as validated and well formed.</p>
+
             <p>It takes incoming requests and adjusts them to be ready for consumption
                 by passing requests through a series of extensible filters.</p>
         </div>
@@ -43,12 +45,14 @@ title: First Page
                     <div class="row path-item">
                         <div class="large-7 columns">
                             <div class="circle circle-right right">
-                            <div class="icon"><i class="fi-arrow-down large"></i></div>
+                                <div class="icon"><i class="fi-arrow-down large"></i></div>
                             </div>
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Incoming Requests</h3>
-                            <p>Users submit requests to your API, which are then load balanced, and forwarded to Repose.</p>
+
+                            <p>Users submit requests to your API, which are then load balanced, and forwarded to
+                                Repose.</p>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -59,9 +63,11 @@ title: First Page
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Hello, who is it?</h3>
+
                             <p>Repose can use an identity endpoint to authenticate an HTTP request before
                                 the request is passed to the destination.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authentication+Filter">Authentication »</a>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authentication+Filter">Authentication
+                                »</a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -72,10 +78,12 @@ title: First Page
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Access Denied</h3>
+
                             <p>Repose validates that a client request is allowed to a destination URI. If
                                 the request is not allowed, the request will be denied with an HTTP 403
                                 - Unauthorized response.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authorization+Filter">Authorization »</a>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authorization+Filter">Authorization
+                                »</a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -86,9 +94,11 @@ title: First Page
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>One at at time, please</h3>
+
                             <p>Distributed Rate limiting allows control over the amount of traffic to the
                                 destination service over the cluster.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed Rate Limiting »</a>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed
+                                Rate Limiting »</a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -99,9 +109,11 @@ title: First Page
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Let me get my journal</h3>
+
                             <p>Repose can log all of your requests before they get to your service, so you
                                 can better know who's accessing your APIs</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging »</a>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging
+                                »</a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -112,6 +124,7 @@ title: First Page
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Destination</h3>
+
                             <p>Your service receives only validated, well formed requests.</p>
                         </div>
                     </div>
@@ -126,29 +139,38 @@ title: First Page
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2><a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+101">Get started with Repose</a></h2>
+
             <p>
-                Repose supports multiple environments to suit your deployment. Deploy repose as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
-                inside your <a href="https://repose.atlassian.net/wiki/display/REPOSE/ROOT.war+Installation">existing Java application</a> or
-                as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">stand alone JAR</a>.
+                Repose supports multiple environments to suit your deployment. Deploy repose as a <a
+                    href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
+                inside your <a href="https://repose.atlassian.net/wiki/display/REPOSE/ROOT.war+Installation">existing
+                Java application</a> or
+                as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">stand
+                alone JAR</a>.
             </p>
+
             <p>See our <a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+101">Repose 101 Course</a> for
                 a quick start.</p>
+
             <p>Get Involved! Join our <a href="http://discourse.openrepose.org/">Discourse Forum.</a>
             </p>
         </div>
     </div>
 </div>
 
-
-<div class="slide slide-3">
+<div class="slide slide-5">
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
-            <h2>Test your service with <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> + <a href="https://github.com/rackerlabs/mimic">Mimic</a>
+            <h2>Test your service with <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> + <a
+                    href="https://github.com/rackerlabs/mimic">Mimic</a>
             </h2>
+
             <p>Any good enterprise product is backed by testing, but why just test your code when you can
                 test the entire infrastructure?</p>
+
             <p><a href="https://github.com/rackerlabs/mimic">Mimic</a> is an API Mock Service that allows
                 you to easily create pre-defined API responses.</p>
+
             <p><a href="https://github.com/rackerlabs/deproxy">Deproxy</a> is a tool for performing high-level,
                 black-box, functional and regression testing of proxies, and other HTTP intermediaries.
                 It is meant to be incorporated into unit tests for functional testing.</p>
