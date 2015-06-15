@@ -456,4 +456,18 @@ trait IdentityResponses {
       |}
     """.stripMargin
   }
+
+  def groupsResponse(): String ={
+    """
+      |{
+      |  "RAX-KSGRP:groups": [
+      |    {
+      |      "id": "test-group-id",
+      |      "description": "Test description"
+      |    }
+      |  ],
+      |  "RAX-KSGRP:groups_links": []
+      |}
+    """.stripMargin
+  }
 }

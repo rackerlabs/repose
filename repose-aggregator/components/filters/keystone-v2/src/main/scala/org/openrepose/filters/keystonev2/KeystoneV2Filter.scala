@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{PowerApiHeader, CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -54,6 +54,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+  private final val SC_TOO_MANY_REQUESTS = 429
 
   final val TOKEN_ENDPOINT = "/v2.0/tokens"
   final val GROUPS_ENDPOINT = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP"
@@ -104,7 +105,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }).getOrElse(None)
 
     val whiteListMatch: Boolean = whiteListURIs.exists { uriList =>
-      uriList.exists { pattern =>
+      uriList exists { pattern =>
         logger.debug(s"checking ${request.getRequestURI} against $pattern")
         request.getRequestURI.matches(pattern)
       }
@@ -116,7 +117,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val result: KeystoneV2Result = if (whiteListMatch) {
       Pass(Map.empty[String, String])
     } else {
-      authTokenValue.map { authToken =>
+      authTokenValue map { authToken =>
         //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
         val tokenValidationResult: Try[AuthResult] =
           Option(datastore.get(authToken).asInstanceOf[AuthResult]).map { validationResult =>
@@ -174,8 +175,21 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case reject: Reject => reject
             }
 
-            authorizedEndpoints
-          //TODO: Get groups
+            val userGroups = authorizedEndpoints match {
+              case Pass(headers) =>
+                getGroups(authToken, validToken) match {
+                  case Some(Success(groups)) =>
+                    val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(",")) //todo: not the place for this
+                    Pass(headers ++ groupsHeader)
+                  case Some(Failure(e)) =>
+                    logger.error(s"Could not get groups: ${e.getMessage}")
+                    Pass(headers)
+                  case None => Pass(headers)
+                }
+              case reject: Reject => reject
+            }
+
+            userGroups
           case Failure(x: IdentityAdminTokenException) =>
             Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
           case Failure(x: IdentityCommuncationException) =>
@@ -322,72 +336,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  //TODO: put the endpoint related stuff into an object we can call
-  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
-
-    /**
-     * Determines whether or not this endpoint meets the requirements set forth by the values contained in
-     * endpointRequirement for the purpose of authorization.
-     *
-     * @param endpointRequirement an endpoint containing fields with required values
-     * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
-     */
-    def meetsRequirement(endpointRequirement: Endpoint) = {
-      def compare(available: Option[String], required: Option[String]) = (available, required) match {
-        case (Some(x), Some(y)) => x == y
-        case (None, Some(_)) => false
-        case _ => true
-      }
-
-      this.publicURL == endpointRequirement.publicURL &&
-        compare(this.region, endpointRequirement.region) &&
-        compare(this.name, endpointRequirement.name) &&
-        compare(this.endpointType, endpointRequirement.endpointType)
-    }
-  }
-
-  final def getEndpointsForToken(authenticatingToken: String, forToken: String, doRetry: Boolean = true): Try[Vector[Endpoint]] = {
-    val identityEndpoint = configuration.getIdentityService.getUri
-    /**
-     * Extract the user's endpoints from the endpoints call
-     * @param inputStream the Identity Endpoints call body
-     * @return a success or failure of a Vector[Endpoint] information
-     */
-    def extractEndpointInfo(inputStream: InputStream): Try[Vector[Endpoint]] = {
-      import play.api.libs.functional.syntax._
-      import play.api.libs.json.Reads._
-      import play.api.libs.json._
-
-      implicit val endpointsReader = (
-        (JsPath \ "region").readNullable[String] and
-          (JsPath \ "name").readNullable[String] and
-          (JsPath \ "type").readNullable[String] and
-          (JsPath \ "publicURL").read[String]
-        )(Endpoint.apply _)
-
-      val input: String = Source.fromInputStream(inputStream).getLines mkString ""
-      val json = Json.parse(input)
-      //Have to convert it to a vector, because List isn't serializeable in 2.10
-      (json \ "endpoints").validate[Vector[Endpoint]] match {
-        case s: JsSuccess[Vector[Endpoint]] => Success(s.get)
-        case f: JsError =>
-          Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
-      }
-    }
-
-    Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
-      s"$identityEndpoint${ENDPOINTS_ENDPOINT(forToken)}",
-      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
-          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION => extractEndpointInfo(serviceClientResponse.getData)
-          case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
-          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
-        }
-      case Failure(x) => Failure(x)
-    }
-  }
-
   def extractTenant(requestUri: String): Option[String] = {
     val maybeTenant = for {
       tenantHandling <- Option(configuration.getTenantHandling)
@@ -466,6 +414,71 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
+  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
+    /**
+     * Determines whether or not this endpoint meets the requirements set forth by the values contained in
+     * endpointRequirement for the purpose of authorization.
+     *
+     * @param endpointRequirement an endpoint containing fields with required values
+     * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
+     */
+    def meetsRequirement(endpointRequirement: Endpoint) = {
+      def compare(available: Option[String], required: Option[String]) = (available, required) match {
+        case (Some(x), Some(y)) => x == y
+        case (None, Some(_)) => false
+        case _ => true
+      }
+
+      this.publicURL == endpointRequirement.publicURL &&
+        compare(this.region, endpointRequirement.region) &&
+        compare(this.name, endpointRequirement.name) &&
+        compare(this.endpointType, endpointRequirement.endpointType)
+    }
+  }
+
+  final def getEndpointsForToken(authenticatingToken: String, forToken: String): Try[Vector[Endpoint]] = {
+    val identityEndpoint = configuration.getIdentityService.getUri
+    /**
+     * Extract the user's endpoints from the endpoints call
+     * @param inputStream the Identity Endpoints call body
+     * @return a success or failure of a Vector[Endpoint] information
+     */
+    def extractEndpointInfo(inputStream: InputStream): Try[Vector[Endpoint]] = {
+      import play.api.libs.functional.syntax._
+      import play.api.libs.json.Reads._
+      import play.api.libs.json._
+
+      implicit val endpointsReader = (
+        (JsPath \ "region").readNullable[String] and
+          (JsPath \ "name").readNullable[String] and
+          (JsPath \ "type").readNullable[String] and
+          (JsPath \ "publicURL").read[String]
+        )(Endpoint.apply _)
+
+      val input: String = Source.fromInputStream(inputStream).getLines mkString ""
+      val json = Json.parse(input)
+      //Have to convert it to a vector, because List isn't serializeable in 2.10
+      (json \ "endpoints").validate[Vector[Endpoint]] match {
+        case s: JsSuccess[Vector[Endpoint]] => Success(s.get)
+        case f: JsError =>
+          Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
+      }
+    }
+
+    Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
+      s"$identityEndpoint${ENDPOINTS_ENDPOINT(forToken)}",
+      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION => extractEndpointInfo(serviceClientResponse.getData)
+          case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
+          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
+          case _ => Failure(new Exception("Unexpected response code from the endpoints call"))
+        }
+      case Failure(x) => Failure(x)
+    }
+  }
+
   /**
    * Get the user's endpoints, and validate that the configured restrictions match
    * Also handles caching of the result
@@ -473,12 +486,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
    * @return
    */
   def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[Vector[Endpoint]]] = {
-    Option(configuration.getRequireServiceEndpoint).map { requireServiceEndpoint =>
+    Option(configuration.getRequireServiceEndpoint) map { requireServiceEndpoint =>
       Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
         Success(endpoints)
       } getOrElse {
-        getAdminToken.flatMap { adminToken =>
-          getEndpointsForToken(adminToken, authToken).recoverWith {
+        getAdminToken flatMap { adminToken =>
+          getEndpointsForToken(adminToken, authToken) recoverWith {
             case unauth: AdminTokenUnauthorizedException =>
               //Clear the cache, call this method again
               datastore.remove(ADMIN_TOKEN_KEY)
@@ -487,8 +500,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   getEndpointsForToken(newAdminToken, authToken)
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
-          } flatMap { endpointList =>
-            Success(endpointList)
           }
         }
       } flatMap { endpointList =>
@@ -518,6 +529,60 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           Success(endpointList)
         } else {
           Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
+        }
+      }
+    }
+  }
+
+  final def getGroupsForToken(authenticatingToken: String, forToken: String): Try[Vector[String]] = {
+    val identityEndpoint = configuration.getIdentityService.getUri
+    /**
+     * Extract the user's groups from the groups call
+     * @param inputStream the Identity Groups call body
+     * @return a success or failure of a Vector[String] information
+     */
+    def extractGroupInfo(inputStream: InputStream): Try[Vector[String]] = {
+      import play.api.libs.json._
+
+      Try {
+        val input: String = Source.fromInputStream(inputStream).getLines mkString ""
+        val json = Json.parse(input)
+
+        (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
+      }
+    }
+
+    Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
+      s"$identityEndpoint${GROUPS_ENDPOINT(forToken)}",
+      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case SC_OK => extractGroupInfo(serviceClientResponse.getData)
+          case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
+          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing groups"))
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS => Failure(OverLimitException("Rate limited when accessing groups"))
+          case _ => Failure(new Exception("Unexpected response code from the groups call"))
+        }
+      case Failure(x) => Failure(x)
+    }
+  }
+
+  def getGroups(authToken: String, validToken: ValidToken): Option[Try[Vector[String]]] = {
+    Option(configuration.getIdentityService.isSetGroupsInHeader) map { sendGroups =>
+      Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) map { groups =>
+        Success(groups)
+      } getOrElse {
+        getAdminToken flatMap { adminToken =>
+          getGroupsForToken(adminToken, authToken) recoverWith {
+            case unauth: AdminTokenUnauthorizedException =>
+              //Clear the cache, call this method again
+              datastore.remove(ADMIN_TOKEN_KEY)
+              getAdminToken match {
+                case Success(newAdminToken) =>
+                  getGroupsForToken(newAdminToken, authToken)
+                case Failure(e) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", e))
+              }
+          }
         }
       }
     }
@@ -555,6 +620,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class OverLimitException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   trait TenantException
 
