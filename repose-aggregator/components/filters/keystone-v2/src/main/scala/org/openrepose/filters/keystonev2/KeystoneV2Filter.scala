@@ -69,24 +69,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   val datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
 
-  trait IdentityExceptions
-
-  case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
-
-  case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
-
-  case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
-
-  case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
-
-  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityExceptions
-
-  trait TenantException
-
-  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with TenantException
-
-  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with TenantException
-
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
@@ -107,12 +89,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   implicit val autoHeaderToString: CommonHttpHeader => String = { chh =>
     chh.toString
   }
-
-  sealed trait KeystoneV2Result
-
-  case class Pass(headersToAdd: Map[String, String]) extends KeystoneV2Result
-
-  case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
@@ -241,13 +217,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         chain.doFilter(request, response)
     }
   }
-
-  //Token Validation stuffs
-  sealed trait AuthResult
-
-  case class ValidToken(defaultTenantId: String, tenantIds: Seq[String], roles: Seq[String]) extends AuthResult
-
-  case object InvalidToken extends AuthResult
 
   final def validateToken(authenticatingToken: String, token: String): Try[AuthResult] = {
     /**
@@ -575,4 +544,35 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   override def isInitialized: Boolean = initialized
+
+  trait IdentityException
+
+  case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  trait TenantException
+
+  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with TenantException
+
+  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with TenantException
+
+  sealed trait KeystoneV2Result
+
+  case class Pass(headersToAdd: Map[String, String]) extends KeystoneV2Result
+
+  case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
+
+  sealed trait AuthResult
+
+  case class ValidToken(defaultTenantId: String, tenantIds: Seq[String], roles: Seq[String]) extends AuthResult
+
+  case object InvalidToken extends AuthResult
+
 }
