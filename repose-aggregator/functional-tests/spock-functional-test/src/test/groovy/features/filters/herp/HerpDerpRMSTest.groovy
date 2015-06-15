@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.herp
+
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 6/15/15.
  * Test Herp Derp filter with response message config
@@ -49,6 +51,7 @@ class HerpDerpRMSTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
+
     @Unroll("req method: #method, #path, #roles")
     def "when req without token, non tenanted and delegable mode (2) with quality"() {
         given:
@@ -81,12 +84,12 @@ class HerpDerpRMSTest extends ReposeValveTest {
 
 
         where:
-        method   | path             | roles                         | responseCode | msgBody                     | component       | quality
-        "GET"    | "resources/"     | "raxRolesEnabled"             | "403"        | "Forbidden"                 | "api-checker"   | 0.6
-        "POST"   | "resources/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found"        | "api-checker"   | 0.6
-        "PUT"    | "resources/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed"        | "api-checker"   | 0.6
-        "DELETE" | "resources/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found"        | "api-checker"   | 0.6
-        "GET"    | "get/"           | "raxRolesEnabled"             | "404"        | "Resource not found"        | "api-checker"   | 0.6
+        method   | path             | roles                         | responseCode | msgBody              | component     | quality
+        "GET"    | "resources/"     | "raxRolesEnabled"             | "403"        | "Forbidden"          | "api-checker" | 0.6
+        "POST"   | "resources/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
+        "PUT"    | "resources/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed" | "api-checker" | 0.6
+        "DELETE" | "resources/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
+        "GET"    | "get/"           | "raxRolesEnabled"             | "404"        | "Resource not found" | "api-checker" | 0.6
 
     }
 
