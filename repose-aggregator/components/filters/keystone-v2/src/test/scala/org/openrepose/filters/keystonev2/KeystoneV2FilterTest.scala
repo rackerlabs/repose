@@ -849,16 +849,20 @@ with MockedAkkaServiceClient {
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
     }
-    describe("sending all tenant ids") {
-      it("sends the URI tenant with the highest quality") {
-        pending
-      }
-      it("sends the default tenant with a lower quality than the one in the URI, but higher than the rest") {
-        pending
-      }
-      it("sends the remaining tenants with the lowest quality than the others") {
-        pending
-      }
+    it("should return a failure if a tenant could not be parsed from the URI") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/bu-%tts/test")
+      request.setRequestURI("/bu-%tts/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("bu-%tts", Seq.empty[String], Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.wasErrorSent shouldBe true
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
   }
 
