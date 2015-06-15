@@ -409,7 +409,7 @@ with MockedAkkaServiceClient {
         |            password="password"
         |            uri="https://some.identity.com"
         |            connection-pool-id="wat"
-        |            set-groups-in-header="true"
+        |            set-groups-in-header="false"
         |            set-catalog-in-header="false"
         |            />
         |
