@@ -395,12 +395,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       validateTenant <- Option(tenantHandling.getValidateTenant)
       uriExtractionRegex <- Option(validateTenant.getUriExtractionRegex)
     } yield {
-      val regex = uriExtractionRegex.r
-      requestUri match {
-        case regex(tenantId, _*) => Option(tenantId)
-        case _ => Option.empty[String]
+        val regex = uriExtractionRegex.r
+        requestUri match {
+          case regex(tenantId, _*) => Option(tenantId)
+          case _ => Option.empty[String]
+        }
       }
-    }
     maybeTenant.flatten
   }
 
