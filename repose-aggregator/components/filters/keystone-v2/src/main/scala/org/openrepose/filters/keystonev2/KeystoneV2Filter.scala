@@ -209,7 +209,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       case p: Pass =>
         //If the token validation passed and we're configured to do more things, we can do additional authorizations
-        //TODO: potentially more authorization
         //Modify the request to add stuff
         p.headersToAdd.foreach { case (k, v) =>
           request.addHeader(k, v)
@@ -241,7 +240,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
-          Failure(new IdentityCommuncationException("Unable to parse JSON from identity validate token response", oops))
+          Failure(IdentityCommuncationException("Unable to parse JSON from identity validate token response", oops))
       }
     }
 

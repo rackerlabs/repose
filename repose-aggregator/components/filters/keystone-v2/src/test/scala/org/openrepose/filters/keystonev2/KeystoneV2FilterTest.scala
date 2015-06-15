@@ -255,7 +255,6 @@ with MockedAkkaServiceClient {
 
       response.getErrorCode shouldBe 403
       mockAkkaServiceClient.validate()
-
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -656,7 +655,6 @@ with MockedAkkaServiceClient {
       filterChain.getLastResponse shouldNot be(null)
 
       mockAkkaServiceClient.validate()
-
     }
     it("will not perform authentication or authorization for several URIS") {
       pending
