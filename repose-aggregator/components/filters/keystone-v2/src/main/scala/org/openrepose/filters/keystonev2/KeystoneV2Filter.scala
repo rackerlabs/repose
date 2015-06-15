@@ -56,7 +56,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
 
   final val TOKEN_ENDPOINT = "/v2.0/tokens"
-  final val GROUPS_ENDPOINT = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP" //TODO: Rackspace Extension
+  final val GROUPS_ENDPOINT = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP"
   final val ENDPOINTS_ENDPOINT = (token: String) => s"/v2.0/tokens/$token/endpoints"
   final val ADMIN_TOKEN_KEY = "IDENTITY:V2:ADMIN_TOKEN"
   final val TOKEN_KEY_PREFIX = "IDENTITY:V2:TOKEN:"
