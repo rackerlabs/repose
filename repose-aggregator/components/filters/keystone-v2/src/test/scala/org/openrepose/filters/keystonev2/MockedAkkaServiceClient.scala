@@ -44,16 +44,16 @@ trait MockedAkkaServiceClient {
 
     /**
      * The token param is literally a UUID for the request...
-     * @param token
+     * @param tokenKey
      * @param uri
      * @param headers
      * @return
      */
-    override def get(token: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
+    override def get(tokenKey: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
       logger.debug(getResponses.mkString("\n"))
       val adminToken = headers.get("x-auth-token")
-      logger.debug(s"handling $adminToken, $token")
-      getResponses.remove((adminToken, token)) match {
+      logger.debug(s"handling $adminToken, $tokenKey")
+      getResponses.remove((adminToken, tokenKey)) match {
         case None =>
           logger.error("NO REMAINING GET RESPONSES!")
           oversteppedValidateToken.set(true)
@@ -107,13 +107,13 @@ trait MockedAkkaServiceClient {
     }
   }
 
-  def mockAkkaGetResponse(forToken: String)(adminToken: String, response: AkkaParent): Unit = {
-    mockAkkaGetResponses(forToken)(Seq(adminToken -> response))
+  def mockAkkaGetResponse(forTokenKey: String)(adminToken: String, response: AkkaParent): Unit = {
+    mockAkkaGetResponses(forTokenKey)(Seq(adminToken -> response))
   }
 
-  def mockAkkaGetResponses(forToken: String)(responses: Seq[(String, AkkaParent)]): Unit = {
+  def mockAkkaGetResponses(forTokenKey: String)(responses: Seq[(String, AkkaParent)]): Unit = {
     responses.foreach { case (adminToken, response) =>
-      val key = (adminToken, forToken)
+      val key = (adminToken, forTokenKey)
       val value = response match {
         case x: ServiceClientResponse => Left(x)
         case x: AkkaServiceClientException => Right(x)

@@ -71,7 +71,7 @@ with MockedAkkaServiceClient {
       }
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -96,7 +96,7 @@ with MockedAkkaServiceClient {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaGetResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -123,7 +123,7 @@ with MockedAkkaServiceClient {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaGetResponse(VALID_TOKEN)(
+      mockAkkaGetResponse(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
 
@@ -152,7 +152,7 @@ with MockedAkkaServiceClient {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
 
-      mockAkkaGetResponse("INVALID_TOKEN")(
+      mockAkkaGetResponse("IDENTITY:V2:TOKEN:INVALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(404, "")
       )
 
@@ -228,7 +228,7 @@ with MockedAkkaServiceClient {
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
       }
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponse("notValidToken")(
+      mockAkkaGetResponse("IDENTITY:V2:TOKEN:notValidToken")(
         "glibglob", AkkaServiceClientResponse(404, "")
       )
       val response = new MockHttpServletResponse
@@ -272,7 +272,7 @@ with MockedAkkaServiceClient {
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaGetResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN") {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(401, ""),
           "morty" -> AkkaServiceClientResponse(200, validateTokenResponse())
@@ -301,7 +301,7 @@ with MockedAkkaServiceClient {
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaGetResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN") {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(403, "")
         )
@@ -357,7 +357,7 @@ with MockedAkkaServiceClient {
 
       //When validating a token, we're going to not be authorized the first time,
       // Then we'll be authorized
-      mockAkkaGetResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN") {
         Seq(
           "glibglob" -> AkkaServiceClientResponse.failure("Unable to talk to identity!")
         )
@@ -386,7 +386,7 @@ with MockedAkkaServiceClient {
       }
 
       //Validate the token response with roles to grab them!
-      mockAkkaGetResponses(VALID_TOKEN) {
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN") {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
@@ -440,12 +440,12 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(VALID_TOKEN)(
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
       )
-      mockAkkaGetResponse("validTokenEndpoints")(
+      mockAkkaGetResponse(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, endpointsResponse())
       )
 
@@ -468,12 +468,12 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(VALID_TOKEN)(
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
         )
       )
-      mockAkkaGetResponse("validTokenEndpoints")(
+      mockAkkaGetResponse(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
       )
 
@@ -497,12 +497,12 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(VALID_TOKEN)(
+      mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
         Seq(
           "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
         )
       )
-      mockAkkaGetResponse("validTokenEndpoints")(
+      mockAkkaGetResponse(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
       )
 
@@ -524,15 +524,14 @@ with MockedAkkaServiceClient {
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        //Urgh, I have to hit the akka service client twice
-        mockAkkaGetResponses(VALID_TOKEN)(
+        mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
           Seq(
             "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
           )
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -553,14 +552,14 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         //Urgh, I have to hit the akka service client twice
-        mockAkkaGetResponses(VALID_TOKEN)(
+        mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
           Seq(
             "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
           )
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -580,14 +579,14 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         //Urgh, I have to hit the akka service client twice
-        mockAkkaGetResponses(VALID_TOKEN)(
+        mockAkkaGetResponses(s"IDENTITY:V2:TOKEN:$VALID_TOKEN")(
           Seq(
             "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
           )
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get("validTokenEndpoints")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"IDENTITY:V2:ENDPOINTS:$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()

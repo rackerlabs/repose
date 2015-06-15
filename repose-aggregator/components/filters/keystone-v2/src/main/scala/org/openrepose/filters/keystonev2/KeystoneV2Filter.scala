@@ -248,8 +248,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val identityEndpoint = configuration.getIdentityService.getUri
 
     import scala.collection.JavaConverters._
-    Try(akkaServiceClient.get(token, //TODO: I think this is the wrong call (wrong URL and ambiguous key)
-      identityEndpoint,
+    Try(akkaServiceClient.get(s"$TOKEN_KEY_PREFIX$token",
+      s"$identityEndpoint$TOKEN_ENDPOINT/$token",
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)
     ) match {
       case Success(serviceClientResponse) =>
@@ -375,8 +375,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    Try(akkaServiceClient.get(s"${forToken}Endpoints",
-      s"$identityEndpoint/tokens/$forToken/endpoints",
+    Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
+      s"$identityEndpoint${ENDPOINTS_ENDPOINT(forToken)}",
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
@@ -474,7 +474,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
    */
   def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[Vector[Endpoint]]] = {
     Option(configuration.getRequireServiceEndpoint).map { requireServiceEndpoint =>
-      Option(datastore.get(s"${authToken}Endpoints").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
+      Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
         Success(endpoints)
       } getOrElse {
         getAdminToken.flatMap { adminToken =>
