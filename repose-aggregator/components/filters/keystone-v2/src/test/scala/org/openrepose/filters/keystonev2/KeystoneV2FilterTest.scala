@@ -167,7 +167,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(401)
+      response.getErrorCode shouldBe 401
       mockAkkaServiceClient.validate()
     }
 
@@ -211,7 +211,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(401)
+      response.getErrorCode shouldBe 401
 
       //So because we didn't add any interactions, this guy will validate with no interactions
       mockAkkaServiceClient.validate()
@@ -238,7 +238,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(401)
+      response.getErrorCode shouldBe 401
       mockAkkaServiceClient.validate()
     }
 
@@ -253,7 +253,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getStatus should be(403)
+      response.getErrorCode shouldBe 403
       mockAkkaServiceClient.validate()
 
     }
@@ -311,7 +311,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus should be(500)
+      response.getErrorCode shouldBe 500
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -336,7 +336,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus should be(502)
+      response.getErrorCode shouldBe 502
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -367,7 +367,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus should be(502)
+      response.getErrorCode shouldBe 502
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -482,7 +482,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe 403
+      response.getErrorCode shouldBe 403
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -539,7 +539,7 @@ with MockedAkkaServiceClient {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldBe 403
+        response.getErrorCode shouldBe 403
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
 
@@ -726,10 +726,14 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.wasErrorSent shouldBe true //TODO: Broken. Due to wrapping?
+      response.wasErrorSent shouldBe true
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
     it("sends all tenant IDs when configured to") {
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
+      filter.configurationUpdated(modifiedConfig)
+
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
@@ -740,8 +744,12 @@ with MockedAkkaServiceClient {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant", "rick", "morty")
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty")
     }
     it("sends all tenant IDs with a quality when all three are configured") {
       val request = new MockHttpServletRequest()
@@ -755,7 +763,10 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.toList should contain theSameElementsAs List("tenant;q=0.9", "rick;q=0.7", "morty;q=0.5")
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("tenant;q=0.9")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("rick;q=0.7")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("morty;q=0.5")
     }
     it("sends tenant quality when not configured to send all tenant IDs") {
       val modifiedConfig = configuration
@@ -772,21 +783,19 @@ with MockedAkkaServiceClient {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
-      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
     }
     it("bypasses the URI tenant validation check when a user has a role in the bypass-validation-roles list") {
-      val modifiedConfig = configuration
-      modifiedConfig.getTenantHandling.getValidateTenant.setBypassValidationRoles(new RolesList().withRole("not-tenant"))
-      filter.configurationUpdated(modifiedConfig)
-
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Seq("racker")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -798,6 +807,7 @@ with MockedAkkaServiceClient {
     it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
+      modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
       filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
@@ -810,13 +820,17 @@ with MockedAkkaServiceClient {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
-      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "morty"
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "morty"
     }
     it("sends the user's default tenant, if validate-tenant is not enabled") {
       val modifiedConfig = configuration
-      modifiedConfig.setTenantHandling(null)
+      modifiedConfig.getTenantHandling.setValidateTenant(null)
+      modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
+      modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
       filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
@@ -829,9 +843,11 @@ with MockedAkkaServiceClient {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
 
-      request.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
-      request.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
     }
     describe("sending all tenant ids") {
       it("sends the URI tenant with the highest quality") {

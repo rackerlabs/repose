@@ -33,13 +33,14 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{CacheSettingsType, CacheTimeoutsType, KeystoneV2Config, ServiceEndpointType}
 
+import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -115,7 +116,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-    val response = MutableHttpServletResponse.wrap(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
+    val response = servletResponse.asInstanceOf[HttpServletResponse] // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
 
     //Check our whitelist
     val whiteListURIs: Option[List[String]] = (for {
@@ -168,7 +169,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Reject(SC_UNAUTHORIZED)
           case Success(validToken: ValidToken) =>
             //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
-            (tenantAuthorization(extractTenant(request.getRequestURI).getOrElse(None), validToken) match {
+            val authorizedTenant = tenantAuthorization(extractTenant(request.getRequestURI), validToken) match {
               case Some(Success(tenantHeaderValues)) =>
                 val tenantHeaders = Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
                 Pass(tenantHeaders)
@@ -176,24 +177,28 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 Reject(SC_UNAUTHORIZED, failure = Some(e))
               case None =>
                 Pass(Map.empty[String, String])
-            }) match {
+            }
+
+            val authorizedEndpoints = authorizedTenant match {
               case Pass(headers) =>
                 endpointAuthorization(authToken, validToken) match {
                   case Some(Success(endpointVector)) =>
                     //If I'm configured to put the endpoints into a x-catalog do it
                     //Do more things in here
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
+                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")) //todo: not the place for this
                     Pass(rolesHeader ++ headers)
                   case Some(Failure(x)) =>
                     //Reject them with 403
                     Reject(SC_FORBIDDEN, failure = Some(x))
                   case None =>
                     //Do more things in here
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
+                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")) //todo: not the place for this
                     Pass(rolesHeader ++ headers)
                 }
               case reject: Reject => reject
             }
+
+            authorizedEndpoints
           //TODO: Get groups
           case Failure(x: IdentityAdminTokenException) =>
             Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
@@ -402,8 +407,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    import scala.collection.JavaConverters._
-
     Try(akkaServiceClient.get(s"${forToken}Endpoints",
       s"$identityEndpoint/tokens/$forToken/endpoints",
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
@@ -417,17 +420,19 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  def extractTenant(requestUri: String): Option[Option[String]] = {
-    for {
+  def extractTenant(requestUri: String): Option[String] = {
+    val maybeTenant = for {
       tenantHandling <- Option(configuration.getTenantHandling)
       validateTenant <- Option(tenantHandling.getValidateTenant)
+      uriExtractionRegex <- Option(validateTenant.getUriExtractionRegex)
     } yield {
-      val regex = validateTenant.getUriExtractionRegex.r
+      val regex = uriExtractionRegex.r
       requestUri match {
-        case regex(tenantId, _*) => Some(tenantId)
-        case _ => None
+        case regex(tenantId, _*) => Option(tenantId)
+        case _ => Option.empty[String]
       }
     }
+    maybeTenant.flatten
   }
 
   def tenantAuthorization(expectedTenant: Option[String], validToken: ValidToken): Option[Try[Vector[String]]] = {
@@ -452,7 +457,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       if (sendAllTenants && sendQuality) {
-        Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$uriTenant;q=$uriTenantQuality") ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
+        val priorityTenants = uriTenant match {
+          case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
+          case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+        }
+        priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
       } else if (sendAllTenants && !sendQuality) {
         Vector(defaultTenant) ++ roleTenants
       } else if (!sendAllTenants && sendQuality) {
@@ -464,22 +473,27 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     Option(configuration.getTenantHandling) map { tenantHandling =>
       Option(configuration.getTenantHandling.getValidateTenant) map { validateTenant =>
-        // Configured to validate the tenant
-        Try[String](
-          expectedTenant match {
-            case Some(reqTenant) =>
-              val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
-              tokenTenants.find(reqTenant.equals) match {
-                case Some(uriTenant) => uriTenant
-                case None => throw InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")
+        Option(configuration.getTenantHandling.getValidateTenant.getBypassValidationRoles) map {
+          _.getRole.asScala.intersect(validToken.roles).nonEmpty
+        } match {
+          case Some(true) => null //todo: don't use null here
+          case _ =>
+            Try[String] {
+              expectedTenant match {
+                case Some(reqTenant) =>
+                  val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
+                  tokenTenants.find(reqTenant.equals) match {
+                    case Some(uriTenant) => uriTenant
+                    case None => throw InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")
+                  }
+                case None => throw UnparseableTenantException("Could not parse tenant from the URI")
               }
-            case None => throw UnparseableTenantException("Could not parse tenant from the URI")
-          }
-        )
+            }
+        }
       } match {
         case Some(Failure(e)) => Failure(e)
         case Some(Success(uriTenant)) => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, Some(uriTenant)))
-        case None => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, None))
+        case _ => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, None))
       }
     }
   }
