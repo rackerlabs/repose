@@ -38,6 +38,8 @@ trait MockedAkkaServiceClient {
     }
 
     def reset(): Unit = {
+      oversteppedValidateToken.set(false)
+      oversteppedAdminAuthentication.set(false)
       getResponses.clear()
       postResponses.clear()
     }
