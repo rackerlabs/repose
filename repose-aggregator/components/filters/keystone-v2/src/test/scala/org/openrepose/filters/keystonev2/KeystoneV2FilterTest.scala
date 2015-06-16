@@ -6,11 +6,9 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.openrepose.commons.utils.http.{PowerApiHeader, CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
-import org.openrepose.filters.keystonev2.config.RolesList
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -133,7 +131,7 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put(VALID_TOKEN, filter.ValidToken("345", List.empty[String], Vector("compute:admin", "object-store:admin")), 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN", filter.ValidToken("345", List.empty[String], Vector("compute:admin", "object-store:admin")), 600, TimeUnit.SECONDS)
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -162,7 +160,7 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(filter.ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put("INVALID_TOKEN", filter.InvalidToken, 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(s"${filter.TOKEN_KEY_PREFIX}INVALID_TOKEN", filter.InvalidToken, 600, TimeUnit.SECONDS)
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -180,7 +178,7 @@ with MockedAkkaServiceClient {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("", Seq.empty[String], Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("", Seq.empty[String], Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -202,7 +200,7 @@ with MockedAkkaServiceClient {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}LOLNOPE")).thenReturn(filter.InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}LOLNOPE")).thenReturn(filter.InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -439,10 +437,8 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
-        )
+      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, endpointsResponse())
@@ -496,10 +492,8 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
-        )
+      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
       )
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
@@ -523,10 +517,8 @@ with MockedAkkaServiceClient {
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          Seq(
-            "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
-          )
+        mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -551,10 +543,8 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         //Urgh, I have to hit the akka service client twice
-        mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          Seq(
-            "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
-          )
+        mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -578,10 +568,8 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         //Urgh, I have to hit the akka service client twice
-        mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          Seq(
-            "glibglob" -> AkkaServiceClientResponse(200, validateRackerTokenResponse())
-          )
+        mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -700,7 +688,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -715,7 +703,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -734,7 +722,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -752,16 +740,16 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("tenant;q=0.9")
-      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("rick;q=0.7")
-      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include ("morty;q=0.5")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant;q=0.9")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick;q=0.7")
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty;q=0.5")
     }
     it("sends tenant quality when not configured to send all tenant IDs") {
       val modifiedConfig = configuration
@@ -773,7 +761,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -790,7 +778,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Seq("racker")), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("not-tenant", Seq.empty[String], Seq("racker")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -810,7 +798,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/morty/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq("rick", "morty"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -833,7 +821,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -850,7 +838,7 @@ with MockedAkkaServiceClient {
       request.setRequestURI("/bu-%tts/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("bu-%tts", Seq.empty[String], Nil), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("bu-%tts", Seq.empty[String], Nil), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -905,7 +893,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include ("test-group-id")
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include("test-group-id")
 
       mockAkkaServiceClient.validate()
     }
@@ -944,7 +932,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -969,7 +957,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -993,7 +981,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -1017,7 +1005,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
