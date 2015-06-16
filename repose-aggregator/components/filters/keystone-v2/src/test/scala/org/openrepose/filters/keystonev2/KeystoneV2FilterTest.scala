@@ -460,6 +460,30 @@ with MockedAkkaServiceClient {
 
       mockAkkaServiceClient.validate()
     }
+    it("handles 203 response from endpoints call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NON_AUTHORITATIVE_INFORMATION, endpointsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      //Continues with the chain
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      mockAkkaServiceClient.validate()
+    }
     it("handles 403 response from endpoints call") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -512,7 +536,60 @@ with MockedAkkaServiceClient {
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       mockAkkaServiceClient.validate()
     }
-    it("rejects with 403 if the user does not have the required endpoint") {
+    it("Tests failure case when serviceClientResponse.getStatus fails") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse.failure("Unable to reach identity!")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      //Continues with the chain
+      filterChain.getLastRequest shouldBe(null)
+      filterChain.getLastResponse shouldBe(null)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+
+      mockAkkaServiceClient.validate()
+    }
+    it("handles unexpected response from endpoints call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldBe(null)
+      filterChain.getLastResponse shouldBe(null)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      mockAkkaServiceClient.validate()
+    }
+    it("rejects with 403 if the user does not have the required endpoint") { //TODO: may not be necessary since other test tests the 403 for getEndpoints
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
