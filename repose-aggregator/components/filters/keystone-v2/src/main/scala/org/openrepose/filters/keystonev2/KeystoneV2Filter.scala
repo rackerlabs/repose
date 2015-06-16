@@ -536,6 +536,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   final def getGroupsForToken(authenticatingToken: String, forToken: String): Try[Vector[String]] = {
     val identityEndpoint = configuration.getIdentityService.getUri
+
     /**
      * Extract the user's groups from the groups call
      * @param inputStream the Identity Groups call body
@@ -568,9 +569,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   def getGroups(authToken: String, validToken: ValidToken): Option[Try[Vector[String]]] = {
-    // TODO: make set groups check less hacky
-    val setGroupsHeader: String = if (configuration.getIdentityService.isSetGroupsInHeader) "groups" else null
-    Option(setGroupsHeader) map { sendGroups =>
+    Option(configuration.getIdentityService.isSetGroupsInHeader).filter(identity) map { sendGroups =>
       Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) map { groups =>
         Success(groups)
       } getOrElse {
