@@ -179,7 +179,7 @@ with MockedAkkaServiceClient {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("", Seq.empty[String], Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("", Seq.empty[String], Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -201,7 +201,7 @@ with MockedAkkaServiceClient {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      Mockito.when(mockDatastore.get("LOLNOPE")).thenReturn(filter.InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}LOLNOPE")).thenReturn(filter.InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -945,7 +945,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(

@@ -118,7 +118,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       authTokenValue map { authToken =>
         //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
         val tokenValidationResult: Try[AuthResult] =
-          Option(datastore.get(authToken).asInstanceOf[AuthResult]).map { validationResult =>
+          Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[AuthResult]).map { validationResult =>
             Success(validationResult)
           } getOrElse {
             //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
@@ -248,7 +248,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
         //TODO: if I cache this here, I don't know if I'll get endpoints :|
-        datastore.put(token, validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+        datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
         Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
@@ -277,7 +277,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND =>
-            datastore.put(token, InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+            datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
             Success(InvalidToken)
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
