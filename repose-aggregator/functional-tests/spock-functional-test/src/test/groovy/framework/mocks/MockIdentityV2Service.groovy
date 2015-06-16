@@ -136,7 +136,7 @@ class MockIdentityV2Service {
     }
 
     /**
-     * Reset all handlers set to inital state
+     * Reset all handlers set to initial state
      */
     void resetHandlers() {
 
@@ -330,7 +330,7 @@ class MockIdentityV2Service {
                     _getUserGlobalRolesCount.incrementAndGet()
                     def match = (nonQueryPath =~ getUserGlobalRolesCallPathRegex)
                     def userId = match[0][1]
-                    return getUserGlobalRoles(userId, request, xml)
+                    return getUserGlobalRolesHandler(userId, request, xml)
                 } else {
                     return new Response(405)
                 }
