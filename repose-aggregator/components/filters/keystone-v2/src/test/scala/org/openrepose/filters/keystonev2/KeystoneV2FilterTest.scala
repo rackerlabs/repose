@@ -408,7 +408,6 @@ with MockedAkkaServiceClient {
         |            username="admin_username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            connection-pool-id="wat"
         |            set-groups-in-header="false"
         |            set-catalog-in-header="false"
         |            />
@@ -621,7 +620,6 @@ with MockedAkkaServiceClient {
         |            username="admin_username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            connection-pool-id="wat"
         |            set-groups-in-header="true"
         |            set-catalog-in-header="false"
         |            />
