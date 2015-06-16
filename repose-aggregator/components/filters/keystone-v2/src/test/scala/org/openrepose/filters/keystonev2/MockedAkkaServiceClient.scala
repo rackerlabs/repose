@@ -2,7 +2,7 @@ package org.openrepose.filters.keystonev2
 
 import java.io.ByteArrayInputStream
 
-import scala.util.{Either, Try}
+import scala.util.{Either, Failure, Success, Try}
 
 trait MockedAkkaServiceClient {
 
@@ -21,8 +21,8 @@ trait MockedAkkaServiceClient {
 
     val getResponses: mutable.Map[(String, String), mutable.Queue[AkkaResponse]] = mutable.Map.empty[(String, String), mutable.Queue[AkkaResponse]]
     val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
-    val oversteppedValidateToken = new AtomicBoolean(false)
-    val oversteppedAdminAuthentication = new AtomicBoolean(false)
+    val oversteppedGetRequests = new AtomicBoolean(false)
+    val oversteppedPostRequests = new AtomicBoolean(false)
 
     def validate(): Unit = {
       if (getResponses.nonEmpty && getResponses.exists { case (_, q) => q.nonEmpty }) {
@@ -31,17 +31,17 @@ trait MockedAkkaServiceClient {
       if (postResponses.nonEmpty) {
         throw new AssertionError(s"ALL POST RESPONSES NOT CONSUMED: $postResponses")
       }
-      if (oversteppedValidateToken.get()) {
+      if (oversteppedGetRequests.get()) {
         throw new AssertionError("REQUESTED TOO MANY GET RESPONSES")
       }
-      if (oversteppedValidateToken.get()) {
+      if (oversteppedPostRequests.get()) {
         throw new AssertionError("REQUESTED TOO MANY POST RESPONSES")
       }
     }
 
     def reset(): Unit = {
-      oversteppedValidateToken.set(false)
-      oversteppedAdminAuthentication.set(false)
+      oversteppedGetRequests.set(false)
+      oversteppedPostRequests.set(false)
       getResponses.clear()
       postResponses.clear()
     }
@@ -56,7 +56,7 @@ trait MockedAkkaServiceClient {
     override def get(tokenKey: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
       def noResponses = {
         logger.error("NO GET RESPONSES AVAILABLE!")
-        oversteppedValidateToken.set(true)
+        oversteppedGetRequests.set(true)
         throw new Exception("OVERSTEPPED BOUNDARIES")
       }
 
@@ -67,11 +67,10 @@ trait MockedAkkaServiceClient {
         case None =>
           noResponses
         case Some(q) =>
-          Try(q.dequeue()) map {
-            case Left(scr) => scr
-            case Right(asce) => throw asce
-          } getOrElse {
-            noResponses
+          Try(q.dequeue()) match {
+            case Success(Left(scr)) => scr
+            case Success(Right(ace)) => throw ace
+            case Failure(_) => noResponses
           }
       }
     }
@@ -87,7 +86,7 @@ trait MockedAkkaServiceClient {
           case Right(x) => throw x
         }
       } else {
-        oversteppedAdminAuthentication.set(true)
+        oversteppedPostRequests.set(true)
         throw new Exception("OVERSTEPPED BOUNDARIES")
       }
     }

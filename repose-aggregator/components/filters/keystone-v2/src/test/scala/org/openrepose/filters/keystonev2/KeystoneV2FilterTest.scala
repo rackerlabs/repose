@@ -9,6 +9,7 @@ import org.mockito.Mockito
 import org.openrepose.commons.utils.http.{PowerApiHeader, CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.filters.keystonev2.config.RolesList
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -915,15 +916,11 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
-        )
-      )
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
-      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
-        Seq("asdf"-> AkkaServiceClientResponse(200, groupsResponse())
-        )
+      mockAkkaGetResponse(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse.failure("Unable to reach identity!")
       )
 
       val response = new MockHttpServletResponse
@@ -935,6 +932,8 @@ with MockedAkkaServiceClient {
       filterChain.getLastResponse shouldNot be(null)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+
+      mockAkkaServiceClient.validate()
     }
     it("handles 401 response from groups call") {
       //make a request and validate that it called the akka service client?
