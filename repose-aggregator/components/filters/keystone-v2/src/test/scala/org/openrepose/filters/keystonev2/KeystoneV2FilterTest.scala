@@ -555,8 +555,8 @@ with MockedAkkaServiceClient {
       filter.doFilter(request, response, filterChain)
 
       //Continues with the chain
-      filterChain.getLastRequest shouldBe(null)
-      filterChain.getLastResponse shouldBe(null)
+      filterChain.getLastRequest shouldBe null
+      filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
 
@@ -583,8 +583,8 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldBe(null)
-      filterChain.getLastResponse shouldBe(null)
+      filterChain.getLastRequest shouldBe null
+      filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       mockAkkaServiceClient.validate()
@@ -763,7 +763,7 @@ with MockedAkkaServiceClient {
 
     it("will not perform authentication or authorization the URI that matches") {
       //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest()
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/some/path/application.wadl")
       request.setRequestURI("/some/path/application.wadl")
 
