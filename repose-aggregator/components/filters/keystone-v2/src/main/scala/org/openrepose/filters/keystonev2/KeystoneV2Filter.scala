@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{PowerApiHeader, CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HeaderConstant, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -87,9 +87,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     configurationService.unsubscribeFrom(configurationFile, this)
   }
 
-  implicit val autoHeaderToString: CommonHttpHeader => String = { chh =>
-    chh.toString
-  }
+  implicit val autoHeaderToString: HeaderConstant => String = hc => hc.toString
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
