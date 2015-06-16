@@ -442,7 +442,6 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
@@ -492,8 +491,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -519,8 +518,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -543,8 +542,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse.failure("Unable to reach identity!")
@@ -570,8 +569,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -597,11 +596,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
-        )
+      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
       )
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
@@ -626,7 +622,6 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
       )
@@ -677,7 +672,6 @@ with MockedAkkaServiceClient {
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        //Urgh, I have to hit the akka service client twice
         mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
           "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
         )
@@ -702,7 +696,6 @@ with MockedAkkaServiceClient {
         //Pretend like the admin token is cached all the time
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        //Urgh, I have to hit the akka service client twice
         mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
           "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
         )
@@ -1039,8 +1032,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponse(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse.failure("Unable to reach identity!")
@@ -1066,8 +1059,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -1091,8 +1084,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -1115,8 +1108,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -1139,8 +1132,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
@@ -1163,8 +1156,8 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      //Urgh, I have to hit the akka service client twice
-      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
