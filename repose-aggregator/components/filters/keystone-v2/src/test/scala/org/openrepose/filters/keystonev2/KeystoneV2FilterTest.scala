@@ -909,6 +909,60 @@ with MockedAkkaServiceClient {
 
       mockAkkaServiceClient.validate()
     }
+    it("Tests failure case in getGroupsForToken when serviceClientResponse.getStatus fails") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+        )
+      )
+
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq("asdf"-> AkkaServiceClientResponse(200, groupsResponse())
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      //Continues with the chain
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+    }
+    it("rejects with 401 an invalid token") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "notValidToken")
+
+      //Pretend like identity is going to give us a valid admin token
+      mockAkkaPostResponse {
+        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      }
+      //Urgh, I have to hit the akka service client twice
+      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}notValidToken")(
+        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+      )
+
+
+      mockAkkaGetResponse(s"${filter.GROUPS_KEY_PREFIX}notValidToken")(
+        "glibglob", AkkaServiceClientResponse(404, "")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe 401
+      mockAkkaServiceClient.validate()
+    }
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
       pending
     }
