@@ -122,8 +122,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Success(validationResult)
           } getOrElse {
             //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
-            getAdminToken.flatMap { adminToken =>
-              validateToken(adminToken, authToken).recoverWith {
+            getAdminToken flatMap { adminToken =>
+              validateToken(adminToken, authToken) recoverWith {
                 //Recover if the exception is an AdminTokenUnauthorizedException
                 //This way we can specify however we want to what we want to do to retry.
                 //Also it only retries ONCE! No loops or anything. Fails gloriously

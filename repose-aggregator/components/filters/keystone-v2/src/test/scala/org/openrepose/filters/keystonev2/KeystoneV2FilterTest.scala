@@ -935,30 +935,29 @@ with MockedAkkaServiceClient {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
     }
-    it("rejects with 401 an invalid token") {
+    it("handles 401 response from groups call") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "notValidToken")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      //Pretend like identity is going to give us a valid admin token
-      mockAkkaPostResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
-      }
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
       //Urgh, I have to hit the akka service client twice
-      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}notValidToken")(
-        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
-      )
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
 
-
-      mockAkkaGetResponse(s"${filter.GROUPS_KEY_PREFIX}notValidToken")(
-        "glibglob", AkkaServiceClientResponse(404, "")
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
+        )
       )
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe 401
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
       mockAkkaServiceClient.validate()
     }
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {

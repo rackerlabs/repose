@@ -2,6 +2,8 @@ package org.openrepose.filters.keystonev2
 
 import java.io.ByteArrayInputStream
 
+import scala.util.{Either, Try}
+
 trait MockedAkkaServiceClient {
 
   import java.util
@@ -17,13 +19,13 @@ trait MockedAkkaServiceClient {
   class MockAkkaServiceClient extends AkkaServiceClient with LazyLogging {
     type AkkaResponse = Either[ServiceClientResponse, AkkaServiceClientException]
 
-    val getResponses: mutable.Map[(String, String), AkkaResponse] = mutable.Map.empty[(String, String), AkkaResponse]
+    val getResponses: mutable.Map[(String, String), mutable.Queue[AkkaResponse]] = mutable.Map.empty[(String, String), mutable.Queue[AkkaResponse]]
     val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
     val oversteppedValidateToken = new AtomicBoolean(false)
     val oversteppedAdminAuthentication = new AtomicBoolean(false)
 
     def validate(): Unit = {
-      if (getResponses.nonEmpty) {
+      if (getResponses.nonEmpty && getResponses.exists { case (_, q) => q.nonEmpty }) {
         throw new AssertionError(s"ALL GET RESPONSES NOT CONSUMED: $getResponses")
       }
       if (postResponses.nonEmpty) {
@@ -52,16 +54,25 @@ trait MockedAkkaServiceClient {
      * @return
      */
     override def get(tokenKey: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
+      def noResponses = {
+        logger.error("NO GET RESPONSES AVAILABLE!")
+        oversteppedValidateToken.set(true)
+        throw new Exception("OVERSTEPPED BOUNDARIES")
+      }
+
       logger.debug(getResponses.mkString("\n"))
       val adminToken = headers.get("x-auth-token")
       logger.debug(s"handling $adminToken, $tokenKey")
-      getResponses.remove((adminToken, tokenKey)) match {
+      getResponses.get((adminToken, tokenKey)) match {
         case None =>
-          logger.error("NO REMAINING GET RESPONSES!")
-          oversteppedValidateToken.set(true)
-          throw new Exception("OVERSTEPPED BOUNDARIES")
-        case Some(Left(x)) => x
-        case Some(Right(x)) => throw x
+          noResponses
+        case Some(q) =>
+          Try(q.dequeue()) map {
+            case Left(scr) => scr
+            case Right(asce) => throw asce
+          } getOrElse {
+            noResponses
+          }
       }
     }
 
@@ -114,14 +125,18 @@ trait MockedAkkaServiceClient {
   }
 
   def mockAkkaGetResponses(forTokenKey: String)(responses: Seq[(String, AkkaParent)]): Unit = {
-    responses.foreach { case (adminToken, response) =>
+    responses foreach { case (adminToken, response) =>
       val key = (adminToken, forTokenKey)
-      val value = response match {
+      val newValue = response match {
         case x: ServiceClientResponse => Left(x)
         case x: AkkaServiceClientException => Right(x)
       }
-      mockAkkaServiceClient.getResponses.put(key, value)
+      mockAkkaServiceClient.getResponses.get(key) match {
+        case Some(existingValue) =>
+          existingValue.enqueue(newValue)
+          mockAkkaServiceClient.getResponses.put(key, existingValue)
+        case None => mockAkkaServiceClient.getResponses.put(key, mutable.Queue(newValue))
+      }
     }
   }
-
 }
