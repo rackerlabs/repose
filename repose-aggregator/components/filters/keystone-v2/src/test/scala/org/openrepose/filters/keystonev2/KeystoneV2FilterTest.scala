@@ -460,6 +460,58 @@ with MockedAkkaServiceClient {
 
       mockAkkaServiceClient.validate()
     }
+    it("handles 403 response from endpoints call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      mockAkkaServiceClient.validate()
+    }
+    it("handles 401 response from endpoints call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      mockAkkaServiceClient.validate()
+    }
     it("rejects with 403 if the user does not have the required endpoint") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -1016,6 +1068,30 @@ with MockedAkkaServiceClient {
       mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
           "glibglob" -> AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
+    }
+    it("handles unexpected response from groups call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
         )
       )
 
