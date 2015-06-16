@@ -46,7 +46,7 @@ with MockedAkkaServiceClient {
         |            username="username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            set-groups-in-header="true"
+        |            set-groups-in-header="false"
         |            set-catalog-in-header="false"
         |            />
         |</keystone-v2>
@@ -63,10 +63,12 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaPostResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
-      }
+      mockAkkaPostResponse(
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      )
 
       //Urgh, I have to hit the akka service client twice
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
@@ -89,10 +91,12 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaPostResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
-      }
+      mockAkkaPostResponse(
+          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+      )
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
@@ -116,10 +120,12 @@ with MockedAkkaServiceClient {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
       //Pretend like identity is going to give us a valid admin token
-      mockAkkaPostResponse {
+      mockAkkaPostResponse(
         AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
-      }
+      )
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
@@ -261,7 +267,7 @@ with MockedAkkaServiceClient {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
-      mockAkkaAdminTokenResponses {
+      mockAkkaPostResponses {
         Seq(
           AkkaServiceClientResponse(200, adminAuthenticationTokenResponse()),
           AkkaServiceClientResponse(200, adminAuthenticationTokenResponse(token = "morty"))
@@ -291,7 +297,7 @@ with MockedAkkaServiceClient {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
-      mockAkkaAdminTokenResponses {
+      mockAkkaPostResponses {
         Seq(
           AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
         )
@@ -323,7 +329,7 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       //Need to throw an exception from akka when trying to talk to it
       //The admin token retry logic doesn't retry when it's a 500 class error
-      mockAkkaAdminTokenResponses {
+      mockAkkaPostResponses {
         Seq(
           AkkaServiceClientResponse.failure("Unable to reach identity!")
         )
@@ -347,7 +353,7 @@ with MockedAkkaServiceClient {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
-      mockAkkaAdminTokenResponses {
+      mockAkkaPostResponses {
         Seq(
           AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
         )
@@ -377,7 +383,7 @@ with MockedAkkaServiceClient {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       //Our admin token is good every time
-      mockAkkaAdminTokenResponses {
+      mockAkkaPostResponses {
         Seq(
           AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
         )

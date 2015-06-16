@@ -20,7 +20,7 @@ trait MockedAkkaServiceClient {
     type AkkaResponse = Either[ServiceClientResponse, AkkaServiceClientException]
 
     val getResponses: mutable.Map[(String, String), mutable.Queue[AkkaResponse]] = mutable.Map.empty[(String, String), mutable.Queue[AkkaResponse]]
-    val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
+    val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]() //todo: use a queue
     val oversteppedGetRequests = new AtomicBoolean(false)
     val oversteppedPostRequests = new AtomicBoolean(false)
 
@@ -109,10 +109,10 @@ trait MockedAkkaServiceClient {
   }
 
   def mockAkkaPostResponse(response: AkkaParent): Unit = {
-    mockAkkaAdminTokenResponses(Seq(response))
+    mockAkkaPostResponses(Seq(response))
   }
 
-  def mockAkkaAdminTokenResponses(responses: Seq[AkkaParent]): Unit = {
+  def mockAkkaPostResponses(responses: Seq[AkkaParent]): Unit = {
     mockAkkaServiceClient.postResponses ++= responses.reverseMap {
       case x: ServiceClientResponse => Left(x)
       case x: AkkaServiceClientException => Right(x)
