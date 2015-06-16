@@ -30,6 +30,7 @@ with MockedAkkaServiceClient {
   private val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
   val mockConfigService = mock[ConfigurationService]
+  private final val SC_TOO_MANY_REQUESTS = 429
 
   before {
     Mockito.reset(mockDatastore)
@@ -950,6 +951,78 @@ with MockedAkkaServiceClient {
         Seq(
           "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
           "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
+    }
+    it("handles 403 response from groups call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
+    }
+    it("handles 413 response from groups call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
+        )
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
+    }
+    it("handles 429 response from groups call") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      //Urgh, I have to hit the akka service client twice
+      Mockito.when(mockDatastore.get(VALID_TOKEN)).thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
+
+      mockAkkaGetResponses(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
         )
       )
 
