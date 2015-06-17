@@ -134,7 +134,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
       import scala.collection.JavaConversions._
       val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-        identityEndpoint, //TODO: wrong URL
+        s"$identityEndpoint$TOKEN_ENDPOINT",
         Map.empty[String, String],
         Json.stringify(authenticationPayload),
         MediaType.APPLICATION_JSON_TYPE
