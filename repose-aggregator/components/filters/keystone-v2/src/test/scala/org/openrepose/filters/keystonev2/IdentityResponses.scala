@@ -457,7 +457,7 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def groupsResponse(): String ={
+  def groupsResponse(): String = {
     """
       |{
       |  "RAX-KSGRP:groups": [
