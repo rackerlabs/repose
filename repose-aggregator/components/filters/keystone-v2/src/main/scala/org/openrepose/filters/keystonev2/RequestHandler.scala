@@ -210,20 +210,20 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
         Option(config.getTenantHandling.getValidateTenant.getBypassValidationRoles) map {
           _.getRole.asScala.intersect(validToken.roles).nonEmpty
+        } filter {
+          identity
         } match {
-          case Some(true) => null //todo: don't use null here
-          case _ =>
-            Try[String] {
+          case Some(_) => null //todo: don't use null here
+          case None =>
               expectedTenant match {
                 case Some(reqTenant) =>
                   val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
                   tokenTenants.find(reqTenant.equals) match {
-                    case Some(uriTenant) => uriTenant
-                    case None => throw InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")
+                    case Some(uriTenant) => Success(uriTenant)
+                    case None => Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
                   }
-                case None => throw UnparseableTenantException("Could not parse tenant from the URI")
+                case None => Failure(UnparseableTenantException("Could not parse tenant from the URI"))
               }
-            }
         }
       } match {
         case Some(Failure(e)) => Failure(e)
