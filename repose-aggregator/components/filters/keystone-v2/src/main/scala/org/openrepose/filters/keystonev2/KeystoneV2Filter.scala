@@ -38,7 +38,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.keystonev2.config.{CacheSettingsType, CacheTimeoutsType, KeystoneV2Config, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -159,15 +159,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 endpointAuthorization(authToken, validToken) match {
                   case Some(Success(endpointVector)) =>
                     //If I'm configured to put the endpoints into a x-catalog do it
-                    //Do more things in here
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")) //todo: not the place for this
+                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
                     Pass(rolesHeader ++ headers)
                   case Some(Failure(x)) =>
                     //Reject them with 403
                     Reject(SC_FORBIDDEN, failure = Some(x))
                   case None =>
                     //Do more things in here
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")) //todo: not the place for this
+                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
                     Pass(rolesHeader ++ headers)
                 }
               case reject: Reject => reject
@@ -177,7 +176,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case Pass(headers) =>
                 getGroups(authToken, validToken) match {
                   case Some(Success(groups)) =>
-                    val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(",")) //todo: not the place for this
+                    val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(","))
                     Pass(headers ++ groupsHeader)
                   case Some(Failure(e)) =>
                     logger.error(s"Could not get groups: ${e.getMessage}")
@@ -247,8 +246,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val defaultTenantId: String = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
         val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
-        //TODO: if I cache this here, I don't know if I'll get endpoints :|
-        datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+        // todo: what if getCache or getTimeouts are null?
+        datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, configuration.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
         Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
@@ -277,7 +276,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND =>
-            datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+            datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, configuration.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
             Success(InvalidToken)
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
@@ -325,7 +324,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           val json = Json.parse(jsonResponse)
           Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
             case Success(s) =>
-              datastore.put(ADMIN_TOKEN_KEY, s.get, configuration.getCacheSettings.getTimeouts.getToken, TimeUnit.SECONDS)
+              datastore.put(ADMIN_TOKEN_KEY, s.get, configuration.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
               s
             case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
           }
@@ -457,7 +456,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val json = Json.parse(input)
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
-        case s: JsSuccess[Vector[Endpoint]] => Success(s.get)
+        case s: JsSuccess[Vector[Endpoint]] =>
+          // todo: cache endpoints
+          Success(s.get)
         case f: JsError =>
           Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
       }
@@ -547,7 +548,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
         val json = Json.parse(input)
 
-        (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
+        val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
+        // todo: what if getCache or getTimeouts are null?
+        datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, configuration.getCache.getTimeouts.getGroup, TimeUnit.SECONDS)
+        groupsForToken
       }
     }
 
@@ -592,10 +596,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // LOLJAXB  	(╯°□°）╯︵ ┻━┻
       //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
       // I'm sorry
-      if (stupidConfig.getCacheSettings == null) {
-        stupidConfig.withCacheSettings(new CacheSettingsType().withTimeouts(new CacheTimeoutsType()))
-      } else if (stupidConfig.getCacheSettings.getTimeouts == null) {
-        stupidConfig.getCacheSettings.withTimeouts(new CacheTimeoutsType())
+      if (stupidConfig.getCache == null) {
+        stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
+      } else if (stupidConfig.getCache.getTimeouts == null) {
+        stupidConfig.getCache.withTimeouts(new CacheTimeoutsType())
         stupidConfig
       } else {
         stupidConfig

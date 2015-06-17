@@ -77,7 +77,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.destroy
+    filter.destroy()
 
     Mockito.verify(mockConfigService).unsubscribeFrom("keystone-v2.cfg.xml", filter)
 
@@ -86,7 +86,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   describe("when the configuration is updated") {
     it("sets the current configuration on the filter asserting the defaults and initialized is true") {
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
-      filter.isInitialized shouldNot be(true)
+      filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -102,15 +102,15 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       filter.configurationUpdated(configuration)
 
-      val timeouts = filter.configuration.getCacheSettings.getTimeouts
+      val timeouts = filter.configuration.getCache.getTimeouts
       timeouts.getEndpoints should be(600)
       timeouts.getGroup should be(600)
       timeouts.getToken should be(600)
       timeouts.getUser should be(600)
       timeouts.getVariability should be(0)
 
-      filter.configuration.getIdentityService.isSetGroupsInHeader should be(true)
-      filter.configuration.getIdentityService.isSetCatalogInHeader should be(false)
+      filter.configuration.getIdentityService.isSetGroupsInHeader should be(right = true)
+      filter.configuration.getIdentityService.isSetCatalogInHeader should be(right = false)
 
       filter.configuration.getDelegating should be(null)
 
@@ -124,7 +124,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
     it("sets the default delegating quality to 0.7") {
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
-      filter.isInitialized shouldNot be(true)
+      filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -141,7 +141,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       filter.configurationUpdated(configuration)
 
-      val timeouts = filter.configuration.getCacheSettings.getTimeouts
+      val timeouts = filter.configuration.getCache.getTimeouts
       filter.configuration.getDelegating.getQuality should be(0.7)
     }
   }

@@ -43,7 +43,7 @@
             <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="cache-settings" type="CacheSettingsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
         </xs:all>
@@ -235,7 +235,7 @@
     </xs:complexType>
 
 
-    <xs:complexType name="CacheSettingsType">
+    <xs:complexType name="CacheType">
         <xs:sequence>
             <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="eviction-feeds" type="AtomFeeds" minOccurs="0" maxOccurs="1"/>

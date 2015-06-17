@@ -357,7 +357,7 @@ with MockedAkkaServiceClient {
       //Need to throw an exception from akka when trying to talk to it
       //The admin token retry logic doesn't retry when it's a 500 class error
       mockAkkaPostResponse {
-          AkkaServiceClientResponse.failure("Unable to reach identity!")
+        AkkaServiceClientResponse.failure("Unable to reach identity!")
       }
 
       val response = new MockHttpServletResponse
