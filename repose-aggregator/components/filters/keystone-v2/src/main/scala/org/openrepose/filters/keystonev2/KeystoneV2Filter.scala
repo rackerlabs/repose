@@ -176,7 +176,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
             val addHeaders = userGroups match {
               case Pass(headers) =>
-                val userHeaders: Map[String, String] = headers +
+                val userHeaders = headers +
                   (PowerApiHeader.USER.toString -> validToken.username, //todo: is user always equal to username?
                     OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
                     OpenStackServiceHeader.USER_ID.toString-> validToken.userId)
