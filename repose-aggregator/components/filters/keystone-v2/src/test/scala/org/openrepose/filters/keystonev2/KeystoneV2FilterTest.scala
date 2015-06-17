@@ -1018,6 +1018,64 @@ with MockedAkkaServiceClient {
       response.wasErrorSent shouldBe true
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
+
+    it("should send the X-Authorization header with the tenant in the uri") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/years/test")
+      request.setRequestURI("/years/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy years"
+    }
+
+    it("should send the X-Authorization header without a tenant if tenant handling is not used") {
+      val modifiedConfig = configuration
+      modifiedConfig.setTenantHandling(null)
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/years/test")
+      request.setRequestURI("/years/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy"
+    }
+
+    it("should send the X-Authorization header without a tenant if tenant validation is not used") {
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setValidateTenant(null)
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/years/test")
+      request.setRequestURI("/years/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(ValidToken("one", Seq("hundred", "years"), Nil), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy"
+    }
   }
 
   describe("Forwarding information enabled") {

@@ -49,6 +49,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+  private final val X_AUTH_PROXY = "Proxy"
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
@@ -131,14 +132,20 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case Success(InvalidToken) =>
             Reject(SC_UNAUTHORIZED)
           case Success(validToken: ValidToken) =>
-            val authorizedTenant = requestHandler.tenantAuthorization(requestHandler.extractTenant(request.getRequestURI), validToken) match {
+            val uriTenantOption = requestHandler.extractTenant(request.getRequestURI)
+            val authorizedTenant = requestHandler.tenantAuthorization(uriTenantOption, validToken) match {
               case Some(Success(tenantHeaderValues)) =>
                 val tenantHeaders = Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
-                Pass(tenantHeaders)
+                uriTenantOption match {
+                  case Some(uriTenant) =>
+                    Pass(tenantHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"))
+                  case None =>
+                    Pass(tenantHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
+                }
               case Some(Failure(e)) =>
                 Reject(SC_UNAUTHORIZED, failure = Some(e))
               case None =>
-                Pass(Map.empty[String, String])
+                Pass(Map(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
             }
 
             val authorizedEndpoints = authorizedTenant match {
