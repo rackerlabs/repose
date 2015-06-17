@@ -67,12 +67,12 @@ with MockedAkkaServiceClient {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
       )
 
       //Urgh, I have to hit the akka service client twice
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -95,11 +95,11 @@ with MockedAkkaServiceClient {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
       )
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -124,11 +124,11 @@ with MockedAkkaServiceClient {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse(
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
       )
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -153,11 +153,11 @@ with MockedAkkaServiceClient {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
       }
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}INVALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(404, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
       )
 
       val response = new MockHttpServletResponse
@@ -171,7 +171,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getErrorCode shouldBe 401
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       mockAkkaServiceClient.validate()
     }
 
@@ -215,7 +215,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getErrorCode shouldBe 401
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
 
       //So because we didn't add any interactions, this guy will validate with no interactions
       mockAkkaServiceClient.validate()
@@ -229,11 +229,11 @@ with MockedAkkaServiceClient {
 
       //Pretend like identity is going to give us a valid admin token
       mockAkkaPostResponse {
-        AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
       }
       //Urgh, I have to hit the akka service client twice
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}notValidToken")(
-        "glibglob", AkkaServiceClientResponse(404, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
       )
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -242,7 +242,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getErrorCode shouldBe 401
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       mockAkkaServiceClient.validate()
     }
 
@@ -257,7 +257,7 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getErrorCode shouldBe 403
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       mockAkkaServiceClient.validate()
     }
 
@@ -269,8 +269,8 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       mockAkkaPostResponses {
         Seq(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse()),
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse(token = "morty"))
+          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()),
+          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse(token = "morty"))
         )
       }
 
@@ -278,8 +278,8 @@ with MockedAkkaServiceClient {
       // Then we'll be authorized
       mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN") {
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(401, ""),
-          "morty" -> AkkaServiceClientResponse(200, validateTokenResponse())
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "morty" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
         )
       }
       val response = new MockHttpServletResponse
@@ -299,7 +299,7 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       mockAkkaPostResponses {
         Seq(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
         )
       }
 
@@ -307,14 +307,14 @@ with MockedAkkaServiceClient {
       // Then we'll be authorized
       mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN") {
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(403, "")
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
         )
       }
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe 500
+      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -329,17 +329,15 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       //Need to throw an exception from akka when trying to talk to it
       //The admin token retry logic doesn't retry when it's a 500 class error
-      mockAkkaPostResponses {
-        Seq(
+      mockAkkaPostResponse {
           AkkaServiceClientResponse.failure("Unable to reach identity!")
-        )
       }
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe 502
+      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -355,7 +353,7 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       mockAkkaPostResponses {
         Seq(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
         )
       }
 
@@ -370,7 +368,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe 502
+      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -385,14 +383,14 @@ with MockedAkkaServiceClient {
       //Our admin token is good every time
       mockAkkaPostResponses {
         Seq(
-          AkkaServiceClientResponse(200, adminAuthenticationTokenResponse())
+          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
         )
       }
 
       //Validate the token response with roles to grab them!
       mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN") {
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
         )
       }
       val response = new MockHttpServletResponse
@@ -443,10 +441,10 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, endpointsResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -588,7 +586,7 @@ with MockedAkkaServiceClient {
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       mockAkkaServiceClient.validate()
     }
-    it("rejects with 403 if the user does not have the required endpoint") { //TODO: may not be necessary since other test tests the 403 for getEndpoints
+    it("rejects with 403 if the user does not have the required endpoint") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -596,18 +594,17 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
-      )
+      Mockito.when(mockDatastore.get(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN"))
+        .thenReturn(filter.ValidToken("tenant", Seq.empty[String], Seq.empty[String]), Nil: _*)
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse())
       )
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe 403
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -623,10 +620,10 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateRackerTokenResponse())
       )
       mockAkkaGetResponse(s"${filter.ENDPOINTS_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, oneEndpointResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse())
       )
 
       val response = new MockHttpServletResponse
@@ -648,7 +645,7 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -658,7 +655,7 @@ with MockedAkkaServiceClient {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getErrorCode shouldBe 403
+        response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
 
@@ -673,7 +670,7 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(200, validateTokenResponse())
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -697,7 +694,7 @@ with MockedAkkaServiceClient {
         Mockito.when(mockDatastore.get(filter.ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         mockAkkaGetResponse(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(200, validateRackerTokenResponse())
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateRackerTokenResponse())
         )
 
         val endpointsList = Vector(filter.Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
@@ -756,7 +753,7 @@ with MockedAkkaServiceClient {
 
     it("will not perform authentication or authorization the URI that matches") {
       //make a request and validate that it called the akka service client?
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      val request = new MockHttpServletRequest
       request.setRequestURL("http://www.sample.com/some/path/application.wadl")
       request.setRequestURI("/some/path/application.wadl")
 
@@ -1005,12 +1002,12 @@ with MockedAkkaServiceClient {
 
       mockAkkaGetResponses(s"${filter.TOKEN_KEY_PREFIX}$VALID_TOKEN")(
         Seq(
-          "glibglob" -> AkkaServiceClientResponse(200, validateTokenResponse())
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
         )
       )
 
       mockAkkaGetResponse(s"${filter.GROUPS_KEY_PREFIX}$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(200, groupsResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
       val response = new MockHttpServletResponse
