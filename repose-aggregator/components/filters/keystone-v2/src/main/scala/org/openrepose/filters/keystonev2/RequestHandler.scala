@@ -59,10 +59,12 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       try {
         val json = Json.parse(input)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
-        val roleNames: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
-        val defaultTenantId: String = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
-        val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
-        val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
+        val roleNames = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
+        val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
+        val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
+        val userId = (json \ "access" \ "user" \ "id").as[String]
+        val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
+        val validToken = ValidToken(userId, username, defaultTenantId, tenantIds, roleNames)
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -439,7 +441,11 @@ object RequestHandler {
 
   sealed trait AuthResult
 
-  case class ValidToken(defaultTenantId: String, tenantIds: Seq[String], roles: Seq[String]) extends AuthResult
+  case class ValidToken(userId: String,
+                        username: String,
+                        defaultTenantId: String,
+                        tenantIds: Seq[String],
+                        roles: Seq[String]) extends AuthResult
 
   case object InvalidToken extends AuthResult
 

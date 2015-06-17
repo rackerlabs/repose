@@ -135,17 +135,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val uriTenantOption = requestHandler.extractTenant(request.getRequestURI)
             val authorizedTenant = requestHandler.tenantAuthorization(uriTenantOption, validToken) match {
               case Some(Success(tenantHeaderValues)) =>
-                val tenantHeaders = Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
-                uriTenantOption match {
-                  case Some(uriTenant) =>
-                    Pass(tenantHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"))
-                  case None =>
-                    Pass(tenantHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
-                }
+                Pass(Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(",")))
               case Some(Failure(e)) =>
                 Reject(SC_UNAUTHORIZED, failure = Some(e))
               case None =>
-                Pass(Map(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
+                Pass(Map.empty[String, String])
             }
 
             val authorizedEndpoints = authorizedTenant match {
@@ -180,7 +174,20 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case reject: Reject => reject
             }
 
-            userGroups
+            val addHeaders = userGroups match {
+              case Pass(headers) =>
+                uriTenantOption match {
+                  case Some(uriTenant) =>
+                    Pass(headers + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"))
+                  case None =>
+                    Pass(headers + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
+                }
+
+                //todo: add username and userid headers
+              case reject: Reject => reject
+            }
+
+            addHeaders
           case Failure(x: IdentityAdminTokenException) =>
             Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
           case Failure(x: IdentityCommuncationException) =>
