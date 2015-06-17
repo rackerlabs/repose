@@ -1,11 +1,12 @@
 package org.openrepose.filters.keystonev2
 
+import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
-import org.mockito.Mockito
+import org.mockito.{Matchers => MockMatchers, Mockito}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -35,6 +36,32 @@ with MockedAkkaServiceClient {
     Mockito.reset(mockDatastore)
     Mockito.reset(mockConfigService)
     mockAkkaServiceClient.reset()
+  }
+
+  describe("Filter lifecycle") {
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+    val config: MockFilterConfig = new MockFilterConfig
+
+    it("should subscribe a listener to the configuration service on init") {
+      filter.init(config)
+
+      Mockito.verify(mockConfigService).subscribeTo(
+        MockMatchers.anyString(),
+        MockMatchers.anyString(),
+        MockMatchers.any[URL],
+        MockMatchers.any(),
+        MockMatchers.any()
+      )
+    }
+
+    it("should unsubscribe a listener to the configuration service on destroy") {
+      filter.destroy()
+
+      Mockito.verify(mockConfigService).unsubscribeFrom(
+        MockMatchers.anyString(),
+        MockMatchers.any()
+      )
+    }
   }
 
   describe("Configured simply to authenticate tokens, defaults for everything else") {
