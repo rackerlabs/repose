@@ -143,7 +143,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           case Success(InvalidToken) =>
             Reject(SC_UNAUTHORIZED)
           case Success(validToken: ValidToken) =>
-            //TODO: should cache this here, at the final point? Can't cache it all, because differing timeouts :|
             val authorizedTenant = tenantAuthorization(extractTenant(request.getRequestURI), validToken) match {
               case Some(Success(tenantHeaderValues)) =>
                 val tenantHeaders = Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
@@ -246,8 +245,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val defaultTenantId: String = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
         val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
-        // todo: what if getCache or getTimeouts are null?
-        datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, configuration.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
+        // todo: generalize (refactor) this code
+        Option(configuration.getCache) foreach { cacheSettings =>
+          val timeout = Option(cacheSettings.getTimeouts) match {
+            case Some(timeouts) => timeouts.getToken.toInt
+            case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
+          }
+          datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, timeout, TimeUnit.SECONDS)
+        }
         Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
