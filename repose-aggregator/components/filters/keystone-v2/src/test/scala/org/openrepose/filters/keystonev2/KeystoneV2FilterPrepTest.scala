@@ -48,6 +48,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/keystone-v2.xsd"))
     }
+
     it("should initialize a configuration with a different name") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
       val mockConfigService = mock[ConfigurationService]
@@ -68,9 +69,9 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq(classOf[KeystoneV2Config]))
 
       assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/keystone-v2.xsd"))
-
     }
   }
+
   it("deregisters from the configuration service when destroying") {
     val mockConfigService = mock[ConfigurationService]
     val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mock[AkkaServiceClient], mockDatastoreService)
@@ -80,7 +81,6 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     filter.destroy()
 
     Mockito.verify(mockConfigService).unsubscribeFrom("keystone-v2.cfg.xml", filter)
-
   }
 
   describe("when the configuration is updated") {
@@ -119,9 +119,8 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.configuration.getTenantHandling should be(null)
 
       filter.configuration.getRequireServiceEndpoint should be(null)
-
-
     }
+
     it("sets the default delegating quality to 0.7") {
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
       filter.isInitialized shouldNot be(right = true)
