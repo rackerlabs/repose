@@ -63,7 +63,6 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val defaultTenantId: String = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
         val tenantIds: Seq[String] = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val validToken = ValidToken(defaultTenantId, tenantIds, roleNames)
-        // todo: generalize (refactor) this code
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -257,8 +256,15 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
-          // todo: cache endpoints
-          Success(s.get)
+          val endpoints = s.get
+          Option(config.getCache) foreach { cacheSettings =>
+            val timeout = Option(cacheSettings.getTimeouts) match {
+              case Some(timeouts) => timeouts.getEndpoints.toInt
+              case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
+            }
+            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpoints, timeout, TimeUnit.SECONDS)
+          }
+          Success(endpoints)
         case f: JsError =>
           Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
       }
@@ -349,8 +355,13 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val json = Json.parse(input)
 
         val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
-        // todo: what if getCache or getTimeouts are null?
-        datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, config.getCache.getTimeouts.getGroup, TimeUnit.SECONDS)
+        Option(config.getCache) foreach { cacheSettings =>
+          val timeout = Option(cacheSettings.getTimeouts) match {
+            case Some(timeouts) => timeouts.getGroup.toInt
+            case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
+          }
+          datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, timeout, TimeUnit.SECONDS)
+        }
         groupsForToken
       }
     }
