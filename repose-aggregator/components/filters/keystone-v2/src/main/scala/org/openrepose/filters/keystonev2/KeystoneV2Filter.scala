@@ -176,7 +176,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
             val addHeaders = userGroups match {
               case Pass(headers) =>
-                val userHeaders = Map(PowerApiHeader.USER.toString -> validToken.username, //todo: quality
+                val userHeaders = Map(PowerApiHeader.USER.toString -> validToken.username,
                   OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
                   OpenStackServiceHeader.USER_ID.toString -> validToken.userId)
 
@@ -186,6 +186,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case None =>
                     OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                 }
+
+                //todo: roles
+                //todo: groups
+                //todo: tenant
+                //todo: impersonator
+                //todo: endpoints
+                //todo: expiration date
+                //todo: default region
+                //todo: contact id
+                //todo: identity status
 
                 Pass(headers ++ userHeaders + xAuthHeader)
               case reject: Reject => reject
@@ -216,6 +226,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Some(failure.getMessage)
           case _ => None
         }
+        //todo: delegation
         message match {
           case Some(m) =>
             logger.debug(s"Rejection message: $m")
