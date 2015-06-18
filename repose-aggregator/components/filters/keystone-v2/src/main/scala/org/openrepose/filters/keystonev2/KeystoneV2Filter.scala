@@ -147,15 +147,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 requestHandler.endpointAuthorization(authToken, validToken) match {
                   case Some(Success(endpointVector)) =>
                     //If I'm configured to put the endpoints into a x-catalog do it
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
-                    Pass(rolesHeader ++ headers)
+                    //todo: endpoints header
+                    Pass(headers)
                   case Some(Failure(x)) =>
                     //Reject them with 403
                     Reject(SC_FORBIDDEN, failure = Some(x))
                   case None =>
                     //Do more things in here
-                    val rolesHeader = Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
-                    Pass(rolesHeader ++ headers)
+                    Pass(headers)
                 }
               case reject: Reject => reject
             }
@@ -187,7 +186,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                     OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                 }
 
-                //todo: roles
+                val rolesHeader = OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")
+
                 //todo: groups
                 //todo: tenant
                 //todo: impersonator
@@ -197,7 +197,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 //todo: contact id
                 //todo: identity status
 
-                Pass(headers ++ userHeaders + xAuthHeader)
+                Pass(headers ++ userHeaders + rolesHeader + xAuthHeader)
               case reject: Reject => reject
             }
 

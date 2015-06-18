@@ -400,34 +400,6 @@ with MockedAkkaServiceClient {
       filterChain.getLastResponse should be(null)
       mockAkkaServiceClient.validate()
     }
-
-    it("includes the user's roles in the x-roles header in the request") {
-      //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
-
-      //Our admin token is good every time
-      mockAkkaPostResponses {
-        Seq(
-          AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
-        )
-      }
-
-      //Validate the token response with roles to grab them!
-      mockAkkaGetResponses(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") {
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
-        )
-      }
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader("x-roles") should be("compute:admin,object-store:admin")
-
-      mockAkkaServiceClient.validate()
-    }
   }
 
   describe("Configured to authenticate and authorize a specific service endpoint") {
@@ -1119,6 +1091,31 @@ with MockedAkkaServiceClient {
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID.toString) shouldBe "123"
+
+      mockAkkaServiceClient.validate()
+    }
+
+    it("forwards the user's roles information in the x-roles header") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include ("compute:admin")
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include ("object-store:admin")
 
       mockAkkaServiceClient.validate()
     }
