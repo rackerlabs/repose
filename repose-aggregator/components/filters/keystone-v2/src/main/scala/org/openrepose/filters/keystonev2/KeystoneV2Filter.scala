@@ -176,16 +176,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
             val addHeaders = userGroups match {
               case Pass(headers) =>
-                val userHeaders = headers +
-                  (PowerApiHeader.USER.toString -> validToken.username, //todo: is user always equal to username?
-                    OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
-                    OpenStackServiceHeader.USER_ID.toString-> validToken.userId)
-                uriTenantOption match {
+                val userHeaders = Map(PowerApiHeader.USER.toString -> validToken.username, //todo: quality
+                  OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
+                  OpenStackServiceHeader.USER_ID.toString -> validToken.userId)
+
+                val xAuthHeader = uriTenantOption match {
                   case Some(uriTenant) =>
-                    Pass(userHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"))
+                    OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"
                   case None =>
-                    Pass(userHeaders + (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY))
+                    OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                 }
+
+                Pass(headers ++ userHeaders + xAuthHeader)
               case reject: Reject => reject
             }
 

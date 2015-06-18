@@ -1105,7 +1105,7 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
