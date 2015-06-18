@@ -65,7 +65,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
-        val validToken = ValidToken(userId, username, tenantName, defaultTenantId, tenantIds, roleNames)
+        val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").as[String] // note: this may be optional? if so, asOpt can be used.
+        val validToken = ValidToken(userId, username, tenantName, defaultTenantId, tenantIds, roleNames, defaultRegion)
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -447,7 +448,8 @@ object RequestHandler {
                         tenantName: String,
                         defaultTenantId: String,
                         tenantIds: Seq[String],
-                        roles: Seq[String]) extends AuthResult
+                        roles: Seq[String],
+                        defaultRegion: String) extends AuthResult
 
   case object InvalidToken extends AuthResult
 
