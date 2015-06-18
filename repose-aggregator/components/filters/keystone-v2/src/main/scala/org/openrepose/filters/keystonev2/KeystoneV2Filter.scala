@@ -192,13 +192,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                 val defaultRegion = OpenStackServiceHeader.DEFAULT_REGION.toString -> validToken.defaultRegion
 
+                val expirationDate = OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate
+
                 //todo: impersonator
                 //todo: endpoints
-                //todo: expiration date
                 //todo: contact id
                 //todo: identity status
 
-                Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader + defaultRegion)
+                Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader + defaultRegion + expirationDate)
               case reject: Reject => reject
             }
 

@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.{Matchers => MockMatchers, Mockito}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
@@ -164,7 +165,7 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put(s"$TOKEN_KEY_PREFIX$VALID_TOKEN", ValidToken("123", "testuser", "My Project", "345", List.empty[String], Vector("compute:admin", "object-store:admin"), "DFW"), 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(s"$TOKEN_KEY_PREFIX$VALID_TOKEN", ValidToken("123", "testuser", "My Project", "345", List.empty[String], Vector("compute:admin", "object-store:admin"), "DFW", s"${tokenDateFormat(DateTime.now().plusDays(1))}"), 600, TimeUnit.SECONDS)
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -1144,6 +1145,30 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
+    it("forwards the expiration date information in the x-expiration header") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe tokenDateFormat(DateTime.now().plusDays(1))
+
+      mockAkkaServiceClient.validate()
+    }
+
     it("forwards the groups in the x-pp-groups header by default") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1329,14 +1354,16 @@ with MockedAkkaServiceClient {
               defaultTenantId: String = "",
               tenantIds: Seq[String] = Seq.empty[String],
               roles: Seq[String] = Seq.empty[String],
-              defaultRegion: String = "") = {
+              defaultRegion: String = "",
+              expirationDate: String = "") = {
       ValidToken(userId,
         username,
         tenantName,
         defaultTenantId,
         tenantIds,
         roles,
-        defaultRegion)
+        defaultRegion,
+        expirationDate)
     }
   }
 
