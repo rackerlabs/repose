@@ -62,7 +62,7 @@ class MockIdentityV2Service {
     /**
      * Set initial values for some fields
      *  Set Date time format
-     *  initialize isTokenValid, checkeTokenValid
+     *  initialize isTokenValid, checkTokenValid
      *  TokenExpiresAt field determines when the token exp. Consumers can set to particular DateTime
      *      or leave it null to default as now plus one day.
      *
@@ -178,6 +178,7 @@ class MockIdentityV2Service {
     def additionalRolesJson = ""
     def impersonate_id = ""
     def impersonate_name = ""
+    def validateTenant = null
     Validator validator;
 
     /**
@@ -208,6 +209,7 @@ class MockIdentityV2Service {
         additionalRolesJson = ""
         impersonate_id = ""
         impersonate_name = ""
+        validateTenant = null
     }
 
     def templateEngine = new SimpleTemplateEngine();
@@ -301,12 +303,19 @@ class MockIdentityV2Service {
             }
 
             if (isValidateTokenCallPath(nonQueryPath)) {
-                // TODO: 'belongsTo' in query string
+                // add handle 'belongsTo' in query string
                 if (method == 'GET') {
+                    def tenantid = validateTenant
+                    if (query != null) {
+                        if (query.contains("belongsTo")) {
+                            String belongsToquery = query.substring(indexOf("belongsTo"), indexOf(/&/))
+                            tenantid = belongsToquery.split(/=/)[1]
+                        }
+                    }
                     _validateTokenCount.incrementAndGet()
                     def match = (nonQueryPath =~ validateTokenCallPathRegex)
                     def tokenId = match[0][1]
-                    return validateTokenHandler(tokenId, request, xml)
+                    return validateTokenHandler(tokenId, tenantid, request, xml)
                 } else {
                     return new Response(405)
                 }
@@ -556,19 +565,22 @@ class MockIdentityV2Service {
     /**
      * Simuate response for validateToken call of identity v2
      * @param tokenId
-     * @param request
-     * @param xml
+     * @param tenantid (if validateToken with belongsTo tenant)
      * @return an instance of response
      */
-    Response validateToken(String tokenId, Request request, boolean xml) {
+    Response validateToken(String tokenId, String tenantid = null, Request request, boolean xml) {
         def path = request.getPath()
         def request_token = tokenId
+        def passedtenant = tenantid
+        if (passedtenant == null) {
+            passedtenant = client_tenantid
+        }
 
         def params = [
                 expires        : getExpires(),
                 userid         : client_userid,
                 username       : client_username,
-                tenantid       : client_tenantid,
+                tenantid       : passedtenant,
                 tenantname     : client_tenantname,
                 tenantidtwo    : client_tenantid2,
                 tenantnametwo  : client_tenantname2,
