@@ -188,8 +188,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                 val rolesHeader = OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")
 
-                //todo: groups
-                //todo: tenant
+                val tenantName = OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName
+
                 //todo: impersonator
                 //todo: endpoints
                 //todo: expiration date
@@ -197,7 +197,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 //todo: contact id
                 //todo: identity status
 
-                Pass(headers ++ userHeaders + rolesHeader + xAuthHeader)
+                Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader)
               case reject: Reject => reject
             }
 

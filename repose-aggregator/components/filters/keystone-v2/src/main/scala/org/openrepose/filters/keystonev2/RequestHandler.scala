@@ -64,7 +64,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
-        val validToken = ValidToken(userId, username, defaultTenantId, tenantIds, roleNames)
+        val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
+        val validToken = ValidToken(userId, username, tenantName, defaultTenantId, tenantIds, roleNames)
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -216,15 +217,15 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         } match {
           case Some(_) => null //todo: don't use null here
           case None =>
-              expectedTenant match {
-                case Some(reqTenant) =>
-                  val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
-                  tokenTenants.find(reqTenant.equals) match {
-                    case Some(uriTenant) => Success(uriTenant)
-                    case None => Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-                  }
-                case None => Failure(UnparseableTenantException("Could not parse tenant from the URI"))
-              }
+            expectedTenant match {
+              case Some(reqTenant) =>
+                val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
+                tokenTenants.find(reqTenant.equals) match {
+                  case Some(uriTenant) => Success(uriTenant)
+                  case None => Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
+                }
+              case None => Failure(UnparseableTenantException("Could not parse tenant from the URI"))
+            }
         }
       } match {
         case Some(Failure(e)) => Failure(e)
@@ -443,6 +444,7 @@ object RequestHandler {
 
   case class ValidToken(userId: String,
                         username: String,
+                        tenantName: String,
                         defaultTenantId: String,
                         tenantIds: Seq[String],
                         roles: Seq[String]) extends AuthResult
