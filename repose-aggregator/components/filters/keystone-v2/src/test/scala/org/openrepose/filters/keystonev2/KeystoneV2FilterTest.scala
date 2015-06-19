@@ -165,7 +165,10 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put(s"$TOKEN_KEY_PREFIX$VALID_TOKEN", ValidToken(s"${tokenDateFormat(DateTime.now().plusDays(1))}", "123", "testuser", "My Project", "345", List.empty[String], Vector("compute:admin", "object-store:admin"), None, None, Some("DFW")), 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
+        MockMatchers.any(classOf[ValidToken]),
+        MockMatchers.eq(600),
+        MockMatchers.eq(TimeUnit.SECONDS))
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -1177,8 +1180,9 @@ with MockedAkkaServiceClient {
       //Pretend like the admin token is cached all the time
       Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
+      val time = DateTime.now().plusHours(1)
       mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(expires = time))
       )
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
@@ -1189,7 +1193,7 @@ with MockedAkkaServiceClient {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe tokenDateFormat(DateTime.now().plusDays(1))
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe tokenDateFormat(time)
 
       mockAkkaServiceClient.validate()
     }

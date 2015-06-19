@@ -300,8 +300,8 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateTokenResponse(token:String = VALID_TOKEN):String = {
-    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
+  def validateTokenResponse(token:String = VALID_TOKEN, expires:DateTime = DateTime.now().plusDays(1)):String = {
+    val expiryTime = tokenDateFormat(expires)
 
     s"""
       |{
