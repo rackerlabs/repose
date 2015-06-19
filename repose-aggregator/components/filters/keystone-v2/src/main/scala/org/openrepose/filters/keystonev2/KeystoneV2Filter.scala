@@ -163,8 +163,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case Pass(headers) =>
                 requestHandler.getGroups(authToken, validToken) match {
                   case Some(Success(groups)) =>
-                    val groupsHeader = Map(PowerApiHeader.GROUPS.toString -> groups.mkString(","))
-                    Pass(headers ++ groupsHeader)
+                    val groupsHeader = PowerApiHeader.GROUPS.toString -> groups.mkString(",")
+                    Pass(headers + groupsHeader)
                   case Some(Failure(e)) =>
                     logger.error(s"Could not get groups: ${e.getMessage}")
                     Pass(headers)
