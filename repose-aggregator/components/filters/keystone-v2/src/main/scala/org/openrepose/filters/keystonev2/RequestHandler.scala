@@ -23,11 +23,12 @@ import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
+
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
+import org.apache.http.client.utils.DateUtils
+import org.joda.time.format.ISODateTimeFormat
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
@@ -68,7 +69,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
-        val expirationDate = iso8601ToRFC1123((json \ "access" \ "token" \ "expires").as[String])
+        val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
         val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
         val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion, contactId)
@@ -423,6 +424,11 @@ object RequestHandler {
   final val GROUPS_KEY_PREFIX = "IDENTITY:V2:GROUPS:"
   final val ENDPOINTS_KEY_PREFIX = "IDENTITY:V2:ENDPOINTS:"
 
+  def iso8601ToRfc1123(iso: String) = {
+    val dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(iso)
+    DateUtils.formatDate(dateTime.toDate)
+  }
+
   trait IdentityException
 
   case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
@@ -484,9 +490,5 @@ object RequestHandler {
         compare(this.endpointType, endpointRequirement.endpointType)
     }
   }
-    def iso8601ToRFC1123(iso: String) = {
-      val iso8601 = "yyyy-MM-dd'THH:mm:ss.SSS'Z"
-      val date = DateTime.parse(iso, DateTimeFormat.forPattern(iso8601)).toDate
-      new HttpDate(date).toRFC1123
-    }
+
 }

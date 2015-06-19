@@ -1,16 +1,14 @@
 package org.openrepose.filters.keystonev2
 
-import org.joda.time.{DateTimeZone, DateTime}
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
 
 trait IdentityResponses {
 
   protected final val VALID_TOKEN = "validToken"
 
   def tokenDateFormat(dateTime:DateTime): String = {
-    val tokenExpiryFormat ="yyyy-MM-dd'THH:mm:ss.SSS'Z"
-    val fmt = DateTimeFormat.forPattern(tokenExpiryFormat)
-    fmt.print(dateTime.withZone(DateTimeZone.forOffsetHours(0)))
+    ISODateTimeFormat.dateTime().print(dateTime)
   }
 
   def adminAuthenticationTokenResponse(token:String = "glibglob",
@@ -336,8 +334,6 @@ trait IdentityResponses {
   }
 
   def validateImpersonatedTokenResponse(token:String = VALID_TOKEN):String = {
-    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
-
     s"""
        |{
        |  "access":{
