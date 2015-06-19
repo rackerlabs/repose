@@ -190,16 +190,19 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                 val tenantName = OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName
 
-                val defaultRegion = OpenStackServiceHeader.DEFAULT_REGION.toString -> validToken.defaultRegion
+                val defaultRegion = validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr)
 
                 val expirationDate = OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate
 
-                //todo: impersonator
+                val impersonatorId = validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid)
+                val impersonatorName = validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in)
+
                 //todo: endpoints
                 //todo: contact id
                 //todo: identity status
 
-                Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader + defaultRegion + expirationDate)
+                Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader ++ defaultRegion + expirationDate
+                  ++ impersonatorId ++ impersonatorName)
               case reject: Reject => reject
             }
 

@@ -165,7 +165,7 @@ with MockedAkkaServiceClient {
 
       Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
       //Have to cache the result of the stuff
-      Mockito.verify(mockDatastore).put(s"$TOKEN_KEY_PREFIX$VALID_TOKEN", ValidToken("123", "testuser", "My Project", "345", List.empty[String], Vector("compute:admin", "object-store:admin"), "DFW", s"${tokenDateFormat(DateTime.now().plusDays(1))}"), 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(s"$TOKEN_KEY_PREFIX$VALID_TOKEN", ValidToken(s"${tokenDateFormat(DateTime.now().plusDays(1))}", "123", "testuser", "My Project", "345", List.empty[String], Vector("compute:admin", "object-store:admin"), None, None, Some("DFW")), 600, TimeUnit.SECONDS)
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -1121,6 +1121,31 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
+    it("forwards the user's impersonator information in the x-impersonator-id and x-impersonator-name headers") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateImpersonatedTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString) shouldBe "567"
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
+
+      mockAkkaServiceClient.validate()
+    }
+
     it("forwards the user's default region information in the x-default-region header") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1348,22 +1373,26 @@ with MockedAkkaServiceClient {
   }
 
   object TestValidToken {
-    def apply(userId: String = "",
+    def apply(expirationDate: String = "",
+              userId: String = "",
               username: String = "",
               tenantName: String = "",
               defaultTenantId: String = "",
               tenantIds: Seq[String] = Seq.empty[String],
               roles: Seq[String] = Seq.empty[String],
-              defaultRegion: String = "",
-              expirationDate: String = "") = {
-      ValidToken(userId,
+              impersonatorId: Option[String] = Option.empty[String],
+              impersonatorName: Option[String] = Option.empty[String],
+              defaultRegion: Option[String] = None) = {
+      ValidToken(expirationDate,
+        userId,
         username,
         tenantName,
         defaultTenantId,
         tenantIds,
         roles,
-        defaultRegion,
-        expirationDate)
+        impersonatorId,
+        impersonatorName,
+        defaultRegion)
     }
   }
 

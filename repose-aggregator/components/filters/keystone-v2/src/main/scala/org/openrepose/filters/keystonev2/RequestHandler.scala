@@ -65,9 +65,11 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
-        val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").as[String] // note: this may be optional? if so, asOpt can be used.
+        val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val expirationDate = (json \ "access" \ "token" \ "expires").as[String]
-        val validToken = ValidToken(userId, username, tenantName, defaultTenantId, tenantIds, roleNames, defaultRegion, expirationDate)
+        val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
+        val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
+        val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion)
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -444,14 +446,16 @@ object RequestHandler {
 
   sealed trait AuthResult
 
-  case class ValidToken(userId: String,
+  case class ValidToken(expirationDate: String,
+                        userId: String,
                         username: String,
                         tenantName: String,
                         defaultTenantId: String,
                         tenantIds: Seq[String],
                         roles: Seq[String],
-                        defaultRegion: String,
-                        expirationDate: String) extends AuthResult
+                        impersonatorId: Option[String],
+                        impersonatorName: Option[String],
+                        defaultRegion: Option[String]) extends AuthResult
 
   case object InvalidToken extends AuthResult
 

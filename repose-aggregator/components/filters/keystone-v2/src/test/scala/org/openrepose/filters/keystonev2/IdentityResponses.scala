@@ -332,6 +332,54 @@ trait IdentityResponses {
       |}
     """.stripMargin
   }
+
+  def validateImpersonatedTokenResponse(token:String = VALID_TOKEN):String = {
+    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
+
+    s"""
+       |{
+       |  "access":{
+       |      "token":{
+       |          "id":"$token",
+       |          "expires":"2010-11-01T03:32:15-05:00",
+       |          "tenant":{
+       |              "id": "yourTenantID",
+       |              "name": "My Project"
+       |           }
+       |       },
+       |
+       |      "user":{
+       |          "id":"123",
+       |          "name":"yourUsername",
+       |          "roles":[{
+       |                     "id":"123",
+       |                     "name":"compute:admin"
+       |                   },
+       |                   {
+       |                     "id":"234",
+       |                     "name":"object-store:admin"
+       |                   }
+       |           ]
+       |       },
+       |
+       |       "RAX-AUTH:impersonator":{
+       |            "id":"567",
+       |            "name":"rick",
+       |            "roles":[{
+       |                       "id":"123",
+       |                       "name":"Racker"
+       |                     },
+       |                     {
+       |                        "id":"234",
+       |                        "name":"object-store:admin"
+       |                     }
+       |           ]
+       |       }
+       |  }
+       |}
+    """.stripMargin
+  }
+
   def validateRackerTokenResponse(token:String = VALID_TOKEN):String = {
     val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
 
