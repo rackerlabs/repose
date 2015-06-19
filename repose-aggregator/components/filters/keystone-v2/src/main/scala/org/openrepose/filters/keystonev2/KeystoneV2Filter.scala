@@ -28,7 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HeaderConstant, OpenStackServiceHeader, PowerApiHeader}
+import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -199,11 +199,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 val impersonatorId = validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid)
                 val impersonatorName = validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in)
 
+                //todo: after we implement delegation, we should be able to set IdentityStatus.Indeterminate
+                val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
+
                 //todo: endpoints
-                //todo: identity status
 
                 Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader ++ defaultRegion ++ contactId
-                  + expirationDate ++ impersonatorId ++ impersonatorName)
+                  + expirationDate ++ impersonatorId ++ impersonatorName + identityStatus)
               case reject: Reject => reject
             }
 

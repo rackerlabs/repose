@@ -27,7 +27,7 @@ import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServl
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.{Matchers => MockMatchers, Mockito}
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
+import org.openrepose.commons.utils.http.{IdentityStatus, CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.filters.keystonev2.RequestHandler._
@@ -1239,6 +1239,30 @@ with MockedAkkaServiceClient {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
         .getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe iso8601ToRfc1123(tokenDateFormat(dateTime))
+
+      mockAkkaServiceClient.validate()
+    }
+
+    it("forwards the identity status as Confirmed in the x-identity-status header when Repose is able to validate the token") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
 
       mockAkkaServiceClient.validate()
     }
