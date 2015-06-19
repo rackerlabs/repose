@@ -317,6 +317,7 @@ trait IdentityResponses {
       |        },
       |        "user":{
       |            "RAX-AUTH:defaultRegion": "DFW",
+      |            "RAX-AUTH:contactId": "abc123",
       |            "id":"123",
       |            "name":"testuser",
       |            "roles":[{
@@ -397,6 +398,7 @@ trait IdentityResponses {
        |        },
        |        "user":{
        |            "RAX-AUTH:defaultRegion": "DFW",
+       |            "RAX-AUTH:contactId": "abc123",
        |            "id":"123",
        |            "name":"testuser",
        |            "roles":[{

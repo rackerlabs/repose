@@ -67,10 +67,11 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
+        val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
         val expirationDate = iso8601ToRFC1123((json \ "access" \ "token" \ "expires").as[String])
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
         val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
-        val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion)
+        val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion, contactId)
 
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
@@ -457,7 +458,8 @@ object RequestHandler {
                         roles: Seq[String],
                         impersonatorId: Option[String],
                         impersonatorName: Option[String],
-                        defaultRegion: Option[String]) extends AuthResult
+                        defaultRegion: Option[String],
+                        contactId: Option[String]) extends AuthResult
 
   case object InvalidToken extends AuthResult
 

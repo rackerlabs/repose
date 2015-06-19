@@ -1125,6 +1125,30 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
+    it("forwards the user's contact id information in the x-contact-id header") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
+
+      mockAkkaServiceClient.validate()
+    }
+
     it("forwards the user's impersonator information in the x-impersonator-id and x-impersonator-name headers") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1388,7 +1412,8 @@ with MockedAkkaServiceClient {
               roles: Seq[String] = Seq.empty[String],
               impersonatorId: Option[String] = Option.empty[String],
               impersonatorName: Option[String] = Option.empty[String],
-              defaultRegion: Option[String] = None) = {
+              defaultRegion: Option[String] = None,
+              contactId: Option[String] = None) = {
       ValidToken(expirationDate,
         userId,
         username,
@@ -1398,7 +1423,8 @@ with MockedAkkaServiceClient {
         roles,
         impersonatorId,
         impersonatorName,
-        defaultRegion)
+        defaultRegion,
+        contactId)
     }
   }
 
