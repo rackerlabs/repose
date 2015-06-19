@@ -171,12 +171,12 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       validateTenant <- Option(tenantHandling.getValidateTenant)
       uriExtractionRegex <- Option(validateTenant.getUriExtractionRegex)
     } yield {
-        val regex = uriExtractionRegex.r
-        requestUri match {
-          case regex(tenantId, _*) => Option(tenantId)
-          case _ => Option.empty[String]
-        }
+      val regex = uriExtractionRegex.r
+      requestUri match {
+        case regex(tenantId, _*) => Option(tenantId)
+        case _ => Option.empty[String]
       }
+    }
     maybeTenant.flatten
   }
 
@@ -334,9 +334,9 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
           rolesList <- Option(jaxbIntermediaryObject.getRole)
         } yield {
-            import scala.collection.JavaConversions._
-            rolesList.toList
-          }) getOrElse {
+          import scala.collection.JavaConversions._
+          rolesList.toList
+        }) getOrElse {
           List.empty[String]
         }
 
@@ -491,4 +491,12 @@ object RequestHandler {
     }
   }
 
+<<<<<<< HEAD
+=======
+  def iso8601ToRFC1123(iso: String) = {
+    val iso8601 = "yyyy-MM-dd'THH:mm:ss.SSS'Z"
+    val date = DateTime.parse(iso, DateTimeFormat.forPattern(iso8601)).toDate
+    new HttpDate(date).toRFC1123
+  }
+>>>>>>> reformat code update test to use update mockservice for keystonev2
 }

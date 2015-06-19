@@ -21,7 +21,7 @@ package features.filters.keystonev2.akkatimeout
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
@@ -41,7 +41,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -53,9 +53,9 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -68,14 +68,14 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 613
+            client_tenantid = 613
             service_admin_role = "not-admin"
             client_userid = 1234
             sleeptime = 29000
@@ -87,7 +87,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
@@ -98,10 +98,10 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
 
     def "akka timeout test, auth response time out greater than socket connection time out"() {
         reposeLogSearch.cleanLog()
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 613
+            client_tenantid = 613
             service_admin_role = "not-admin"
             client_userid = 1234
             sleeptime = 35000
@@ -113,7 +113,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 

@@ -11,8 +11,8 @@ trait IdentityResponses {
     ISODateTimeFormat.dateTime().print(dateTime)
   }
 
-  def adminAuthenticationTokenResponse(token:String = "glibglob",
-                                 expires:DateTime = DateTime.now()):String = {
+  def adminAuthenticationTokenResponse(token: String = "glibglob",
+                                       expires: DateTime = DateTime.now()): String = {
     val formattedTime = tokenDateFormat(expires)
 
     s"""
@@ -298,7 +298,7 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateTokenResponse(token:String = VALID_TOKEN, expires:DateTime = DateTime.now().plusDays(1)):String = {
+  def validateTokenResponse(token: String = VALID_TOKEN, expires: DateTime = DateTime.now().plusDays(1)): String = {
 
     val expiryTime = tokenDateFormat(expires)
 
@@ -333,7 +333,13 @@ trait IdentityResponses {
     """.stripMargin
   }
 
+<<<<<<< HEAD
   def validateImpersonatedTokenResponse(token:String = VALID_TOKEN):String = {
+=======
+  def validateImpersonatedTokenResponse(token: String = VALID_TOKEN): String = {
+    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
+
+>>>>>>> reformat code update test to use update mockservice for keystonev2
     s"""
        |{
        |  "access":{
@@ -378,7 +384,7 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateRackerTokenResponse(token:String = VALID_TOKEN):String = {
+  def validateRackerTokenResponse(token: String = VALID_TOKEN): String = {
     val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
 
     s"""
@@ -408,7 +414,7 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def oneEndpointResponse():String = {
+  def oneEndpointResponse(): String = {
     """
       |{
       |    "endpoints":[{

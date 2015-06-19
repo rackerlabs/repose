@@ -17,10 +17,10 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.admin_token
+package features.filters.keystonev2.admintoken
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -35,7 +35,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -48,9 +48,9 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -63,15 +63,15 @@ class IdentityAdminTokenTest extends ReposeValveTest {
 
     def setup() {
         sleep 500
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
     def "when failing to authenticate admin client"() {
 
         given:
-        fakeIdentityService.with {
-            client_tenant = reqTenant
+        fakeIdentityV2Service.with {
+            client_tenantid = reqTenant
             client_userid = reqTenant
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -79,7 +79,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         }
 
         if (adminResponseCode != 200) {
-            fakeIdentityService.generateTokenHandler = {
+            fakeIdentityV2Service.generateTokenHandler = {
                 request, xml ->
                     new Response(adminResponseCode, null, null, responseBody)
             }
@@ -91,7 +91,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
@@ -101,10 +101,10 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         where:
-        reqTenant | adminResponseCode | responseCode | responseBody                                   | orphanedHandlings
-        1113      | 500               | "500"        | ""                                             | 1
-        1112      | 404               | "500"        | fakeIdentityService.identityFailureXmlTemplate | 1
-        1111      | 200               | "200"        | fakeIdentityService.identitySuccessXmlTemplate | 3
+        reqTenant | adminResponseCode | responseCode | responseBody                                     | orphanedHandlings
+        1113      | 500               | "500"        | ""                                               | 1
+        1112      | 404               | "500"        | fakeIdentityV2Service.identityFailureXmlTemplate | 1
+        1111      | 200               | "200"        | fakeIdentityV2Service.identitySuccessXmlTemplate | 3
     }
 
 }

@@ -20,7 +20,7 @@
 package features.filters.keystonev2.authorizationonly.burst
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -33,7 +33,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -41,11 +41,11 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/common", properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
-        fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service.originServicePort = properties.defaultTemplateParams.targetPort
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
-        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
+                'identity service', null, fakeIdentityV2Service.handler)
+        Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
         Map acceptXML = ["accept": "application/xml"]
 
         def missingResponseErrorHandler = { Request request ->
@@ -70,8 +70,8 @@ class GetEndpointsBurstTest extends ReposeValveTest {
     def "under heavy load should not drop get endpoints response"() {
 
         given:
-        Map header1 = ['X-Auth-Token': "$fakeIdentityService.client_token-$numClients-$callsPerClient"]
-        fakeIdentityService.resetCounts()
+        Map header1 = ['X-Auth-Token': "$fakeIdentityV2Service.client_token-$numClients-$callsPerClient"]
+        fakeIdentityV2Service.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -79,7 +79,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
                 .forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
                 .withLocale(Locale.US)
                 .withZone(DateTimeZone.UTC);
-        def expiresString = fmt.print(fakeIdentityService.tokenExpiresAt);
+        def expiresString = fmt.print(fakeIdentityV2Service.tokenExpiresAt);
 
         def missingAuthResponse = false
         def Bad403Response = false
@@ -108,7 +108,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.getEndpointsCount == 1
+        fakeIdentityV2Service.getEndpointsCount == 1
 
         and:
         Bad403Response == false

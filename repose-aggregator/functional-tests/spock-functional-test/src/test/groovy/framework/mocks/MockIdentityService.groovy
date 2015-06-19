@@ -141,7 +141,7 @@ class MockIdentityService {
     def endpointUrl = "localhost"
     def region = "ORD"
     def admin_userid = 67890;
-    def sleeptime =0;
+    def sleeptime = 0;
     def contact_id = "${random.nextInt()}"
     def contactIdJson = ""
     def contactIdXml = ""
@@ -163,7 +163,7 @@ class MockIdentityService {
         endpointUrl = "localhost"
         region = "ORD"
         admin_userid = 67890;
-        sleeptime =0;
+        sleeptime = 0;
         contact_id = "${random.nextInt()}"
         contactIdJson = ""
         contactIdXml = ""
@@ -603,7 +603,7 @@ class MockIdentityService {
         }
 
         def params = [
-                addRolesXml: additionalRolesXml,
+                addRolesXml : additionalRolesXml,
                 addRolesJson: additionalRolesJson
         ];
 
