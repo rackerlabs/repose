@@ -23,10 +23,11 @@ import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
-
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
@@ -66,10 +67,11 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
-        val expirationDate = (json \ "access" \ "token" \ "expires").as[String]
+        val expirationDate = iso8601ToRFC1123((json \ "access" \ "token" \ "expires").as[String])
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
         val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
         val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion)
+
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getToken.toInt
@@ -480,5 +482,9 @@ object RequestHandler {
         compare(this.endpointType, endpointRequirement.endpointType)
     }
   }
-
+    def iso8601ToRFC1123(iso: String) = {
+      val iso8601 = "yyyy-MM-dd'THH:mm:ss.SSS'Z"
+      val date = DateTime.parse(iso, DateTimeFormat.forPattern(iso8601)).toDate
+      new HttpDate(date).toRFC1123
+    }
 }

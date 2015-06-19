@@ -301,6 +301,7 @@ trait IdentityResponses {
   }
 
   def validateTokenResponse(token:String = VALID_TOKEN, expires:DateTime = DateTime.now().plusDays(1)):String = {
+
     val expiryTime = tokenDateFormat(expires)
 
     s"""
