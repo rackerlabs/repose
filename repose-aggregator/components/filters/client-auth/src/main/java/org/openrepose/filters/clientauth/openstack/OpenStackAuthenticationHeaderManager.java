@@ -105,6 +105,12 @@ public class OpenStackAuthenticationHeaderManager {
             if (isDelagable) {
                 setIdentityStatus();
             }
+        } else if (isDelagable && responseStatusCode == HttpServletResponse.SC_UNAUTHORIZED) {
+            filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
+            setDelegationHeader();
+            setExtendedAuthorization();
+            setIdentityStatus();
+            filterDirector.setFilterAction(FilterAction.PASS);
         } else if (isDelagable
                 && nullCredentials()
                 && responseStatusCode != HttpServletResponse.SC_INTERNAL_SERVER_ERROR

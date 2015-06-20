@@ -30,7 +30,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 6/16/15.
  */
-class AuthHerpDerpRMSTest extends ReposeValveTest {
+class AuthHerpDerpRMSMultiMatchTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -44,8 +44,19 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms/wauthn", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthn", params)
+
+        def saxonHome = System.getenv("SAXON_HOME")
+
+        //If we're the jenkins user, set it, and see if it works
+        if (saxonHome == null && System.getenv("LOGNAME").equals("jenkins")) {
+            //For jenkins, it's going to be in $HOME/saxon_ee
+            def home = System.getenv("HOME")
+            saxonHome = "${home}/saxon_ee"
+            repose.addToEnvironment("SAXON_HOME", saxonHome)
+        }
+
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -67,11 +78,16 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Req with auth resp: #authRespCode")
+
+    /*
+    These tests are to verify the delegation of authn failures to the derp filter, which then forwards
+    that information back to the client.  The origin service, thus, never gets invoked.
+    */
+    @Unroll("#token_id expireat: #expireat, respcode: #responseCode and #msgBody")
     def "When req with invalid token using delegable mode with quality"() {
         given:
         fakeIdentityService.with {
-            client_token = UUID.randomUUID()
+            client_token = token_id
             tokenExpiresAt = (new DateTime()).plusDays(1);
         }
 
@@ -88,10 +104,10 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.receivedResponse.headers.contains("Content-Type")
+        mc.receivedResponse.headers.contains("content-type")
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
-        mc.getOrphanedHandlings().size() == 2
+        mc.getOrphanedHandlings().size() == orphans
 
         /* expected internal delegated messages to derp from authn:
             Since auth delegating quality higher than validation filter we expect delegating message
@@ -99,34 +115,11 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
             "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.6"
         */
         where:
-        authRespCode | responseCode | msgBody
-        404          | "401"        | "Failure in Auth-N filter. Reason: token validation failed."
-        401          | "500"        | "Failure in Auth-N filter."
-    }
-
-    /*
-    These tests are to verify the delegation of authn failures to the derp filter, which then forwards
-    that information back to the client.  The origin service, thus, never gets invoked.
-    */
-    @Unroll("#token expireat: #expireat, respcode: #responseCode and #delegatedMsg")
-    def "when req without token, non tenanted and delegable mode with quality"() {
-        given:
-        fakeIdentityService.with {
-            client_token = ""
-            tokenExpiresAt = (new DateTime()).plusDays(1);
-        }
-
-        when:
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/1234",
-                method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "401"
-        mc.receivedResponse.headers.contains("Content-Type")
-        mc.receivedResponse.body.contains("Failure in Auth-N filter.")
-        mc.handlings.size() == 0
+        authRespCode | responseCode | msgBody                                                      | token_id            | expireat                       | orphans
+        404          | "401"        | "Failure in Auth-N filter."                                  | UUID.randomUUID()   | (new DateTime()).plusDays(1)   | 2
+        404          | "401"        | "Failure in Auth-N filter. Reason: token validation failed." | ""                  | (new DateTime()).plusDays(1)   | 0
+        404          | "401"        | "Failure in Auth-N filter."                                  | UUID.randomUUID()   | (new DateTime()).minusDays(1)  | 1
+        404          | "401"        | "Failure in Auth-N filter. Reason: token validation failed." | ""                  | (new DateTime()).minusDays(1)  | 0
     }
 }
 

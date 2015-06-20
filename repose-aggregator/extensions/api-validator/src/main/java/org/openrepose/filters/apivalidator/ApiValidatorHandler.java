@@ -135,7 +135,9 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         try {
             ErrorResult error = getErrorResult(result);
             if (error != null) {
-                myDirector.setResponseStatusCode(error.code());
+                if (defaultValidator == null) {
+                    myDirector.setResponseStatusCode(error.code());
+                }
                 response.sendError(error.code(), error.message());
             }
         } catch (Throwable t) {
