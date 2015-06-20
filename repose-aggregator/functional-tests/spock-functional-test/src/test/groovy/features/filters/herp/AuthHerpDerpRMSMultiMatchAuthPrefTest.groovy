@@ -30,7 +30,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 6/16/15.
  */
-class AuthHerpDerpRMSMultiMatchTest extends ReposeValveTest {
+class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -45,17 +45,7 @@ class AuthHerpDerpRMSMultiMatchTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthn", params)
-
-        def saxonHome = System.getenv("SAXON_HOME")
-
-        //If we're the jenkins user, set it, and see if it works
-        if (saxonHome == null && System.getenv("LOGNAME").equals("jenkins")) {
-            //For jenkins, it's going to be in $HOME/saxon_ee
-            def home = System.getenv("HOME")
-            saxonHome = "${home}/saxon_ee"
-            repose.addToEnvironment("SAXON_HOME", saxonHome)
-        }
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthnpreference", params)
 
         repose.start()
 
@@ -112,7 +102,6 @@ class AuthHerpDerpRMSMultiMatchTest extends ReposeValveTest {
         /* expected internal delegated messages to derp from authn:
             Since auth delegating quality higher than validation filter we expect delegating message
             "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.6"
-            "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.6"
         */
         where:
         authRespCode | responseCode | msgBody                                                      | token_id            | expireat                       | orphans

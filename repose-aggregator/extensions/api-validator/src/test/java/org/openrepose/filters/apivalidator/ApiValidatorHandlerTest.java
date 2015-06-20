@@ -20,6 +20,8 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
+import com.rackspace.com.papi.components.checker.step.results.Result;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -32,6 +34,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.filter.logic.FilterDirector;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,12 +54,14 @@ public class ApiValidatorHandlerTest {
         private Validator role1Validator;
         private Validator role2Validator;
         private ApiValidatorHandler instance;
+        private ApiValidatorHandler multiRoleMatchInstance;
         private FilterChain chain;
         private MutableHttpServletRequest request;
         private MutableHttpServletResponse response;
         private ValidatorInfo nullValidatorInfo;
         private ValidatorInfo blowupValidatorInfo;
         private Validator blowupValidator;
+        private ErrorResult validatorResult;
 
         @Before
         public void setup() {
@@ -94,6 +99,11 @@ public class ApiValidatorHandlerTest {
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
             instance.setFilterChain(chain);
+
+            multiRoleMatchInstance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
+            multiRoleMatchInstance.setFilterChain(chain);
+
+            validatorResult = mock(ErrorResult.class);
 
             when(request.getRequestURI()).thenReturn("/path/to/resource");
 
@@ -172,6 +182,27 @@ public class ApiValidatorHandlerTest {
             assertEquals(validatorsForRole.get(0), role1ValidatorInfo);
             assertEquals(validatorsForRole.get(1), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(2), role2ValidatorInfo);
+        }
+
+
+        @Test
+        public void shouldNotOvewriteResponseCodeIfMultiMatchTrueandDelegableTrue() {
+            List<HeaderValue> roles = new ArrayList<HeaderValue>();
+            roles.add(new HeaderValueImpl("defaultrole"));
+            when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
+            when(defaultValidator.validate(
+                    any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class)))
+                    .thenReturn(validatorResult);
+            //not a valid path
+            when(validatorResult.valid()).thenReturn(false);
+            when(validatorResult.code()).thenReturn(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+            when(validatorResult.message()).thenReturn("Method not allowed");
+
+
+            FilterDirector director = multiRoleMatchInstance.handleRequest(request, response);
+            assertEquals(director.getResponseStatusCode(), 0);
+            verify(response).sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method not allowed");
+
         }
 
     }
