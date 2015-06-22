@@ -790,7 +790,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(request.getRequestURI()).thenReturn("/start/");
             when(request.getHeader(anyString())).thenReturn("");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
         }
 
         @Test
@@ -1021,7 +1021,7 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldProcessUriNotOnWhiteListAsNonAuthedRequest() {
             when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must process requests with uri not on white list when in delegated mode", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+            assertEquals("Auth component must process requests with uri not on white list when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
         }
     }
 
