@@ -85,7 +85,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     //Check our whitelist
     val whiteListURIs: Option[List[String]] = (for {
-      jaxbIntermediary <- Option(configuration.getWhiteList)
+      jaxbIntermediary <- Option(configuration.getWhiteList) // todo: should configuration be moved up?
       regexList <- Option(jaxbIntermediary.getUriRegex)
     } yield {
         import scala.collection.JavaConversions._
@@ -143,13 +143,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 Pass(Map.empty[String, String])
             }
 
-            val authorizedEndpoints = authorizedTenant match {
+            val endpoints = authorizedTenant match {
               case Pass(headers) =>
-                requestHandler.endpointAuthorization(authToken, validToken) match {
+                requestHandler.handleEndpoints(authToken, validToken) match {
                   case Some(Success(endpointsData)) =>
                     //If I'm configured to put the endpoints into a x-catalog do it
-                    // todo: do this even if configured even if authorization is not
-                    if (configuration.getIdentityService.isSetCatalogInHeader) {
+                    if (configuration.getIdentityService.isSetCatalogInHeader) { // todo: don't check this flag twice
                       val endpointsHeader = PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes)
                       Pass(headers + endpointsHeader)
                     } else {
@@ -165,7 +164,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case reject: Reject => reject
             }
 
-            val userGroups = authorizedEndpoints match {
+            val userGroups = endpoints match {
               case Pass(headers) =>
                 requestHandler.getGroups(authToken, validToken) match {
                   case Some(Success(groups)) =>
@@ -192,7 +191,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                     OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                 }
 
-                val rolesHeader = if (configuration.getIdentityService.isSetRolesInHeader) {
+                val rolesHeader = if (configuration.getIdentityService.isSetRolesInHeader) { // todo: should not access configuration since it is not thread safe
                   Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
                 } else {
                   Map.empty[String, String]

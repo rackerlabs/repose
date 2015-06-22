@@ -300,11 +300,36 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
   /**
    * Get the user's endpoints, and validate that the configured restrictions match
    * Also handles caching of the result
-   * @param authToken Assuming the auth token has been validated already
    * @return
    */
-  def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[EndpointsData]] = {
-    Option(config.getRequireServiceEndpoint) map { requireServiceEndpoint =>
+  def endpointAuthorized(validToken: ValidToken, requireServiceEndpoint: ServiceEndpointType, endpointsData: EndpointsData): Boolean = {
+    //Create the endpoint requirement from teh configuration
+    def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
+      Endpoint(
+        publicURL = cfg.getPublicUrl,
+        name = Option(cfg.getName),
+        endpointType = Option(cfg.getType),
+        region = Option(cfg.getRegion)
+      )
+    }
+    //Have to see if they have a list of roles...
+    //Have to use slightly more annoying parenthesis to make sure the for-comprehension does what I want
+    val bypassRoles: List[String] = (for {
+      jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
+      rolesList <- Option(jaxbIntermediaryObject.getRole)
+    } yield {
+        import scala.collection.JavaConversions._
+        rolesList.toList
+      }) getOrElse {
+      List.empty[String]
+    }
+
+    bypassRoles.intersect(validToken.roles).nonEmpty ||
+      endpointsData.endpointsVector.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))
+  }
+
+  def handleEndpoints(authToken: String, validToken: ValidToken): Option[Try[EndpointsData]] = {
+    lazy val endpointsData: Try[EndpointsData] = {
       Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) map { endpointsData =>
         Success(endpointsData)
       } getOrElse {
@@ -314,40 +339,32 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
               //Clear the cache, call this method again
               datastore.remove(ADMIN_TOKEN_KEY)
               getAdminToken match {
-                case Success(newAdminToken) =>
-                  getEndpointsForToken(newAdminToken, authToken)
+                case Success(newAdminToken) => getEndpointsForToken(newAdminToken, authToken)
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
           }
         }
-      } flatMap { endpointsData =>
-        //Create the endpoint requirement from teh configuration
-        def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
-          Endpoint(
-            publicURL = cfg.getPublicUrl,
-            name = Option(cfg.getName),
-            endpointType = Option(cfg.getType),
-            region = Option(cfg.getRegion)
-          )
-        }
-        //Have to see if they have a list of roles...
-        //Have to use slightly more annoying parenthesis to make sure the for-comprehension does what I want
-        val bypassRoles: List[String] = (for {
-          jaxbIntermediaryObject <- Option(requireServiceEndpoint.getBypassValidationRoles)
-          rolesList <- Option(jaxbIntermediaryObject.getRole)
-        } yield {
-            import scala.collection.JavaConversions._
-            rolesList.toList
-          }) getOrElse {
-          List.empty[String]
-        }
+      }
+    }
 
-        if (bypassRoles.intersect(validToken.roles).nonEmpty ||
-          endpointsData.endpointsVector.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
-          Success(endpointsData)
-        } else {
-          Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
+    Option(config.getRequireServiceEndpoint) map { requireServiceEndpoint =>
+      endpointsData match {
+        case Success(endpoints) =>
+          if (endpointAuthorized(validToken, requireServiceEndpoint, endpoints)) {
+            Success(endpoints)
+          } else {
+            Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
+          }
+        case Failure(e) => Failure(e)
+      }
+    } orElse {
+      if (config.getIdentityService.isSetCatalogInHeader) {
+        endpointsData match {
+          case Success(endpoints) => Some(Success(endpoints))
+          case Failure(e) => Some(Failure(e))
         }
+      } else {
+        None
       }
     }
   }

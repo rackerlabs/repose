@@ -32,7 +32,7 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, Open
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.filters.keystonev2.RequestHandler._
-import org.openrepose.filters.keystonev2.config.{RolesList, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.ServiceEndpointType
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -1085,7 +1085,6 @@ with MockedAkkaServiceClient {
         |            username="username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            set-catalog-in-header="true"
         |            />
         |</keystone-v2>
       """.stripMargin)
@@ -1296,6 +1295,7 @@ with MockedAkkaServiceClient {
 
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
       val modifiedConfig = configuration
+      modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
       modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("example.com"))
       filter.configurationUpdated(modifiedConfig)
 
@@ -1451,7 +1451,7 @@ with MockedAkkaServiceClient {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
       )
 
       val response = new MockHttpServletResponse
