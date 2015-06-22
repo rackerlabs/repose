@@ -384,7 +384,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
         val json = Json.parse(input)
 
-        val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector // todo: should be optional
+        val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getGroup.toInt
