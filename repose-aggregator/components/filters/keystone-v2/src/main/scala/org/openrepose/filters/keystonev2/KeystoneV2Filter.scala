@@ -81,7 +81,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     if (!initialized) {
       logger.error("Keystone v2 filter has not yet initialized...")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR)
     } else {
       logger.trace("Keystone v2 filter processing request...")
 
