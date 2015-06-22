@@ -20,7 +20,7 @@
 package features.filters.keystonev2.authorizationonly.serviceresponse
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
@@ -33,7 +33,7 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         cleanLogDirectory()
@@ -46,9 +46,9 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
     }
 
 
@@ -65,8 +65,8 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.region = "ORD"
+        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.region = "ORD"
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
@@ -81,8 +81,8 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.region = serviceRegion
+        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.region = serviceRegion
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
