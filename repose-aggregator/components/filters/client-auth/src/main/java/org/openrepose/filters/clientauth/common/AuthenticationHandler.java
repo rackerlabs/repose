@@ -170,6 +170,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 if (endpointsConfiguration != null) {
                     endpointsInBase64 = getEndpointsInBase64(token, requestGuid);
                 }
+            } else {
+                delegationMessage.set(FAILURE_AUTH_N + REASON + "token validation failed.");
             }
         } catch (AuthServiceOverLimitException ex) {
             LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());

@@ -102,6 +102,13 @@
             <version>2.2.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.8</version>
+        </dependency>
+
     </dependencies>
 
     <build>
