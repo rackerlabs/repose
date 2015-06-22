@@ -210,8 +210,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 //todo: after we implement delegation, we should be able to set IdentityStatus.Indeterminate
                 val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
 
-                //todo: endpoints
-
                 Pass(headers ++ userHeaders + rolesHeader + tenantName + xAuthHeader ++ defaultRegion ++ contactId
                   + expirationDate ++ impersonatorId ++ impersonatorName + identityStatus)
               case reject: Reject => reject
