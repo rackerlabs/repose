@@ -20,7 +20,7 @@
 package features.filters.keystonev2.delegable
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -35,7 +35,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -48,9 +48,9 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -62,7 +62,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     /*
@@ -72,10 +72,10 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
     @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = ""
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
@@ -85,7 +85,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -108,12 +108,12 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
     @Unroll("Req with auth resp: #authRespCode")
     def "When req with invalid token using delegable mode with quality"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID()
             tokenExpiresAt = (new DateTime()).plusDays(1);
         }
 
-        fakeIdentityService.validateTokenHandler = {
+        fakeIdentityV2Service.validateTokenHandler = {
             tokenId, request, xml ->
                 new Response(authRespCode)
         }
@@ -122,7 +122,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/1234",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then:
         mc.receivedResponse.code == "200"

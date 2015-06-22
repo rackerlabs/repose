@@ -20,7 +20,7 @@
 package features.filters.keystonev2.authorizationonly.serviceresponse
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -35,7 +35,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -47,9 +47,9 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
     }
 
 
@@ -63,7 +63,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
     @Unroll("When user role #roles not in ignore-tenant-role list")
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
@@ -72,7 +72,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
         def reqHeaders =
                 [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'X-Auth-Token': fakeIdentityV2Service.client_token,
                         'x-roles'     : roles
                 ]
         def authDelegatingMsg = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
@@ -102,8 +102,8 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.originServicePort = 99999
+        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.originServicePort = 99999
         def strregex = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
 
         when: "User sends a request through repose"
@@ -128,17 +128,17 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
         given: "When Calls to Auth Return bad responses"
 
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
         }
         if (adminBroken) {
-            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
         if (endpointsBroken) {
-            fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
         }
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then:
         "User should receive a " + expectedCode + "response"

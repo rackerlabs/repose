@@ -20,7 +20,7 @@
 package features.filters.keystonev2.multitenantswquality
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -34,7 +34,7 @@ class MultiTenantswQualityTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def static params
 
@@ -49,7 +49,7 @@ class MultiTenantswQualityTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -72,8 +72,8 @@ class MultiTenantswQualityTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)
-            client_tenant = defaultTenant
-            client_tenant_file = secondTenant
+            client_tenantid = defaultTenant
+            client_tenantid2 = secondTenant
             service_admin_role = "not-admin"
         }
 
@@ -113,8 +113,8 @@ class MultiTenantswQualityTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)
-            client_tenant = defaultTenant
-            client_tenant_file = secondTenant
+            client_tenantid = defaultTenant
+            client_tenantid2 = secondTenant
             service_admin_role = "not-admin"
         }
 

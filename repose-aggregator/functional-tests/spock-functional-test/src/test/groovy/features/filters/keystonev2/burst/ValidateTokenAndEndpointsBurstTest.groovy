@@ -20,7 +20,7 @@
 package features.filters.keystonev2.burst
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -33,7 +33,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -43,12 +43,12 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
                 properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
-        fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service.originServicePort = properties.defaultTemplateParams.targetPort
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
-        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
+        Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
         Map acceptXML = ["accept": "application/xml"]
 
         def missingResponseErrorHandler = { Request request ->
@@ -72,8 +72,8 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
     def "under heavy load should not drop endpoints in headers"() {
 
         given:
-        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.resetCounts()
+        Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        fakeIdentityV2Service.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -109,10 +109,10 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.generateTokenCount == 1
+        fakeIdentityV2Service.generateTokenCount == 1
 
         and:
-        fakeIdentityService.getEndpointsCount == 1
+        fakeIdentityV2Service.getEndpointsCount == 1
 
         and:
         missingAuthHeader == false

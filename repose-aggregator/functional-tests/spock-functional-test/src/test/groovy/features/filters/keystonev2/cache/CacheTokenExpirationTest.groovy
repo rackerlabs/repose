@@ -20,7 +20,7 @@
 package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -30,7 +30,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
-    MockIdentityService fakeIdentityService
+    MockIdentityV2Service fakeIdentityV2Service
 
     def setup() {
         deproxy = new Deproxy()
@@ -58,31 +58,31 @@ class CacheTokenExpirationTest extends ReposeValveTest {
 
         given:
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service.client_token = clientToken
+        fakeIdentityV2Service.tokenExpiresAt = (new DateTime()).plusDays(40);
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
-        fakeIdentityService.resetCounts()
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        fakeIdentityV2Service.resetCounts()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityV2Service.validateTokenCount == 1
 
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
-        fakeIdentityService.resetCounts()
-        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        fakeIdentityV2Service.resetCounts()
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
-        fakeIdentityService.validateTokenCount == 0
+        fakeIdentityV2Service.validateTokenCount == 0
 
         when: "I troubleshoot the REPOSE logs"
         def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")

@@ -21,7 +21,7 @@ package features.filters.keystonev2.authorizationonly.serviceresponse
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -34,7 +34,7 @@ class ClientAuthZTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -45,9 +45,9 @@ class ClientAuthZTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
     }
 
 
@@ -60,10 +60,10 @@ class ClientAuthZTest extends ReposeValveTest {
 
     def "User's service endpoint test"() {
         given:
-        fakeIdentityService.endpointUrl = "localhost"
+        fakeIdentityV2Service.endpointUrl = "localhost"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss", method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
@@ -79,12 +79,12 @@ class ClientAuthZTest extends ReposeValveTest {
                         "user-agent"  : userAgentValue,
                         "x-pp-user"   : "usertest1, usertest2, usertest3",
                         "accept"      : "application/xml;q=1 , application/json;q=0.5",
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+                url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss",
                 method: 'GET',
                 headers: reqHeaders)
 
@@ -101,10 +101,10 @@ class ClientAuthZTest extends ReposeValveTest {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
         def handler = { request -> return new Response(201, "Created", respHeaders, "") }
-        Map<String, String> headers = ['X-Auth-Token': fakeIdentityService.client_token]
+        Map<String, String> headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss",
                 method: 'GET', headers: headers, defaultHandler: handler)
 
         then:
@@ -120,12 +120,12 @@ class ClientAuthZTest extends ReposeValveTest {
 
         when: "make a request with the given header and value"
         def headers = [
-                'X-Auth-Token': fakeIdentityService.client_token
+                'X-Auth-Token': fakeIdentityV2Service.client_token
         ]
         headers[headerName.toString()] = headerValue.toString()
 
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+                url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss",
                 method: 'GET',
                 headers: headers)
 
@@ -150,14 +150,14 @@ class ClientAuthZTest extends ReposeValveTest {
     @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
     def "Responses - header keep its case in responses"() {
         given:
-        def headers = ['X-Auth-Token': fakeIdentityService.client_token]
+        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
         when: "make a request with the given header and value"
         def respHeaders = [
                 "location": "http://somehost.com/blah?a=b,c,d"
         ]
         respHeaders[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss",
                 method: 'GET', headers: headers, defaultHandler: { new Response(201, "Created", respHeaders, "") })
 
         then: "the response should keep headerName and headerValue case"
@@ -179,8 +179,8 @@ class ClientAuthZTest extends ReposeValveTest {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.originServicePort = 99999
+        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.originServicePort = 99999
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
@@ -196,9 +196,9 @@ class ClientAuthZTest extends ReposeValveTest {
     def "User's invalid service endpoint should receive a 403 FORBIDDEN response "() {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.originServicePort = properties.targetPort
-        fakeIdentityService.endpointUrl = "invalidurl"
+        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.originServicePort = properties.targetPort
+        fakeIdentityV2Service.endpointUrl = "invalidurl"
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
@@ -213,15 +213,15 @@ class ClientAuthZTest extends ReposeValveTest {
 
     def "Tracing header should include in request to Identity"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             endpointUrl = "localhost"
         }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityService.client_token + "/ss",
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + fakeIdentityV2Service.client_token + "/ss",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"

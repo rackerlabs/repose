@@ -20,7 +20,7 @@
 package features.filters.keystonev2.authorizationonly.serviceresponse
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -33,7 +33,7 @@ class NonTenantedAuthZTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -45,9 +45,9 @@ class NonTenantedAuthZTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
     }
 
 
@@ -60,7 +60,7 @@ class NonTenantedAuthZTest extends ReposeValveTest {
 
     @Unroll
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
@@ -69,7 +69,7 @@ class NonTenantedAuthZTest extends ReposeValveTest {
         def reqHeaders =
                 [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'X-Auth-Token': fakeIdentityV2Service.client_token,
                         'x-roles'     : roles
                 ]
         when: "User passes a request through repose with role #roles"

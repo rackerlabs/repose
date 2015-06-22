@@ -20,7 +20,7 @@
 package features.filters.keystonev2.multitenantsheaders
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -34,7 +34,7 @@ class MultiTenantedCheckTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -47,9 +47,9 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -61,17 +61,17 @@ class MultiTenantedCheckTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     @Unroll("when passing #requestTenant with setting #defaultTenant #serviceRespCode")
     def "When authenticate user with tenanted client-mapping matching more than one from tenant list"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = defaultTenant
-            client_tenant_file = "nast-id"
+            client_tenantid = defaultTenant
+            client_tenantid2 = "nast-id"
             service_admin_role = "not-admin"
         }
 
@@ -80,7 +80,7 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == serviceRespCode

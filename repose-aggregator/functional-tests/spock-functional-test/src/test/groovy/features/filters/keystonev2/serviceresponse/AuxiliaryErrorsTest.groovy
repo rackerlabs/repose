@@ -20,7 +20,7 @@
 package features.filters.keystonev2.serviceresponse
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
@@ -38,7 +38,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -51,14 +51,14 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
 
     }
 
@@ -74,18 +74,18 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
         given: "When Calls to Auth Return bad responses"
         if (adminBroken) {
-            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
         if (validateBroken) {
-            fakeIdentityService.validateTokenHandler = { tokenId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.validateTokenHandler = { tokenId, request, xml -> return new Response(errorCode) }
         }
         if (groupsBroken) {
-            fakeIdentityService.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
         }
         def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token + tokenId])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token + tokenId])
 
         then:
         "User should receive a " + expectedCode + "response"
@@ -139,7 +139,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         def retryTimeStamp = DateTime.now().plusMinutes(5)
         def retryString = new HttpDate(retryTimeStamp.toGregorianCalendar().getTime()).toRFC1123()
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             validateTokenHandler = {
                 tokenId, request, xml ->
@@ -154,7 +154,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 

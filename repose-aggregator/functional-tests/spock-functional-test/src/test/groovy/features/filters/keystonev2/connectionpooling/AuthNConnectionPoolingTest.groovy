@@ -22,7 +22,7 @@ package features.filters.keystonev2.connectionpooling
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
@@ -40,7 +40,7 @@ class AuthNConnectionPoolingTest extends Specification {
     int identityServicePort
     String urlBase
 
-    MockIdentityService identityService
+    MockIdentityV2Service fakeIdentityV2Service
 
     Deproxy deproxy
     Endpoint originEndpoint
@@ -59,13 +59,13 @@ class AuthNConnectionPoolingTest extends Specification {
         originServicePort = properties.targetPort
         identityServicePort = properties.identityPort
 
-        identityService = new MockIdentityService(identityServicePort, originServicePort)
+        fakeIdentityV2Service = new MockIdentityV2Service(identityServicePort, originServicePort)
 
         // start deproxy
         deproxy = new Deproxy()
         originEndpoint = deproxy.addEndpoint(originServicePort)
         identityEndpoint = deproxy.addEndpoint(identityServicePort,
-                "identity", "localhost", identityService.handler)
+                "identity", "localhost", fakeIdentityV2Service.handler)
 
         // configure and start repose
 

@@ -21,7 +21,7 @@ package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
@@ -56,17 +56,17 @@ class CacheOffsetTest extends ReposeValveTest {
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
-        MockIdentityService fauxIdentityService
+        MockIdentityV2Service fakeIdentityV2Service
         def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 5000, 3000]
-        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
-        fauxIdentityService.resetCounts()
-        fauxIdentityService.with {
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service.resetCounts()
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)
         }
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fauxIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -75,7 +75,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         when:
         "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.resetCounts()
+        fakeIdentityV2Service.resetCounts()
 
         DateTime initialTokenValidation = DateTime.now()
         DateTime lastTokenValidation = DateTime.now()
@@ -95,11 +95,11 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fakeIdentityV2Service.validateTokenCount == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
-        fauxIdentityService.resetCounts()
+        fakeIdentityV2Service.resetCounts()
 
         DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
@@ -116,10 +116,10 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fakeIdentityV2Service.validateTokenCount == 0
 
         when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
-        fauxIdentityService.resetCounts()
+        fakeIdentityV2Service.resetCounts()
         DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
         //wait until max token expiration is reached
         while (maximumTokenExpiration.isAfterNow()) {
@@ -139,7 +139,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         then: "All calls should hit identity"
         //since we are talking about time based testing, we cannot always validate against a concrete number.  This is testing a range of requests.
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fakeIdentityV2Service.validateTokenCount == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser

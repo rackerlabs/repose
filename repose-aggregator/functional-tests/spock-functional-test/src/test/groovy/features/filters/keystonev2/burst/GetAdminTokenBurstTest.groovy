@@ -20,7 +20,7 @@
 package features.filters.keystonev2.burst
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -33,7 +33,7 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static MockIdentityService fakeIdentityService
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -44,11 +44,11 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
-        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
+        Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
         Map acceptXML = ["accept": "application/xml"]
 
         def missingResponseErrorHandler = { Request request ->
@@ -82,7 +82,7 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
     def "under heavy load should only retrieve admin token once"() {
 
         given:
-        fakeIdentityService.resetCounts()
+        fakeIdentityV2Service.resetCounts()
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         DateTimeFormatter fmt = DateTimeFormat
@@ -123,7 +123,7 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.generateTokenCount == 1
+        fakeIdentityV2Service.generateTokenCount == 1
 
         and:
         missingAuthHeader == false

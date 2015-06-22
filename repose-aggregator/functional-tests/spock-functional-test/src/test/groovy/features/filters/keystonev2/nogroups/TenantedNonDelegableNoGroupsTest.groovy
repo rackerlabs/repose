@@ -20,7 +20,7 @@
 package features.filters.keystonev2.nogroups
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -38,7 +38,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             'x-pp-user'       : 'username;q=1.0'
     ]
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -50,9 +50,9 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
     }
 
     def cleanupSpec() {
@@ -62,7 +62,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     /**
@@ -78,22 +78,22 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
     @Unroll("For request tenant: #requestTenant, identity returns #authResponseCode, groups response is #groupResponseCode with response tenant #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - fail scenarios"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             service_admin_role = "not-admin"
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
-            fakeIdentityService.getGroupsHandler = {
+            fakeIdentityV2Service.getGroupsHandler = {
                 userId, request, xml ->
                     new Response(groupResponseCode)
             }
@@ -106,7 +106,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ] + headersCommon
         )
 
@@ -136,10 +136,10 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
     @Unroll("For request tenant: #requestTenant, identity returns role #serviceAdminRole with response tenant #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - success"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             service_admin_role = serviceAdminRole
         }
 
@@ -150,7 +150,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ] + headersCommon
         )
 
