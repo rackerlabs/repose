@@ -84,15 +84,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     val requestHandler = new RequestHandler(configuration, akkaServiceClient, datastore)
 
     //Check our whitelist
-    val whiteListURIs: Option[List[String]] = (for {
-      jaxbIntermediary <- Option(configuration.getWhiteList) // todo: should configuration be moved up?
-      regexList <- Option(jaxbIntermediary.getUriRegex)
-    } yield {
+    val whiteListURIs: Option[List[String]] =
+      for {
+        jaxbIntermediary <- Option(configuration.getWhiteList) // todo: should configuration be moved up?
+        regexList <- Option(jaxbIntermediary.getUriRegex)
+      } yield {
         import scala.collection.JavaConversions._
-        Some(regexList.toList)
-      }).getOrElse(None)
+        regexList.toList
+      }
 
-    val whiteListMatch: Boolean = whiteListURIs.exists { uriList =>
+    val whiteListMatch: Boolean = whiteListURIs exists { uriList =>
       uriList exists { pattern =>
         logger.debug(s"checking ${request.getRequestURI} against $pattern")
         request.getRequestURI.matches(pattern)
