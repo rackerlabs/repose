@@ -89,7 +89,7 @@ with MockedAkkaServiceClient {
 
   describe("Configured simply to authenticate tokens, defaults for everything else") {
     //Configure the filter
-    val configuration = Marshaller.keystoneV2ConfigFromString(
+    def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
         |    <identity-service
@@ -429,7 +429,7 @@ with MockedAkkaServiceClient {
   }
 
   describe("Configured to authenticate and authorize a specific service endpoint") {
-    val configuration = Marshaller.keystoneV2ConfigFromString(
+    def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
         |    <identity-service
@@ -763,7 +763,7 @@ with MockedAkkaServiceClient {
   }
 
   describe("when whitelist is configured for a particular URI") {
-    val configuration = Marshaller.keystoneV2ConfigFromString(
+    def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
         |    <identity-service
@@ -1078,7 +1078,7 @@ with MockedAkkaServiceClient {
 
   describe("Forwarding information enabled") {
     //Configure the filter
-    val configuration = Marshaller.keystoneV2ConfigFromString(
+    def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
         |    <identity-service
