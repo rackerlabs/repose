@@ -43,13 +43,13 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
 
-        repose.start()
-
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV2Service.handler)
 
+        repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {

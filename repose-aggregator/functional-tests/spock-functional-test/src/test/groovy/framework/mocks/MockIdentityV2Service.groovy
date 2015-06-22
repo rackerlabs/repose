@@ -349,10 +349,10 @@ class MockIdentityV2Service {
         return new Response(501);
     }
 
-    static final String getUserGlobalRolesCallPathRegex = /^\/users\/([^\/]+)\/roles/
-    static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/RAX-KSGRP/
-    static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
-    static final String validateTokenCallPathRegex = /^\/tokens\/([^\/]+)\/?$/
+    static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/RAX-KSGRP/
+    static final String getEndpointsCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/endpoints/
+    static final String validateTokenCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/?$/
 
     /**
      * Check if get user global call path
@@ -396,7 +396,7 @@ class MockIdentityV2Service {
      * @return true/false
      */
     public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/tokens"
+        return nonQueryPath == "/v2.0/tokens"
     }
 
     /**
@@ -405,7 +405,7 @@ class MockIdentityV2Service {
      * @return true/false
      */
     public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.startsWith("/tokens")
+        return nonQueryPath.startsWith("/v2.0/tokens")
     }
 
     /**

@@ -235,7 +235,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Failure(x: IdentityCommuncationException) =>
               Reject(SC_BAD_GATEWAY, failure = Some(x))
             case Failure(x) =>
-              //TODO: this isn't yet complete
+              //TODO: this isn't yet complete, should return other status codes?
               Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
           }
         } getOrElse {
