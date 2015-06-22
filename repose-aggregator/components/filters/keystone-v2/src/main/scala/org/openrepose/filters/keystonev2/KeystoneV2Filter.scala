@@ -27,6 +27,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -145,10 +146,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val authorizedEndpoints = authorizedTenant match {
               case Pass(headers) =>
                 requestHandler.endpointAuthorization(authToken, validToken) match {
-                  case Some(Success(endpointVector)) =>
+                  case Some(Success(endpointsData)) =>
                     //If I'm configured to put the endpoints into a x-catalog do it
-                    //todo: endpoints header
-                    Pass(headers)
+                    // todo: do this even if configured even if authorization is not
+                    if (configuration.getIdentityService.isSetCatalogInHeader) {
+                      val endpointsHeader = PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes)
+                      Pass(headers + endpointsHeader)
+                    } else {
+                      Pass(headers)
+                    }
                   case Some(Failure(x)) =>
                     //Reject them with 403
                     Reject(SC_FORBIDDEN, failure = Some(x))
@@ -163,6 +169,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case Pass(headers) =>
                 requestHandler.getGroups(authToken, validToken) match {
                   case Some(Success(groups)) =>
+                    // todo: only if configured to send groups
                     val groupsHeader = PowerApiHeader.GROUPS.toString -> groups.mkString(",")
                     Pass(headers + groupsHeader)
                   case Some(Failure(e)) =>
@@ -186,6 +193,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                     OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                 }
 
+                // todo: only if configured to send roles
                 val rolesHeader = OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")
 
                 val tenantName = OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName

@@ -24,13 +24,15 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.{Matchers => MockMatchers, Mockito}
-import org.openrepose.commons.utils.http.{IdentityStatus, CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.filters.keystonev2.RequestHandler._
+import org.openrepose.filters.keystonev2.config.{RolesList, ServiceEndpointType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -677,7 +679,7 @@ with MockedAkkaServiceClient {
         )
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -703,7 +705,7 @@ with MockedAkkaServiceClient {
         )
 
         val endpointsList = Vector(Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -728,7 +730,7 @@ with MockedAkkaServiceClient {
         )
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
-        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(endpointsList, Nil: _*)
+        Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -1083,6 +1085,7 @@ with MockedAkkaServiceClient {
         |            username="username"
         |            password="password"
         |            uri="https://some.identity.com"
+        |            set-catalog-in-header="true"
         |            />
         |</keystone-v2>
       """.stripMargin)
@@ -1291,6 +1294,27 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
+    it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
+      val modifiedConfig = configuration
+      modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("example.com"))
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+      Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData(endpointsResponse(), Vector(Endpoint(None, None, None, "example.com"))), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG.toString) shouldBe encodedEndpoints
+    }
+
     it("Tests failure case in getGroupsForToken when serviceClientResponse.getStatus fails") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1426,10 +1450,8 @@ with MockedAkkaServiceClient {
       Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(TestValidToken(), Nil: _*)
 
-      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
-        )
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
       )
 
       val response = new MockHttpServletResponse
@@ -1438,10 +1460,6 @@ with MockedAkkaServiceClient {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
       mockAkkaServiceClient.validate()
-    }
-
-    it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
-      pending
     }
   }
 

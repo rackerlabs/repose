@@ -123,7 +123,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
    */
   def getAdminToken: Try[String] = {
     //Check the cache first, then try the request
-    Option(datastore.get(ADMIN_TOKEN_KEY)).map { value =>
+    Option(datastore.get(ADMIN_TOKEN_KEY)) map { value =>
       Success(value.asInstanceOf[String])
     } getOrElse {
       //authenticate, or get the admin token
@@ -243,14 +243,14 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
     }
   }
 
-  final def getEndpointsForToken(authenticatingToken: String, forToken: String): Try[Vector[Endpoint]] = {
+  final def getEndpointsForToken(authenticatingToken: String, forToken: String): Try[EndpointsData] = {
     val identityEndpoint = config.getIdentityService.getUri
     /**
      * Extract the user's endpoints from the endpoints call
-     * @param inputStream the Identity Endpoints call body
+     * @param jsonString the Identity Endpoints call body
      * @return a success or failure of a Vector[Endpoint] information
      */
-    def extractEndpointInfo(inputStream: InputStream): Try[Vector[Endpoint]] = {
+    def extractEndpointInfo(jsonString: String): Try[EndpointsData] = {
       import play.api.libs.functional.syntax._
       import play.api.libs.json.Reads._
       import play.api.libs.json._
@@ -262,20 +262,20 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           (JsPath \ "publicURL").read[String]
         )(Endpoint.apply _)
 
-      val input: String = Source.fromInputStream(inputStream).getLines mkString ""
-      val json = Json.parse(input)
+      val json = Json.parse(jsonString) // todo: return json to use to populate x-catalog header
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
           val endpoints = s.get
+          val endpointsData = new EndpointsData(jsonString, endpoints)
           Option(config.getCache) foreach { cacheSettings =>
             val timeout = Option(cacheSettings.getTimeouts) match {
               case Some(timeouts) => timeouts.getEndpoints.toInt
               case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
             }
-            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpoints, timeout, TimeUnit.SECONDS)
+            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
           }
-          Success(endpoints)
+          Success(endpointsData)
         case f: JsError =>
           Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
       }
@@ -286,7 +286,9 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
-          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION => extractEndpointInfo(serviceClientResponse.getData)
+          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
+            val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines mkString ""
+            extractEndpointInfo(jsonResponse)
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
           case _ => Failure(new Exception("Unexpected response code from the endpoints call"))
@@ -301,10 +303,10 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
    * @param authToken Assuming the auth token has been validated already
    * @return
    */
-  def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[Vector[Endpoint]]] = {
+  def endpointAuthorization(authToken: String, validToken: ValidToken): Option[Try[EndpointsData]] = {
     Option(config.getRequireServiceEndpoint) map { requireServiceEndpoint =>
-      Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[Vector[Endpoint]]).map { endpoints =>
-        Success(endpoints)
+      Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) map { endpointsData =>
+        Success(endpointsData)
       } getOrElse {
         getAdminToken flatMap { adminToken =>
           getEndpointsForToken(adminToken, authToken) recoverWith {
@@ -318,7 +320,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
               }
           }
         }
-      } flatMap { endpointList =>
+      } flatMap { endpointsData =>
         //Create the endpoint requirement from teh configuration
         def convertServiceType(cfg: ServiceEndpointType): Endpoint = {
           Endpoint(
@@ -341,8 +343,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         }
 
         if (bypassRoles.intersect(validToken.roles).nonEmpty ||
-          endpointList.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
-          Success(endpointList)
+          endpointsData.endpointsVector.exists(endpoint => endpoint.meetsRequirement(convertServiceType(requireServiceEndpoint)))) {
+          Success(endpointsData)
         } else {
           Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
         }
@@ -365,7 +367,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
         val json = Json.parse(input)
 
-        val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
+        val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector // todo: should be optional
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
             case Some(timeouts) => timeouts.getGroup.toInt
@@ -403,8 +405,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
               //Clear the cache, call this method again
               datastore.remove(ADMIN_TOKEN_KEY)
               getAdminToken match {
-                case Success(newAdminToken) =>
-                  getGroupsForToken(newAdminToken, authToken)
+                case Success(newAdminToken) => getGroupsForToken(newAdminToken, authToken)
                 case Failure(e) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", e))
               }
           }
@@ -428,6 +429,8 @@ object RequestHandler {
     val dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(iso)
     DateUtils.formatDate(dateTime.toDate)
   }
+
+  case class EndpointsData(endpointsJson: String, endpointsVector: Vector[Endpoint])
 
   trait IdentityException
 
