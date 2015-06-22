@@ -333,13 +333,7 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-<<<<<<< HEAD
-  def validateImpersonatedTokenResponse(token:String = VALID_TOKEN):String = {
-=======
   def validateImpersonatedTokenResponse(token: String = VALID_TOKEN): String = {
-    val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
-
->>>>>>> reformat code update test to use update mockservice for keystonev2
     s"""
        |{
        |  "access":{
