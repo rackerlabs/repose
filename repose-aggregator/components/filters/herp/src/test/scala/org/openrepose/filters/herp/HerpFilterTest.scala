@@ -407,9 +407,9 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\" : [  \"foo\"  ,\"bar\"  ]")
     }
-    it("should extract and log the request user agent") {
+    it("should extract and log the entire request user agent") {
       // given:
-      servletRequest.addHeader("User-Agent", "foo")
+      servletRequest.addHeader("User-Agent", "Repozilla/5000.0 (Bartlett; Leg Bart OS L 50_0_0) PearWebKit/987.65 (RHTML, like Skink) Gold/98.7.6543.210 Journey/123.45")
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -418,7 +418,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
       // then:
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserAgent\" : \"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserAgent\" : \"Repozilla/5000.0 (Bartlett; Leg Bart OS L 50_0_0) PearWebKit/987.65 (RHTML, like Skink) Gold/98.7.6543.210 Journey/123.45\"")
     }
     it("should extract and log the response code") {
       // given:
