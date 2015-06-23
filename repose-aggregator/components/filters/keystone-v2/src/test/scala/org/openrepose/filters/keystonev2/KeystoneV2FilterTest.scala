@@ -1302,7 +1302,7 @@ with MockedAkkaServiceClient {
       mockAkkaServiceClient.validate()
     }
 
-    it("should not the groups in the x-pp-groups header when RAX-KSGRP:groups not defined") {
+    it("should not add the groups in the x-pp-groups header when RAX-KSGRP:groups not defined") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1322,6 +1322,33 @@ with MockedAkkaServiceClient {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+
+      mockAkkaServiceClient.validate()
+    }
+
+    it("should not add the roles in the x-roles header when isSetRolesInHeader is false") {
+      val modifiedConfig = configuration
+      modifiedConfig.getIdentityService.setSetRolesInHeader(false)
+      filter.configurationUpdated(modifiedConfig)
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) shouldBe null
 
       mockAkkaServiceClient.validate()
     }
