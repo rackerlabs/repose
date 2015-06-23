@@ -85,14 +85,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     } else {
       logger.trace("Keystone v2 filter processing request...")
 
+      val config = configuration
       val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
       val response = servletResponse.asInstanceOf[HttpServletResponse] // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
-      val requestHandler = new RequestHandler(configuration, akkaServiceClient, datastore)
+      val requestHandler = new RequestHandler(config, akkaServiceClient, datastore)
 
       //Check our whitelist
       val whiteListURIs: Option[List[String]] =
         for {
-          jaxbIntermediary <- Option(configuration.getWhiteList) // todo: should configuration be moved up?
+          jaxbIntermediary <- Option(config.getWhiteList)
           regexList <- Option(jaxbIntermediary.getUriRegex)
         } yield {
           import scala.collection.JavaConversions._
@@ -155,8 +156,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   requestHandler.handleEndpoints(authToken, validToken) match {
                     case Some(Success(endpointsData)) =>
                       //If I'm configured to put the endpoints into a x-catalog do it
-                      if (configuration.getIdentityService.isSetCatalogInHeader) {
-                        // todo: don't check this flag twice
+                      if (config.getIdentityService.isSetCatalogInHeader) { // todo: don't check this flag twice
                         val endpointsHeader = PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes)
                         Pass(headers + endpointsHeader)
                       } else {
@@ -203,8 +203,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                       OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                   }
 
-                  val rolesHeader = if (configuration.getIdentityService.isSetRolesInHeader) {
-                    // todo: should not access configuration since it is not thread safe
+                  val rolesHeader = if (config.getIdentityService.isSetRolesInHeader) {
                     Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
                   } else {
                     Map.empty[String, String]
@@ -223,6 +222,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                   //todo: after we implement delegation, we should be able to set IdentityStatus.Indeterminate
                   val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
+
+                  // todo: www-authenticate
 
                   Pass(headers ++ userHeaders ++ rolesHeader + tenantName + xAuthHeader ++ defaultRegion ++ contactId
                     + expirationDate ++ impersonatorId ++ impersonatorName + identityStatus)
