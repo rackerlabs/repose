@@ -779,12 +779,11 @@ with MockedAkkaServiceClient {
         |            username="admin_username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            set-groups-in-header="true"
-        |            set-catalog-in-header="false"
         |            />
         |
         |    <white-list>
         |        <uri-regex>.*/application\.wadl$</uri-regex>
+        |        <uri-regex>/some/endpoint</uri-regex>
         |    </white-list>
         |</keystone-v2>
       """.stripMargin)
@@ -795,24 +794,22 @@ with MockedAkkaServiceClient {
     filter.init(config)
     filter.configurationUpdated(configuration)
 
-    it("will not perform authentication or authorization the URI that matches") {
-      //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
-      request.setRequestURI("/some/path/application.wadl")
+    val testUris = Seq("/some/path/application.wadl", "/some/other/path/application.wadl", "/some/endpoint")
+    testUris foreach { uri =>
+      it(s"will not perform authentication or authorization if the URI matches the whitelist: $uri") {
+        //make a request and validate that it called the akka service client?
+        val request = new MockHttpServletRequest
+        request.setRequestURI(uri)
 
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+        filterChain.getLastRequest shouldNot be(null)
+        filterChain.getLastResponse shouldNot be(null)
 
-      mockAkkaServiceClient.validate()
-    }
-
-    it("will not perform authentication or authorization for several URIS") {
-      pending
+        mockAkkaServiceClient.validate()
+      }
     }
   }
 
