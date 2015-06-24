@@ -223,13 +223,13 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         } filter {
           identity
         } match {
-          case Some(_) => null //todo: don't use null here
+          case Some(_) => Success(None)
           case None =>
             expectedTenant match {
               case Some(reqTenant) =>
                 val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
                 tokenTenants.find(reqTenant.equals) match {
-                  case Some(uriTenant) => Success(uriTenant)
+                  case Some(uriTenant) => Success(Some(uriTenant))
                   case None => Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
                 }
               case None => Failure(UnparseableTenantException("Could not parse tenant from the URI"))
@@ -237,8 +237,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         }
       } match {
         case Some(Failure(e)) => Failure(e)
-        case Some(Success(uriTenant)) => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, Some(uriTenant)))
-        case _ => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, None))
+        case Some(Success(uriTenant)) => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, uriTenant))
+        case None => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, None))
       }
     }
   }
