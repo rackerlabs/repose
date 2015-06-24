@@ -92,7 +92,7 @@ public class ApiValidatorHandlerTest {
             validators.add(nullValidatorInfo);
             validators.add(blowupValidatorInfo);
 
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, false, null);
             instance.setFilterChain(chain);
 
             when(request.getRequestURI()).thenReturn("/path/to/resource");
@@ -147,7 +147,7 @@ public class ApiValidatorHandlerTest {
             validators.add(role1ValidatorInfo);
             validators.add(role2ValidatorInfo);
 
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, false, null);
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
             assertEquals(validatorsForRole.get(0), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(1), role1ValidatorInfo);
@@ -165,7 +165,7 @@ public class ApiValidatorHandlerTest {
             validators.add(defaultValidatorInfo);
             validators.add(role2ValidatorInfo);
 
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, false, null);
 
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
 

@@ -55,15 +55,17 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
     private Set<String> matchedRoles;
     private FilterChain chain;
     private boolean multiRoleMatch = false;
+    private boolean delegatingMode;
     private MeterByCategorySum mbcsInvalidRequests;
 
     public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
-                               MetricsService metricsService) {
+                               boolean delegatingMode, MetricsService metricsService) {
         this.validators = new ArrayList<ValidatorInfo>(validators.size());
         this.matchedRoles = new HashSet<String>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
+        this.delegatingMode = delegatingMode;
         this.metricsService = metricsService;
 
         // TODO replace "api-validator" with filter-id or name-number in sys-model
@@ -134,7 +136,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
     private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, HttpServletResponse response) {
         try {
             ErrorResult error = getErrorResult(result);
-            if (error != null) {
+            if (error != null && !delegatingMode) {
                 myDirector.setResponseStatusCode(error.code());
                 response.sendError(error.code(), error.message());
             }
