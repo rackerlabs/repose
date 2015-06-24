@@ -238,7 +238,7 @@
     <xs:complexType name="CacheType">
         <xs:sequence>
             <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="eviction-feeds" type="AtomFeeds" minOccurs="0" maxOccurs="1"/>
+            <!-- todo: xs:element name="eviction-feeds" type="AtomFeeds" minOccurs="0" maxOccurs="1"/-->
         </xs:sequence>
     </xs:complexType>
 
@@ -247,7 +247,7 @@
             <xs:element name="token" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <xs:element name="group" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <xs:element name="endpoints" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
         </xs:sequence>
         <xs:attribute name="variability" type="ZeroOrPositiveInteger" default="0" use="optional">
             <xs:annotation>
@@ -284,7 +284,7 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="AtomFeeds">
+    <!-- todo: xs:complexType name="AtomFeeds">
         <xs:sequence>
             <xs:element name="rs-identity-feed" type="RackspaceIdentityFeedType" minOccurs="1"
                         maxOccurs="unbounded"/>
@@ -360,7 +360,7 @@
         <xs:assert vc:minVersion="1.1" test="if (@password) then (@auth-uri) else true()"
                    xerces:message="If user is configured then auth-url must be configured"
                    saxon:message="If auth-url is configured then user and password must be supplied"/>
-    </xs:complexType>
+    </xs:complexType-->
 
     <xs:simpleType name="QualityType">
         <xs:restriction base="xs:double">
