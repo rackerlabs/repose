@@ -35,7 +35,7 @@ import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpoi
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Random, Success, Try}
 
 /**
  * Contains the methods used in doFilter for Keystone v2 to handle requests.
@@ -76,7 +76,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
-            case Some(timeouts) => timeouts.getToken.toInt
+            case Some(timeouts) => offsetTtl(timeouts.getToken, timeouts.getVariability)
             case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
           }
           datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, timeout, TimeUnit.SECONDS)
@@ -109,7 +109,13 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND =>
-            datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, config.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
+            Option(config.getCache) foreach { cacheSettings =>
+              val timeout = Option(cacheSettings.getTimeouts) match {
+                case Some(timeouts) => offsetTtl(timeouts.getToken, timeouts.getVariability)
+                case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
+              }
+              datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, timeout, TimeUnit.SECONDS)
+            }
             Success(InvalidToken)
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
@@ -270,7 +276,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           val endpointsData = new EndpointsData(jsonString, endpoints)
           Option(config.getCache) foreach { cacheSettings =>
             val timeout = Option(cacheSettings.getTimeouts) match {
-              case Some(timeouts) => timeouts.getEndpoints.toInt
+              case Some(timeouts) => offsetTtl(timeouts.getEndpoints, timeouts.getVariability)
               case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
             }
             datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS) //todo: variability
@@ -388,7 +394,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
         Option(config.getCache) foreach { cacheSettings =>
           val timeout = Option(cacheSettings.getTimeouts) match {
-            case Some(timeouts) => timeouts.getGroup.toInt
+            case Some(timeouts) => offsetTtl(timeouts.getGroup, timeouts.getVariability)
             case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
           }
           datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, timeout, TimeUnit.SECONDS)
@@ -447,6 +453,11 @@ object RequestHandler {
   def iso8601ToRfc1123(iso: String) = {
     val dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(iso)
     DateUtils.formatDate(dateTime.toDate)
+  }
+
+  def offsetTtl(baseTtl: Int, variability: Int) = {
+    if (baseTtl == 0 || variability == 0) baseTtl
+    else Math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
   }
 
   case class EndpointsData(endpointsJson: String, endpointsVector: Vector[Endpoint])
