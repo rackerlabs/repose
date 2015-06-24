@@ -220,7 +220,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   val impersonatorId = validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid)
                   val impersonatorName = validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in)
 
-                  //todo: after we implement delegation, we should be able to set IdentityStatus.Indeterminate
                   val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
 
                   // todo: www-authenticate
@@ -267,6 +266,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   request.addHeader(key, value)
                 }
               }
+              request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString, IdentityStatus.Indeterminate.toString)
 
               chain.doFilter(request, response)
             case None =>

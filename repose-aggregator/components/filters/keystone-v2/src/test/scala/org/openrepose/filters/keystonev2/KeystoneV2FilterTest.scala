@@ -830,6 +830,22 @@ with HttpDelegationManager {
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
+
+    it("forwards the identity status as Indeterminate in the x-identity-status header when delegating") {
+      val request = new MockHttpServletRequest
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      Mockito.when(mockDatastore.get(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN")).thenReturn(InvalidToken, Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Indeterminate.toString
+    }
   }
 
   describe("when whitelist is configured for a particular URI") {
