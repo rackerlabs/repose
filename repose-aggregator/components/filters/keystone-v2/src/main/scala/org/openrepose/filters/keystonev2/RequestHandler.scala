@@ -268,7 +268,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           (JsPath \ "publicURL").read[String]
         )(Endpoint.apply _)
 
-      val json = Json.parse(jsonString) // todo: return json to use to populate x-catalog header
+      val json = Json.parse(jsonString)
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
@@ -279,7 +279,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
               case Some(timeouts) => offsetTtl(timeouts.getEndpoints, timeouts.getVariability)
               case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
             }
-            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS) //todo: variability
+            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
           }
           Success(endpointsData)
         case f: JsError =>
