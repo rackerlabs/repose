@@ -222,8 +222,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                   val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
 
-                  // todo: www-authenticate
-
                   Pass(headers ++ userHeaders ++ rolesHeader + tenantName + xAuthHeader ++ defaultRegion ++ contactId
                     + expirationDate ++ impersonatorId ++ impersonatorName + identityStatus)
                 case reject: Reject => reject
@@ -271,6 +269,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               chain.doFilter(request, response)
             case None =>
               logger.debug(s"Rejecting with status ${rejection.status}")
+              response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, s"Keystone uri=${config.getIdentityService.getUri}")
               message match {
                 case Some(m) =>
                   logger.debug(s"Rejection message: $m")

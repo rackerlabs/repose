@@ -170,7 +170,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -197,7 +197,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
       //Have to cache the result of the stuff
       Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
         MockMatchers.any(classOf[ValidToken]),
@@ -227,7 +227,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob", 600, TimeUnit.SECONDS)
+      Mockito.verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
       //Have to cache the result of the stuff
       Mockito.verify(mockDatastore).put(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN", InvalidToken, 600, TimeUnit.SECONDS)
 
@@ -298,6 +298,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("rejects with 403 if no x-auth-token is present") {
@@ -312,6 +313,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -843,7 +845,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      
+
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Indeterminate.toString
     }
   }
