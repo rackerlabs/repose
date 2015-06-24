@@ -156,7 +156,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           val json = Json.parse(jsonResponse)
           Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
             case Success(s) =>
-              datastore.put(ADMIN_TOKEN_KEY, s.get, config.getCache.getTimeouts.getToken, TimeUnit.SECONDS)
+              datastore.put(ADMIN_TOKEN_KEY, s.get)
               s
             case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
           }
@@ -273,7 +273,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
               case Some(timeouts) => timeouts.getEndpoints.toInt
               case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
             }
-            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
+            datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS) //todo: variability
           }
           Success(endpointsData)
         case f: JsError =>

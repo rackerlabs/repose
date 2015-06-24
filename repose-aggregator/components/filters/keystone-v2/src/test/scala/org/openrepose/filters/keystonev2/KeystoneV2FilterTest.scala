@@ -873,8 +873,63 @@ with HttpDelegationManager {
   }
 
   describe("configuring timeouts") {
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            set-catalog-in-header="true"
+        |            />
+        |      <cache>
+        |          <timeouts>
+        |              <token>270</token>
+        |              <group>300</group>
+        |              <endpoints>330</endpoints>
+        |          </timeouts>
+        |      </cache>
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.configurationUpdated(configuration)
+
     it("passes through the values to the distributed datastore for the proper cache timeouts") {
-      pending
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+      Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$ADMIN_TOKEN_KEY"), MockMatchers.any())
+      Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), MockMatchers.any(), MockMatchers.eq(270), MockMatchers.eq(TimeUnit.SECONDS))
+      Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), MockMatchers.any(), MockMatchers.eq(330), MockMatchers.eq(TimeUnit.SECONDS))
+      Mockito.verify(mockDatastore).put(MockMatchers.eq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), MockMatchers.any(), MockMatchers.eq(300), MockMatchers.eq(TimeUnit.SECONDS))
     }
   }
 
