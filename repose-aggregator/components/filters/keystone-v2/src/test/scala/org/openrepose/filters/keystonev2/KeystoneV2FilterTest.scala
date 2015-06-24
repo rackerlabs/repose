@@ -64,6 +64,10 @@ with HttpDelegationManager {
     mockAkkaServiceClient.reset()
   }
 
+  after {
+    mockAkkaServiceClient.validate()
+  }
+
   describe("Filter lifecycle") {
     val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
     val config: MockFilterConfig = new MockFilterConfig
@@ -143,8 +147,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("caches the admin token request for 10 minutes") {
@@ -172,8 +174,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("caches a valid token for 10 minutes") {
@@ -206,8 +206,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("caches an INvalid token for 10 minutes") {
@@ -237,7 +235,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      mockAkkaServiceClient.validate()
     }
 
     it("Makes no other calls if the token is already cached with a valid result") {
@@ -257,9 +254,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      //So because we didn't add any interactions, this guy will validate with no interactions
-      mockAkkaServiceClient.validate()
     }
 
     it("Makes no other calls if the token is already cached with a token not valid result") {
@@ -281,9 +275,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
-
-      //So because we didn't add any interactions, this guy will validate with no interactions
-      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 401 an invalid token") {
@@ -307,7 +298,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 403 if no x-auth-token is present") {
@@ -322,7 +312,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      mockAkkaServiceClient.validate()
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -352,7 +341,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
@@ -382,7 +370,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
-      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 502 if we cannot reach identity") {
@@ -405,7 +392,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
-      mockAkkaServiceClient.validate()
 
     }
 
@@ -436,7 +422,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
-      mockAkkaServiceClient.validate()
     }
   }
 
@@ -490,8 +475,6 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 203 response from endpoints call") {
@@ -515,8 +498,6 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 403 response from endpoints call") {
@@ -542,7 +523,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 401 response from endpoints call") {
@@ -568,7 +548,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      mockAkkaServiceClient.validate()
     }
 
     it("Tests failure case when serviceClientResponse.getStatus fails") {
@@ -594,8 +573,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-
-      mockAkkaServiceClient.validate()
     }
 
     it("handles unexpected response from endpoints call") {
@@ -623,7 +600,6 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 403 if the user does not have the required endpoint") {
@@ -648,8 +624,6 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     it("bypasses validation if the user has the role listed in bypass-validation-roles") {
@@ -673,8 +647,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-
-      mockAkkaServiceClient.validate()
     }
 
     describe("when endpoints are cached") {
@@ -700,8 +672,6 @@ with HttpDelegationManager {
         response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
-
-        mockAkkaServiceClient.validate()
       }
 
       it("will allow through if the user has the endpoint") {
@@ -725,8 +695,6 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
-
-        mockAkkaServiceClient.validate()
       }
 
       it("will allow through if the user matches the bypass roles") {
@@ -750,8 +718,6 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
-
-        mockAkkaServiceClient.validate()
       }
     }
   }
@@ -807,7 +773,7 @@ with HttpDelegationManager {
 
       Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
-      Mockito.when(mockDatastore.get(s"$ENDPOINTS_ENDPOINT$VALID_TOKEN")).thenReturn(Vector.empty[RequestHandler.EndpointsData], Nil: _*)
+      Mockito.when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -838,8 +804,6 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
-
-      mockAkkaServiceClient.validate()
     }
 
     it("delegates if the admin token is invalid") {
@@ -865,8 +829,6 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-
-      mockAkkaServiceClient.validate()
     }
   }
 
@@ -906,8 +868,6 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
-
-        mockAkkaServiceClient.validate()
       }
     }
   }
@@ -926,8 +886,7 @@ with HttpDelegationManager {
         |            username="username"
         |            password="password"
         |            uri="https://some.identity.com"
-        |            set-groups-in-header="true"
-        |            set-catalog-in-header="false"
+        |            set-groups-in-header="false"
         |            />
         |    <tenant-handling send-all-tenant-ids="true">
         |        <validate-tenant>
@@ -1222,8 +1181,6 @@ with HttpDelegationManager {
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID.toString) shouldBe "123"
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's roles information in the x-roles header") {
@@ -1247,8 +1204,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("compute:admin")
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("object-store:admin")
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's contact id information in the x-contact-id header") {
@@ -1271,8 +1226,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's impersonator information in the x-impersonator-id and x-impersonator-name headers") {
@@ -1296,8 +1249,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString) shouldBe "567"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's default region information in the x-default-region header") {
@@ -1320,8 +1271,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.DEFAULT_REGION.toString) shouldBe "DFW"
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the expiration date information in the x-expiration header") {
@@ -1346,8 +1295,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
         .getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe iso8601ToRfc1123(tokenDateFormat(dateTime))
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the identity status as Confirmed in the x-identity-status header when Repose is able to validate the token") {
@@ -1370,8 +1317,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the groups in the x-pp-groups header by default") {
@@ -1394,8 +1339,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include("test-group-id")
-
-      mockAkkaServiceClient.validate()
     }
 
     it("should not add the groups in the x-pp-groups header when RAX-KSGRP:groups not defined") {
@@ -1418,8 +1361,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-
-      mockAkkaServiceClient.validate()
     }
 
     it("should not add the roles in the x-roles header when isSetRolesInHeader is false") {
@@ -1445,13 +1386,12 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) shouldBe null
-
-      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
       val modifiedConfig = configuration
       modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
+      modifiedConfig.getIdentityService.setSetGroupsInHeader(false)
       modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("example.com"))
       filter.configurationUpdated(modifiedConfig)
 
@@ -1490,8 +1430,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 401 response from groups call") {
@@ -1542,7 +1480,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 413 response from groups call") {
@@ -1567,7 +1504,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 429 response from groups call") {
@@ -1592,7 +1528,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-      mockAkkaServiceClient.validate()
     }
 
     it("handles unexpected response from groups call") {
@@ -1615,7 +1550,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-      mockAkkaServiceClient.validate()
     }
   }
 

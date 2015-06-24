@@ -116,7 +116,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         authTokenValue map { authToken =>
           //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
           val tokenValidationResult: Try[AuthResult] =
-            Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[AuthResult]).map { validationResult =>
+            Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[AuthResult]) map { validationResult =>
               Success(validationResult)
             } getOrElse {
               //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
