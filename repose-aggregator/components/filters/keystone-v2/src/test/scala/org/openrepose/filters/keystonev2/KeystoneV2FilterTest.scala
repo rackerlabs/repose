@@ -796,15 +796,77 @@ with HttpDelegationManager {
     }
 
     it("delegates if lacking the required service endpoint and adds the header") {
-      pending
+      val modifiedConfig = configuration
+      modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("http://google.com/"))
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      Mockito.when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+      Mockito.when(mockDatastore.get(s"$ENDPOINTS_ENDPOINT$VALID_TOKEN")).thenReturn(Vector.empty[RequestHandler.EndpointsData], Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      delegationHeader shouldBe a[Success[_]]
+      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
     }
 
     it("delegates if identity doesn't respond properly") {
-      pending
+      val request = new MockHttpServletRequest
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, "butts")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      delegationHeader shouldBe a[Success[_]]
+      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+
+      mockAkkaServiceClient.validate()
     }
 
     it("delegates if the admin token is invalid") {
-      pending
+      val request = new MockHttpServletRequest
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("invalid", null)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "invalid", AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
+      )
+
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      delegationHeader shouldBe a[Success[_]]
+      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+
+      mockAkkaServiceClient.validate()
     }
   }
 

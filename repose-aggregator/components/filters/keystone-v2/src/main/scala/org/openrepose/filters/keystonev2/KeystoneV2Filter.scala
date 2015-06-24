@@ -259,7 +259,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               logger.debug(s"Delegating with status ${rejection.status}")
               val delegationHeaders = buildDelegationHeaders(rejection.status,
                 "keystone-v2",
-                message.getOrElse("Failure in the Keystone v2 filter"),
+                message.getOrElse("Failure in the Keystone v2 filter").replace("\n", ""),
                 delegating.getQuality)
 
               delegationHeaders foreach { case (key, values) =>
