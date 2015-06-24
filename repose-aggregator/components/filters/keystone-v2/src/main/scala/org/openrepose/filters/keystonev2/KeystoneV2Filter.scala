@@ -245,22 +245,38 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      //Handle the result of the filter to apply to the
+      //Handle the result of the filter
       result match {
         case rejection: Reject =>
           val message: Option[String] = rejection match {
             case Reject(_, Some(x), _) => Some(x)
-            case Reject(code, None, Some(failure)) =>
-              logger.debug(s"Rejecting with status $code", failure)
-              Some(failure.getMessage)
+            case Reject(code, None, Some(failure)) => Some(failure.getMessage)
             case _ => None
           }
-          //todo: delegation
-          message match {
-            case Some(m) =>
-              logger.debug(s"Rejection message: $m")
-              response.sendError(rejection.status, m)
-            case None => response.sendError(rejection.status)
+          //Handle delegation if necessary
+          Option(config.getDelegating) match {
+            case Some(delegating) =>
+              logger.debug(s"Delegating with status ${rejection.status}")
+              val delegationHeaders = buildDelegationHeaders(rejection.status,
+                "keystone-v2",
+                message.getOrElse("Failure in the Keystone v2 filter"),
+                delegating.getQuality)
+
+              delegationHeaders foreach { case (key, values) =>
+                values foreach { value =>
+                  request.addHeader(key, value)
+                }
+              }
+
+              chain.doFilter(request, response)
+            case None =>
+              logger.debug(s"Rejecting with status ${rejection.status}")
+              message match {
+                case Some(m) =>
+                  logger.debug(s"Rejection message: $m")
+                  response.sendError(rejection.status, m)
+                case None => response.sendError(rejection.status)
+              }
           }
 
         case p: Pass =>

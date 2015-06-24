@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -38,6 +39,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scala.collection.JavaConverters._
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterTest extends FunSpec
@@ -45,7 +47,8 @@ with Matchers
 with BeforeAndAfter
 with MockitoSugar
 with IdentityResponses
-with MockedAkkaServiceClient {
+with MockedAkkaServiceClient
+with HttpDelegationManager {
   System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
     "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
 
@@ -754,8 +757,42 @@ with MockedAkkaServiceClient {
   }
 
   describe("when delegating") {
+    //Configure the filter
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            />
+        |
+        |     <delegating/>
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.configurationUpdated(configuration)
+
     it("delegates with an invalid token and adds the header") {
-      pending
+      val request = new MockHttpServletRequest
+      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setRequestURI("/some/path/application.wadl")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
+
+      Mockito.when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      Mockito.when(mockDatastore.get(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN")).thenReturn(InvalidToken, Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      delegationHeader shouldBe a[Success[_]]
+      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
 
     it("delegates if lacking the required service endpoint and adds the header") {
