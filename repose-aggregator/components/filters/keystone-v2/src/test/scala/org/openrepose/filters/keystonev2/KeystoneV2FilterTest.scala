@@ -726,7 +726,7 @@ with HttpDelegationManager {
     }
   }
 
-  describe("Configured to authenticate and authorize a specific group") {
+  describe("Configured to send groups") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -788,7 +788,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-      mockAkkaServiceClient.validate()
     }
 
     it("handles 403 response from groups call") {
@@ -802,10 +801,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(TestValidToken(), Nil: _*)
 
-      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
-        )
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
       )
 
       val response = new MockHttpServletResponse
@@ -826,10 +823,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(TestValidToken(), Nil: _*)
 
-      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
-        )
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
       )
 
       val response = new MockHttpServletResponse
@@ -850,10 +845,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(TestValidToken(), Nil: _*)
 
-      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        Seq(
-          "glibglob" -> AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
-        )
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
       )
 
       val response = new MockHttpServletResponse
