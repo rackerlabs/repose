@@ -1207,6 +1207,46 @@ with HttpDelegationManager {
         intThat(both(greaterThanOrEqualTo(Int.box(299))).and(lessThanOrEqualTo(Int.box(301)))),
         mockitoEq(TimeUnit.SECONDS))
     }
+
+    it("tests that configurationUpdated sets timeouts to default if CacheTimeoutType is null") {
+      val modifiedConfig = configuration
+      modifiedConfig.getCache.setTimeouts(null)
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+      verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
+      verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+
+      filter.configurationUpdated(configuration)
+    }
   }
 
   describe("when tenant handling is enabled") {
