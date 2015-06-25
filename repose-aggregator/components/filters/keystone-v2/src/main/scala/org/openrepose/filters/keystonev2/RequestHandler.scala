@@ -223,8 +223,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
     }
 
     Option(config.getTenantHandling) map { tenantHandling =>
-      Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
-        Option(config.getTenantHandling.getValidateTenant.getBypassValidationRoles) map {
+      Option(tenantHandling.getValidateTenant) map { validateTenant =>
+        Option(validateTenant.getBypassValidationRoles) map {
           _.getRole.asScala.intersect(validToken.roles).nonEmpty
         } filter {
           identity
