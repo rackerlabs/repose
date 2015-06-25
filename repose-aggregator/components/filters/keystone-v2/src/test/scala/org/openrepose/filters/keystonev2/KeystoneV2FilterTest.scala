@@ -653,6 +653,37 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
     }
 
+    it("rejects with 403 if the user does not have an endpoint when catalog variable is set") {
+      val modifiedConfig = configuration
+      modifiedConfig.setRequireServiceEndpoint(null)
+      modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
+      filter.configurationUpdated(modifiedConfig)
+
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
+        .thenReturn(TestValidToken(), Nil: _*)
+
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      //Continues with the chain
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+    }
+
     describe("when endpoints are cached") {
       it("will reject if the user doesn't have the endpoint") {
         //make a request and validate that it called the akka service client?
@@ -876,37 +907,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-    }
-
-    it("rejects with 403 if the user does not have an endpoint when catalog variable is set") {
-      val modifiedConfig = configuration
-      modifiedConfig.setRequireServiceEndpoint(null)
-      modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
-      filter.configurationUpdated(modifiedConfig)
-
-      //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
-
-      //Pretend like the admin token is cached all the time
-      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
-
-      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
-      )
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
-
-      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      //Continues with the chain
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
     }
   }
 
