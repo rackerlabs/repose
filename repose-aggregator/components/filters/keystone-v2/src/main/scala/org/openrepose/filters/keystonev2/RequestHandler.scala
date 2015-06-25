@@ -65,7 +65,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
         val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val userId = (json \ "access" \ "user" \ "id").as[String]
-        val username = (json \ "access" \ "user" \ "name").as[String] // note: this may be optional? if so, asOpt can be used.
+        // note: this may be optional? if so, asOpt can be used.
+        val username = (json \ "access" \ "user" \ "name").as[String]
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
@@ -75,7 +76,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion, contactId)
 
         Option(config.getCache) foreach { cacheSettings =>
-          val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability) // never null because configurationUpdated in KeystoneV2Filter
+          // never null because configurationUpdated in KeystoneV2Filter
+          val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)
           datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, timeout, TimeUnit.SECONDS)
         }
         Success(validToken)
@@ -107,7 +109,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND =>
             Option(config.getCache) foreach { cacheSettings =>
-              val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
+              // never null because configurationUpdated in KeystoneV2Filter
+              val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)
               datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, timeout, TimeUnit.SECONDS)
             }
             Success(InvalidToken)
@@ -269,7 +272,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           val endpoints = s.get
           val endpointsData = new EndpointsData(jsonString, endpoints)
           Option(config.getCache) foreach { cacheSettings =>
-            val timeout = offsetTtl(cacheSettings.getTimeouts.getEndpoints, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
+            // never null because configurationUpdated in KeystoneV2Filter
+            val timeout = offsetTtl(cacheSettings.getTimeouts.getEndpoints, cacheSettings.getTimeouts.getVariability)
             datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
           }
           Success(endpointsData)
@@ -384,7 +388,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
         val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
         Option(config.getCache) foreach { cacheSettings =>
-          val timeout = offsetTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
+          // never null because configurationUpdated in KeystoneV2Filter
+          val timeout = offsetTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)
           datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, timeout, TimeUnit.SECONDS)
         }
         groupsForToken

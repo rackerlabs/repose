@@ -55,7 +55,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
 
-  private val datastore: Datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
+  //Which happens to be the local datastore
+  private val datastore: Datastore = datastoreService.getDefaultDatastore
 
   var configuration: KeystoneV2Config = _
 
@@ -87,7 +88,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       val config = configuration
       val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-      val response = servletResponse.asInstanceOf[HttpServletResponse] // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
+      // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
+      val response = servletResponse.asInstanceOf[HttpServletResponse]
       val requestHandler = new RequestHandler(config, akkaServiceClient, datastore)
 
       //Check our whitelist
@@ -156,7 +158,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   requestHandler.handleEndpoints(authToken, validToken) match {
                     case Some(Success(endpointsData)) =>
                       //If I'm configured to put the endpoints into a x-catalog do it
-                      if (config.getIdentityService.isSetCatalogInHeader) { // todo: don't check this flag twice
+                      if (config.getIdentityService.isSetCatalogInHeader) {
+                        // todo: don't check this flag twice
                         val endpointsHeader = PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes)
                         Pass(headers + endpointsHeader)
                       } else {

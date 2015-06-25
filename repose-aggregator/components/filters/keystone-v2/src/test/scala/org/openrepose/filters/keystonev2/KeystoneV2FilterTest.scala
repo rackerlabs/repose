@@ -248,7 +248,8 @@ with HttpDelegationManager {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(roles = Vector("compute:admin", "object-store:admin")), Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(roles = Vector("compute:admin", "object-store:admin")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -267,7 +268,8 @@ with HttpDelegationManager {
       //When the user's token details are cached, no calls to identity should take place
 
       //When we ask the cache for our token, it works
-      when(mockDatastore.get(s"${TOKEN_KEY_PREFIX}LOLNOPE")).thenReturn(InvalidToken, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+      when(mockDatastore.get(s"${TOKEN_KEY_PREFIX}LOLNOPE")).thenReturn(InvalidToken, Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
