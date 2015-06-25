@@ -75,10 +75,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val validToken = ValidToken(expirationDate, userId, username, tenantName, defaultTenantId, tenantIds, roleNames, impersonatorId, impersonatorName, defaultRegion, contactId)
 
         Option(config.getCache) foreach { cacheSettings =>
-          val timeout = Option(cacheSettings.getTimeouts) match {
-            case Some(timeouts) => offsetTtl(timeouts.getToken, timeouts.getVariability)
-            case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
-          }
+          val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability) // never null because configurationUpdated in KeystoneV2Filter
           datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, timeout, TimeUnit.SECONDS)
         }
         Success(validToken)
@@ -110,10 +107,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND =>
             Option(config.getCache) foreach { cacheSettings =>
-              val timeout = Option(cacheSettings.getTimeouts) match {
-                case Some(timeouts) => offsetTtl(timeouts.getToken, timeouts.getVariability)
-                case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
-              }
+              val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
               datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, timeout, TimeUnit.SECONDS)
             }
             Success(InvalidToken)
@@ -275,10 +269,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           val endpoints = s.get
           val endpointsData = new EndpointsData(jsonString, endpoints)
           Option(config.getCache) foreach { cacheSettings =>
-            val timeout = Option(cacheSettings.getTimeouts) match {
-              case Some(timeouts) => offsetTtl(timeouts.getEndpoints, timeouts.getVariability)
-              case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
-            }
+            val timeout = offsetTtl(cacheSettings.getTimeouts.getEndpoints, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
             datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
           }
           Success(endpointsData)
@@ -393,10 +384,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
         val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
         Option(config.getCache) foreach { cacheSettings =>
-          val timeout = Option(cacheSettings.getTimeouts) match {
-            case Some(timeouts) => offsetTtl(timeouts.getGroup, timeouts.getVariability)
-            case None => 0 // No timeout configured, cache indefinitely. Feeds may still invalidate cached data.
-          }
+          val timeout = offsetTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)  // never null because configurationUpdated in KeystoneV2Filter
           datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, timeout, TimeUnit.SECONDS)
         }
         groupsForToken
