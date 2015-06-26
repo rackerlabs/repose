@@ -8,6 +8,7 @@ import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -22,6 +23,8 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
+  val mockSystemModel = mock[SystemModel]
+  Mockito.when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
 
   before {
     Mockito.reset(mockDatastore)
@@ -43,8 +46,13 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("keystone-v2.cfg.xml"),
         resourceCaptor.capture,
-        MockitoMatcher.eq(filter),
+        MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
         MockitoMatcher.eq(classOf[KeystoneV2Config]))
+      Mockito.verify(mockConfigService).subscribeTo(
+        MockitoMatcher.eq("system-model.cfg.xml"),
+        MockitoMatcher.any(classOf[URL]),
+        MockitoMatcher.eq(filter.SystemModelConfigListener),
+        MockitoMatcher.eq(classOf[SystemModel]))
 
       assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/keystone-v2.xsd"))
     }
@@ -65,8 +73,13 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("some-other-config.xml"),
         resourceCaptor.capture,
-        MockitoMatcher.eq(filter),
+        MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
         MockitoMatcher.eq(classOf[KeystoneV2Config]))
+      Mockito.verify(mockConfigService).subscribeTo(
+        MockitoMatcher.eq("system-model.cfg.xml"),
+        MockitoMatcher.any(classOf[URL]),
+        MockitoMatcher.eq(filter.SystemModelConfigListener),
+        MockitoMatcher.eq(classOf[SystemModel]))
 
       assert(resourceCaptor.getValue.toString.endsWith("/META-INF/schema/config/keystone-v2.xsd"))
     }
@@ -80,7 +93,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     filter.init(config)
     filter.destroy()
 
-    Mockito.verify(mockConfigService).unsubscribeFrom("keystone-v2.cfg.xml", filter)
+    Mockito.verify(mockConfigService).unsubscribeFrom("keystone-v2.cfg.xml", filter.KeystoneV2ConfigListener)
   }
 
   describe("when the configuration is updated") {
@@ -100,25 +113,25 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
           |</keystone-v2>
         """.stripMargin)
 
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      val timeouts = filter.configuration.getCache.getTimeouts
+      val timeouts = filter.keystoneV2Config.getCache.getTimeouts
       timeouts.getEndpoints should be(600)
       timeouts.getGroup should be(600)
       timeouts.getToken should be(600)
-      timeouts.getUser should be(600)
       timeouts.getVariability should be(0)
 
-      filter.configuration.getIdentityService.isSetGroupsInHeader should be(right = true)
-      filter.configuration.getIdentityService.isSetCatalogInHeader should be(right = false)
+      filter.keystoneV2Config.getIdentityService.isSetGroupsInHeader should be(right = true)
+      filter.keystoneV2Config.getIdentityService.isSetCatalogInHeader should be(right = false)
 
-      filter.configuration.getDelegating should be(null)
+      filter.keystoneV2Config.getDelegating should be(null)
 
-      filter.configuration.getWhiteList should be(null)
+      filter.keystoneV2Config.getWhiteList should be(null)
 
-      filter.configuration.getTenantHandling should be(null)
+      filter.keystoneV2Config.getTenantHandling should be(null)
 
-      filter.configuration.getRequireServiceEndpoint should be(null)
+      filter.keystoneV2Config.getRequireServiceEndpoint should be(null)
     }
 
     it("sets the default delegating quality to 0.7") {
@@ -138,10 +151,11 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
           |</keystone-v2>
         """.stripMargin)
 
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      val timeouts = filter.configuration.getCache.getTimeouts
-      filter.configuration.getDelegating.getQuality should be(0.7)
+      val timeouts = filter.keystoneV2Config.getCache.getTimeouts
+      filter.keystoneV2Config.getDelegating.getQuality should be(0.7)
     }
   }
 }

@@ -42,7 +42,7 @@ import scala.util.{Failure, Random, Success, Try}
  *
  * Scoped to a single request/thread.
  */
-class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceClient, datastore: Datastore)
+class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceClient, datastore: Datastore, traceId: Option[String])
   extends LazyLogging {
 
   import RequestHandler._
@@ -92,8 +92,9 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
     import scala.collection.JavaConverters._
     Try(akkaServiceClient.get(s"$TOKEN_KEY_PREFIX$token",
       s"$identityEndpoint$TOKEN_ENDPOINT/$token",
-      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
-        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava)
+      (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
+        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)
     ) match {
       case Success(serviceClientResponse) =>
         //DEAL WITH IT
@@ -148,7 +149,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
       val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
         s"$identityEndpoint$TOKEN_ENDPOINT",
-        Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava,
+        (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
+          ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
         Json.stringify(authenticationPayload),
         MediaType.APPLICATION_JSON_TYPE
       ))
@@ -284,8 +286,9 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
     Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
       s"$identityEndpoint${ENDPOINTS_ENDPOINT(forToken)}",
-      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
-        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava)) match {
+      (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
+        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
           case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
@@ -398,8 +401,9 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
     Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
       s"$identityEndpoint${GROUPS_ENDPOINT(forToken)}",
-      Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
-        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava)) match {
+      (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
+        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)) match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
           case SC_OK => extractGroupInfo(serviceClientResponse.getData)

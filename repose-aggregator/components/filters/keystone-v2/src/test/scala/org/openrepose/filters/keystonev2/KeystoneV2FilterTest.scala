@@ -34,8 +34,9 @@ import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.RequestHandler._
-import org.openrepose.filters.keystonev2.config.ServiceEndpointType
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}
@@ -58,6 +59,8 @@ with HttpDelegationManager {
   private val mockDatastore: Datastore = mock[Datastore]
   when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
   val mockConfigService = mock[ConfigurationService]
+  val mockSystemModel = mock[SystemModel]
+  when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
   private final val dateTime = DateTime.now().plusHours(1)
 
   before {
@@ -91,14 +94,20 @@ with HttpDelegationManager {
         anyString(),
         any[URL],
         any(),
-        any()
+        any[Class[KeystoneV2Config]]
+      )
+      verify(mockConfigService).subscribeTo(
+        anyString(),
+        any[URL],
+        any(),
+        any[Class[SystemModel]]
       )
     }
 
     it("should unsubscribe a listener to the configuration service on destroy") {
       filter.destroy()
 
-      verify(mockConfigService).unsubscribeFrom(
+      verify(mockConfigService, times(2)).unsubscribeFrom(
         anyString(),
         any()
       )
@@ -124,7 +133,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("Validates a token allowing through the filter") {
       //make a request and validate that it called the akka service client?
@@ -457,7 +467,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("allows a user through if they have the endpoint configured in their endpoints list") {
       //make a request and validate that it called the akka service client?
@@ -659,7 +670,7 @@ with HttpDelegationManager {
       val modifiedConfig = configuration
       modifiedConfig.setRequireServiceEndpoint(null)
       modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
@@ -678,7 +689,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
       //Continues with the chain
@@ -775,7 +786,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("will allow through if the user has the group cached") {
       //make a request and validate that it called the akka service client?
@@ -860,7 +872,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
       )
 
       val response = new MockHttpServletResponse
@@ -882,7 +894,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
       )
 
       val response = new MockHttpServletResponse
@@ -904,7 +916,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-          "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
+        "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
       )
 
       val response = new MockHttpServletResponse
@@ -937,7 +949,7 @@ with HttpDelegationManager {
     }
   }
 
-  describe("when delegating") {
+  describe("Configured to delegate") {
     //Configure the filter
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
@@ -956,7 +968,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("delegates with an invalid token and adds the header") {
       val request = new MockHttpServletRequest
@@ -979,7 +992,7 @@ with HttpDelegationManager {
     it("delegates if lacking the required service endpoint and adds the header") {
       val modifiedConfig = configuration
       modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("http://google.com/"))
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest
       request.setRequestURL("http://www.sample.com/some/path/application.wadl")
@@ -993,7 +1006,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
@@ -1063,7 +1076,7 @@ with HttpDelegationManager {
     }
   }
 
-  describe("when whitelist is configured for a particular URI") {
+  describe("Configured to whitelist a particular URI") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -1084,7 +1097,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     val testUris = Seq("/some/path/application.wadl", "/some/other/path/application.wadl", "/some/endpoint")
     testUris foreach { uri =>
@@ -1103,7 +1117,7 @@ with HttpDelegationManager {
     }
   }
 
-  describe("configuring timeouts") {
+  describe("Configured timeouts") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -1127,7 +1141,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("passes through the values to the distributed datastore for the proper cache timeouts") {
       val request = new MockHttpServletRequest()
@@ -1166,7 +1181,7 @@ with HttpDelegationManager {
     it("passes through variable offsets within a range to the distributed datastore") {
       val modifiedConfig = configuration
       modifiedConfig.getCache.getTimeouts.setVariability(1)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1192,7 +1207,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
@@ -1213,7 +1228,7 @@ with HttpDelegationManager {
     it("tests that configurationUpdated sets timeouts to default if CacheTimeoutType is null") {
       val modifiedConfig = configuration
       modifiedConfig.getCache.setTimeouts(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1247,11 +1262,11 @@ with HttpDelegationManager {
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
 
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     }
   }
 
-  describe("when tenant handling is enabled") {
+  describe("Tenant handling is enabled") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -1278,7 +1293,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
       val request = new MockHttpServletRequest()
@@ -1315,7 +1331,7 @@ with HttpDelegationManager {
     it("sends all tenant IDs when configured to") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
@@ -1327,7 +1343,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant")
@@ -1356,7 +1372,7 @@ with HttpDelegationManager {
     it("sends tenant quality when not configured to send all tenant IDs") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/rick/test")
@@ -1368,7 +1384,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
@@ -1395,7 +1411,7 @@ with HttpDelegationManager {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/morty/test")
@@ -1407,7 +1423,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
@@ -1419,7 +1435,7 @@ with HttpDelegationManager {
       modifiedConfig.getTenantHandling.setValidateTenant(null)
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/years/test")
@@ -1431,7 +1447,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
@@ -1473,7 +1489,7 @@ with HttpDelegationManager {
     it("should send the X-Authorization header without a tenant if tenant handling is not used") {
       val modifiedConfig = configuration
       modifiedConfig.setTenantHandling(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/years/test")
@@ -1485,7 +1501,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy"
@@ -1494,7 +1510,7 @@ with HttpDelegationManager {
     it("should send the X-Authorization header without a tenant if tenant validation is not used") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setValidateTenant(null)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/years/test")
@@ -1506,7 +1522,7 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy"
@@ -1530,7 +1546,8 @@ with HttpDelegationManager {
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
-    filter.configurationUpdated(configuration)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("forwards the user information in the x-pp-user, x-user-name, and x-user-id headers") {
       val request = new MockHttpServletRequest()
@@ -1739,7 +1756,7 @@ with HttpDelegationManager {
     it("should not add the roles in the x-roles header when isSetRolesInHeader is false") {
       val modifiedConfig = configuration
       modifiedConfig.getIdentityService.setSetRolesInHeader(false)
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1766,7 +1783,7 @@ with HttpDelegationManager {
       modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
       modifiedConfig.getIdentityService.setSetGroupsInHeader(false)
       modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("example.com"))
-      filter.configurationUpdated(modifiedConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1778,10 +1795,96 @@ with HttpDelegationManager {
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
-      filter.configurationUpdated(configuration)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG.toString) shouldBe encodedEndpoints
+    }
+  }
+
+  describe("Configured tracing header") {
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            set-catalog-in-header="true"
+        |            />
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+    it("should forward the x-trans-d header if enabled") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.TRACE_GUID.toString, "test-guid")
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      mockAkkaServiceClient.requestHeaders.forall(_.exists(_ == CommonHttpHeader.TRACE_GUID.toString -> "test-guid")) shouldBe true
+    }
+
+    it("should not forward the x-trans-id header if disabled") {
+      val mockSystemModelNoTracing = mock[SystemModel]
+      when(mockSystemModelNoTracing.isTracingHeader).thenReturn(false)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModelNoTracing)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+      request.addHeader(CommonHttpHeader.TRACE_GUID.toString, "test-guid")
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
+      )
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      mockAkkaServiceClient.requestHeaders.exists(_.exists(_ == CommonHttpHeader.TRACE_GUID.toString -> "test-guid")) shouldBe false
     }
   }
 

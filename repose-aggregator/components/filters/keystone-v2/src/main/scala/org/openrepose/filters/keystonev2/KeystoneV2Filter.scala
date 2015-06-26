@@ -35,6 +35,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.RequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
@@ -45,52 +46,60 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                                  akkaServiceClient: AkkaServiceClient,
                                  datastoreService: DatastoreService)
   extends Filter
-  with UpdateListener[KeystoneV2Config]
   with HttpDelegationManager
   with LazyLogging {
 
+  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
   private final val X_AUTH_PROXY = "Proxy"
 
   private var configurationFile: String = DEFAULT_CONFIG
-  private var initialized = false
+  private var sendTraceHeader = true
 
   //Which happens to be the local datastore
   private val datastore: Datastore = datastoreService.getDefaultDatastore
 
-  var configuration: KeystoneV2Config = _
+  var keystoneV2Config: KeystoneV2Config = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
     configurationService.subscribeTo(
+      SYSTEM_MODEL_CONFIG,
+      getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
+      SystemModelConfigListener,
+      classOf[SystemModel]
+    )
+    configurationService.subscribeTo(
       filterConfig.getFilterName,
       configurationFile,
       xsdURL,
-      this,
+      KeystoneV2ConfigListener,
       classOf[KeystoneV2Config]
     )
   }
 
   override def destroy(): Unit = {
-    configurationService.unsubscribeFrom(configurationFile, this)
+    configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
+    configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
   }
 
   implicit val autoHeaderToString: HeaderConstant => String = hc => hc.toString
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-    if (!initialized) {
+    if (!isInitialized) {
       logger.error("Keystone v2 filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR)
     } else {
       logger.trace("Keystone v2 filter processing request...")
 
-      val config = configuration
+      val config = keystoneV2Config
       val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
       // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
       val response = servletResponse.asInstanceOf[HttpServletResponse]
-      val requestHandler = new RequestHandler(config, akkaServiceClient, datastore)
+      val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+      val requestHandler = new RequestHandler(config, akkaServiceClient, datastore, traceId)
 
       //Check our whitelist
       val whiteListURIs: Option[List[String]] =
@@ -292,24 +301,42 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
-    def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
-      // LOLJAXB  	(╯°□°）╯︵ ┻━┻
-      //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
-      // I'm sorry
-      if (stupidConfig.getCache == null) {
-        stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
-      } else if (stupidConfig.getCache.getTimeouts == null) {
-        stupidConfig.getCache.withTimeouts(new CacheTimeoutsType())
-        stupidConfig
-      } else {
-        stupidConfig
-      }
+  def isInitialized = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
+
+  object SystemModelConfigListener extends UpdateListener[SystemModel] {
+    var initialized = false
+
+    override def configurationUpdated(configurationObject: SystemModel): Unit = {
+      sendTraceHeader = configurationObject.isTracingHeader
+      initialized = true
     }
 
-    configuration = fixMyDefaults(configurationObject)
-    initialized = true
+    override def isInitialized: Boolean = initialized
   }
 
-  override def isInitialized: Boolean = initialized
+  object KeystoneV2ConfigListener extends UpdateListener[KeystoneV2Config] {
+    var initialized = false
+
+    override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
+      def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
+        // LOLJAXB  	(╯°□°）╯︵ ┻━┻
+        //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
+        // I'm sorry
+        if (stupidConfig.getCache == null) {
+          stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
+        } else if (stupidConfig.getCache.getTimeouts == null) {
+          stupidConfig.getCache.withTimeouts(new CacheTimeoutsType())
+          stupidConfig
+        } else {
+          stupidConfig
+        }
+      }
+
+      keystoneV2Config = fixMyDefaults(configurationObject)
+      initialized = true
+    }
+
+    override def isInitialized: Boolean = initialized
+  }
+
 }

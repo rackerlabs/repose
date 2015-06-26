@@ -2,6 +2,7 @@ package org.openrepose.filters.keystonev2
 
 import java.io.ByteArrayInputStream
 
+import scala.collection.JavaConverters._
 import scala.util.{Either, Failure, Success, Try}
 
 trait MockedAkkaServiceClient {
@@ -20,7 +21,9 @@ trait MockedAkkaServiceClient {
     type AkkaResponse = Either[ServiceClientResponse, AkkaServiceClientException]
 
     val getResponses: mutable.Map[(String, String), mutable.Queue[AkkaResponse]] = mutable.Map.empty[(String, String), mutable.Queue[AkkaResponse]]
-    val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]() //todo: use a queue
+    //todo: use a queue
+    val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
+    val requestHeaders: mutable.Queue[Map[String, String]] = new mutable.Queue[Map[String, String]]()
     val oversteppedGetRequests = new AtomicBoolean(false)
     val oversteppedPostRequests = new AtomicBoolean(false)
 
@@ -42,6 +45,7 @@ trait MockedAkkaServiceClient {
     def reset(): Unit = {
       oversteppedGetRequests.set(false)
       oversteppedPostRequests.set(false)
+      requestHeaders.clear()
       getResponses.clear()
       postResponses.clear()
     }
@@ -63,6 +67,7 @@ trait MockedAkkaServiceClient {
       logger.debug(getResponses.mkString("\n"))
       val adminToken = headers.get("x-auth-token")
       logger.debug(s"handling $adminToken, $tokenKey")
+      requestHeaders.enqueue(headers.asScala.toMap)
       getResponses.get((adminToken, tokenKey)) match {
         case None =>
           noResponses
