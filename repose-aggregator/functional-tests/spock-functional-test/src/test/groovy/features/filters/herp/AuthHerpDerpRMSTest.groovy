@@ -108,7 +108,7 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
     These tests are to verify the delegation of authn failures to the derp filter, which then forwards
     that information back to the client.  The origin service, thus, never gets invoked.
     */
-    @Unroll("#token expireat: #expireat, respcode: #responseCode and #delegatedMsg")
+    @Unroll("#token expireat: #expireat, respcode: #responseCode and #msgBody")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
         fakeIdentityService.with {
