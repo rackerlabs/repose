@@ -57,6 +57,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private List<ValidatorInfo> validators;
     private volatile boolean initialized = false;
     private boolean multiRoleMatch = false;
+    private boolean delegatingMode;
 
     public ApiValidatorHandlerFactory(ConfigurationService configurationService, String configurationRoot, String config,
                                       MetricsService metricsService) {
@@ -120,6 +121,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             defaultValidator = validatorConfigurator.getDefaultValidator();
             validators = validatorConfigurator.getValidators();
+            delegatingMode = validatorConfiguration.getDelegating() != null;
 
             for (ValidatorInfo validator : validators) {
                 LOG.debug("Adding listener for {} : {}", validator.getName(), validator.getUri());
@@ -136,7 +138,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         if (!initialized || !this.isInitialized()) {
             return null;
         }
-        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, metricsService);
+        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, delegatingMode, metricsService);
     }
 
     @Override

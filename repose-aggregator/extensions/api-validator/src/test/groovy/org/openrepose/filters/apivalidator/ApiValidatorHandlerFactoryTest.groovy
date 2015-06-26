@@ -17,29 +17,28 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.apivalidator;
+package org.openrepose.filters.apivalidator
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
-import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
-import org.openrepose.core.services.config.ConfigurationService;
+import org.junit.Before
+import org.junit.Test
+import org.junit.experimental.runners.Enclosed
+import org.junit.runner.RunWith
+import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser
+import org.openrepose.commons.config.resource.ConfigurationResource
+import org.openrepose.commons.utils.http.header.HeaderValue
+import org.openrepose.commons.utils.http.header.HeaderValueImpl
+import org.openrepose.components.apivalidator.servlet.config.DelegatingType
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
+import org.openrepose.core.services.config.ConfigurationService
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.equalTo
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertThat
+import static org.mockito.Matchers.any
+import static org.mockito.Matchers.eq
+import static org.mockito.Mockito.*
 
 @RunWith(Enclosed.class)
 public class ApiValidatorHandlerFactoryTest {
@@ -52,10 +51,11 @@ public class ApiValidatorHandlerFactoryTest {
         private ConfigurationService configService;
         private ApiValidatorHandlerFactory instance;
         private List<HeaderValue> roles;
+        private ValidatorConfiguration config;
 
         @Before
         public void setup() throws Exception {
-            ValidatorConfiguration config = new ValidatorConfiguration();
+            config = new ValidatorConfiguration();
             ValidatorItem item = new ValidatorItem();
             item.setWadl(wadl);
             List<String> role1 = item.getRole();
@@ -105,6 +105,16 @@ public class ApiValidatorHandlerFactoryTest {
             List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<HeaderValue>());
             assertNotNull(validatorsForRole);
             assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRoles().get(0));
+        }
+
+        @Test
+        public void shouldPassDelegatingModeToHandler() throws Exception {
+            DelegatingType delegating = new DelegatingType();
+            delegating.setQuality(0.1);
+            config.setDelegating(delegating);
+            instance.configurationUpdated(config);
+            ApiValidatorHandler handler = instance.buildHandler();
+            assertThat(handler.delegatingMode, equalTo(true))
         }
     }
 
