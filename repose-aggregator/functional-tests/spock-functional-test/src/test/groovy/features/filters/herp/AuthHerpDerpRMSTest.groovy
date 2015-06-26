@@ -103,39 +103,5 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         404          | "401"        | "Unable to validate token"
         401          | "500"        | "Failure in Auth-N filter."
     }
-
-    /*
-    These tests are to verify the delegation of authn failures to the derp filter, which then forwards
-    that information back to the client.  The origin service, thus, never gets invoked.
-    */
-    @Unroll("#token expireat: #expireat, respcode: #responseCode and #msgBody")
-    def "when req without token, non tenanted and delegable mode with quality"() {
-        given:
-        fakeIdentityService.with {
-            client_token = token
-            tokenExpiresAt = expireat;
-        }
-
-        when:
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/1234",
-                method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.receivedResponse.headers.contains("Content-Type")
-        mc.receivedResponse.body.contains(msgBody)
-        mc.handlings.size() == 0
-
-        /* expected internal delegated message to derp from authn:
-            "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.6"
-        */
-
-        where:
-        token               | expireat                      | responseCode | msgBody
-        UUID.randomUUID()   | new DateTime()                | "401"        | "Failure in Auth-N filter."
-        ""                  | (new DateTime()).plusDays(1)  | "401"        | "Failure in Auth-N filter."
-    }
 }
 
