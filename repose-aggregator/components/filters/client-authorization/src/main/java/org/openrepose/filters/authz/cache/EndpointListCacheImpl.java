@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zinic
  */
+@Deprecated
 public class EndpointListCacheImpl implements EndpointListCache {
 
     private static final String ENDPOINT_CACHE_NS = "components.rackspace.authz.cache.";

@@ -36,6 +36,7 @@ import java.util.Map;
 /**
  * Responsible for adding Authentication headers from validating token response
  */
+@Deprecated
 public class OpenStackAuthenticationHeaderManager {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHeaderManager.class);

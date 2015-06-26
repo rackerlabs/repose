@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%m%n"/>
+        </Console>
+        <List name="List"/>
+    </Appenders>
+    <Loggers>
+        <Root level="warn">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="List"/>
+        </Root>
+    </Loggers>
+</Configuration>

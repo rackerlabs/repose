@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 /**
  * @author fran
  */
+@Deprecated
 public class UriMatcher {
 
     private final List<Pattern> whiteListRegexPatterns;

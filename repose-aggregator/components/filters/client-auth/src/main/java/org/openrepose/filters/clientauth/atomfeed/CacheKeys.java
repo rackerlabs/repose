@@ -21,6 +21,7 @@ package org.openrepose.filters.clientauth.atomfeed;
 
 import java.util.Set;
 
+@Deprecated
 public interface CacheKeys {
 
     void addTokenKey(String key);

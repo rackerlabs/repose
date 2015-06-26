@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+@Deprecated
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);

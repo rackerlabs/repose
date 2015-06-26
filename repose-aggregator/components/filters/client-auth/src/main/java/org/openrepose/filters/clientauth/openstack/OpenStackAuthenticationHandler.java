@@ -45,6 +45,7 @@ import java.util.List;
 /**
  * @author fran
  */
+@Deprecated
 public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);

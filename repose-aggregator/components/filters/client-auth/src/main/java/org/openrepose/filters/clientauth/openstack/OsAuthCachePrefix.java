@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.clientauth.openstack;
 
-
+@Deprecated
 public enum OsAuthCachePrefix {
 
     TOKEN("openstack.identity.token"), USER("openstack.identity.group"), GROUP("openstack.identity.user"), ENDPOINTS("openstack.endpoints.cache");

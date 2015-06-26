@@ -40,6 +40,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import java.util.HashMap;
 
+@Deprecated
 public class AdminTokenProvider {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);

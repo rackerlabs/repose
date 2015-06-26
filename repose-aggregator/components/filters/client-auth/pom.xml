@@ -95,6 +95,13 @@
             <artifactId>os-auth-schemas</artifactId>
         </dependency>
 
+        <!-- Mockrunner for mock HttpServletRequest -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- spock needs this to mock non-interface types -->
         <dependency>
             <groupId>cglib</groupId>

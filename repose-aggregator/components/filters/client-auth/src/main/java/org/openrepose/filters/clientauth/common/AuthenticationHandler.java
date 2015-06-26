@@ -44,6 +44,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author fran
  */
+@Deprecated
 public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
