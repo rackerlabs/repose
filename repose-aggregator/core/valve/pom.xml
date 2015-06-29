@@ -117,6 +117,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>

@@ -153,7 +153,7 @@ class ReposeJettyServer(val clusterId: String,
     //Hook up the port connectors!
     //Have to coerce the stuff here, because it makes it happier
     s.setConnectors(connectors.asInstanceOf[Array[Connector]])
-    
+
     val security: ConstraintSecurityHandler = new ConstraintSecurityHandler()
     s.setHandler(security)
 
