@@ -24,16 +24,21 @@ import java.util
 import javax.servlet.DispatcherType
 
 import com.typesafe.config.ConfigFactory
+import org.eclipse.jetty.security.{ConstraintMapping, ConstraintSecurityHandler}
 import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
+import org.eclipse.jetty.util.security.Constraint
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
+import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory
 import org.openrepose.powerfilter.EmptyServlet
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
+
+import scala.collection.JavaConverters._
 
 case class ServerInitializationException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
@@ -148,6 +153,20 @@ class ReposeJettyServer(val clusterId: String,
     //Hook up the port connectors!
     //Have to coerce the stuff here, because it makes it happier
     s.setConnectors(connectors.asInstanceOf[Array[Connector]])
+    
+    val security: ConstraintSecurityHandler = new ConstraintSecurityHandler()
+    s.setHandler(security)
+
+    //Adds a constraint that will throw 405 when method does not exist
+    val constraint = new Constraint()
+    constraint.setName("methods")
+
+    val mapping = new ConstraintMapping()
+    mapping.setPathSpec("/*")
+    mapping.setMethodOmissions(HttpComponentFactory.values.map(method => method.toString))
+    mapping.setConstraint(constraint)
+
+    security.setConstraintMappings(List(mapping).asJava)
 
     val contextHandler = new ServletContextHandler()
     contextHandler.setContextPath("/")
@@ -171,7 +190,7 @@ class ReposeJettyServer(val clusterId: String,
     val dispatchTypes = util.EnumSet.allOf(classOf[DispatcherType]) //Using what was in the old repose
     contextHandler.addFilter(filterHolder, "/*", dispatchTypes)
 
-    s.setHandler(contextHandler)
+    security.setHandler(contextHandler)
 
     (httpConnector, httpsConnector, s)
   }

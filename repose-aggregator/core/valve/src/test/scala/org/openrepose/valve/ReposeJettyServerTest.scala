@@ -19,9 +19,11 @@
  */
 package org.openrepose.valve
 
+import org.eclipse.jetty.security.ConstraintSecurityHandler
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
+import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 
@@ -200,6 +202,19 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
       server.appContext.getEnvironment.getProperty(k) shouldBe v
     }
 
+  }
+
+  it("test that method omissions are set") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      Some(httpPort),
+      None,
+      None
+    )
+
+    val handler = repose.server.getHandler.asInstanceOf[ConstraintSecurityHandler]
+    handler.getConstraintMappings.get(0).getMethodOmissions should contain theSameElementsAs HttpComponentFactory.values.map(method => method.toString)
   }
 
 }
