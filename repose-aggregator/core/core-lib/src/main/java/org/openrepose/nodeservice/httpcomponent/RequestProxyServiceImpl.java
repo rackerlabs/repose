@@ -150,10 +150,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
                 return executeProxyRequest(processedMethod, response);
             }
-            else {
-                // user used a method name that does not exist, or does not define a method at all
-                return HttpServletResponse.SC_BAD_REQUEST;
-            }
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
         } finally {
