@@ -845,7 +845,7 @@ class MockIdentityV2Service {
                 "versionList": "https://ord.servers.api.rackspacecloud.com/"
             },
             {
-                "publicURL": "https://dfw.servers.api.rackspacecloud.com/v2/\${nnantid}",
+                "publicURL": "https://dfw.servers.api.rackspacecloud.com/v2/\${tenantid}",
                 "region": "DFW",
                 "tenantId": "\${tenantid}",
                 "versionId": "2",
@@ -885,7 +885,7 @@ class MockIdentityV2Service {
                   "publicURL" : "https://storage.stg.swift.racklabs.com/v1/\${tenantidtwo}",
                   "tenantId" : "\${tenantidtwo}",
                   "region" : "DFW"
-               }id
+               }
             ]
          }
       ],
@@ -910,7 +910,6 @@ class MockIdentityV2Service {
             }
          ],
          "RAX-AUTH:defaultRegion" : "the-default-region",
-         \${contactIdJson}
          "name" : "\${username}",
          "id" : "\${userid}"
       },
