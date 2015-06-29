@@ -996,7 +996,7 @@ class MockIdentityV2Service {
                 },
                 {
                     "id":"234",
-                    "name":"object-store:admin",
+                    "name":"object-store:admin"
                 }
             ]
         }
