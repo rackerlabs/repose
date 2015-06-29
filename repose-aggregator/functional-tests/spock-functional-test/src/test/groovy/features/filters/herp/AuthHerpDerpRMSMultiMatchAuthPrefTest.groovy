@@ -104,11 +104,11 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
             "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.6"
         */
         where:
-        authRespCode | responseCode | msgBody                                                      | token_id            | expireat                       | orphans
-        404          | "401"        | "Failure in Auth-N filter."                                  | UUID.randomUUID()   | (new DateTime()).plusDays(1)   | 2
-        404          | "401"        | "Failure in Auth-N filter. Reason: token validation failed." | ""                  | (new DateTime()).plusDays(1)   | 0
-        404          | "401"        | "Failure in Auth-N filter."                                  | UUID.randomUUID()   | (new DateTime()).minusDays(1)  | 1
-        404          | "401"        | "Failure in Auth-N filter. Reason: token validation failed." | ""                  | (new DateTime()).minusDays(1)  | 0
+        authRespCode | responseCode | msgBody                     | token_id            | expireat                       | orphans
+        404          | "401"        | "Unable to validate token:" | UUID.randomUUID()   | (new DateTime()).plusDays(1)   | 2
+        404          | "401"        | "Failure in Auth-N filter." | ""                  | (new DateTime()).plusDays(1)   | 0
+        404          | "401"        | "Unable to validate token:" | UUID.randomUUID()   | (new DateTime()).minusDays(1)  | 1
+        404          | "401"        | "Failure in Auth-N filter." | ""                  | (new DateTime()).minusDays(1)  | 0
     }
 }
 

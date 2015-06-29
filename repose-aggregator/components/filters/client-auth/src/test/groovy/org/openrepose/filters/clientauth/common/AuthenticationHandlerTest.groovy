@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.clientauth.common
 
-import com.mockrunner.mock.web.MockHttpServletRequest
 import org.openrepose.common.auth.AuthGroup
 import org.openrepose.common.auth.AuthGroups
 import org.openrepose.common.auth.AuthToken
@@ -27,9 +26,6 @@ import org.openrepose.commons.utils.regex.ExtractorResult
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterDirector
 import spock.lang.Specification
-
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class AuthenticationHandlerTest extends Specification {
 
@@ -62,21 +58,6 @@ class AuthenticationHandlerTest extends Specification {
 
         then:
         nil == null;
-    }
-
-    def "when token header is null, the status is set to 401"(){
-        given:
-        configurables.getEndpointsConfiguration() >> endpointsConfiguration
-        endpointsConfiguration.getCacheTimeout() >> Long.valueOf(Integer.MAX_VALUE) + 1
-        authenticationHandler = new TestableAuthenticationHandler(configurables)
-        def mockRequest = new MockHttpServletRequest()
-
-        when:
-        FilterDirector filterDirector = authenticationHandler.authenticate(mockRequest)
-
-        then:
-        filterDirector.getResponseStatusCode() == HttpServletResponse.SC_UNAUTHORIZED
-
     }
 
     class TestableAuthenticationHandler extends AuthenticationHandler {
@@ -115,10 +96,6 @@ class AuthenticationHandlerTest extends Specification {
                                                FilterDirector filterDirector, String extractedResult,
                                                List<AuthGroup> groups, String endpointsBase64, String contactId,
                                                boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
-        }
-
-        protected FilterDirector authenticate(HttpServletRequest request){
-            super.authenticate(request)
         }
 
         protected String checkEndpointsCache(String token) {

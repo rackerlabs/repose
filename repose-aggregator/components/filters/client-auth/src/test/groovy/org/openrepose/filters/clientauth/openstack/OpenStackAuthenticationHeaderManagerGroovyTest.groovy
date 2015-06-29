@@ -21,9 +21,7 @@ package org.openrepose.filters.clientauth.openstack
 
 import org.openrepose.common.auth.AuthGroup
 import org.openrepose.common.auth.AuthToken
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
@@ -63,41 +61,5 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
         then:
         openStackAuthenticationHeaderManager.endpointsBase64 == endpointsBase64
         filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-catalog"))
-    }
-
-    def "an unauthenticated and delegable response should set www-authenticate header and delegable filters"(){
-
-        FilterDirector filterDirector;
-        OpenStackAuthenticationHeaderManager openStackAuthenticationHeaderManager;
-        String authTokenString;
-        String tenantId;
-        AuthToken authToken;
-        Boolean isDelegatable;
-        List<AuthGroup> authGroupList;
-        String wwwAuthHeaderContents;
-        String endpointsBase64;
-
-        given:
-        filterDirector = new FilterDirectorImpl()
-        filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
-        isDelegatable = true;
-        authGroupList = new ArrayList<AuthGroup>()
-        wwwAuthHeaderContents = "test URI";
-        endpointsBase64 = "endpointsBase64";
-        openStackAuthenticationHeaderManager =
-                new OpenStackAuthenticationHeaderManager(authTokenString, null, isDelegatable, 0.7, "some message", filterDirector,
-                        tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
-
-        when:
-        openStackAuthenticationHeaderManager.setFilterDirectorValues()
-
-        then:
-        openStackAuthenticationHeaderManager.endpointsBase64 == endpointsBase64
-        filterDirector.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString()))
-        filterDirector.delegatedAction == FilterAction.PASS
-        filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("X-Delegated"))
-        filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-authorization"))
-        filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-identity-status"))
-
     }
 }
