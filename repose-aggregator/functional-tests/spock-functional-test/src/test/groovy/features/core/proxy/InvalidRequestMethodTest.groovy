@@ -21,19 +21,39 @@
 package features.core.proxy
 
 import framework.ReposeValveTest
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class InvalidRequestMethodTest extends ReposeValveTest {
     def setupSpec() {
-
+        def params = properties.getDefaultTemplateParams()
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getTargetPort())
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy", params)
+        repose.start()
     }
 
     def cleanupSpec() {
-        
+        if (repose) {
+            repose.stop()
+        }
+        if (deproxy) {
+            deproxy.shutdown()
+        }
     }
 
     @Unroll
     def "Should return 405 when method name is invalid for request"() {
+        when:
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, method: method, requestBody: reqBody])
 
+        then:
+        mc.receivedResponse.code == "405"
+
+        where:
+        method  | reqBody
+        "pull"  | "blah"
     }
 }
