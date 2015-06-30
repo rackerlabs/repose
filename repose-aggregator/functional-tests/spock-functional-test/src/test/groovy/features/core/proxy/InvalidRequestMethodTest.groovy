@@ -35,15 +35,6 @@ class InvalidRequestMethodTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     @Unroll
     def "Should return 405 when method name is invalid for request"() {
         when:
