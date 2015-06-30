@@ -297,6 +297,24 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             request.addHeader(k, v)
           }
           chain.doFilter(request, response)
+
+          logger.trace("Keystone v2 filter processing response...")
+          val wwwAuthenticateValue = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
+
+          response.getStatus match {
+            case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
+              Option(config.getDelegating) foreach { delegating =>
+                  // If in the case that the origin service supports delegated authentication
+                  // we should then communicate to the client how to authenticate with us
+                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, s"Keystone uri=${config.getIdentityService.getUri}")
+              }
+            case HttpServletResponse.SC_NOT_IMPLEMENTED =>
+              Option(config.getDelegating) foreach { delegating =>
+                logger.error("Keystone v2 filter is configured to delegate, but the origin service does not support delegation")
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+              }
+            case _ => // nothing to do here
+          }
       }
     }
   }

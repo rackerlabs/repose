@@ -21,6 +21,7 @@ package org.openrepose.filters.keystonev2
 
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import javax.servlet.{ServletConfig, ServletResponse, ServletRequest, Servlet}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
@@ -31,6 +32,8 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -958,6 +961,7 @@ with HttpDelegationManager {
         |            username="username"
         |            password="password"
         |            uri="https://some.identity.com"
+        |            set-groups-in-header="false"
         |            />
         |
         |     <delegating/>
@@ -1073,6 +1077,49 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Indeterminate.toString
+    }
+
+    it("responds with a www-authenticate header when delegating") {
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      val mockServlet = mock[Servlet]
+      doAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+      }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
+
+      filterChain.setServlet(mockServlet)
+
+      val request = new MockHttpServletRequest
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatusCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
+    }
+
+    it("responds with a 500 if the origin service does not support authentication delegation") {
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      val mockServlet = mock[Servlet]
+      doAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED)
+      }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
+
+      filterChain.setServlet(mockServlet)
+
+      val request = new MockHttpServletRequest
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
   }
 
