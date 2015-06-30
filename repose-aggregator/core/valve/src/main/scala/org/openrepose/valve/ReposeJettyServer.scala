@@ -163,7 +163,7 @@ class ReposeJettyServer(val clusterId: String,
 
     val mapping = new ConstraintMapping()
     mapping.setPathSpec("/*")
-    mapping.setMethodOmissions(HttpComponentFactory.values.map(method => method.toString))
+    mapping.setMethodOmissions(HttpComponentFactory.values.map(_.toString))
     mapping.setConstraint(constraint)
 
     security.setConstraintMappings(List(mapping).asJava)
