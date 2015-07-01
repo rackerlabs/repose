@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -32,7 +32,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -45,9 +45,9 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -59,23 +59,23 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
 
     @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode) response tenant: #responseTenant, token: #clientToken")
     def "when authenticating user in tenanted and delegable mode any failures will be forward to origin service with desc msg"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = "not-admin"
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
@@ -86,7 +86,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
@@ -109,10 +109,10 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - pass"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
@@ -121,7 +121,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == "200"
@@ -156,10 +156,10 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
     def "when authenticating user in tenanted and delegable mode verify origin response code does not change"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID()
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = 320
+            client_tenantid = 320
             client_userid = 320
             service_admin_role = "not-admin"
         }
@@ -168,7 +168,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/330",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token],
                 defaultHandler: { return new Response(302, "Redirect") })
 
         then: "Response code does not change"
@@ -193,10 +193,10 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     @Unroll("Tenant: #requestTenant, response #responseTenant and #delegatedMsg")
     def "When req with tenanted config fail delegable option forward failed message to origin"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
@@ -205,7 +205,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == "200"

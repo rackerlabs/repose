@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -32,7 +32,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -45,9 +45,9 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -59,14 +59,14 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
     def "when authenticating user in tenanted and non delegable mode and without service-admin - fail"() {
 
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
@@ -75,14 +75,14 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
-            fakeIdentityService.getGroupsHandler = {
+            fakeIdentityV2Service.getGroupsHandler = {
                 userId, request, xml ->
                     new Response(groupResponseCode)
             }
@@ -94,7 +94,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
@@ -115,10 +115,10 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
 
     def "when authenticating user in tenanted and non delegable mode and without service-admin - pass"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 999
+            client_tenantid = 999
             client_userid = 999
             service_admin_role = "non-admin"
         }
@@ -127,7 +127,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/999/",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

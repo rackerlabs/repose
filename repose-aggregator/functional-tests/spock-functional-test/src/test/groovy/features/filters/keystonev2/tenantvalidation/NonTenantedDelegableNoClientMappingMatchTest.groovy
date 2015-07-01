@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -32,7 +32,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -45,9 +45,9 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -59,22 +59,22 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
 
     @Unroll("tenant: #requestTenant, with return from identity with status code #authResponseCode and response tenant: #responseTenant")
     def "when authenticating user in non tenanted with delegable mode whatever failure for auth response will be forwarded to origin service"() {
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
@@ -84,7 +84,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint//servers/$requestTenant/",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -102,10 +102,10 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - pass"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
@@ -114,7 +114,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint//servers/$requestTenant/",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

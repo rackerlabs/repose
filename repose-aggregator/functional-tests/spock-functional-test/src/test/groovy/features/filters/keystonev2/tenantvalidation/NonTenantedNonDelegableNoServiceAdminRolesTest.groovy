@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -32,7 +32,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -45,9 +45,9 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -59,12 +59,12 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     def "when authenticating user in non tenanted and non delegable mode without service admin roles - pass"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = "tenant456"
@@ -77,19 +77,19 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
         then: "Request from repose should contain proper headers"
         def requestFromRepose = mc.getHandlings()[0].getRequest()
-        requestFromRepose.getHeaders()["x-tenant-id"] == fakeIdentityService.client_tenant
-        requestFromRepose.getHeaders()["x-user-id"] == fakeIdentityService.client_userid
+        requestFromRepose.getHeaders()["x-tenant-id"] == fakeIdentityV2Service.client_tenant
+        requestFromRepose.getHeaders()["x-user-id"] == fakeIdentityV2Service.client_userid
         requestFromRepose.getHeaders()["x-default-region"] == "the-default-region"
         requestFromRepose.path == "/servers/tenant123/"
         requestFromRepose.getHeaders()["content-type"] == "application/json"
-        requestFromRepose.getHeaders()["x-auth-token"] == fakeIdentityService.client_token
-        requestFromRepose.getHeaders()["x-tenant-name"] == fakeIdentityService.client_tenant
+        requestFromRepose.getHeaders()["x-auth-token"] == fakeIdentityV2Service.client_token
+        requestFromRepose.getHeaders()["x-tenant-name"] == fakeIdentityV2Service.client_tenant
         requestFromRepose.getHeaders()["x-pp-user"] == "username;q=1.0"
         requestFromRepose.getHeaders()["x-roles"].contains("compute:default")
         requestFromRepose.getHeaders()["x-pp-groups"] == "0;q=1.0"
@@ -99,22 +99,22 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
     @Unroll("tenant: #requestTenant with response from identity (tenant: #responseTenant, identity response: #authResponseCode and group response: #groupResponseCode)")
     def "when authenticating user in non tenanted and non delegable mode without service admin roles - fail"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = clientToken
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = responseTenant
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
-            fakeIdentityService.getGroupsHandler = {
+            fakeIdentityV2Service.getGroupsHandler = {
                 userId, request, xml ->
                     new Response(groupResponseCode)
             }
@@ -126,7 +126,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 

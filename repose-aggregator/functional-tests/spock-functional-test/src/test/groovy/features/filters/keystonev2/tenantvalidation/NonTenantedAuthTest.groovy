@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -30,7 +30,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -44,9 +44,9 @@ class NonTenantedAuthTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
     }
 
@@ -58,7 +58,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
     def "Validates a racker token"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
@@ -67,7 +67,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"
@@ -75,7 +75,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
     }
 
     def "Fails when a racker token doesn't have the authorized role"() {
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = "rackerFailure"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
@@ -83,7 +83,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should get denied because they don't have a tenant"
         mc.receivedResponse.code == "200"

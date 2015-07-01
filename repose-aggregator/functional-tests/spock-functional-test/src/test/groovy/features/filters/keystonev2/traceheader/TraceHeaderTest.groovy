@@ -20,7 +20,7 @@
 package features.filters.keystonev2.traceheader
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -36,7 +36,7 @@ class TraceHeaderTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -49,9 +49,9 @@ class TraceHeaderTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
     }
 
@@ -63,7 +63,7 @@ class TraceHeaderTest extends ReposeValveTest {
 
     def "Tracing header should include in request to Identity"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = "123456"
@@ -72,7 +72,7 @@ class TraceHeaderTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123456", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"
@@ -85,20 +85,20 @@ class TraceHeaderTest extends ReposeValveTest {
     @Unroll("Failed response from repose with Identity respcode #identityrespcode")
     def "Tracing header should include in Failed response from repose"() {
 
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = "123456"
         }
 
-        fakeIdentityService.validateTokenHandler = {
+        fakeIdentityV2Service.validateTokenHandler = {
             tokenId, request, xml ->
                 return new Response(identityrespcode)
         }
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123456", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then:
         mc.receivedResponse.code == respcode

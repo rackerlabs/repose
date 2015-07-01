@@ -20,7 +20,7 @@
 package features.filters.keystonev2.tenantvalidation
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -32,7 +32,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -45,9 +45,9 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
 
 
     }
@@ -59,13 +59,13 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - fail scenarios"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
@@ -74,14 +74,14 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         }
 
         if (authResponseCode != 200) {
-            fakeIdentityService.validateTokenHandler = {
+            fakeIdentityV2Service.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
-            fakeIdentityService.getGroupsHandler = {
+            fakeIdentityV2Service.getGroupsHandler = {
                 userId, request, xml ->
                     new Response(groupResponseCode)
             }
@@ -94,7 +94,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
@@ -124,7 +124,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
     def "when authenticating user in tenanted and non delegable mode - success"() {
         given:
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
@@ -139,7 +139,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
@@ -171,15 +171,15 @@ class TenantedNonDelegableTest extends ReposeValveTest {
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
                 "usertest2, usertest3", "accept"                                                       : "application/xml;q=1 , application/json;q=0.5"]
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 720
+            client_tenantid = 720
             client_userid = 720
         }
 
         when: "User passes a request through repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token] + reqHeaders)
 
         then:
         mc.handlings.size() == 1
@@ -193,7 +193,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
         def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
-        fakeIdentityService.with {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = 123
@@ -204,7 +204,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
                 deproxy.makeRequest(
                         url: reposeEndpoint + "/servers/123/",
                         method: 'GET',
-                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token],
                         defaultHandler: xmlResp
                 )
 
