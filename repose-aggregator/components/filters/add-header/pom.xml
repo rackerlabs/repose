@@ -60,12 +60,6 @@
             <artifactId>scalatest_2.10</artifactId>
         </dependency>
 
-        <!-- Mockrunner for mock HttpServletRequest -->
-        <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-        </dependency>
-
         <!-- super handy lazy logging! -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>

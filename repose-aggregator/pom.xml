@@ -367,23 +367,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.mockrunner</groupId>
-                <artifactId>mockrunner-servlet</artifactId>
-                <version>1.0.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>14.0.1</version>
@@ -447,6 +430,25 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Mockrunner for mock Servlet classes -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+
         <!--For hamcrest matcher support-->
         <dependency>
             <groupId>org.hamcrest</groupId>

@@ -37,12 +37,6 @@
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
 
-        <!-- Mockrunner for mock HttpServletRequest -->
-        <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-json_2.10</artifactId>
