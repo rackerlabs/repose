@@ -199,5 +199,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     expectedProperties.foreach { case (k, v) =>
       server.appContext.getEnvironment.getProperty(k) shouldBe v
     }
+
   }
+
 }
