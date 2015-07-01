@@ -84,12 +84,12 @@ class HerpDerpRMSTest extends ReposeValveTest {
 
 
         where:
-        method   | path             | roles                         | responseCode | msgBody              | component     | quality
-        "GET"    | "resources/"     | "raxRolesEnabled"             | "403"        | "Forbidden"          | "api-checker" | 0.6
-        "POST"   | "resources/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
-        "PUT"    | "resources/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed" | "api-checker" | 0.6
-        "DELETE" | "resources/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
-        "GET"    | "get/"           | "raxRolesEnabled"             | "404"        | "Resource not found" | "api-checker" | 0.6
+        method   | path           | roles                         | responseCode | msgBody              | component     | quality
+        "GET"    | "servers/"     | "raxRolesEnabled"             | "403"        | "Forbidden"          | "api-checker" | 0.6
+        "POST"   | "servers/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
+        "PUT"    | "servers/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed" | "api-checker" | 0.6
+        "DELETE" | "servers/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
+        "GET"    | "get/"         | "raxRolesEnabled"             | "404"        | "Resource not found" | "api-checker" | 0.6
 
     }
 
@@ -104,7 +104,7 @@ class HerpDerpRMSTest extends ReposeValveTest {
         MessageChain mc
 
         when:
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method, headers: headers,
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers", method: method, headers: headers,
                 defaultHandler: { new Response(200, null, null, null) })
         String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
         String jsonpart = logLine.substring(logLine.indexOf("{"))

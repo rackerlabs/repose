@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-* =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.herp
 
@@ -30,7 +30,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 6/16/15.
  */
-class AuthHerpDerpRMSMultiMatchValidatorPrefTest extends ReposeValveTest {
+class AuthHerpDerpRMSTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -44,9 +44,8 @@ class AuthHerpDerpRMSMultiMatchValidatorPrefTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wvalidatorpreference", params)
-
+        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms/wauthn", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -68,16 +67,11 @@ class AuthHerpDerpRMSMultiMatchValidatorPrefTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-
-    /*
-    These tests are to verify the delegation of authn failures to the derp filter, which then forwards
-    that information back to the client.  The origin service, thus, never gets invoked.
-    */
-    @Unroll("#token_id expireat: #expireat, respcode: #responseCode and #msgBody")
+    @Unroll("Req with auth resp: #authRespCode")
     def "When req with invalid token using delegable mode with quality"() {
         given:
         fakeIdentityService.with {
-            client_token = token_id
+            client_token = UUID.randomUUID()
             tokenExpiresAt = (new DateTime()).plusDays(1);
         }
 
@@ -94,21 +88,20 @@ class AuthHerpDerpRMSMultiMatchValidatorPrefTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.receivedResponse.headers.contains("content-type")
+        mc.receivedResponse.headers.contains("Content-Type")
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
-        mc.getOrphanedHandlings().size() == orphans
+        mc.getOrphanedHandlings().size() == 2
 
-        /* expected internal delegated messages to derp from validator:
-            Since auth delegating quality is hower than validation filter we expect delegating message
-            "status_code=404.component=api-validator.message=Response not found:\\s.*;q=0.7"
+        /* expected internal delegated messages to derp from authn:
+            Since auth delegating quality higher than validation filter we expect delegating message
+            "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.6"
+            "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.6"
         */
         where:
-        authRespCode | responseCode | msgBody                                               | token_id            | expireat                       | orphans
-        404          | "404"        | "Resource not found"                                  | UUID.randomUUID()   | (new DateTime()).plusDays(1)   | 2
-        404          | "404"        | "Resource not found"                                  | ""                  | (new DateTime()).plusDays(1)   | 0
-        404          | "404"        | "Resource not found"                                  | UUID.randomUUID()   | (new DateTime()).minusDays(1)  | 1
-        404          | "404"        | "Resource not found"                                  | ""                  | (new DateTime()).minusDays(1)  | 0
+        authRespCode | responseCode | msgBody
+        404          | "401"        | "Unable to validate token"
+        401          | "500"        | "Failure in Auth-N filter."
     }
 }
 

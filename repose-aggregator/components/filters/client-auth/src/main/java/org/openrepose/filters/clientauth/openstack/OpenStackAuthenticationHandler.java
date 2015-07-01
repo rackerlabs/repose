@@ -54,6 +54,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     private final AuthenticationService authenticationService;
     private final List<String> serviceAdminRoles;
     private final List<String> ignoreTenantRoles;
+    private boolean delegatingMode;
 
     public OpenStackAuthenticationHandler(
             Configurables cfg,
@@ -69,6 +70,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
         this.serviceAdminRoles = cfg.getServiceAdminRoles();
         this.ignoreTenantRoles = cfg.getIgnoreTenantRoles();
+        this.delegatingMode = cfg.isDelegable();
     }
 
     private boolean roleIsServiceAdmin(AuthToken authToken) {
@@ -175,13 +177,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             case HttpServletResponse.SC_FORBIDDEN:
                 // If in the case that the origin service supports delegated authentication
                 // we should then communicate to the client how to authenticate with us
-                if (!StringUtils.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
-                    myDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
+                if (delegatingMode) {
+                    myDirector.responseHeaderManager().appendHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
                 } else {
-                    // In the case where authentication has failed and we did not receive
-                    // a delegated WWW-Authenticate header, this means that our own authentication
-                    // with the origin service has failed and must then be communicated as
-                    // a 500 (internal server error) to the client
+                    // In the case where authentication has failed and we are not in delegating mode,
+                    //  this means that our own authentication with the origin service has failed
+                    // and must then be communicated as a 500 (internal server error) to the client
                     myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
                 break;
