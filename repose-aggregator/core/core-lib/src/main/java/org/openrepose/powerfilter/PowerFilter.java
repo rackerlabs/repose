@@ -50,6 +50,7 @@ import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.*;
+import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
@@ -383,6 +384,21 @@ public class PowerFilter extends DelegatingFilterProxy {
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             mutableHttpResponse.setLastException(ex);
         } finally {
+            try {
+                boolean isValidMethod = false;
+                for (HttpComponentFactory hcf : HttpComponentFactory.values()) {
+                    if (hcf.name().equalsIgnoreCase(mutableHttpRequest.getMethod())) {
+                        isValidMethod = true;
+                    }
+                }
+                if (!isValidMethod) {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
+                LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), e);
+                mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
+                mutableHttpResponse.setLastException(e);
+            }
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!mutableHttpResponse.isCommitted()) {
