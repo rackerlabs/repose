@@ -154,20 +154,6 @@ class ReposeJettyServer(val clusterId: String,
     //Have to coerce the stuff here, because it makes it happier
     s.setConnectors(connectors.asInstanceOf[Array[Connector]])
 
-    val security: ConstraintSecurityHandler = new ConstraintSecurityHandler()
-    s.setHandler(security)
-
-    //Adds a constraint that will throw 405 when method does not exist
-    val constraint = new Constraint()
-    constraint.setName("methods")
-
-    val mapping = new ConstraintMapping()
-    mapping.setPathSpec("/*")
-    mapping.setMethodOmissions(HttpComponentFactory.values.map(_.toString))
-    mapping.setConstraint(constraint)
-
-    security.setConstraintMappings(List(mapping).asJava)
-
     val contextHandler = new ServletContextHandler()
     contextHandler.setContextPath("/")
     contextHandler.addServlet(classOf[EmptyServlet], "/*")
@@ -190,7 +176,7 @@ class ReposeJettyServer(val clusterId: String,
     val dispatchTypes = util.EnumSet.allOf(classOf[DispatcherType]) //Using what was in the old repose
     contextHandler.addFilter(filterHolder, "/*", dispatchTypes)
 
-    security.setHandler(contextHandler)
+    s.setHandler(contextHandler)
 
     (httpConnector, httpsConnector, s)
   }

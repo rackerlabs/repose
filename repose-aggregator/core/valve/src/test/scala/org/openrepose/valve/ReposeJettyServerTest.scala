@@ -201,20 +201,5 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     expectedProperties.foreach { case (k, v) =>
       server.appContext.getEnvironment.getProperty(k) shouldBe v
     }
-
   }
-
-  it("test that method omissions are set") {
-    val repose = new ReposeJettyServer(
-      "cluster",
-      "node",
-      Some(httpPort),
-      None,
-      None
-    )
-
-    val handler = repose.server.getHandler.asInstanceOf[ConstraintSecurityHandler]
-    handler.getConstraintMappings.get(0).getMethodOmissions should contain theSameElementsAs HttpComponentFactory.values.map(method => method.toString)
-  }
-
 }
