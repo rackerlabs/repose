@@ -41,11 +41,7 @@
             <token>600</token>
             <group>600</group>
             <endpoints>600</endpoints>
-            <user>600</user> <!-- TODO: I think this is obsolete, user information comes back when we validate the token -->
         </timeouts>
-        <eviction-feeds check-interval="10000">
-            <rs-identity-feed id="butts" uri="http://some-feed"/>
-        </eviction-feeds>
     </cache>
 
 
