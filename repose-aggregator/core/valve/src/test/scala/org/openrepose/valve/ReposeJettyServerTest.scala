@@ -19,11 +19,9 @@
  */
 package org.openrepose.valve
 
-import org.eclipse.jetty.security.ConstraintSecurityHandler
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 

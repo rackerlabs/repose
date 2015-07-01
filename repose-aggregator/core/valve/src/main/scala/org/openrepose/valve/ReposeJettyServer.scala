@@ -24,14 +24,11 @@ import java.util
 import javax.servlet.DispatcherType
 
 import com.typesafe.config.ConfigFactory
-import org.eclipse.jetty.security.{ConstraintMapping, ConstraintSecurityHandler}
 import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
-import org.eclipse.jetty.util.security.Constraint
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory
 import org.openrepose.powerfilter.EmptyServlet
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.ContextLoaderListener
