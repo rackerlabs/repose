@@ -351,6 +351,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
         if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
@@ -361,7 +362,10 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
-            new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
+            // ensures that the method name exists
+            HttpComponentFactory.valueOf(mutableHttpRequest.getMethod().toUpperCase());
+            // ensures that the request URI is a valid URI
+            new URI(mutableHttpRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().isTracingHeader()) {
@@ -374,6 +378,10 @@ public class PowerFilter extends DelegatingFilterProxy {
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
+        } catch (IllegalArgumentException iae) {
+            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), iae);
+            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
+            mutableHttpResponse.setLastException(iae);
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI(), use);
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
@@ -383,21 +391,6 @@ public class PowerFilter extends DelegatingFilterProxy {
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             mutableHttpResponse.setLastException(ex);
         } finally {
-            try {
-                boolean isValidMethod = false;
-                for (HttpComponentFactory hcf : HttpComponentFactory.values()) {
-                    if (hcf.name().equalsIgnoreCase(mutableHttpRequest.getMethod())) {
-                        isValidMethod = true;
-                    }
-                }
-                if (!isValidMethod) {
-                    throw new Exception();
-                }
-            } catch (Exception e) {
-                LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), e);
-                mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
-                mutableHttpResponse.setLastException(e);
-            }
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!mutableHttpResponse.isCommitted()) {
