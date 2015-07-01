@@ -36,7 +36,7 @@ class InvalidRequestMethodTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Should return 400 when method name is invalid for request"() {
+    def "Should return 400 when method name (#method) is invalid for request"() {
         when:
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, method: method])
 
@@ -48,7 +48,7 @@ class InvalidRequestMethodTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Should return 200 when method name is valid for request"() {
+    def "Should return 200 when method name (#method) is valid for request"() {
         when:
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, method: method])
 
