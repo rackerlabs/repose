@@ -35,8 +35,6 @@ import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
 
-import scala.collection.JavaConverters._
-
 case class ServerInitializationException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 /**
