@@ -44,6 +44,6 @@ trait BasicAuthUtils {
    * @return an Iterator of the Authentication header values that match the desired auth method
    */
   def getBasicAuthHeaders(headers: java.util.Enumeration[String], method: String): Iterator[String] = {
-    headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase()))
+    headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase))
   }
 }
