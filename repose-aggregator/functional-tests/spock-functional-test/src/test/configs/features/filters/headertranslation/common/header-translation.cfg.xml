@@ -27,5 +27,5 @@
     <!-- CSL headers -->
     <header original-name="x-pp-user" new-name="x-rax-username"/>
     <header original-name="x-tenant-name" new-name="x-rax-tenants"/>
-    <header original-name="x-roles" new-name="x-rax-roles"/>
+    <header original-name="x-roles" new-name="x-rax-roles" />
 </header-translation>
