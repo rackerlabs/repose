@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter -->
+<client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
+    <openstack-auth xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" token-cache-timeout="300000" group-cache-timeout="300000">
+        <identity-service username="USERNAME" password="PASSWORD" uri="http://localhost:${identityPort}/v2.0"/>
+        <client-mapping id-regex="/v[^/]/(\-?\w+)/"/>
+    </openstack-auth>
+</client-auth>

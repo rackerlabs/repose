@@ -241,7 +241,7 @@ class MockIdentityService {
                 }
             }
 
-        } else if (nonQueryPath.startsWith("/users/")) {
+        } else if (nonQueryPath.startsWith("/v2.0/users/")) {
 
             if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method == "GET") {
@@ -269,10 +269,10 @@ class MockIdentityService {
         return new Response(501);
     }
 
-    static final String getUserGlobalRolesCallPathRegex = /^\/users\/([^\/]+)\/roles/
-    static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/RAX-KSGRP/
-    static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
-    static final String validateTokenCallPathRegex = /^\/tokens\/([^\/]+)\/?$/
+    static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/RAX-KSGRP/
+    static final String getEndpointsCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/endpoints/
+    static final String validateTokenCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/?$/
 
     public static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
         return nonQueryPath ==~ getUserGlobalRolesCallPathRegex
@@ -291,11 +291,11 @@ class MockIdentityService {
     }
 
     public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/tokens"
+        return nonQueryPath == "/v2.0/tokens"
     }
 
     public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.startsWith("/tokens")
+        return nonQueryPath.startsWith("/v2.0/tokens")
     }
 
 
@@ -587,7 +587,7 @@ class MockIdentityService {
             """{
   "RAX-KSGRP:groups": [
     {
-        "id": "0",
+        "id": "107",
         "description": "Default Limits",
         "name": "Default"
     }
@@ -599,7 +599,7 @@ class MockIdentityService {
     def groupsXmlTemplate =
             """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
-    <group id="0" name="Default">
+    <group id="107" name="Default">
         <description>Default Limits</description>
     </group>
 </groups>
