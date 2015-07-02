@@ -113,7 +113,7 @@ class PassUserAttributesInHeaderTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request = mc.handlings[0].request
         request.headers.contains("X-Default-Region")
-        request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request.headers.getFirstValue("X-Default-Region") == "DFW"
 
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityV2Service.resetCounts()
@@ -126,7 +126,7 @@ class PassUserAttributesInHeaderTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
 
     }
 

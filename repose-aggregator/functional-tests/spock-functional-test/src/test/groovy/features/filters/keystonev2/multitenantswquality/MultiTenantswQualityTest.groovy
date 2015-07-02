@@ -92,9 +92,9 @@ class MultiTenantswQualityTest extends ReposeValveTest {
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant + ";q=1.0")
+            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultTenant + ";q=0.9")
             if (!secondTenant.equals(defaultTenant)) {
-                assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant + ";q=0.5")
+                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondTenant + ";q=0.7")
             }
         }
 
@@ -109,7 +109,7 @@ class MultiTenantswQualityTest extends ReposeValveTest {
 
     def "With legacy xsd namespace: when user token have multi-tenant will retrieve all tenants in the header"() {
         given:
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/multitenantswquality/oldnamespace", params, /*sleepTime*/ 10)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/multitenantswquality/oldnamespace", params, /*sleepTime*/ 10)
         fakeIdentityService.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)
@@ -133,9 +133,9 @@ class MultiTenantswQualityTest extends ReposeValveTest {
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(defaultTenant + ";q=1.0")
+            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultTenant + ";q=1.0")
             if (!secondTenant.equals(defaultTenant)) {
-                assert mc.handlings[0].request.headers.findAll("x-tenant-id").contains(secondTenant + ";q=0.5")
+                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondTenant + ";q=0.5")
             }
         }
 

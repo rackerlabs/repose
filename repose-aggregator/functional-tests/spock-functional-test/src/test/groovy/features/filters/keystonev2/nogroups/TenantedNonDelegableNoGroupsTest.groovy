@@ -161,7 +161,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
-        request2.headers.getFirstValue("x-tenant-name") == responseTenant.toString()
+        request2.headers.getFirstValue("x-tenant-id") == responseTenant.toString()
         request2.headers.contains("x-token-expires")
         request2.headers.getFirstValue("x-pp-user") == "username;q=1.0"
         request2.headers.contains("x-roles")

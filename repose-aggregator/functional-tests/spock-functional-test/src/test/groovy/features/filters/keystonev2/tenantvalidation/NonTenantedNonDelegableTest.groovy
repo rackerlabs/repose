@@ -68,7 +68,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             service_admin_role = "not-admin"
             client_userid = requestTenant
         }
@@ -136,7 +136,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
 
         where:
         requestTenant | responseTenant | serviceAdminRole

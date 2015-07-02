@@ -3,14 +3,11 @@
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"/>
-    <cache-settings>
+    <cache>
         <timeouts>
             <token>0</token>
             <group>600000</group>
             <endpoints>600000</endpoints>
         </timeouts>
-    </cache-settings>
-    <forward>
-        <user-catalog/>
-    </forward>
+    </cache>
 </keystone-v2>

@@ -67,7 +67,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = "tenant456"
+            client_tenantid = "tenant456"
             client_userid = "tenant456"
         }
 
@@ -83,9 +83,9 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
 
         then: "Request from repose should contain proper headers"
         def requestFromRepose = mc.getHandlings()[0].getRequest()
-        requestFromRepose.getHeaders()["x-tenant-id"] == fakeIdentityV2Service.client_tenant
+        requestFromRepose.getHeaders()["x-tenant-id"] == fakeIdentityV2Service.client_tenantid
         requestFromRepose.getHeaders()["x-user-id"] == fakeIdentityV2Service.client_userid
-        requestFromRepose.getHeaders()["x-default-region"] == "the-default-region"
+        requestFromRepose.getHeaders()["x-default-region"] == "DFW"
         requestFromRepose.path == "/servers/tenant123/"
         requestFromRepose.getHeaders()["content-type"] == "application/json"
         requestFromRepose.getHeaders()["x-auth-token"] == fakeIdentityV2Service.client_token

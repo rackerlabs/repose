@@ -129,11 +129,11 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode | identityStatus  | clientToken       | default_region
-        404           | 405            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        404           | 405            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "DFW"
         406           | 406            | "not-admin"           | "200"        | "Indeterminate" | ""                | null
-        407           | 407            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
-        408           | 408            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
-        409           | 410            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "the-default-region"
+        407           | 407            | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID() | "DFW"
+        408           | 408            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "DFW"
+        409           | 410            | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID() | "DFW"
         ""            | 412            | "not-admin"           | "200"        | "Indeterminate" | ""                | null
 
     }

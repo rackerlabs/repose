@@ -98,10 +98,10 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | clientToken       | delegatedMsg
-        300           | 301            | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=client-auth-n.message=.*;q=0.7"
-        302           | 303            | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
-        304           | 305            | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=.*;q=0.7"
-        306           | 306            | 200              | "200"        | ""                | "status_code=401.component=client-auth-n.message=.*;q=0.7"
+        300           | 301            | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=keystone-v2.message=.*;q=0.7"
+        302           | 303            | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=.*;q=0.7"
+        304           | 305            | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=.*;q=0.7"
+        306           | 306            | 200              | "200"        | ""                | "status_code=401.component=keystone-v2.message=.*;q=0.7"
 
     }
 
@@ -220,8 +220,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
-        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=client-auth-n.message=Unable to validate token for tenant. Invalid token:\\s.*;q=0.7"
-        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=Unable to validate token for tenant. Invalid token:\\s.*;q=0.7"
+        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
     }
 
 

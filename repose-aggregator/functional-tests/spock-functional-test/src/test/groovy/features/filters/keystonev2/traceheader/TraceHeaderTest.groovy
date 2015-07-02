@@ -66,7 +66,7 @@ class TraceHeaderTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = "123456"
+            client_tenantid = "123456"
         }
 
 
@@ -88,7 +88,7 @@ class TraceHeaderTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = "123456"
+            client_tenantid = "123456"
         }
 
         fakeIdentityV2Service.validateTokenHandler = {

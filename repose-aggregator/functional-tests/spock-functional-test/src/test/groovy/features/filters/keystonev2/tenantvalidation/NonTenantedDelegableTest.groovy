@@ -92,8 +92,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | delegatedMsg
-        500           | 501            | 500              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
-        502           | 503            | 404              | "200"        | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter. Reason: *;q=0.7"
+        500           | 501            | 500              | "200"        | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter. Reason: *;q=0.7"
+        502           | 503            | 404              | "200"        | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter. Reason: *;q=0.7"
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
@@ -128,10 +128,10 @@ class NonTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | identityStatus | clientToken       | default_region
-        504           | 505            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "the-default-region"
-        507           | 507            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "the-default-region"
-        508           | 508            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "the-default-region"
-        509           | 510            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "the-default-region"
+        504           | 505            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "DFW"
+        507           | 507            | "not-admin"           | "Confirmed"    | UUID.randomUUID() | "DFW"
+        508           | 508            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "DFW"
+        509           | 510            | "service:admin-role1" | "Confirmed"    | UUID.randomUUID() | "DFW"
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
@@ -204,8 +204,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | delegatedMsg
-        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
-        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=client-auth-n.message=Failure in Auth-N filter.;q=0.7"
+        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
+        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
     }
 
 }

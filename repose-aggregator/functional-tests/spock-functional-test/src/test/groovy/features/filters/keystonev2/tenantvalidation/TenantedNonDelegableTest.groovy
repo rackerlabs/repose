@@ -68,7 +68,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             service_admin_role = "not-admin"
             client_userid = requestTenant
         }
@@ -127,7 +127,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             service_admin_role = serviceAdminRole
             client_userid = requestTenant
         }
@@ -148,7 +148,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("X-Default-Region") == "DFw"
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         request2.headers.getFirstValue("x-tenant-name") == responseTenant.toString()
         request2.headers.contains("x-token-expires")
@@ -179,7 +179,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token] + reqHeaders)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/720/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token] + reqHeaders)
 
         then:
         mc.handlings.size() == 1
@@ -197,6 +197,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = 123
+            client_tenantid = 123
         }
 
         when: "User passes a request through repose"

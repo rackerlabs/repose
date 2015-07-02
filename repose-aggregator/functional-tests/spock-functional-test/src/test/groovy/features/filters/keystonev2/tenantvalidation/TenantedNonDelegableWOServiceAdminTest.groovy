@@ -69,7 +69,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = "not-admin"
         }
@@ -134,7 +134,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
         request2.headers.contains("x-auth-token")
         !request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
