@@ -14,6 +14,7 @@
         "Request" : {
         "Method" : "{{requestMethod}}",
         "URL" : "{{requestURL}}",
+        "UserAgent" : "{{UserAgent }} ",
         "QueryString" : "{{requestQueryString}}",
         "Parameters" : { {{#each parameters}}
         {{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]
