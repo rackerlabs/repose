@@ -44,7 +44,6 @@ public class OpenStackAuthenticationHeaderManager {
     private static final String X_AUTH_PROXY = "Proxy";
     // Hard code QUALITY for now as the auth component will have
     // the highest QUALITY in terms of using the user it supplies for rate limiting
-    private static final String QUALITY = ";q=1.0";
     private final String authToken;
     private final AuthToken cachableToken;
     private final Boolean isDelagable;
@@ -210,7 +209,7 @@ public class OpenStackAuthenticationHeaderManager {
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), cachableToken.getUsername() + QUALITY);
+        filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), cachableToken.getUsername());
 
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableToken.getUsername());
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableToken.getUserId());
@@ -234,7 +233,7 @@ public class OpenStackAuthenticationHeaderManager {
      */
     private void setGroups() {
         for (AuthGroup group : groups) {
-            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
+            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId());
         }
     }
 

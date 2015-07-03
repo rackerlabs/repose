@@ -38,8 +38,7 @@ class AuthNThenRateLimitingTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/authnandratelimiting", params)
-        repose.enableSuspend()
+        repose.configurationProvider.applyConfigs("features/filters/authnandratelimiting", params)  
         repose.start()
     }
 
