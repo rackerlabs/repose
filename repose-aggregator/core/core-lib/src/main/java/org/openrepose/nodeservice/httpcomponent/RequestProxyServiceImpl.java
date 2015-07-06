@@ -21,6 +21,7 @@ package org.openrepose.nodeservice.httpcomponent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -201,7 +202,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
         //Tack on the tracing ID for requests via the dist datastore
         String traceGUID = MDC.get(TracingKey.TRACING_KEY);
-        base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
+        if(!StringUtils.isEmpty(traceGUID)) {
+            base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
+        }
     }
 
     private ServiceClientResponse execute(HttpRequestBase base) {
