@@ -18,13 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.ratelimiting
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-
 /**
  * Created by jennyvo on 7/2/15.
  * Test to prove that rate limit on role after using header translation to x-pp-groups
@@ -63,6 +61,52 @@ class RateLimitingByRolesTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_domainid = reqDomain
             client_userid = reqUserId
+            service_admin_role = "test-admin"
+        }
+
+        when: "User passes a request through repose and the rate-limit has not been reached"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-roles")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("test-admin")
+
+        when: "the user hit the rate-limit"
+        mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then: "Request should be ratelimit"
+        mc.receivedResponse.code == "413"
+    }
+
+    def "Test will not ratelimit when set different roles"() {
+        given:
+        fakeIdentityV3Service.resetParameters()
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusSeconds(2)
+            client_domainid = reqDomain
+            client_userid = reqUserId
         }
 
         when: "User passes a request through repose"
@@ -80,49 +124,6 @@ class RateLimitingByRolesTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-roles")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("service:admin-role1")
-
-        when:
-        mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain/",
-                method: 'GET',
-                headers: [
-                        'content-type'   : 'application/json',
-                        'X-Subject-Token': fakeIdentityV3Service.client_token,
-                ]
-        )
-
-        then: "Request should be ratelimit"
-        mc.receivedResponse.code == "413"
-    }
-
-    def "Test will not ratelimit when set different roles"() {
-        given:
-        def reqDomain = fakeIdentityV3Service.client_domainid
-        def reqUserId = fakeIdentityV3Service.client_userid
-
-        fakeIdentityV3Service.with {
-            client_token = UUID.randomUUID().toString()
-            tokenExpiresAt = DateTime.now().plusDays(1)
-            client_domainid = reqDomain
-            client_userid = reqUserId
-            service_admin_role = "test-admin"
-        }
-
-        when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain/",
-                method: 'GET',
-                headers: [
-                        'content-type'   : 'application/json',
-                        'X-Subject-Token': fakeIdentityV3Service.client_token,
-                ]
-        )
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.contains("x-roles")
-        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("test-admin")
 
     }
 }
