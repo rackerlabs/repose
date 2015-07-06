@@ -30,7 +30,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
-import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -202,7 +201,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
         //Tack on the tracing ID for requests via the dist datastore
         String traceGUID = MDC.get(TracingKey.TRACING_KEY);
-        if(!StringUtils.isEmpty(traceGUID)) {
+        if (!StringUtils.isEmpty(traceGUID)) {
             base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
         }
     }
