@@ -34,7 +34,8 @@ class BasicAuthUtilsTest extends FunSpec with Matchers with BasicAuthUtils {
       "userName:api:::Key" ->("userName", "api:::Key"), // Extra embedded colons
       "userName:apiKey::" ->("userName", "apiKey::"), // Extra trailing colons
       "userName::a:p:i:K:e:y:" ->("userName", ":a:p:i:K:e:y:"), // Just crazy
-      ":" ->("", "") // Empty username, password
+      ":" ->("", ""), // Empty username, password
+      "username:" ->("username", "") // Empty password
     )
     cases.foreach { case (decoded, (expectedUsername, expectedPassword)) =>
       it(s"decodes $decoded into $expectedUsername and $expectedPassword") {
