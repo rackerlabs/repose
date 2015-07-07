@@ -590,6 +590,11 @@ class MockIdentityService {
         "id": "0",
         "description": "Default Limits",
         "name": "Default"
+    },
+    {
+        "id": "1",
+        "description": "Default Limits",
+        "name": "Admin"
     }
   ]
 }
@@ -600,6 +605,10 @@ class MockIdentityService {
             """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
+        <description>Default Limits</description>
+    </group>
+
+    <group id="1" name="Admin">
         <description>Default Limits</description>
     </group>
 </groups>

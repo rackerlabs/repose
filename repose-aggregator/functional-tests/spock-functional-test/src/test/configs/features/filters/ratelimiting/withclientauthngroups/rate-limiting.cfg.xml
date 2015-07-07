@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+
+    <limit-group id="rax-groups" groups="0" default="false">
+        <limit id="test" uri="/servers/*" uri-regex="/servers/(.*)" http-methods="ALL"
+               unit="MINUTE" value="2"/>
+    </limit-group>
+</rate-limiting>
