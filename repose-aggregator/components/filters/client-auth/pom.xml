@@ -102,6 +102,12 @@
             <version>2.2.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Mockrunner for mock HttpServletRequest -->
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
