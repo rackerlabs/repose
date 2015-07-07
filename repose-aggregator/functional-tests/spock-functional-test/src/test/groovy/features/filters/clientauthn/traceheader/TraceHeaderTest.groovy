@@ -79,6 +79,7 @@ class TraceHeaderTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
+                 assert e.request.headers.getFirstValue("x-trans-id").length() > 0
         }
     }
 
