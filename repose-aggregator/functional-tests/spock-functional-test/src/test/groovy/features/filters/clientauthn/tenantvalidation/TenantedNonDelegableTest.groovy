@@ -152,7 +152,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         request2.headers.getFirstValue("x-tenant-name") == responseTenant.toString()
         request2.headers.contains("x-token-expires")
-        request2.headers.getFirstValue("x-pp-user") == "username;q=1.0"
+        request2.headers.getFirstValue("x-pp-user") == "username"
         request2.headers.contains("x-roles")
         request2.headers.getFirstValue("x-authorization") == "Proxy $requestTenant"
         request2.headers.getFirstValue("x-user-name") == "username"

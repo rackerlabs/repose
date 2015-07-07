@@ -90,9 +90,9 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         requestFromRepose.getHeaders()["content-type"] == "application/json"
         requestFromRepose.getHeaders()["x-auth-token"] == fakeIdentityService.client_token
         requestFromRepose.getHeaders()["x-tenant-name"] == fakeIdentityService.client_tenant
-        requestFromRepose.getHeaders()["x-pp-user"] == "username;q=1.0"
+        requestFromRepose.getHeaders()["x-pp-user"] == "username"
         requestFromRepose.getHeaders()["x-roles"].contains("compute:default")
-        requestFromRepose.getHeaders()["x-pp-groups"] == "0;q=1.0"
+        requestFromRepose.getHeaders()["x-pp-groups"] == "0"
         mc.receivedResponse.code == "200"
     }
 
