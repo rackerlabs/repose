@@ -39,6 +39,7 @@ import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.RequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -204,38 +205,30 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
               val addHeaders = userGroups match {
                 case Pass(headers) =>
-                  val userHeaders = Map(PowerApiHeader.USER.toString -> validToken.username,
+                  val newHeaders = mutable.Map(PowerApiHeader.USER.toString -> validToken.username,
                     OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
-                    OpenStackServiceHeader.USER_ID.toString -> validToken.userId)
+                    OpenStackServiceHeader.USER_ID.toString -> validToken.userId,
+                    OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName,
+                    OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate,
+                    OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString)
 
-                  val xAuthHeader = uriTenantOption match {
+                  uriTenantOption match {
                     case Some(uriTenant) =>
-                      OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"
+                      newHeaders += OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"
                     case None =>
-                      OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
+                      newHeaders += OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
                   }
 
-                  val rolesHeader = if (config.getIdentityService.isSetRolesInHeader) {
-                    Map(OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
-                  } else {
-                    Map.empty[String, String]
+                  if (config.getIdentityService.isSetRolesInHeader) {
+                    newHeaders += OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")
                   }
 
-                  val tenantName = OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName
+                  validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr).foreach(newHeaders.+=)
+                  validToken.contactId.map(ci => OpenStackServiceHeader.CONTACT_ID.toString -> ci).foreach(newHeaders.+=)
+                  validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid).foreach(newHeaders.+=)
+                  validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in).foreach(newHeaders.+=)
 
-                  val defaultRegion = validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr)
-
-                  val contactId = validToken.contactId.map(ci => OpenStackServiceHeader.CONTACT_ID.toString -> ci)
-
-                  val expirationDate = OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate
-
-                  val impersonatorId = validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid)
-                  val impersonatorName = validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in)
-
-                  val identityStatus = OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString
-
-                  Pass(headers ++ userHeaders ++ rolesHeader + tenantName + xAuthHeader ++ defaultRegion ++ contactId
-                    + expirationDate ++ impersonatorId ++ impersonatorName + identityStatus)
+                  Pass(headers ++ newHeaders)
                 case reject: Reject => reject
               }
 
