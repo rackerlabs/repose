@@ -42,17 +42,22 @@ public class HttpLogFormatter {
     private static final double RESPONSE_TIME_MULTIPLIER_MICROSEC = 1000;
     private static final double RESPONSE_TIME_MULTIPLIER_SEC = .001;
     private final String formatTemplate;
+    private final HttpLogFormatterState httpLogFormatterState;
     private final List<FormatArgumentHandler> handlerList;
 
     public HttpLogFormatter(String formatTemplate) {
+        this(formatTemplate, HttpLogFormatterState.PLAIN);
+    }
+    public HttpLogFormatter(String formatTemplate, HttpLogFormatterState httpLogFormatterState) {
         this.formatTemplate = handleTabsAndNewlines(formatTemplate);
-        handlerList = new LinkedList<FormatArgumentHandler>();
+        this.httpLogFormatterState = httpLogFormatterState;
+        handlerList = new LinkedList<>();
 
         build();
     }
 
     @SuppressWarnings("PMD.NcssMethodCount")
-    public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
+    public void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
         if (LogFormatArgument.fromString(extractor.getEntity()) == null) {
             throw new IllegalArgumentException("Unsupported log format entity: " + extractor.getEntity());
         }
@@ -118,7 +123,7 @@ public class HttpLogFormatter {
                 formatter.setLogic(new StringHandler(extractor.getVariable()));
                 break;
             case ERROR_MESSAGE:
-                formatter.setLogic(new ResponseMessageHandler());
+                formatter.setLogic(new ResponseMessageHandler(httpLogFormatterState));
                 break;
             case TRACE_GUID:
                 formatter.setLogic(new RequestHeaderHandler(CommonHttpHeader.TRACE_GUID.toString(), extractor.getArguments()));
@@ -168,7 +173,7 @@ public class HttpLogFormatter {
     }
 
     List<FormatArgumentHandler> getHandlerList() {
-        return new LinkedList<FormatArgumentHandler>(handlerList);
+        return new LinkedList<>(handlerList);
     }
 
     public String format(HttpServletRequest request, HttpServletResponse response) {
