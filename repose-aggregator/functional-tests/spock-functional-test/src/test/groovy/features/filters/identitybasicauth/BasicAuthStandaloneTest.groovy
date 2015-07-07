@@ -185,10 +185,17 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
+    @Unroll("Test username: #username and api key: #password")
     def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
+        fakeIdentityService.with {
+            // This is required to ensure that one piece of the authentication data is changed
+            // so that the cached version in the Akka Client is not used.
+            client_apikey = password
+            client_token = UUID.randomUUID().toString()
+        }
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + password).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -202,6 +209,13 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+
+        where:
+        username                            | password
+        fakeIdentityService.client_username | UUID.randomUUID().toString()
+        fakeIdentityService.client_username | ""
+        ""                                  | UUID.randomUUID().toString()
+        ""                                  | ""
     }
 
     def "Inject header WWW-authenticate when basicauth or other component failed with 401"() {

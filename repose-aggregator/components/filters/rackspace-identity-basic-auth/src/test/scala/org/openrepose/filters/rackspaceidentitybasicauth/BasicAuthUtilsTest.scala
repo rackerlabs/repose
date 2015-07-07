@@ -33,11 +33,13 @@ class BasicAuthUtilsTest extends FunSpec with Matchers with BasicAuthUtils {
       "userName:::apiKey" ->("userName", "::apiKey"), // Extra leading colons
       "userName:api:::Key" ->("userName", "api:::Key"), // Extra embedded colons
       "userName:apiKey::" ->("userName", "apiKey::"), // Extra trailing colons
-      "userName::a:p:i:K:e:y:" ->("userName", ":a:p:i:K:e:y:") // Just crazy
+      "userName::a:p:i:K:e:y:" ->("userName", ":a:p:i:K:e:y:"), // Just crazy
+      ":" ->("", ""), // Empty username, password
+      "username:" ->("username", "") // Empty password
     )
     cases.foreach { case (decoded, (expectedUsername, expectedPassword)) =>
       it(s"decodes $decoded into $expectedUsername and $expectedPassword") {
-        val authValue = new String(Base64.encodeBase64URLSafeString(decoded.getBytes()))
+        val authValue = new String(Base64.encodeBase64URLSafeString(decoded.getBytes))
 
         val (extractedUsername, extractedPassword) = extractCredentials(authValue)
 

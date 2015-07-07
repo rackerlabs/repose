@@ -22,6 +22,7 @@ package org.openrepose.filters.rackspaceidentitybasicauth
 import org.apache.commons.codec.binary.Base64
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 trait BasicAuthUtils {
   /**
@@ -31,10 +32,15 @@ trait BasicAuthUtils {
    * @return a tuple of the (username, API Key)
    */
   def extractCredentials(authValue: String): (String, String) = {
+    def getUsername(decodedCredentials: String): Try[String] = {
+      Try(decodedCredentials.split(":").head)
+    }
+
     val decodedString = new String(Base64.decodeBase64(authValue))
-    val username = decodedString.split(":").head
-    val password = decodedString.replace(s"$username:", "")
-    (username, password)
+    getUsername(decodedString) match {
+      case Success(username) => (username, decodedString.replace(s"$username:", ""))
+      case Failure(_) => ("", "")
+    }
   }
 
   /**
@@ -44,6 +50,6 @@ trait BasicAuthUtils {
    * @return an Iterator of the Authentication header values that match the desired auth method
    */
   def getBasicAuthHeaders(headers: java.util.Enumeration[String], method: String): Iterator[String] = {
-    headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase()))
+    headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase))
   }
 }
