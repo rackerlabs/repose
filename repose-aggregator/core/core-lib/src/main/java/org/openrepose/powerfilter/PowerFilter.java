@@ -20,7 +20,6 @@
 package org.openrepose.powerfilter;
 
 import com.google.common.base.Optional;
-import org.apache.logging.log4j.ThreadContext;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
@@ -50,6 +49,7 @@ import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.*;
+import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
@@ -351,6 +351,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
         if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
@@ -361,7 +362,14 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
-            new URI(mutableHttpRequest.getRequestURI()); // ensures that the request URI is a valid URI
+            try {
+                // ensures that the method name exists
+                HttpComponentFactory.valueOf(mutableHttpRequest.getMethod().toUpperCase());
+            } catch (IllegalArgumentException iae) {
+                throw new InvalidMethodException("Request contained an unknown method.", iae);
+            }
+            // ensures that the request URI is a valid URI
+            new URI(mutableHttpRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().isTracingHeader()) {
@@ -374,6 +382,10 @@ public class PowerFilter extends DelegatingFilterProxy {
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
+        } catch (InvalidMethodException ime) {
+            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), ime);
+            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
+            mutableHttpResponse.setLastException(ime);
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI(), use);
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
