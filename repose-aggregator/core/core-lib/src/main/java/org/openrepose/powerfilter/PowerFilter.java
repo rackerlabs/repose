@@ -362,8 +362,12 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
-            // ensures that the method name exists
-            HttpComponentFactory.valueOf(mutableHttpRequest.getMethod().toUpperCase());
+            try {
+                // ensures that the method name exists
+                HttpComponentFactory.valueOf(mutableHttpRequest.getMethod().toUpperCase());
+            } catch (IllegalArgumentException iae) {
+                throw new InvalidMethodException("Request contained an unknown method.", iae);
+            }
             // ensures that the request URI is a valid URI
             new URI(mutableHttpRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
@@ -378,10 +382,10 @@ public class PowerFilter extends DelegatingFilterProxy {
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
-        } catch (IllegalArgumentException iae) {
-            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), iae);
+        } catch (InvalidMethodException ime) {
+            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), ime);
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
-            mutableHttpResponse.setLastException(iae);
+            mutableHttpResponse.setLastException(ime);
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI(), use);
             mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
