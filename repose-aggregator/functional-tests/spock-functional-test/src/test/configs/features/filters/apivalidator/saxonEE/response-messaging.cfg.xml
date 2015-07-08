@@ -118,7 +118,13 @@
 
     <status-code id="4xx" code-regex="4\d\d" overwrite="ALWAYS">
         <message media-type="application/xml">
-            XML Not Authorized... Syntax highlighting is magical.
+            <![CDATA[
+<response
+    xmlns="http://docs.openstack.org/common/api/v1.1">
+  <message>XML Not Authorized... Syntax highlighting is magical.</message>
+</response>
+]]>
+
         </message>
         <message media-type="application/json">
             JSON Not Authorized... The brackets are too confusing.
