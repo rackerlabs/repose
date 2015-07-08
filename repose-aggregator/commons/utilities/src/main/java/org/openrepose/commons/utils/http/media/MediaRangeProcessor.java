@@ -32,7 +32,7 @@ public class MediaRangeProcessor {
     }
 
     public List<MediaType> process() {
-        List<MediaType> result = new ArrayList<MediaType>();
+        List<MediaType> result = new ArrayList<>();
 
         for (HeaderValue value : values) {
             result.add(process(value));

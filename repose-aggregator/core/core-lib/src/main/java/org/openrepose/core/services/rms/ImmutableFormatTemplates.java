@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public final class ImmutableFormatTemplates {
 
-    private final Map<String, HttpLogFormatter> formatTemplates = new HashMap<String, HttpLogFormatter>();
+    private final Map<String, HttpLogFormatter> formatTemplates = new HashMap<>();
 
     private ImmutableFormatTemplates(List<StatusCodeMatcher> statusCodes) {
         formatTemplates.clear();
