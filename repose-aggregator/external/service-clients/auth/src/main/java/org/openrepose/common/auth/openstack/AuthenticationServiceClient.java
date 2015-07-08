@@ -376,7 +376,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             if (adminToken == null) {
                 Map<String, String> headerMap = new HashMap<>();
-                headerMap.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                if (requestGuid != null) {
+                    headerMap.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                }
                 final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
                         targetHostUri + "/tokens",
                         headerMap,
