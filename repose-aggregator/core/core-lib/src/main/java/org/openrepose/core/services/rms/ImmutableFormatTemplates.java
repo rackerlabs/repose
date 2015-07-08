@@ -21,6 +21,7 @@ package org.openrepose.core.services.rms;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState;
 import org.openrepose.core.services.rms.config.Message;
 import org.openrepose.core.services.rms.config.StatusCodeMatcher;
 
@@ -43,8 +44,10 @@ public final class ImmutableFormatTemplates {
                 final String statusCodeId = statusCode.getId();
                 final String href = message.getHref();
                 final String stringTemplate = !StringUtilities.isBlank(href) ? new HrefFileReader().read(href, statusCodeId) : message.getValue();
-
-                formatTemplates.put(statusCodeId + message.getMediaType(), new HttpLogFormatter(stringTemplate));
+                final String mediaType = message.getMediaType();
+                final HttpLogFormatterState state = mediaType.toUpperCase().contains("JSON") ? HttpLogFormatterState.JSON :
+                        mediaType.toUpperCase().contains("XML") ? HttpLogFormatterState.XML : HttpLogFormatterState.PLAIN;
+                formatTemplates.put(statusCodeId + mediaType, new HttpLogFormatter(stringTemplate, state));
             }
         }
     }

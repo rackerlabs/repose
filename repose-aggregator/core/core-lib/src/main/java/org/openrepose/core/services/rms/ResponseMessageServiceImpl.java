@@ -110,7 +110,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                     formatter = getHttpLogFormatter(matchedCode, message.getMediaType());
                     if (formatter != null) {
                         if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
-                            final String formattedOutput = formatter.format("", request, response).trim();
+                            final String formattedOutput = formatter.format(request, response).trim();
                             overwriteResponseBody(response, formattedOutput, message.getContentType());
                         }
                     } else {
