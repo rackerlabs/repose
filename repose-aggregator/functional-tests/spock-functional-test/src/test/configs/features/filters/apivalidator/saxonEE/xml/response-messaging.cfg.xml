@@ -117,11 +117,19 @@
     </status-code>
 
     <status-code id="4xx" code-regex="4\d\d" overwrite="ALWAYS">
-        <message media-type="application/xml">
-            XML Not Authorized... Syntax highlighting is magical.
+        <message media-type="application/xml" content-type="application/xml">
+            <![CDATA[
+<response
+    xmlns="http://docs.openstack.org/common/api/v1.1">
+  <message>XML Not Authorized... Syntax highlighting is magical.</message>
+</response>
+]]>
+
         </message>
-        <message media-type="application/json">
-            JSON Not Authorized... The brackets are too confusing.
+        <message media-type="application/json" content-type="application/json">
+            {
+            "message": "JSON Not Authorized... The brackets are too confusing."
+            }
         </message>
         <message media-type="*/*">
             You are not authorized... Did you drop your ID?

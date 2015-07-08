@@ -55,7 +55,7 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def "GET on /path/to/test should fail without header X-TEST"() {
+    def "GET on /path/to/test (XML) should fail without header X-TEST"() {
         setup: "declare messageChain to be of type MessageChain"
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -90,6 +90,54 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
         then:
         "result should be " + 403
         messageChain.receivedResponse.code.equals("403")
+        messageChain.receivedResponse.headers["Content-Type"].equals("application/xml")
+        println messageChain.receivedResponse.body
+        messageChain.receivedResponse.body == "<response\n" +
+                "    xmlns=\"http://docs.openstack.org/common/api/v1.1\">\n" +
+                "  <message>XML Not Authorized... Syntax highlighting is magical.</message>\n" +
+                "</response>"
+
+    }
+
+    def "GET on /path/to/test (JSON) should fail without header X-TEST"() {
+        setup: "declare messageChain to be of type MessageChain"
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/saxonEE", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/saxonEE/json", params)
+        repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
+
+        MessageChain messageChain
+        def customHandler = { return new Response(200, "OK") }
+
+        def Map<String, String> headers = [
+                "Accept"         : "application/json",
+                "Content-Type"   : "application/json",
+                "Host"           : "localhost",
+                "User-Agent"     : "gdeproxy"
+        ]
+
+        def reqBody = "{\n" +
+                "         \"firstName\" : \"Jorge\",\n" +
+                "         \"lastName\" : \"Williams\",\n" +
+                "         \"age\" : 38\n" +
+                "    }"
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
+                method: 'GET', headers: headers,
+                requestBody: reqBody, defaultHandler: customHandler,
+                addDefaultHeaders: false
+        )
+
+        then:
+        "result should be " + 403
+        messageChain.receivedResponse.code.equals("403")
+        messageChain.receivedResponse.headers["Content-Type"].equals("application/json")
+        messageChain.receivedResponse.body == "{\n" +
+                "            \"message\": \"JSON Not Authorized... The brackets are too confusing.\"\n" +
+                "            }"
 
     }
 }
