@@ -121,9 +121,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
 
+      // Initialize the headers map here so it is accessible when handling the result
+      var addtlReqHdrs: mutable.Map[String, String] = mutable.Map.empty[String, String]
+
       //Get the authenticating token!
       val result: KeystoneV2Result = if (whiteListMatch) {
-        Pass(Map.empty[String, String])
+        Pass
       } else {
         authTokenValue map { authToken =>
           //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
@@ -153,86 +156,92 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Success(InvalidToken) =>
               Reject(SC_UNAUTHORIZED)
             case Success(validToken: ValidToken) =>
+              // Add standard headers from token information
+              addtlReqHdrs ++= Map(PowerApiHeader.USER.toString -> validToken.username,
+                OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
+                OpenStackServiceHeader.USER_ID.toString -> validToken.userId,
+                OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName,
+                OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate)
+              validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr).foreach(addtlReqHdrs.+=)
+              validToken.contactId.map(ci => OpenStackServiceHeader.CONTACT_ID.toString -> ci).foreach(addtlReqHdrs.+=)
+              validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid).foreach(addtlReqHdrs.+=)
+              validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in).foreach(addtlReqHdrs.+=)
+
+              // If configured, add roles header
+              if (config.getIdentityService.isSetRolesInHeader) {
+                addtlReqHdrs += (OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
+              }
+
+              // Extract the tenant and add the x-authorization header
               val uriTenantOption = requestHandler.extractTenant(request.getRequestURI)
+              uriTenantOption match {
+                case Some(uriTenant) =>
+                  addtlReqHdrs += (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant")
+                case None =>
+                  addtlReqHdrs += (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY)
+              }
+
+              // If configured, authorize the URI tenant against the token
               val authorizedTenant = requestHandler.tenantAuthorization(uriTenantOption, validToken) match {
                 case Some(Success(tenantHeaderValues)) =>
-                  Pass(Map(OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(",")))
+                  addtlReqHdrs += (OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
+                  Pass
                 case Some(Failure(e)) =>
                   Reject(SC_UNAUTHORIZED, failure = Some(e))
                 case None =>
-                  Pass(Map.empty[String, String])
+                  Pass
               }
 
+              // Authorize token endpoints and, if configured, populate the x-catalog header
               val endpoints = authorizedTenant match {
-                case Pass(headers) =>
+                case Pass =>
                   requestHandler.handleEndpoints(authToken, validToken) match {
                     case Some(Success(endpointsData)) =>
                       //If I'm configured to put the endpoints into a x-catalog do it
                       if (config.getIdentityService.isSetCatalogInHeader) {
                         // todo: don't check this flag twice
-                        val endpointsHeader = PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes)
-                        Pass(headers + endpointsHeader)
+                        addtlReqHdrs += (PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes))
+                        Pass
                       } else {
-                        Pass(headers)
+                        Pass
                       }
                     case Some(Failure(x)) =>
                       //Reject them with 403
                       Reject(SC_FORBIDDEN, failure = Some(x))
                     case None =>
                       //Do more things in here
-                      Pass(headers)
+                      Pass
                   }
                 case reject: Reject => reject
               }
 
+              // If configured, populate the x-pp-groups endpoint
               val userGroups = endpoints match {
-                case Pass(headers) =>
+                case Pass =>
                   requestHandler.getGroups(authToken, validToken) match {
                     case Some(Success(groups)) =>
                       if (groups.isEmpty) {
-                        Pass(headers)
+                        Pass
                       } else {
-                        val groupsHeader = PowerApiHeader.GROUPS.toString -> groups.mkString(",")
-                        Pass(headers + groupsHeader)
+                        addtlReqHdrs += (PowerApiHeader.GROUPS.toString -> groups.mkString(","))
+                        Pass
                       }
                     case Some(Failure(e)) =>
                       logger.error(s"Could not get groups: ${e.getMessage}")
-                      Pass(headers)
-                    case None => Pass(headers)
+                      Pass
+                    case None => Pass
                   }
                 case reject: Reject => reject
               }
 
-              val addHeaders = userGroups match {
-                case Pass(headers) =>
-                  val newHeaders = mutable.Map(PowerApiHeader.USER.toString -> validToken.username,
-                    OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
-                    OpenStackServiceHeader.USER_ID.toString -> validToken.userId,
-                    OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName,
-                    OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate,
-                    OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString)
-
-                  uriTenantOption match {
-                    case Some(uriTenant) =>
-                      newHeaders += OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant"
-                    case None =>
-                      newHeaders += OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY
-                  }
-
-                  if (config.getIdentityService.isSetRolesInHeader) {
-                    newHeaders += OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(",")
-                  }
-
-                  validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr).foreach(newHeaders.+=)
-                  validToken.contactId.map(ci => OpenStackServiceHeader.CONTACT_ID.toString -> ci).foreach(newHeaders.+=)
-                  validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid).foreach(newHeaders.+=)
-                  validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in).foreach(newHeaders.+=)
-
-                  Pass(headers ++ newHeaders)
-                case reject: Reject => reject
+              // Add the x-identity-status header once all other checks pass
+              userGroups match {
+                case Pass =>
+                  addtlReqHdrs += (OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString)
+                case _ => ()
               }
 
-              addHeaders
+              userGroups
             case Failure(x: IdentityAdminTokenException) =>
               Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
             case Failure(x: IdentityCommuncationException) =>
@@ -247,10 +256,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
+      // Add headers regardless of the result because it's cheap
+      addtlReqHdrs.foreach { case (k, v) =>
+        request.addHeader(k, v)
+      }
+
       //Handle the result of the filter
       result match {
-        case rejection: Reject =>
-          val message: Option[String] = rejection match {
+        case reject: Reject =>
+          val message: Option[String] = reject match {
             case Reject(_, Some(x), _) => Some(x)
             case Reject(code, None, Some(failure)) => Some(failure.getMessage)
             case _ => None
@@ -258,37 +272,33 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           //Handle delegation if necessary
           Option(config.getDelegating) match {
             case Some(delegating) =>
-              logger.debug(s"Delegating with status ${rejection.status}")
-              val delegationHeaders = buildDelegationHeaders(rejection.status,
+              logger.debug(s"Delegating with status ${reject.status}")
+              val delegationHeaders = buildDelegationHeaders(reject.status,
                 "keystone-v2",
                 message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
                 delegating.getQuality)
 
+              request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString, IdentityStatus.Indeterminate.toString)
               delegationHeaders foreach { case (key, values) =>
                 values foreach { value =>
                   request.addHeader(key, value)
                 }
               }
-              request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString, IdentityStatus.Indeterminate.toString)
 
               chain.doFilter(request, response)
             case None =>
-              logger.debug(s"Rejecting with status ${rejection.status}")
+              logger.debug(s"Rejecting with status ${reject.status}")
               response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, s"Keystone uri=${config.getIdentityService.getUri}")
               message match {
                 case Some(m) =>
                   logger.debug(s"Rejection message: $m")
-                  response.sendError(rejection.status, m)
-                case None => response.sendError(rejection.status)
+                  response.sendError(reject.status, m)
+                case None => response.sendError(reject.status)
               }
           }
 
-        case p: Pass =>
+        case Pass =>
           //If the token validation passed and we're configured to do more things, we can do additional authorizations
-          //Modify the request to add stuff
-          p.headersToAdd.foreach { case (k, v) =>
-            request.addHeader(k, v)
-          }
           chain.doFilter(request, response)
 
           logger.trace("Keystone v2 filter processing response...")

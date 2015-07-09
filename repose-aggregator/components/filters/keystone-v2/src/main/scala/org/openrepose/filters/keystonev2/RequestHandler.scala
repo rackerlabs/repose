@@ -479,9 +479,11 @@ object RequestHandler {
 
   sealed trait KeystoneV2Result
 
-  case class Pass(headersToAdd: Map[String, String]) extends KeystoneV2Result
+  object Pass extends KeystoneV2Result
 
-  case class Reject(status: Int, message: Option[String] = None, failure: Option[Throwable] = None) extends KeystoneV2Result
+  case class Reject(status: Int,
+                    message: Option[String] = None,
+                    failure: Option[Throwable] = None) extends KeystoneV2Result
 
   sealed trait AuthResult
 

@@ -993,7 +993,7 @@ with HttpDelegationManager {
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
 
-    it("delegates if lacking the required service endpoint and adds the header") {
+    it("delegates if lacking the required service endpoint and all headers for data we have") {
       val modifiedConfig = configuration
       modifiedConfig.setRequireServiceEndpoint(new ServiceEndpointType().withPublicUrl("http://google.com/"))
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
@@ -1012,9 +1012,17 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      val lastRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val delegationHeader = parseDelegationHeader(lastRequest.getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      lastRequest.getHeaderNames should contain allOf(PowerApiHeader.USER.toString,
+        OpenStackServiceHeader.USER_NAME.toString,
+        OpenStackServiceHeader.USER_ID.toString,
+        OpenStackServiceHeader.TENANT_NAME.toString,
+        OpenStackServiceHeader.X_EXPIRATION.toString,
+        OpenStackServiceHeader.ROLES.toString,
+        OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString)
     }
 
     it("delegates if identity doesn't respond properly") {
@@ -1943,8 +1951,8 @@ with HttpDelegationManager {
               defaultTenantId: String = "",
               tenantIds: Seq[String] = Seq.empty[String],
               roles: Seq[String] = Seq.empty[String],
-              impersonatorId: Option[String] = Option.empty[String],
-              impersonatorName: Option[String] = Option.empty[String],
+              impersonatorId: Option[String] = None,
+              impersonatorName: Option[String] = None,
               defaultRegion: Option[String] = None,
               contactId: Option[String] = None) = {
       ValidToken(expirationDate,
