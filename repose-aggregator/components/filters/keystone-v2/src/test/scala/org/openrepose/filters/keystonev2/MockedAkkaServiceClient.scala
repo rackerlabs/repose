@@ -2,6 +2,9 @@ package org.openrepose.filters.keystonev2
 
 import java.io.ByteArrayInputStream
 
+import org.apache.http.Header
+import org.apache.http.message.BasicHeader
+
 import scala.collection.JavaConverters._
 import scala.util.{Either, Failure, Success, Try}
 
@@ -104,8 +107,9 @@ trait MockedAkkaServiceClient {
   trait AkkaParent
 
   object AkkaServiceClientResponse {
-    def apply(status: Int, body: String): ServiceClientResponse with AkkaParent = {
-      new ServiceClientResponse(status, new ByteArrayInputStream(body.getBytes)) with AkkaParent
+    def apply(status: Int, body: String, headers: Map[String, String] = Map.empty): ServiceClientResponse with AkkaParent = {
+      val apacheHeaders: Array[Header] = headers.toArray map { case (name, value) => new BasicHeader(name, value) }
+      new ServiceClientResponse(status, apacheHeaders, new ByteArrayInputStream(body.getBytes)) with AkkaParent
     }
 
     def failure(reason: String, parent: Throwable = null) = {

@@ -21,14 +21,16 @@ package org.openrepose.filters.keystonev2
 
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
+import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
@@ -116,6 +118,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
             }
             Success(InvalidToken)
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when validating token"))
           case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
         }
       case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
@@ -156,14 +160,19 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       ))
 
       akkaResponse match {
-        case Success(x) =>
-          val jsonResponse = Source.fromInputStream(x.getData).getLines().mkString("")
-          val json = Json.parse(jsonResponse)
-          Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
-            case Success(s) =>
-              datastore.put(ADMIN_TOKEN_KEY, s.get)
-              s
-            case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
+        case Success(serviceClientResponse) =>
+          serviceClientResponse.getStatus match {
+            case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+              Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
+            case _ =>
+              val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines().mkString("")
+              val json = Json.parse(jsonResponse)
+              Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
+                case Success(s) =>
+                  datastore.put(ADMIN_TOKEN_KEY, s.get)
+                  s
+                case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
+              }
           }
         case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
       }
@@ -296,6 +305,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
             extractEndpointInfo(jsonResponse)
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
           case _ => Failure(new Exception("Unexpected response code from the endpoints call"))
         }
       case Failure(x) => Failure(x)
@@ -409,7 +420,8 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_OK => extractGroupInfo(serviceClientResponse.getData)
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Admin token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing groups"))
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS => Failure(OverLimitException("Rate limited when accessing groups"))
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing groups"))
           case _ => Failure(new Exception("Unexpected response code from the groups call"))
         }
       case Failure(x) => Failure(x)
@@ -457,6 +469,16 @@ object RequestHandler {
     else Math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
   }
 
+  def buildRetryValue(response: ServiceClientResponse) = {
+    response.getHeaders.find(header => HttpHeaders.RETRY_AFTER.equalsIgnoreCase(header.getName)) match {
+      case Some(retryValue) => retryValue.getValue
+      case _ =>
+        val retryCalendar: Calendar = new GregorianCalendar
+        retryCalendar.add(Calendar.SECOND, 5)
+        DateUtils.formatDate(retryCalendar.getTime)
+    }
+  }
+
   case class EndpointsData(endpointsJson: String, endpointsVector: Vector[Endpoint])
 
   trait IdentityException
@@ -471,19 +493,11 @@ object RequestHandler {
 
   case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
-  case class OverLimitException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class OverLimitException(retryAfter: String, message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
-
-  sealed trait KeystoneV2Result
-
-  object Pass extends KeystoneV2Result
-
-  case class Reject(status: Int,
-                    message: Option[String] = None,
-                    failure: Option[Throwable] = None) extends KeystoneV2Result
 
   sealed trait AuthResult
 

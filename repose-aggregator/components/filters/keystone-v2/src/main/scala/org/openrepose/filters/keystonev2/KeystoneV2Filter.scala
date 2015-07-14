@@ -28,6 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
+import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -50,6 +51,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   with HttpDelegationManager
   with LazyLogging {
 
+  import KeystoneV2Filter._
+
   private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
   private final val X_AUTH_PROXY = "Proxy"
@@ -59,6 +62,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   //Which happens to be the local datastore
   private val datastore: Datastore = datastoreService.getDefaultDatastore
+
+  implicit val autoHeaderToString: HeaderConstant => String = hc => hc.toString
 
   var keystoneV2Config: KeystoneV2Config = _
 
@@ -85,8 +90,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
     configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
   }
-
-  implicit val autoHeaderToString: HeaderConstant => String = hc => hc.toString
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     if (!isInitialized) {
@@ -123,6 +126,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       // Initialize the headers map here so it is accessible when handling the result
       var addtlReqHdrs: mutable.Map[String, String] = mutable.Map.empty[String, String]
+      var addtlRespHdrs: mutable.Map[String, String] = mutable.Map.empty[String, String]
 
       //Get the authenticating token!
       val result: KeystoneV2Result = if (whiteListMatch) {
@@ -263,16 +267,29 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       //Handle the result of the filter
       result match {
-        case reject: Reject =>
+        case r: Reject =>
+          //Transform the result for common failures
+          val reject = r match {
+            case Reject(_, _, Some(ole: OverLimitException)) =>
+              // Handle rate limiting case
+              addtlRespHdrs += (HttpHeaders.RETRY_AFTER -> ole.retryAfter)
+              Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(ole.message), Some(ole))
+            case _ =>
+              // No transformation necessary
+              r
+          }
+
+          //Extract the message from the Reject
           val message: Option[String] = reject match {
             case Reject(_, Some(x), _) => Some(x)
             case Reject(code, None, Some(failure)) => Some(failure.getMessage)
             case _ => None
           }
+
           //Handle delegation if necessary
           Option(config.getDelegating) match {
             case Some(delegating) =>
-              logger.debug(s"Delegating with status ${reject.status}")
+              logger.debug(s"Delegating with status ${reject.status} caused by: ${message.getOrElse("unspecified")}")
               val delegationHeaders = buildDelegationHeaders(reject.status,
                 "keystone-v2",
                 message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
@@ -286,9 +303,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               }
 
               chain.doFilter(request, response)
+
+            // todo: handle response, add www-authenticate header and retry-after header
             case None =>
               logger.debug(s"Rejecting with status ${reject.status}")
-              response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, s"Keystone uri=${config.getIdentityService.getUri}")
+              addtlRespHdrs += (CommonHttpHeader.WWW_AUTHENTICATE.toString -> s"Keystone uri=${config.getIdentityService.getUri}")
+              addtlRespHdrs foreach { case (k, v) =>
+                response.addHeader(k, v)
+              }
               message match {
                 case Some(m) =>
                   logger.debug(s"Rejection message: $m")
@@ -307,9 +329,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           response.getStatus match {
             case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
               Option(config.getDelegating) foreach { delegating =>
-                  // If in the case that the origin service supports delegated authentication
-                  // we should then communicate to the client how to authenticate with us
-                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, s"Keystone uri=${config.getIdentityService.getUri}")
+                // If in the case that the origin service supports delegated authentication
+                // we should then communicate to the client how to authenticate with us
+                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, s"Keystone uri=${config.getIdentityService.getUri}")
               }
             case HttpServletResponse.SC_NOT_IMPLEMENTED =>
               Option(config.getDelegating) foreach { delegating =>
@@ -359,5 +381,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     override def isInitialized: Boolean = initialized
   }
+
+}
+
+object KeystoneV2Filter {
+
+  sealed trait KeystoneV2Result
+
+  object Pass extends KeystoneV2Result
+
+  case class Reject(status: Int,
+                    message: Option[String] = None,
+                    failure: Option[Throwable] = None) extends KeystoneV2Result
 
 }

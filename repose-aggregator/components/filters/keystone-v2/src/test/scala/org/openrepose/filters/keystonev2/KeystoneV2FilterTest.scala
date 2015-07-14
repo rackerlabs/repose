@@ -20,13 +20,16 @@
 package org.openrepose.filters.keystonev2
 
 import java.net.URL
+import java.util.GregorianCalendar
 import java.util.concurrent.TimeUnit
-import javax.servlet.{ServletConfig, ServletResponse, ServletRequest, Servlet}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{Servlet, ServletRequest, ServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.commons.codec.binary.Base64
+import org.apache.http.HttpHeaders
+import org.apache.http.client.utils.DateUtils
 import org.hamcrest.Matchers.{both, greaterThanOrEqualTo, lessThanOrEqualTo}
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -117,7 +120,7 @@ with HttpDelegationManager {
     }
   }
 
-  describe("Configured simply to authenticate tokens, defaults for everything else") {
+  describe("Configured simply to authenticate tokens") {
     //Configure the filter
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
@@ -411,7 +414,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
-
     }
 
     it("rejects with 502 if we cannot authenticate as the admin user") {
@@ -438,6 +440,48 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+    }
+
+    it("rejects with 503 if we are rate limited by identity (413)") {
+      val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      mockAkkaPostResponse {
+        AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+      }
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+    }
+
+    it("rejects with 503 if we are rate limited by identity (429)") {
+      val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      mockAkkaPostResponse {
+        AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+      }
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
@@ -770,6 +814,56 @@ with HttpDelegationManager {
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
       }
+
+      it("rejects with 503 if we are rate limited by identity (413)") {
+        val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+        val request = new MockHttpServletRequest()
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+        when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+        mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+        )
+
+        when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+
+        filterChain.getLastRequest should be(null)
+        filterChain.getLastResponse should be(null)
+      }
+
+      it("rejects with 503 if we are rate limited by identity (429)") {
+        val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+        val request = new MockHttpServletRequest()
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+        when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+        mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+          "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+        )
+
+        when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+
+        filterChain.getLastRequest should be(null)
+        filterChain.getLastResponse should be(null)
+      }
     }
   }
 
@@ -886,7 +980,6 @@ with HttpDelegationManager {
     }
 
     it("handles 413 response from groups call") {
-      //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -897,7 +990,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "")
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!")
       )
 
       val response = new MockHttpServletResponse
@@ -908,7 +1001,6 @@ with HttpDelegationManager {
     }
 
     it("handles 429 response from groups call") {
-      //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -919,7 +1011,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "")
+        "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "Rate limited by identity!")
       )
 
       val response = new MockHttpServletResponse
