@@ -18,19 +18,19 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.tracing
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
-import org.joda.time.DateTime
+import org.openrepose.commons.utils.io.ObjectSerializer
+import org.openrepose.core.services.datastore.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
-
 /**
  * Specific tests for admin token
  */
 class TracingDistDatastoreTest extends ReposeValveTest {
 
+    final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
     def static originEndpoint
     def static identityEndpoint
 
@@ -96,4 +96,55 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         lines.size() == 1
     }
 
+    def "DistDatastore service request should be added the tracing header"() {
+        given:
+        //Repose is running
+        def key = UUID.randomUUID().toString()
+        def body = objectSerializer.writeObject(new StringValue("test data"))
+
+        when:
+        //An http request is made to the dist datastore endpoint with a tracing header
+        MessageChain mc = deproxy.makeRequest(
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                method: 'PUT',
+                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10'],
+                requestBody: body
+        )
+
+        then: "should report success"
+        mc.receivedResponse.code == "202"
+        mc.receivedResponse.body == ""
+        mc.sentRequest.headers.contains("x-tranx-id")
+
+        when:
+        mc = deproxy.makeRequest(
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                method: 'GET',
+                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
+        )
+
+        then: "should report that it is"
+        mc.receivedResponse.code == "200"
+        mc.receivedResponse.body == body
+        mc.sentRequest.headers.contains("x-tranx-id")
+
+
+        when: "deleting the object from the datastore"
+        mc = deproxy.makeRequest(
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                method: 'DELETE',
+                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
+        )
+
+        then: "should report that it was successfully deleted"
+        mc.receivedResponse.code == "204"
+        mc.receivedResponse.body == ""
+        mc.sentRequest.headers.contains("x-tranx-id")
+
+        //That header is used in the log output
+
+        //Find the GUID out of :  GUID:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
+        //List<String> lines = reposeLogSearch.searchByString("GUID:.* - .*SERVICING DISTDATASTORE REQUEST\$")
+        //lines.size() == 1
+    }
 }
