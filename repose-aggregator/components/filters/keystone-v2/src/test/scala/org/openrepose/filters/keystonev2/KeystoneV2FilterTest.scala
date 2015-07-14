@@ -1078,7 +1078,7 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(lastRequest.getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      lastRequest.getHeaderNames should contain allOf(PowerApiHeader.USER.toString,
+      lastRequest.getHeaderNames.asScala.toList should contain allOf(PowerApiHeader.USER.toString,
         OpenStackServiceHeader.USER_NAME.toString,
         OpenStackServiceHeader.USER_ID.toString,
         OpenStackServiceHeader.TENANT_NAME.toString,
