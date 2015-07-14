@@ -102,7 +102,6 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         //DEAL WITH IT
         //Parse the response for validating a token?
         logger.debug(s"SERVICE CLIENT RESPONSE: ${serviceClientResponse.getStatus}")
-        logger.debug(s"Admin Token: $authenticatingToken")
         serviceClientResponse.getStatus match {
           case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
             //Extract the roles from the JSON and stick it in the ValidToken result
