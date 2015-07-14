@@ -79,7 +79,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
         Option(config.getCache) foreach { cacheSettings =>
           // never null because configurationUpdated in KeystoneV2Filter
-          val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)
+          val timeout = getTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability, Some(validToken))
           datastore.put(s"$TOKEN_KEY_PREFIX$token", validToken, timeout, TimeUnit.SECONDS)
         }
         Success(validToken)
@@ -110,13 +110,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_BAD_REQUEST => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
-          case SC_NOT_FOUND =>
-            Option(config.getCache) foreach { cacheSettings =>
-              // never null because configurationUpdated in KeystoneV2Filter
-              val timeout = offsetTtl(cacheSettings.getTimeouts.getToken, cacheSettings.getTimeouts.getVariability)
-              datastore.put(s"$TOKEN_KEY_PREFIX$token", InvalidToken, timeout, TimeUnit.SECONDS)
-            }
-            Success(InvalidToken)
+          case SC_NOT_FOUND => Success(InvalidToken)
           case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when validating token"))
@@ -284,7 +278,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           val endpointsData = new EndpointsData(jsonString, endpoints)
           Option(config.getCache) foreach { cacheSettings =>
             // never null because configurationUpdated in KeystoneV2Filter
-            val timeout = offsetTtl(cacheSettings.getTimeouts.getEndpoints, cacheSettings.getTimeouts.getVariability)
+            val timeout = getTtl(cacheSettings.getTimeouts.getEndpoints, cacheSettings.getTimeouts.getVariability)
             datastore.put(s"$ENDPOINTS_KEY_PREFIX$forToken", endpointsData, timeout, TimeUnit.SECONDS)
           }
           Success(endpointsData)
@@ -403,7 +397,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         val groupsForToken = (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
         Option(config.getCache) foreach { cacheSettings =>
           // never null because configurationUpdated in KeystoneV2Filter
-          val timeout = offsetTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)
+          val timeout = getTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)
           datastore.put(s"$GROUPS_KEY_PREFIX$forToken", groupsForToken, timeout, TimeUnit.SECONDS)
         }
         groupsForToken
@@ -464,9 +458,26 @@ object RequestHandler {
     DateUtils.formatDate(dateTime.toDate)
   }
 
-  def offsetTtl(baseTtl: Int, variability: Int) = {
-    if (baseTtl == 0 || variability == 0) baseTtl
-    else Math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
+  def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None) = {
+    def safeLongToInt(l: Long) = math.min(l, Int.MaxValue).toInt
+
+    val configuredTtl = if (baseTtl == 0 || variability == 0)
+      baseTtl
+    else
+      math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
+
+    tokenOption match {
+      case Some(token) =>
+        val tokenExpiration = DateUtils.parseDate(token.expirationDate).getTime - System.currentTimeMillis()
+        if (tokenExpiration < 1) {
+          1
+        } else {
+          val tokenTtl = safeLongToInt(tokenExpiration / 1000)
+          math.min(tokenTtl, configuredTtl)
+        }
+      case None =>
+        configuredTtl
+    }
   }
 
   def buildRetryValue(response: ServiceClientResponse) = {

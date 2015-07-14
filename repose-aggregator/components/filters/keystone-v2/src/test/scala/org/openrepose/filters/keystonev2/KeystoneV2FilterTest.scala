@@ -20,7 +20,6 @@
 package org.openrepose.filters.keystonev2
 
 import java.net.URL
-import java.util.GregorianCalendar
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Servlet, ServletRequest, ServletResponse}
@@ -224,35 +223,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-    }
-
-    it("caches an INvalid token for 10 minutes") {
-      //Can only make sure it was put into the cache with a 10 minute timeout...
-      //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
-
-      //Pretend like identity is going to give us a valid admin token
-      mockAkkaPostResponse {
-        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
-      }
-
-      mockAkkaGetResponse(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
-      )
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
-      //Have to cache the result of the stuff
-      verify(mockDatastore).put(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN", InvalidToken, 600, TimeUnit.SECONDS)
-
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
-
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
 
     it("Makes no other calls if the token is already cached with a valid result") {
