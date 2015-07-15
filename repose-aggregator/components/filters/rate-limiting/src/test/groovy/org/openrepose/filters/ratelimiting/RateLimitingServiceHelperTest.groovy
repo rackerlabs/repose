@@ -20,7 +20,6 @@
 package org.openrepose.filters.ratelimiting
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import org.junit.Assume
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.ratelimit.RateLimitingService
@@ -31,6 +30,7 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MediaType
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceHelperTest extends Specification {
@@ -66,7 +66,6 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred user, should return most qualified user header"() {
         given:
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_USER + ";q=1.0")
         headerValues.add("that other user;q=0.5")
@@ -104,7 +103,6 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred group, should return most qualified groups"() {
         given:
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
         final List<String> headerNames = new LinkedList<String>()
         headerNames.add(PowerApiHeader.GROUPS.toString())
 
@@ -119,6 +117,33 @@ public class RateLimitingServiceHelperTest extends Specification {
         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
 
         List<String> expected = new LinkedList<String>()
+        expected.add("group-4")
+        expected.add("group-2")
+        expected.add("group-1")
+
+        when:
+        List<String> groups = helper.getPreferredGroups(mockedRequest)
+
+        then:
+        groups == expected
+    }
+
+    def "when getting preferred group, should handle multiple values on a single line"() {
+        given:
+        final List<String> headerNames = new LinkedList<String>()
+        headerNames.add(PowerApiHeader.GROUPS.toString())
+
+        when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames))
+
+        List<String> headerValues = new LinkedList<String>()
+        headerValues.add("group-1;q=0.1,group-2;q=0.1")
+        headerValues.add("group-4;q=0.1,group-5;q=0.1")
+        headerValues.add("group-3;q=0.002")
+
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
+
+        List<String> expected = new LinkedList<String>()
+        expected.add("group-5")
         expected.add("group-4")
         expected.add("group-2")
         expected.add("group-1")
