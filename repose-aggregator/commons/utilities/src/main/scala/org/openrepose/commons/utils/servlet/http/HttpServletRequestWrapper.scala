@@ -67,9 +67,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   def getHeadersScala(headerName: String): List[String] = {
     if (removedHeaders.contains(headerName)) {
       List[String]()
-    }
-    else {
-      headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
+    } else {
+        headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
     }
   }
 
@@ -123,7 +122,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     }
 
     getFun(headerName) match {
-      case Nil => null
+      case Nil => Nil
       case nonEmptyList =>
         nonEmptyList.map(headerValue => HeaderValue(parseValue(headerValue), parseQuality(headerValue))) // split the value and parameters, parse the quality
           .groupBy(_.quality) // group by quality

@@ -95,7 +95,7 @@ public class RateLimitingServiceHelper {
     public List<String> getPreferredGroups(HttpServletRequest request) {
         final HttpServletRequestWrapper mutableRequest = new HttpServletRequestWrapper(request);
 
-        return mutableRequest.getSplittableHeader(PowerApiHeader.GROUPS.toString());
+        return mutableRequest.getPreferredSplittableHeader(PowerApiHeader.GROUPS.toString());
     }
 
     private String decodeURI(String uri) {
