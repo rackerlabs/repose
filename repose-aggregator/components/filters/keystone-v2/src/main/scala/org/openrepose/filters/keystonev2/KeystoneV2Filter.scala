@@ -248,7 +248,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               userGroups
             case Failure(x: IdentityAdminTokenException) =>
               Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-            case Failure(x: IdentityCommuncationException) =>
+            case Failure(x: IdentityCommunicationException) =>
               Reject(SC_BAD_GATEWAY, failure = Some(x))
             case Failure(x) =>
               //TODO: this isn't yet complete, should return other status codes?

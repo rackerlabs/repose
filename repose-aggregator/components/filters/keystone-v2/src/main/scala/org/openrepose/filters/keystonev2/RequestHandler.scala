@@ -85,7 +85,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
         Success(validToken)
       } catch {
         case oops@(_: JsResultException | _: JsonProcessingException) =>
-          Failure(IdentityCommuncationException("Unable to parse JSON from identity validate token response", oops))
+          Failure(IdentityCommunicationException("Unable to parse JSON from identity validate token response", oops))
       }
     }
 
@@ -110,12 +110,12 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND => Success(InvalidToken)
-          case SC_SERVICE_UNAVAILABLE => Failure(IdentityValidationException("Identity Service not available to authenticate token"))
+          case SC_SERVICE_UNAVAILABLE => Failure(IdentityCommunicationException("Identity Service not available to authenticate token"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when validating token"))
-          case _ => Failure(IdentityCommuncationException("Unhandled response from Identity, unable to continue"))
+          case _ => Failure(IdentityCommunicationException("Unhandled response from Identity, unable to continue"))
         }
-      case Failure(x) => Failure(IdentityCommuncationException("Unable to successfully validate token with Identity", x))
+      case Failure(x) => Failure(IdentityCommunicationException("Unable to successfully validate token with Identity", x))
     }
   }
 
@@ -164,10 +164,10 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
                 case Success(s) =>
                   datastore.put(ADMIN_TOKEN_KEY, s.get)
                   s
-                case Failure(f) => Failure(IdentityCommuncationException("Token not found in identity response during Admin Authentication", f))
+                case Failure(f) => Failure(IdentityCommunicationException("Token not found in identity response during Admin Authentication", f))
               }
           }
-        case Failure(x) => Failure(IdentityCommuncationException("Failure communicating with identity during Admin Authentication", x))
+        case Failure(x) => Failure(IdentityCommunicationException("Failure communicating with identity during Admin Authentication", x))
       }
     }
   }
@@ -282,7 +282,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           }
           Success(endpointsData)
         case f: JsError =>
-          Failure(new IdentityCommuncationException("Identity didn't respond with proper Endpoints JSON"))
+          Failure(new IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
       }
     }
 
@@ -499,7 +499,7 @@ object RequestHandler {
 
   case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
-  case class IdentityCommuncationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class IdentityCommunicationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
