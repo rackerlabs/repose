@@ -83,6 +83,7 @@ class RateLimitingByRolesTest extends ReposeValveTest {
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Developers")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("test-admin")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("member")
 
         when: "the user hit the rate-limit"
         mc = deproxy.makeRequest(
@@ -126,6 +127,47 @@ class RateLimitingByRolesTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-roles")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("service:admin-role1")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("member")
+    }
+
+    def "Verify header translation copy all header values not just the first" () {
+        given:
+        fakeIdentityV3Service.resetParameters()
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusSeconds(2)
+            client_domainid = reqDomain
+            client_userid = reqUserId
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                        'x-roles':'test',
+                        'X-Roles':'user'
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-roles")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("service:admin-role1")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("member")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("test")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("user")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("test")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("user")
+        mc.handlings[0].request.headers.findAll("something").size() == 5
 
     }
 }
