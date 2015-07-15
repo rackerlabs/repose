@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
@@ -135,6 +136,10 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
 
     def getUserToken(authValue: String): TokenCreationInfo = {
       val (userName, apiKey) = extractCredentials(authValue)
+
+      if(StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
+        processFailedToken(HttpServletResponse.SC_UNAUTHORIZED, userName, "0", authValue)
+      }
 
       def createAuthRequest(encoded: String) = {
         // Base64 Decode and split the userName/apiKey
