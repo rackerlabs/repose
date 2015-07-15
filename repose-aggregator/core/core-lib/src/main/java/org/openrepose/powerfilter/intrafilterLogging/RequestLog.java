@@ -20,8 +20,10 @@
 package org.openrepose.powerfilter.intrafilterLogging;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import javax.servlet.ServletInputStream;
@@ -46,12 +48,12 @@ public class RequestLog {
 
         preamble = "Intrafilter Request Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
+        currentFilter = getFilterDescription(filterContext.getFilterConfig());
         httpMethod = mutableHttpServletRequest.getMethod();
         requestURI = mutableHttpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(mutableHttpServletRequest);
 
-        //Have to wrap the input stream in somethign that can be buffered, as well as reset.
+        //Have to wrap the input stream in something that can be buffered, as well as reset.
         ServletInputStream bin = mutableHttpServletRequest.getInputStream();
         bin.mark(Integer.MAX_VALUE); //Something doesn't support mark reset
         requestBody = IOUtils.toString(bin); //http://stackoverflow.com/a/309448
@@ -69,5 +71,19 @@ public class RequestLog {
         }
 
         return headerMap;
+    }
+
+    /**
+     * Creates a filter description using the filter name and (if specified) the filter ID.
+     * The filter ID provides context in the event there is more than one filter with the same name.
+     * @param filter {@link Filter}
+     * @return {@link String}
+     */
+    private String getFilterDescription(final Filter filter) {
+        if (StringUtils.isEmpty(filter.getId())) {
+            return filter.getName();
+        } else {
+            return filter.getId() + "-" + filter.getName();
+        }
     }
 }
