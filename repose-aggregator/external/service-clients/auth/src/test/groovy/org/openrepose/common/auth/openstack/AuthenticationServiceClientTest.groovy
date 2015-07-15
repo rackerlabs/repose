@@ -22,6 +22,9 @@ package org.openrepose.common.auth.openstack
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.common.auth.AuthServiceException
@@ -218,7 +221,7 @@ class AuthenticationServiceClientTest extends Specification {
 
         def akkaServiceClient = mock(AkkaServiceClient)
         mockAdminTokenRequest(akkaServiceClient, admin, 200)
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()):""]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()): ""]
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
@@ -341,7 +344,7 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     private void mockUserEndpointRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200, int timesCalled = 1) {
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()):""]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()): ""]
         when(akkaServiceClient.get("ENDPOINTS${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}/endpoints", authHeaders))
                 .thenReturn(new ServiceClientResponse(responseCode, new ByteArrayInputStream(createEndpointResponse().getBytes())))
     }
@@ -372,7 +375,28 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     void verifyUserAuthenticationRequest(AkkaServiceClient akkaServiceClient, String adminToken, Map userToValidate, int timesCalled) {
-        verify(akkaServiceClient, times(timesCalled)).get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", headersForUserAuthentication(adminToken))
+        verify(akkaServiceClient, times(timesCalled)).get(eq("TOKEN:${userToValidate.token}".toString()), eq("http://some/uri/tokens/${userToValidate.token}".toString()), argThat(hasMapValues(headersForUserAuthentication(adminToken))))
+    }
+
+    Matcher hasMapValues(Map<String, String> expectedValues) {
+        return new TypeSafeMatcher<Map<String, String>>() {
+            @Override
+            protected boolean matchesSafely(Map<String, String> passedValues) {
+                boolean success = true
+                Set expectedEntries = expectedValues.entrySet()
+                for (Map.Entry<String, String> entry : expectedEntries) {
+                    if (!passedValues.get(entry.key).equals(entry.value)) {
+                        success = false
+                    }
+                }
+                return success
+            }
+
+            @Override
+            void describeTo(Description description) {
+                description.appendText("The map should contain ").appendValue(expectedValues.toString())
+            }
+        }
     }
 
     LinkedHashMap<String, String> headersForUserAuthentication(String adminToken) {
