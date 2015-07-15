@@ -50,25 +50,26 @@ public interface HeaderInteractor {
     List<String> getSplittableHeader(String headerName);
 
     /**
-     * Returns the header value with the highest quality. The default quality is 1.0 if unspecified.
+     * Returns the header value(s) with the highest quality. The default quality is 1.0 if unspecified.
      * This treats each header entry as if it's one value, should there be multiple values per header entry
      * exceptions are likely to occur.
      *
      * @param headerName the name of the header to get the preferred value for
-     * @return the highest qualitied value
+     * @return the highest quality value(s)
      * @throws QualityFormatException when quantity exists but cannot be parsed
      */
-    String getPreferredHeader(String headerName);
+    List<String> getPreferredHeader(String headerName);
 
     /**
-     * Returns the header value with the highest quality, but will try to split all headers on commas before trying to evaluate.
+     * Returns the header value(s) with the highest quality, but will try to split all headers on commas before trying
+     * to evaluate.
      * The default quality is 1.0 if unspecified.
      *
      * @param headerName the name of the header to get the preferred value for
-     * @return the value with the highest quality after headers ahve been split
+     * @return the value(s) with the highest quality after headers have been split
      * @throws QualityFormatException when quantity is present but cannot be parsed
      */
-    String getPreferredSplittableHeader(String headerName);
+    List<String> getPreferredSplittableHeader(String headerName);
 
     /**
      * Adds the specified header with the header name and header value pair.

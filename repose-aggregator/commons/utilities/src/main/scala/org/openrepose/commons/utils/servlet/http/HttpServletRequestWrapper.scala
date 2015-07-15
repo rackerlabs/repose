@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{InputStreamReader, BufferedReader}
+import java.io.{BufferedReader, InputStreamReader}
 import java.util
 import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
@@ -39,7 +39,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   private var status = RequestBodyStatus.Available
 
-  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream())
+  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
 
   val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
@@ -107,27 +107,35 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     headerMap = headerMap - headerName
   }
 
-  def getPreferredHeader(headerName: String, getFun: String => List[String]): String = {
+  private def getPreferredHeader(headerName: String, getFun: String => List[String]): List[String] = {
+    case class HeaderValue(value: String, quality: Double)
+
+    def parseValue(headerValue: String): String = headerValue.split(";").head
+
     def parseQuality(headerValue: String): Double = {
       try {
         val headerParameters: Array[String] = headerValue.split(";").tail
         val qualityParameters: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
         qualityParameters.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
       }
     }
 
     getFun(headerName) match {
       case Nil => null
-      case nonEmptyList => nonEmptyList.maxBy(parseQuality).split(";").head
+      case nonEmptyList =>
+        nonEmptyList.map(headerValue => HeaderValue(parseValue(headerValue), parseQuality(headerValue))) // split the value and parameters, parse the quality
+          .groupBy(_.quality) // group by quality
+          .maxBy(_._1) // find the highest quality group
+          ._2 // get the list of highest quality values
+          .map(_.value) // return a list of just the values
     }
   }
 
-  override def getPreferredHeader(headerName: String): String = getPreferredHeader(headerName, getHeadersScala)
+  override def getPreferredHeader(headerName: String): util.List[String] = getPreferredHeader(headerName, getHeadersScala).asJava
 
-  override def getPreferredSplittableHeader(headerName: String): String = getPreferredHeader(headerName, getSplittableHeaderScala)
+  override def getPreferredSplittableHeader(headerName: String): util.List[String] = getPreferredHeader(headerName, getSplittableHeaderScala).asJava
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     headerMap = headerMap + (headerName -> List(headerValue))
