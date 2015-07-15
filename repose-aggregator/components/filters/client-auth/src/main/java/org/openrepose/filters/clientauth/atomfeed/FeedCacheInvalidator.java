@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /*
  * Listener class to iterate through AuthFeedReaders and retrieve items to delete from the cache
@@ -77,10 +78,15 @@ public class FeedCacheInvalidator implements Runnable {
 
     @Override
     public void run() {
+
+        // Generate trans-id here so it is the same between multiple pages
+        String traceID = UUID.randomUUID().toString();
         while (!done) {
 
-            List<String> userKeys = new ArrayList<String>();
-            List<String> tokenKeys = new ArrayList<String>();
+            LOG.debug("Feed invalidation request for trans-id: " + traceID);
+
+            List<String> userKeys = new ArrayList<>();
+            List<String> tokenKeys = new ArrayList<>();
 
             // Iterate through atom feeds to retrieve tokens and users to invalidate from Repose cache
             for (AuthFeedReader rdr : feeds) {

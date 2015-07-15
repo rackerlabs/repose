@@ -36,10 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed
@@ -115,8 +112,9 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private ServiceClientResponse getFeed(String traceID) throws FeedException {
 
         ServiceClientResponse resp;
-        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> headers = new HashMap<>();
 
+        headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
         if (isAuthed) {
             headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
         }
