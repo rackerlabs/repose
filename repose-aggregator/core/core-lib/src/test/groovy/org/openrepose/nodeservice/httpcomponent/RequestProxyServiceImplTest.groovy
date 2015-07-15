@@ -32,6 +32,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.systemmodel.SystemModel
 import spock.lang.Specification
 
 import static org.mockito.Mockito.mock
@@ -113,6 +114,41 @@ class RequestProxyServiceImplTest extends Specification {
         request.getURI().toString() == "http://www.google.com/key"
         request.getHeaders("thing").first().value == "other thing"
         request.getHeaders("X-Trans-Id").first().value == "LOLOL"
+        readBytes == sentBytes
+
+        response.status == 418
+        returnedBytes == [1, 2, 3] as byte[]
+        ThreadContext.clearAll()
+    }
+
+    def "a request does not include the x-trans-id header for tracing when disabled"() {
+        given:
+        SystemModel systemModel = mock(SystemModel)
+        when(systemModel.isTracingHeader()).thenReturn(false)
+        StatusLine statusLine = mock(StatusLine)
+        when(statusLine.getStatusCode()).thenReturn(418)
+        HttpEntity httpEntity = mock(HttpEntity)
+        when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
+        HttpResponse httpResponse = mock(HttpResponse)
+        when(httpResponse.getStatusLine()).thenReturn(statusLine)
+        when(httpResponse.getEntity()).thenReturn(httpEntity)
+        ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
+        when(httpClient.execute(captor.capture())).thenReturn(httpResponse)
+
+        when:
+        byte[] sentBytes = [4, 5, 6] as byte[]
+        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
+        def request = captor.getValue()
+        byte[] readBytes = new byte[3]
+        request.getEntity().getContent().read(readBytes)
+        byte[] returnedBytes = new byte[3]
+        response.data.read(returnedBytes)
+
+        then:
+        request.getMethod() == "PATCH"
+        request.getURI().toString() == "http://www.google.com/key"
+        request.getHeaders("thing").first().value == "other thing"
+        request.getHeaders("X-Trans-Id").size() == 0
         readBytes == sentBytes
 
         response.status == 418
