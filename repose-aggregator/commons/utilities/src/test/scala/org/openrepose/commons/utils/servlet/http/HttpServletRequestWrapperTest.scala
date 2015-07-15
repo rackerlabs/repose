@@ -33,12 +33,6 @@ import scala.collection.mutable
 
 import scala.io.Source
 
-/**
- * Created with IntelliJ IDEA.
- * User: adrian
- * Date: 5/27/15
- * Time: 10:39 AM
- */
 @RunWith(classOf[JUnitRunner])
 class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Matchers {
   var wrappedRequest: HttpServletRequestWrapper = _

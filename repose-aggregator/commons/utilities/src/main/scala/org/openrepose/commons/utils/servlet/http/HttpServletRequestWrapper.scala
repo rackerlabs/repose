@@ -29,12 +29,6 @@ import org.apache.http.client.utils.DateUtils
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
 
-/**
- * Created with IntelliJ IDEA.
- * User: adrian
- * Date: 5/27/15
- * Time: 10:25 AM
- */
 class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
