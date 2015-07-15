@@ -85,7 +85,7 @@ public class FeedCacheInvalidator implements Runnable {
             // Iterate through atom feeds to retrieve tokens and users to invalidate from Repose cache
             for (AuthFeedReader rdr : feeds) {
                 try {
-                    CacheKeys keys = rdr.getCacheKeys();
+                    CacheKeys keys = rdr.getCacheKeys(traceID);
                     userKeys.addAll(keys.getUserKeys());
                     tokenKeys.addAll(keys.getTokenKeys());
                 } catch (FeedException e) {

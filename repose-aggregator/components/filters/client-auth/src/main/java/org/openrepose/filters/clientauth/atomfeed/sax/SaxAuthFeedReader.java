@@ -84,14 +84,14 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     }
 
     @Override
-    public CacheKeys getCacheKeys() throws FeedException {
+    public CacheKeys getCacheKeys(String traceID) throws FeedException {
 
         moreData = true;
         ServiceClientResponse resp;
         resultKeys = new FeedCacheKeys();
         while (moreData) {
 
-            resp = getFeed();
+            resp = getFeed(traceID);
 
             if (resp.getStatus() == HttpServletResponse.SC_OK) {
 
@@ -112,7 +112,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         return resultKeys;
     }
 
-    private ServiceClientResponse getFeed() throws FeedException {
+    private ServiceClientResponse getFeed(String traceID) throws FeedException {
 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<String, String>();

@@ -42,6 +42,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -142,7 +143,7 @@ public class AuthFeedListenerTest {
         keys.addTokenKey("token1");
         keys.addUserKey("224277258");
 
-        when(rdr.getCacheKeys()).thenReturn(keys);
+        when(rdr.getCacheKeys(anyString())).thenReturn(keys);
 
     }
 
