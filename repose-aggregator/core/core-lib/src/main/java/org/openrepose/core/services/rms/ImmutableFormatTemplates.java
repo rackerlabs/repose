@@ -45,8 +45,9 @@ public final class ImmutableFormatTemplates {
                 final String href = message.getHref();
                 final String stringTemplate = !StringUtilities.isBlank(href) ? new HrefFileReader().read(href, statusCodeId) : message.getValue();
                 final String mediaType = message.getMediaType();
-                final HttpLogFormatterState state = mediaType.toUpperCase().contains("JSON") ? HttpLogFormatterState.JSON :
-                        mediaType.toUpperCase().contains("XML") ? HttpLogFormatterState.XML : HttpLogFormatterState.PLAIN;
+                final String contentType = message.getContentType().toUpperCase();
+                final HttpLogFormatterState state = contentType.contains("JSON") ? HttpLogFormatterState.JSON :
+                        contentType.contains("XML") ? HttpLogFormatterState.XML : HttpLogFormatterState.PLAIN;
                 formatTemplates.put(statusCodeId + mediaType, new HttpLogFormatter(stringTemplate, state));
             }
         }
