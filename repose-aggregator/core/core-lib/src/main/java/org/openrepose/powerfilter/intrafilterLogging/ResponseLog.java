@@ -54,9 +54,11 @@ public class ResponseLog {
     public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
                        FilterContext filterContext) throws IOException {
 
+        Filter filter = filterContext.getFilterConfig();
+
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
-        currentFilter = getFilterDescription(filterContext.getFilterConfig());
+        currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
 
@@ -64,11 +66,6 @@ public class ResponseLog {
         mutableHttpServletResponse.setInputStream(new ByteArrayInputStream(responseBody.getBytes()));
     }
 
-    /**
-     * Convert the headers in the response into a HashMap.
-     * @param mutableHttpServletResponse {@link MutableHttpServletResponse}
-     * @return {@link HashMap}<{@link String}, {@link String}>
-     */
     private HashMap<String, String> convertResponseHeadersToMap(
             MutableHttpServletResponse mutableHttpServletResponse) {
 
@@ -80,19 +77,5 @@ public class ResponseLog {
         }
 
         return headerMap;
-    }
-
-    /**
-     * Creates a filter description using the filter name and (if specified) the filter ID.
-     * The filter ID provides context in the event there is more than one filter with the same name.
-     * @param filter {@link Filter}
-     * @return {@link String} the filter description
-     */
-    private String getFilterDescription(final Filter filter) {
-        if (StringUtils.isEmpty(filter.getId())) {
-            return filter.getName();
-        } else {
-            return filter.getId() + "-" + filter.getName();
-        }
     }
 }
