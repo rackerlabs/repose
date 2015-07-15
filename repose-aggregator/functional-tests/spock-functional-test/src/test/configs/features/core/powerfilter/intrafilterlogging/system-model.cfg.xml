@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="client-auth"/>
-            <filter name="ip-identity"/>
+            <filter name="ip-identity" id="context_1"/>
         </filters>
 
         <destinations>
