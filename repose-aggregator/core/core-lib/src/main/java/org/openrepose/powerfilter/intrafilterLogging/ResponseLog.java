@@ -32,6 +32,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * POJO that is used to log details about a response when the log level is set to TRACE.
+ * See {@link org.openrepose.powerfilter.PowerFilterChain#intrafilterResponseLog} for more details.
+ */
 public class ResponseLog {
 
     String preamble;
@@ -41,6 +45,12 @@ public class ResponseLog {
     String responseBody;
     HashMap<String, String> headers;
 
+    /**
+     * Constructor populates all of the fields necessary for logging.
+     * @param mutableHttpServletResponse {@link MutableHttpServletResponse}
+     * @param filterContext {@link FilterContext}
+     * @throws IOException if there's an issue converting the response body to a string
+     */
     public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
                        FilterContext filterContext) throws IOException {
 
@@ -54,14 +64,19 @@ public class ResponseLog {
         mutableHttpServletResponse.setInputStream(new ByteArrayInputStream(responseBody.getBytes()));
     }
 
+    /**
+     * Convert the headers in the response into a HashMap.
+     * @param mutableHttpServletResponse {@link MutableHttpServletResponse}
+     * @return {@link HashMap}<{@link String}, {@link String}>
+     */
     private HashMap<String, String> convertResponseHeadersToMap(
             MutableHttpServletResponse mutableHttpServletResponse) {
 
         HashMap<String, String> headerMap = new LinkedHashMap<>();
         List<String> headerNames = (List<String>) mutableHttpServletResponse.getHeaderNames();
 
-        for (String headername : headerNames) {
-            headerMap.put(headername, mutableHttpServletResponse.getHeader(headername));
+        for (String headerName : headerNames) {
+            headerMap.put(headerName, mutableHttpServletResponse.getHeader(headerName));
         }
 
         return headerMap;
@@ -69,8 +84,9 @@ public class ResponseLog {
 
     /**
      * Creates a filter description using the filter name and (if specified) the filter ID.
+     * The filter ID provides context in the event there is more than one filter with the same name.
      * @param filter {@link Filter}
-     * @return {@link String}
+     * @return {@link String} the filter description
      */
     private String getFilterDescription(final Filter filter) {
         if (StringUtils.isEmpty(filter.getId())) {

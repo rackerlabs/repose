@@ -188,6 +188,7 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             if (INTRAFILTER_LOG.isTraceEnabled()) {
+                // log the request, and give it a new UUID if it doesn't already have one
                 UUID intrafilterUuid = UUID.randomUUID();
                 INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
             }
@@ -195,6 +196,7 @@ public class PowerFilterChain implements FilterChain {
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
 
             if (INTRAFILTER_LOG.isTraceEnabled()) {
+                // log the response, and give it the request's UUID if the response didn't already have one
                 INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
                         mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
             }
@@ -207,29 +209,45 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
+    /**
+     * Generates a string that can be logged for the given request and filter context.
+     * @param mutableHttpRequest {@link MutableHttpServletRequest} the request
+     * @param filterContext {@link FilterContext} the filter context
+     * @param uuid {@link UUID} the UUID to put into the request if the request doesn't already have one
+     * @return {@link String} the loggable string representing the request and filter context
+     * @throws IOException if there's an issue converting any of the objects to a string
+     */
     private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
                                          FilterContext filterContext, UUID uuid) throws IOException {
 
-        //adding a UUID header
+        // if the request doesn't already have a UUID, give it the UUID passed to this method
         if (StringUtils.isEmpty(mutableHttpRequest.getHeader(INTRAFILTER_UUID))) {
             mutableHttpRequest.addHeader(INTRAFILTER_UUID, uuid.toString());
         }
 
-        //converting log object to json string
+        // populate the POJO (that we'll eventually stringify) with the request details
         RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
 
         return convertPojoToJsonString(requestLog);
     }
 
+    /**
+     * Generates a string that can be logged for the given response and filter context.
+     * @param mutableHttpResponse {@link MutableHttpServletResponse} the response
+     * @param filterContext {@link FilterContext} the filter context
+     * @param uuid {@link UUID} the UUID to put into the response if the response doesn't already have one
+     * @return {@link String} the loggable string representing the response and filter context
+     * @throws IOException if there's an issue converting any of the objects to a string
+     */
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
                                           FilterContext filterContext, String uuid) throws IOException {
 
-        //adding a UUID header
+        // if the response doesn't already have a UUID, give it the UUID passed to this method
         if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
             mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid);
         }
 
-        //converting log object to json string
+        // populate the POJO (that we'll eventually stringify) with the response details
         ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
 
         return convertPojoToJsonString(responseLog);

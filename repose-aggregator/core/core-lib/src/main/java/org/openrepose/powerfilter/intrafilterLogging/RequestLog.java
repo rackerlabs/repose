@@ -28,11 +28,12 @@ import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
+/**
+ * POJO that is used to log details about a response when the log level is set to TRACE.
+ * See {@link org.openrepose.powerfilter.PowerFilterChain#intrafilterRequestLog} for more details.
+ */
 public class RequestLog {
 
     String preamble;
@@ -43,6 +44,12 @@ public class RequestLog {
     String requestBody;
     HashMap<String, String> headers;
 
+    /**
+     * Constructor populates all of the fields necessary for logging.
+     * @param mutableHttpServletRequest {@link MutableHttpServletRequest}
+     * @param filterContext {@link FilterContext}
+     * @throws IOException if there's an issue converting the response body to a string
+     */
     public RequestLog(MutableHttpServletRequest mutableHttpServletRequest,
                       FilterContext filterContext) throws IOException {
 
@@ -60,14 +67,19 @@ public class RequestLog {
         bin.reset();
     }
 
+    /**
+     * Convert the headers in the request into a HashMap.
+     * @param mutableHttpServletRequest {@link MutableHttpServletRequest}
+     * @return {@link HashMap}<{@link String}, {@link String}>
+     */
     private HashMap<String, String> convertRequestHeadersToMap(
             MutableHttpServletRequest mutableHttpServletRequest) {
 
-        HashMap<String, String> headerMap = new LinkedHashMap<String, String>();
+        HashMap<String, String> headerMap = new LinkedHashMap<>();
         List<String> headerNames = Collections.list(mutableHttpServletRequest.getHeaderNames());
 
-        for (String headername : headerNames) {
-            headerMap.put(headername, mutableHttpServletRequest.getHeader(headername));
+        for (String headerName : headerNames) {
+            headerMap.put(headerName, mutableHttpServletRequest.getHeader(headerName));
         }
 
         return headerMap;
@@ -77,7 +89,7 @@ public class RequestLog {
      * Creates a filter description using the filter name and (if specified) the filter ID.
      * The filter ID provides context in the event there is more than one filter with the same name.
      * @param filter {@link Filter}
-     * @return {@link String}
+     * @return {@link String} the filter description
      */
     private String getFilterDescription(final Filter filter) {
         if (StringUtils.isEmpty(filter.getId())) {
