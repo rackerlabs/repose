@@ -20,8 +20,10 @@
 package org.openrepose.powerfilter.intrafilterLogging;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import java.io.ByteArrayInputStream;
@@ -44,7 +46,7 @@ public class ResponseLog {
 
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
+        currentFilter = getFilterDescription(filterContext.getFilterConfig());
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
 
@@ -55,7 +57,7 @@ public class ResponseLog {
     private HashMap<String, String> convertResponseHeadersToMap(
             MutableHttpServletResponse mutableHttpServletResponse) {
 
-        HashMap<String, String> headerMap = new LinkedHashMap<String, String>();
+        HashMap<String, String> headerMap = new LinkedHashMap<>();
         List<String> headerNames = (List<String>) mutableHttpServletResponse.getHeaderNames();
 
         for (String headername : headerNames) {
@@ -63,5 +65,18 @@ public class ResponseLog {
         }
 
         return headerMap;
+    }
+
+    /**
+     * Creates a filter description using the filter name and (if specified) the filter ID.
+     * @param filter {@link Filter}
+     * @return {@link String}
+     */
+    private String getFilterDescription(final Filter filter) {
+        if (StringUtils.isEmpty(filter.getId())) {
+            return filter.getName();
+        } else {
+            return filter.getId() + "-" + filter.getName();
+        }
     }
 }
