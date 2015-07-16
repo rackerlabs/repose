@@ -257,9 +257,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         where:
         username                            | password
         fakeIdentityService.client_username | UUID.randomUUID().toString()
-        fakeIdentityService.client_username | ""
-        ""                                  | UUID.randomUUID().toString()
-        ""                                  | ""
     }
 
     def "Inject header WWW-authenticate when basicauth or other component failed with 401"() {
