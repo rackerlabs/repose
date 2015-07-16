@@ -19,6 +19,8 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 
@@ -27,10 +29,27 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ResponseMessageHandler implements FormatterLogic {
 
+    private HttpLogFormatterState state = HttpLogFormatterState.PLAIN;
+
+    public ResponseMessageHandler(HttpLogFormatterState state) {
+        this.state = state;
+    }
+
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
         String message = MutableHttpServletResponse.wrap(request, response).getMessage();
-        return message != null ? message : "";
+        if (message == null) {
+            message = "";
+        } else {
+            switch (state) {
+                case JSON:
+                    message = StringEscapeUtils.escapeJson(message);
+                    break;
+                case XML:
+                    message = StringEscapeUtils.escapeXml10(message);
+                    break;
+            }
+        }
+        return message;
     }
-
 }

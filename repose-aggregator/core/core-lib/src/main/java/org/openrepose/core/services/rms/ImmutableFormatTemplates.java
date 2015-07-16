@@ -21,6 +21,7 @@ package org.openrepose.core.services.rms;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState;
 import org.openrepose.core.services.rms.config.Message;
 import org.openrepose.core.services.rms.config.StatusCodeMatcher;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 public final class ImmutableFormatTemplates {
 
-    private final Map<String, HttpLogFormatter> formatTemplates = new HashMap<String, HttpLogFormatter>();
+    private final Map<String, HttpLogFormatter> formatTemplates = new HashMap<>();
 
     private ImmutableFormatTemplates(List<StatusCodeMatcher> statusCodes) {
         formatTemplates.clear();
@@ -43,8 +44,11 @@ public final class ImmutableFormatTemplates {
                 final String statusCodeId = statusCode.getId();
                 final String href = message.getHref();
                 final String stringTemplate = !StringUtilities.isBlank(href) ? new HrefFileReader().read(href, statusCodeId) : message.getValue();
-
-                formatTemplates.put(statusCodeId + message.getMediaType(), new HttpLogFormatter(stringTemplate));
+                final String mediaType = message.getMediaType();
+                final String contentType = message.getContentType().toUpperCase();
+                final HttpLogFormatterState state = contentType.contains("JSON") ? HttpLogFormatterState.JSON :
+                        contentType.contains("XML") ? HttpLogFormatterState.XML : HttpLogFormatterState.PLAIN;
+                formatTemplates.put(statusCodeId + mediaType, new HttpLogFormatter(stringTemplate, state));
             }
         }
     }

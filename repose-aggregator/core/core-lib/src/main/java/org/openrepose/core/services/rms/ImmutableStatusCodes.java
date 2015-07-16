@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  * @author fran
  */
 public final class ImmutableStatusCodes {
-    private final List<StatusCodeMatcher> statusCodeMatcherList = new LinkedList<StatusCodeMatcher>();
-    private final Map<String, Pattern> statusCodeRegexes = new HashMap<String, Pattern>();
+    private final List<StatusCodeMatcher> statusCodeMatcherList = new LinkedList<>();
+    private final Map<String, Pattern> statusCodeRegexes = new HashMap<>();
 
     private ImmutableStatusCodes(List<StatusCodeMatcher> statusCodes) {
         statusCodeMatcherList.clear();
