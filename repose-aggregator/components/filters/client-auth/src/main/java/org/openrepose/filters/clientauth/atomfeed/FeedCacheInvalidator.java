@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed;
 
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
@@ -26,6 +27,7 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +85,8 @@ public class FeedCacheInvalidator implements Runnable {
         String traceID = UUID.randomUUID().toString();
         while (!done) {
 
-            LOG.debug("Feed invalidation request for trans-id: " + traceID);
+            MDC.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+            LOG.debug("Beginning Feed Cache Invalidator Thread request.");
 
             List<String> userKeys = new ArrayList<>();
             List<String> tokenKeys = new ArrayList<>();
