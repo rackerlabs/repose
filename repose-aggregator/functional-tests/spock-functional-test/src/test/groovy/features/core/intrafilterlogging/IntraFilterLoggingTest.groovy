@@ -1,23 +1,36 @@
 package features.core.intrafilterlogging
+
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 /**
  * Created by jennyvo on 7/16/15.
  * Verify Repose no longer logging 'null' as part of currunt Filter description
  */
 class IntraFilterLoggingTest extends ReposeValveTest {
-    String url
+    def static originEndpoint
+    def static identityEndpoint
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
         reposeLogSearch.cleanLog()
-        this.url = properties.reposeEndpoint
 
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs('features/core/intrafilterlogging', params)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/core/intrafilterlogging", params);
+
         repose.start()
+
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+        fakeIdentityService.checkTokenValid = true
     }
 
     def cleanupSpec() {
@@ -34,10 +47,16 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         given:
         // repose start up
 
-        when:
-        deproxy.makeRequest(url: url)
+        when: "send request without credential"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
-        then:
-        reposeLogSearch.searchByString("null-rate-limiting").size() == 0
+        then: "simply pass it on down the filter chain"
+        mc.receivedResponse.code == SC_OK.toString()
+        mc.handlings.size() == 1
+        mc.orphanedHandlings.size() == 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"rackspace-identity-basic-auth\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"herp\"").size() > 0
+        reposeLogSearch.searchByString("null-rackspace-identity-basic-auth").size() == 0
+        reposeLogSearch.searchByString("null-herp").size() == 0
     }
 }
