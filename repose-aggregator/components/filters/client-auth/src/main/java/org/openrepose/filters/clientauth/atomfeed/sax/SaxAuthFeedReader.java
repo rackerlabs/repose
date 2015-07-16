@@ -130,6 +130,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                     } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
+                    headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);
                 } else { // case where we're getting back 401s and the client has not configured auth credentials for this feed.
