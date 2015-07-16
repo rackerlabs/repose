@@ -256,7 +256,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           }
         } getOrElse {
           //Don't have an auth token to validate
-          Reject(SC_FORBIDDEN, Some("Auth token not found in headers"))
+          Reject(SC_UNAUTHORIZED, Some("Auth token not found in headers"))
         }
       }
 

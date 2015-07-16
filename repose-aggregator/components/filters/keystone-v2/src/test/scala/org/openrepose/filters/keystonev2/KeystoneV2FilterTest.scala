@@ -302,7 +302,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
     }
 
