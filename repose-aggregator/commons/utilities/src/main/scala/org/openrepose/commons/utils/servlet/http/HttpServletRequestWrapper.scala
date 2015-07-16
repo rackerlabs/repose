@@ -107,24 +107,23 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   }
 
   private def getPreferredHeader(headerName: String, getFun: String => List[String]): List[String] = {
-    case class HeaderValue(value: String, quality: Double)
-
-    def parseValue(headerValue: String): String = headerValue.split(";").head
-
-    def parseQuality(headerValue: String): Double = {
-      try {
-        val headerParameters: Array[String] = headerValue.split(";").tail
-        val qualityParameters: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
-        qualityParameters.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
-      } catch {
-        case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
+    case class HeaderValue(headerValue: String) {
+      val value = headerValue.split(";").head
+      val quality = {
+        try {
+          val headerParameters: Array[String] = headerValue.split(";").tail
+          val qualityParameters: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
+          qualityParameters.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
+        } catch {
+          case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
+        }
       }
     }
 
     getFun(headerName) match {
       case Nil => Nil
       case nonEmptyList =>
-        nonEmptyList.map(headerValue => HeaderValue(parseValue(headerValue), parseQuality(headerValue))) // split the value and parameters, parse the quality
+        nonEmptyList.map(HeaderValue) // parse the header value string
           .groupBy(_.quality) // group by quality
           .maxBy(_._1) // find the highest quality group
           ._2 // get the list of highest quality values
