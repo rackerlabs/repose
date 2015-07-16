@@ -68,7 +68,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     if (removedHeaders.contains(headerName)) {
       List[String]()
     } else {
-        headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
+      headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
     }
   }
 
