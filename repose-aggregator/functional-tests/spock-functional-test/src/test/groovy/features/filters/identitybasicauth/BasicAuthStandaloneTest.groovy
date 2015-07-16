@@ -146,9 +146,52 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         fakeIdentityService.client_username | "BAD-API-KEY"
         "BAD-USER-NAME"                     | fakeIdentityService.client_apikey
         "BAD-USER-NAME"                     | "BAD-API-KEY"
+        ""                                  | "BAD-AIP-KEY"
+        "BAD-USER-NAME"                     | ""
+        ""                                  | fakeIdentityService.client_apikey
+        fakeIdentityService.client_username | ""
+        ""                                  | ""
     }
 
-    @Ignore
+    def "Fail to retrieve a token for an HTTP Basic authentication wiht only header and 'Basic' keyword"() {
+        given: "the Authorization with 'Basic' keyword"
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic '
+        ]
+
+        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "Request reject if invalid apikey or username"
+        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+    @Unroll("Case: #authorizationvalue")
+    def "Test additional cases passing through with basic auth filter" () {
+        given: "the HTTP Basic authentication header containing the User Name and API Key"
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): authorizationvalue
+        ]
+
+        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "Request reject if invalid apikey or username"
+        mc.receivedResponse.code == SC_OK.toString()
+        mc.handlings.size() == 1
+        //mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+
+        where:
+        authorizationvalue <<
+        [Base64.encodeBase64URLSafeString((":testkey").bytes),
+        Base64.encodeBase64URLSafeString(("testuser:").bytes),
+        Base64.encodeBase64URLSafeString((":").bytes),
+        "something "+Base64.encodeBase64URLSafeString(("testuser:testkey").bytes),
+        "something "+Base64.encodeBase64URLSafeString((":").bytes)]
+    }
+
     // Only the first AUTHORIZATION Basic header will be processed.
     def "Stop trying to retrieve a token for an HTTP Basic authentication header after a token has been obtained."() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
@@ -185,6 +228,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
+    @Ignore
     @Unroll("Test username: #username and api key: #password")
     def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
