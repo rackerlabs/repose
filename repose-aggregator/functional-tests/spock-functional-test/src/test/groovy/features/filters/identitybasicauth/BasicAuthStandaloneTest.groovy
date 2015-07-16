@@ -169,7 +169,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     }
 
     @Unroll("Case: #authorizationvalue")
-    def "Test additional cases passing through with basic auth filter" () {
+    def "Test additional cases passing through with basic auth filter"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): authorizationvalue
@@ -185,11 +185,11 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         where:
         authorizationvalue <<
-        [Base64.encodeBase64URLSafeString((":testkey").bytes),
-        Base64.encodeBase64URLSafeString(("testuser:").bytes),
-        Base64.encodeBase64URLSafeString((":").bytes),
-        "something "+Base64.encodeBase64URLSafeString(("testuser:testkey").bytes),
-        "something "+Base64.encodeBase64URLSafeString((":").bytes)]
+                [Base64.encodeBase64URLSafeString((":testkey").bytes),
+                 Base64.encodeBase64URLSafeString(("testuser:").bytes),
+                 Base64.encodeBase64URLSafeString((":").bytes),
+                 "something " + Base64.encodeBase64URLSafeString(("testuser:testkey").bytes),
+                 "something " + Base64.encodeBase64URLSafeString((":").bytes)]
     }
 
     // Only the first AUTHORIZATION Basic header will be processed.
