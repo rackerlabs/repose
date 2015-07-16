@@ -137,10 +137,6 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     def getUserToken(authValue: String): TokenCreationInfo = {
       val (userName, apiKey) = extractCredentials(authValue)
 
-      if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
-        processFailedToken(HttpServletResponse.SC_UNAUTHORIZED, userName, "0", authValue)
-      }
-
       def createAuthRequest(encoded: String) = {
         // Base64 Decode and split the userName/apiKey
         // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
@@ -152,38 +148,43 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
           apiKey={apiKey}/>
         </auth>
       }
-      // Request a User Token based on the extracted User Name/API Key.
-      val requestGuidHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
-        .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
-      val authTokenResponse = Option(akkaServiceClient.post(authValue,
-        identityServiceUri,
-        Map[String, String]().++(requestGuidHeader).asJava,
-        createAuthRequest(authValue).toString(),
-        MediaType.APPLICATION_XML_TYPE))
 
-      authTokenResponse.map { tokenResponse =>
-        val statusCode = tokenResponse.getStatus
-        if (statusCode == HttpServletResponse.SC_OK) {
-          val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
-          val idString = (xmlString \\ "access" \ "token" \ "@id").text
-          TokenCreationInfo(statusCode, Option(idString), userName, "0")
-        } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
-          // (413 | 429)
-          val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
-          if (retryHeaders.isEmpty) {
-            logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
-            val retryCalendar = new GregorianCalendar()
-            retryCalendar.add(Calendar.SECOND, 5)
-            val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-            TokenCreationInfo(statusCode, None, userName, retryString)
+      if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
+        TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName, "0")
+      } else {
+        // Request a User Token based on the extracted User Name/API Key.
+        val requestGuidHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+          .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
+        val authTokenResponse = Option(akkaServiceClient.post(authValue,
+          identityServiceUri,
+          Map[String, String]().++(requestGuidHeader).asJava,
+          createAuthRequest(authValue).toString(),
+          MediaType.APPLICATION_XML_TYPE))
+
+        authTokenResponse.map { tokenResponse =>
+          val statusCode = tokenResponse.getStatus
+          if (statusCode == HttpServletResponse.SC_OK) {
+            val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
+            val idString = (xmlString \\ "access" \ "token" \ "@id").text
+            TokenCreationInfo(statusCode, Option(idString), userName, "0")
+          } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
+            // (413 | 429)
+            val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
+            if (retryHeaders.isEmpty) {
+              logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
+              val retryCalendar = new GregorianCalendar()
+              retryCalendar.add(Calendar.SECOND, 5)
+              val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+              TokenCreationInfo(statusCode, None, userName, retryString)
+            } else {
+              TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
+            }
           } else {
-            TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
+            TokenCreationInfo(statusCode, None, userName, "0")
           }
-        } else {
-          TokenCreationInfo(statusCode, None, userName, "0")
+        } getOrElse {
+          TokenCreationInfo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None, userName, "0")
         }
-      } getOrElse {
-        TokenCreationInfo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None, userName, "0")
       }
     }
 
