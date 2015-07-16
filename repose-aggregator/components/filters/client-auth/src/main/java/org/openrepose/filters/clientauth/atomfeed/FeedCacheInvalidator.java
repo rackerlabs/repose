@@ -40,7 +40,7 @@ public class FeedCacheInvalidator implements Runnable {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(FeedCacheInvalidator.class);
     private static final long DEFAULT_CHECK_INTERVAL = 5000;
     private boolean done = false;
-    private List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
+    private List<AuthFeedReader> feeds = new ArrayList<>();
     private AuthTokenCache tknCache;
     private AuthGroupCache grpCache;
     private AuthUserCache usrCache;

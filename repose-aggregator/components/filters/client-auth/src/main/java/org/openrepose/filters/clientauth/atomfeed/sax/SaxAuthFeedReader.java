@@ -46,7 +46,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SaxAuthFeedReader.class);
     private final String feedId;
     private final String feedHead;
-    List<String> cacheKeys = new ArrayList<String>();
     private String targetFeed;
     private String curResource;
     private ServiceClient client;
