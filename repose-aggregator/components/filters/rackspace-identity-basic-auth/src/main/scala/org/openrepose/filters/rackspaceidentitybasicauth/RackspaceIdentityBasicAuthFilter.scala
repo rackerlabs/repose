@@ -137,7 +137,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     def getUserToken(authValue: String): TokenCreationInfo = {
       val (userName, apiKey) = extractCredentials(authValue)
 
-      if(StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
+      if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
         processFailedToken(HttpServletResponse.SC_UNAUTHORIZED, userName, "0", authValue)
       }
 
