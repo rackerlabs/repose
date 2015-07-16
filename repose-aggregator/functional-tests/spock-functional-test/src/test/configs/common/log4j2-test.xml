@@ -21,7 +21,7 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
-        <Logger name="intrafilter-logging" level="trace"/>
+        <Logger name="intrafilter-logging" level="info"/>
 
         <!-- I need debug info from JMX! -->
         <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
