@@ -240,7 +240,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
       val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
       if (authMethodBasicHeaders.nonEmpty) {
         val firstHeader = authMethodBasicHeaders.next()
-        f(firstHeader.replace("Basic ", ""))
+        f(firstHeader.replace("Basic", "").trim)
       }
     }
   }
