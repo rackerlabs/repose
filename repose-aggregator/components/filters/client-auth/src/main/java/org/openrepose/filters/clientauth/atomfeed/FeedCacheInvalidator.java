@@ -83,7 +83,7 @@ public class FeedCacheInvalidator implements Runnable {
 
         // Generate trans-id here so it is the same between multiple pages
         String traceID = UUID.randomUUID().toString();
-        while (!done) {
+        while (!isDone()) {
 
             MDC.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
             LOG.debug("Beginning Feed Cache Invalidator Thread request.");
@@ -153,4 +153,6 @@ public class FeedCacheInvalidator implements Runnable {
     public void done() {
         done = true;
     }
+
+    public boolean isDone() { return done; }
 }
