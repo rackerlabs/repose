@@ -184,14 +184,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   addtlReqHdrs += (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY)
               }
 
+              // Construct and add the tenant id header
+              val tenantsToPass = buildTenantHeader(config.getTenantHandling, validToken.defaultTenantId, validToken.tenantIds, uriTenantOption)
+              addtlReqHdrs += (OpenStackServiceHeader.TENANT_ID.toString -> tenantsToPass.mkString(","))
+
               // If configured, authorize the URI tenant against the token
-              val authorizedTenant = requestHandler.tenantAuthorization(uriTenantOption, validToken) match {
-                case Some(Success(tenantHeaderValues)) =>
-                  addtlReqHdrs += (OpenStackServiceHeader.TENANT_ID.toString -> tenantHeaderValues.mkString(","))
-                  Pass
+              val authorizedTenant = requestHandler.tenantAuthorized(uriTenantOption, validToken) match {
                 case Some(Failure(e)) =>
                   Reject(SC_UNAUTHORIZED, failure = Some(e))
-                case None =>
+                case _ =>
                   Pass
               }
 
@@ -363,6 +364,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         // LOLJAXB  	(╯°□°）╯︵ ┻━┻
         //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
         // I'm sorry
+        if (stupidConfig.getTenantHandling == null) {
+          stupidConfig.withTenantHandling(new TenantHandlingType())
+        }
+
         if (stupidConfig.getCache == null) {
           stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
         } else if (stupidConfig.getCache.getTimeouts == null) {
@@ -392,4 +397,41 @@ object KeystoneV2Filter {
                     message: Option[String] = None,
                     failure: Option[Throwable] = None) extends KeystoneV2Result
 
+  def buildTenantHeader(tenantHandling: TenantHandlingType,
+                        defaultTenant: String,
+                        roleTenants: Seq[String],
+                        uriTenant: Option[String]): Vector[String] = {
+    val sendAllTenants = tenantHandling.isSendAllTenantIds
+    val sendTenantIdQuality = Option(tenantHandling.getSendTenantIdQuality)
+    val sendQuality = sendTenantIdQuality.isDefined
+    val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
+    val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
+    val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
+
+    var preferredTenant = defaultTenant
+    var preferredTenantQuality = defaultTenantQuality
+    uriTenant foreach { tenant =>
+      preferredTenant = tenant
+
+      preferredTenantQuality = if (defaultTenant.equals(tenant)) {
+        math.max(defaultTenantQuality, uriTenantQuality)
+      } else {
+        uriTenantQuality
+      }
+    }
+
+    if (sendAllTenants && sendQuality) {
+      val priorityTenants = uriTenant match {
+        case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
+        case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+      }
+      priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
+    } else if (sendAllTenants && !sendQuality) {
+      Vector(defaultTenant) ++ roleTenants
+    } else if (!sendAllTenants && sendQuality) {
+      Vector(s"$preferredTenant;q=$preferredTenantQuality")
+    } else {
+      Vector(preferredTenant)
+    }
+  }
 }

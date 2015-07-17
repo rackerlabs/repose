@@ -189,65 +189,21 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
     maybeTenant.flatten
   }
 
-  def tenantAuthorization(expectedTenant: Option[String], validToken: ValidToken): Option[Try[Vector[String]]] = {
-    def buildTenantVector(defaultTenant: String, roleTenants: Seq[String], uriTenant: Option[String]): Vector[String] = {
-      val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
-      val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
-      val sendQuality = sendTenantIdQuality.isDefined
-      val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
-      val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
-      val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
-
-      var preferredTenant = defaultTenant
-      var preferredTenantQuality = defaultTenantQuality
-      uriTenant foreach { tenant =>
-        preferredTenant = tenant
-
-        preferredTenantQuality = if (defaultTenant.equals(tenant)) {
-          math.max(defaultTenantQuality, uriTenantQuality)
-        } else {
-          uriTenantQuality
+  def tenantAuthorized(expectedTenant: Option[String], validToken: ValidToken): Option[Try[Unit.type]] = {
+    Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
+      Option(validateTenant.getBypassValidationRoles) filter {
+        _.getRole.asScala.intersect(validToken.roles).nonEmpty
+      } map { _ =>
+        Success(Unit)
+      } getOrElse {
+        expectedTenant map { reqTenant =>
+          val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
+          tokenTenants.find(reqTenant.equals)
+            .map(_ => Success(Unit))
+            .getOrElse(Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")))
+        } getOrElse {
+          Failure(UnparseableTenantException("Could not parse tenant from the URI"))
         }
-      }
-
-      if (sendAllTenants && sendQuality) {
-        val priorityTenants = uriTenant match {
-          case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
-          case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
-        }
-        priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
-      } else if (sendAllTenants && !sendQuality) {
-        Vector(defaultTenant) ++ roleTenants
-      } else if (!sendAllTenants && sendQuality) {
-        Vector(s"$preferredTenant;q=$preferredTenantQuality")
-      } else {
-        Vector(preferredTenant)
-      }
-    }
-
-    Option(config.getTenantHandling) map { tenantHandling =>
-      Option(tenantHandling.getValidateTenant) map { validateTenant =>
-        Option(validateTenant.getBypassValidationRoles) map {
-          _.getRole.asScala.intersect(validToken.roles).nonEmpty
-        } filter {
-          identity
-        } match {
-          case Some(_) => Success(None)
-          case None =>
-            expectedTenant match {
-              case Some(reqTenant) =>
-                val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
-                tokenTenants.find(reqTenant.equals) match {
-                  case Some(uriTenant) => Success(Some(uriTenant))
-                  case None => Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-                }
-              case None => Failure(UnparseableTenantException("Could not parse tenant from the URI"))
-            }
-        }
-      } match {
-        case Some(Failure(e)) => Failure(e)
-        case Some(Success(uriTenant)) => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, uriTenant))
-        case None => Success(buildTenantVector(validToken.defaultTenantId, validToken.tenantIds, None))
       }
     }
   }
