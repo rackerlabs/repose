@@ -113,12 +113,12 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<>();
 
+        /* TODO: check if necessary to add trans id header */
         headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
         if (isAuthed) {
             headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
         }
         resp = client.get(targetFeed, headers);
-
 
         switch (resp.getStatus()) {
             case HttpServletResponse.SC_OK:
@@ -130,6 +130,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                     } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
+                    /* TODO: check if necessary to add trans id header */
                     headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);
