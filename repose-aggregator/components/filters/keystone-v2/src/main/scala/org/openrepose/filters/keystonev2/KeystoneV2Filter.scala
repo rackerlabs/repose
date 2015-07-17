@@ -133,7 +133,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         Pass
       } else {
         authTokenValue map { authToken =>
-          //This block of code tries to get the token from the datastore, and provides it from real calls, if it isn't
+          //This block of code tries to get the token from the datastore, and provides it from real calls, if it can't
           val tokenValidationResult: Try[AuthResult] =
             Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[AuthResult]) map { validationResult =>
               Success(validationResult)
@@ -148,8 +148,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                     //Clear the cache, call this method again
                     datastore.remove(ADMIN_TOKEN_KEY)
                     requestHandler.getAdminToken match {
-                      case Success(newAdminToken) =>
-                        requestHandler.validateToken(newAdminToken, authToken)
+                      case Success(newAdminToken) => requestHandler.validateToken(newAdminToken, authToken)
                       case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                     }
                 }
@@ -251,7 +250,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Failure(x: IdentityCommunicationException) =>
               Reject(SC_BAD_GATEWAY, failure = Some(x))
             case Failure(x) =>
-              //TODO: this isn't yet complete, should return other status codes?
               Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
           }
         } getOrElse {
