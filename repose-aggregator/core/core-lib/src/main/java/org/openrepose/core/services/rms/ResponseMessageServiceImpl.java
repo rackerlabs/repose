@@ -103,11 +103,12 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             if (matchedCode != null) {
                 HttpLogFormatter formatter;
-                List<MediaType> mediaTypes = processor.process();
-                Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
+                List<MediaType> acceptTypes = processor.process();
+                String mediaType = response.getContentType();
+                Message message = MessageFilter.filter(matchedCode.getMessage(), mediaType != null ? mediaType : MimeType.TEXT_PLAIN.toString(), acceptTypes);
 
                 if (message != null) {
-                    formatter = getHttpLogFormatter(matchedCode, message.getMediaType());
+                    formatter = getHttpLogFormatter(matchedCode, message.getMediaType(), message.getContentType());
                     if (formatter != null) {
                         if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
                             final String formattedOutput = formatter.format(request, response).trim();
@@ -135,14 +136,14 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         }
     }
 
-    private HttpLogFormatter getHttpLogFormatter(StatusCodeMatcher matchedCode, String preferredMediaType) {
+    private HttpLogFormatter getHttpLogFormatter(StatusCodeMatcher matchedCode, String mediaType, String contentType) {
         HttpLogFormatter httpLogFormatter = null;
 
-        if (matchedCode != null && preferredMediaType != null) {
+        if (matchedCode != null && mediaType != null && contentType != null) {
             configurationLock.lock(readKey);
 
             try {
-                httpLogFormatter = immutableFormatTemplates.getMatchingLogFormatter(matchedCode.getId(), preferredMediaType);
+                httpLogFormatter = immutableFormatTemplates.getMatchingLogFormatter(matchedCode.getId(), mediaType, contentType);
             } finally {
                 configurationLock.unlock(readKey);
             }

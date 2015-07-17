@@ -39,6 +39,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -59,14 +60,14 @@ public class ResponseMessageServiceImplTest {
         private static final String MESSAGE = "This is the replaced message";
         private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
         private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
-        private final Vector<String> acceptValues = new Vector<String>(1);
+        private final Vector<String> acceptValues = new Vector<>(1);
         private Enumeration<String> headerValueEnumeration = null;
         private HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
         private MutableHttpServletResponse mockedResponse = mock(MutableHttpServletResponse.class);
 
         @Before
         public void setup() {
-            acceptValues.addAll(Arrays.asList("application/json"));
+            acceptValues.addAll(Collections.singletonList("application/json"));
             headerValueEnumeration = acceptValues.elements();
             List<String> headerNames = new ArrayList<>();
             headerNames.add("Accept");
@@ -136,16 +137,11 @@ public class ResponseMessageServiceImplTest {
     public static class WhenEscapingTheMessage {
         private static final String ESCAPE_THIS = "\b\n\t\f\r\\\"'/&<>";
         private static final String I_AM_A_TEAPOT_VALUE_STRING = Integer.toString(I_AM_A_TEAPOT.value());
-        private static final String MEDIA_TYPE_TEXT_PLAIN = "text/plain";
-        private static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
-        private static final String MEDIA_TYPE_APPLICATION_XML = "application/xml";
-        private ResponseMessagingConfiguration responseMessagingConfiguration = new ResponseMessagingConfiguration();
-        private ResponseMessageServiceImpl responseMessageServiceImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
-        private HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
-        private MutableHttpServletResponse response = MutableHttpServletResponse.wrap(
-                mockedRequest,
-                new MockHttpServletResponse()
-        );
+        private List<Message> messages;
+        private ResponseMessagingConfiguration responseMessagingConfiguration;
+        private ResponseMessageServiceImpl responseMessageServiceImpl;
+        private HttpServletRequest mockedRequest;
+        private MutableHttpServletResponse response;
 
         @Before
         public void setup() {
@@ -153,19 +149,40 @@ public class ResponseMessageServiceImplTest {
             matcher.setId(I_AM_A_TEAPOT_VALUE_STRING);
             matcher.setCodeRegex(I_AM_A_TEAPOT_VALUE_STRING);
             matcher.setOverwrite(OverwriteType.IF_EMPTY);
-            matcher.getMessage().add(createMessage(MEDIA_TYPE_TEXT_PLAIN));
-            matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_JSON));
-            matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_XML));
+            messages = matcher.getMessage();
+            messages.add(createMessage("", ""));
+            messages.add(createMessage("", MediaType.WILDCARD));
+            messages.add(createMessage("", MediaType.TEXT_PLAIN));
+            messages.add(createMessage("", MediaType.APPLICATION_JSON));
+            messages.add(createMessage("", MediaType.APPLICATION_XML));
+            messages.add(createMessage(MediaType.WILDCARD, ""));
+            messages.add(createMessage(MediaType.WILDCARD, MediaType.WILDCARD));
+            messages.add(createMessage(MediaType.WILDCARD, MediaType.TEXT_PLAIN));
+            messages.add(createMessage(MediaType.WILDCARD, MediaType.APPLICATION_JSON));
+            messages.add(createMessage(MediaType.WILDCARD, MediaType.APPLICATION_XML));
+            messages.add(createMessage(MediaType.TEXT_PLAIN, ""));
+            messages.add(createMessage(MediaType.TEXT_PLAIN, MediaType.WILDCARD));
+            messages.add(createMessage(MediaType.TEXT_PLAIN, MediaType.TEXT_PLAIN));
+            messages.add(createMessage(MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON));
+            messages.add(createMessage(MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML));
+            responseMessagingConfiguration = new ResponseMessagingConfiguration();
             responseMessagingConfiguration.getStatusCode().add(matcher);
+            responseMessageServiceImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
             responseMessageServiceImpl.setInitialized();
             responseMessageServiceImpl.updateConfiguration(responseMessagingConfiguration.getStatusCode());
+            mockedRequest = mock(HttpServletRequest.class);
             when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singletonList("Accept")));
+            response = MutableHttpServletResponse.wrap(
+                    mockedRequest,
+                    new MockHttpServletResponse()
+            );
             response.sendError(I_AM_A_TEAPOT.value(), ESCAPE_THIS);
+            //response.setContentType(MediaType.TEXT_PLAIN);
         }
 
         @Test
         public void EscapeTheMessageForPlain() throws Exception {
-            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MEDIA_TYPE_TEXT_PLAIN)));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MediaType.TEXT_PLAIN)));
 
             responseMessageServiceImpl.handle(mockedRequest, response);
 
@@ -177,7 +194,7 @@ public class ResponseMessageServiceImplTest {
 
         @Test
         public void EscapeTheMessageForJson() throws Exception {
-            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MEDIA_TYPE_APPLICATION_JSON)));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MediaType.APPLICATION_JSON)));
 
             responseMessageServiceImpl.handle(mockedRequest, response);
 
@@ -189,7 +206,7 @@ public class ResponseMessageServiceImplTest {
 
         @Test
         public void EscapeTheMessageForXml() throws Exception {
-            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MEDIA_TYPE_APPLICATION_XML)));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singletonList(MediaType.APPLICATION_XML)));
 
             responseMessageServiceImpl.handle(mockedRequest, response);
 
@@ -199,10 +216,10 @@ public class ResponseMessageServiceImplTest {
             );
         }
 
-        private static Message createMessage(String mediaType) {
+        private Message createMessage(String mediaType, String contentType) {
             Message message = new Message();
             message.setMediaType(mediaType);
-            message.setContentType(mediaType);
+            message.setContentType(contentType);
             message.setValue("%M");
             return message;
         }

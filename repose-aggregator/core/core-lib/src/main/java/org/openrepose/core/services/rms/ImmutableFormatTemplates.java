@@ -44,11 +44,13 @@ public final class ImmutableFormatTemplates {
                 final String statusCodeId = statusCode.getId();
                 final String href = message.getHref();
                 final String stringTemplate = !StringUtilities.isBlank(href) ? new HrefFileReader().read(href, statusCodeId) : message.getValue();
-                final String mediaType = message.getMediaType();
                 final String contentType = message.getContentType().toUpperCase();
                 final HttpLogFormatterState state = contentType.contains("JSON") ? HttpLogFormatterState.JSON :
                         contentType.contains("XML") ? HttpLogFormatterState.XML : HttpLogFormatterState.PLAIN;
-                formatTemplates.put(statusCodeId + mediaType, new HttpLogFormatter(stringTemplate, state));
+                formatTemplates.put(
+                        statusCodeId + message.getMediaType() + message.getContentType(),
+                        new HttpLogFormatter(stringTemplate, state)
+                );
             }
         }
     }
@@ -57,7 +59,7 @@ public final class ImmutableFormatTemplates {
         return new ImmutableFormatTemplates(statusCodes);
     }
 
-    public HttpLogFormatter getMatchingLogFormatter(String statusCodeId, String mediaType) {
-        return formatTemplates.get(statusCodeId + mediaType);
+    public HttpLogFormatter getMatchingLogFormatter(String statusCodeId, String mediaType, String contentType) {
+        return formatTemplates.get(statusCodeId + mediaType + contentType);
     }
 }

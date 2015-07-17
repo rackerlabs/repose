@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.rms;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.core.services.rms.config.Message;
@@ -34,52 +34,71 @@ public final class MessageFilter {
     private MessageFilter() {
     }
 
-    public static Message filterByMediaType(List<Message> messages, MediaType mediaType) {
-        Message wildcard = null;
+    public static Message filter(List<Message> messages, String mediaType, List<MediaType> contentTypes) {
+        // matchMatch is RETURNED INSTANTLY
+        Message matchWild = null;
+        Message matchBlank = null;
+        Message wildMatch = null;
+        Message wildWild = null;
+        Message wildBlank = null;
+        Message blankMatch = null;
+        Message blankWild = null;
+        Message blankBlank = null;
 
-        if (messages != null && mediaType != null) {
-            for (Message message : messages) {
-                final String messageMediaType = message.getMediaType();
-
-                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
-                    return message;
-                }
-
-                // A configured wildcard (*/*) will be returned if an exact match is not found
-                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
-                    wildcard = message;
-                }
-            }
-        }
-
-        return wildcard;
-    }
-
-    public static Message filterByMediaType(List<Message> messages, List<MediaType> mediaTypes) {
-        Message wildcard = null;
-
-        if (messages != null && mediaTypes != null) {
-
-            for (MediaType mediaType : mediaTypes) {
-
+        if (messages != null && mediaType != null && contentTypes != null) {
+            for (MediaType contentType : contentTypes) {
                 for (Message message : messages) {
                     final String messageMediaType = message.getMediaType();
-
-
-                    if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
-                        return message;
+                    final String messageContentType = message.getContentType();
+                    if (StringUtils.equalsIgnoreCase(messageMediaType, mediaType)) {
+                        if (StringUtils.equalsIgnoreCase(messageContentType, contentType.getValue())) {
+                            return message;
+                        } else if (matchWild == null
+                                && StringUtils.equalsIgnoreCase(messageContentType, MimeType.WILDCARD.getMimeType())) {
+                            matchWild = message;
+                        } else if (matchBlank == null && (
+                                StringUtils.isBlank(messageContentType) ||
+                                        StringUtils.equalsIgnoreCase(messageContentType, MimeType.TEXT_PLAIN.getMimeType())
+                        )) {
+                            matchBlank = message;
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
+                        if (wildMatch == null
+                                && StringUtils.equalsIgnoreCase(messageContentType, contentType.getValue())) {
+                            wildMatch = message;
+                        } else if (wildWild == null
+                                && StringUtils.equalsIgnoreCase(messageContentType, MimeType.WILDCARD.getMimeType())) {
+                            wildWild = message;
+                        } else if (wildBlank == null && (
+                                StringUtils.isBlank(messageContentType) ||
+                                        StringUtils.equalsIgnoreCase(messageContentType, MimeType.TEXT_PLAIN.getMimeType())
+                        )) {
+                            wildBlank = message;
+                        }
+                    } else if (StringUtils.isBlank(messageMediaType)) {
+                        if (blankMatch == null
+                                && StringUtils.equalsIgnoreCase(messageContentType, contentType.getValue())) {
+                            blankMatch = message;
+                        } else if (blankWild == null
+                                && StringUtils.equalsIgnoreCase(messageContentType, MimeType.WILDCARD.getMimeType())) {
+                            blankWild = message;
+                        } else if (blankBlank == null && (
+                                StringUtils.isBlank(messageContentType) ||
+                                        StringUtils.equalsIgnoreCase(messageContentType, MimeType.TEXT_PLAIN.getMimeType())
+                        )) {
+                            blankBlank = message;
+                        }
                     }
-
-                    // A configured wildcard (*/*) will be returned if an exact match is not found
-                    if (wildcard == null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
-                        wildcard = message;
-                    }
-
                 }
             }
         }
-
-        return wildcard;
-
+        return matchWild != null ? matchWild :
+                wildMatch != null ? wildMatch :
+                        wildWild != null ? wildWild :
+                                matchBlank != null ? matchBlank :
+                                        blankMatch != null ? blankMatch :
+                                                wildBlank != null ? wildBlank :
+                                                        blankWild != null ? blankWild :
+                                                                blankBlank;
     }
 }

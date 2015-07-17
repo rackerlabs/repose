@@ -117,18 +117,17 @@
     </status-code>
 
     <status-code id="4xx" code-regex="4\d\d" overwrite="ALWAYS">
-        <message media-type="application/xml" content-type="application/xml">
+        <message media-type="text/plain" content-type="application/xml">
             <![CDATA[
 <response
     xmlns="http://docs.openstack.org/common/api/v1.1">
-  <message>XML Not Authorized... Syntax highlighting is magical.</message>
+  <message>%M</message>
 </response>
 ]]>
-
         </message>
-        <message media-type="application/json" content-type="application/json">
+        <message media-type="text/plain" content-type="application/json">
             {
-            "message": "JSON Not Authorized... The brackets are too confusing."
+            "message": "%M"
             }
         </message>
         <message media-type="*/*">
@@ -138,7 +137,7 @@
 
     <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
         <message media-type="*/*">
-            An error has occured. Please contact support... the printer may be on fire.
+            An error has occurred. Please contact support... the printer may be on fire.
         </message>
     </status-code>
 
