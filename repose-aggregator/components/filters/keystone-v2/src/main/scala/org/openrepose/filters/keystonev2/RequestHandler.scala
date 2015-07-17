@@ -91,13 +91,13 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
 
     val identityEndpoint = config.getIdentityService.getUri
 
-    import scala.collection.JavaConverters._
-    Try(akkaServiceClient.get(s"$TOKEN_KEY_PREFIX$token",
+    val akkaResponse = Try(akkaServiceClient.get(s"$TOKEN_KEY_PREFIX$token",
       s"$identityEndpoint$TOKEN_ENDPOINT/$token",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)
-    ) match {
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+
+    akkaResponse match {
       case Success(serviceClientResponse) =>
         //DEAL WITH IT
         //Parse the response for validating a token?
@@ -110,12 +110,12 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_UNAUTHORIZED => Failure(AdminTokenUnauthorizedException("Unable to validate token, authenticating token unauthorized"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token unauthorized to validate token"))
           case SC_NOT_FOUND => Success(InvalidToken)
-          case SC_SERVICE_UNAVAILABLE => Failure(IdentityCommunicationException("Identity Service not available to authenticate token"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when validating token"))
-          case _ => Failure(IdentityCommunicationException("Unhandled response from Identity, unable to continue"))
+          case statusCode if statusCode >= 500 => Failure(IdentityCommunicationException("Identity Service not available to authenticate token"))
+          case _ => Failure(new Exception("Unhandled response from Identity, unable to continue"))
         }
-      case Failure(x) => Failure(IdentityCommunicationException("Unable to successfully validate token with Identity", x))
+      case Failure(x) => Failure(new Exception("Unable to successfully validate token with Identity", x))
     }
   }
 
@@ -155,9 +155,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       akkaResponse match {
         case Success(serviceClientResponse) =>
           serviceClientResponse.getStatus match {
-            case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-              Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
-            case _ =>
+            case statusCode if statusCode >= 200 && statusCode < 300 =>
               val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines().mkString("")
               val json = Json.parse(jsonResponse)
               Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
@@ -166,8 +164,12 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
                   s
                 case Failure(f) => Failure(IdentityCommunicationException("Token not found in identity response during Admin Authentication", f))
               }
+            case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+              Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
+            case statusCode if statusCode >= 500 => Failure(IdentityCommunicationException("Identity Service not available to get admin token"))
+            case _ => Failure(new Exception("Unable to successfully get admin token from Identity"))
           }
-        case Failure(x) => Failure(IdentityCommunicationException("Failure communicating with identity during Admin Authentication", x))
+        case Failure(x) => Failure(new Exception("Failure communicating with identity during Admin Authentication", x))
       }
     }
   }
@@ -282,15 +284,17 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           }
           Success(endpointsData)
         case f: JsError =>
-          Failure(new IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
+          Failure(IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
       }
     }
 
-    Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
+    val akkaResponse = Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
       s"$identityEndpoint${ENDPOINTS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)) match {
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+
+    akkaResponse match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
           case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
@@ -300,9 +304,10 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
+          case statusCode if statusCode >= 500 => Failure(IdentityCommunicationException("Identity Service not available to get endpoints"))
           case _ => Failure(new Exception("Unexpected response code from the endpoints call"))
         }
-      case Failure(x) => Failure(x)
+      case Failure(x) => Failure(new Exception("Failure communicating with identity during get endpoints", x))
     }
   }
 
@@ -362,7 +367,7 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           if (endpointAuthorized(validToken, requireServiceEndpoint, endpoints)) {
             Success(endpoints)
           } else {
-            Failure(new UnauthorizedEndpointException("User did not have the required endpoint"))
+            Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
           }
         case Failure(e) => Failure(e)
       }
@@ -403,11 +408,13 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
       }
     }
 
-    Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
+    val akkaResponse = Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
       s"$identityEndpoint${GROUPS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava)) match {
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+
+    akkaResponse match {
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
           case SC_OK => extractGroupInfo(serviceClientResponse.getData)
@@ -415,9 +422,10 @@ class RequestHandler(config: KeystoneV2Config, akkaServiceClient: AkkaServiceCli
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing groups"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing groups"))
+          case statusCode if statusCode >= 500 => Failure(IdentityCommunicationException("Identity Service not available to get groups"))
           case _ => Failure(new Exception("Unexpected response code from the groups call"))
         }
-      case Failure(x) => Failure(x)
+      case Failure(x) => Failure(new Exception("Failure communicating with identity during get groups", x))
     }
   }
 

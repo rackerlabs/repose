@@ -364,7 +364,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
     }
 
-    it("rejects with 502 if we cannot reach identity") {
+    it("rejects with 500 if we cannot reach identity") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -380,13 +380,13 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
     }
 
-    it("rejects with 502 if we cannot authenticate as the admin user") {
+    it("rejects with 500 if we cannot authenticate as the admin user") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -409,7 +409,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
