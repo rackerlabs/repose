@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Ignore
 
 /**
  * Created by jennyvo on 7/2/15.
@@ -150,6 +151,42 @@ class RateLimitingByRolesTest extends ReposeValveTest {
                 headers: [
                         'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-roles")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("service:admin-role1")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("member")
+        mc.handlings[0].request.headers.findAll("something").size() == 5
+
+    }
+
+    @Ignore("This could be a bug but need to discuss to see if we keep current auth behavior")
+    def "Verify header translation copy all header values from request" () {
+        given:
+        fakeIdentityV3Service.resetParameters()
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusSeconds(2)
+            client_domainid = reqDomain
+            client_userid = reqUserId
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
                         'x-roles':'test',
                         'X-Roles':'user'
                 ]
@@ -167,7 +204,5 @@ class RateLimitingByRolesTest extends ReposeValveTest {
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("user")
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("test")
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("user")
-        mc.handlings[0].request.headers.findAll("something").size() == 5
-
     }
 }
