@@ -24,7 +24,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
  * Created by jennyvo on 7/16/15.
- * Verify Repose no longer logging 'null' as part of current Filter description
+ * Verify load all filters from filter chain
+ *  when Repose start no longer log 'null' as part of currentFilter description
  */
 class IntraFilterLoggingTest extends ReposeValveTest {
     def static originEndpoint
@@ -66,7 +67,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint+"/test", method: 'GET', headers:headers)
 
         then: "simply pass it on down the filter chain"
-        //mc.receivedResponse.code == SC_OK.toString() 
+        //mc.receivedResponse.code == SC_OK.toString()
         //mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         reposeLogSearch.searchByString("\"currentFilter\":\"rackspace-identity-basic-auth\"").size() > 0
