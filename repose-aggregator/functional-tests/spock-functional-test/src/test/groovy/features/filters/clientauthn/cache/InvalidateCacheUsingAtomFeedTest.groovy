@@ -228,9 +228,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 0
         fakeIdentityService.getGroupsCount == 0
         mc.handlings[0].endpoint == originEndpoint
+        /* TODO: another x-trans-id is added as a header, not the one for invalidation */
         mc.receivedResponse.headers.contains("x-trans-id")
-        MDC.get("X-Trans-Id") != null
-
+        MDC.get("x-trans-id") != null
 
         when: "Identity atom feed has a Update User Event"
 
