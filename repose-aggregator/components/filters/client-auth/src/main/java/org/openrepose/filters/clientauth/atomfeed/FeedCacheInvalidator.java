@@ -121,7 +121,7 @@ public class FeedCacheInvalidator implements Runnable {
      */
     private List<String> getTokensForUser(List<String> keys) {
 
-        List<String> tokenKeys = new ArrayList<String>();
+        List<String> tokenKeys = new ArrayList<>();
         for (String key : keys) {
             Set<String> tkns = usrCache.getUserTokenList(key);
             if (tkns != null) {
