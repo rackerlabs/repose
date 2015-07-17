@@ -9,33 +9,28 @@
 
         <filters>
             <filter name="rackspace-identity-basic-auth" />
-            <filter name="herp" />
-            <!--
+            <filter name="add-header" />
             <filter name="client-auth" />
             <filter name="client-authorization" />
-            <filter name="client-ip-identity" />
             <filter name="openstack-identity-v3" />
             <filter name="ip-identity" />
+            <filter name="content-normalization"/>
+            <filter name="content-type-stripper"/>
+            <filter name="header-identity"/>
+            <filter name="header-normalization"/>
+            <filter name="header-translation"/>
             <filter name="header-id-mapping" />
-            <filter name="header-identity" />
-            <filter name="header-normalization" />
-            <filter name="header-translation" />
-            <filter name="add-header" />
-            <filter name="content-normalization" />
-            <filter name="content-ip-stripper" />
+            <filter name="merge-header"/>
+            <filter name="slf4j-http-logging"/>
+            <filter name="uri-identity"/>
+            <filter name="uri-normalization" uri-regex=".*"/>
+            <filter name="uri-stripper"/>
+            <filter name="compression"/>
+            <filter name="rate-limiting" />
+            <filter name="simple-rbac" />
+            <filter name="api-validator"/>
             <filter name="herp" />
             <filter name="derp" />
-            <filter name="http-logging" />
-            <filter name="merge-header" />
-            <filter name="slf4j-hattp-logging" />
-            <filter name="simple-rbac" />
-            <filter name="uri-identity" />
-            <filter name="uri-normalization" />
-            <filter name="uri-tripper" />
-            <filter name="compression"/>
-            <filter name="api-validator"/>
-            <filter name="rate-limiting" />
-            -->
         </filters>
 
         <destinations>
