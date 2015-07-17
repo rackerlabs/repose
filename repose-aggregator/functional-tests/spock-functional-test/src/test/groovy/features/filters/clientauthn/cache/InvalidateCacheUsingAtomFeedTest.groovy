@@ -228,7 +228,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 0
         fakeIdentityService.getGroupsCount == 0
         mc.handlings[0].endpoint == originEndpoint
-
+        mc.receivedResponse.headers.contains("x-trans-id")
         MDC.get("X-Trans-Id") != null
 
 
