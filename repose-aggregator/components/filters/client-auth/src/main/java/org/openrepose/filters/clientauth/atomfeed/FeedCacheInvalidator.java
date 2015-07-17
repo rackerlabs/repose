@@ -127,7 +127,7 @@ public class FeedCacheInvalidator implements Runnable {
             if (tkns != null) {
                 tokenKeys.addAll(tkns);
                 //removes user item from cache
-                usrCache.deleteCacheItem(key); //removes user item from cache
+                usrCache.deleteCacheItem(key);
                 LOG.debug("Invalidating tokens from user " + key);
             }
         }
