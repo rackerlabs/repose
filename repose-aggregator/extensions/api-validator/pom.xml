@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>extensions-support</artifactId>
-        <version>7.1.3.1-SNAPSHOT</version>
+        <version>7.1.3.2-SNAPSHOT</version>
     </parent>
 
     <name>Repose Components - API Validator</name>
