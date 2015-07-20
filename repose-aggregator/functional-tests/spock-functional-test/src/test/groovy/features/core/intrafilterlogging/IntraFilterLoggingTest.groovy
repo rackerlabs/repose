@@ -18,10 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.intrafilterlogging
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
  * Created by jennyvo on 7/16/15.
  * Verify load all filters from filter chain
@@ -64,7 +66,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         // repose start up
         def headers = ["x-roles":"raxRolesDisabled"]
         when: "send request without credential"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint+"/test", method: 'GET', headers:headers)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/test", method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain"
         //mc.receivedResponse.code == SC_OK.toString()
