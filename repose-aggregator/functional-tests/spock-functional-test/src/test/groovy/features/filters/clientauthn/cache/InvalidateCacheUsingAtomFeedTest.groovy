@@ -197,6 +197,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.receivedResponse.code == '401'
         mc.handlings.size() == 0
         fakeIdentityService.validateTokenCount == 1
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
     }
 
 
@@ -313,5 +316,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         mc.receivedResponse.code == '401'
         mc.handlings.size() == 0
         fakeIdentityService.validateTokenCount == 1
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
     }
 }
