@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.tracing
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.openrepose.commons.utils.io.ObjectSerializer
@@ -25,6 +26,7 @@ import org.openrepose.core.services.datastore.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
+
 /**
  * Specific tests for admin token
  */
@@ -105,7 +107,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         when:
         //An http request is made to the dist datastore endpoint with a tracing header
         MessageChain mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
                 method: 'PUT',
                 headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10'],
                 requestBody: body
@@ -114,11 +116,11 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         then: "should report success"
         mc.receivedResponse.code == "202"
         mc.receivedResponse.body == ""
-        mc.sentRequest.headers.contains("x-tranx-id")
+        mc.sentRequest.headers.contains("x-trans-id")
 
         when:
         mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
                 method: 'GET',
                 headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
         )
@@ -126,12 +128,12 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         then: "should report that it is"
         mc.receivedResponse.code == "200"
         mc.receivedResponse.body == body
-        mc.sentRequest.headers.contains("x-tranx-id")
+        mc.sentRequest.headers.contains("x-trans-id")
 
 
         when: "deleting the object from the datastore"
         mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" +key,
+                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
                 method: 'DELETE',
                 headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
         )
@@ -139,7 +141,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
-        mc.sentRequest.headers.contains("x-tranx-id")
+        mc.sentRequest.headers.contains("x-trans-id")
 
         //That header is used in the log output
 
