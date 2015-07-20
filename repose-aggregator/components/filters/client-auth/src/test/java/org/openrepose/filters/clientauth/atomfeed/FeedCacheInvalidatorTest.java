@@ -44,10 +44,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FeedCacheInvalidatorTest {
-    private ServiceClient client;
-    private AkkaServiceClient akkaClient;
-    private ServiceClientResponse resp1, resp2, resp3;
-    private SaxAuthFeedReader reader;
     private Datastore datastore;
 
     private ListAppender app;
@@ -56,26 +52,11 @@ public class FeedCacheInvalidatorTest {
     public void setUp() throws FileNotFoundException {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
-
-        client = mock(ServiceClient.class);
-        akkaClient = mock(AkkaServiceClient.class);
         datastore = mock(Datastore.class);
-
-        InputStream fileReader1 = getClass().getResourceAsStream(File.separator + "META-INF" + File.separator + "feed.xml");
-        InputStream fileReader2 = getClass().getResourceAsStream(File.separator + "META-INF" + File.separator + "empty-feed.xml");
-        resp1 = new ServiceClientResponse(200, fileReader1);
-
-        resp2 = new ServiceClientResponse(200, fileReader2);
-        when(client.getPoolSize()).thenReturn(100);
-
     }
 
     @Test
     public void shouldIncludeTraceInLog() throws Exception {
-        when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
-        when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
-                anyMap())).thenReturn(resp2);
-
         FeedCacheInvalidator fci = FeedCacheInvalidator.openStackInstance(datastore, 1000);
         Thread t = new Thread(fci);
         t.start();
@@ -83,7 +64,6 @@ public class FeedCacheInvalidatorTest {
         fci.done();
 
         assertThat(app.getEvents(), contains("Beginning Feed Cache Invalidator Thread request."));
-        assertThat(app.getEvents(), contains("GUID:"));
     }
 
     private Matcher<List<LogEvent>> contains(final String msg) {
