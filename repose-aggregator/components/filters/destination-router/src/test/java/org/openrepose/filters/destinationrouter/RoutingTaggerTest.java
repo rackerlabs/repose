@@ -95,11 +95,10 @@ public class RoutingTaggerTest {
 
         @Test
         public void shouldAddRoute() {
-            target.setId("dst1");
+            target.setId(DST);
             routingTagger = factory.buildHandler();
-            FilterDirector director = new FilterDirectorImpl();
+            FilterDirector director = routingTagger.handleRequest(httpServletRequest, null);
 
-            director = routingTagger.handleRequest(httpServletRequest, null);
             assertEquals("Director should have the targeted destination", director.getDestinations().get(0).getDestinationId(), DST);
         }
     }
