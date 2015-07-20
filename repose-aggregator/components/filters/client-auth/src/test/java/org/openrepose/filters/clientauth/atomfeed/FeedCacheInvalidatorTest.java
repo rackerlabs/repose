@@ -71,16 +71,19 @@ public class FeedCacheInvalidatorTest {
     }
 
     @Test
-    public void shouldIncludeTraceInLog() {
+    public void shouldIncludeTraceInLog() throws Exception {
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
         when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
                 anyMap())).thenReturn(resp2);
 
-        FeedCacheInvalidator fci = FeedCacheInvalidator.openStackInstance(datastore);
-        //fci.run();
+        FeedCacheInvalidator fci = FeedCacheInvalidator.openStackInstance(datastore, 1000);
+        Thread t = new Thread(fci);
+        t.start();
+        Thread.sleep(2000);
         fci.done();
 
         assertThat(app.getEvents(), contains("Beginning Feed Cache Invalidator Thread request."));
+        assertThat(app.getEvents(), contains("GUID:"));
     }
 
     private Matcher<List<LogEvent>> contains(final String msg) {

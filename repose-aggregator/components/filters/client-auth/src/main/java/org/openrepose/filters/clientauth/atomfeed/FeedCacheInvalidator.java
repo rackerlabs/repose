@@ -81,7 +81,7 @@ public class FeedCacheInvalidator implements Runnable {
 
     @Override
     public void run() {
-        
+
         while (!done) {
             // Generate trans-id here so it is the same between multiple pages
             String traceID = UUID.randomUUID().toString();
