@@ -20,6 +20,7 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
@@ -82,10 +83,11 @@ public class FeedCacheInvalidator implements Runnable {
     public void run() {
 
         // Generate trans-id here so it is the same between multiple pages
-        String traceID = UUID.randomUUID().toString();
         while (!done) {
+            String traceID = UUID.randomUUID().toString();
 
-            MDC.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+            MDC.put(TracingKey.TRACING_KEY, traceID);
+
             LOG.debug("Beginning Feed Cache Invalidator Thread request.");
 
             List<String> userKeys = new ArrayList<>();
