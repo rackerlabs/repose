@@ -58,7 +58,7 @@ public interface HeaderInteractor {
      * @return the highest quality value(s)
      * @throws QualityFormatException when quantity exists but cannot be parsed
      */
-    List<String> getPreferredHeader(String headerName);
+    List<String> getPreferredHeaders(String headerName);
 
     /**
      * Returns the header value(s) with the highest quality, but will try to split all headers on commas before trying
@@ -69,7 +69,7 @@ public interface HeaderInteractor {
      * @return the value(s) with the highest quality after headers have been split
      * @throws QualityFormatException when quantity is present but cannot be parsed
      */
-    List<String> getPreferredSplittableHeader(String headerName);
+    List<String> getPreferredSplittableHeaders(String headerName);
 
     /**
      * Adds the specified header with the header name and header value pair.

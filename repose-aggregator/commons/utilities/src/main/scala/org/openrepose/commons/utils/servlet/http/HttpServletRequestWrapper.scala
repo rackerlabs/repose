@@ -131,9 +131,9 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     }
   }
 
-  override def getPreferredHeader(headerName: String): util.List[String] = getPreferredHeader(headerName, getHeadersScala).asJava
+  override def getPreferredHeaders(headerName: String): util.List[String] = getPreferredHeader(headerName, getHeadersScala).asJava
 
-  override def getPreferredSplittableHeader(headerName: String): util.List[String] = getPreferredHeader(headerName, getSplittableHeaderScala).asJava
+  override def getPreferredSplittableHeaders(headerName: String): util.List[String] = getPreferredHeader(headerName, getSplittableHeaderScala).asJava
 
   override def replaceHeader(headerName: String, headerValue: String): Unit = {
     headerMap = headerMap + (headerName -> List(headerValue))
