@@ -81,9 +81,9 @@ public class FeedCacheInvalidator implements Runnable {
 
     @Override
     public void run() {
-
-        // Generate trans-id here so it is the same between multiple pages
+        
         while (!done) {
+            // Generate trans-id here so it is the same between multiple pages
             String traceID = UUID.randomUUID().toString();
 
             MDC.put(TracingKey.TRACING_KEY, traceID);
