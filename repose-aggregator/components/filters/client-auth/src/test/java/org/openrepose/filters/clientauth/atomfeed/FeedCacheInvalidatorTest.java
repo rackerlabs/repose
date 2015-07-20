@@ -28,20 +28,13 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.commons.utils.http.ServiceClient;
-import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
-import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class FeedCacheInvalidatorTest {
     private Datastore datastore;
@@ -49,7 +42,7 @@ public class FeedCacheInvalidatorTest {
     private ListAppender app;
 
     @Before
-    public void setUp() throws FileNotFoundException {
+    public void setUp() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
         datastore = mock(Datastore.class);
