@@ -655,37 +655,37 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  describe("the getSplittableHeader method") {
+  describe("the getSplittableHeaders method") {
     it("Should return the values in a header if splittable as a list") {
-      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3")
+      wrappedRequest.getSplittableHeaders("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3")
     }
 
     it("should return a split list when a value is added") {
       wrappedRequest.addHeader("abc", "4")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsInOrderAs List("1", "2", "3", "4")
+      wrappedRequest.getSplittableHeaders("abc").asScala.toList should contain theSameElementsInOrderAs List("1", "2", "3", "4")
     }
 
     it("Should return a splittable list when added") {
       wrappedRequest.appendHeader("abc", "4")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
+      wrappedRequest.getSplittableHeaders("abc").asScala.toList should contain theSameElementsAs List("1", "2", "3", "4")
     }
 
     it("should split correctly when a replace is done") {
       wrappedRequest.replaceHeader("abc", "5,6,7,8")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList should contain theSameElementsAs List("5", "6", "7", "8")
+      wrappedRequest.getSplittableHeaders("abc").asScala.toList should contain theSameElementsAs List("5", "6", "7", "8")
     }
 
     it("should return list for header that is already split") {
-      wrappedRequest.getSplittableHeader("foo").asScala.toList should contain theSameElementsAs List("bar", "baz")
+      wrappedRequest.getSplittableHeaders("foo").asScala.toList should contain theSameElementsAs List("bar", "baz")
     }
 
     it("should return empty list if header does not exist") {
-      wrappedRequest.getSplittableHeader("notAHeader").asScala.toList shouldBe empty
+      wrappedRequest.getSplittableHeaders("notAHeader").asScala.toList shouldBe empty
     }
 
     it("should return empty list if header is removed") {
       wrappedRequest.removeHeader("abc")
-      wrappedRequest.getSplittableHeader("abc").asScala.toList shouldBe empty
+      wrappedRequest.getSplittableHeaders("abc").asScala.toList shouldBe empty
     }
 
     it("should throw an exception when quality is garbage") {

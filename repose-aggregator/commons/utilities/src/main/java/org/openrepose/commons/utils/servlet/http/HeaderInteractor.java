@@ -47,7 +47,7 @@ public interface HeaderInteractor {
      * @param headerName the name of the header to get values for
      * @return a flattened list of values with all of the first header's values appearing before the second, the second before the third, etc.
      */
-    List<String> getSplittableHeader(String headerName);
+    List<String> getSplittableHeaders(String headerName);
 
     /**
      * Returns the header value(s) with the highest quality. The default quality is 1.0 if unspecified.

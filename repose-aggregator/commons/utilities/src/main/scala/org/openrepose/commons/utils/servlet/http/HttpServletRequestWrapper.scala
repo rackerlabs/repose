@@ -144,5 +144,5 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
 
-  override def getSplittableHeader(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
+  override def getSplittableHeaders(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
 }
