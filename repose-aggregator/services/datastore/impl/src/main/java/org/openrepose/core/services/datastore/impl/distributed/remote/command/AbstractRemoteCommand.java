@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
@@ -57,8 +58,9 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     }
 
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
         headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
+        headers.put(CommonHttpHeader.TRACE_GUID.toString(), remoteEndpoint.getHostName());
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
 
         return headers;
