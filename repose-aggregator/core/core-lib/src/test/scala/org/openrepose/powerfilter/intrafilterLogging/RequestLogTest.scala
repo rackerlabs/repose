@@ -45,6 +45,7 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
     mutableHttpServletRequest = mock[MutableHttpServletRequest]
     filterContext = mock[FilterContext]
 
+    // the code under test makes some static method calls, so we gotta do this mess
     when(mutableHttpServletRequest.getInputStream).thenReturn(dummyInputStream)
     when(mutableHttpServletRequest.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
   }

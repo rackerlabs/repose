@@ -188,6 +188,7 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             if (INTRAFILTER_LOG.isTraceEnabled()) {
+                // log the request, and give it a new UUID if it doesn't already have one
                 UUID intrafilterUuid = UUID.randomUUID();
                 INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
             }
@@ -195,6 +196,7 @@ public class PowerFilterChain implements FilterChain {
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
 
             if (INTRAFILTER_LOG.isTraceEnabled()) {
+                // log the response, and give it the request's UUID if the response didn't already have one
                 INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
                         mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
             }
@@ -210,6 +212,7 @@ public class PowerFilterChain implements FilterChain {
     private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
                                          FilterContext filterContext, UUID uuid) throws IOException {
 
+        // if the request doesn't already have a UUID, give it the UUID passed to this method
         if (StringUtils.isEmpty(mutableHttpRequest.getHeader(INTRAFILTER_UUID))) {
             mutableHttpRequest.addHeader(INTRAFILTER_UUID, uuid.toString());
         }
@@ -222,6 +225,7 @@ public class PowerFilterChain implements FilterChain {
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
                                           FilterContext filterContext, String uuid) throws IOException {
 
+        // if the response doesn't already have a UUID, give it the UUID passed to this method
         if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
             mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid);
         }

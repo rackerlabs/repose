@@ -42,6 +42,7 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
     mutableHttpServletResponse = mock[MutableHttpServletResponse]
     filterContext = mock[FilterContext]
 
+    // the code under test makes some static method calls, so we gotta do this mess
     when(mutableHttpServletResponse.getBufferedOutputAsInputStream).thenReturn(dummyInputStream)
   }
 
