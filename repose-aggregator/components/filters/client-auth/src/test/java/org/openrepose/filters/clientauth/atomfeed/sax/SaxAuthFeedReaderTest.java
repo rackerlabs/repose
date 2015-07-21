@@ -20,12 +20,8 @@
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.test.appender.ListAppender;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.ServiceClient;
@@ -36,9 +32,9 @@ import org.openrepose.filters.clientauth.atomfeed.CacheKeys;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.anyMap;
@@ -97,7 +93,7 @@ public class SaxAuthFeedReaderTest {
         CacheKeys keys = reader.getCacheKeys("key");
 
         assertThat("Should log 401 with atom feed configured without auth",
-                app.getEvents(), contains("Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please reconfigure Feed atomId with valid credentials and/or configure isAuthed to true"));
+                app.getMessages(), hasItem(containsString("Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please reconfigure Feed atomId with valid credentials and/or configure isAuthed to true")));
     }
 
     @Test
@@ -109,7 +105,7 @@ public class SaxAuthFeedReaderTest {
 
         CacheKeys keys = reader.getCacheKeys("key");
 
-        assertThat(app.getEvents(), contains("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503"));
+        assertThat(app.getMessages(), hasItem(containsString("Unable to retrieve atom feed from FeedatomId: http://some.junit.test.feed/at/somepath\n Response Code: 503")));
     }
 
     @Test
@@ -133,28 +129,8 @@ public class SaxAuthFeedReaderTest {
 
         reader.getCacheKeys("key");
 
-        assertThat(app.getEvents(), contains("Feed atomId not found at: https://test.feed.atomhopper.rackspace.com/some/" +
+        assertThat(app.getMessages(), hasItem(containsString("Feed atomId not found at: https://test.feed.atomhopper.rackspace.com/some/" +
                 "identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward" +
-                "\nResetting feed target to: http://some.junit.test.feed/at/somepath"));
-    }
-
-    private Matcher<List<LogEvent>> contains(final String msg) {
-        return new TypeSafeMatcher<List<LogEvent>>() {
-            @Override
-            protected boolean matchesSafely(final List<LogEvent> events) {
-                boolean rtn = false;
-                LogEvent event;
-                for (Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext(); ) {
-                    event = iterator.next();
-                    rtn = event.getMessage().getFormattedMessage().contains(msg);
-                }
-                return rtn;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
-            }
-        };
+                "\nResetting feed target to: http://some.junit.test.feed/at/somepath")));
     }
 }
