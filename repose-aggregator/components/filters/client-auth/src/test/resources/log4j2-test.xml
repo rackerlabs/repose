@@ -4,7 +4,9 @@
         <Console name="STDOUT">
             <PatternLayout pattern="GUID:%X{traceGuid} - %d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
-        <List name="List0"/>
+        <List name="List0">
+            <PatternLayout pattern="GUID:%X{traceGuid} - %m%n"/>
+        </List>
     </Appenders>
     <Loggers>
         <Root level="debug">

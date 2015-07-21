@@ -20,7 +20,6 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.hamcrest.Description;
@@ -30,9 +29,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.core.services.datastore.Datastore;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.regex.Pattern;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -55,26 +54,21 @@ public class FeedCacheInvalidatorTest {
         t.start();
         Thread.sleep(2000);
         fci.done();
-
-        assertThat(app.getEvents(), contains("Beginning Feed Cache Invalidator Thread request."));
+        assertThat(app.getMessages(), hasItem(matchesRegEx("GUID:\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12} - Beginning Feed Cache Invalidator Thread request.*")));
     }
 
-    private Matcher<List<LogEvent>> contains(final String msg) {
-        return new TypeSafeMatcher<List<LogEvent>>() {
+    private Matcher<? super String> matchesRegEx(String regEx) {
+        final Pattern pattern = Pattern.compile(regEx, Pattern.DOTALL);
+
+        return new TypeSafeMatcher<String>() {
             @Override
-            protected boolean matchesSafely(final List<LogEvent> events) {
-                boolean rtn = false;
-                LogEvent event;
-                for (Iterator<LogEvent> iterator = events.iterator(); !rtn && iterator.hasNext(); ) {
-                    event = iterator.next();
-                    rtn = event.getMessage().getFormattedMessage().contains(msg);
-                }
-                return rtn;
+            protected boolean matchesSafely(String item) {
+                return pattern.matcher(item).matches();
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("The List of Log Events contained a Formatted Message of: \"" + msg + "\"");
+                description.appendText("a string that matches regular expression: " + pattern);
             }
         };
     }
