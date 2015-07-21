@@ -169,12 +169,14 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
         // change identity atom feed
 
+
         fakeIdentityService.with {
             fakeIdentityService.validateTokenHandler = {
                 tokenId, request, xml ->
                     new Response(404)
             }
         }
+
         fakeIdentityService.resetCounts()
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
@@ -189,8 +191,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
                 [
                         url           : reposeEndpoint,
                         method        : 'GET',
-                        headers       : ['X-Auth-Token': fakeIdentityService.client_token],
-                        defaultHandler: fakeIdentityService.handler
+                        headers       : ['X-Auth-Token': fakeIdentityService.client_token]
+                        //defaultHandler: fakeIdentityService.handler
                 ])
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
@@ -309,7 +311,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
                         url           : reposeEndpoint,
                         method        : 'GET',
                         headers       : ['X-Auth-Token': fakeIdentityService.client_token],
-                        defaultHandler: fakeIdentityService.handler
+                        //defaultHandler: fakeIdentityService.handler
                 ])
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
