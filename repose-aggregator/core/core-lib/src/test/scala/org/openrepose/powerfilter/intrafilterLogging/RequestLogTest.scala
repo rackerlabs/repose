@@ -32,25 +32,19 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.collection.JavaConverters.asJavaEnumerationConverter
 
-/**
- * Unit test for the [[RequestLog]] class.
- */
 @RunWith(classOf[JUnitRunner])
 class RequestLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   import org.mockito.Mockito.when
 
-  // mock/test objects
   var mutableHttpServletRequest: MutableHttpServletRequest = _
   var filterContext: FilterContext = _
   val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(" ".getBytes))
 
   before {
-    // the constructor for the code under test requires these, so we'll have to mock them for every test
     mutableHttpServletRequest = mock[MutableHttpServletRequest]
     filterContext = mock[FilterContext]
 
-    // the code under test makes some static method calls, so we gotta do this mess
     when(mutableHttpServletRequest.getInputStream).thenReturn(dummyInputStream)
     when(mutableHttpServletRequest.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
   }
@@ -63,7 +57,6 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         val filterId = "filter1"
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter
         filter.setId(filterId)
         filter.setName(filterName)
@@ -82,7 +75,6 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         val filterId = null
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter
         filter.setId(filterId)
         filter.setName(filterName)
@@ -101,7 +93,6 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         val filterId = ""
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter
         filter.setId(filterId)
         filter.setName(filterName)

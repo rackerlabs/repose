@@ -32,10 +32,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * POJO that is used to log details about a response when the log level is set to TRACE.
- * See {@link org.openrepose.powerfilter.PowerFilterChain#intrafilterResponseLog} for more details.
- */
 public class ResponseLog {
 
     String preamble;
@@ -45,12 +41,6 @@ public class ResponseLog {
     String responseBody;
     HashMap<String, String> headers;
 
-    /**
-     * Constructor populates all of the fields necessary for logging.
-     * @param mutableHttpServletResponse {@link MutableHttpServletResponse}
-     * @param filterContext {@link FilterContext}
-     * @throws IOException if there's an issue converting the response body to a string
-     */
     public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
                        FilterContext filterContext) throws IOException {
 

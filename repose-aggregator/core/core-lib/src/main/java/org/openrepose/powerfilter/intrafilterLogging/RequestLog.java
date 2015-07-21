@@ -30,10 +30,6 @@ import javax.servlet.ServletInputStream;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * POJO that is used to log details about a response when the log level is set to TRACE.
- * See {@link org.openrepose.powerfilter.PowerFilterChain#intrafilterRequestLog} for more details.
- */
 public class RequestLog {
 
     String preamble;
@@ -44,12 +40,6 @@ public class RequestLog {
     String requestBody;
     HashMap<String, String> headers;
 
-    /**
-     * Constructor populates all of the fields necessary for logging.
-     * @param mutableHttpServletRequest {@link MutableHttpServletRequest}
-     * @param filterContext {@link FilterContext}
-     * @throws IOException if there's an issue converting the response body to a string
-     */
     public RequestLog(MutableHttpServletRequest mutableHttpServletRequest,
                       FilterContext filterContext) throws IOException {
 

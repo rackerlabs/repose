@@ -29,25 +29,19 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
-/**
- * Unit test for the [[ResponseLog]] class.
- */
 @RunWith(classOf[JUnitRunner])
 class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   import org.mockito.Mockito.when
 
-  // mock/test objects
   var mutableHttpServletResponse: MutableHttpServletResponse = _
   var filterContext: FilterContext = _
   val dummyInputStream = new ByteArrayInputStream(" ".getBytes)
 
   before {
-    // the constructor for the code under test requires these, so we'll have to mock them for every test
     mutableHttpServletResponse = mock[MutableHttpServletResponse]
     filterContext = mock[FilterContext]
 
-    // the code under test makes some static method calls, so we gotta do this mess
     when(mutableHttpServletResponse.getBufferedOutputAsInputStream).thenReturn(dummyInputStream)
   }
 
@@ -59,7 +53,6 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         val filterId = "filter1"
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter()
         filter.setId(filterId)
         filter.setName(filterName)
@@ -78,7 +71,6 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         val filterId = null
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter()
         filter.setId(filterId)
         filter.setName(filterName)
@@ -97,7 +89,6 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         val filterId = ""
         val filterName = "test-filter"
 
-        // and a filter with that ID and name
         val filter = new Filter()
         filter.setId(filterId)
         filter.setName(filterName)
@@ -110,7 +101,6 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
       }
-
     }
   }
 }
