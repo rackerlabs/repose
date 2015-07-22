@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command
+
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -53,8 +54,8 @@ class AbstractRemoteCommandTest {
         MDC.put(TracingKey.TRACING_KEY, "tracingKey")
         Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
-        assert(headers.get(DatastoreHeader.HOST_KEY.toString()).equals("hostKey"));
-        assert(headers.get(CommonHttpHeader.TRACE_GUID.toString()).equals("tracingKey"));
-        assert(headers.get(DatastoreHeader.REMOTE_BEHAVIOR.toString()).equals("ALLOW_FORWARDING"));
+        assert (headers.get(DatastoreHeader.HOST_KEY.toString()).equals("hostKey"));
+        assert (headers.get(CommonHttpHeader.TRACE_GUID.toString()).equals("tracingKey"));
+        assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR.toString()).equals("ALLOW_FORWARDING"));
     }
 }
