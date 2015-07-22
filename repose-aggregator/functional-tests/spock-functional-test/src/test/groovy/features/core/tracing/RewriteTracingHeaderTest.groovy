@@ -39,12 +39,6 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
         repose.start()
     }
 
-    /*def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }*/
-
     def "should not pass the externally provided tracing header through the filter chain"() {
         when:
         MessageChain mc = deproxy.makeRequest(
