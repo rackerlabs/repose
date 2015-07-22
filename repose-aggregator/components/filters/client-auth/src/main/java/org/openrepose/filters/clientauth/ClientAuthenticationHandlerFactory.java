@@ -114,6 +114,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     }
 
     public void setOutboundTracing(boolean isOutboundTracing) {
+        manager.setOutboundTracing(isOutboundTracing);
         this.isOutboundTracing = isOutboundTracing;
     }
 

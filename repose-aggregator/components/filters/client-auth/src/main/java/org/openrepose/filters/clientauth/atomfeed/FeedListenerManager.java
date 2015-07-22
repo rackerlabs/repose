@@ -62,5 +62,7 @@ public class FeedListenerManager {
         }
     }
 
-
+    public void setOutboundTracing(boolean isOutboundTracing) {
+        listener.setOutboundTracing(isOutboundTracing);
+    }
 }

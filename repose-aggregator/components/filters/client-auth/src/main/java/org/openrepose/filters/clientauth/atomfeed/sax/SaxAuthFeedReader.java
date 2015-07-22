@@ -63,7 +63,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private AdminTokenProvider provider;
 
     private AkkaServiceClient akkaServiceClient;
-    private boolean systemModel = false;
+    private boolean isOutboundTracing = false;
 
     public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, boolean systemModel) {
         this.client = client;
@@ -71,9 +71,13 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         this.targetFeed = feedHead;
         this.feedId = feedId;
         this.akkaServiceClient = akkaClient;
-        this.systemModel = systemModel;
+        this.isOutboundTracing = systemModel;
         factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
+    }
+
+    public void setOutboundTracing(boolean isOutboundTracing) {
+        this.isOutboundTracing = isOutboundTracing;
     }
 
     public void setAuthed(String uri, String user, String pass) throws AuthServiceException {
@@ -116,7 +120,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<>();
 
-        if (systemModel) {
+        if (isOutboundTracing) {
             headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
         }
 
@@ -135,7 +139,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                     } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
-                    if (systemModel) {
+                    if (isOutboundTracing) {
                         headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
                     }
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);

@@ -75,7 +75,12 @@ public class FeedCacheInvalidator implements Runnable {
 
     public void setFeeds(List<AuthFeedReader> feeds) {
         this.feeds = feeds;
+    }
 
+    public void setOutboundTracing(boolean isOutboundTracing) {
+        for (AuthFeedReader afr : feeds) {
+            afr.setOutboundTracing(isOutboundTracing);
+        }
     }
 
     @Override
