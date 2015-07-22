@@ -18,16 +18,15 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command
-
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.core.logging.TracingKey
+import org.openrepose.core.services.RequestProxyService
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader
 import org.slf4j.MDC
-
-import static org.mockito.Mockito.*;
 
 class AbstractRemoteCommandTest {
 
@@ -35,15 +34,24 @@ class AbstractRemoteCommandTest {
 
     @Before
     public void setUp() {
-        arc = new Get(anyString(), new InetSocketAddress(anyInt()))
+        arc = new AbstractRemoteCommand("", new InetSocketAddress(0)) {
+            @Override
+            ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
+                return null
+            }
+
+            @Override
+            Object handleResponse(ServiceClientResponse response) throws IOException {
+                return null
+            }
+        }
         arc.setHostKey("hostKey")
     }
 
     @Test
     public void shouldContainAddedHeaders() {
         MDC.put(TracingKey.TRACING_KEY, "tracingKey")
-        RemoteBehavior rb = RemoteBehavior.ALLOW_FORWARDING
-        Map<String, String> headers = arc.getHeaders(rb)
+        Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
         assert(headers.get(DatastoreHeader.HOST_KEY.toString()).equals("hostKey"));
         assert(headers.get(CommonHttpHeader.TRACE_GUID.toString()).equals("tracingKey"));
