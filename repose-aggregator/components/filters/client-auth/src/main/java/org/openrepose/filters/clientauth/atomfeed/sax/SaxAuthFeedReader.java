@@ -25,6 +25,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.filters.clientauth.atomfeed.*;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -36,7 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed
@@ -62,13 +64,15 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private AdminTokenProvider provider;
 
     private AkkaServiceClient akkaServiceClient;
+    private SystemModel systemModel;
 
-    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId) {
+    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, SystemModel systemModel) {
         this.client = client;
         this.feedHead = feedHead;
         this.targetFeed = feedHead;
         this.feedId = feedId;
         this.akkaServiceClient = akkaClient;
+        this.systemModel = systemModel;
         factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
     }
@@ -113,8 +117,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<>();
 
-        /* TODO: check if necessary to add trans id header */
-        headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+        if (systemModel != null && systemModel.isTracingHeader()) {
+            headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+        }
+
         if (isAuthed) {
             headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
         }
@@ -130,8 +136,6 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                     } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
-                    /* TODO: check if necessary to add trans id header */
-                    headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);
                 } else { // case where we're getting back 401s and the client has not configured auth credentials for this feed.

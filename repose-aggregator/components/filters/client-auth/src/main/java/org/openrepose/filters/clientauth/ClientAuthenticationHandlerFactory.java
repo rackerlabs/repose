@@ -29,6 +29,7 @@ import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
@@ -66,6 +67,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private UriMatcher uriMatcher;
     private FeedListenerManager manager;
     private AkkaServiceClient akkaServiceClient;
+    private SystemModel systemModel;
 
 
     public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
@@ -110,6 +112,10 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             return null;
         }
         return authenticationModule;
+    }
+
+    public void setSystemModel(SystemModel systemModel) {
+        this.systemModel = systemModel;
     }
 
     private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
@@ -168,7 +174,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                         new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(), httpClientService),
                         akkaServiceClient,
                         feed.getUri(),
-                        feed.getId());
+                        feed.getId(),
+                        systemModel);
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
