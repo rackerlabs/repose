@@ -85,7 +85,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         when:
         //An http request is made to the dist datastore endpoint with a tracing header
         MessageChain mc = deproxy.makeRequest(
-                url: distDatastoreEndpoint +"/powerapi/dist-datastore/objects/",
+                url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/",
                 method: 'GET',
                 headers: [
                         'X-Trans-Id': "LOLOL"
@@ -110,11 +110,11 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         when:
         //An http request is made to the dist datastore endpoint with a tracing header
         MessageChain mc = deproxy.makeRequest(
-                url: distDatastoreEndpoint+ "/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'PUT',
                 headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL': '10',
-                          'X-Trans-Id': 'test12345'],
+                          'X-TTL'        : '10',
+                          'X-Trans-Id'   : 'test12345'],
                 requestBody: body
         )
         List<String> lines = reposeLogSearch.searchByString("GUID:test12345 - .*SERVICING DISTDATASTORE REQUEST\$")
@@ -127,11 +127,11 @@ class TracingDistDatastoreTest extends ReposeValveTest {
 
         when:
         mc = deproxy.makeRequest(
-                url: distDatastoreEndpoint+"/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'GET',
                 headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL': '10',
-                          'X-Trans-Id': 'test22345'],
+                          'X-TTL'        : '10',
+                          'X-Trans-Id'   : 'test22345'],
         )
         lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
@@ -144,11 +144,11 @@ class TracingDistDatastoreTest extends ReposeValveTest {
 
         when: "deleting the object from the datastore"
         mc = deproxy.makeRequest(
-                url: distDatastoreEndpoint+"/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'DELETE',
                 headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL': '10',
-                          'X-Trans-Id': 'test32345'],
+                          'X-TTL'        : '10',
+                          'X-Trans-Id'   : 'test32345'],
         )
         lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
