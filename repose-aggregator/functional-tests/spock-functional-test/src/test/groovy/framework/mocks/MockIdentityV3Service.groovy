@@ -705,18 +705,18 @@ class MockIdentityV3Service {
     {
         "roles": [
             {
-                "id": "--role-id--",
+                "id": "rack-role",
                 "links": {
                     "self": "http://identity:35357/v3/roles/--role-id--"
                 },
-                "name": "--role-name--",
+                "name": "rack-role",
             },
             {
-                "id": "--role-id--",
+                "id": "default",
                 "links": {
                     "self": "http://identity:35357/v3/roles/--role-id--"
                 },
-                "name": "--role-name--"
+                "name": "default-role"
             }
         ],
         "links": {

@@ -21,11 +21,9 @@ package org.openrepose.filters.ratelimiting;
 
 import com.sun.jersey.server.impl.provider.RuntimeDelegateImpl;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
@@ -37,7 +35,6 @@ import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RateLimitingServiceHelper {
@@ -84,22 +81,21 @@ public class RateLimitingServiceHelper {
     }
 
     public String getPreferredUser(HttpServletRequest request) {
-        final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        final HeaderValue userNameHeaderValue = mutableRequest.getPreferredHeader(PowerApiHeader.USER.toString(), new HeaderValueImpl(""));
+        final HttpServletRequestWrapper mutableRequest = new HttpServletRequestWrapper(request);
+        final List<String> preferredUsers = mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.USER.toString());
 
-        return userNameHeaderValue.getValue();
+        String preferredUser = null;
+        if (!preferredUsers.isEmpty()) {
+            preferredUser = preferredUsers.get(0);
+        }
+
+        return preferredUser;
     }
 
     public List<String> getPreferredGroups(HttpServletRequest request) {
-        final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        final List<? extends HeaderValue> userGroup = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), null);
-        final List<String> groups = new ArrayList<String>();
+        final HttpServletRequestWrapper mutableRequest = new HttpServletRequestWrapper(request);
 
-        for (HeaderValue group : userGroup) {
-            groups.add(group.getValue());
-        }
-
-        return groups;
+        return mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.GROUPS.toString());
     }
 
     private String decodeURI(String uri) {

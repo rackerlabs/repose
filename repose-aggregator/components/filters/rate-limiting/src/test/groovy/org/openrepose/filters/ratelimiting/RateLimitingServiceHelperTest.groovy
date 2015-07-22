@@ -20,7 +20,6 @@
 package org.openrepose.filters.ratelimiting
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import org.junit.Assume
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.ratelimit.RateLimitingService
@@ -36,7 +35,6 @@ import static org.mockito.Mockito.*
 public class RateLimitingServiceHelperTest extends Specification {
     private static final String MOST_QUALIFIED_USER = "the best user of them all"
     private static final String MOST_QUALIFIED_GROUP = "the best group of them all"
-    def splodeDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1)
 
     @Shared
     private RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null)
@@ -45,12 +43,7 @@ public class RateLimitingServiceHelperTest extends Specification {
     private HttpServletRequest mockedRequest
 
     def setupSpec() {
-        List<String> headerNames = new LinkedList<String>()
-        headerNames.add(PowerApiHeader.USER.toString())
-
         mockedRequest = mock(HttpServletRequest.class)
-
-        when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames))
     }
 
     def "when getting preferred MediaType, should get Java MediaType from Repose MimeType"() {
@@ -66,7 +59,6 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred user, should return most qualified user header"() {
         given:
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_USER + ";q=1.0")
         headerValues.add("that other user;q=0.5")
@@ -83,10 +75,8 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred user, should return first user in list for users without quality factors present"() {
         given:
-        final List<String> headerNames = new LinkedList<String>();
-        headerNames.add(PowerApiHeader.USER.toString());
-
-        when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
+        when(mockedRequest.getHeaderNames())
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.USER.toString())))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_USER)
@@ -104,11 +94,8 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred group, should return most qualified groups"() {
         given:
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
-        final List<String> headerNames = new LinkedList<String>()
-        headerNames.add(PowerApiHeader.GROUPS.toString())
-
-        when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames))
+        when(mockedRequest.getHeaderNames())
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add("group-4;q=0.1")
@@ -130,7 +117,35 @@ public class RateLimitingServiceHelperTest extends Specification {
         groups == expected
     }
 
+    def "when getting preferred group, should handle multiple values on a single line"() {
+        given:
+        when(mockedRequest.getHeaderNames())
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
+
+        List<String> headerValues = new LinkedList<String>()
+        headerValues.add("group-1;q=0.1,group-2;q=0.1")
+        headerValues.add("group-4;q=0.1,group-5;q=0.1")
+        headerValues.add("group-3;q=0.002")
+
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
+
+        List<String> expected = new LinkedList<String>()
+        expected.add("group-1")
+        expected.add("group-2")
+        expected.add("group-4")
+        expected.add("group-5")
+
+        when:
+        List<String> groups = helper.getPreferredGroups(mockedRequest)
+
+        then:
+        groups == expected
+    }
+
     def "when getting preferred group, should return empty group list when no groups header is present"() {
+        given:
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.emptyEnumeration())
+
         when:
         List<String> groups = helper.getPreferredGroups(mockedRequest)
 
@@ -140,10 +155,8 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred group, should return all groups when quality factor is not present"() {
         given:
-        final List<String> headerNames = new LinkedList<String>()
-        headerNames.add(PowerApiHeader.GROUPS.toString())
-
-        when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames))
+        when(mockedRequest.getHeaderNames())
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_GROUP)
@@ -173,6 +186,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         given:
         def RateLimitingService mockRlService = mock(RateLimitingService.class)
         def RateLimitingServiceHelper rateLimitingServiceHelper = new RateLimitingServiceHelper(mockRlService, null, null)
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.emptyEnumeration())
 
         MockHttpServletRequest request = new MockHttpServletRequest()
         request.setRequestURI(requestURI)
