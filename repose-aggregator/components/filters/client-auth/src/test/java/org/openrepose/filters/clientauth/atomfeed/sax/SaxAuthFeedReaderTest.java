@@ -73,7 +73,7 @@ public class SaxAuthFeedReaderTest {
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
         when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
                 anyMap())).thenReturn(resp2);
-        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", null);
+        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", false);
         CacheKeys keys = reader.getCacheKeys("key");
 
         String[] users = {"224277258", //User from atom feed
@@ -89,7 +89,7 @@ public class SaxAuthFeedReaderTest {
 
         resp3 = new ServiceClientResponse(401, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
-        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", null);
+        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", false);
         CacheKeys keys = reader.getCacheKeys("key");
 
         assertThat("Should log 401 with atom feed configured without auth",
@@ -101,7 +101,7 @@ public class SaxAuthFeedReaderTest {
 
         resp3 = new ServiceClientResponse(503, null);
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
-        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", null);
+        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", false);
 
         CacheKeys keys = reader.getCacheKeys("key");
 
@@ -114,7 +114,7 @@ public class SaxAuthFeedReaderTest {
         when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
         when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
                 anyMap())).thenReturn(resp2);
-        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", null);
+        reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId", false);
         CacheKeys keys = reader.getCacheKeys("key");
 
         String[] users = {"224277258", //User from atom feed

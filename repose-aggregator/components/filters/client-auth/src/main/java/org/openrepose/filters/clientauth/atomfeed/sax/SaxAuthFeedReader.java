@@ -25,7 +25,6 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
-import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.filters.clientauth.atomfeed.*;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -64,9 +63,9 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private AdminTokenProvider provider;
 
     private AkkaServiceClient akkaServiceClient;
-    private SystemModel systemModel;
+    private boolean systemModel = false;
 
-    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, SystemModel systemModel) {
+    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, boolean systemModel) {
         this.client = client;
         this.feedHead = feedHead;
         this.targetFeed = feedHead;
@@ -117,7 +116,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         ServiceClientResponse resp;
         final Map<String, String> headers = new HashMap<>();
 
-        if (systemModel != null && systemModel.isTracingHeader()) {
+        if (systemModel) {
             headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
         }
 
@@ -135,6 +134,9 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                         adminToken = provider.getFreshAdminToken();
                     } catch (AuthServiceException e) {
                         throw new FeedException("Failed to obtain credentials.", e);
+                    }
+                    if (systemModel) {
+                        headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
                     }
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);

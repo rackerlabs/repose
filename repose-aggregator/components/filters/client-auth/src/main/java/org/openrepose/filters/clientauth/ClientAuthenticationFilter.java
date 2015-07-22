@@ -91,7 +91,7 @@ public class ClientAuthenticationFilter implements Filter {
         private boolean initialized = false;
         @Override
         public void configurationUpdated(SystemModel configurationObject) throws UpdateFailedException {
-            handlerFactory.setSystemModel(configurationObject);
+            handlerFactory.setOutboundTracing(configurationObject.isTracingHeader());
             initialized = true;
         }
 
