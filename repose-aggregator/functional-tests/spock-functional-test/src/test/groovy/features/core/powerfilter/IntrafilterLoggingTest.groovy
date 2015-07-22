@@ -100,7 +100,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         JSONObject authreqline1 = convertToJson("Intrafilter Request Log", 0)
         assertHeadersExists(["X-Auth-Token", "Intrafilter-UUID"], authreqline1)
         assertKeyValueMatch([
-                "currentFilter": "null-client-auth",
+                "currentFilter": "client-auth",
                 "httpMethod"   : "GET",
                 "requestURI"   : "/servers/server123",
                 "requestBody"  : ""
@@ -112,7 +112,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         def authrespline1 = convertToJson("Intrafilter Response Log", 1)
         assertHeadersExists(["Intrafilter-UUID", "Content-Type"], authrespline1)
         assertKeyValueMatch([
-                "currentFilter"   : "null-client-auth",
+                "currentFilter"   : "client-auth",
                 "responseBody"    : responseBody,
                 "httpResponseCode": respcode
         ], authrespline1)
@@ -123,7 +123,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         assertHeadersExists(["X-Auth-Token", "x-pp-user", "x-pp-groups", "x-tenant-name",
                              "x-user-id", "x-authorization", "Intrafilter-UUID"], authreqline2)
         assertKeyValueMatch([
-                "currentFilter": "null-ip-identity",
+                "currentFilter": "context_1-ip-identity",
                 "httpMethod"   : "GET",
                 "requestURI"   : "/servers/server123",
                 "requestBody"  : ""
@@ -135,7 +135,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         def authrespline2 = convertToJson("Intrafilter Response Log", 0)
         assertHeadersExists(["Intrafilter-UUID", "Content-Type"], authrespline2)
         assertKeyValueMatch([
-                "currentFilter"   : "null-ip-identity",
+                "currentFilter"   : "context_1-ip-identity",
                 "responseBody"    : responseBody,
                 "httpResponseCode": respcode
         ], authrespline2)

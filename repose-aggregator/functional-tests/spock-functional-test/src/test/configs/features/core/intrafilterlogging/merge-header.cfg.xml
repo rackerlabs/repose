@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<merge-header xmlns='http://docs.openrepose.org/repose/merge-header/v1.0'>
+    <request>
+        <header>x-pp-user</header>
+        <header>accept</header>
+    </request>
+    <response>
+        <!-- an arbitrary header to ensure that is merged on the way out -->
+        <header>location</header>
+        <!-- this one won't exist from teh origin, so we'll make sure I don't accidentally add it -->
+        <header>via</header>
+        <header>accept</header>
+        <header>aurl</header>
+    </response>
+</merge-header>

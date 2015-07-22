@@ -20,16 +20,15 @@
 package org.openrepose.powerfilter.intrafilterLogging;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class RequestLog {
 
@@ -44,14 +43,16 @@ public class RequestLog {
     public RequestLog(MutableHttpServletRequest mutableHttpServletRequest,
                       FilterContext filterContext) throws IOException {
 
+        Filter filter = filterContext.getFilterConfig();
+
         preamble = "Intrafilter Request Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
+        currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
         httpMethod = mutableHttpServletRequest.getMethod();
         requestURI = mutableHttpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(mutableHttpServletRequest);
 
-        //Have to wrap the input stream in somethign that can be buffered, as well as reset.
+        //Have to wrap the input stream in something that can be buffered, as well as reset.
         ServletInputStream bin = mutableHttpServletRequest.getInputStream();
         bin.mark(Integer.MAX_VALUE); //Something doesn't support mark reset
         requestBody = IOUtils.toString(bin); //http://stackoverflow.com/a/309448
@@ -61,11 +62,11 @@ public class RequestLog {
     private HashMap<String, String> convertRequestHeadersToMap(
             MutableHttpServletRequest mutableHttpServletRequest) {
 
-        HashMap<String, String> headerMap = new LinkedHashMap<String, String>();
+        HashMap<String, String> headerMap = new LinkedHashMap<>();
         List<String> headerNames = Collections.list(mutableHttpServletRequest.getHeaderNames());
 
-        for (String headername : headerNames) {
-            headerMap.put(headername, mutableHttpServletRequest.getHeader(headername));
+        for (String headerName : headerNames) {
+            headerMap.put(headerName, mutableHttpServletRequest.getHeader(headerName));
         }
 
         return headerMap;

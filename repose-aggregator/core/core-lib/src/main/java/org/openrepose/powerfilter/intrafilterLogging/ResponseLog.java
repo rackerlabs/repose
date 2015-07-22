@@ -20,8 +20,10 @@
 package org.openrepose.powerfilter.intrafilterLogging;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import java.io.ByteArrayInputStream;
@@ -42,9 +44,11 @@ public class ResponseLog {
     public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
                        FilterContext filterContext) throws IOException {
 
+        Filter filter = filterContext.getFilterConfig();
+
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
-        currentFilter = filterContext.getFilterConfig().getId() + "-" + filterContext.getFilterConfig().getName();
+        currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
 
@@ -55,11 +59,11 @@ public class ResponseLog {
     private HashMap<String, String> convertResponseHeadersToMap(
             MutableHttpServletResponse mutableHttpServletResponse) {
 
-        HashMap<String, String> headerMap = new LinkedHashMap<String, String>();
+        HashMap<String, String> headerMap = new LinkedHashMap<>();
         List<String> headerNames = (List<String>) mutableHttpServletResponse.getHeaderNames();
 
-        for (String headername : headerNames) {
-            headerMap.put(headername, mutableHttpServletResponse.getHeader(headername));
+        for (String headerName : headerNames) {
+            headerMap.put(headerName, mutableHttpServletResponse.getHeader(headerName));
         }
 
         return headerMap;
