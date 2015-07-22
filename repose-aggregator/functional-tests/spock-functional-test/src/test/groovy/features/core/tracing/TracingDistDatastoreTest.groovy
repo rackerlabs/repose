@@ -37,17 +37,20 @@ class TracingDistDatastoreTest extends ReposeValveTest {
     def static identityEndpoint
 
     def static MockIdentityService fakeIdentityService
-
-    static int dataStorePort
+    static def distDatastoreEndpoint
 
     def setupSpec() {
 
         deproxy = new Deproxy()
-        dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+
+        distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 
         def params = properties.defaultTemplateParams
         params += [
-                'datastorePort': dataStorePort,
+                'datastorePort1': dataStorePort1,
+                'datastorePort2': dataStorePort2
         ]
 
         repose.configurationProvider.applyConfigs("common", params)
@@ -55,7 +58,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/tracing/distdatastore", params)
         reposeLogSearch.cleanLog()
 
-        repose.start()
+        repose.start([clusterId: "repose", nodeId: "nofilters"])
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
@@ -82,7 +85,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         when:
         //An http request is made to the dist datastore endpoint with a tracing header
         MessageChain mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/",
+                url: distDatastoreEndpoint +"/powerapi/dist-datastore/objects/",
                 method: 'GET',
                 headers: [
                         'X-Trans-Id': "LOLOL"
@@ -107,46 +110,54 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         when:
         //An http request is made to the dist datastore endpoint with a tracing header
         MessageChain mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint+ "/powerapi/dist-datastore/objects/" + key,
                 method: 'PUT',
-                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10'],
+                headers: ['X-PP-Host-Key': 'temp-host-key',
+                          'X-TTL': '10',
+                          'X-Trans-Id': 'test12345'],
                 requestBody: body
         )
+        List<String> lines = reposeLogSearch.searchByString("GUID:test12345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report success"
         mc.receivedResponse.code == "202"
         mc.receivedResponse.body == ""
-        mc.sentRequest.headers.contains("x-trans-id")
+        //mc.sentRequest.headers.contains("x-trans-id")
+        lines.size() == 1
 
         when:
         mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint+"/powerapi/dist-datastore/objects/" + key,
                 method: 'GET',
-                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
+                headers: ['X-PP-Host-Key': 'temp-host-key',
+                          'X-TTL': '10',
+                          'X-Trans-Id': 'test22345'],
         )
+        lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report that it is"
         mc.receivedResponse.code == "200"
         mc.receivedResponse.body == body
-        mc.sentRequest.headers.contains("x-trans-id")
+        //mc.sentRequest.headers.contains("x-trans-id")
+        lines.size() == 1
 
 
         when: "deleting the object from the datastore"
         mc = deproxy.makeRequest(
-                url: "http://localhost:${dataStorePort}/powerapi/dist-datastore/objects/" + key,
+                url: distDatastoreEndpoint+"/powerapi/dist-datastore/objects/" + key,
                 method: 'DELETE',
-                headers: ['X-PP-Host-Key': 'temp-host-key', 'X-TTL': '10']
+                headers: ['X-PP-Host-Key': 'temp-host-key',
+                          'X-TTL': '10',
+                          'X-Trans-Id': 'test32345'],
         )
+        lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
-        mc.sentRequest.headers.contains("x-trans-id")
-
-        //That header is used in the log output
+        //mc.sentRequest.headers.contains("x-trans-id")
 
         //Find the GUID out of :  GUID:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
-        //List<String> lines = reposeLogSearch.searchByString("GUID:.* - .*SERVICING DISTDATASTORE REQUEST\$")
-        //lines.size() == 1
+        lines.size() == 1
     }
 }
