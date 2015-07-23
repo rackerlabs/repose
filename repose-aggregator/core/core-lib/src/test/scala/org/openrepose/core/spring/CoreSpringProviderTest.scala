@@ -104,7 +104,7 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
 
   describe("Repose Spring Properties") {
     describe("Repose Version") {
-      it("is not 8") {
+      it("is not 8 (timebomb)") {
         val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
           ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
 
