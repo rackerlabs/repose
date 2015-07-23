@@ -4,7 +4,8 @@
 
     <repose-cluster id="repose">
         <nodes>
-            <node id="node" hostname="localhost" http-port="${reposePort}"/>
+            <node id="nofilters" hostname="localhost" http-port="${reposePort}"/>
+            <node id="nofilters2" hostname="foo.bar.doesnotexist" http-port="${reposePort}"/>
         </nodes>
 
         <filters>
