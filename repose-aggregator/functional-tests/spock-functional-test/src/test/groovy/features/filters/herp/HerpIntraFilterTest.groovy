@@ -21,6 +21,7 @@
 package features.filters.herp
 
 import framework.ReposeValveTest
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -33,7 +34,7 @@ class HerpIntraFilterTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs('features/filters/herp', params)
-        repose.configurationProvider.applyConfigs("features/core/intrafilterlogging", params);
+        repose.configurationProvider.applyConfigs('features/filters/herp/intrafilter', params)
         repose.start()
     }
 
@@ -48,13 +49,41 @@ class HerpIntraFilterTest extends ReposeValveTest {
     }
 
     def "Should not throw error with herp and intra-filter"() {
-        setup:reposeLogSearch.cleanLog()
+        setup:
+        List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
+                         "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
+        reposeLogSearch.cleanLog()
         MessageChain messageChain
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: ['Accept': 'application/xml'])
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
 
         then:
         messageChain.receivedResponse.code == "200"
+        checkAttribute(jsonpart, listattr)
+        result.ServiceCode == "repose"
+        result.Region == "USA"
+        result.DataCenter == "DFW"
+        result.Request.Method == "GET"
+        result.Response.Code == 200
+        result.Response.Message == "OK"
+    }
+
+    // Check all required attributes in the log
+    private boolean checkAttribute(String jsonpart, List listattr) {
+        def slurper = new JsonSlurper()
+        slurper.parseText(jsonpart)
+        boolean check = true
+        for (attr in listattr) {
+            if (!jsonpart.contains(attr)) {
+                check = false
+                break
+            }
+        }
+        return check
     }
 }
