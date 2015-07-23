@@ -352,6 +352,10 @@ public class PowerFilter extends DelegatingFilterProxy {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
+        if (currentSystemModel.get().isRewriteTracingHeader()) {
+            mutableHttpRequest.removeHeader(CommonHttpHeader.TRACE_GUID.toString());
+        }
+
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
         if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {

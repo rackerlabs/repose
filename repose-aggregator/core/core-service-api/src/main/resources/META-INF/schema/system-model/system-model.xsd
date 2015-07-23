@@ -46,6 +46,7 @@
         </xs:sequence>
 
         <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="rewrite-tracing-header" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="Cluster">
