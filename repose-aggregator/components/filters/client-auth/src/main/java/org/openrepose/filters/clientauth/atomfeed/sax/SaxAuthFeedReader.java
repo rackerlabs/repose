@@ -65,13 +65,13 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private AkkaServiceClient akkaServiceClient;
     private boolean isOutboundTracing = false;
 
-    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, boolean systemModel) {
+    public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String feedHead, String feedId, boolean isOutboundTracing) {
         this.client = client;
         this.feedHead = feedHead;
         this.targetFeed = feedHead;
         this.feedId = feedId;
         this.akkaServiceClient = akkaClient;
-        this.isOutboundTracing = systemModel;
+        this.isOutboundTracing = isOutboundTracing;
         factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
     }
