@@ -19,12 +19,14 @@
  */
 package org.openrepose.filters.clientauth;
 
+import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,7 @@ public class ClientAuthenticationFilter implements Filter {
     private final AkkaServiceClient akkaServiceClient;
     private String config;
     private ClientAuthenticationHandlerFactory handlerFactory;
+    private SystemModelConfigurationListener systemModelConfigurationListener;
 
     @Inject
     public ClientAuthenticationFilter(DatastoreService datastoreService,
@@ -62,6 +65,7 @@ public class ClientAuthenticationFilter implements Filter {
     public void destroy() {
         handlerFactory.stopFeeds();
         configurationService.unsubscribeFrom(config, handlerFactory);
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
     }
 
     @Override
@@ -76,5 +80,24 @@ public class ClientAuthenticationFilter implements Filter {
         handlerFactory = new ClientAuthenticationHandlerFactory(datastoreService.getDefaultDatastore(), httpClientService, akkaServiceClient);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, ClientAuthConfig.class);
+        URL smXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        systemModelConfigurationListener = new SystemModelConfigurationListener();
+        configurationService.subscribeTo("", "system-model.cfg.xml", smXsdURL, systemModelConfigurationListener, SystemModel.class);
+
+    }
+
+    private class SystemModelConfigurationListener implements org.openrepose.commons.config.manager.UpdateListener<SystemModel> {
+
+        private boolean initialized = false;
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) throws UpdateFailedException {
+            handlerFactory.setOutboundTracing(configurationObject.isTracingHeader());
+            initialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return initialized;
+        }
     }
 }

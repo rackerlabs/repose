@@ -66,6 +66,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private UriMatcher uriMatcher;
     private FeedListenerManager manager;
     private AkkaServiceClient akkaServiceClient;
+    private boolean isOutboundTracing;
 
 
     public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
@@ -110,6 +111,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             return null;
         }
         return authenticationModule;
+    }
+
+    public void setOutboundTracing(boolean isOutboundTracing) {
+        manager.setOutboundTracing(isOutboundTracing);
+        this.isOutboundTracing = isOutboundTracing;
     }
 
     private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
@@ -168,7 +174,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                         new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(), httpClientService),
                         akkaServiceClient,
                         feed.getUri(),
-                        feed.getId());
+                        feed.getId(),
+                        isOutboundTracing);
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {

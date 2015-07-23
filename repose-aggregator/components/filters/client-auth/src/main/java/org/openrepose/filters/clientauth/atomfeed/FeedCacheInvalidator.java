@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed;
 
+import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
@@ -26,10 +27,12 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.OsAuthCachePrefix;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /*
  * Listener class to iterate through AuthFeedReaders and retrieve items to delete from the cache
@@ -39,7 +42,7 @@ public class FeedCacheInvalidator implements Runnable {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(FeedCacheInvalidator.class);
     private static final long DEFAULT_CHECK_INTERVAL = 5000;
     private boolean done = false;
-    private List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
+    private List<AuthFeedReader> feeds = new ArrayList<>();
     private AuthTokenCache tknCache;
     private AuthGroupCache grpCache;
     private AuthUserCache usrCache;
@@ -72,20 +75,32 @@ public class FeedCacheInvalidator implements Runnable {
 
     public void setFeeds(List<AuthFeedReader> feeds) {
         this.feeds = feeds;
+    }
 
+    public void setOutboundTracing(boolean isOutboundTracing) {
+        for (AuthFeedReader afr : feeds) {
+            afr.setOutboundTracing(isOutboundTracing);
+        }
     }
 
     @Override
     public void run() {
-        while (!done) {
 
-            List<String> userKeys = new ArrayList<String>();
-            List<String> tokenKeys = new ArrayList<String>();
+        while (!done) {
+            // Generate trans-id here so it is the same between multiple pages
+            String traceID = UUID.randomUUID().toString();
+
+            MDC.put(TracingKey.TRACING_KEY, traceID);
+
+            LOG.debug("Beginning Feed Cache Invalidator Thread request.");
+
+            List<String> userKeys = new ArrayList<>();
+            List<String> tokenKeys = new ArrayList<>();
 
             // Iterate through atom feeds to retrieve tokens and users to invalidate from Repose cache
             for (AuthFeedReader rdr : feeds) {
                 try {
-                    CacheKeys keys = rdr.getCacheKeys();
+                    CacheKeys keys = rdr.getCacheKeys(traceID);
                     userKeys.addAll(keys.getUserKeys());
                     tokenKeys.addAll(keys.getTokenKeys());
                 } catch (FeedException e) {
@@ -112,13 +127,13 @@ public class FeedCacheInvalidator implements Runnable {
      */
     private List<String> getTokensForUser(List<String> keys) {
 
-        List<String> tokenKeys = new ArrayList<String>();
+        List<String> tokenKeys = new ArrayList<>();
         for (String key : keys) {
             Set<String> tkns = usrCache.getUserTokenList(key);
             if (tkns != null) {
                 tokenKeys.addAll(tkns);
                 //removes user item from cache
-                usrCache.deleteCacheItem(key); //removes user item from cache
+                usrCache.deleteCacheItem(key);
                 LOG.debug("Invalidating tokens from user " + key);
             }
         }
