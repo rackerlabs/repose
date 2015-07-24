@@ -1,0 +1,219 @@
+package features.filters.valkyrie
+
+import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
+import framework.mocks.MockValkyrie
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
+
+/**
+ * Created by jennyvo on 7/24/15.
+ * Check fix the failed testcase when turn on trace for intrafilter log - REP-2470
+ * Test have to pass after fix
+ */
+class ValkyrieWIntrafilterLogTraceTest extends ReposeValveTest {
+    def static originEndpoint
+    def static identityEndpoint
+    def static valkyrieEndpoint
+
+    def static MockIdentityService fakeIdentityService
+    def static MockValkyrie fakeValkyrie
+    def static Map params = [:]
+
+    def static random = new Random()
+
+    def setupSpec() {
+        deproxy = new Deproxy()
+
+        params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/masked404resp", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/intrafiltertrace", params);
+
+        repose.start()
+
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+        fakeIdentityService.checkTokenValid = true
+
+        fakeValkyrie = new MockValkyrie(properties.valkyriePort)
+        valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
+    }
+
+    def setup() {
+    }
+
+    def cleanupSpec() {
+        if (deproxy) {
+            deproxy.shutdown()
+        }
+
+        if (repose) {
+            repose.stop()
+        }
+    }
+
+
+    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
+    def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+
+
+        where:
+        method   | tenantID                   | deviceID | permission      | responseCode
+        "HEAD"   | randomTenant()             | "520707" | ""              | "404"
+        "HEAD"   | randomTenant()             | "520707" | "prombol"       | "404"
+
+    }
+    @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID                        | deviceID | permission      | responseCode
+        "GET"    | random.nextInt()                | "520707" | "view_product"  | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "view_product"  | "404"
+        "GET"    | random.nextInt()                | "520707" | "admin_product" | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "admin_product" | "404"
+        "PUT"    | random.nextInt()                | "520707" | "admin_product" | "404"
+        "POST"   | random.nextInt()                | "520707" | "admin_product" | "404"
+        "PATCH"  | random.nextInt()                | "520707" | "admin_product" | "404"
+        "DELETE" | random.nextInt()                | "520707" | "admin_product" | "404"
+        "GET"    | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "HEAD"   | random.nextInt()                | "520707" | "edit_product"  | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "view_product"  | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "admin_product" | "404"
+        "HEAD"   | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "404"
+    }
+
+    @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 403 if contact id missing"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+            contact_id = ""
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID         | deviceID | permission      | responseCode
+        "HEAD"   | random.nextInt() | "520707" | "view_product"  | "404"
+        "HEAD"   | random.nextInt() | "520707" | "admin_product" | "404"
+        "PUT"    | random.nextInt() | "520707" | "admin_product" | "404"
+        "POST"   | random.nextInt() | "520707" | "admin_product" | "404"
+        "PATCH"  | random.nextInt() | "520707" | "admin_product" | "404"
+        "DELETE" | random.nextInt() | "520707" | "admin_product" | "404"
+        "GET"    | random.nextInt() | "520707" | "edit_product"  | "404"
+        "HEAD"   | random.nextInt() | "520707" | "edit_product"  | "404"
+    }
+
+    @Unroll("Without tenantId - permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
+    def "Repose return 502 if missing tenantId"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = ""
+        }
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | deviceID | permission      | responseCode
+        "GET"    | "520707" | "view_product"  | "502"
+        "HEAD"   | "520707" | "view_product"  | "502"
+        "GET"    | "520707" | "admin_product" | "502"
+        "HEAD"   | "520707" | "admin_product" | "502"
+        "GET"    | "520707" | "edit_product"  | "502"
+        "HEAD"   | "520707" | "edit_product"  | "502"
+    }
+
+    def String randomTenant() {
+        "hybrid:" + random.nextInt()
+    }
+}
