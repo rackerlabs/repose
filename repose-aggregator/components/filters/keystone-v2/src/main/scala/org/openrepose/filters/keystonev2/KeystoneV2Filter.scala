@@ -20,6 +20,7 @@
 package org.openrepose.filters.keystonev2
 
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -29,6 +30,7 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.HttpHeaders
+import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -37,11 +39,11 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.filters.keystonev2.RequestHandler._
+import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
-import scala.collection.mutable
-import scala.util.{Failure, Success, Try}
+import scala.collection.JavaConverters._
+import scala.util.{Failure, Random, Success, Try}
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
@@ -56,14 +58,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
   private final val X_AUTH_PROXY = "Proxy"
+  private final val DELEGATED = "Delegated"
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var sendTraceHeader = true
 
-  //Which happens to be the local datastore
-  private val datastore: Datastore = datastoreService.getDefaultDatastore
-
-  implicit val autoHeaderToString: HeaderConstant => String = hc => hc.toString
+  private val datastore: Datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
 
   var keystoneV2Config: KeystoneV2Config = _
 
@@ -92,209 +92,82 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
+    /**
+     * STATIC REFERENCE TO CONFIG
+     */
+    val config = keystoneV2Config
+
+    /**
+     * DECLARE COMMON VALUES
+     */
+    lazy val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+    // Not using the mutable wrapper because it doesn't work properly at the moment, and
+    // we don't need to modify the response from further down the chain
+    lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
+    lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+    lazy val requestHandler = new KeystoneRequestHandler(config.getIdentityService.getUri, akkaServiceClient, traceId)
+
+    /**
+     * BEGIN PROCESSING
+     */
     if (!isInitialized) {
-      logger.error("Keystone v2 filter has not yet initialized...")
+      logger.error("Keystone v2 filter has not yet initialized")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR)
     } else {
       logger.trace("Keystone v2 filter processing request...")
 
-      val config = keystoneV2Config
-      val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-      // Not using the mutable wrapper because it doesn't work properly at the moment, and we don't need to modify the response from further down the chain
-      val response = servletResponse.asInstanceOf[HttpServletResponse]
-      val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
-      val requestHandler = new RequestHandler(config, akkaServiceClient, datastore, traceId)
+      val keystoneAuthenticateHeader = s"Keystone uri=${config.getIdentityService.getUri}"
 
-      //Check our whitelist
-      val whiteListURIs: Option[List[String]] =
-        for {
-          jaxbIntermediary <- Option(config.getWhiteList)
-          regexList <- Option(jaxbIntermediary.getUriRegex)
-        } yield {
-          import scala.collection.JavaConversions._
-          regexList.toList
-        }
-
-      val whiteListMatch: Boolean = whiteListURIs exists { uriList =>
-        uriList exists { pattern =>
-          logger.debug(s"checking ${request.getRequestURI} against $pattern")
-          request.getRequestURI.matches(pattern)
-        }
-      }
-
-      val authTokenValue = Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN))
-
-      // Initialize the headers map here so it is accessible when handling the result
-      var addtlReqHdrs: mutable.Map[String, String] = mutable.Map.empty[String, String]
-      var addtlRespHdrs: mutable.Map[String, String] = mutable.Map.empty[String, String]
-
-      //Get the authenticating token!
-      val result: KeystoneV2Result = if (whiteListMatch) {
-        Pass
-      } else {
-        authTokenValue map { authToken =>
-          //This block of code tries to get the token from the datastore, and provides it from real calls, if it can't
-          val tokenValidationResult: Try[AuthResult] =
-            Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[AuthResult]) map { validationResult =>
-              Success(validationResult)
-            } getOrElse {
-              //flatMap to unbox the Try[Try[TokenValidationResult]] so all Failure's are just packaged along
-              requestHandler.getAdminToken flatMap { adminToken =>
-                requestHandler.validateToken(adminToken, authToken) recoverWith {
-                  //Recover if the exception is an AdminTokenUnauthorizedException
-                  //This way we can specify however we want to what we want to do to retry.
-                  //Also it only retries ONCE! No loops or anything. Fails gloriously
-                  case unauth: AdminTokenUnauthorizedException =>
-                    //Clear the cache, call this method again
-                    datastore.remove(ADMIN_TOKEN_KEY)
-                    requestHandler.getAdminToken match {
-                      case Success(newAdminToken) => requestHandler.validateToken(newAdminToken, authToken)
-                      case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+      val filterResult =
+        if (isWhitelisted(request.getRequestURI)) {
+          Pass
+        } else {
+          val processingResult =
+            getAuthToken flatMap { authToken =>
+              validateToken(getAdminToken, authToken) flatMap { validToken =>
+                addTokenHeaders(validToken)
+                authorizeTenant(tenantFromUri, validToken) flatMap { _ =>
+                  lazy val endpoints = getEndpoints(getAdminToken, authToken, validToken) // Prevents making call if its not needed
+                  addCatalogHeader(endpoints) flatMap { _ =>
+                    authorizeEndpoints(validToken, endpoints) flatMap { _ =>
+                      addGroupsHeader(getGroups(getAdminToken, authToken, validToken))
                     }
+                  }
                 }
               }
             }
 
-          tokenValidationResult match {
-            case Success(InvalidToken) =>
-              Reject(SC_UNAUTHORIZED)
-            case Success(validToken: ValidToken) =>
-              // Add standard headers from token information
-              addtlReqHdrs ++= Map(PowerApiHeader.USER.toString -> validToken.username,
-                OpenStackServiceHeader.USER_NAME.toString -> validToken.username,
-                OpenStackServiceHeader.USER_ID.toString -> validToken.userId,
-                OpenStackServiceHeader.TENANT_NAME.toString -> validToken.tenantName,
-                OpenStackServiceHeader.X_EXPIRATION.toString -> validToken.expirationDate)
-              validToken.defaultRegion.map(dr => OpenStackServiceHeader.DEFAULT_REGION.toString -> dr).foreach(addtlReqHdrs.+=)
-              validToken.contactId.map(ci => OpenStackServiceHeader.CONTACT_ID.toString -> ci).foreach(addtlReqHdrs.+=)
-              validToken.impersonatorId.map(iid => OpenStackServiceHeader.IMPERSONATOR_ID.toString -> iid).foreach(addtlReqHdrs.+=)
-              validToken.impersonatorName.map(in => OpenStackServiceHeader.IMPERSONATOR_NAME.toString -> in).foreach(addtlReqHdrs.+=)
-
-              // If configured, add roles header
-              if (config.getIdentityService.isSetRolesInHeader) {
-                addtlReqHdrs += (OpenStackServiceHeader.ROLES.toString -> validToken.roles.mkString(","))
-              }
-
-              // Extract the tenant and add the x-authorization header
-              val uriTenantOption = requestHandler.extractTenant(request.getRequestURI)
-              uriTenantOption match {
-                case Some(uriTenant) =>
-                  addtlReqHdrs += (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> s"$X_AUTH_PROXY $uriTenant")
-                case None =>
-                  addtlReqHdrs += (OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString -> X_AUTH_PROXY)
-              }
-
-              // Construct and add the tenant id header
-              val tenantsToPass = buildTenantHeader(config.getTenantHandling, validToken.defaultTenantId, validToken.tenantIds, uriTenantOption)
-              addtlReqHdrs += (OpenStackServiceHeader.TENANT_ID.toString -> tenantsToPass.mkString(","))
-
-              // If configured, authorize the URI tenant against the token
-              val authorizedTenant = requestHandler.tenantAuthorized(uriTenantOption, validToken) match {
-                case Some(Failure(e)) =>
-                  Reject(SC_UNAUTHORIZED, failure = Some(e))
-                case _ =>
-                  Pass
-              }
-
-              // Authorize token endpoints and, if configured, populate the x-catalog header
-              val endpoints = authorizedTenant match {
-                case Pass =>
-                  requestHandler.handleEndpoints(authToken, validToken) match {
-                    case Some(Success(endpointsData)) =>
-                      //If I'm configured to put the endpoints into a x-catalog do it
-                      if (config.getIdentityService.isSetCatalogInHeader) {
-                        // todo: don't check this flag twice
-                        addtlReqHdrs += (PowerApiHeader.X_CATALOG.toString -> Base64.encodeBase64String(endpointsData.endpointsJson.getBytes))
-                        Pass
-                      } else {
-                        Pass
-                      }
-                    case Some(Failure(x)) =>
-                      //Reject them with 403
-                      Reject(SC_FORBIDDEN, failure = Some(x))
-                    case None =>
-                      //Do more things in here
-                      Pass
-                  }
-                case reject: Reject => reject
-              }
-
-              // If configured, populate the x-pp-groups endpoint
-              val userGroups = endpoints match {
-                case Pass =>
-                  requestHandler.getGroups(authToken, validToken) match {
-                    case Some(Success(groups)) =>
-                      if (groups.isEmpty) {
-                        Pass
-                      } else {
-                        addtlReqHdrs += (PowerApiHeader.GROUPS.toString -> groups.mkString(","))
-                        Pass
-                      }
-                    case Some(Failure(e)) =>
-                      logger.error(s"Could not get groups: ${e.getMessage}")
-                      Pass
-                    case None => Pass
-                  }
-                case reject: Reject => reject
-              }
-
-              // Add the x-identity-status header once all other checks pass
-              userGroups match {
-                case Pass =>
-                  addtlReqHdrs += (OpenStackServiceHeader.IDENTITY_STATUS.toString -> IdentityStatus.Confirmed.toString)
-                case _ => ()
-              }
-
-              userGroups
-            case Failure(x: IdentityAdminTokenException) =>
-              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
-            case Failure(x: IdentityCommunicationException) =>
-              Reject(SC_BAD_GATEWAY, failure = Some(x))
-            case Failure(x) =>
-              Reject(SC_INTERNAL_SERVER_ERROR, failure = Some(x))
+          processingResult match {
+            case Success(_) => Pass
+            case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+            case Failure(e: InvalidTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+            case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+            case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+            case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
+            case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
+            case Failure(e: OverLimitException) =>
+              response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
+              Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+            case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
           }
-        } getOrElse {
-          //Don't have an auth token to validate
-          Reject(SC_UNAUTHORIZED, Some("Auth token not found in headers"))
         }
-      }
 
-      // Add headers regardless of the result because it's cheap
-      addtlReqHdrs.foreach { case (k, v) =>
-        request.addHeader(k, v)
-      }
-
-      //Handle the result of the filter
-      result match {
-        case r: Reject =>
-          //Transform the result for common failures
-          val reject = r match {
-            case Reject(_, _, Some(ole: OverLimitException)) =>
-              // Handle rate limiting case
-              addtlRespHdrs += (HttpHeaders.RETRY_AFTER -> ole.retryAfter)
-              Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(ole.message), Some(ole))
-            case _ =>
-              // No transformation necessary
-              r
-          }
-
-          //Extract the message from the Reject
-          val message: Option[String] = reject match {
-            case Reject(_, Some(x), _) => Some(x)
-            case Reject(code, None, Some(failure)) => Some(failure.getMessage)
-            case _ => None
-          }
-
-          //Handle delegation if necessary
+      filterResult match {
+        case Pass =>
+          logger.trace("Processing completed, passing to next filter or service")
+          addIdentityStatusHeader(confirmed = true)
+          chain.doFilter(request, response)
+        case Reject(statusCode, message) =>
           Option(config.getDelegating) match {
             case Some(delegating) =>
-              logger.debug(s"Delegating with status ${reject.status} caused by: ${message.getOrElse("unspecified")}")
-              val delegationHeaders = buildDelegationHeaders(reject.status,
+              logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
+
+              val delegationHeaders = buildDelegationHeaders(statusCode,
                 "keystone-v2",
                 message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
                 delegating.getQuality)
 
-              request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString, IdentityStatus.Indeterminate.toString)
+              addIdentityStatusHeader(confirmed = false)
               delegationHeaders foreach { case (key, values) =>
                 values foreach { value =>
                   request.addHeader(key, value)
@@ -302,51 +175,313 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               }
 
               chain.doFilter(request, response)
-
-            // todo: handle response, add www-authenticate header and retry-after header
             case None =>
-              logger.debug(s"Rejecting with status ${reject.status}")
-              addtlRespHdrs += (CommonHttpHeader.WWW_AUTHENTICATE.toString -> s"Keystone uri=${config.getIdentityService.getUri}")
-              addtlRespHdrs foreach { case (k, v) =>
-                response.addHeader(k, v)
-              }
+              logger.debug(s"Rejecting with status $statusCode}")
+              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               message match {
                 case Some(m) =>
                   logger.debug(s"Rejection message: $m")
-                  response.sendError(reject.status, m)
-                case None => response.sendError(reject.status)
+                  response.sendError(statusCode, m)
+                case None => response.sendError(statusCode)
               }
           }
 
-        case Pass =>
-          //If the token validation passed and we're configured to do more things, we can do additional authorizations
-          chain.doFilter(request, response)
+          logger.trace(s"Processing response with status code: $statusCode")
 
-          logger.trace("Keystone v2 filter processing response...")
-          val wwwAuthenticateValue = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
+          val wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
 
           response.getStatus match {
             case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
-              Option(config.getDelegating) foreach { delegating =>
-                // If in the case that the origin service supports delegated authentication
-                // we should then communicate to the client how to authenticate with us
-                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, s"Keystone uri=${config.getIdentityService.getUri}")
-              }
-            case HttpServletResponse.SC_NOT_IMPLEMENTED =>
-              Option(config.getDelegating) foreach { delegating =>
-                logger.error("Keystone v2 filter is configured to delegate, but the origin service does not support delegation")
+              if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
+                logger.debug("The origin service could not authenticate the delegated request")
+                response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+              } else {
+                logger.error("Authentication with the origin service has failed")
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
               }
-            case _ => // nothing to do here
+            case HttpServletResponse.SC_NOT_IMPLEMENTED =>
+              if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
+                logger.error("Configured to delegate, but the origin service does not support delegation")
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+              }
+            case _ => ()
           }
       }
+    }
+
+    /**
+     * DEFINING FUNCTIONS IN SCOPE
+     */
+    lazy val tenantFromUri: Option[String] = {
+      Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
+        Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
+          val regex = uriExtractionRegex.r
+          request.getRequestURI match {
+            case regex(tenantId, _*) => Some(tenantId)
+            case _ => None
+          }
+        }
+      }
+    }
+
+    def isWhitelisted(requestUri: String): Boolean = {
+      logger.trace("Comparing request URI to whitelisted URIs")
+
+      val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
+
+      whiteListUris exists { pattern =>
+        logger.debug(s"checking $requestUri against $pattern")
+        requestUri.matches(pattern)
+      }
+    }
+
+    def getAuthToken: Try[String] = {
+      logger.trace("Getting the x-auth-token header value")
+
+      Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN)) match {
+        case Some(token) => Success(token)
+        case None => Failure(MissingAuthTokenException("X-Auth-Token header not found"))
+      }
+    }
+
+    def getAdminToken(force: Boolean): Try[String] = {
+      logger.trace("Getting an admin token with the configured credentials")
+
+      // If force is true, clear the cache and acquire a new token
+      if (force) datastore.remove(ADMIN_TOKEN_KEY)
+
+      Option(datastore.get(ADMIN_TOKEN_KEY).asInstanceOf[String]) match {
+        case Some(cachedAdminToken) => Success(cachedAdminToken)
+        case None =>
+          requestHandler.getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword) match {
+            case Success(adminToken) =>
+              datastore.put(ADMIN_TOKEN_KEY, adminToken)
+              Success(adminToken)
+            case f: Failure[_] => f
+          }
+      }
+    }
+
+    def validateToken(getAdminToken: Boolean => Try[String], authToken: String): Try[ValidToken] = {
+      logger.trace(s"Validating token: $authToken")
+
+      Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
+        Success(validationResult)
+      } getOrElse {
+        getAdminToken(false) flatMap { validatingToken =>
+          requestHandler.validateToken(validatingToken, authToken) recoverWith {
+            case _: AdminTokenUnauthorizedException =>
+              // Force acquiring of the admin token, and call the validation function again (retry once)
+              getAdminToken(true) match {
+                case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken)
+                case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+              }
+          } cacheOnSuccess { validToken =>
+            val cacheSettings = config.getCache
+            val timeToLive = getTtl(cacheSettings.getTimeouts.getToken,
+              cacheSettings.getTimeouts.getVariability,
+              Some(validToken))
+            datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, timeToLive, TimeUnit.SECONDS)
+          }
+        }
+      }
+    }
+
+    def authorizeTenant(expectedTenant: Option[String], validToken: ValidToken): Try[Unit.type] = {
+      Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
+        Option(validateTenant.getBypassValidationRoles) filter {
+          _.getRole.asScala.intersect(validToken.roles).nonEmpty
+        } map { _ =>
+          Success(Unit)
+        } getOrElse {
+          logger.trace("Validating tenant")
+
+          expectedTenant map { reqTenant =>
+            val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
+            tokenTenants.find(reqTenant.equals)
+              .map(_ => Success(Unit))
+              .getOrElse(Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")))
+          } getOrElse {
+            Failure(UnparseableTenantException("Could not parse tenant from the URI"))
+          }
+        }
+      } getOrElse Success(Unit)
+    }
+
+    def getEndpoints(getAdminToken: Boolean => Try[String], authToken: String, validToken: ValidToken): Try[EndpointsData] = {
+      logger.trace(s"Getting endpoints for: $authToken")
+
+      // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
+      Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) match {
+        case Some(endpointsData) => Success(endpointsData)
+        case None =>
+          getAdminToken(false) flatMap { adminToken =>
+            requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
+              case _: AdminTokenUnauthorizedException =>
+                // Force acquiring of the admin token, and call the endpoints function again (retry once)
+                getAdminToken(true) match {
+                  case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken)
+                  case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                }
+            } cacheOnSuccess { endpointsJson =>
+              val cacheSettings = config.getCache
+              val timeToLive = getTtl(cacheSettings.getTimeouts.getEndpoints,
+                cacheSettings.getTimeouts.getVariability)
+              datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, timeToLive, TimeUnit.SECONDS)
+            }
+          }
+      }
+    }
+
+    def authorizeEndpoints(validToken: ValidToken, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+      Option(config.getRequireServiceEndpoint) match {
+        case Some(configuredEndpoint) =>
+          logger.trace(s"Authorizing endpoints")
+
+          maybeEndpoints flatMap { endpoints =>
+            lazy val requiredEndpoint =
+              Endpoint(
+                publicURL = configuredEndpoint.getPublicUrl,
+                name = Option(configuredEndpoint.getName),
+                endpointType = Option(configuredEndpoint.getType),
+                region = Option(configuredEndpoint.getRegion)
+              )
+
+            val bypassRoles = Option(configuredEndpoint.getBypassValidationRoles)
+              .map(_.getRole.asScala)
+              .getOrElse(List.empty)
+
+            if (bypassRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
+            else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
+          }
+        case None => Success(Unit)
+      }
+    }
+
+    def getGroups(getAdminToken: Boolean => Try[String], authToken: String, validToken: ValidToken): Try[Vector[String]] = {
+      logger.trace(s"Getting groups for: $authToken")
+
+      Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) match {
+        case Some(groups) => Success(groups)
+        case None =>
+          getAdminToken(false) flatMap { adminToken =>
+            requestHandler.getGroups(adminToken, authToken) recoverWith {
+              case _: AdminTokenUnauthorizedException =>
+                // Force acquiring of the admin token, and call the endpoints function again (retry once)
+                getAdminToken(true) match {
+                  case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, authToken)
+                  case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                }
+            } cacheOnSuccess { groups =>
+              val cacheSettings = config.getCache
+              val timeToLive = getTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)
+              datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, timeToLive, TimeUnit.SECONDS)
+            }
+          }
+      }
+    }
+
+    def buildTenantHeader(defaultTenant: String,
+                          roleTenants: Seq[String],
+                          uriTenant: Option[String]): Vector[String] = {
+      val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
+      val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
+      val sendQuality = sendTenantIdQuality.isDefined
+      val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
+      val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
+      val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
+
+      var preferredTenant = defaultTenant
+      var preferredTenantQuality = defaultTenantQuality
+      uriTenant foreach { tenant =>
+        preferredTenant = tenant
+
+        preferredTenantQuality = if (defaultTenant.equals(tenant)) {
+          math.max(defaultTenantQuality, uriTenantQuality)
+        } else {
+          uriTenantQuality
+        }
+      }
+
+      if (sendAllTenants && sendQuality) {
+        val priorityTenants = uriTenant match {
+          case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
+          case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+        }
+        priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
+      } else if (sendAllTenants && !sendQuality) {
+        Vector(defaultTenant) ++ roleTenants
+      } else if (!sendAllTenants && sendQuality) {
+        Vector(s"$preferredTenant;q=$preferredTenantQuality")
+      } else {
+        Vector(preferredTenant)
+      }
+    }
+
+    def addTokenHeaders(token: ValidToken): Unit = {
+      // Add standard headers
+      request.addHeader(PowerApiHeader.USER.toString, token.username)
+      request.addHeader(OpenStackServiceHeader.USER_NAME.toString, token.username)
+      request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
+      request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, token.tenantName)
+      request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
+      token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
+      token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))
+      token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
+      token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString, _))
+
+      // Construct and add the tenant id header
+      val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, tenantFromUri)
+      request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
+
+      // If configured, add roles header
+      if (config.getIdentityService.isSetRolesInHeader) {
+        request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.mkString(","))
+      }
+
+      // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
+      tenantFromUri match {
+        case Some(uriTenant) =>
+          request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
+        case None =>
+          request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY ${token.defaultTenantId}")
+      }
+    }
+
+    def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+      if (config.getIdentityService.isSetCatalogInHeader) {
+        maybeEndpoints map { endpoints =>
+          request.addHeader(PowerApiHeader.X_CATALOG.toString, Base64.encodeBase64String(endpoints.json.getBytes))
+          Unit
+        }
+      } else {
+        Success(Unit)
+      }
+    }
+
+    def addGroupsHeader(maybeGroups: => Try[Vector[String]]): Try[Unit.type] = {
+      if (config.getIdentityService.isSetGroupsInHeader) {
+        maybeGroups map { groups =>
+          if (groups.nonEmpty) {
+            request.addHeader(PowerApiHeader.GROUPS, groups.mkString(","))
+          }
+          Unit
+        }
+      } else {
+        Success(Unit)
+      }
+    }
+
+    def addIdentityStatusHeader(confirmed: Boolean): Unit = {
+      if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Confirmed.toString)
+      else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
     }
   }
 
   def isInitialized = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
 
   object SystemModelConfigListener extends UpdateListener[SystemModel] {
-    var initialized = false
+    private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
       sendTraceHeader = configurationObject.isTracingHeader
@@ -357,7 +492,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   object KeystoneV2ConfigListener extends UpdateListener[KeystoneV2Config] {
-    var initialized = false
+    private var initialized = false
 
     override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
       def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
@@ -366,6 +501,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         // I'm sorry
         if (stupidConfig.getTenantHandling == null) {
           stupidConfig.withTenantHandling(new TenantHandlingType())
+        }
+
+        if (stupidConfig.getWhiteList == null) {
+          stupidConfig.withWhiteList(new WhiteListType())
         }
 
         if (stupidConfig.getCache == null) {
@@ -389,49 +528,54 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
 object KeystoneV2Filter {
 
+  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
+
+  implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
+
+  def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None) = {
+    def safeLongToInt(l: Long) = math.min(l, Int.MaxValue).toInt
+
+    val configuredTtl = if (baseTtl == 0 || variability == 0) {
+      baseTtl
+    } else {
+      math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
+    }
+
+    tokenOption match {
+      case Some(token) =>
+        val tokenExpiration = DateUtils.parseDate(token.expirationDate).getTime - System.currentTimeMillis()
+        if (tokenExpiration < 1) {
+          1
+        } else {
+          val tokenTtl = safeLongToInt(tokenExpiration / 1000)
+          math.min(tokenTtl, configuredTtl)
+        }
+      case None =>
+        configuredTtl
+    }
+  }
+
+  class CachingTry[T](wrappedTry: Try[T]) {
+    def cacheOnSuccess(cachingFunction: T => Unit): Try[T] = {
+      wrappedTry match {
+        case Success(it) =>
+          cachingFunction(it)
+          wrappedTry
+        case f: Failure[_] => f
+      }
+    }
+  }
+
   sealed trait KeystoneV2Result
 
   object Pass extends KeystoneV2Result
 
-  case class Reject(status: Int,
-                    message: Option[String] = None,
-                    failure: Option[Throwable] = None) extends KeystoneV2Result
+  case class Reject(status: Int, message: Option[String] = None) extends KeystoneV2Result
 
-  def buildTenantHeader(tenantHandling: TenantHandlingType,
-                        defaultTenant: String,
-                        roleTenants: Seq[String],
-                        uriTenant: Option[String]): Vector[String] = {
-    val sendAllTenants = tenantHandling.isSendAllTenantIds
-    val sendTenantIdQuality = Option(tenantHandling.getSendTenantIdQuality)
-    val sendQuality = sendTenantIdQuality.isDefined
-    val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
-    val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
-    val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
+  case class MissingAuthTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
-    var preferredTenant = defaultTenant
-    var preferredTenantQuality = defaultTenantQuality
-    uriTenant foreach { tenant =>
-      preferredTenant = tenant
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
-      preferredTenantQuality = if (defaultTenant.equals(tenant)) {
-        math.max(defaultTenantQuality, uriTenantQuality)
-      } else {
-        uriTenantQuality
-      }
-    }
+  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
-    if (sendAllTenants && sendQuality) {
-      val priorityTenants = uriTenant match {
-        case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
-        case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
-      }
-      priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
-    } else if (sendAllTenants && !sendQuality) {
-      Vector(defaultTenant) ++ roleTenants
-    } else if (!sendAllTenants && sendQuality) {
-      Vector(s"$preferredTenant;q=$preferredTenantQuality")
-    } else {
-      Vector(preferredTenant)
-    }
-  }
 }
