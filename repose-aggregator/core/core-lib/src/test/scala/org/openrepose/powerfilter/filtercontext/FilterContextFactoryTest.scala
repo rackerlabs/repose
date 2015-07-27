@@ -74,7 +74,6 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
     val clms = mockClassloaderManagerService(Map("test-filter" -> "org.openrepose.filters.core.test.TestFilter"))
     val list = List(clms).asJava
 
-
     val fcm = new FilterContextFactory(appContext, clms)
 
     val jaxbFilterConfig = new Filter()
@@ -91,6 +90,28 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
     val clazz = thingy.loadClass("org.openrepose.filters.core.test.TestFilter")
     filterContexts.get(0).getFilter.getClass.isAssignableFrom(clazz) shouldBe true
   }
+
+  it("loads a filter context for a filter that isn't annotated as a spring bean") {
+    val clms = mockClassloaderManagerService(
+      Map("unannotated-filter" -> "org.openrepose.filters.core.unannotated.UnannotatedFilter"))
+
+    val fcm = new FilterContextFactory(appContext, clms)
+
+    val jaxbFilterConfig = new Filter()
+    jaxbFilterConfig.setName("unannotated-filter")
+
+    val filterContexts = fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
+
+    filterContexts shouldNot be(null)
+    filterContexts shouldNot be(empty)
+
+    filterContexts.size() should be(1)
+
+    val thingy = clms.getLoadedApplications.asScala.head.getClassLoader
+    val clazz = thingy.loadClass("org.openrepose.filters.core.unannotated.UnannotatedFilter")
+    filterContexts.get(0).getFilter.getClass.isAssignableFrom(clazz) shouldBe true
+  }
+
   it("loads a filter context when there's many filters") {
     val clms = mockClassloaderManagerService(Map(
       "test-filter" -> "org.openrepose.filters.core.test.TestFilter",
@@ -173,7 +194,6 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
 
     val classMap = Map(
       "test-filter" -> "org.openrepose.filters.core.test.TestFilter",
-      "unannotated-filter" -> "org.openrepose.filters.core.unannotated.UnannotatedFilter",
       "broken-filter" -> "org.openrepose.filters.core.brokenfilter.BrokenFilter",
       "annotated-not-filter" -> "org.openrepose.filters.core.annotatednotfilter.AnnotatedNotFilter",
       "nonexistent-filter" -> "org.openrepose.filters.core.test.NopesFilter"
@@ -193,11 +213,6 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
       f(className, exception)
     }
 
-    it("the filter is not annotated with @Inject") {
-      failureTest("unannotated-filter") { (className, exception) =>
-        exception.getMessage should be(s"Requested filter, ${className} is not an annotated Component. Make sure your filter is an annotated Spring Bean.")
-      }
-    }
     it("the filter is not of the required type (javax.servlet.Filter)") {
       failureTest("annotated-not-filter") { (className, exception) =>
         exception.getMessage should be(s"Requested filter, ${className} is not of type javax.servlet.Filter")

@@ -27,7 +27,6 @@ import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.FilterInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -104,7 +103,9 @@ public class FilterContextFactory {
             //Get the specific class to load from the application context
             Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
 
-            final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+            //If Spring didn't load the filter as a bean, then try manually creating a new instance of the class
+            final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter)
+                    (filterContext.getBeanNamesForType(c).length > 0 ? filterContext.getBean(c) : c.newInstance());
 
             newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration()));
 
@@ -116,11 +117,11 @@ public class FilterContextFactory {
         } catch (ServletException e) {
             LOG.error("Failed to initialize filter {}", filterClassName);
             throw new FilterInitializationException("Failed to initialize filter " + filterClassName, e);
-        } catch (NoSuchBeanDefinitionException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName +
-                    " is not an annotated Component. Make sure your filter is an annotated Spring Bean.", e);
         } catch (ClassCastException e) {
             throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter", e);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new FilterInitializationException("Requested filter, " + filterClassName +
+                    " is not an annotated Component nor does it have a public zero-argument constructor.", e);
         }
     }
 
