@@ -80,6 +80,9 @@ class ContentTypeStripperTest extends ReposeValveTest {
         then:
         ((Handling) sentRequest).request.getHeaders().findAll("Content-Type").size() == 0
         ((Handling) sentRequest).request.body == (method == "GET" ? "" : requestBody) //We remove the body on a get when finally calling the service
+        // Verify Repose not throw error log for non anotation filter
+        reposeLogSearch.searchByString("Requested filter, *.ContentTypeStriperFilter is not an annotated Component. Make sure your filter is an annotated Spring Bean.").size() == 0
+
 
         where:
         desc                                                          | requestBody                           | method

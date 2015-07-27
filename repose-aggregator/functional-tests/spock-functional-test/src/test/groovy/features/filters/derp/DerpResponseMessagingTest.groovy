@@ -26,6 +26,7 @@ import org.rackspace.deproxy.MessageChain
 class DerpResponseMessagingTest extends ReposeValveTest {
 
     def setupSpec() {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -44,5 +45,9 @@ class DerpResponseMessagingTest extends ReposeValveTest {
         then:
         messageChain.getHandlings().size() + messageChain.getOrphanedHandlings().size() == 0
         messageChain.getReceivedResponse().getBody().equals('Response messaging caught a 5xx response')
+
+        // Verify Repose not throw error log for non anotation filter
+        reposeLogSearch.searchByString("Requested filter, *.DerpFilter is not an annotated Component. Make sure your filter is an annotated Spring Bean.").size() == 0
+
     }
 }
