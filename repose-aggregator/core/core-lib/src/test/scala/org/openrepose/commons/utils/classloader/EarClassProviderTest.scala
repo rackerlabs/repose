@@ -38,6 +38,9 @@ import scala.util.Random
 @RunWith(classOf[JUnitRunner])
 class EarClassProviderTest extends FunSpec with Matchers {
 
+  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+
   val logContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
   val appender = logContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
   val testProps = ConfigFactory.load("test.properties")
@@ -100,7 +103,6 @@ class EarClassProviderTest extends FunSpec with Matchers {
       }
     })
   }
-
 
   it("unpacks an ear to a directory successfully") {
 

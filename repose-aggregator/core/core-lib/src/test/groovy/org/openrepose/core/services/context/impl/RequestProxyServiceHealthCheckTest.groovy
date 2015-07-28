@@ -59,6 +59,11 @@ class RequestProxyServiceHealthCheckTest extends Specification {
     @Shared
     def HealthCheckServiceProxy healthCheckServiceProxy
 
+    def setupSpec() {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+    }
+
     def setup() {
         systemModelInterrogator = mock(SystemModelInterrogator.class)
         configurationService = mock(ConfigurationService.class)

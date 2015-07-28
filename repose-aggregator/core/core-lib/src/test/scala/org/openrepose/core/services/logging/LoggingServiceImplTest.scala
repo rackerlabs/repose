@@ -44,6 +44,9 @@ class LoggingServiceImplTest extends FunSpec with Matchers with MockitoSugar wit
 
   import scala.collection.JavaConversions._
 
+  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+
   val mockConfigService = mock[ConfigurationService]
   val validExtensions = List("xml", "json", "yaml")
   private val LOG: Logger = LoggerFactory.getLogger(classOf[LoggingServiceImplTest].getName)
