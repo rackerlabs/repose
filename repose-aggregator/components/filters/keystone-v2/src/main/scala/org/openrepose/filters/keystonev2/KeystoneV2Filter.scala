@@ -196,7 +196,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               }
             case None =>
               logger.debug(s"Rejecting with status $statusCode")
-              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+
+              if (statusCode == 401) {
+                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+              }
+
               message match {
                 case Some(m) =>
                   logger.debug(s"Rejection message: $m")
