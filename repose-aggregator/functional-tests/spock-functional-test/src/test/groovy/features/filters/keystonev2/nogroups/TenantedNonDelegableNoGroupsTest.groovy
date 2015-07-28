@@ -87,7 +87,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -116,10 +116,10 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        113           | 113            | 500              | "500"        | 200               | false
+        113           | 113            | 500              | "502"        | 200               | false
         114           | 114            | 404              | "401"        | 200               | true
-        115           | 115            | 200              | "200"        | 404               | false
-        116           | 116            | 200              | "200"        | 500               | false
+        115           | 115            | 200              | "401"        | 404               | true
+        116           | 116            | 200              | "502"        | 500               | false
         111           | 112            | 200              | "401"        | 200               | true
     }
 
@@ -161,15 +161,14 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
-        request2.headers.getFirstValue("x-tenant-id") == responseTenant.toString()
+        request2.headers.getFirstValue("x-tenant-id") == requestTenant.toString()
         request2.headers.contains("x-token-expires")
         request2.headers.getFirstValue("x-pp-user") == "username;q=1.0"
         request2.headers.contains("x-roles")
         request2.headers.getFirstValue("x-authorization") == "Proxy $requestTenant"
         request2.headers.getFirstValue("x-user-name") == "username"
-        !request2.headers.contains("x-pp-groups")
 
-        mc.receivedResponse.headers.contains("www-authenticate") == false
+        !mc.receivedResponse.headers.contains("www-authenticate")
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode

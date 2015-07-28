@@ -997,6 +997,10 @@ class MockIdentityV2Service {
                 {
                     "id":"234",
                     "name":"object-store:admin"
+                },
+                {
+                    "id":"345",
+                    "name":"\${serviceadmin}"
                 }
             ]
         }
@@ -1027,6 +1031,10 @@ class MockIdentityV2Service {
                 {
                     "id":"234",
                     "name":"object-store:admin",
+                },
+                {
+                    "id":"345",
+                    "name":"\${serviceadmin}"
                 }
             ]
         },
