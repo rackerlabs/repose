@@ -3,8 +3,8 @@
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <cache>
         <timeouts>
-            <token>5000</token>
-            <group>5000</group>
+            <token>5</token>
+            <group>5</group>
         </timeouts>
     </cache>
 

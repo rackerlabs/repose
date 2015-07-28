@@ -144,10 +144,9 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         fakeIdentityV2Service.getValidateTokenCount() == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id | tokenTimeout | cacheOffset
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"      | 1  | 5000         | 0
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero" | 2  | 5000         | 0
+        uniqueUsers | initialCallsPerUser | additionalConfigs                                     | id | tokenTimeout | cacheOffset
+        10          | 4                   | "features/filters/keystonev2/cacheoffset/notset"      | 1  | 5000         | 0
+        10          | 4                   | "features/filters/keystonev2/cacheoffset/defaultzero" | 2  | 5000         | 0
 
     }
-
 }
