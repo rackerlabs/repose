@@ -27,6 +27,7 @@ import org.openrepose.core.systemmodel.Filter;
 import org.openrepose.powerfilter.FilterInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -103,9 +104,17 @@ public class FilterContextFactory {
             //Get the specific class to load from the application context
             Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
 
-            //If Spring didn't load the filter as a bean, then try manually creating a new instance of the class
-            final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter)
-                    (filterContext.getBeanNamesForType(c).length > 0 ? filterContext.getBean(c) : c.newInstance());
+            javax.servlet.Filter newFilterInstance;
+            try {
+                newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+            } catch (NoSuchBeanDefinitionException e) {
+                //Spring didn't load the filter as a bean, try manually creating a new instance of the class
+                newFilterInstance = (javax.servlet.Filter) c.newInstance();
+
+                //Add the instance to the application context using its full class name
+                filterContext.getBeanFactory().registerSingleton(
+                        newFilterInstance.getClass().getName(), newFilterInstance);
+            }
 
             newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration()));
 
