@@ -43,6 +43,7 @@ import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 import scala.util.{Failure, Random, Success, Try}
 
 @Named
@@ -175,8 +176,26 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               }
 
               chain.doFilter(request, response)
+
+              logger.trace(s"Processing response with status code: $statusCode")
+
+              val wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
+
+              response.getStatus match {
+                case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
+                  if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
+                    logger.debug("The origin service could not authenticate the delegated request")
+                    response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+                  }
+                case HttpServletResponse.SC_NOT_IMPLEMENTED =>
+                  if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
+                    logger.error("Configured to delegate, but the origin service does not support delegation")
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                  }
+                case _ => ()
+              }
             case None =>
-              logger.debug(s"Rejecting with status $statusCode}")
+              logger.debug(s"Rejecting with status $statusCode")
               response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               message match {
                 case Some(m) =>
@@ -184,27 +203,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   response.sendError(statusCode, m)
                 case None => response.sendError(statusCode)
               }
-          }
-
-          logger.trace(s"Processing response with status code: $statusCode")
-
-          val wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
-
-          response.getStatus match {
-            case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
-              if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
-                logger.debug("The origin service could not authenticate the delegated request")
-                response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-              } else {
-                logger.error("Authentication with the origin service has failed")
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-              }
-            case HttpServletResponse.SC_NOT_IMPLEMENTED =>
-              if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
-                logger.error("Configured to delegate, but the origin service does not support delegation")
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-              }
-            case _ => ()
           }
       }
     }
