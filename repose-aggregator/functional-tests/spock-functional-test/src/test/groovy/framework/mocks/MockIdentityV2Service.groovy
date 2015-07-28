@@ -321,7 +321,7 @@ class MockIdentityV2Service {
                 }
             }
 
-        } else if (nonQueryPath.startsWith("/users/")) {
+        } else if (nonQueryPath.startsWith("/v2.0/users/")) {
 
             if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method == "GET") {
