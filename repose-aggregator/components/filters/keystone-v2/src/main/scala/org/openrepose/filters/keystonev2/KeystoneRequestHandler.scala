@@ -187,6 +187,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           case SC_UNAUTHORIZED =>
             Failure(AdminTokenUnauthorizedException("Admin token unauthorized to access endpoints"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
+          case SC_NOT_FOUND => Failure(InvalidTokenException("Provided token went bad before endpoints call"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
           case statusCode if statusCode >= 500 =>
@@ -220,6 +221,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           case SC_UNAUTHORIZED =>
             Failure(AdminTokenUnauthorizedException("Admin token unauthorized to access groups"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing groups"))
+          case SC_NOT_FOUND => Failure(InvalidTokenException("Provided token went bad before groups call"))
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing groups"))
           case statusCode if statusCode >= 500 =>
