@@ -658,7 +658,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
     }
 
-    it("rejects with 500 if the user does not have an endpoint when catalog variable is set") {
+    it("rejects with 401 if the token is no longer valid when catalog variable is set") {
       val modifiedConfig = configuration
       modifiedConfig.setRequireServiceEndpoint(null)
       modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
@@ -683,7 +683,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
