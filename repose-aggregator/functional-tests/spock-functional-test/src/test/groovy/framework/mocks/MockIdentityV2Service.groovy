@@ -485,7 +485,7 @@ class MockIdentityV2Service {
 
                 if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-                    params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+                    params.contactIdJson = "\"RAX-AUTH:contactId\": \"${contact_id}\","
                 }
 
             } else if (request.body.contains("username") &&
@@ -505,7 +505,7 @@ class MockIdentityV2Service {
                 ];
                 if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-                    params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+                    params.contactIdJson = "\"RAX-AUTH:contactId\": \"${contact_id}\","
                 }
             } else {
                 isTokenChecked = false
@@ -988,6 +988,7 @@ class MockIdentityV2Service {
         },
         "user":{
             "RAX-AUTH:defaultRegion": "DFW",
+            \${contactIdJson}
             "id":"\${userid}",
             "name":"\${username}",
             "roles":[{
@@ -1022,6 +1023,7 @@ class MockIdentityV2Service {
         },
         "user":{
             "RAX-AUTH:defaultRegion": "DFW",
+            \${contactIdJson}
             "id":"\${userid}",
             "name":"\${username}",
             "roles":[{
