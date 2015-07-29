@@ -17,6 +17,8 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.phonehome.impl
+package org.openrepose.core.services.phonehome.impl;
 
+public interface PhoneHomeService {
 
+}
