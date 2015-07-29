@@ -76,7 +76,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -104,16 +104,16 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        813           | 813            | 500              | "500"        | 200               | false
+        813           | 813            | 500              | "502"        | 200               | false
         814           | 814            | 404              | "401"        | 200               | true
-        815           | 815            | 200              | "500"        | 404               | false
-        816           | 816            | 200              | "500"        | 500               | false
+        815           | 815            | 200              | "401"        | 404               | false
+        816           | 816            | 200              | "502"        | 500               | false
         811           | 812            | 200              | "401"        | 200               | true
 
 
     }
 
-    def "when authenticating user in tenanted and non delegable mode and without service-admin - pass"() {
+    def "when authenticating user in tenanted and non delegable mode and without soervice-admin - pass"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
