@@ -92,7 +92,7 @@ class TraceHeaderTest extends ReposeValveTest {
         }
 
         fakeIdentityV2Service.validateTokenHandler = {
-            tokenId, request, xml ->
+            tokenId, tenantId, request, xml ->
                 return new Response(identityrespcode)
         }
 
@@ -113,6 +113,6 @@ class TraceHeaderTest extends ReposeValveTest {
         "403"            | "500"
         "413"            | "503"
         "404"            | "401"
-        "500"            | "500"
+        "500"            | "502"
     }
 }
