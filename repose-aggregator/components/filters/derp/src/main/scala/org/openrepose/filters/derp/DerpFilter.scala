@@ -81,7 +81,7 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
     httpServletResponse.setContentLength(responseBody.length)
     httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
     httpServletResponse.getWriter.write(responseBody)
-    httpServletResponse.sendError(statusCode)
+    httpServletResponse.sendError(statusCode, responseBody)
   }
 
   override def destroy(): Unit = {
