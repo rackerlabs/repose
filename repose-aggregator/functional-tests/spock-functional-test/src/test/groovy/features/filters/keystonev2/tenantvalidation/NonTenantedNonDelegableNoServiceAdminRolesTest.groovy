@@ -67,7 +67,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenantid = "tenant456"
+            client_tenantname = "tenant456"
             client_userid = "tenant456"
         }
 
@@ -89,10 +89,10 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         requestFromRepose.path == "/servers/tenant123/"
         requestFromRepose.getHeaders()["content-type"] == "application/json"
         requestFromRepose.getHeaders()["x-auth-token"] == fakeIdentityV2Service.client_token
-        requestFromRepose.getHeaders()["x-tenant-name"] == fakeIdentityV2Service.client_tenant
-        requestFromRepose.getHeaders()["x-pp-user"] == "username;q=1.0"
-        requestFromRepose.getHeaders()["x-roles"].contains("compute:default")
-        requestFromRepose.getHeaders()["x-pp-groups"] == "0;q=1.0"
+        requestFromRepose.getHeaders()["x-tenant-name"] == fakeIdentityV2Service.client_tenantname
+        requestFromRepose.getHeaders()["x-pp-user"] == "username"
+        requestFromRepose.getHeaders()["x-roles"].contains("compute:admin")
+        requestFromRepose.getHeaders()["x-pp-groups"] == "0"
         mc.receivedResponse.code == "200"
     }
 
@@ -108,7 +108,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -135,10 +135,10 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | clientToken
-        613           | 613            | 500              | "500"        | 200               | UUID.randomUUID()
+        613           | 613            | 500              | "502"        | 200               | UUID.randomUUID()
         614           | 614            | 404              | "401"        | 200               | UUID.randomUUID()
-        615           | 615            | 200              | "500"        | 404               | UUID.randomUUID()
-        616           | 616            | 200              | "500"        | 500               | UUID.randomUUID()
+        615           | 615            | 200              | "401"        | 404               | UUID.randomUUID()
+        616           | 616            | 200              | "502"        | 500               | UUID.randomUUID()
         ""            | 612            | 200              | "401"        | 200               | ""
 
     }
