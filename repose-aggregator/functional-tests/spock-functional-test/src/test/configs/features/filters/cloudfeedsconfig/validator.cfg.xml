@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<validators
+multi-role-match="true"
+xmlns="http://docs.openrepose.org/repose/validator/v1.0">
+<delegating/>
+<validator
+        role="default"
+        default="true"
+        wadl="allfeeds.wadl"
+        check-well-formed="true"
+        check-xsd-grammar="true"
+        check-elements="true"
+        check-plain-params="true"
+        do-xsd-grammar-transform="true"
+        enable-pre-process-extension="true"
+        remove-dups="true"
+        xpath-version="2"
+        xsl-engine="XalanC"
+        xsd-engine="SaxonEE"
+        join-xpath-checks="true"
+        check-headers="true"
+        enable-rax-roles="true"
+        >
+</validator>
+</validators>
