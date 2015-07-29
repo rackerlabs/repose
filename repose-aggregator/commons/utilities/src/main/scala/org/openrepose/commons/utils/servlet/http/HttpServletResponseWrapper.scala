@@ -42,12 +42,14 @@ import javax.servlet.http.HttpServletResponse
  * stream, which in the case of one of the constructors is the original response's output stream. A mode of
  * ResponseMode.READONLY will see us wrapping the provided output stream in one that will record everything that goes
  * through but still passing the data along to the provided stream. This can be accessed by calling
- * getOutputStreamAsInputStream. If you desire to see the output after it went through a provided output stream you can
- * use our wrapping stream xxxxxxx yourself by first wrapping the original response's output stream in our wrapper and
- * then wrapping our stream with your own, and passing that in and setting the mode to ResponseMode.PASSTHROUGH.
- * ResponseMode.MUTABLE behaves similiarly, but will not write to the underlying output stream until commitToResponse is
- * called. Additionally, you can call setOutput with an input stream which we will wrap in an output stream which will
- * be used to write to the underlying output stream when commitToResponse is called.
+ * getOutputStreamAsInputStream. It should be noted that this will keep a secondary copy of the response in memory,
+ * which for large responses could be expensive. If you desire to see the output after it went through a provided output
+ * stream you can use our wrapping stream xxxxxxx yourself by first wrapping the original response's output stream in
+ * our wrapper and then wrapping our stream with your own, and passing that in and setting the mode to
+ * ResponseMode.PASSTHROUGH. ResponseMode.MUTABLE behaves similiarly, but will not write to the underlying output stream
+ * until commitToResponse is called. Additionally, you can call setOutput with an input stream which we will wrap in an
+ * output stream which will be used to write to the underlying output stream when commitToResponse is called. This mode
+ * will also break chunked encoding because the response can't be streamed directly through.
  *
  * @constructor the main constructor to be used for this class
  * @param originalResponse the response to be wrapped
