@@ -475,8 +475,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-      if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Confirmed.toString)
-      else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
+      if (Option(config.getDelegating).isDefined) {
+        if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Confirmed.toString)
+        else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
+      }
     }
   }
 

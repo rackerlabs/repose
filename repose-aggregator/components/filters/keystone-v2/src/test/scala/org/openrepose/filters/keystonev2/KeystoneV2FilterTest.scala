@@ -1117,7 +1117,23 @@ with HttpDelegationManager {
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
-    it("forwards the identity status as Indeterminate in the x-identity-status header when delegating") {
+    it("forwards the identity status as Confirmed in the x-identity-status header when delegating success") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector.empty[String], Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
+    }
+
+    it("forwards the identity status as Indeterminate in the x-identity-status header when delegating failure") {
       val request = new MockHttpServletRequest
       request.setRequestURL("http://www.sample.com/some/path/application.wadl")
       request.setRequestURI("/some/path/application.wadl")
@@ -1799,28 +1815,6 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
         .getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe iso8601ToRfc1123(tokenDateFormat(dateTime))
-    }
-
-    it("forwards the identity status as Confirmed in the x-identity-status header when Repose is able to validate the token") {
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
-
-      //Pretend like the admin token is cached all the time
-      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-
-      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
-      )
-
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
-      )
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
     }
 
     it("forwards the groups in the x-pp-groups header by default") {
