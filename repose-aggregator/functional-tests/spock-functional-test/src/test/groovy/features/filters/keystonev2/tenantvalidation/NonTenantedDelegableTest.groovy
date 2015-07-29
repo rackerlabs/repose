@@ -75,7 +75,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -124,7 +124,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
+        request2.headers.getFirstValue("x-authorization") == "Proxy $responseTenant"
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | identityStatus | clientToken       | default_region
@@ -159,9 +159,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == default_region
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken | default_region
@@ -196,16 +194,14 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | delegatedMsg
-        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
-        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
+        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401`component=keystone-v2`message=X-Auth-Token header not found;q=0.7"
+        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401`component=keystone-v2`message=X-Auth-Token header not found;q=0.7"
     }
 
 }
