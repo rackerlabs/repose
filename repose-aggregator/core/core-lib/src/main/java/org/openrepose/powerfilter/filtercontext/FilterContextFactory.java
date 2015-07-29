@@ -104,7 +104,17 @@ public class FilterContextFactory {
             //Get the specific class to load from the application context
             Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
 
-            final javax.servlet.Filter newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+            javax.servlet.Filter newFilterInstance;
+            try {
+                newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
+            } catch (NoSuchBeanDefinitionException e) {
+                //Spring didn't load the filter as a bean, try manually creating a new instance of the class
+                newFilterInstance = (javax.servlet.Filter) c.newInstance();
+
+                //Add the instance to the application context using its full class name
+                filterContext.getBeanFactory().registerSingleton(
+                        newFilterInstance.getClass().getName(), newFilterInstance);
+            }
 
             newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration()));
 
@@ -116,11 +126,11 @@ public class FilterContextFactory {
         } catch (ServletException e) {
             LOG.error("Failed to initialize filter {}", filterClassName);
             throw new FilterInitializationException("Failed to initialize filter " + filterClassName, e);
-        } catch (NoSuchBeanDefinitionException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName +
-                    " is not an annotated Component. Make sure your filter is an annotated Spring Bean.", e);
         } catch (ClassCastException e) {
             throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter", e);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new FilterInitializationException("Requested filter, " + filterClassName +
+                    " is not an annotated Component nor does it have a public zero-argument constructor.", e);
         }
     }
 

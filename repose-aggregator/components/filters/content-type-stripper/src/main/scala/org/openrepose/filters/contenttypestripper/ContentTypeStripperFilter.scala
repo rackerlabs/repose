@@ -31,7 +31,6 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
-@Named
 class ContentTypeStripperFilter extends Filter {
 
   override def init(p1: FilterConfig): Unit = {}
