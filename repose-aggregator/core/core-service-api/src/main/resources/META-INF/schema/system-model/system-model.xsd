@@ -43,6 +43,7 @@
         <xs:sequence>
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="phone-home" type="mod:PhoneHomeService" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
@@ -109,6 +110,22 @@
 
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="PhoneHomeService">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, enables the phone home service which will collect Repose usage data and send it to a
+                    centralized data collection service.
+                    If not present, will have no effect.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="collection-uri" type="xs:anyURI" use="optional" default="http://phone-home.openrepose.org"/>
+        <xs:attribute name="origin-service-id" type="xs:string" use="optional"/>
+        <xs:attribute name="contact-email" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="NodeList">
