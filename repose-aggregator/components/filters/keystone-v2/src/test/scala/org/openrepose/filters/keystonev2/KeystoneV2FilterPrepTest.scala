@@ -127,9 +127,9 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       filter.keystoneV2Config.getDelegating should be(null)
 
-      filter.keystoneV2Config.getWhiteList should be(null)
+      filter.keystoneV2Config.getWhiteList.getUriRegex.size() shouldBe 0
 
-      filter.keystoneV2Config.getTenantHandling should be(null)
+      filter.keystoneV2Config.getTenantHandling.getValidateTenant should be(null)
 
       filter.keystoneV2Config.getRequireServiceEndpoint should be(null)
     }
