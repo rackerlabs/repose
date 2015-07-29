@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Repose Services - Phone Home Implementation</name>
-    <artifactId>impl</artifactId>
+    <artifactId>phone-home-impl</artifactId>
     <packaging>jar</packaging>
 
     <description>
@@ -36,6 +36,26 @@
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
+        </dependency>
+
+        <!-- @Value -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <!-- ReposeSpringProperties -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <!-- Phone Home API -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>phone-home-api</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 
