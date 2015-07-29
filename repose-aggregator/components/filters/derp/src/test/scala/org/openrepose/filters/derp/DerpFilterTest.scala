@@ -25,6 +25,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import org.junit.runner.RunWith
+import org.mockito.Matchers
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
@@ -95,10 +96,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, fc)
 
       verify(fc, never()).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
-      //verify(resp).sendError(eq(500), anyString())                    // Won't compile; says to use type ascription
-      //verify(resp).sendError(eq(500:java.lang.Integer), anyString())  // Won't compile; type mismatch; found: Boolean; required: Int
-      //verify(resp).sendError(eq(500:Int), anyString())                // Won't compile; type mismatch; found: Int; required: AnyRef
-      verify(resp).sendError(500, anyString())                          // Runtime failure: Invalid use of argument matchers!
+      verify(resp).sendError(Matchers.eq(500), anyString())
     }
 
     it("should treat a delegation value without an explicit quality as having a quality of 1") {
