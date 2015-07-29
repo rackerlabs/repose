@@ -75,7 +75,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -103,11 +103,10 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | clientToken
-        613           | 613            | 500              | "500"        | 200               | UUID.randomUUID()
+        613           | 613            | 500              | "502"        | 200               | UUID.randomUUID()
         614           | 614            | 404              | "401"        | 200               | UUID.randomUUID()
-        615           | 615            | 200              | "500"        | 404               | UUID.randomUUID()
-        616           | 616            | 200              | "500"        | 500               | UUID.randomUUID()
-        ""            | 612            | 200              | "500"        | 200               | ""
+        615           | 615            | 200              | "401"        | 404               | UUID.randomUUID()
+        616           | 616            | 200              | "502"        | 500               | UUID.randomUUID()
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
