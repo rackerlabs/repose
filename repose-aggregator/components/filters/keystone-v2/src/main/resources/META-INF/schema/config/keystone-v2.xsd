@@ -41,7 +41,7 @@
 
         <xs:all>
             <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/> <!-- todo: delegating should be the first element -->
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
