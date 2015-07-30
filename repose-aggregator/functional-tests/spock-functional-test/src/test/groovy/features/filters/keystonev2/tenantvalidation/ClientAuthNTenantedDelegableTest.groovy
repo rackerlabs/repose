@@ -76,7 +76,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -98,7 +98,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | clientToken       | delegatedMsg
-        300           | 301            | 500              | "200"        | UUID.randomUUID() | "status_code=500.component=keystone-v2.message=.*;q=0.7"
+        300           | 301            | 500              | "200"        | UUID.randomUUID() | "status_code=502.component=keystone-v2.message=.*;q=0.7"
         302           | 303            | 404              | "200"        | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=.*;q=0.7"
         304           | 305            | 200              | "200"        | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=.*;q=0.7"
         306           | 306            | 200              | "200"        | ""                | "status_code=401.component=keystone-v2.message=.*;q=0.7"
@@ -143,7 +143,6 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
             def request2 = mc.handlings[0].request
             assert (request2.headers.getFirstValue("x-identity-status") == identityStatus)
-            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         where:
@@ -214,14 +213,13 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         and:
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization").startsWith("Proxy")
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
-        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=Unable to validate token for tenant. Invalid token:\\s.*;q=0.7"
-        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=keystone-v2.message=Failure in Auth-N filter.;q=0.7"
+        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=Tenant from URI does not match.*;q=0.7"
+        ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=keystone-v2.message=.*;q=0.7"
     }
 
 
