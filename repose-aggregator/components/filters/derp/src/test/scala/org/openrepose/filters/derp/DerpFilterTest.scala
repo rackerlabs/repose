@@ -59,6 +59,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, null)
 
       verify(resp).sendError(404, "not found")
+      verify(respWriter).write("not found")
     }
 
     it("should send an error response corresponding to the delegation value with the highest quality") {
@@ -71,6 +72,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, null)
 
       verify(resp).sendError(500, "bar")
+      verify(respWriter).write("bar")
     }
 
     it("should send an error response corresponding to the delegation value with the highest quality, reverse order") {
@@ -83,6 +85,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, null)
 
       verify(resp).sendError(500, "bar")
+      verify(respWriter).write("bar")
     }
 
     it("should reject the request if no delegation value could be parsed") {
@@ -97,6 +100,7 @@ class DerpFilterTest extends FunSpec {
 
       verify(fc, never()).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
       verify(resp).sendError(Matchers.eq(500), anyString())
+      verify(respWriter).write(anyString())
     }
 
     it("should treat a delegation value without an explicit quality as having a quality of 1") {
@@ -109,6 +113,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, null)
 
       verify(resp).sendError(500, "bar")
+      verify(respWriter).write("bar")
     }
   }
 
@@ -132,7 +137,7 @@ class DerpFilterTest extends FunSpec {
         "status_code=5a0`component=foo2`message=baz`q=0.7"
       ))
 
-      assert(parsedValues.size == 0)
+      assert(parsedValues.isEmpty)
     }
   }
 
