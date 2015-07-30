@@ -75,7 +75,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -93,7 +93,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole | authResponseCode | delegatingMsg
-        400           | 401            | "not-admin"      | 500              | "status_code=500"
+        400           | 401            | "not-admin"      | 500              | "status_code=502"
         402           | 403            | "not-admin"      | 404              | "status_code=401"
 
     }
@@ -123,9 +123,12 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest {
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == default_region
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
+
+        if (identityStatus == "Indeterminate") {
+            request2.headers.contains("x-authorization")
+            request2.headers.getFirstValue("x-authorization") == "Proxy $responseTenant"
+        }
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode | identityStatus  | clientToken       | default_region
