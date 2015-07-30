@@ -102,7 +102,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
 
         where:
         reqTenant | adminResponseCode | responseCode | responseBody                                     | orphanedHandlings
-        1113      | 500               | "500"        | ""                                               | 1
+        1113      | 500               | "502"        | ""                                               | 1
         1112      | 404               | "500"        | fakeIdentityV2Service.identityFailureXmlTemplate | 1
         1111      | 200               | "200"        | fakeIdentityV2Service.identitySuccessXmlTemplate | 3
     }
