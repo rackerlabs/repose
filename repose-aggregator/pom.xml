@@ -445,6 +445,10 @@
                     <groupId>org.apache.tomcat</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
             </exclusions>
             <scope>test</scope>
         </dependency>
