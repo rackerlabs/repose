@@ -56,11 +56,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   import KeystoneV2Filter._
 
-  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
-  private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
-  private final val X_AUTH_PROXY = "Proxy"
-  private final val DELEGATED = "Delegated"
-
   private var configurationFile: String = DEFAULT_CONFIG
   private var sendTraceHeader = true
 
@@ -531,6 +526,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 }
 
 object KeystoneV2Filter {
+
+  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
+  private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+  private final val X_AUTH_PROXY = "Proxy"
+  private final val DELEGATED = "Delegated"
 
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
