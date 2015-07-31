@@ -20,7 +20,7 @@
 package org.openrepose.filters.keystonev2
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -37,7 +37,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
@@ -144,6 +144,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Failure(e: OverLimitException) =>
               response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
               Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+            case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+              Reject(HttpServletResponse.SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
             case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
           }
         }

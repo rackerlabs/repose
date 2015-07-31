@@ -121,7 +121,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }
