@@ -75,7 +75,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
                         'X-Auth-Token': fakeIdentityV2Service.client_token,
                         'x-roles'     : roles
                 ]
-        def authDelegatingMsg = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
+        def authDelegatingMsg = 'status_code=403.component=keystone-v2.message=User did not have the required endpoint;q=0.3'
 
         when: "User passes a request through repose with role #roles"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
@@ -104,12 +104,12 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
         def token = UUID.randomUUID().toString()
         fakeIdentityV2Service.client_token = token
         fakeIdentityV2Service.originServicePort = 99999
-        def strregex = 'status_code=403.component=client-authorization.message=.*\\"http:\\/\\/\\w+([-|:\\d]+)\\/\\"\\.\\s+User not authorized to access service.;q=0.3'
+        def strregex = 'status_code=403.component=keystone-v2.message=User did not have the required endpoint;q=0.3'
+        reposeLogSearch.cleanLog()
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: method, headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("Delegating with status 403 caused by: User did not have the required endpoint")
 
         then: "Repose should forward to origin service with failure message"
         foundLogs.size() == 1
@@ -131,6 +131,7 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
         }
+        fakeIdentityV2Service.resetHandlers()
         if (adminBroken) {
             fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
@@ -148,28 +149,28 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
 
         where:
         adminBroken | endpointsBroken | errorCode | expectedCode | delegatingMsg
-        true        | false           | 400       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 401       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 402       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 403       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 404       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 413       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 429       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 500       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 501       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 502       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        true        | false           | 503       | "200"        | "status_code=403.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 400       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 401       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 402       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 403       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 404       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 413       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 429       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 500       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 501       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 502       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
-        false       | true            | 503       | "200"        | "status_code=500.component=client-authorization.message=.*;q=0.3"
+        true        | false           | 400       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 401       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 402       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 403       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 404       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 413       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 429       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 500       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 501       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 502       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        true        | false           | 503       | "200"        | "status_code=403.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 400       | "200"        | "status_code=500.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 401       | "200"        | "status_code=500.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 402       | "200"        | "status_code=500.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 403       | "200"        | "status_code=500.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 404       | "200"        | "status_code=401.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 413       | "200"        | "status_code=503.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 429       | "200"        | "status_code=503.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 500       | "200"        | "status_code=502.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 501       | "200"        | "status_code=502.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 502       | "200"        | "status_code=502.component=keystone-v2.message=.*;q=0.3"
+        false       | true            | 503       | "200"        | "status_code=502.component=keystone-v2.message=.*;q=0.3"
 
     }
 }
