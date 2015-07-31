@@ -13,11 +13,6 @@
 
     <identity-service username="admin_username"
                       password="admin_password"
-                      uri="http://localhost:${identityPort}"
-                      connection-pool-id="client-auth"/>
-
-    <forward>
-        <user-groups/>
-    </forward>
+                      uri="http://localhost:${identityPort}"/>
 
 </keystone-v2>

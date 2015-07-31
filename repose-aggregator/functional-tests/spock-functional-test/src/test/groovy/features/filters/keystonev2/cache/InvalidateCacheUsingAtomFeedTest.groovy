@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 
 /**
  B-48277
@@ -100,6 +101,7 @@ import org.rackspace.deproxy.Response
  assert response code from repose is 401
 
  */
+@Ignore("Not yet implemented")
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint
@@ -170,7 +172,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         fakeIdentityV2Service.with {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(404)
             }
         }
@@ -288,7 +290,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         //Make identity respond with a 404 every time now.
         fakeIdentityV2Service.with {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(404)
             }
         }
