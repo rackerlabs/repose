@@ -91,7 +91,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
                     (1..callsPerClient).each {
                         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
-                        if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                        if (messageChain.receivedResponse.code.equalsIgnoreCase("502")) {
                             missingAuthResponse = true
                         }
 

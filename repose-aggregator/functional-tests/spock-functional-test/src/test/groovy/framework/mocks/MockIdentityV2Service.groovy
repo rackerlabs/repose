@@ -1111,7 +1111,7 @@ class MockIdentityV2Service {
     ],
     "endpoints": [
         {
-            "internalURL": "http://\${endPointUrl}:\${originServicePort}/v1/AUTH_1",
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/v1/AUTH_1",
             "name": "swift",
             "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
             "region": "\${region}",
@@ -1129,7 +1129,7 @@ class MockIdentityV2Service {
             "type": "compute",
             "id": 2,
             "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
-        }
+        },
         {
             "internalURL": "http://\${endpointUrl}:\${originServicePort}/",
             "name": "OpenStackService",

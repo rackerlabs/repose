@@ -9,8 +9,7 @@
 
     <identity-service username="joe"
                       password="secret"
-                      uri="http://localhost:${identityPort}"
-                      connection-pool-id="client-authorization"/>
+                      uri="http://localhost:${identityPort}"/>
 
     <require-service-endpoint public-url="http://localhost:${targetPort}/" region="ORD" name="OpenStackService" type="service"/>
 </keystone-v2>
