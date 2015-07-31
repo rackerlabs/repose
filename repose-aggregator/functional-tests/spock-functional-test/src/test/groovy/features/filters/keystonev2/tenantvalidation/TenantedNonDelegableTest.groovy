@@ -75,7 +75,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
@@ -104,10 +104,10 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        713           | 713            | 500              | "500"        | 200               | false
+        713           | 713            | 500              | "502"        | 200               | false
         714           | 714            | 404              | "401"        | 200               | true
-        715           | 715            | 200              | "500"        | 404               | false
-        716           | 716            | 200              | "500"        | 500               | false
+        715           | 715            | 200              | "401"        | 404               | true
+        716           | 716            | 200              | "502"        | 500               | false
         711           | 712            | 200              | "401"        | 200               | true
     }
 
@@ -128,6 +128,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = responseTenant
+            client_tenantname = responseTenant
             service_admin_role = serviceAdminRole
             client_userid = requestTenant
         }
@@ -148,11 +149,11 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == "DFw"
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         request2.headers.getFirstValue("x-tenant-name") == responseTenant.toString()
         request2.headers.contains("x-token-expires")
-        request2.headers.getFirstValue("x-pp-user") == "username;q=1.0"
+        request2.headers.getFirstValue("x-pp-user") == "username"
         request2.headers.contains("x-roles")
         request2.headers.getFirstValue("x-authorization") == "Proxy $requestTenant"
         request2.headers.getFirstValue("x-user-name") == "username"
