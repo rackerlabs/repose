@@ -83,11 +83,11 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
         def token = UUID.randomUUID().toString()
         fakeIdentityV2Service.client_token = token
         fakeIdentityV2Service.region = serviceRegion
+        reposeLogSearch.cleanLog()
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
         foundLogs.size() == 1
