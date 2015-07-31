@@ -25,6 +25,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import org.junit.runner.RunWith
+import org.mockito.Matchers
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
@@ -57,7 +58,7 @@ class DerpFilterTest extends FunSpec {
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(404)
+      verify(resp).sendError(404, "not found")
       verify(respWriter).write("not found")
     }
 
@@ -70,7 +71,7 @@ class DerpFilterTest extends FunSpec {
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500)
+      verify(resp).sendError(500, "bar")
       verify(respWriter).write("bar")
     }
 
@@ -83,7 +84,7 @@ class DerpFilterTest extends FunSpec {
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500)
+      verify(resp).sendError(500, "bar")
       verify(respWriter).write("bar")
     }
 
@@ -98,7 +99,7 @@ class DerpFilterTest extends FunSpec {
       derpFilter.doFilter(req, resp, fc)
 
       verify(fc, never()).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
-      verify(resp).sendError(500)
+      verify(resp).sendError(Matchers.eq(500), anyString())
       verify(respWriter).write(anyString())
     }
 
@@ -111,7 +112,7 @@ class DerpFilterTest extends FunSpec {
 
       derpFilter.doFilter(req, resp, null)
 
-      verify(resp).sendError(500)
+      verify(resp).sendError(500, "bar")
       verify(respWriter).write("bar")
     }
   }
@@ -136,7 +137,7 @@ class DerpFilterTest extends FunSpec {
         "status_code=5a0`component=foo2`message=baz`q=0.7"
       ))
 
-      assert(parsedValues.size == 0)
+      assert(parsedValues.isEmpty)
     }
   }
 

@@ -302,9 +302,14 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
     @Override
     public void sendError(int code, String message) {
-        super.setStatus(code);
-        this.message = message;
+        setStatus(code, message);
         error = true;
+    }
+
+    @Override
+    public void setStatus(int code, String message) {
+        super.setStatus(code, message);
+        this.message = message;
     }
 
     public boolean isError() {

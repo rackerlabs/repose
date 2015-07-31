@@ -19,7 +19,7 @@
  */
 package org.openrepose.powerfilter;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import javax.servlet.http.HttpServletResponse;
 
 public class RequestTracer {
 
@@ -41,7 +41,7 @@ public class RequestTracer {
         return startTime;
     }
 
-    public long traceExit(MutableHttpServletResponse response, String filterName) {
+    public long traceExit(HttpServletResponse response, String filterName) {
         if (!trace) {
             return 0;
         }
