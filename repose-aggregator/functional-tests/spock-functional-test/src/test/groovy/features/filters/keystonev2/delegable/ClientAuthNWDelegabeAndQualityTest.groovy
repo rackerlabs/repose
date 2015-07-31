@@ -93,16 +93,14 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | delegatedMsg
-        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Auth token not found in headers;q=0.3"
-        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=Auth token not found in headers;q=0.3"
+        506           | 506            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=X-Auth-Token header not found;q=0.3"
+        ""            | 512            | "not-admin"      | "Indeterminate" | "status_code=401.component=keystone-v2.message=X-Auth-Token header not found;q=0.3"
     }
 
     @Unroll("Req with auth resp: #authRespCode")
@@ -114,7 +112,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         }
 
         fakeIdentityV2Service.validateTokenHandler = {
-            tokenId, request, xml ->
+            tokenId, tenantId, request, xml ->
                 new Response(authRespCode)
         }
 
@@ -130,16 +128,14 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == "Indeterminate"
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
         where:
         authRespCode | delegatedMsg
-        404          | "status_code=401.component=keystone-V2.message=Unable to validate token:\\s.*;q=0.3"
-        401          | "status_code=500.component=keystone-V2.message=Failure in Auth-N filter.;q=0.3"
+        404          | "status_code=401`component=keystone-v2`message=Provided token is not valid;q=0.3"
+        401          | "status_code=500`component=keystone-v2`message=Admin token unauthorized to validate token;q=0.3"
     }
 }
 
