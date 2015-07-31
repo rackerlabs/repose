@@ -77,12 +77,12 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
             fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
         if (validateBroken) {
-            fakeIdentityV2Service.validateTokenHandler = { tokenId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.validateTokenHandler = { tokenId, tenantId, request, xml -> return new Response(errorCode) }
         }
         if (groupsBroken) {
             fakeIdentityV2Service.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
         }
-        def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
+        def tokenId = "$adminBroken$validateBroken$groupsBroken$errorCode"
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token + tokenId])
@@ -101,10 +101,10 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         true        | false          | false        | 404       | "500"
         true        | false          | false        | 413       | "503"
         true        | false          | false        | 429       | "503"
-        true        | false          | false        | 500       | "500"
-        true        | false          | false        | 501       | "500"
-        true        | false          | false        | 502       | "500"
-        true        | false          | false        | 503       | "500"
+        true        | false          | false        | 500       | "502"
+        true        | false          | false        | 501       | "502"
+        true        | false          | false        | 502       | "502"
+        true        | false          | false        | 503       | "502"
 
         false       | true           | false        | 400       | "500"
         false       | true           | false        | 401       | "500"
@@ -113,22 +113,22 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         false       | true           | false        | 404       | "401"
         false       | true           | false        | 413       | "503"
         false       | true           | false        | 429       | "503"
-        false       | true           | false        | 500       | "500"
-        false       | true           | false        | 501       | "500"
-        false       | true           | false        | 502       | "500"
-        false       | true           | false        | 503       | "500"
+        false       | true           | false        | 500       | "502"
+        false       | true           | false        | 501       | "502"
+        false       | true           | false        | 502       | "502"
+        false       | true           | false        | 503       | "502"
 
         false       | false          | true         | 400       | "500"
         false       | false          | true         | 401       | "500"
         false       | false          | true         | 402       | "500"
         false       | false          | true         | 403       | "500"
-        false       | false          | true         | 404       | "500"
+        false       | false          | true         | 404       | "401"
         false       | false          | true         | 413       | "503"
         false       | false          | true         | 429       | "503"
-        false       | false          | true         | 500       | "500"
-        false       | false          | true         | 501       | "500"
-        false       | false          | true         | 502       | "500"
-        false       | false          | true         | 503       | "500"
+        false       | false          | true         | 500       | "502"
+        false       | false          | true         | 501       | "502"
+        false       | false          | true         | 502       | "502"
+        false       | false          | true         | 503       | "502"
     }
 
 
@@ -142,7 +142,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
             }
         }
