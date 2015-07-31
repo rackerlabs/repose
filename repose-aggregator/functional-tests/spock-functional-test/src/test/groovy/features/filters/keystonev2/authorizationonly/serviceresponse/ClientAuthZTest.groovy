@@ -93,7 +93,7 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
         mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 4
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
 
@@ -181,11 +181,11 @@ class ClientAuthZTest extends ReposeValveTest {
         def token = UUID.randomUUID().toString()
         fakeIdentityV2Service.client_token = token
         fakeIdentityV2Service.originServicePort = 99999
+        reposeLogSearch.cleanLog()
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
         foundLogs.size() == 1
@@ -199,11 +199,11 @@ class ClientAuthZTest extends ReposeValveTest {
         fakeIdentityV2Service.client_token = token
         fakeIdentityV2Service.originServicePort = properties.targetPort
         fakeIdentityV2Service.endpointUrl = "invalidurl"
+        reposeLogSearch.cleanLog()
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
         foundLogs.size() == 1
