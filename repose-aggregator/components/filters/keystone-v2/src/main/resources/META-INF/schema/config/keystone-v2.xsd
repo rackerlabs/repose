@@ -265,8 +265,10 @@
     <xs:complexType name="DelegatingType">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means
-                    you do.
+                <html:p>
+                    If present, enables delegation. Delegation will cause this filter to pass requests it would
+                    ordinarily reject along with a header detailing why it would have rejected the request.
+                    If not present, delegation is not enabled, and there is no change in behavior.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
