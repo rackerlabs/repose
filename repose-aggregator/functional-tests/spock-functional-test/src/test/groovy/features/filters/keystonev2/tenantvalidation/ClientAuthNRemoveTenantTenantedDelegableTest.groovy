@@ -86,7 +86,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantId, request, xml ->
                     new Response(authResponseCode)
             }
         }
