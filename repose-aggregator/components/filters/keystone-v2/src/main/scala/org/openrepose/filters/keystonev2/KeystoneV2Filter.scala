@@ -194,7 +194,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case None =>
               logger.debug(s"Rejecting with status $statusCode")
 
-              if (statusCode == 401) {
+              if (statusCode == HttpServletResponse.SC_UNAUTHORIZED) {
                 response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
 
