@@ -108,9 +108,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
      */
     if (!isInitialized) {
       logger.error("Keystone v2 filter has not yet initialized")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR)
+      response.sendError(SC_INTERNAL_SERVER_ERROR)
     } else {
-      logger.trace("Keystone v2 filter processing request...")
+      logger.debug("Keystone v2 filter processing request...")
 
       val keystoneAuthenticateHeader = s"Keystone uri=${config.getIdentityService.getUri}"
 
