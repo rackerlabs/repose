@@ -52,6 +52,7 @@ import org.openstack.docs.identity.api.v2.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -219,6 +220,21 @@ public class OpenStackAuthenticationHandlerTest {
             RoleList roleList = new RoleList();
             roleList.getRole().add(role);
             return roleList;
+        }
+
+        protected Token createToken(String id, XMLGregorianCalendar expires, TenantForAuthenticateResponse tenant) {
+            Token token = new Token();
+            token.setId(id);
+            token.setExpires(expires);
+            token.setTenant(tenant);
+            return token;
+        }
+
+        protected TenantForAuthenticateResponse createTenant(String id, String name) {
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId(id);
+            tenant.setName(name);
+            return tenant;
         }
 
     }
@@ -426,6 +442,60 @@ public class OpenStackAuthenticationHandlerTest {
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             //we should see PASS as the filter action
             assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void mossoIDTestInTokenCaseSensitiveNoMatch() throws Exception {
+            when(request.getRequestURI()).thenReturn("/start/MOSSOCLOUDFS_AAAA-BBBBBB-CCCCC-DDDDD/resource");
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            Token token = createToken(
+                    "tokenId",
+                    dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires),
+                    createTenant("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd", "tenantName"));
+
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            // this ID doesn't match so we should see FilterAction.RETURN
+            assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
+        }
+
+        @Test
+        public void mossoIDTestInRolesCaseSensitiveNoMatch() throws Exception {
+            when(request.getRequestURI()).thenReturn("/start/MOSSOCLOUDFS_AAAA-BBBBBB-CCCCC-DDDDD/resource");
+
+            Role role = new Role();
+            role.setName("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role.setId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role.setTenantId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role.setDescription("Derp description");
+
+            RoleList roleList = defaultRoleList();
+            roleList.getRole().add(role);
+            userForAuthenticateResponse.setRoles(roleList);
+
+            Token token = createToken(
+                    "tokenId",
+                    dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires),
+                    createTenant("tenantID", "tenantName"));
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            // this ID doesn't match so we should see FilterAction.RETURN
+            assertThat(director.getFilterAction(), equalTo(FilterAction.RETURN));
         }
 
     }
