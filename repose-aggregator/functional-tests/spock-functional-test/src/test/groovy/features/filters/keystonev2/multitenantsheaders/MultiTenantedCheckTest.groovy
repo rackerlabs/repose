@@ -88,7 +88,7 @@ class MultiTenantedCheckTest extends ReposeValveTest {
             assert mc.handlings.size() == 0
         else {
             assert mc.handlings.size() == 1
-            assert mc.handlings[0].request.headers.findAll('x-tenant-id').contains(requestTenant)
+            assert mc.handlings[0].request.headers.findAll('x-tenant-id').get(0).contains(requestTenant)
         }
 
         where:
