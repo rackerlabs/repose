@@ -35,7 +35,7 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with Matchers {
+class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
   var herpFilter: HerpFilter = _
   var herpConfig: HerpConfig = _
@@ -44,11 +44,6 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter 
   var filterChain: MockFilterChain = _
   var listAppenderPre: ListAppender = _
   var listAppenderPost: ListAppender = _
-
-  override def beforeAll() {
-    System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-      "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-  }
 
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]

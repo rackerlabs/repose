@@ -37,8 +37,6 @@ class WhitespaceTest extends Specification {
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         //NOTE This dies a horrible death if you try to stick it in an unroll. Possibly a side effect of how brittle it is
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support

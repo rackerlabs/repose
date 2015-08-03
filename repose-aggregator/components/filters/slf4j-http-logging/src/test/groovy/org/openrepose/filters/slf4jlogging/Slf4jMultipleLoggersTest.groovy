@@ -39,8 +39,6 @@ class Slf4jMultipleLoggersTest extends Specification {
     Slf4jHttpLoggingFilter filter
 
     def setupSpec() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         filter = Slf4jLoggingFilterTestUtil.configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
                 Slf4jLoggingFilterTestUtil.logConfig("Logger1", "%r"),

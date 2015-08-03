@@ -16,9 +16,6 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
-  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-
 
   val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore: Datastore = mock[Datastore]

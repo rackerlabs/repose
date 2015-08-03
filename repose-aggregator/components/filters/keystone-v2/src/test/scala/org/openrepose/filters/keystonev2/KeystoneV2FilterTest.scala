@@ -57,8 +57,6 @@ with MockitoSugar
 with IdentityResponses
 with MockedAkkaServiceClient
 with HttpDelegationManager {
-  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
 
   val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore: Datastore = mock[Datastore]
