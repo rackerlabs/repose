@@ -93,12 +93,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             authToken = new OpenStackToken(resp);
         }
 
-        if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
+        if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equals(tenantID)) {
             // tenant ID from token did not match URI.
 
             if (resp.getUser() != null && resp.getUser().getRoles() != null) {
                 for (Role role : resp.getUser().getRoles().getRole()) {
-                    if (tenantID.equalsIgnoreCase(role.getTenantId())) {
+                    if (tenantID.equals(role.getTenantId())) {
                         //we have the real tenantID
                         return authToken;
                     }
