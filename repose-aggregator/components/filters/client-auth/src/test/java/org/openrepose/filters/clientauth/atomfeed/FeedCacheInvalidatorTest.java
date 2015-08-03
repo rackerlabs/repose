@@ -42,9 +42,6 @@ public class FeedCacheInvalidatorTest {
 
     @Before
     public void setUp() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
         datastore = mock(Datastore.class);

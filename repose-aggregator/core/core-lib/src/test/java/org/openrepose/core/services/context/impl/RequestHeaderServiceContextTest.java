@@ -75,8 +75,6 @@ public class RequestHeaderServiceContextTest {
     @BeforeClass
     public static void setupSpec() {
         System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, CONFIG);
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         ctx = (LoggerContext) LogManager.getContext(false);
     }
 

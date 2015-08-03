@@ -49,9 +49,6 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   val LIST_APPENDER_REF = "List0"
   val oldXmlFiles = pathedFiles("unmarshallerValidator/oldXmlConfigs/")
 
-  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     val cfg = ctx.getConfiguration

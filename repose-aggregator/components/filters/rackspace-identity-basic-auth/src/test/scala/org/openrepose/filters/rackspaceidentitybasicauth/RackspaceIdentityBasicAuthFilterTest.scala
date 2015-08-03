@@ -45,9 +45,6 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 
-  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-
   val identityServer = new Server(0)
   var listAppender: ListAppender = _
   var filterChain: MockFilterChain = _
@@ -57,6 +54,11 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfterAl
   var mockConfigService: ConfigurationService = _
   var config: RackspaceIdentityBasicAuthConfig = _
   var filter: RackspaceIdentityBasicAuthFilter = _
+
+  override def beforeAll() {
+    System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+      "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+  }
 
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]

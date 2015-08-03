@@ -15,11 +15,6 @@ class AuthZFilterDeprecationTest extends Specification {
     LoggerContext ctx = LogManager.getContext(RackspaceAuthorizationFilter.class.getClassLoader(), false) as LoggerContext
     ListAppender appender = ctx.getConfiguration().getAppender("List") as ListAppender
 
-    def setupSpec() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-    }
-
     def setup() {
         appender.clear()
     }

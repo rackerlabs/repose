@@ -60,16 +60,9 @@ class AuthenticationServiceClientTest extends Specification {
     @Shared
     def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
     @Shared
-    def jaxbEntityToXml
+    def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
 
     ListAppender app;
-
-    def setupSpec() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-
-        jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
-    }
 
     def setup() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)

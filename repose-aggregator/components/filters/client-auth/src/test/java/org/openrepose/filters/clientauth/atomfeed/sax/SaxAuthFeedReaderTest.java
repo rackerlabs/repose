@@ -52,9 +52,6 @@ public class SaxAuthFeedReaderTest {
 
     @Before
     public void setUp() throws FileNotFoundException {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear();
 
