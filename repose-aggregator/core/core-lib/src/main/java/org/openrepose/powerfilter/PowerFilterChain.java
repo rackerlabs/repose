@@ -29,7 +29,6 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderFieldParser;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
-import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.FilterProcessingTime;
@@ -201,10 +200,6 @@ public class PowerFilterChain implements FilterChain {
                 INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
                         mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
             }
-        } catch (ReadLimitReachedException ex) {
-            String filterName = filterContext.getFilter().getClass().getSimpleName();
-            LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
