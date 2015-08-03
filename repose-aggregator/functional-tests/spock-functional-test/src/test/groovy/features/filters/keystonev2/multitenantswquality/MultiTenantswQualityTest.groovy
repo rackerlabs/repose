@@ -91,7 +91,6 @@ class MultiTenantswQualityTest extends ReposeValveTest {
             assert mc.handlings.size() == 0
         else {
             assert mc.handlings.size() == 1
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
             assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultTenant + ";q=0.9")
             if (!secondTenant.equals(defaultTenant)) {
                 assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondTenant + ";q=0.7")
@@ -132,8 +131,7 @@ class MultiTenantswQualityTest extends ReposeValveTest {
             assert mc.handlings.size() == 0
         else {
             assert mc.handlings.size() == 1
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").size() == numberTenants
-            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultTenant + ";q=1.0")
+            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultTenant + ";q=0.7")
             if (!secondTenant.equals(defaultTenant)) {
                 assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondTenant + ";q=0.5")
             }

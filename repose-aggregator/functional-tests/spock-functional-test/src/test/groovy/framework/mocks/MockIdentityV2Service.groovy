@@ -996,6 +996,7 @@ class MockIdentityV2Service {
                     "name":"compute:admin"
                 },
                 {
+                    "tenantId" : "\${tenantidtwo}",
                     "id":"234",
                     "name":"object-store:admin"
                 },
