@@ -78,7 +78,7 @@ class ClientAuthNAndApiValidatorDelegableTest extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles"     : roles,
                                        "Content-Type": "application/xml",
                                        "X-Auth-Token": fakeIdentityV2Service.client_token]
-        def authDelegatedMsg = 'status_code=401.component=keystone-v2.message=Auth token not found in headers;q=0.3'
+        def authDelegatedMsg = 'status_code=401.component=keystone-v2.message=X-Auth-Token header not found;q=0.3'
 
         when: "User passes a request through repose with authN and apiValidator delegable"
         MessageChain mc = deproxy.makeRequest(
@@ -92,9 +92,7 @@ class ClientAuthNAndApiValidatorDelegableTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == identityStatus
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.findAll("x-delegated").size() == 2
         msgCheckingHelper(request2.headers.findAll("x-delegated"), authDelegatedMsg, apiDelegatedMsg)
 
