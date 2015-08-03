@@ -1157,7 +1157,7 @@ with HttpDelegationManager {
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
           response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Delegated")
-          response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
 
@@ -1173,34 +1173,8 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, filterChain)
 
-      response.getStatusCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
-    }
-
-    it("responds with a 500 if the origin service does not support authentication delegation") {
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      val mockServlet = mock[Servlet]
-      doAnswer(new Answer[Unit] {
-        override def answer(invocation: InvocationOnMock): Unit = {
-          response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Delegated")
-          response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED)
-        }
-      }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
-
-      filterChain.setServlet(mockServlet)
-
-      val request = new MockHttpServletRequest
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "notValidToken")
-
-      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      mockAkkaGetResponse(s"${TOKEN_KEY_PREFIX}notValidToken")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
-      )
-
-      filter.doFilter(request, response, filterChain)
-
-      response.getStatusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain ("Keystone uri=https://some.identity.com")
     }
   }
 

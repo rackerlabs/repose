@@ -176,20 +176,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
               logger.trace(s"Processing response with status code: $statusCode")
 
-              val wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE)
-
-              response.getStatus match {
-                case HttpServletResponse.SC_UNAUTHORIZED | HttpServletResponse.SC_FORBIDDEN =>
-                  if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
-                    logger.debug("The origin service could not authenticate the delegated request")
-                    response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-                  }
-                case HttpServletResponse.SC_NOT_IMPLEMENTED =>
-                  if (DELEGATED.equalsIgnoreCase(wwwAuthenticateHeader.trim)) {
-                    logger.error("Configured to delegate, but the origin service does not support delegation")
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                  }
-                case _ => ()
+              if (response.getStatus == HttpServletResponse.SC_UNAUTHORIZED) {
+                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
             case None =>
               logger.debug(s"Rejecting with status $statusCode")
