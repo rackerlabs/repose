@@ -244,9 +244,9 @@
 
     <xs:complexType name="CacheTimeoutsType">
         <xs:sequence>
-            <xs:element name="token" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="group" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="endpoints" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="token" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="endpoints" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
         </xs:sequence>
         <xs:attribute name="variability" type="ZeroOrPositiveInteger" default="0" use="optional">
@@ -368,6 +368,12 @@
         <xs:restriction base="xs:double">
             <xs:minInclusive value="0"/>
             <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NegOneOrGreaterInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="-1"/>
         </xs:restriction>
     </xs:simpleType>
 

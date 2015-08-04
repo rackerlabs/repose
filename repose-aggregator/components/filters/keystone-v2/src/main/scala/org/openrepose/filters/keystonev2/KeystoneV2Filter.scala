@@ -264,11 +264,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
           } cacheOnSuccess { validToken =>
-            val cacheSettings = config.getCache
-            val timeToLive = getTtl(cacheSettings.getTimeouts.getToken,
-              cacheSettings.getTimeouts.getVariability,
+            val cacheSettings = config.getCache.getTimeouts
+            val timeToLive = getTtl(cacheSettings.getToken,
+              cacheSettings.getVariability,
               Some(validToken))
-            datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, timeToLive, TimeUnit.SECONDS)
+            timeToLive foreach { ttl =>
+              datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
+            }
           }
         }
       }
@@ -311,10 +313,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { endpointsJson =>
-              val cacheSettings = config.getCache
-              val timeToLive = getTtl(cacheSettings.getTimeouts.getEndpoints,
-                cacheSettings.getTimeouts.getVariability)
-              datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, timeToLive, TimeUnit.SECONDS)
+              val cacheSettings = config.getCache.getTimeouts
+              val timeToLive = getTtl(cacheSettings.getEndpoints, cacheSettings.getVariability)
+              timeToLive foreach { ttl =>
+                datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, ttl, TimeUnit.SECONDS)
+              }
             }
           }
       }
@@ -360,9 +363,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { groups =>
-              val cacheSettings = config.getCache
-              val timeToLive = getTtl(cacheSettings.getTimeouts.getGroup, cacheSettings.getTimeouts.getVariability)
-              datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, timeToLive, TimeUnit.SECONDS)
+              val cacheSettings = config.getCache.getTimeouts
+              val timeToLive = getTtl(cacheSettings.getGroup, cacheSettings.getVariability)
+              timeToLive foreach { ttl =>
+                datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, ttl, TimeUnit.SECONDS)
+              }
             }
           }
       }
@@ -467,6 +472,61 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
+  def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None): Option[Int] = {
+    def safeLongToInt(l: Long): Int = math.min(l, Int.MaxValue).toInt
+
+    val tokenTtl = {
+      tokenOption match {
+        case Some(token) =>
+          // If a token has been provided, calculate the TTL
+          val tokenExpiration = DateUtils.parseDate(token.expirationDate).getTime - System.currentTimeMillis()
+
+          if (tokenExpiration < 1) {
+            // If the token has already expired, don't cache
+            None
+          } else {
+            val tokenExpirationSeconds = tokenExpiration / 1000
+
+            if (tokenExpirationSeconds > Int.MaxValue) {
+              logger.warn("Token expiration time exceeds maximum possible value -- setting to maximum possible value")
+            }
+            // Cache for the token TTL after converting from milliseconds to seconds
+            Some(safeLongToInt(tokenExpirationSeconds))
+          }
+        case None =>
+          // If a token has not been provided, don't cache
+          None
+      }
+    }
+
+    val configuredTtl = {
+      if (baseTtl == -1) {
+        // Caching is disabled by configuration
+        None
+      } else if (baseTtl == 0) {
+        // Caching is set to forever
+        Some(baseTtl)
+      } else {
+        val modifiedTtl = baseTtl + Random.nextInt(variability * 2 + 1) - variability
+
+        if (modifiedTtl > 0) {
+          // Cache for the calculated configured TTL
+          Some(modifiedTtl)
+        } else {
+          // Caching would have been negative, but instead, we simply don't cache
+          None
+        }
+      }
+    }
+
+    (tokenTtl, configuredTtl) match {
+      case (Some(tttl), None) => None
+      case (Some(tttl), Some(cttl)) => Some(Math.min(tttl, cttl))
+      case (None, Some(cttl)) => Some(cttl)
+      case (None, None) => None
+    }
+  }
+
   def isInitialized = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
 
   object SystemModelConfigListener extends UpdateListener[SystemModel] {
@@ -525,29 +585,6 @@ object KeystoneV2Filter {
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
-
-  def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None) = {
-    def safeLongToInt(l: Long) = math.min(l, Int.MaxValue).toInt
-
-    val configuredTtl = if (baseTtl == 0 || variability == 0) {
-      baseTtl
-    } else {
-      math.max(1, baseTtl + Random.nextInt(variability * 2 + 1) - variability) // To avoid cases where result is zero or negative
-    }
-
-    tokenOption match {
-      case Some(token) =>
-        val tokenExpiration = DateUtils.parseDate(token.expirationDate).getTime - System.currentTimeMillis()
-        if (tokenExpiration < 1) {
-          1
-        } else {
-          val tokenTtl = safeLongToInt(tokenExpiration / 1000)
-          math.min(tokenTtl, configuredTtl)
-        }
-      case None =>
-        configuredTtl
-    }
-  }
 
   class CachingTry[T](wrappedTry: Try[T]) {
     def cacheOnSuccess(cachingFunction: T => Unit): Try[T] = {
