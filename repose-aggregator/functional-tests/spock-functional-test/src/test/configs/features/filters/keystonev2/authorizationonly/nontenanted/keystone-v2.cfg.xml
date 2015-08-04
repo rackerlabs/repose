@@ -4,11 +4,15 @@
     <identity-service username="joe"
                       password="secret"
                       uri="http://localhost:${identityPort}"
+                      set-groups-in-header="true"
             />
 
-    <forward>
-        <user-groups/>
-    </forward>
+    <cache>
+        <timeouts>
+            <token>-1</token>
+            <endpoints>-1</endpoints>
+        </timeouts>
+    </cache>
 
     <require-service-endpoint public-url="http://localhost2:${targetPort}/">
         <bypass-validation-roles>

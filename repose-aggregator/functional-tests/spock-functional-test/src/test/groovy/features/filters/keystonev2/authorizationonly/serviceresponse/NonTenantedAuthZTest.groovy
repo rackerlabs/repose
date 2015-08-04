@@ -59,39 +59,33 @@ class NonTenantedAuthZTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
+    def "Check non-tenanted AuthZ with #role and expected response code #respcode"() {
         fakeIdentityV2Service.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
+            service_admin_role = role
         }
 
         def reqHeaders =
                 [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityV2Service.client_token,
-                        'x-roles'     : roles
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
-        when: "User passes a request through repose with role #roles"
+        when: "User passes a request through repose with role #role"
+        sleep(500) // Sleep force miss Akka service client cache since the response body is variable
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
                 headers: reqHeaders)
 
-        then: "User with #roles should get response code #respcode"
+        then: "User with #role should get response code #respcode"
         mc.receivedResponse.code == respcode
 
-        where: "User with #roles expect response code #respcode"
-        roles | respcode
+        where: "User with #role expect response code #respcode"
+        role | respcode
         'user-admin' | "403"
         'non-admin' | "403"
         'admin' | "200"
         'openstack:admin' | "200"
-        null | "403"
-        '' | "403"
-        'openstack,admin' | "200"
-        'openstack:admin,default' | "200"
-        'openstack%2Cadmin' | '403'
-        'admin%20' | '403'
-        'admin ' | '200'
     }
 
 }
