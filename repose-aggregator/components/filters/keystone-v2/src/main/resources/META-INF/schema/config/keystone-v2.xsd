@@ -243,6 +243,18 @@
     </xs:complexType>
 
     <xs:complexType name="CacheTimeoutsType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The number of seconds which cached data will live in the datastore. Different data is cached
+                    separately, so there are multiple configurable cache timeouts. Each timeout value behaves in the
+                    following way:
+                    If -1, caching is disabled.
+                    If 0, data is cached indefinitely. In other words, data is eternal.
+                    If greater than 0, data is cached for the value provided, in seconds.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
         <xs:sequence>
             <xs:element name="token" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <xs:element name="group" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
