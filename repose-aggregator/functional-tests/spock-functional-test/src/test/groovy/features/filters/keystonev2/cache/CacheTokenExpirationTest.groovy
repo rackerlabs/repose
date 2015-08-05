@@ -60,7 +60,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         fakeIdentityV2Service.client_token = clientToken
-        fakeIdentityV2Service.tokenExpiresAt = (new DateTime()).plusDays(40);
+        fakeIdentityV2Service.tokenExpiresAt = (new DateTime()).plusDays(40000);
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV2Service.handler)
@@ -85,7 +85,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         fakeIdentityV2Service.validateTokenCount == 0
 
         when: "I troubleshoot the REPOSE logs"
-        def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")
+        def foundLogs = reposeLogSearch.searchByString("Token expiration time exceeds maximum possible value -- setting to maximum possible value")
 
         then: "I should have a WARN log message"
         foundLogs.size() == 1
