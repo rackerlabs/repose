@@ -27,7 +27,7 @@ import javax.ws.rs.core.MediaType
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.HttpHeaders
-import org.apache.http.client.utils.{DateUtils, URIBuilder}
+import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -62,9 +62,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       )
     )
 
-    val tokenEndpointUri = new URIBuilder().setHost(identityServiceUri).setPath(TOKEN_ENDPOINT).build().toString()
     val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-      tokenEndpointUri,
+      s"$identityServiceUri$TOKEN_ENDPOINT",
       (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
       Json.stringify(authenticationPayload),
