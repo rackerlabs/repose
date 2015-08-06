@@ -59,7 +59,7 @@ class IgnoreTenantRoleAuthZTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
+    def "Check non-tenanted AuthZ with #role and expected response code #respcode"() {
         fakeIdentityV2Service.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -81,12 +81,12 @@ class IgnoreTenantRoleAuthZTest extends ReposeValveTest {
         mc.receivedResponse.code == respcode
 
         where: "User with #role expect response code #respcode"
-        role | respcode
-        'user-admin' | "403"
-        'non-admin' | "403"
-        'admin' | "200"
-        'openstack:admin' | "200"
-        null | "403"
-        '' | "403"
+        role                | respcode
+        'user-admin'        | "403"
+        'non-admin'         | "403"
+        'admin'             | "200"
+        'openstack:admin'   | "200"
+        null                | "403"
+        ''                  | "403"
     }
 }
