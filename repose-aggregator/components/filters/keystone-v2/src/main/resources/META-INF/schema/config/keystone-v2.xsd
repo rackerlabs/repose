@@ -255,12 +255,12 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:sequence>
+        <xs:all>
             <xs:element name="token" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <xs:element name="group" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <xs:element name="endpoints" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
             <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="variability" type="ZeroOrPositiveInteger" default="0" use="optional">
             <xs:annotation>
                 <xs:documentation>
