@@ -7,6 +7,14 @@
                       set-groups-in-header="true"
             />
 
+    <cache>
+        <timeouts>
+            <token>-1</token>
+            <group>-1</group>
+            <endpoints>-1</endpoints>
+        </timeouts>
+    </cache>
+
     <require-service-endpoint public-url="http://localhost2:${targetPort}/">
         <bypass-validation-roles>
             <role>admin</role>
