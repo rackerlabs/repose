@@ -88,8 +88,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
         foundLogs.size() == 1
@@ -100,6 +99,8 @@ class ServiceListFeatureTest extends ReposeValveTest {
     def "When user requests a URL that is not in the user's service list should receive a 403 FORBIDDEN response"() {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
+        reposeLogSearch.cleanLog()
+
         def token = UUID.randomUUID().toString()
         fakeIdentityV2Service.client_token = token
         fakeIdentityV2Service.originServicePort = properties.targetPort
@@ -107,8 +108,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + token + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
         foundLogs.size() == 1
