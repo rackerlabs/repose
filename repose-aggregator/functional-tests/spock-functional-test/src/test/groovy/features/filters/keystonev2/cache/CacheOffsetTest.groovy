@@ -18,7 +18,6 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.keystonev2.cache
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
@@ -52,12 +51,13 @@ class CacheOffsetTest extends ReposeValveTest {
      * - a burst of requests will be sent for a specified number of users
      * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
      * - all tokens will expire at tokenTimeout+cacheOffset
+     * - Note: cache config now using seconds not milliseconds
      */
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
         MockIdentityV2Service fakeIdentityV2Service
-        def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 5000, 3000]
+        def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 10, 6]
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         fakeIdentityV2Service.resetCounts()
         fakeIdentityV2Service.with {
@@ -101,7 +101,7 @@ class CacheOffsetTest extends ReposeValveTest {
         when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
         fakeIdentityV2Service.resetCounts()
 
-        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
+        DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
 
         userTokens.eachWithIndex { token, index ->
@@ -120,8 +120,9 @@ class CacheOffsetTest extends ReposeValveTest {
 
         when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
         fakeIdentityV2Service.resetCounts()
-        DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
+        DateTime maximumTokenExpiration = lastTokenValidation.plusSeconds(tokenTimeout + cacheOffset)
         //wait until max token expiration is reached
+
         while (maximumTokenExpiration.isAfterNow()) {
             sleep 100
         }
@@ -144,7 +145,5 @@ class CacheOffsetTest extends ReposeValveTest {
         where:
         uniqueUsers | initialCallsPerUser
         50          | 1
-
     }
-
 }
