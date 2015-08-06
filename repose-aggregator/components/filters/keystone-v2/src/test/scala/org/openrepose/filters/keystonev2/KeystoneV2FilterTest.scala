@@ -39,6 +39,7 @@ import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
@@ -160,6 +161,33 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+
+    // todo: run this test once URIs are handled properly
+    ignore("should handle identity service uri ending with a '/'") {
+      val mockAkkaClient = mock[AkkaServiceClient]
+      val keystoneFilter = new KeystoneV2Filter(mockConfigService, mockAkkaClient, mockDatastoreService)
+
+      val modifiedConfig = configuration
+      modifiedConfig.getIdentityService.setUri("https://some.identity.com/")
+      keystoneFilter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
+      keystoneFilter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockAkkaClient.get(anyString(), anyString(), anyMapOf(classOf[String], classOf[String])))
+        .thenReturn(AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      keystoneFilter.doFilter(request, response, filterChain)
+
+      verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any())
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
     }
@@ -1174,7 +1202,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain ("Keystone uri=https://some.identity.com")
+      response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain("Keystone uri=https://some.identity.com")
     }
   }
 
