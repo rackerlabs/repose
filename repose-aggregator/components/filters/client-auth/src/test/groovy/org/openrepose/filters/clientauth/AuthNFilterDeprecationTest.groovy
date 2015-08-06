@@ -26,8 +26,8 @@ class AuthNFilterDeprecationTest extends Specification {
         filter.init(new MockFilterConfig())
 
         then:
-        appender.getEvents().find {
-            it.getMessage().getFormattedMessage() == 'This filter is deprecated; use the keystone-v2 filter'
+        appender.getMessages().find {
+            it.contains('This filter is deprecated; use the keystone-v2 filter')
         }
     }
 }
