@@ -101,7 +101,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     // we don't need to modify the response from further down the chain
     lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
-    lazy val requestHandler = new KeystoneRequestHandler(getIdentityServiceUri(config.getIdentityService.getUri), akkaServiceClient, traceId)
+    lazy val requestHandler = new KeystoneRequestHandler(getIdentityServiceUri, akkaServiceClient, traceId)
 
     /**
      * BEGIN PROCESSING
@@ -112,7 +112,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     } else {
       logger.debug("Keystone v2 filter processing request...")
 
-      val keystoneAuthenticateHeader = s"Keystone uri=${getIdentityServiceUri(config.getIdentityService.getUri)}"
+      val keystoneAuthenticateHeader = s"Keystone uri=${getIdentityServiceUri}"
 
       val filterResult =
         if (isWhitelisted(request.getRequestURI)) {
@@ -471,12 +471,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def getIdentityServiceUri(identityServiceUri: String): String = {
-      if (identityServiceUri.last == '/')
-        identityServiceUri.substring(0, identityServiceUri.length() - 1)
-      else
-        identityServiceUri
-    }
+    def getIdentityServiceUri(): String = config.getIdentityService.getUri.stripSuffix("/")
   }
 
   def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None): Option[Int] = {
