@@ -10,5 +10,7 @@
             />
     <white-list>
         <uri-regex>^$</uri-regex>
+        <uri-regex>/buildinfo</uri-regex>
+        <uri-regex>/get</uri-regex>
     </white-list>
 </keystone-v2>
