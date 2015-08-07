@@ -115,6 +115,8 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
          *
          * - Refactor the 'tracing-header' and 'rewrite-tracing-header' System Model attributes to a new tracing
          * element.
+         *
+         * - Update TimeReceivedHandler.DEFAULT_DATE_FORMAT to "yyyy-MM-dd HH:mm:ss"
          */
       }
     }
