@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.logging.apache.format.FormatArgumentHandler;
 import org.openrepose.commons.utils.logging.apache.format.LogArgumentFormatter;
 import org.openrepose.commons.utils.logging.apache.format.stock.*;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -98,6 +99,18 @@ public class HttpLogFormatterTest {
 
             assertEquals(expected, formatter.format(request, response));
         }
+
+        @Test
+        public void shouldParseSimpleTimeFormat() {
+            final String defaultDateFormat = "dd-MM-yyyy-HH:mm:ss.SSS";
+
+            final HttpLogFormatter formatter = new HttpLogFormatter("%t");
+
+            assertEquals(1, formatter.getHandlerList().size());
+
+            assertEquals(defaultDateFormat, ((TimeReceivedHandler) ((LogArgumentFormatter)
+                    formatter.getHandlerList().get(0)).getLogic()).getDateFormat());
+        }
     }
 
     public static class WhenParsingComplexArguments {
@@ -131,6 +144,18 @@ public class HttpLogFormatterTest {
             assertEquals(expected, formatter.format(request, response));
             when(response.getStatus()).thenReturn(401);
             assertEquals("-", formatter.format(request, response));
+        }
+
+        @Test
+        public void shouldParseCustomTimeFormat() {
+            final String customDateFormat = "yyyy-MM-dd HH:mm:ss";
+
+            final HttpLogFormatter formatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
+
+            assertEquals(1, formatter.getHandlerList().size());
+
+            assertEquals(customDateFormat, ((TimeReceivedHandler) ((LogArgumentFormatter)
+                    formatter.getHandlerList().get(0)).getLogic()).getDateFormat());
         }
     }
 
