@@ -35,6 +35,9 @@ public class TimeReceivedHandler implements FormatterLogic {
 
     public TimeReceivedHandler(final String dateFormat) {
         this.dateFormat = StringUtils.isEmpty(dateFormat) ? DEFAULT_DATE_FORMAT : dateFormat;
+
+        // build it here so an exception will be thrown during application startup if the pattern is invalid
+        new SimpleDateFormat(dateFormat);
     }
 
     @Override
