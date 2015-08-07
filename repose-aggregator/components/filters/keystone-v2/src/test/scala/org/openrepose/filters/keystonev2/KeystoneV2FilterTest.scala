@@ -165,8 +165,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
     }
 
-    // todo: run this test once URIs are handled properly
-    ignore("should handle identity service uri ending with a '/'") {
+    it("should handle identity service uri ending with a '/'") {
       val mockAkkaClient = mock[AkkaServiceClient]
       val keystoneFilter = new KeystoneV2Filter(mockConfigService, mockAkkaClient, mockDatastoreService)
 
@@ -187,9 +186,9 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       keystoneFilter.doFilter(request, response, filterChain)
 
-      verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any())
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any())
     }
 
     it("caches the admin token request for 10 minutes") {
