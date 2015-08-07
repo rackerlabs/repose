@@ -103,7 +103,7 @@ public class LogArgumentGroupExtractor {
 
     public String getFormat() {
         // everything that was inside the braces
-        return variable + variableArgumentSeparator + StringUtils.join(arguments, "");
+        return variable + variableArgumentSeparator + StringUtils.join(arguments, " ");
     }
 
     @Override
