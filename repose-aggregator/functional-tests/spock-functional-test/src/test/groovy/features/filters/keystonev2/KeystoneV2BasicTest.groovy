@@ -23,6 +23,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/18/15.
@@ -87,5 +88,22 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         then: "They should pass"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+    }
+
+    @Unroll("When pass request with white list uri: #path")
+    def "Verify white list"() {
+        given:
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
+                headers: ['content-type': 'application/json'])
+
+        then:
+        then: "They should pass"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        where:
+        path << ["/buildinfo", "/get"]
     }
 }
