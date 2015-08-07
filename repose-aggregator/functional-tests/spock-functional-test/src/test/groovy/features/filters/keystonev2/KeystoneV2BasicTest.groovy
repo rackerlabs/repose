@@ -90,8 +90,8 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    @Unroll ("When pass request with white list uri: #path")
-    def "Verify white list" () {
+    @Unroll("When pass request with white list uri: #path")
+    def "Verify white list"() {
         given:
 
         when: "User passes a request through repose"
@@ -104,6 +104,6 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
 
         where:
-        path  << ["/buildinfo", "/get"]
+        path << ["/buildinfo", "/get"]
     }
 }
