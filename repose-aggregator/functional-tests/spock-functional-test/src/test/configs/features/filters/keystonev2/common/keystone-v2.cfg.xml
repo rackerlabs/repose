@@ -11,14 +11,4 @@
     <white-list>
         <uri-regex>^$</uri-regex>
     </white-list>
-
-    <cache>
-        <timeouts>
-            <!-- Datastore can only take integers, so we're operating in Int also, so this is just Seconds -->
-            <token>0</token>
-            <group>600</group>
-            <endpoints>600</endpoints>
-        </timeouts>
-    </cache>
-
 </keystone-v2>
