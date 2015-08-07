@@ -101,7 +101,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     // we don't need to modify the response from further down the chain
     lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
-    lazy val requestHandler = new KeystoneRequestHandler(getIdentityServiceUri, akkaServiceClient, traceId)
+    lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
 
     /**
      * BEGIN PROCESSING
@@ -112,7 +112,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     } else {
       logger.debug("Keystone v2 filter processing request...")
 
-      val keystoneAuthenticateHeader = s"Keystone uri=${getIdentityServiceUri}"
+      val keystoneAuthenticateHeader = s"Keystone uri=${keystoneV2Config.getIdentityService.getUri}"
 
       val filterResult =
         if (isWhitelisted(request.getRequestURI)) {
@@ -470,8 +470,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
       }
     }
-
-    def getIdentityServiceUri(): String = config.getIdentityService.getUri.stripSuffix("/")
   }
 
   def getTtl(baseTtl: Int, variability: Int, tokenOption: Option[ValidToken] = None): Option[Int] = {
@@ -569,6 +567,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       keystoneV2Config = fixMyDefaults(configurationObject)
+
+      // Removes an extra slash at the end of the URI if applicable
+      val uri = keystoneV2Config.getIdentityService.getUri
+      keystoneV2Config.getIdentityService.setUri(uri.stripSuffix("/"))
+
       initialized = true
     }
 
