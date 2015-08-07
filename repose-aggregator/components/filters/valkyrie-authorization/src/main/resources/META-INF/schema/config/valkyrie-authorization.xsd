@@ -41,6 +41,8 @@
         <xs:sequence>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="valkyrie-server" type="ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="collection-resources" type="CollectionResources" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="other-whitelisted-resources" type="OtherWhitelistedResources" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="300000">
             <xs:annotation>
@@ -118,4 +120,109 @@
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="CollectionResources">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of resources that return responses that contain a collection of items that should be culled
+                    based on valkyrie permissions.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="resource" type="Resource" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Resource">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A specific ReST resource that contains one or more collections that need culling based on valkyrie
+                    permissions.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path-regex" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="collection" type="Collection" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Collection">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Specifies how to find the information needed for culling the collection.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="json" type="pathTriplet" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the JSON paths necessary to make changes to the collection.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- We'll add this when we come back to support xml. At that point the json should switch to a minimum of 0
+                 and validation should be in place so that they have at least one of the two specified.-->
+            <!--<xs:element name="xml" type="pathTriplet" minOccurs="0" maxOccurs="1">-->
+                <!--<xs:annotation>-->
+                    <!--<xs:documentation>-->
+                        <!--<html:p>Specifies the x-paths necessary to make changes to the collection.</html:p>-->
+                    <!--</xs:documentation>-->
+                <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="pathTriplet">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The three paths needed to determine whether an item is viewable and the item count to be updated.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path-to-collection" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The path to the collection to be culled relative to the entire document.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="path-to-device-id" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The path to the device id relative to the objects contained in the collection.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="path-to-item-count" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The path to the item count for the collection to be culled relative to the entire document.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OtherWhitelistedResources">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of resources that don't require a per device authorization nor culling of a collection.
+                    Anything not on this list nor captured under the other cases of this filter will be rejected as
+                    unauthorized.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path-regex" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>
