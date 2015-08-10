@@ -133,27 +133,11 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
-          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION => extractUserInformation(serviceClientResponse.getData)
-          case SC_BAD_REQUEST => Failure(IdentityValidationException("Bad Token Validation request to identity!"))
-          case SC_UNAUTHORIZED =>
-            Failure(AdminTokenUnauthorizedException("Admin token unauthorized to validate token"))
-          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from validating token"))
-          case SC_NOT_FOUND => Failure(InvalidTokenException("Provided token is not valid"))
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when validating token"))
-          case statusCode if statusCode >= 500 =>
-            Failure(IdentityCommunicationException("Identity Service not available to authenticate token"))
-          case _ => Failure(new Exception("Unhandled response from Identity, unable to continue"))
-        }
-      case Failure(x) => Failure(new Exception("Unable to successfully validate token with Identity", x))
-    }
+    handleResponse("validate token", akkaResponse, extractUserInformation)
   }
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String): Try[EndpointsData] = {
-    def extractEndpointInfo(jsonString: String): Try[EndpointsData] = {
+    def extractEndpointInfo(inputStream: InputStream): Try[EndpointsData] = {
       implicit val endpointsReader = (
         (JsPath \ "region").readNullable[String] and
           (JsPath \ "name").readNullable[String] and
@@ -161,7 +145,9 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           (JsPath \ "publicURL").read[String]
         )(Endpoint.apply _)
 
+      val jsonString = Source.fromInputStream(inputStream).getLines mkString ""
       val json = Json.parse(jsonString)
+
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
@@ -178,24 +164,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
-          case SC_OK | SC_NON_AUTHORITATIVE_INFORMATION =>
-            val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines mkString ""
-            extractEndpointInfo(jsonResponse)
-          case SC_UNAUTHORIZED =>
-            Failure(AdminTokenUnauthorizedException("Admin token unauthorized to access endpoints"))
-          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing endpoints"))
-          case SC_NOT_FOUND => Failure(InvalidTokenException("Provided token went bad before endpoints call"))
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing endpoints"))
-          case statusCode if statusCode >= 500 =>
-            Failure(IdentityCommunicationException("Identity Service not available to get endpoints"))
-          case _ => Failure(new Exception("Unexpected response code from the endpoints call"))
-        }
-      case Failure(x) => Failure(new Exception("Failure communicating with identity during get endpoints", x))
-    }
+    handleResponse("endpoints", akkaResponse, extractEndpointInfo)
   }
 
   final def getGroups(authenticatingToken: String, forToken: String): Try[Vector[String]] = {
@@ -214,22 +183,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
-          case SC_OK => extractGroupInfo(serviceClientResponse.getData)
-          case SC_UNAUTHORIZED =>
-            Failure(AdminTokenUnauthorizedException("Admin token unauthorized to access groups"))
-          case SC_FORBIDDEN => Failure(IdentityAdminTokenException("Admin token forbidden from accessing groups"))
-          case SC_NOT_FOUND => Failure(InvalidTokenException("Provided token went bad before groups call"))
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when accessing groups"))
-          case statusCode if statusCode >= 500 =>
-            Failure(IdentityCommunicationException("Identity Service not available to get groups"))
-          case _ => Failure(new Exception("Unexpected response code from the groups call"))
-        }
-      case Failure(x) => Failure(new Exception("Failure communicating with identity during get groups", x))
-    }
+    handleResponse("groups", akkaResponse, extractGroupInfo)
   }
 }
 
@@ -258,6 +212,26 @@ object KeystoneRequestHandler {
     }
   }
 
+  def handleResponse[T](call: String, response: Try[ServiceClientResponse], onSuccess: InputStream => Try[T]): Try[T] = {
+    response match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case statusCode if statusCode >= 200 && statusCode < 300 => onSuccess(serviceClientResponse.getData)
+          case SC_BAD_REQUEST => Failure(BadRequestException(s"Bad $call request to identity"))
+          case SC_UNAUTHORIZED =>
+            Failure(AdminTokenUnauthorizedException(s"Admin token unauthorized to make $call request"))
+          case SC_FORBIDDEN => Failure(IdentityAdminTokenException(s"Admin token forbidden from making $call request"))
+          case SC_NOT_FOUND => Failure(InvalidTokenException(s"Token is not valid for $call request"))
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
+          case statusCode if statusCode >= 500 =>
+            Failure(IdentityCommunicationException(s"Identity Service not available for $call request"))
+          case _ => Failure(new Exception(s"Unhandled response from Identity for $call request"))
+        }
+      case Failure(x) => Failure(new Exception(s"Failure communicating with Identity during $call request", x))
+    }
+  }
+
   case class EndpointsData(json: String, vector: Vector[Endpoint])
 
   trait IdentityException
@@ -268,7 +242,7 @@ object KeystoneRequestHandler {
 
   case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
-  case class IdentityValidationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class BadRequestException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class IdentityCommunicationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 

@@ -569,8 +569,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       keystoneV2Config = fixMyDefaults(configurationObject)
 
       // Removes an extra slash at the end of the URI if applicable
-      val uri = keystoneV2Config.getIdentityService.getUri
-      keystoneV2Config.getIdentityService.setUri(uri.stripSuffix("/"))
+      val serviceUri = keystoneV2Config.getIdentityService.getUri
+      keystoneV2Config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
 
       initialized = true
     }
