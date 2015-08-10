@@ -60,6 +60,7 @@ class MockValkyrie {
     Closure<Response> authorizeHandler
 
     String device_id = ""
+    String device_id2 = ""
     String device_perm = ""
 
     def sleeptime = 0;
@@ -124,6 +125,7 @@ class MockValkyrie {
                 contact   : contact,
                 tenant    : tenant,
                 deviceID  : device_id,
+                deviceID2  : device_id2,
                 permission: device_perm
         ];
 
@@ -175,7 +177,7 @@ class MockValkyrie {
                             "account_number": \${tenant},
                             "contact_id": \${contact},
                             "id": 0,
-                            "item_id": 504358,
+                            "item_id": \${deviceID2},
                             "item_type_id": 1,
                             "item_type_name": "devices",
                             "permission_name": "view_product",
