@@ -18,14 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.tracing
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 8/10/15.
  * Verify Tracing header x-trans-id also include sessionid and requestid
@@ -96,11 +94,15 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         println transid
         def sesid = getSessionId(sessionid)
         println sesid
+        def username = mc.handlings[0].request.headers.getFirstValue("x-pp-user")
+        def requestid = mc.handlings[0].request.headers.getFirstValue("deproxy-request-id")
 
         then: "Make sure there are appropriate log messages with matching GUIDs"
         mc.receivedResponse.code == "200"
 
+        transid.contains(requestid)
         transid.contains(sesid)
+        transid.contains(username)
 
         // should be able to find the same tracing header from log
         reposeLogSearch.searchByString("GUID:$transid -.*AuthTokenFutureActor request!").size() > 0
