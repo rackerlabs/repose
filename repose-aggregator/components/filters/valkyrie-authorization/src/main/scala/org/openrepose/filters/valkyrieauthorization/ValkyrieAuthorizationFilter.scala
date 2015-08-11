@@ -69,10 +69,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
 
     val clientResponse = ((requestedTenantId, requestedContactId, requestedDeviceId) match {
-      case (None, _, _) => ResponseResult(502, "No tenant ID specified")
+      case (None, _, _) => ResponseResult(403, "No tenant ID specified")
       case (Some(tenant), _, _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
       case (_, None, _) => ResponseResult(403, "No contact ID specified")
-      case (_, _, None) => ResponseResult(502, "No device ID specified")
+      case (_, _, None) => ResponseResult(403, "No device ID specified")
       case (Some(tenant), Some(contact), Some(device)) =>
         val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
 
