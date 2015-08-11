@@ -18,6 +18,7 @@ import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieAuthorizationConfig, ValkyrieServer}
 
+import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -72,7 +73,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case (None, _, _) => ResponseResult(403, "No tenant ID specified")
       case (Some(tenant), _, _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
       case (_, None, _) => ResponseResult(403, "No contact ID specified")
-      case (_, _, None) => ResponseResult(403, "No device ID specified")
+      case (_, _, None) if !nonAuthorizedPath(mutableHttpRequest.getPathInfo) => ResponseResult(403, "No device ID specified")
       case (Some(tenant), Some(contact), Some(device)) =>
         val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
 
@@ -100,6 +101,17 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   def cacheKey(transformedTenant: String, contactId: String): String = {
     transformedTenant + contactId
+  }
+
+  def nonAuthorizedPath(url: String): Boolean = {
+    val path: String = new URL(url).getPath
+    lazy val onResourceList: Boolean = configuration.getCollectionResources.getResource.asScala.exists { resource =>
+      resource.getPathRegex.r.findFirstIn(path).isDefined
+    }
+    lazy val onWhitelist: Boolean = configuration.getOtherWhitelistedResources.getPathRegex.asScala.exists { pathRegex =>
+      pathRegex.r.findFirstIn(path).isDefined
+    }
+    onResourceList || onWhitelist
   }
 
   def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer, requestGuid: Option[String] = None): ValkyrieResult = {

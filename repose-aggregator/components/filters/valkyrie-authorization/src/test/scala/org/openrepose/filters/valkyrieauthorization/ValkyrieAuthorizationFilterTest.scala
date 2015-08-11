@@ -35,7 +35,7 @@ import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, Mut
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
-import org.openrepose.filters.valkyrieauthorization.config.{DelegatingType, ValkyrieAuthorizationConfig, ValkyrieServer}
+import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}
@@ -198,6 +198,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
           val mockServletRequest = new MockHttpServletRequest
           mockServletRequest.setMethod(request.method)
+          mockServletRequest.
           request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
           val mockServletResponse = new MockHttpServletResponse
@@ -352,6 +353,20 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
   }
 
+  describe("nonAuthorizedPath should match appropriately") {
+    val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+    filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+    case class AuthorizedPathCheck(url: String, allowed: Boolean)
+    List(AuthorizedPathCheck("http://www.blah.com/foo", true),
+         AuthorizedPathCheck("http://www.blah.com/bar", true),
+         AuthorizedPathCheck("http://www.blah.com/baz", false)).foreach { path =>
+      it(s"${path.url} returns ${path.allowed}") {
+        assert(filter.nonAuthorizedPath(path.url) == path.allowed)
+      }
+    }
+  }
+
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
@@ -360,6 +375,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     server.setPassword("somePassword")
     configuration.setValkyrieServer(server)
     configuration.setDelegating(delegation)
+    val whitelistedResources: OtherWhitelistedResources = new OtherWhitelistedResources
+    whitelistedResources.getPathRegex.add("/foo")
+    configuration.setOtherWhitelistedResources(whitelistedResources)
+    val resource: Resource = new Resource
+    resource.setPathRegex("/bar")
+    val collectionResources: CollectionResources = new CollectionResources
+    collectionResources.getResource.add(resource)
+    configuration.setCollectionResources(collectionResources)
     configuration
   }
 
