@@ -18,12 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.tracing
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 8/10/15.
  * Verify Tracing header x-trans-id also include sessionid and requestid
@@ -108,7 +110,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         reposeLogSearch.searchByString("GUID:$transid -.*AuthTokenFutureActor request!").size() > 0
 
         where:
-        sessionid  << ["sessionid=abcdedfg1234567","sessionid=1234567890","1234567890","sessionid=",""]
+        sessionid  << ["sessionid=abcdedfg1234567", "sessionid=1234567890", "1234567890", "sessionid=", ""]
     }
 
     def getSessionId (String stringsession){
