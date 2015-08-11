@@ -19,8 +19,71 @@
  */
 package org.openrepose.core.services.phonehome.impl
 
-import org.scalatest.FunSpec
+import org.mockito.Matchers.{eq => mockitoEq, _}
+import org.mockito.Mockito.verify
+import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.systemmodel.{PhoneHomeService => PhoneHomeServiceConfig, SystemModel}
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FunSpec, Matchers}
 
-class PhoneHomeServiceImplTest extends FunSpec {
+class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
+  describe("init") {
+    it("should register a system model configuration listener") {
+      val mockConfigurationService = mock[ConfigurationService]
+      val phoneHomeService = new PhoneHomeServiceImpl("1.0.0", "/etc/repose/", mockConfigurationService)
+
+      phoneHomeService.init()
+
+      verify(mockConfigurationService)
+        .subscribeTo(anyString(), any[UpdateListener[SystemModel]](), mockitoEq(classOf[SystemModel]))
+    }
+  }
+
+  describe("isActive") {
+    it("should throw an IllegalStateException if the service has not been initialized") {
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+
+      an[IllegalStateException] should be thrownBy phoneHomeService.isActive
+    }
+
+    it("should return true if the service is configured") {
+      val systemModel = new SystemModel()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      phoneHomeService.isActive shouldBe true
+    }
+
+    it("should return false if the service is not configured") {
+      val systemModel = new SystemModel()
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      phoneHomeService.isActive shouldBe false
+    }
+  }
+
+  describe("sendUpdate") {
+    it("should throw an IllegalStateException if the service has not been initialized") {
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+
+      an[IllegalStateException] should be thrownBy phoneHomeService.sendUpdate()
+    }
+
+    it("should throw an IllegalStateException if the service is not active") {
+      val systemModel = new SystemModel()
+
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      an[IllegalStateException] should be thrownBy phoneHomeService.sendUpdate()
+    }
+
+    // TODO: Add more test cases
+  }
 }
