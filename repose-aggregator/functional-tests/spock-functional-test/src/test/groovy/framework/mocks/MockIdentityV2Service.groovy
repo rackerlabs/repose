@@ -159,7 +159,7 @@ class MockIdentityV2Service {
     def client_tenantid = 'this-is-the-tenant';
     def client_tenantname = 'this-tenant-name'
     def client_tenantid2 = 'this-is-the-nast-id'
-    def client_tenantname2 = 'this-is-tenant-name-two'
+    //def client_tenantname2 = 'this-is-tenant-name-two'
     def client_username = 'username';
     def client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
     def client_apikey = 'this-is-the-api-key';
@@ -190,7 +190,7 @@ class MockIdentityV2Service {
         client_tenantid = 'this-is-the-tenant';
         client_tenantname = 'this-tenant-name'
         client_tenantid2 = 'this-is-the-nast-id'
-        client_tenantname2 = 'this-is-tenant-name-two'
+        //client_tenantname2 = 'this-is-tenant-name-two'
         client_username = 'username';
         client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
         client_apikey = 'this-is-the-api-key';
@@ -476,7 +476,7 @@ class MockIdentityV2Service {
                         tenantid     : client_tenantid,
                         tenantname   : client_tenantname,
                         tenantidtwo  : client_tenantid2,
-                        tenantnametwo: client_tenantname2,
+                        //tenantnametwo: client_tenantname2,
                         token        : client_token,
                         serviceadmin : service_admin_role,
                         contactIdXml : contactIdXml,
@@ -583,7 +583,7 @@ class MockIdentityV2Service {
                 tenantid       : passedtenant,
                 tenantname     : client_tenantname,
                 tenantidtwo    : client_tenantid2,
-                tenantnametwo  : client_tenantname2,
+                //tenantnametwo  : client_tenantname2,
                 token          : request_token,
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
@@ -611,6 +611,8 @@ class MockIdentityV2Service {
             if (xml) {
                 if (tokenId == "rackerButts") {
                     template = rackerTokenXmlTemplate
+                } else if (tokenId == "rackerSSO") {
+                    template = rackerAuthenticationRespXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (impersonate_id != "") {
@@ -619,7 +621,9 @@ class MockIdentityV2Service {
                     template = successfulValidateTokenXmlTemplate
                 }
             } else {
-                if (impersonate_id != "") {
+                if (tokenId == "rackerSSO"){
+                    template = rackerAuthenticationRespJsonTemplate
+                } else if (impersonate_id != "") {
                     template = successfulImpersonateValidateTokenJsonTemplate
                 } else {
                     template = successfulValidateTokenJsonTemplate
@@ -762,7 +766,7 @@ class MockIdentityV2Service {
     <token id="\${token}"
            expires="\${expires}">
         <tenant id="\${tenantid}"
-                name="\${tenantid}"/>
+                name="\${tenantname}"/>
     </token>
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
@@ -1252,6 +1256,46 @@ class MockIdentityV2Service {
     </user>
 </access>
 """
+    def rackerAuthenticationRespXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+     xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+     <token  id="\${token}" expires="\${expires}"/>
+     <user name="jqsmith">
+          <roles>
+               <role name="Racker"/>
+               <role name="UVC_ServiceUsers"/>
+               <role name="Support"/>
+          </roles>
+     </user>
+</access>
+"""
+    def rackerAuthenticationRespJsonTemplate =
+            """{
+  "access": {
+    "token": {
+      "id": "\${token}",
+      "expires": "\${expires}"
+    },
+    "user": {
+      "roles": [
+        {
+          "name": "Racker"
+        },
+        {
+          "name": "UVC_ServiceUsers"
+        },
+        {
+          "name": "Support"
+        }
+      ],
+      "name": "jqsmith"
+    }
+  }
+}
+"""
+
     def UserGlobalRolesXmlTemplate =
             """<?xml version="1.0" encoding="UTF-8"?>
   <roles

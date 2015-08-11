@@ -6,18 +6,17 @@
             <group>600000</group>
         </timeouts>
     </cache>
-    <tenant-handling send-all-tenant-ids="true">
+    <tenant-handling>
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
             <bypass-validation-roles>
-                <role>Racker</role>
+                <role>service:admin-role1</role>
+                <role>service:admin-role2</role>
             </bypass-validation-roles>
         </validate-tenant>
-        <send-tenant-id-quality default-tenant-quality="0.3"/>
+        <send-tenant-id-quality/>
     </tenant-handling>
-
     <identity-service username="admin_username"
                       password="admin_password"
-                      uri="http://localhost:${identityPort}"
-            />
+                      uri="http://localhost:${identityPort}"/>
 </keystone-v2>

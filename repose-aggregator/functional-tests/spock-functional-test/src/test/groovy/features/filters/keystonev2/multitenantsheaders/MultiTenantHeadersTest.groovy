@@ -91,6 +91,7 @@ class MultiTenantHeadersTest extends ReposeValveTest {
             assert mc.handlings.size() == 0
         else {
             assert mc.handlings.size() == 1
+            assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).split(",").size() == numberTenants
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(defaultTenant)
             assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(secondTenant)
         }

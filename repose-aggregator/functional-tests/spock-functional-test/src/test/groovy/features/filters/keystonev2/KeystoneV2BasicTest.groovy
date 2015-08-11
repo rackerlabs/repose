@@ -63,6 +63,26 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
+            client_tenantid = "mytenant"
+            client_tenantname = "mytenantname"
+        }
+
+        when: "User passes a request through repose with valid token"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should pass"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
+    }
+
+    def "Validate client token with belongsTo test"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            validateTenant = "belongstotest"
         }
 
         when: "User passes a request through repose"
@@ -74,11 +94,10 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "Validate client token with belongsTo test"() {
+    def "Validate racker token without tenant"() {
         given:
         fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            validateTenant = "belongstotest"
+            client_token = "rackerSSO"
         }
 
         when: "User passes a request through repose"

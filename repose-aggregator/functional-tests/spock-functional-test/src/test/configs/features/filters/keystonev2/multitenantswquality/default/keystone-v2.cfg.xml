@@ -13,11 +13,11 @@
                 <role>Racker</role>
             </bypass-validation-roles>
         </validate-tenant>
-        <send-tenant-id-quality default-tenant-quality="0.3"/>
+        <send-tenant-id-quality />
     </tenant-handling>
 
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"
-            />
+                      />
 </keystone-v2>
