@@ -286,7 +286,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           logger.trace("Validating tenant")
 
           expectedTenant map { reqTenant =>
-            val tokenTenants = Set(validToken.defaultTenantId) ++ validToken.tenantIds
+            val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
             tokenTenants.find(reqTenant.equals)
               .map(_ => Success(Unit))
               .getOrElse(Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")))
@@ -373,7 +373,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def buildTenantHeader(defaultTenant: String,
+    def buildTenantHeader(defaultTenant: Option[String],
                           roleTenants: Seq[String],
                           uriTenant: Option[String]): Vector[String] = {
       val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
@@ -383,30 +383,38 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
       val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
 
-      var preferredTenant = defaultTenant
-      var preferredTenantQuality = defaultTenantQuality
-      uriTenant foreach { tenant =>
-        preferredTenant = tenant
+      case class PreferredTenant(id: String, quality: Double)
 
-        preferredTenantQuality = if (defaultTenant.equals(tenant)) {
-          math.max(defaultTenantQuality, uriTenantQuality)
-        } else {
-          uriTenantQuality
-        }
+      val preferredTenant = (defaultTenant, uriTenant) match {
+        case (Some(default), Some(uri)) =>
+          val quality = if (default.equals(uri)) {
+            math.max(defaultTenantQuality, uriTenantQuality)
+          } else {
+            uriTenantQuality
+          }
+          Some(PreferredTenant(uri, quality))
+        case (None, Some(uri)) =>
+          Some(PreferredTenant(uri, uriTenantQuality))
+        case (Some(default), None) =>
+          Some(PreferredTenant(default, defaultTenantQuality))
+        case (None, None) =>
+          None
       }
 
       if (sendAllTenants && sendQuality) {
-        val priorityTenants = uriTenant match {
-          case Some(tenant) => Vector(s"$defaultTenant;q=$defaultTenantQuality", s"$tenant;q=$uriTenantQuality")
-          case None => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+        val priorityTenants = (defaultTenant, uriTenant) match {
+          case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
+          case (Some(default), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+          case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
+          case (None, None) => Vector.empty[String]
         }
         priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
       } else if (sendAllTenants && !sendQuality) {
-        (Set(defaultTenant) ++ roleTenants).toVector
+        (defaultTenant.toSet ++ roleTenants).toVector
       } else if (!sendAllTenants && sendQuality) {
-        Vector(s"$preferredTenant;q=$preferredTenantQuality")
+        preferredTenant.map(tenant => Vector(s"${tenant.id};q=${tenant.quality}")).getOrElse(Vector.empty)
       } else {
-        Vector(preferredTenant)
+        preferredTenant.map(tenant => Vector(s"${tenant.id}")).getOrElse(Vector.empty)
       }
     }
 
@@ -415,8 +423,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       request.addHeader(PowerApiHeader.USER.toString, token.username)
       request.addHeader(OpenStackServiceHeader.USER_NAME.toString, token.username)
       request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
-      request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, token.tenantName)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
+      token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, _))
       token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
       token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))
       token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
@@ -424,7 +432,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       // Construct and add the tenant id header
       val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, tenantFromUri)
-      request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
+      if (tenantsToPass.nonEmpty) {
+        request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
+      }
 
       // If configured, add roles header
       if (config.getIdentityService.isSetRolesInHeader) {
@@ -436,7 +446,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         case Some(uriTenant) =>
           request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
         case None =>
-          request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY ${token.defaultTenantId}")
+          token.defaultTenantId match {
+            case Some(tenant) =>
+              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $tenant")
+            case None =>
+              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, X_AUTH_PROXY)
+          }
       }
     }
 

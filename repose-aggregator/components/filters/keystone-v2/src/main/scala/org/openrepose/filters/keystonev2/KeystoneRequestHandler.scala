@@ -98,11 +98,11 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val json = Json.parse(input)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
         val roleNames = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
-        val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").as[String]
-        val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val username = (json \ "access" \ "user" \ "name").as[String]
-        val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").as[String]
+        val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
+        val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
+        val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").asOpt[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
         val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
@@ -111,10 +111,10 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val validToken = ValidToken(expirationDate,
           userId,
           username,
+          roleNames,
           tenantName,
           defaultTenantId,
           tenantIds,
-          roleNames,
           impersonatorId,
           impersonatorName,
           defaultRegion,
@@ -253,10 +253,10 @@ object KeystoneRequestHandler {
   case class ValidToken(expirationDate: String,
                         userId: String,
                         username: String,
-                        tenantName: String,
-                        defaultTenantId: String,
-                        tenantIds: Seq[String],
                         roles: Seq[String],
+                        tenantName: Option[String],
+                        defaultTenantId: Option[String],
+                        tenantIds: Seq[String],
                         impersonatorId: Option[String],
                         impersonatorName: Option[String],
                         defaultRegion: Option[String],
