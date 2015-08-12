@@ -612,7 +612,7 @@ class MockIdentityV2Service {
                 if (tokenId == "rackerButts") {
                     template = rackerTokenXmlTemplate
                 } else if (tokenId == "rackerSSO") {
-                    template = rackerAuthenticationRespXmlTemplate
+                    template = rackerSuccessfulValidateRespXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (impersonate_id != "") {
@@ -622,7 +622,7 @@ class MockIdentityV2Service {
                 }
             } else {
                 if (tokenId == "rackerSSO"){
-                    template = rackerAuthenticationRespJsonTemplate
+                    template = rackerSuccessfulValidateRespJsonTemplate
                 } else if (impersonate_id != "") {
                     template = successfulImpersonateValidateTokenJsonTemplate
                 } else {
@@ -1256,41 +1256,49 @@ class MockIdentityV2Service {
     </user>
 </access>
 """
-    def rackerAuthenticationRespXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8"?>
+    def rackerSuccessfulValidateRespXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
-     xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-     xmlns:atom="http://www.w3.org/2005/Atom">
-     <token  id="\${token}" expires="\${expires}"/>
-     <user name="jqsmith">
-          <roles>
-               <role name="Racker"/>
-               <role name="UVC_ServiceUsers"/>
-               <role name="Support"/>
-          </roles>
-     </user>
+    xmlns:ns2="http://www.w3.org/2005/Atom"
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+    <token id="\${token}"
+        expires="\${expires}"/>
+    <user id="rackerSSOUsername">
+        <roles>
+            <role id="9" name="Racker"
+                description="Defines a user as being a Racker"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+            <role name="dl_RackUSA"/>
+            <role name="dl_RackGlobal"/>
+            <role name="dl_cloudblock"/>
+            <role name="dl_US Managers"/>
+            <role name="DL_USManagers"/>
+        </roles>
+    </user>
 </access>
 """
-    def rackerAuthenticationRespJsonTemplate =
+    def rackerSuccessfulValidateRespJsonTemplate =
             """{
   "access": {
     "token": {
-      "id": "\${token}",
-      "expires": "\${expires}"
+      "expires": "\${expires}",
+      "id": "\${token}"
     },
     "user": {
+      "RAX-AUTH:defaultRegion": "",
       "roles": [
         {
-          "name": "Racker"
-        },
-        {
-          "name": "UVC_ServiceUsers"
-        },
-        {
-          "name": "Support"
+          "name": "Racker",
+          "description": "Defines a user as being a Racker",
+          "id": "9",
+          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
         }
       ],
-      "name": "jqsmith"
+      "id": "rackerSSOUsername"
     }
   }
 }
