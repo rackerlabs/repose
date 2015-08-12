@@ -402,7 +402,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
         priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
       } else if (sendAllTenants && !sendQuality) {
-        Vector(defaultTenant) ++ roleTenants
+        (Set(defaultTenant) ++ roleTenants).toVector
       } else if (!sendAllTenants && sendQuality) {
         Vector(s"$preferredTenant;q=$preferredTenantQuality")
       } else {

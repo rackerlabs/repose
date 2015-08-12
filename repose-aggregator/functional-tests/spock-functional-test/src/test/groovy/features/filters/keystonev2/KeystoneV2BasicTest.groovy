@@ -117,7 +117,6 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
                 headers: ['content-type': 'application/json'])
 
-        then:
         then: "They should pass"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
