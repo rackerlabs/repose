@@ -35,7 +35,7 @@ import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, Mut
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
-import org.openrepose.filters.valkyrieauthorization.config.{DelegatingType, ValkyrieAuthorizationConfig, ValkyrieServer}
+import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}
@@ -149,7 +149,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   describe("when a request to authorize occurs") {
-    case class RequestProcessor(method: String, headers: Map[String, String])
+    case class RequestProcessor(method: String, headers: Map[String, String], url: String = "http://foo.com:8080")
     case class ValkyrieResponse(code: Int, payload: String)
     case class Result(code: Int, message: String)
 
@@ -166,6 +166,35 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
+        request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+
+        val mockFilterChain = mock[FilterChain]
+        filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
+
+        val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
+        Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
+        assert(responseCaptor.getValue.getStatus == 200)
+      }
+    }
+
+    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product"))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product"))), //Admin role
+      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product"))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product"))) //Admin role
+    ).foreach { case (request, valkyrie) =>
+      it(s"should allow requests for $request with Valkyrie response of $valkyrie without device id when on either accepted list") {
+        val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+        filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod(request.method)
+        mockServletRequest.setRequestURL(request.url)
         request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
@@ -198,6 +227,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
           val mockServletRequest = new MockHttpServletRequest
           mockServletRequest.setMethod(request.method)
+          mockServletRequest.setRequestURL(request.url)
           request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
           val mockServletResponse = new MockHttpServletResponse
@@ -352,6 +382,20 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
   }
 
+  describe("nonAuthorizedPath should match appropriately") {
+    val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+    filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+    case class AuthorizedPathCheck(url: String, allowed: Boolean)
+    List(AuthorizedPathCheck("http://www.blah.com/foo", true),
+         AuthorizedPathCheck("http://www.blah.com/bar", true),
+         AuthorizedPathCheck("http://www.blah.com/baz", false)).foreach { path =>
+      it(s"${path.url} returns ${path.allowed}") {
+        assert(filter.nonAuthorizedPath(path.url) == path.allowed)
+      }
+    }
+  }
+
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
@@ -360,6 +404,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     server.setPassword("somePassword")
     configuration.setValkyrieServer(server)
     configuration.setDelegating(delegation)
+    val whitelistedResources: OtherWhitelistedResources = new OtherWhitelistedResources
+    whitelistedResources.getPathRegex.add("/foo")
+    configuration.setOtherWhitelistedResources(whitelistedResources)
+    val resource: Resource = new Resource
+    resource.setPathRegex("/bar")
+    val collectionResources: CollectionResources = new CollectionResources
+    collectionResources.getResource.add(resource)
+    configuration.setCollectionResources(collectionResources)
     configuration
   }
 
