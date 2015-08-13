@@ -420,10 +420,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     def addTokenHeaders(token: ValidToken): Unit = {
       // Add standard headers
-      request.addHeader(PowerApiHeader.USER.toString, token.username)
-      request.addHeader(OpenStackServiceHeader.USER_NAME.toString, token.username)
       request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
+      token.username.foreach(request.addHeader(PowerApiHeader.USER.toString, _))
+      token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME.toString, _))
       token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, _))
       token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
       token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))

@@ -1087,9 +1087,7 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(lastRequest.getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
-      lastRequest.getHeaderNames.asScala.toList should contain allOf(PowerApiHeader.USER.toString,
-        OpenStackServiceHeader.USER_NAME.toString,
-        OpenStackServiceHeader.USER_ID.toString,
+      lastRequest.getHeaderNames.asScala.toList should contain allOf(OpenStackServiceHeader.USER_ID.toString,
         OpenStackServiceHeader.X_EXPIRATION.toString,
         OpenStackServiceHeader.ROLES.toString,
         OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString)
@@ -1997,8 +1995,8 @@ with HttpDelegationManager {
   object TestValidToken {
     def apply(expirationDate: String = "",
               userId: String = "",
-              username: String = "",
               roles: Seq[String] = Seq.empty[String],
+              username: Option[String] = None,
               tenantName: Option[String] = None,
               defaultTenantId: Option[String] = None,
               tenantIds: Seq[String] = Seq.empty[String],
@@ -2008,8 +2006,8 @@ with HttpDelegationManager {
               contactId: Option[String] = None) = {
       ValidToken(expirationDate,
         userId,
-        username,
         roles,
+        username,
         tenantName,
         defaultTenantId,
         tenantIds,

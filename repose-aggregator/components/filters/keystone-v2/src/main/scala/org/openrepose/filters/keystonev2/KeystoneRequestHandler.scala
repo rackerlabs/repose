@@ -97,21 +97,21 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       try {
         val json = Json.parse(input)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
-        val roleNames = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
         val userId = (json \ "access" \ "user" \ "id").as[String]
-        val username = (json \ "access" \ "user" \ "name").as[String]
+        val roleNames = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
+        val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
+        val username = (json \ "access" \ "user" \ "name").asOpt[String]
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
         val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").asOpt[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
-        val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
         val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
         val validToken = ValidToken(expirationDate,
           userId,
-          username,
           roleNames,
+          username,
           tenantName,
           defaultTenantId,
           tenantIds,
@@ -252,8 +252,8 @@ object KeystoneRequestHandler {
 
   case class ValidToken(expirationDate: String,
                         userId: String,
-                        username: String,
                         roles: Seq[String],
+                        username: Option[String],
                         tenantName: Option[String],
                         defaultTenantId: Option[String],
                         tenantIds: Seq[String],
