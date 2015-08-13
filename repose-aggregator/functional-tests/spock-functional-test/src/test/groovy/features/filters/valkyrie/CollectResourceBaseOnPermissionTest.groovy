@@ -28,9 +28,9 @@ import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 8/10/15.
+ * Created by jennyvo on 8/13/15.
  */
-class ValkyriesWDedicatedServiceTest extends ReposeValveTest {
+class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -88,7 +88,7 @@ class ValkyriesWDedicatedServiceTest extends ReposeValveTest {
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
 
         repose.start()
 
@@ -133,7 +133,7 @@ class ValkyriesWDedicatedServiceTest extends ReposeValveTest {
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
