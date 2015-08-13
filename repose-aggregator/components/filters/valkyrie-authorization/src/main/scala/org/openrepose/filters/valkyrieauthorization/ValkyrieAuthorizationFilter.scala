@@ -7,6 +7,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletResponseWrapper, HttpServletRequest, HttpServletResponse}
 
+import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -17,6 +18,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieAuthorizationConfig, ValkyrieServer}
+import play.api.libs.json._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -203,10 +205,19 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
   }
 
+
   def cullResponse(url: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
+    val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
+    val json: JsValue = Json.parse(input)
     configuration.getCollectionResources.getResource.asScala.foreach { resource =>
       if(resource.getPathRegex.r.findFirstMatchIn(url).isDefined)  {
-
+        resource.getCollection.asScala.foreach { collection =>
+          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, json).asInstanceOf[JsArray].value
+          val culledArray: Seq[JsValue] = array.filter { value =>
+            val deviceId: Int = JSONPath.query(collection.getJson.getPathToDeviceId, value).asInstanceOf[JsNumber].as[Int]
+            devicePermissions.devices.filter(_.device == deviceId).nonEmpty
+          }
+        }
       }
     }
   }
