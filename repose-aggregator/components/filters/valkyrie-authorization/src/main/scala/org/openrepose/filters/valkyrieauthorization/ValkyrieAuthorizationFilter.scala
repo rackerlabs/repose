@@ -5,7 +5,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{HttpServletResponseWrapper, HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -60,7 +60,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-    val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
+    val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse]))
     var devicePermissions: DeviceList = null
 
     def nullOrWhitespace(str: Option[String]): Option[String] = str.map { _.trim }.filter { !"".equals(_) }
@@ -95,6 +95,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     clientResponse match {
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+        cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions)
       case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
         buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
           values.foreach { value => mutableHttpRequest.addHeader(key, value) }
@@ -103,6 +104,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case ResponseResult(code, message) =>
         mutableHttpResponse.sendError(code, message)
     }
+
+    //weep for what we must do with this flaming pile, note above where it was wrapped pointlessly just to break the chain
+    mutableHttpResponse.writeHeadersToResponse()
+    mutableHttpResponse.commitBufferToServletOutputStream()
   }
 
   def cacheKey(transformedTenant: String, contactId: String): String = {
@@ -195,6 +200,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case e: Exception =>
         logger.error(s"Invalid Json response from Valkyrie: $input", e)
         Failure(new Exception("Invalid Json response from Valkyrie"))
+    }
+  }
+
+  def cullResponse(url: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
+    configuration.getCollectionResources.getResource.asScala.foreach { resource =>
+      if(resource.getPathRegex.r.findFirstMatchIn(url).isDefined)  {
+
+      }
     }
   }
 
