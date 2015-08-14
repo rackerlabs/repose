@@ -520,6 +520,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     configuration.setOtherWhitelistedResources(whitelistedResources)
     val resource: Resource = new Resource
     resource.setPathRegex("/bar")
+    val pathTriplet: PathTriplet = new PathTriplet
+    pathTriplet.setPathToCollection("$.values")
+    pathTriplet.setPathToDeviceId("$.uri")
+    pathTriplet.setPathToItemCount("$.metadata.count")
+    val collection: Collection = new Collection
+    collection.setJson(pathTriplet)
+    resource.getCollection.add(collection)
     val collectionResources: CollectionResources = new CollectionResources
     collectionResources.getResource.add(resource)
     configuration.setCollectionResources(collectionResources)
