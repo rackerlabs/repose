@@ -60,6 +60,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   trait ValkyrieResult
+
   case class DeviceToPermission(device: Int, permission: String)
   case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult //Vector because List isnt serializable until Scala 2.11
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
@@ -94,7 +95,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           case result: ResponseResult => result
         }
     }) match {
-      case ResponseResult(403,_) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+      case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
       case result => result
     }
 
@@ -219,7 +220,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   def cullResponse(url: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
-      val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse( { throw new ResponseCullingException(s"Unable to parse JsonPath: $jsonPath") } )
+      val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse({
+        throw new ResponseCullingException(s"Unable to parse JsonPath: $jsonPath")
+      })
       pathTokens.foldLeft(new JsPath) { (path, token) =>
         token match {
           case RootNode => path
