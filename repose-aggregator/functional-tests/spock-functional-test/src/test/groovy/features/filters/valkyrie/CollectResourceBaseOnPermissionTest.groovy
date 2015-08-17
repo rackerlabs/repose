@@ -92,7 +92,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
 
-        repose.start()
+        repose.start() p
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
@@ -155,9 +155,9 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
 
         where:
-        method | tenantID       | deviceID  | deviceID2  | permission       | responseCode
-        "GET"  | randomTenant() | "520707"  | "511123"   | "view_product"   | "200"
-        "HEAD" | randomTenant() | "520707"  | "511124"   | "view_product"   | "200"
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"
+        "HEAD" | randomTenant() | "520707" | "511124"  | "view_product" | "200"
         //"GET"  | randomTenant() | "520707"  | "511123"   | "admin_product"  | "200"
     }
 
