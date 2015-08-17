@@ -26,7 +26,7 @@ Apache Log4J                2.1                 org.apache.logging.log4j        
 Apache Xerces               2.12.0-rax          xerces                                      Apache License Version 2.0                                              http://xerces.apache.org/xml-commons/licenses.html
 API Checker                 1.0.22              com.rackspace.papi.components.api-checker   Apache License Version 2.0                                              https://github.com/rackerlabs/api-checker/blob/master/LICENSE.txt
 EHCache                     2.6.0               net.sf.ehcache                              Apache License Version 2.0                                              http://ehcache.org/about/license
-Guava                       14.0.1              com.google.guava                            Apache License Version 2.0                                              https://code.google.com/p/guava-libraries/
+Guava                       18.0                com.google.guava                            Apache License Version 2.0                                              https://github.com/google/guava
 Handlebars                  2.0.0               com.github.jknack                           Apache License Version 2.0                                              https://github.com/jknack/handlebars.java
 HttpComponents              4.2.5               org.apache.httpcomponents                   Apache License Version 2.0                                              http://hc.apache.org/httpcomponents-client-4.2.x/license.html
 Jackson                     2.4.0               com.fasterxml.jackson.core                  Apache License Version 2.0                                              http://wiki.fasterxml.com/JacksonDownload
