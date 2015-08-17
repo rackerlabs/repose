@@ -78,8 +78,10 @@ class TracingHeaderDisabledTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.contains("x-trans-id")
-        mc.orphanedHandlings.each {
-            e -> assertTrue(!e.request.headers.contains("x-trans-id"))
+        !mc.handlings[0].request.headers.contains("x-fancy-trans-id")
+        mc.orphanedHandlings.each { e ->
+            assertTrue(!e.request.headers.contains("x-trans-id"))
+            assertTrue(!e.request.headers.contains("x-fancy-trans-id"))
         }
 
     }

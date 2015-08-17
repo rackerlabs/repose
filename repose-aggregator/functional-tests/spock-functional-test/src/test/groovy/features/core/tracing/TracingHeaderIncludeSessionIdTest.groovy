@@ -21,16 +21,22 @@ package features.core.tracing
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Unroll
+
+import java.util.regex.Pattern
 
 /**
- * Created by jennyvo on 8/10/15.
- * Verify Tracing header x-trans-id also include sessionid and requestid
+ * Created by jennyvo on 8/10/15.  Updated by Mario on 8/12/15.
  */
 class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
+
+    def static final Pattern UUID_PATTERN = ~/\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}/
 
     def static originEndpoint
     def static identityEndpoint
@@ -38,7 +44,6 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
-
         deproxy = new Deproxy()
 
         def params = properties.defaultTemplateParams
@@ -65,9 +70,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll ("Checking with session id string: #sessionid")
-    def "Trans id should include session id"() {
-
+    def 'X-Trans-Id header should be added to the request and response when it does not come in externally'() {
         given:
         fakeIdentityService.with {
             client_tenant = 1212
@@ -76,52 +79,272 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def url = "$reposeEndpoint/servers/1212"
-        if (sessionid != ""){
-            url = url + ";" + sessionid
-        }
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token]
 
-
-        when: "User passes a request through repose"
+        when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
-                url: url,
+                url: "$reposeEndpoint/servers/1212",
                 method: 'GET',
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
-                ]
-        )
-        // get tracing header from request
-        def transid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
-        println transid
-        def sesid = getSessionId(sessionid)
-        println sesid
-        def username = mc.handlings[0].request.headers.getFirstValue("x-pp-user")
-        def requestid = mc.handlings[0].request.headers.getFirstValue("deproxy-request-id")
+                headers: headers)
 
-        then: "Make sure there are appropriate log messages with matching GUIDs"
-        mc.receivedResponse.code == "200"
+        def tracingHeaderRequest = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
 
-        transid.contains(requestid)
-        transid.contains(sesid)
-        transid.contains(username)
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
 
-        // should be able to find the same tracing header from log
-        reposeLogSearch.searchByString("GUID:$transid -.*AuthTokenFutureActor request!").size() > 0
+        // request
+        new JsonSlurper().parseText(Base64.decodeBase64(
+                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId ==~ UUID_PATTERN
+        new JsonSlurper().parseText(Base64.decodeBase64(
+                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                origin == 'UNKNWON'
 
-        where:
-        sessionid  << ["sessionid=abcdedfg1234567", "sessionid=1234567890", "1234567890", "sessionid=", ""]
+        // response
+        new JsonSlurper().parseText(Base64.decodeBase64(
+                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId ==~ UUID_PATTERN
+
+        new JsonSlurper().parseText(Base64.decodeBase64(
+                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                origin == 'UNKNWON'
+
+        // logs
+        reposeLogSearch.searchByString('Trans-Id:' +
+                new JsonSlurper().parseText(Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        requestId)
     }
 
-    def getSessionId (String stringsession){
-        def id = ""
-        if (stringsession.contains("sessionid=")){
-            List session = stringsession.split("=")
-            if (session.size() > 1) {
-                id = session[1]
-            }
+    def 'X-Trans-Id header should be added to the request and response when the header is an empty string'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
         }
-        return id
+
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): '']
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        // request
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId ==~ UUID_PATTERN
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                origin == 'UNKNWON'
+
+        // response
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId ==~ UUID_PATTERN
+
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                origin == 'UNKNWON'
+
+        // logs
+        reposeLogSearch.searchByString('Trans-Id:' +
+                new JsonSlurper().parseText(Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        requestId)
     }
 
+    def 'Parse externally provided X-Trans-Id header and add the Request ID to the logging context'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingId = 'd2ff25c3-fa7a-4196-9927-d3dd0eed47d3'
+        def sessionId = '677b358b-9d13-446d-a776-e8c8b9083af6'
+        def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        // request
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId == tracingId
+
+        // response
+        new JsonSlurper().parseText(
+                Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                requestId == tracingId
+
+        // logs
+        reposeLogSearch.searchByString("Trans-Id:$tracingId")
+        reposeLogSearch.searchByString("sessionId:$sessionId")
+    }
+
+    def 'Parse externally provided X-Trans-Id header with several fields and add the Request ID to the logging context'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingId = 'd2ff25c3-fa7a-4196-9927-d3dd0eed47d3'
+        def sessionId = '677b358b-9d13-446d-a776-e8c8b9083af6'
+        def jsonTracingHeader = JsonOutput.toJson(
+                [sessionId: sessionId, requestId: tracingId, user: 'bob', domain: 'pluto', favoriteTree: 'cherry'])
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+
+        // logs
+        reposeLogSearch.searchByString("Trans-Id:$tracingId")
+        reposeLogSearch.searchByString("sessionId:$sessionId.*favoriteTree:cherry")
+    }
+
+    def 'Handle invalid JSON in X-Trans-Id header and add the whole string to the logging context'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingId = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def jsonTracingHeader = "{'tracingId': $tracingId, I_LIKE_HAM}".toString()
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+
+        // logs
+        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
+        reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
+    }
+
+    def 'Handle invalid Base64 encoding in X-Trans-Id header and add the whole string to the logging context'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingId = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def tracingHeader = "{{'tracingId': $tracingId, I_LIKE_HAM}".toString()
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+
+        // logs
+        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
+        reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
+    }
+
+    def 'Handle legacy X-Trans-Id header (i.e. UUID string) and add the whole string to the logging context'() {
+        given:
+        fakeIdentityService.with {
+            client_tenant = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingHeader = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def headers = [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
+
+        // logs
+        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
+        reposeLogSearch.searchByString(tracingHeader)
+    }
 }
