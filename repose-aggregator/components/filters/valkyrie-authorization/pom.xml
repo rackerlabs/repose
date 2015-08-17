@@ -54,10 +54,22 @@
             <artifactId>play-json_2.10</artifactId>
             <version>2.3.4</version>
         </dependency>
+        <!-- this lets us use a complex json path-->
         <dependency>
             <groupId>com.josephpconley</groupId>
             <artifactId>play-jsonpath_2.10</artifactId>
             <version>1.1</version>
+        </dependency>
+        <!-- lets me build a piece meal json path for the transforms -->
+        <dependency>
+            <groupId>io.gatling</groupId>
+            <artifactId>jsonpath_2.10</artifactId>
+            <version>0.6.4</version>
+        </dependency>
+        <!-- i catch an exception from this, really the implementing library should have caught and wrapped -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
 
         <!-- Http Delegation Library for delegating requests -->
