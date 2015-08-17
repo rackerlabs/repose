@@ -3,11 +3,12 @@ package org.openrepose.filters.valkyrieauthorization
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.regex.{Matcher, Pattern}
+import java.util.regex.{PatternSyntaxException, Matcher, Pattern}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
 
+import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -99,7 +100,13 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     clientResponse match {
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-        cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions)
+        try {
+          cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions)
+        } catch {
+          case rce: ResponseCullingException =>
+            logger.debug("Failed to cull response, wiping out response.", rce)
+            mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.message)
+        }
       case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
         buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
           values.foreach { value => mutableHttpRequest.addHeader(key, value) }
@@ -221,15 +228,35 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
-    val initialJson: JsValue = Json.parse(input)
+    val initialJson: JsValue = try {
+      Json.parse(input)
+    } catch {
+      case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe)
+    }
     val finalJson = configuration.getCollectionResources.getResource.asScala.foldLeft(initialJson) { (resourceJson, resource) =>
       if (resource.getPathRegex.r.findFirstMatchIn(url).isDefined) {
         resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
-          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, collectionJson).asInstanceOf[JsArray].value
+          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, collectionJson) match {
+            case jsonArray: JsArray => jsonArray.asInstanceOf[JsArray].value
+            case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}")
+          }
           val culledArray: Seq[JsValue] = array.filter { value =>
-            val deviceValue: String = JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).asInstanceOf[JsString].as[String]
-            val matcher: Matcher = Pattern.compile(collection.getJson.getPathToDeviceId.getRegex.getValue).matcher(deviceValue)
-            devicePermissions.devices.filter(_.device == matcher.group(collection.getJson.getPathToDeviceId.getRegex.getCaptureGroup).toInt).nonEmpty
+            val deviceValue: String = JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value) match {
+              case jsonString: JsString => jsonString.asInstanceOf[JsString].as[String]
+              case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}")
+            }
+
+            try {
+              val matcher: Matcher = Pattern.compile(collection.getJson.getPathToDeviceId.getRegex.getValue).matcher(deviceValue)
+              if (matcher.matches()) {
+                devicePermissions.devices.filter(_.device == matcher.group(collection.getJson.getPathToDeviceId.getRegex.getCaptureGroup).toInt).nonEmpty
+              } else {
+                throw new ResponseCullingException(s"Regex: ${collection.getJson.getPathToDeviceId.getRegex.getValue} did not match $deviceValue")
+              }
+            } catch {
+              case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
+              case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
+            }
           }
 
           //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
@@ -240,10 +267,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
           Option(collection.getJson.getPathToItemCount) match {
             case Some(path) =>
-              val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { meh => new JsNumber(culledArray.size) })
-              transformedJson.transform(countTransform).getOrElse({
-                throw new ResponseCullingException("Unable to transform json while updating the count.")
-              })
+              JSONPath.query(path, transformedJson) match {
+                case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for item couint: $path")
+                case _ =>
+                  val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { meh => new JsNumber(culledArray.size) })
+                  transformedJson.transform(countTransform).getOrElse({
+                    throw new ResponseCullingException("Unable to transform json while updating the count.")
+                  })
+              }
             case None => transformedJson
           }
         }
@@ -262,4 +293,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   override def isInitialized: Boolean = initialized
 }
 
-case class ResponseCullingException(message: String) extends Exception(message)
+case class ResponseCullingException(message: String, throwable: Throwable) extends Exception(message, throwable) {
+  def this(message: String) = this(message, null)
+}
