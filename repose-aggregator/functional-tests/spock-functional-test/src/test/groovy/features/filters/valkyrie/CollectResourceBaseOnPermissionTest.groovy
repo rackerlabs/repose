@@ -38,6 +38,8 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
+    def static deviceId1 = "520707"
+    def static deviceId2 = "520708"
 
     def static random = new Random()
     def static String jsonrespbody = "{\n" +
@@ -51,7 +53,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             "                \"email\": \"brad@morgabra.com\"\n" +
             "            },\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": null,\n" +
+            "            \"uri\": \"http://butts.com/device/\"+$deviceId1,\n" +
             "            \"agent_id\": \"e333a7d9-6f98-43ea-aed3-52bd06ab929f\",\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
@@ -64,7 +66,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             "            \"ip_addresses\": null,\n" +
             "            \"metadata\": null,\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": null,\n" +
+            "            \"uri\": \"http://butts.com/device/\"+$deviceId2,\n" +
             "            \"agent_id\": null,\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
@@ -156,7 +158,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         method | tenantID       | deviceID  | deviceID2  | permission       | responseCode
         "GET"  | randomTenant() | "520707"  | "511123"   | "view_product"   | "200"
         "HEAD" | randomTenant() | "520707"  | "511124"   | "view_product"   | "200"
-        "GET"  | randomTenant() | "520707"  | "511123"   | "admin_product"  | "200"
+        //"GET"  | randomTenant() | "520707"  | "511123"   | "admin_product"  | "200"
     }
 
     def String randomTenant() {
