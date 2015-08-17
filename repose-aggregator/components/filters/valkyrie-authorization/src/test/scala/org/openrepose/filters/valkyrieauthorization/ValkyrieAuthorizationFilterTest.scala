@@ -35,6 +35,7 @@ import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, Mut
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
+import org.openrepose.filters.valkyrieauthorization.config.DevicePath.Regex
 import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -522,7 +523,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     resource.setPathRegex("/bar")
     val pathTriplet: PathTriplet = new PathTriplet
     pathTriplet.setPathToCollection("$.values")
-    pathTriplet.setPathToDeviceId("$.uri")
+    val devicePath: DevicePath = new DevicePath()
+    devicePath.setPath("$.uri")
+    val regex: Regex = new Regex
+    regex.setValue("*/devices/*")
+    regex.setCaptureGroup(2)
+    devicePath.setRegex(regex)
+    pathTriplet.setPathToDeviceId(devicePath)
     pathTriplet.setPathToItemCount("$.metadata.count")
     val collection: Collection = new Collection
     collection.setJson(pathTriplet)

@@ -3,6 +3,7 @@ package org.openrepose.filters.valkyrieauthorization
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import java.util.regex.{Matcher, Pattern}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
@@ -10,7 +11,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletR
 import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.gatling.jsonpath.AST.{Field, RootNode, PathToken}
+import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
@@ -210,7 +211,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   def cullResponse(url: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
-      val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse( { throw new JsonParseException(s"Unable to parse JsonPath: $jsonPath") } )
+      val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse( { throw new ResponseCullingException(s"Unable to parse JsonPath: $jsonPath") } )
       pathTokens.foldLeft(new JsPath) { (path, token) =>
         token match {
           case RootNode => path
@@ -220,31 +221,37 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
-    var json: JsValue = Json.parse(input)
-    configuration.getCollectionResources.getResource.asScala.foreach { resource =>
-      if(resource.getPathRegex.r.findFirstMatchIn(url).isDefined)  {
-        //todo: instead of making json a variable, i think i can do a fold or reduce
-        resource.getCollection.asScala.foreach { collection =>
-          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, json).asInstanceOf[JsArray].value
+    val initialJson: JsValue = Json.parse(input)
+    val finalJson = configuration.getCollectionResources.getResource.asScala.foldLeft(initialJson) { (resourceJson, resource) =>
+      if (resource.getPathRegex.r.findFirstMatchIn(url).isDefined) {
+        resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
+          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, collectionJson).asInstanceOf[JsArray].value
           val culledArray: Seq[JsValue] = array.filter { value =>
-            val deviceId: Int = JSONPath.query(collection.getJson.getPathToDeviceId, value).asInstanceOf[JsNumber].as[Int]
-            devicePermissions.devices.filter(_.device == deviceId).nonEmpty
+            val deviceValue: String = JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).asInstanceOf[JsString].as[String]
+            val matcher: Matcher = Pattern.compile(collection.getJson.getPathToDeviceId.getRegex.getValue).matcher(deviceValue)
+            devicePermissions.devices.filter(_.device == matcher.group(collection.getJson.getPathToDeviceId.getRegex.getCaptureGroup).toInt).nonEmpty
           }
 
           //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
-          val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map{ meh => new JsArray(culledArray)})
-          json = json.transform(arrayTransform).getOrElse( { throw new JsonParseException("Unable to transform json while culling list.") } )
+          val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { meh => new JsArray(culledArray) })
+          val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
+            throw new ResponseCullingException("Unable to transform json while culling list.")
+          })
 
           Option(collection.getJson.getPathToItemCount) match {
             case Some(path) =>
-              val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map{meh => new JsNumber(culledArray.size)})
-              json = json.transform(countTransform).getOrElse( { throw new JsonParseException("Unable to transform json while updating the count.") } )
-            case None =>
+              val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { meh => new JsNumber(culledArray.size) })
+              transformedJson.transform(countTransform).getOrElse({
+                throw new ResponseCullingException("Unable to transform json while updating the count.")
+              })
+            case None => transformedJson
           }
         }
+      } else {
+        resourceJson
       }
     }
-    response.getOutputStream.print(json.toString())
+    response.getOutputStream.print(finalJson.toString())
   }
 
   override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = {
@@ -255,4 +262,4 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   override def isInitialized: Boolean = initialized
 }
 
-case class JsonParseException(message: String) extends Exception(message)
+case class ResponseCullingException(message: String) extends Exception(message)

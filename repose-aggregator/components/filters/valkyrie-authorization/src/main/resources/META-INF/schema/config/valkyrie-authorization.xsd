@@ -192,7 +192,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="path-to-device-id" type="xs:string" minOccurs="1" maxOccurs="1">
+            <xs:element name="path-to-device-id" type="DevicePath" minOccurs="1" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>The path to the device id relative to the objects contained in the collection.</html:p>
@@ -207,6 +207,26 @@
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DevicePath">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The path and regex for getting the device id.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="regex" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="capture-group" type="xs:int" use="optional" default="1"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
             </xs:element>
         </xs:sequence>
     </xs:complexType>
