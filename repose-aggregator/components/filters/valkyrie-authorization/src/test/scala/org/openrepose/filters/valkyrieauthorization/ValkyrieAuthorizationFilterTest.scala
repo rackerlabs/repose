@@ -167,6 +167,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
+        mockServletRequest.setRequestURL(request.url)
         request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
@@ -199,10 +200,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
+        val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
+        Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())).thenAnswer(new Answer[Unit] {
+          override def answer(invocation: InvocationOnMock): Unit = responseCaptor.getValue.getOutputStream.print(createOriginServiceResponse("98765", "123456"))
+        })
+
         filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
 
-        val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
-        Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
         assert(responseCaptor.getValue.getStatus == 200)
       }
     }
@@ -276,6 +280,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         }
       }
     }
+
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "1234561", "X-Contact-Id" -> "123456"))
       val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant",
@@ -299,6 +304,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod(request.method)
+      mockServletRequest.setRequestURL("http://foo.com:8080")
       request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
       val mockServletResponse = new MockHttpServletResponse
@@ -312,6 +318,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val secondServletResponse = new MockHttpServletResponse
       val secondRequestProcessor = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
       secondRequest.setMethod(secondRequestProcessor.method)
+      secondRequest.setRequestURL("http://foo.com:8080")
       secondRequestProcessor.headers.foreach { case (k, v) => secondRequest.setHeader(k, v) }
       filter.doFilter(secondRequest, secondServletResponse, mockFilterChain)
       assert(secondServletResponse.getStatusCode == 200)
@@ -321,6 +328,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         s"http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
+
     List(null, new DelegatingType).foreach { delegation =>
       it(s"should be able to mask 403 to a 404 ${
         if (delegation != null) {
@@ -357,6 +365,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         }
       }
     }
+
     it("should send a request guid to valkyrie if present in incoming request") {
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456",
         "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
@@ -372,6 +381,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod(request.method)
+      mockServletRequest.setRequestURL("http://foo.com:8080")
       request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
       val mockFilterChain = mock[FilterChain]
@@ -682,8 +692,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val devicePath: DevicePath = new DevicePath()
     devicePath.setPath("$.uri")
     val regex: Regex = new Regex
-    regex.setValue("http://core.rackspace.com/accounts/\\d*/devices/\\d*")
-    regex.setCaptureGroup(2)
+    regex.setValue("http://core.rackspace.com/accounts/\\d*/devices/(\\d*)")
+    regex.setCaptureGroup(1)
     devicePath.setRegex(regex)
     pathTriplet.setPathToDeviceId(devicePath)
     pathTriplet.setPathToItemCount("$.metadata.count")

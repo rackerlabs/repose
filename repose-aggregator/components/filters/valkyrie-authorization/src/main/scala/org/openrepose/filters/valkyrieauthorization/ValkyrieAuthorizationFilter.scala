@@ -20,10 +20,11 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.valkyrieauthorization.config.{ValkyrieAuthorizationConfig, ValkyrieServer}
+import org.openrepose.filters.valkyrieauthorization.config.{Resource, ValkyrieAuthorizationConfig, ValkyrieServer}
 import play.api.libs.json._
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -227,14 +228,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
-    val initialJson: JsValue = try {
-      Json.parse(input)
-    } catch {
-      case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe)
-    }
-    val finalJson = configuration.getCollectionResources.getResource.asScala.foldLeft(initialJson) { (resourceJson, resource) =>
-      if (resource.getPathRegex.r.findFirstMatchIn(url).isDefined) {
+    val matchingResources: mutable.Buffer[Resource] = configuration.getCollectionResources.getResource.asScala.filter(_.getPathRegex.r.findFirstMatchIn(url).isDefined)
+    if (matchingResources.nonEmpty) {
+      val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
+      val initialJson: JsValue = try {
+        Json.parse(input)
+      } catch {
+        case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe)
+      }
+      val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
         resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
           val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, collectionJson) match {
             case jsonArray: JsArray => jsonArray.asInstanceOf[JsArray].value
@@ -278,11 +280,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             case None => transformedJson
           }
         }
-      } else {
-        resourceJson
       }
+      response.getOutputStream.print(finalJson.toString())
     }
-    response.getOutputStream.print(finalJson.toString())
   }
 
   override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = {
