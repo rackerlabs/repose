@@ -32,6 +32,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -102,14 +103,12 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldParseSimpleTimeFormat() {
-            final String defaultDateFormat = "dd-MM-yyyy-HH:mm:ss.SSS";
+            final String defaultDateFormatRegex = "\\d{2}-\\d{2}-\\d{4}-\\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
 
             final HttpLogFormatter formatter = new HttpLogFormatter("%t");
 
             assertEquals(1, formatter.getHandlerList().size());
-
-            assertEquals(defaultDateFormat, ((TimeReceivedHandler) ((LogArgumentFormatter)
-                    formatter.getHandlerList().get(0)).getLogic()).getDateFormat());
+            assertTrue(Pattern.matches(defaultDateFormatRegex, formatter.format(request, response)));
         }
     }
 
@@ -148,14 +147,12 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldParseCustomTimeFormat() {
-            final String customDateFormat = "yyyy-MM-dd HH:mm:ss";
+            final String customDateFormatRegex = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
 
             final HttpLogFormatter formatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
 
             assertEquals(1, formatter.getHandlerList().size());
-
-            assertEquals(customDateFormat, ((TimeReceivedHandler) ((LogArgumentFormatter)
-                    formatter.getHandlerList().get(0)).getLogic()).getDateFormat());
+            assertTrue(Pattern.matches(customDateFormatRegex, formatter.format(request, response)));
         }
     }
 

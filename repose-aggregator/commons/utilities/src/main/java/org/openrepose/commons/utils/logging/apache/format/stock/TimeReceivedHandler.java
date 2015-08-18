@@ -44,8 +44,4 @@ public class TimeReceivedHandler implements FormatterLogic {
     public String handle(HttpServletRequest request, HttpServletResponse response) {
         return new SimpleDateFormat(dateFormat).format(Calendar.getInstance().getTime());
     }
-
-    public String getDateFormat() {
-        return dateFormat;
-    }
 }
