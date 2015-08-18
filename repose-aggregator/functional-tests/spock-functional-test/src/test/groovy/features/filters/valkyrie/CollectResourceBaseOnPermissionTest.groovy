@@ -53,7 +53,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             "                \"email\": \"brad@morgabra.com\"\n" +
             "            },\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/1234/devices/$deviceId1\",\n" +
+            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId1\",\n" +
             "            \"agent_id\": \"e333a7d9-6f98-43ea-aed3-52bd06ab929f\",\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
@@ -66,7 +66,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             "            \"ip_addresses\": null,\n" +
             "            \"metadata\": null,\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/1234/devices/$deviceId2\",\n" +
+            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId2\",\n" +
             "            \"agent_id\": null,\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
@@ -90,9 +90,10 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
 
-        repose.start() p
+        repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
@@ -135,7 +136,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,

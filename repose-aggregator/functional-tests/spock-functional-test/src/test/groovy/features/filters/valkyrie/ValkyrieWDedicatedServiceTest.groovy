@@ -53,7 +53,7 @@ class ValkyrieWDedicatedServiceTest extends ReposeValveTest {
             "                \"email\": \"brad@morgabra.com\"\n" +
             "            },\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/1234/devices/$deviceId1\",\n" +
+            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId1\",\n" +
             "            \"agent_id\": \"e333a7d9-6f98-43ea-aed3-52bd06ab929f\",\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
@@ -66,7 +66,7 @@ class ValkyrieWDedicatedServiceTest extends ReposeValveTest {
             "            \"ip_addresses\": null,\n" +
             "            \"metadata\": null,\n" +
             "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/1234/devices/$deviceId2\",\n" +
+            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId2\",\n" +
             "            \"agent_id\": null,\n" +
             "            \"active_suppressions\": [],\n" +
             "            \"scheduled_suppressions\": [],\n" +
