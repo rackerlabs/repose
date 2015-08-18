@@ -68,11 +68,11 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-
     /*
     These tests are to verify the delegation of authn failures to the derp filter, which then forwards
     that information back to the client.  The origin service, thus, never gets invoked.
     */
+
     @Unroll("#token_id expireat: #expireat, respcode: #responseCode and #msgBody")
     def "When req with invalid token using delegable mode with quality"() {
         given:
@@ -104,11 +104,33 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
             "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.6"
         */
         where:
-        authRespCode | responseCode | msgBody                     | token_id            | expireat                       | orphans
-        404          | "401"        | "Unable to validate token:" | UUID.randomUUID()   | (new DateTime()).plusDays(1)   | 2
-        404          | "401"        | "Failure in Auth-N filter." | ""                  | (new DateTime()).plusDays(1)   | 0
-        404          | "401"        | "Unable to validate token:" | UUID.randomUUID()   | (new DateTime()).minusDays(1)  | 1
-        404          | "401"        | "Failure in Auth-N filter." | ""                  | (new DateTime()).minusDays(1)  | 0
+        authRespCode | responseCode | msgBody                     | token_id          | expireat                      | orphans
+        404          | "401"        | "Unable to validate token:" | UUID.randomUUID() | (new DateTime()).plusDays(1)  | 2
+        404          | "401"        | "Failure in Auth-N filter." | ""                | (new DateTime()).plusDays(1)  | 0
+        404          | "401"        | "Unable to validate token:" | UUID.randomUUID() | (new DateTime()).minusDays(1) | 1
+        404          | "401"        | "Failure in Auth-N filter." | ""                | (new DateTime()).minusDays(1) | 0
+    }
+
+    // test ensure repose send x-roles to origin service
+    def "Test passing down with valid request through Auth, Api validator, Herp, Derp"() {
+        given:
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID()
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+        }
+
+        when: "User passes a request through repose expire/invalid token"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/buildinfo",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains("x-roles")
+        mc.handlings[0].request.headers.getFirstValue("x-roles").size() > 0
+        mc.getOrphanedHandlings().size() == 2
     }
 }
 
