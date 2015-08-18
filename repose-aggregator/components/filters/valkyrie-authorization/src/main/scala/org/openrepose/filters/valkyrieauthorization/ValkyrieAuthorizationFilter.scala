@@ -241,14 +241,16 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
       val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
         resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
-          val array: Seq[JsValue] = JSONPath.query(collection.getJson.getPathToCollection, collectionJson) match {
-            case jsonArray: JsArray => jsonArray.asInstanceOf[JsArray].value
-            case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}")
+          val array: Seq[JsValue] = try {
+            JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]]
+          } catch {
+            case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre)
           }
           val culledArray: Seq[JsValue] = array.filter { value =>
-            val deviceValue: String = JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value) match {
-              case jsonString: JsString => jsonString.asInstanceOf[JsString].as[String]
-              case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}")
+            val deviceValue: String = try {
+              JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).as[String]
+            } catch {
+              case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}", jre)
             }
 
             try {
