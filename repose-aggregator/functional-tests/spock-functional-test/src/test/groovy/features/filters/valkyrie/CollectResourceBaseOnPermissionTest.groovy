@@ -121,25 +121,22 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {
-            client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
             client_tenant = tenantID
         }
 
-        fakeValkyrie.with {
-            device_id = deviceID
-            device_id2 = deviceID2
-            device_perm = permission
-        }
+        def contactid = fakeValkyrie.contact_id
 
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources/", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': contactid,
+                        'x-tenant-id' : tenantID
                 ],
                 defaultHandler: jsonResp
         )

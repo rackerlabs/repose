@@ -5,7 +5,7 @@
     <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
     <collection-resources>
         <resource>
-            <path-regex>*</path-regex>
+            <path-regex>/resources/</path-regex>
             <collection>
                 <json>
                     <path-to-collection>$.values</path-to-collection>

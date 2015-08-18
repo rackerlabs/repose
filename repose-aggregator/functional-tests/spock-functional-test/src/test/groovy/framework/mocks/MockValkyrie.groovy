@@ -60,8 +60,9 @@ class MockValkyrie {
     Closure<Response> authorizeHandler
 
     String device_id = ""
-    String device_id2 = ""
+    String device_id2 = "123456"
     String device_perm = ""
+    String contact_id = ""
 
     def sleeptime = 0;
 
@@ -104,6 +105,7 @@ class MockValkyrie {
                 def match = (requestPath =~ permissionsRegex)
                 def tenant = match[0][1]
                 def contact = match[0][2]
+                contact_id = contact
                 _authorizeCount.incrementAndGet()
                 return authorizeHandler(tenant, contact, request)
             } else {

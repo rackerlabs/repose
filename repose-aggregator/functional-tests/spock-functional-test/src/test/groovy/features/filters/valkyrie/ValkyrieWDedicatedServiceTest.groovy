@@ -131,14 +131,19 @@ class ValkyrieWDedicatedServiceTest extends ReposeValveTest {
             device_perm = permission
         }
 
+
+
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
                 headers: [
+                        'x-device-id' : deviceID,
+                        'x-contact-id': 109874046,
+                        'x-tenant-id' : tenantID,
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'X-Auth-Token': fakeIdentityService.client_token
                 ],
                 defaultHandler: jsonResp
         )
