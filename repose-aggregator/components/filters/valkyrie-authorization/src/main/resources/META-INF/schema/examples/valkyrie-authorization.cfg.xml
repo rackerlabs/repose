@@ -4,4 +4,22 @@
         xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="300000" enable-masking-403s="true">
     <delegating quality="0.9"/>
     <valkyrie-server uri="http://theserver:8080" username="myUsername" password="myPassword"/>
+    <collection-resources>
+        <resource>
+            <path-regex>/devices/\*</path-regex>
+            <collection>
+                <json>
+                    <path-to-collection>$.values</path-to-collection>
+                    <path-to-device-id>
+                        <path>$.uri</path>
+                        <regex>http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex>
+                    </path-to-device-id>
+                    <path-to-item-count>$.metadata.count</path-to-item-count>
+                </json>
+            </collection>
+        </resource>
+    </collection-resources>
+    <other-whitelisted-resources>
+        <path-regex>/thingys/\*</path-regex>
+    </other-whitelisted-resources>
 </valkyrie-authorization>
