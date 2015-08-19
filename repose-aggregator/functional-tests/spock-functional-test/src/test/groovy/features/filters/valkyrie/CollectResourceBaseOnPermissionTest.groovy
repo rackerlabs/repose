@@ -143,7 +143,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 ],
                 defaultHandler: jsonResp
         )
-        def body = mc.getHandlings().get(0).getResponse().body
+        def body = new String(mc.receivedResponse.body)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(body)
 
