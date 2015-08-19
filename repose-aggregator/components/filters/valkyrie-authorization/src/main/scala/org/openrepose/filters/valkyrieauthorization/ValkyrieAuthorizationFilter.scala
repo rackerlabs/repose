@@ -234,24 +234,18 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val matchingResources: mutable.Buffer[Resource] = configuration.getCollectionResources.getResource.asScala.filter(_.getPathRegex.r.findFirstMatchIn(url).isDefined)
     if (matchingResources.nonEmpty) {
       val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
-      val initialJson: JsValue = try {
-        Json.parse(input)
-      } catch {
-        case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe)
-      }
+      val initialJson: JsValue = Try(Json.parse(input))
+        .recover( { case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe) } )
+        .get
       val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
         resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
-          val array: Seq[JsValue] = try {
-            JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]]
-          } catch {
-            case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre)
-          }
+          val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
+            .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) } )
+            .get
           val culledArray: Seq[JsValue] = array.filter { value =>
-            val deviceValue: String = try {
-              JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).as[String]
-            } catch {
-              case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}", jre)
-            }
+            val deviceValue: String = Try(JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).as[String])
+              .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}", jre) } )
+              .get
 
             try {
               val matcher: Matcher = Pattern.compile(collection.getJson.getPathToDeviceId.getRegex.getValue).matcher(deviceValue)
