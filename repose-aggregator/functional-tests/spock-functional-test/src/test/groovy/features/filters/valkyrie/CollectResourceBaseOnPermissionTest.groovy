@@ -117,8 +117,8 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     }
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
-    def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
-        given: "A device ID with a particular permission level defined in Valkyrie"
+    def "Test get match resource list"() {
+        given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenant = tenantID
@@ -151,6 +151,8 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code == responseCode
         result.values.size == size
+        result.metadata.count == size
+
 
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
@@ -161,12 +163,42 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         }
 
 
+
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
         "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
         "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
-        //"GET"  | randomTenant() | "520707"  | "511123"   | "admin_product"  | "200"
+    }
+
+    def "Test missing tenantid" () {
+        given: "a list permission devices defined in Valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+        }
+
+        fakeValkyrie.with {
+            device_id = "520707"
+            device_id2 = "520708"
+            device_perm = "view_product"
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456'
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then:
+        mc.receivedResponse.code == "403"
     }
 
     def String randomTenant() {
