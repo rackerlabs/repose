@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
@@ -26,6 +27,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 8/13/15.
  */
@@ -153,7 +155,6 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         result.values.size == size
         result.metadata.count == size
 
-
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
         //**This part for tracing header test REP-1704**
@@ -172,7 +173,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
-    def "Test missing tenantid" () {
+    def "Test missing tenantid"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
