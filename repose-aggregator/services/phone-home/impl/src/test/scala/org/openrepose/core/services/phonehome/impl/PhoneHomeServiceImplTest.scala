@@ -19,20 +19,29 @@
  */
 package org.openrepose.core.services.phonehome.impl
 
+import javax.ws.rs.core.MediaType
+
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.systemmodel.{PhoneHomeService => PhoneHomeServiceConfig, SystemModel}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.systemmodel.{PhoneHomeService => PhoneHomeServiceConfig, _}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
+import play.api.libs.json.{JsNull, Json}
 
 class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("init") {
     it("should register a system model configuration listener") {
       val mockConfigurationService = mock[ConfigurationService]
-      val phoneHomeService = new PhoneHomeServiceImpl("1.0.0", "/etc/repose/", mockConfigurationService)
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
 
       phoneHomeService.init()
 
@@ -43,7 +52,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("isActive") {
     it("should throw an IllegalStateException if the service has not been initialized") {
-      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
 
       an[IllegalStateException] should be thrownBy phoneHomeService.isActive
     }
@@ -53,7 +62,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeConfig = new PhoneHomeServiceConfig()
       systemModel.setPhoneHome(phoneHomeConfig)
 
-      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       phoneHomeService.isActive shouldBe true
@@ -61,7 +70,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
     it("should return false if the service is not configured") {
       val systemModel = new SystemModel()
-      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       phoneHomeService.isActive shouldBe false
@@ -70,7 +79,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("sendUpdate") {
     it("should throw an IllegalStateException if the service has not been initialized") {
-      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
 
       an[IllegalStateException] should be thrownBy phoneHomeService.sendUpdate()
     }
@@ -78,12 +87,79 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
     it("should throw an IllegalStateException if the service is not active") {
       val systemModel = new SystemModel()
 
-      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null)
+      val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       an[IllegalStateException] should be thrownBy phoneHomeService.sendUpdate()
     }
 
-    // TODO: Add more test cases
+    it("should send a JSON message to the data collection point") {
+      val collectionUri = "http://phonehome.openrepose.org"
+
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      val filterA = new Filter()
+      val filterB = new Filter()
+      val serviceC = new Service()
+      val serviceD = new Service()
+
+      filterA.setName("a")
+      filterB.setName("b")
+      serviceC.setName("c")
+      serviceD.setName("d")
+
+      filterList.getFilter.add(filterA)
+      filterList.getFilter.add(filterB)
+      servicesList.getService.add(serviceC)
+      servicesList.getService.add(serviceD)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      val expectedMessage = Json.stringify(Json.obj(
+        "serviceId" -> "foo-service",
+        "contactEmail" -> JsNull,
+        "reposeVersion" -> "1.0.0",
+        "clusters" -> Json.arr(
+          Json.obj(
+            "filters" -> Json.arr(
+              "a",
+              "b"
+            ),
+            "services" -> Json.arr(
+              "c",
+              "d"
+            )
+          )
+        )
+      ))
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      phoneHomeService.sendUpdate()
+
+      verify(mockAkkaServiceClient).post(
+        anyString(),
+        mockitoEq(collectionUri),
+        anyMapOf(classOf[String], classOf[String]),
+        mockitoEq(expectedMessage),
+        any[MediaType]())
+    }
   }
 }

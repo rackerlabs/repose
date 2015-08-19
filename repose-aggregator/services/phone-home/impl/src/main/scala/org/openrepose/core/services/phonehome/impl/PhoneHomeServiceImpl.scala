@@ -21,21 +21,27 @@ package org.openrepose.core.services.phonehome.impl
 
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
+import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.{PhoneHomeService => PhoneHomeServiceConfig, SystemModel}
 import org.springframework.beans.factory.annotation.Value
+import play.api.libs.json.Json
+
+import scala.collection.JavaConverters._
 
 @Named
 class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVer: String,
                                      @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) confDir: String,
-                                     configurationService: ConfigurationService)
+                                     configurationService: ConfigurationService,
+                                     akkaServiceClient: AkkaServiceClient)
   extends PhoneHomeService with LazyLogging {
 
-  private var configuration: Option[PhoneHomeServiceConfig] = None
+  private var systemModel: SystemModel = _
 
   @PostConstruct
   def init(): Unit = {
@@ -51,7 +57,9 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     logger.trace("isActive method called")
 
     ifInitialized {
-      configuration match {
+      val staticSystemModel = systemModel
+
+      Option(staticSystemModel.getPhoneHome) match {
         case Some(_) => true
         case None => false
       }
@@ -62,10 +70,13 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     logger.trace("sendUpdate method called")
 
     ifInitialized {
-      configuration match {
-        case Some(configurationReference) =>
+      val staticSystemModel = systemModel
+
+      Option(staticSystemModel.getPhoneHome) match {
+        case Some(phoneHome) =>
           logger.debug("Sending usage data update to data collection point")
-          ???
+
+          sendUpdateMessage(phoneHome.getCollectionUri, buildUpdateMessage(staticSystemModel, phoneHome))
         case None =>
           logger.trace("Could not send an update; the phone home service is not active")
           throw new IllegalStateException("Could not send an update; the phone home service is not active")
@@ -82,11 +93,44 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     }
   }
 
+  private def buildUpdateMessage(systemModel: SystemModel, phoneHome: PhoneHomeServiceConfig): String = {
+    logger.trace("buildUpdateMessage method called")
+
+    //TODO: Define implicit writes for filters and services
+    Json.stringify(Json.obj(
+      "serviceId" -> phoneHome.getOriginServiceId,
+      "contactEmail" -> phoneHome.getContactEmail,
+      "reposeVersion" -> reposeVer,
+      "clusters" -> systemModel.getReposeCluster.asScala.map(cluster =>
+        Json.obj(
+          "filters" -> cluster.getFilters.getFilter.asScala.map(filter => filter.getName),
+          "services" -> cluster.getServices.getService.asScala.map(service => service.getName)
+        )
+      )
+    ))
+  }
+
+  private def sendUpdateMessage(collectionUri: String, message: String): Unit = {
+    logger.trace("sendUpdateMessage method called")
+
+    try {
+      //TODO: Add x-trans-id header
+      akkaServiceClient.post(
+        "phone-home-update",
+        collectionUri,
+        Map.empty[String, String].asJava,
+        message,
+        MediaType.APPLICATION_JSON_TYPE)
+    } catch {
+      case e: Exception => logger.error("Could not send an update to the collection service", e)
+    }
+  }
+
   object SystemModelConfigurationListener extends UpdateListener[SystemModel] {
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      configuration = Option(configurationObject.getPhoneHome)
+      systemModel = configurationObject
 
       initialized = true
     }
