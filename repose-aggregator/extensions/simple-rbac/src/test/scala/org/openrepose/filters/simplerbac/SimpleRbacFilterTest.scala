@@ -40,7 +40,7 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar {
+class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar {
   var filter: SimpleRbacFilter = _
   var config: SimpleRbacConfig = _
   var servletRequest: MockHttpServletRequest = _
@@ -48,11 +48,6 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterAll with BeforeAnd
   var filterChain: MockFilterChain = _
   var mockConfigService: ConfigurationService = _
   var mockFilterConfig: MockFilterConfig = _
-
-  override def beforeAll() {
-    System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-      "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-  }
 
   before {
     servletRequest = new MockHttpServletRequest

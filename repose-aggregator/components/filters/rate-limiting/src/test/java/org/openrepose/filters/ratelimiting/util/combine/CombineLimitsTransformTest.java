@@ -20,7 +20,6 @@
 package org.openrepose.filters.ratelimiting.util.combine;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrepose.commons.utils.transform.StreamTransform;
 import org.openrepose.core.services.ratelimit.RateLimitListBuilder;
@@ -42,7 +41,6 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -60,12 +58,6 @@ public class CombineLimitsTransformTest {
 
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
     private DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-
-    @BeforeClass
-    public static void setUpClass() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-    }
 
     @Before
     public void standUp() throws Exception {

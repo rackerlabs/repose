@@ -25,7 +25,7 @@ import org.openrepose.core.services.datastore.Datastore;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-
+@Deprecated
 public class AuthGroupCache implements DeleteableCache {
 
     private final Datastore store;

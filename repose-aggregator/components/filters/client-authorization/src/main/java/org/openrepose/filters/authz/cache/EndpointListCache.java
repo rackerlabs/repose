@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * @author zinic
  */
+@Deprecated
 public interface EndpointListCache {
 
     List<CachedEndpoint> getCachedEndpointsForToken(String token);

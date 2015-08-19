@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 /**
  * This class extracts away from the xsd based auto-generated code, giving us more control.
  */
-
+@Deprecated
 public class EndpointsConfiguration {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);

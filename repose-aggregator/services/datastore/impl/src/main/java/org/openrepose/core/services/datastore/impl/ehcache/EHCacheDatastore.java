@@ -66,6 +66,7 @@ public class EHCacheDatastore implements Datastore {
 
     @Override
     public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) {
+        // todo: does not allow for eternal caching (need to either setEternal(true) or set ttl and tti to 0
         Element putMe = new Element(key, value);
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
         //todo: switch to time to idle instead of time to live?

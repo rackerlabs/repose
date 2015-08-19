@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @Named
+@Deprecated
 public class ClientAuthenticationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientAuthenticationFilter.class);
@@ -75,6 +76,7 @@ public class ClientAuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        LOG.warn("This filter is deprecated; use the keystone-v2 filter");
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new ClientAuthenticationHandlerFactory(datastoreService.getDefaultDatastore(), httpClientService, akkaServiceClient);

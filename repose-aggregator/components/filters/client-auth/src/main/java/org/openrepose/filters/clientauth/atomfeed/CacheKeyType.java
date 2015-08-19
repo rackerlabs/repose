@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed;
 
-
+@Deprecated
 public enum CacheKeyType {
 
     USER, TOKEN, TRR_USER, NONE;

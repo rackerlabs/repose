@@ -37,12 +37,6 @@
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
 
-        <!-- Mockrunner for mock HttpServletRequest -->
-        <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-json_2.10</artifactId>
@@ -126,12 +120,6 @@
 
     <build>
         <plugins>
-            <!-- The plugin that gets Scala running -->
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-            </plugin>
-
             <!-- The plugin that cleans up our XSD to conform to XML 1.0 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

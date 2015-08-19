@@ -24,6 +24,7 @@ import java.io.Serializable;
 /**
  * @author zinic
  */
+@Deprecated
 public final class CachedEndpoint implements Serializable {
 
     private final String publicUrl;

@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
  *         authentication schemes may be used depending on the configuration. For
  *         example, a Rackspace specific or Basic Http authentication.
  */
+@Deprecated
 public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthenticationHandler> {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);

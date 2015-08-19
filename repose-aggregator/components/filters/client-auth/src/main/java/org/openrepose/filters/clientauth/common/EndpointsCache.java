@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class manages the caching of endpoints.
  */
-
+@Deprecated
 public class EndpointsCache implements DeleteableCache {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);

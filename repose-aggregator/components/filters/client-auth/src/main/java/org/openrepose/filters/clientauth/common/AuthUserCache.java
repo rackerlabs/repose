@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Cache for Auth user.
  */
+@Deprecated
 public class AuthUserCache implements DeleteableCache {
 
     private final Datastore store;

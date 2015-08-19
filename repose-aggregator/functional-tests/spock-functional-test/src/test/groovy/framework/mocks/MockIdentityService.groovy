@@ -41,6 +41,7 @@ class MockIdentityService {
     public MockIdentityService(int identityPort, int originServicePort) {
 
         resetHandlers()
+        resetDefaultParameters()
 
         this.port = identityPort
         this.originServicePort = originServicePort
@@ -140,11 +141,35 @@ class MockIdentityService {
     def endpointUrl = "localhost"
     def region = "ORD"
     def admin_userid = 67890;
-    def sleeptime =0;
+    def sleeptime = 0;
     def contact_id = "${random.nextInt()}"
     def contactIdJson = ""
     def contactIdXml = ""
+    def additionalRolesXml = ""
+    def additionalRolesJson = ""
     Validator validator;
+
+    void resetDefaultParameters() {
+        client_token = 'this-is-the-token';
+        client_tenant = 'this-is-the-tenant';
+        client_tenant_file = 'this-is-the-nast-id'
+        client_username = 'username';
+        client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
+        client_apikey = 'this-is-the-api-key';
+        admin_token = 'this-is-the-admin-token';
+        admin_tenant = 'this-is-the-admin-tenant'
+        admin_username = 'admin_username';
+        service_admin_role = 'service:admin-role1';
+        endpointUrl = "localhost"
+        region = "ORD"
+        admin_userid = 67890;
+        sleeptime = 0;
+        contact_id = "${random.nextInt()}"
+        contactIdJson = ""
+        contactIdXml = ""
+        additionalRolesXml = ""
+        additionalRolesJson = ""
+    }
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -568,15 +593,19 @@ class MockIdentityService {
         def template;
         def headers = [:];
 
+
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            template = this.getUserGlobalRolesXmlTemplate
+            template = UserGlobalRolesXmlTemplate
         } else {
             headers.put('Content-type', 'application/json')
-            template = this.getUserGlobalRolesJsonTemplate;
+            template = UserGlobalRolesJsonTemplate;
         }
 
-        def params = [:];
+        def params = [
+                addRolesXml : additionalRolesXml,
+                addRolesJson: additionalRolesJson
+        ];
 
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
@@ -959,5 +988,60 @@ class MockIdentityService {
         </roles>
     </user>
 </access>
+"""
+    def UserGlobalRolesXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8"?>
+  <roles
+    xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+    xmlns="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:ns4="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0"
+    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0">
+    <role id="9" name="Racker"
+        description="Defines a user as being a Racker"
+        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221" rax-auth:propagate="true"/>
+    <role id="5" name="object-store:default"
+        description="Role to access keystone service"
+        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+    <role id="6" name="compute:default"
+        description="Role to access keystone service"
+        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221""/>
+    <role id="3" name="identity:user-admin"
+        description="User Admin Role"
+        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+    \${addRolesXml}
+</roles>
+"""
+    def UserGlobalRolesJsonTemplate =
+            """{
+    "roles": [
+        {
+            "description": "Defines a user as being Racker",
+            "id": "9",
+            "name": "Racker",
+            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        {
+            "description": "Role to access keystone service",
+            "id": "5",
+            "name": "object-store:default",
+            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        {
+            "description": "Role to access keystone service",
+            "id": "6",
+            "name": "compute:default",
+            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        {
+            "description": "Admin role for database service",
+            "id": "3",
+            "name": "User Admin Role",
+            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        \${addRolesJson}
 """
 }

@@ -28,15 +28,6 @@ import spock.lang.Specification
 import java.nio.charset.StandardCharsets
 
 class AdditionalXSDFormatTest extends Specification {
-    /**
-     * This is needed to resolve XML parsing conflicts with log4j2 and stuff. Since the config marshalling calls a log
-     * method, I need to have this so it doesn't make annoying ugly meaningless error messages.
-     * @return
-     */
-    def setupSpec() {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-    }
 
     Slf4JHttpLoggingConfig marshalConfig(String xml) {
         URL xsdURL = getClass().getResource("/META-INF/schema/config/slf4j-http-logging-configuration.xsd");

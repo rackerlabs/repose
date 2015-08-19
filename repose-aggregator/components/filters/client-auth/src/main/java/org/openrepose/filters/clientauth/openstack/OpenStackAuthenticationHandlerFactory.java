@@ -36,6 +36,7 @@ import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public final class OpenStackAuthenticationHandlerFactory {
 
     private OpenStackAuthenticationHandlerFactory() {

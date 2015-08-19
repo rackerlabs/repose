@@ -42,6 +42,7 @@ import java.util.Map;
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed
  */
+@Deprecated
 public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SaxAuthFeedReader.class);

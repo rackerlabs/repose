@@ -28,6 +28,7 @@ import java.util.List;
  *         <p/>
  *         This class manages information from config files related to auth.
  */
+@Deprecated
 public class Configurables {
     private final boolean delegable;
     private final double delegableQuality;

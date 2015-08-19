@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.clientauth.common;
 
-
+@Deprecated
 public interface DeleteableCache {
 
     boolean deleteCacheItem(String userId);
