@@ -123,6 +123,7 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:attribute name="enabled" type="xs:boolean" use="required" />
         <xs:attribute name="collection-uri" type="xs:anyURI" use="optional" default="http://phone-home.openrepose.org"/>
         <xs:attribute name="origin-service-id" type="xs:string" use="optional"/>
         <xs:attribute name="contact-email" type="xs:string" use="optional"/>

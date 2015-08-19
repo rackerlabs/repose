@@ -22,7 +22,7 @@ package org.openrepose.core.services.phonehome.impl
 import javax.ws.rs.core.MediaType
 
 import org.mockito.Matchers.{eq => mockitoEq, _}
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.{times, verify}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -50,22 +50,23 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
     }
   }
 
-  describe("isActive") {
+  describe("isEnabled") {
     it("should throw an IllegalStateException if the service has not been initialized") {
       val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
 
-      an[IllegalStateException] should be thrownBy phoneHomeService.isActive
+      an[IllegalStateException] should be thrownBy phoneHomeService.isEnabled
     }
 
     it("should return true if the service is configured") {
       val systemModel = new SystemModel()
       val phoneHomeConfig = new PhoneHomeServiceConfig()
+      phoneHomeConfig.setEnabled(true)
       systemModel.setPhoneHome(phoneHomeConfig)
 
       val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      phoneHomeService.isActive shouldBe true
+      phoneHomeService.isEnabled shouldBe true
     }
 
     it("should return false if the service is not configured") {
@@ -73,7 +74,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeServiceImpl(null, null, null, null)
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      phoneHomeService.isActive shouldBe false
+      phoneHomeService.isEnabled shouldBe false
     }
   }
 
@@ -101,6 +102,8 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
       val filterList = new FilterList()
       val servicesList = new ServicesList()
       val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      phoneHomeConfig.setEnabled(true)
 
       val filterA = new Filter()
       val filterB = new Filter()
@@ -154,7 +157,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
 
       phoneHomeService.sendUpdate()
 
-      verify(mockAkkaServiceClient).post(
+      verify(mockAkkaServiceClient, times(2)).post(
         anyString(),
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),

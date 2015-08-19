@@ -41,6 +41,7 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
                                      akkaServiceClient: AkkaServiceClient)
   extends PhoneHomeService with LazyLogging {
 
+  private var enabled: Boolean = false
   private var systemModel: SystemModel = _
 
   @PostConstruct
@@ -53,33 +54,27 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     )
   }
 
-  override def isActive: Boolean = {
-    logger.trace("isActive method called")
+  override def isEnabled: Boolean = {
+    logger.trace("isEnabled method called")
 
-    ifInitialized {
-      val staticSystemModel = systemModel
-
-      Option(staticSystemModel.getPhoneHome) match {
-        case Some(_) => true
-        case None => false
-      }
-    }
+    ifInitialized(enabled)
   }
 
   override def sendUpdate(): Unit = {
     logger.trace("sendUpdate method called")
 
     ifInitialized {
-      val staticSystemModel = systemModel
+      val staticSystemModel = systemModel // Pin the system model in case an update occurs while processing
 
       Option(staticSystemModel.getPhoneHome) match {
-        case Some(phoneHome) =>
+        case Some(phoneHome) if phoneHome.isEnabled =>
           logger.debug("Sending usage data update to data collection point")
 
           sendUpdateMessage(phoneHome.getCollectionUri, buildUpdateMessage(staticSystemModel, phoneHome))
-        case None =>
-          logger.trace("Could not send an update; the phone home service is not active")
-          throw new IllegalStateException("Could not send an update; the phone home service is not active")
+        case _ =>
+          logger.debug("Could not send an update; the phone home service is not enabled")
+          //TODO: Should this throw an exception to programmatically inform a user that this call should not be made?
+          throw new IllegalStateException("Could not send an update; the phone home service is not enabled")
       }
     }
   }
@@ -115,6 +110,7 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
     try {
       //TODO: Add x-trans-id header
+      //TODO: Log failed status code responses
       akkaServiceClient.post(
         "phone-home-update",
         collectionUri,
@@ -131,8 +127,14 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
       systemModel = configurationObject
+      enabled = Option(configurationObject.getPhoneHome) match {
+        case Some(phoneHome) => phoneHome.isEnabled
+        case None => false
+      }
 
       initialized = true
+
+      if (isEnabled) sendUpdate()
     }
 
     override def isInitialized: Boolean = initialized

@@ -35,11 +35,11 @@ package org.openrepose.core.services.phonehome.impl;
 public interface PhoneHomeService {
 
     /**
-     * Reports whether or not the phone home service is active.
+     * Reports whether or not the phone home service is enabled.
      *
      * @throws IllegalStateException if the phone home service has not yet been initialized
      */
-    boolean isActive();
+    boolean isEnabled();
 
     /**
      * Sends a usage update to the data collection point, as long as the phone home service is active.
