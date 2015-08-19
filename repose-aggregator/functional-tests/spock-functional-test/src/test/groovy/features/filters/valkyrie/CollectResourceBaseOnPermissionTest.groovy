@@ -42,46 +42,46 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def static deviceId2 = "520708"
 
     def static random = new Random()
-    def static String jsonrespbody = "{\n" +
-            "    \"values\": [\n" +
-            "        {\n" +
-            "            \"id\": \"en6bShuX7a\",\n" +
-            "            \"label\": \"brad@morgabra.com\",\n" +
-            "            \"ip_addresses\": null,\n" +
-            "            \"metadata\": {\n" +
-            "                \"userId\": \"325742\",\n" +
-            "                \"email\": \"brad@morgabra.com\"\n" +
-            "            },\n" +
-            "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId1\",\n" +
-            "            \"agent_id\": \"e333a7d9-6f98-43ea-aed3-52bd06ab929f\",\n" +
-            "            \"active_suppressions\": [],\n" +
-            "            \"scheduled_suppressions\": [],\n" +
-            "            \"created_at\": 1405963090100,\n" +
-            "            \"updated_at\": 1409247144717\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"enADqSly1y\",\n" +
-            "            \"label\": \"test\",\n" +
-            "            \"ip_addresses\": null,\n" +
-            "            \"metadata\": null,\n" +
-            "            \"managed\": false,\n" +
-            "            \"uri\": \"http://core.rackspace.com/accounts/877483926/devices/$deviceId2\",\n" +
-            "            \"agent_id\": null,\n" +
-            "            \"active_suppressions\": [],\n" +
-            "            \"scheduled_suppressions\": [],\n" +
-            "            \"created_at\": 1411055897191,\n" +
-            "            \"updated_at\": 1411055897191\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    \"metadata\": {\n" +
-            "        \"count\": 2,\n" +
-            "        \"limit\": 2,\n" +
-            "        \"marker\": null,\n" +
-            "        \"next_marker\": \"enB11JvqNv\",\n" +
-            "        \"next_href\": \"https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv\"\n" +
-            "    }\n" +
-            "}"
+    def static String jsonrespbody = """{
+        "values": [
+            {
+                "id": "en6bShuX7a",
+                "label": "brad@morgabra.com",
+                "ip_addresses": null,
+                "metadata": {
+                    "userId": "325742",
+                    "email": "brad@morgabra.com"
+                },
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/$deviceId1",
+                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1405963090100,
+                "updated_at": 1409247144717
+            },
+            {
+                "id": "enADqSly1y",
+                "label": "test",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/$deviceId2",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
+            }
+        ],
+        "metadata": {
+            "count": 2,
+            "limit": 2,
+            "marker": null,
+            "next_marker": "enB11JvqNv",
+            "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
+        }
+    }"""
 
 
     def setupSpec() {
@@ -125,23 +125,28 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             client_tenant = tenantID
         }
 
-        def contactid = fakeValkyrie.contact_id
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
 
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources/", method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': contactid,
+                        'x-contact-id': '123456',
                         'x-tenant-id' : tenantID
                 ],
                 defaultHandler: jsonResp
         )
 
         then: "check response"
+        //mc.handlings.size() == 1
         mc.receivedResponse.code == responseCode
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
