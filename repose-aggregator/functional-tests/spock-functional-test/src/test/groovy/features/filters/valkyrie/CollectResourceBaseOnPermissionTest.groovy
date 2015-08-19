@@ -18,15 +18,14 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 8/13/15.
  */
@@ -144,10 +143,15 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 ],
                 defaultHandler: jsonResp
         )
+        def body = mc.getHandlings().get(0).getResponse().body
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
 
         then: "check response"
-        //mc.handlings.size() == 1
+        mc.handlings.size() == 1
         mc.receivedResponse.code == responseCode
+        result.values.size == size
+
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
         //**This part for tracing header test REP-1704**
@@ -158,9 +162,10 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"
-        "HEAD" | randomTenant() | "520707" | "511124"  | "view_product" | "200"
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
         //"GET"  | randomTenant() | "520707"  | "511123"   | "admin_product"  | "200"
     }
 
