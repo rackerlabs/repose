@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.StringUtilities;
 
 import java.util.ArrayList;
@@ -34,13 +35,15 @@ public class LogArgumentGroupExtractor {
     private String lifeCycleModifier;
     private String statusCodes;
     private String variable;
+    private String variableArgumentSeparator;
     private String entity;
     private List<String> arguments;
 
-    private LogArgumentGroupExtractor(String lifeCycleModifier, String statusCodes, String variable, String arguments, String entity) {
+    private LogArgumentGroupExtractor(String lifeCycleModifier, String statusCodes, String variable, String variableArgumentSeparator, String arguments, String entity) {
         this.lifeCycleModifier = lifeCycleModifier;
         this.statusCodes = statusCodes;
         this.variable = variable;
+        this.variableArgumentSeparator = variableArgumentSeparator;
         this.arguments = parseArguments(arguments);
         this.entity = entity;
     }
@@ -49,16 +52,17 @@ public class LogArgumentGroupExtractor {
         lifeCycleModifier = getGroupValue(m, LOG_CONSTANTS.LIFECYCLE_GROUP_INDEX);
         statusCodes = getGroupValue(m, LOG_CONSTANTS.STATUS_CODE_INDEX);
         variable = getGroupValue(m, LOG_CONSTANTS.VARIABLE_INDEX);
+        variableArgumentSeparator = getGroupValue(m, LOG_CONSTANTS.VAR_ARG_SEPARATOR_INDEX);
         arguments = parseArguments(getGroupValue(m, LOG_CONSTANTS.ARGUMENTS_INDEX));
         entity = getGroupValue(m, LOG_CONSTANTS.ENTITY_INDEX);
     }
 
     public static LogArgumentGroupExtractor instance(String lifeCycleModifier, String statusCodes, String variable, String arguments, String entity) {
-        return new LogArgumentGroupExtractor(lifeCycleModifier, statusCodes, variable, arguments, entity);
+        return new LogArgumentGroupExtractor(lifeCycleModifier, statusCodes, variable, "", arguments, entity);
     }
 
     public static LogArgumentGroupExtractor stringEntity(String variable) {
-        return new LogArgumentGroupExtractor("", "", variable, "", LogFormatArgument.STRING.name());
+        return new LogArgumentGroupExtractor("", "", variable, "", "", LogFormatArgument.STRING.name());
     }
 
     private List<String> parseArguments(String arguments) {
@@ -97,6 +101,11 @@ public class LogArgumentGroupExtractor {
         return arguments;
     }
 
+    public String getFormat() {
+        // everything that was inside the braces
+        return variable + variableArgumentSeparator + StringUtils.join(arguments, " ");
+    }
+
     @Override
     public boolean equals(Object o) {
         boolean result = false;
@@ -109,7 +118,6 @@ public class LogArgumentGroupExtractor {
                     && StringUtilities.nullSafeEquals(other.statusCodes, statusCodes)
                     && other.arguments.equals(arguments)
                     && StringUtilities.nullSafeEquals(other.variable, variable);
-
         }
 
         return result;
@@ -132,15 +140,16 @@ public class LogArgumentGroupExtractor {
         String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";
         // Group 2, 3 (ignore)
         String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";
-        // Group 4 (ignore), 5, 6
-        String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";
-        // Group 7
+        // Group 4 (ignore), 5, 6, 7
+        String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9:.]*)([ ,]?)([_\\-a-zA-Z0-9 ,:.]*)\\})?";
+        // Group 8
         String ENTITY_EXTRACTOR = "([%a-zA-Z])";
         Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
         int LIFECYCLE_GROUP_INDEX = 1;
         int STATUS_CODE_INDEX = 2;
         int VARIABLE_INDEX = 5;
-        int ARGUMENTS_INDEX = 6;
-        int ENTITY_INDEX = 7;
+        int VAR_ARG_SEPARATOR_INDEX = 6;
+        int ARGUMENTS_INDEX = 7;
+        int ENTITY_INDEX = 8;
     }
 }

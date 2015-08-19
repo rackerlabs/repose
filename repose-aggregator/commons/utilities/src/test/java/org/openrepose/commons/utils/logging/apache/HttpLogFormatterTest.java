@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.logging.apache.format.FormatArgumentHandler;
 import org.openrepose.commons.utils.logging.apache.format.LogArgumentFormatter;
 import org.openrepose.commons.utils.logging.apache.format.stock.*;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -31,6 +32,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -98,6 +100,16 @@ public class HttpLogFormatterTest {
 
             assertEquals(expected, formatter.format(request, response));
         }
+
+        @Test
+        public void shouldParseSimpleTimeFormat() {
+            final String defaultDateFormatRegex = "\\d{2}-\\d{2}-\\d{4}-\\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
+
+            final HttpLogFormatter formatter = new HttpLogFormatter("%t");
+
+            assertEquals(1, formatter.getHandlerList().size());
+            assertTrue(Pattern.matches(defaultDateFormatRegex, formatter.format(request, response)));
+        }
     }
 
     public static class WhenParsingComplexArguments {
@@ -131,6 +143,16 @@ public class HttpLogFormatterTest {
             assertEquals(expected, formatter.format(request, response));
             when(response.getStatus()).thenReturn(401);
             assertEquals("-", formatter.format(request, response));
+        }
+
+        @Test
+        public void shouldParseCustomTimeFormat() {
+            final String customDateFormatRegex = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
+
+            final HttpLogFormatter formatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
+
+            assertEquals(1, formatter.getHandlerList().size());
+            assertTrue(Pattern.matches(customDateFormatRegex, formatter.format(request, response)));
         }
     }
 

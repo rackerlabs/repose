@@ -111,7 +111,7 @@ public class HttpLogFormatter {
                 formatter.setLogic(new ResponseBytesHandler());
                 break;
             case TIME_RECEIVED:
-                formatter.setLogic(new TimeReceivedHandler());
+                formatter.setLogic(new TimeReceivedHandler(extractor.getFormat()));
                 break;
             case URL_REQUESTED:
                 formatter.setLogic(new UrlRequestedHandler());

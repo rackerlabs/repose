@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +29,19 @@ import java.util.Calendar;
 
 public class TimeReceivedHandler implements FormatterLogic {
 
+    private final static String DEFAULT_DATE_FORMAT = "dd-MM-yyyy-HH:mm:ss.SSS";
+
+    private final String dateFormat;
+
+    public TimeReceivedHandler(final String dateFormat) {
+        this.dateFormat = StringUtils.isEmpty(dateFormat) ? DEFAULT_DATE_FORMAT : dateFormat;
+
+        // build it here so an exception will be thrown during application startup if the pattern is invalid
+        new SimpleDateFormat(dateFormat);
+    }
+
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        return new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+        return new SimpleDateFormat(dateFormat).format(Calendar.getInstance().getTime());
     }
 }
