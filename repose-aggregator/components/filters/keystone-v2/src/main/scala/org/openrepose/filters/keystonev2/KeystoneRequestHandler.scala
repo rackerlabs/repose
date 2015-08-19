@@ -85,9 +85,9 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting admin token"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException("Identity Service not available to get admin token"))
-          case _ => Failure(new Exception("Unable to successfully get admin token from Identity"))
+          case _ => Failure(IdentityResponseProcessingException("Unable to successfully get admin token from Identity"))
         }
-      case Failure(x) => Failure(new Exception("Failure communicating with identity during admin authentication", x))
+      case Failure(x) => Failure(IdentityResponseProcessingException("Failure communicating with identity during admin authentication", x))
     }
   }
 
@@ -226,9 +226,9 @@ object KeystoneRequestHandler {
             Failure(OverLimitException(buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException(s"Identity Service not available for $call request"))
-          case _ => Failure(new Exception(s"Unhandled response from Identity for $call request"))
+          case _ => Failure(IdentityResponseProcessingException(s"Unhandled response from Identity for $call request"))
         }
-      case Failure(x) => Failure(new Exception(s"Failure communicating with Identity during $call request", x))
+      case Failure(x) => Failure(IdentityResponseProcessingException(s"Failure communicating with Identity during $call request", x))
     }
   }
 
@@ -239,6 +239,8 @@ object KeystoneRequestHandler {
   case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+
+  case class IdentityResponseProcessingException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
