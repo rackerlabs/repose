@@ -84,6 +84,16 @@ public class ValidatorInfoTest {
         }
 
         @Test
+        public void shouldReInitValidator() {
+            Validator validator = instance.getValidator();
+            assertNotNull(validator);
+
+            assertTrue("Should initialize validator", instance.reinitValidator());
+            Validator validator1 = instance.getValidator();
+            assertTrue("Validator1 should be a new instance", validator1 != validator);
+        }
+
+        @Test
         public void shouldGenerateValidatorNameWhenPassedNull() {
             assertEquals(instance.getName(), instance.getNameFromRoles(instance.getRoles()));
         }

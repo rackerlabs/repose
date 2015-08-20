@@ -24,6 +24,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author fran
@@ -37,6 +38,15 @@ public class HrefFileReaderTest {
         @Test
         public void shouldReturnNullIfHrefIsNotAFile() {
             assertNull(hrefFileReader.validateHref("http://something", "file_id"));
+        }
+    }
+
+    public static class ReadHref {
+        private final HrefFileReader hrefFileReader = new HrefFileReader();
+
+        @Test
+        public void shouldReturnEmptyStringIsNotAFile() {
+            assertEquals("", hrefFileReader.read("http://something", "file_id"));
         }
     }
 }

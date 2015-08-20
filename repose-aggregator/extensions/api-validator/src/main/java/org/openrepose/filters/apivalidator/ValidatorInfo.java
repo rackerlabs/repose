@@ -157,10 +157,10 @@ public class ValidatorInfo {
     }
 
     String getNameFromRoles(List<String> roles) {
-        StringBuilder name = new StringBuilder();
+        StringBuilder roleName = new StringBuilder();
         for (String role : roles) {
-            name.append(role + "_");
+            roleName.append(role + "_");
         }
-        return name.toString();
+        return roleName.toString();
     }
 }

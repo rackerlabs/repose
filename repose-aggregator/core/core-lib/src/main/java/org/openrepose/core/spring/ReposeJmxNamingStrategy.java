@@ -41,7 +41,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
     private static final String SEPARATOR = "-";
-    private static final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
+    private static final String DEFAULT_DOMAIN_PREFIX = UUID.randomUUID().toString() + SEPARATOR;
     private final String jmxPrefix;
 
     //Metrics service needs this guy
@@ -78,7 +78,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
                 } catch (UnknownHostException e) {
                     //Weren't able to get the local host :(
                     LOG.warn("Unable to resolve local hostname for JMX", e);
-                    result = defaultDomainPrefix;
+                    result = DEFAULT_DOMAIN_PREFIX;
                 }
             }
         }

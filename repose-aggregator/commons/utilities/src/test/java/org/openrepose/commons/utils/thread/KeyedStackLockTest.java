@@ -114,6 +114,14 @@ public class KeyedStackLockTest {
 
             lock.unlock(KEY_A);
         }
+
+        @Test(expected=IllegalArgumentException.class)
+        public void shouldFailIfOtherKeyLocked() throws Exception {
+            assertFalse("is not locked yet", lock.isLocked());
+            lock.lock(KEY_A);
+            assertTrue("should now be locked", lock.isLocked());
+            lock.unlock(KEY_B);
+        }
     }
 
     public static class WhenLocking {

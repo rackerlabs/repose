@@ -21,7 +21,6 @@ package org.openrepose.common.auth.openstack;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import com.sun.corba.se.spi.presentation.rmi.StubAdapter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -416,13 +415,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
         String retryValue = null;
         int statusCode = serviceClientResponse.getStatus();
         Header[] headers = serviceClientResponse.getHeaders();
-        if (headers != null)
+        if (headers != null) {
             for (Header header : headers) {
                 if (header.getName().equals(HttpHeaders.RETRY_AFTER)) {
                     retryValue = header.getValue();
                     break;
                 }
             }
+        }
         if (retryValue == null) {
             LOG.info("Missing {} header on Auth Response status code: {}", HttpHeaders.RETRY_AFTER, statusCode);
             Calendar retryCalendar = new GregorianCalendar();

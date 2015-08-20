@@ -176,5 +176,17 @@ public class KeystoneResourceTest {
 
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), entity.getCode());
         }
+
+        @Test
+        public void shouldBeNotFoundForGroupWhenIdNotInt() {
+            Response response = keystoneResource.getGroups("invalid", "");
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        }
+
+        @Test
+        public void shouldBeNotFoundForEndpointWhenIdNotInt() {
+            Response response = keystoneResource.getEndpoints("invalid", "");
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        }
     }
 }

@@ -27,9 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author jhopper
- */
 public interface HeaderManager {
 
     void putHeader(String key, String... values);

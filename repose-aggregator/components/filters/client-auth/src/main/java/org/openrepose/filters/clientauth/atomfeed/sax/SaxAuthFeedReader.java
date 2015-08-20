@@ -213,6 +213,8 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                 case TRR_USER:
                     resultKeys.addUserKey(curResource);
                     break;
+                default:
+                    break;
             }
             curResource = "";
         }

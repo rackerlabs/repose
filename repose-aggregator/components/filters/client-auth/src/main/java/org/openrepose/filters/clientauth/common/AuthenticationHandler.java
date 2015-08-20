@@ -50,7 +50,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
     private static final String REASON = " Reason: ";
     private static final String FAILURE_AUTH_N = "Failure in Auth-N filter.";
-    protected static final ThreadLocal<String> delegationMessage = new ThreadLocal<String>() {
+    protected static final ThreadLocal<String> DELEGATION_MESSAGE = new ThreadLocal<String>() {
         @Override
         protected String initialValue() {
             return FAILURE_AUTH_N;
@@ -183,7 +183,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 retry = new HttpDate(retryCalendar.getTime()).toRFC1123();
             }
             filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry);
-            delegationMessage.set(FAILURE_AUTH_N);
+            DELEGATION_MESSAGE.set(FAILURE_AUTH_N);
         } catch (AuthServiceException ex) {
             LOG.error(FAILURE_AUTH_N + REASON + ex.getMessage());
             LOG.trace("", ex);
@@ -192,18 +192,18 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             } else {
                 filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-            delegationMessage.set(FAILURE_AUTH_N);
+            DELEGATION_MESSAGE.set(FAILURE_AUTH_N);
         } catch (Exception ex) {
             LOG.error(FAILURE_AUTH_N, ex);
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            delegationMessage.set(FAILURE_AUTH_N + REASON + ex.getMessage());
+            DELEGATION_MESSAGE.set(FAILURE_AUTH_N + REASON + ex.getMessage());
         }
 
-        setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
+        setFilterDirectorValues(authToken, token, delegable, delegableQuality, DELEGATION_MESSAGE.get(), filterDirector,
                 account == null ? "" : account.getResult(), groups, endpointsInBase64, contactId, tenanted, sendAllTenantIds,
                 sendTenantIdQuality);
 
-        delegationMessage.remove();
+        DELEGATION_MESSAGE.remove();
 
         return filterDirector;
     }
@@ -278,11 +278,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
 
         AuthToken token = checkTokenCache(authToken);
-        if (token != null) {
-            if (tenanted) {
-
+        if (token != null && tenanted) {
                 return StringUtilities.nullSafeEqualsIgnoreCase(account.getResult(), token.getTenantId()) ? token : null;
-            }
         }
         return token;
 
