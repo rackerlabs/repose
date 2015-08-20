@@ -20,7 +20,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
-import org.openrepose.filters.valkyrieauthorization.config.{Resource, ValkyrieAuthorizationConfig, ValkyrieServer}
+import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
 import scala.collection.JavaConverters._
@@ -129,10 +129,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   def nonAuthorizedPath(url: => String): Boolean = {
     val path: String = new URL(url).getPath
-    lazy val onResourceList: Boolean = configuration.getCollectionResources.getResource.asScala.exists { resource =>
+    lazy val onResourceList: Boolean = Option(configuration.getCollectionResources)
+      .getOrElse(new CollectionResources)
+      .getResource.asScala.exists { resource =>
       resource.getPathRegex.r.findFirstIn(path).isDefined
     }
-    lazy val onWhitelist: Boolean = configuration.getOtherWhitelistedResources.getPathRegex.asScala.exists { pathRegex =>
+    lazy val onWhitelist: Boolean = Option(configuration.getOtherWhitelistedResources)
+      .getOrElse(new OtherWhitelistedResources)
+      .getPathRegex.asScala.exists { pathRegex =>
       pathRegex.r.findFirstIn(path).isDefined
     }
     onResourceList || onWhitelist
@@ -231,7 +235,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val matchingResources: mutable.Buffer[Resource] = configuration.getCollectionResources.getResource.asScala.filter(_.getPathRegex.r.findFirstMatchIn(url).isDefined)
+    val matchingResources: mutable.Buffer[Resource] = Option(configuration.getCollectionResources)
+      .getOrElse(new CollectionResources)
+      .getResource.asScala.filter(_.getPathRegex.r.findFirstMatchIn(url).isDefined)
     if (matchingResources.nonEmpty) {
       val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
       val initialJson: JsValue = Try(Json.parse(input))
