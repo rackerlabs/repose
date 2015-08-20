@@ -177,6 +177,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
+            client_tenant = ""
         }
 
         fakeValkyrie.with {
