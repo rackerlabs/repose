@@ -19,12 +19,14 @@
  */
 package org.openrepose.core.services.phonehome.impl
 
+import java.util.UUID
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -41,7 +43,7 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
                                      akkaServiceClient: AkkaServiceClient)
   extends PhoneHomeService with LazyLogging {
 
-  private var enabled: Boolean = false
+  private var enabled: Boolean = _
   private var systemModel: SystemModel = _
 
   @PostConstruct
@@ -73,8 +75,8 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
           sendUpdateMessage(phoneHome.getCollectionUri, buildUpdateMessage(staticSystemModel, phoneHome))
         case _ =>
           logger.debug("Could not send an update; the phone home service is not enabled")
-          //TODO: Should this throw an exception to programmatically inform a user that this call should not be made?
           throw new IllegalStateException("Could not send an update; the phone home service is not enabled")
+          //TODO: Write message to disk, don't throw exception, change log line
       }
     }
   }
@@ -109,12 +111,17 @@ class PhoneHomeServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     logger.trace("sendUpdateMessage method called")
 
     try {
-      //TODO: Add x-trans-id header
+      val updateHeaders = if (systemModel.isTracingHeader) {
+        Map(CommonHttpHeader.TRACE_GUID.toString -> UUID.randomUUID().toString).asJava
+      } else {
+        Map.empty[String, String].asJava
+      }
+
       //TODO: Log failed status code responses
       akkaServiceClient.post(
         "phone-home-update",
         collectionUri,
-        Map.empty[String, String].asJava,
+        updateHeaders,
         message,
         MediaType.APPLICATION_JSON_TYPE)
     } catch {

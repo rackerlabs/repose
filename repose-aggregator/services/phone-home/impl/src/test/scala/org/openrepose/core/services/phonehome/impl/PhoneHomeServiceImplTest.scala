@@ -21,9 +21,11 @@ package org.openrepose.core.services.phonehome.impl
 
 import javax.ws.rs.core.MediaType
 
+import org.hamcrest.{Matcher, Matchers => HMatchers}
 import org.mockito.Matchers.{eq => mockitoEq, _}
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{never, times, verify}
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.systemmodel.{PhoneHomeService => PhoneHomeServiceConfig, _}
@@ -75,6 +77,154 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       phoneHomeService.isEnabled shouldBe false
+    }
+  }
+
+  describe("configurationUpdated") {
+    it("should call sendUpdate if the service is enabled") {
+      val collectionUri = "http://phonehome.openrepose.org"
+
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      phoneHomeConfig.setEnabled(true)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      verify(mockAkkaServiceClient).post(
+        anyString(),
+        mockitoEq(collectionUri),
+        anyMapOf(classOf[String], classOf[String]),
+        anyString(),
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+    }
+
+    it("should not call sendUpdate if the service is not enabled") {
+      val collectionUri = "http://phonehome.openrepose.org"
+
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      phoneHomeConfig.setEnabled(false)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      verify(mockAkkaServiceClient, never()).post(
+        anyString(),
+        mockitoEq(collectionUri),
+        anyMapOf(classOf[String], classOf[String]),
+        anyString(),
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+    }
+
+    it("should send a tracing header to the data collection point if configured to") {
+      val collectionUri = "http://phonehome.openrepose.org"
+
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      systemModel.setTracingHeader(true)
+      phoneHomeConfig.setEnabled(true)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      verify(mockAkkaServiceClient).post(
+        anyString(),
+        mockitoEq(collectionUri),
+        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        anyString(),
+        any[MediaType]())
+    }
+
+    it("should not send a tracing header to the data collection point if configured not to") {
+      val collectionUri = "http://phonehome.openrepose.org"
+
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      systemModel.setTracingHeader(false)
+      phoneHomeConfig.setEnabled(true)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val phoneHomeService = new PhoneHomeServiceImpl(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      verify(mockAkkaServiceClient).post(
+        anyString(),
+        mockitoEq(collectionUri),
+        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        anyString(),
+        any[MediaType]())
     }
   }
 
@@ -162,7 +312,7 @@ class PhoneHomeServiceImplTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
         mockitoEq(expectedMessage),
-        any[MediaType]())
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
   }
 }
