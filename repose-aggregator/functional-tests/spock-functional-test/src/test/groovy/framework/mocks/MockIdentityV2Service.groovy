@@ -624,7 +624,7 @@ class MockIdentityV2Service {
                 if (tokenId == "rackerSSO"){
                     template = rackerSuccessfulValidateRespJsonTemplate
                 } else if (impersonate_id != "") {
-                    template = successfulImpersonateValidateTokenJsonTemplate
+                    template = successfulImpersonateJsonRespTemplate
                 } else {
                     template = successfulValidateTokenJsonTemplate
                 }
@@ -1062,6 +1062,49 @@ class MockIdentityV2Service {
 }
 """
 
+    def successfulImpersonateJsonRespTemplate =
+            """{
+    "access": {
+        "token": {
+            "id": "\${token}",
+            "expires": "\${expires}",
+            "tenant": {
+                "id": "\${tenantid}",
+                "name": "\${tenantname}"
+            },
+            "RAX-AUTH:authenticatedBy": [
+                "PASSWORD"
+            ]
+        },
+        "RAX-AUTH:impersonator": {
+            "id": "\${userid}",
+            "roles": [
+                {
+                    "id": "ROLEID",
+                    "serviceId": "ROLESERVICEID",
+                    "description": "DESC.",
+                    "name": "ROLENAME"
+                }
+            ],
+            "name": "\${username}"
+        },
+        "user": {
+            "id": "\${impersonateid}",
+            "roles": [
+                {
+                    "id": "ROLEID",
+                    "serviceId": "SERVICEID",
+                    "description": "SERVICEDESC",
+                    "name": "SERVICENAME"
+                },
+                ...
+            ],
+            "name": "\${impersonatename}",
+            "RAX-AUTH:defaultRegion": "REGION"
+        }
+    }
+}
+"""
     // Failure Response for validate token in json
     def identityFailureJsonTemplate =
             """{
