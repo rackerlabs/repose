@@ -220,7 +220,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(403, ""), Result(502, "Valkyrie returned a 403")), //Bad Permissions to Valkyrie
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456")), ValkyrieResponse(404, ""), Result(401, "No contact ID specified")), //Missing Contact
       (RequestProcessor("GET", Map("X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(404, ""), Result(401, "No tenant ID specified")), //Missing Tenant
-      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), Result(401, "No device ID specified")), //Missing Device
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("", "view_product")), Result(502, "Valkyrie Response did not match expected contract")), //Malformed Valkyrie Response - Missing Device
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, "I'm not really json"), Result(502, "Invalid Json response from Valkyrie")) //Malformed Valkyrie Response - Bad Json
     ).foreach { case (request, valkyrie, result) =>
@@ -394,20 +393,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       Mockito.verify(akkaServiceClient).get("someTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
-    }
-  }
-
-  describe("nonAuthorizedPath should match appropriately") {
-    val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
-    filter.configurationUpdated(createGenericValkyrieConfiguration(null))
-
-    case class AuthorizedPathCheck(urlPath: String, allowed: Boolean)
-    List(AuthorizedPathCheck("/foo", true),
-         AuthorizedPathCheck("/bar", true),
-         AuthorizedPathCheck("/baz", false)).foreach { path =>
-      it(s"${path.urlPath} returns ${path.allowed}") {
-        assert(filter.nonAuthorizedPath(path.urlPath) == path.allowed)
-      }
     }
   }
 
@@ -688,9 +673,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     server.setPassword("somePassword")
     configuration.setValkyrieServer(server)
     configuration.setDelegating(delegation)
-    val whitelistedResources: OtherWhitelistedResources = new OtherWhitelistedResources
-    whitelistedResources.getPathRegex.add("/foo")
-    configuration.setOtherWhitelistedResources(whitelistedResources)
     val resource: Resource = new Resource
     resource.setPathRegex("/bar")
     val pathTriplet: PathTriplet = new PathTriplet

@@ -91,7 +91,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def authorizeDevice(deviceList: ValkyrieResult, deviceId: Option[String]): ResponseResult = {
       (deviceList, deviceId) match {
         case (response: ResponseResult, _) => response
-        case (devicePermissions: DeviceList, None) if !nonAuthorizedPath(urlPath) => ResponseResult(401, "No device ID specified")
         case (devicePermissions: DeviceList, None) => ResponseResult(200)
         case (devicePermissions: DeviceList, Some(device)) => authorize(device, devicePermissions.devices, mutableHttpRequest.getMethod)
       }
@@ -131,20 +130,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   def cacheKey(transformedTenant: String, contactId: String): String = {
     transformedTenant + contactId
-  }
-
-  def nonAuthorizedPath(urlPath: => String): Boolean = {
-    lazy val onResourceList: Boolean = Option(configuration.getCollectionResources)
-      .getOrElse(new CollectionResources)
-      .getResource.asScala.exists { resource =>
-      resource.getPathRegex.r.pattern.matcher(urlPath).matches()
-    }
-    lazy val onWhitelist: Boolean = Option(configuration.getOtherWhitelistedResources)
-      .getOrElse(new OtherWhitelistedResources)
-      .getPathRegex.asScala.exists { pathRegex =>
-      pathRegex.r.pattern.matcher(urlPath).matches()
-    }
-    onResourceList || onWhitelist
   }
 
   def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer, requestGuid: Option[String] = None): ValkyrieResult = {
