@@ -583,7 +583,6 @@ class MockIdentityV2Service {
                 tenantid       : passedtenant,
                 tenantname     : client_tenantname,
                 tenantidtwo    : client_tenantid2,
-                //tenantnametwo  : client_tenantname2,
                 token          : request_token,
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
@@ -624,7 +623,7 @@ class MockIdentityV2Service {
                 if (tokenId == "rackerSSO"){
                     template = rackerSuccessfulValidateRespJsonTemplate
                 } else if (impersonate_id != "") {
-                    template = successfulImpersonateJsonRespTemplate
+                    template = successfulImpersonateValidateTokenJsonTemplate
                 } else {
                     template = successfulValidateTokenJsonTemplate
                 }
