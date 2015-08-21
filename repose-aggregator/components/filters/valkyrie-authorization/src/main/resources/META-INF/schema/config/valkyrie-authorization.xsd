@@ -41,6 +41,7 @@
         <xs:sequence>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="valkyrie-server" type="ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="translate-permissions-to-roles" minOccurs="0" maxOccurs="1"/>
             <xs:element name="collection-resources" type="CollectionResources" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="300000">
