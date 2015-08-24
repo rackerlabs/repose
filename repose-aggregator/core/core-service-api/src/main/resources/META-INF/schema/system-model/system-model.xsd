@@ -43,7 +43,7 @@
         <xs:sequence>
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="phone-home" type="mod:PhoneHomeService" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="phone-home" type="mod:PhoneHomeServiceConfig" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
@@ -112,7 +112,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="PhoneHomeService">
+    <xs:complexType name="PhoneHomeServiceConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
