@@ -134,7 +134,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             impersonate_id = "12345"
-            //impersonate_name = "repose_test"
+            impersonate_name = "repose_test"
         }
 
         when: "User passes a request through repose"
@@ -144,8 +144,8 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-id") == "12345"
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-name") == "repose_test"
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Name") == fakeIdentityV2Service.impersonate_name
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityV2Service.impersonate_id
         mc.handlings[0].request.headers.contains("x-impersonate-roles")
         // should check if take roles id or role name???
         mc.handlings[0].request.headers.getFirstValue("x-impersonate-roles").contains("racker")

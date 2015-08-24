@@ -476,7 +476,6 @@ class MockIdentityV2Service {
                         tenantid     : client_tenantid,
                         tenantname   : client_tenantname,
                         tenantidtwo  : client_tenantid2,
-                        //tenantnametwo: client_tenantname2,
                         token        : client_token,
                         serviceadmin : service_admin_role,
                         contactIdXml : contactIdXml,
@@ -1035,8 +1034,9 @@ class MockIdentityV2Service {
                     "name":"compute:admin"
                 },
                 {
+                    "tenantId" : "23456",
                     "id":"234",
-                    "name":"object-store:admin",
+                    "name":"object-store:admin"
                 },
                 {
                     "id":"345",
@@ -1053,7 +1053,7 @@ class MockIdentityV2Service {
                      },
                      {
                         "id":"234",
-                        "name":"object-store:admin",
+                        "name":"object-store:admin"
                      }
            ]
        }
@@ -1088,12 +1088,12 @@ class MockIdentityV2Service {
             "name": "\${username}"
         },
         "user": {
+                    "serviceId": "SERVICEID",
+                    "description": "SERVICEDESC",
             "id": "\${impersonateid}",
             "roles": [
                 {
                     "id": "ROLEID",
-                    "serviceId": "SERVICEID",
-                    "description": "SERVICEDESC",
                     "name": "SERVICENAME"
                 },
                 ...

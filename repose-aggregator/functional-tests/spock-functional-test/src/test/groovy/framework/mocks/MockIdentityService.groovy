@@ -871,8 +871,13 @@ class MockIdentityService {
                     "name":"compute:admin"
                 },
                 {
+                    "tenantId" : "23456",
                     "id":"234",
-                    "name":"object-store:admin",
+                    "name":"object-store:admin"
+                },
+                {
+                    "id":"345",
+                    "name":"\${serviceadmin}"
                 }
             ]
         },
@@ -885,7 +890,7 @@ class MockIdentityService {
                      },
                      {
                         "id":"234",
-                        "name":"object-store:admin",
+                        "name":"object-store:admin"
                      }
            ]
        }
@@ -909,8 +914,7 @@ class MockIdentityService {
             <role id="234" name="object-store:admin" />
         </roles>
     </user>
-    <RAX-AUTH:impersonator id="\${impersonateid}"
-        username="\${impersonatename}">
+    <RAX-AUTH:impersonator id="\${impersonateid}" username="\${impersonatename}">
         <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
             <role id="123" name="Racker" />
             <role id="234" name="object-store:admin" />
