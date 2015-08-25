@@ -23,6 +23,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
  * Created by jennyvo on 8/25/15.
  *  As Repose Product, I want better insight into how people are using Repose,
@@ -66,7 +67,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         }
     }
 
-    def "Verify Phone home service when start repose without any filter" () {
+    def "Verify Phone home service when start repose without any filter"() {
         given:
         // repose start up with no filter
 
@@ -77,7 +78,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
     }
 
-    def "Start Repose with some filters" () {
+    def "Start Repose with some filters"() {
         given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
