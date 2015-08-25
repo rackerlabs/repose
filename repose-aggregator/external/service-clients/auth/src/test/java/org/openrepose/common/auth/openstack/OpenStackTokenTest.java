@@ -27,8 +27,11 @@ import org.junit.runner.RunWith;
 import org.openrepose.common.auth.AuthToken;
 import org.openstack.docs.identity.api.v2.*;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -359,6 +362,39 @@ public class OpenStackTokenTest {
             OpenStackToken osToken = new OpenStackToken(response);
         }
 
+    }
+
+    public static class WhenHandlingImpersonation {
+        @Test
+        public void shouldPullOutImpersonatorRoles() throws Exception {
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setRoles(new RoleList());
+
+            Token token = new Token();
+            token.setExpires(new XMLGregorianCalendarImpl());
+
+            Role impRole1 = new Role();
+            impRole1.setName("imp-role-1");
+
+            Role impRole2 = new Role();
+            impRole2.setName("imp-role-2");
+
+            RoleList impersonatorRoles = new RoleList();
+            impersonatorRoles.getRole().add(impRole1);
+            impersonatorRoles.getRole().add(impRole2);
+
+            UserForAuthenticateResponse impersonatorUser = new UserForAuthenticateResponse();
+            impersonatorUser.setRoles(impersonatorRoles);
+
+            AuthenticateResponse response = new AuthenticateResponse();
+            response.setUser(user);
+            response.setToken(token);
+            response.getAny().add(new JAXBElement<>(new QName("impersonator-user"), UserForAuthenticateResponse.class, impersonatorUser));
+
+            OpenStackToken openStackToken = new OpenStackToken(response);
+
+            assertThat(openStackToken.getImpersonatorRoles(), contains("imp-role-1", "imp-role-2"));
+        }
     }
 
     //ugh, do i hate propogating this garbage, but i don't have time to get rid of it in this class

@@ -22,6 +22,7 @@ package org.openrepose.filters.clientauth.openstack;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.httpdelegation.HttpDelegationHeaderNames;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -38,7 +39,9 @@ import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.namespace.QName;
 import java.util.*;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -190,6 +193,39 @@ public class OpenStackAuthenticationHeaderManagerTest {
             headerManager.setFilterDirectorValues();
 
             assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())));
+        }
+
+        @Test
+        public void shouldAddImpersonatorRolesHeader() {
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setRoles(new RoleList());
+
+            Token token = new Token();
+            token.setId("testTknId");
+            token.setExpires(new XMLGregorianCalendarImpl());
+
+            Role impRole1 = new Role();
+            impRole1.setName("imp-role-1");
+
+            RoleList impersonatorRoles = new RoleList();
+            impersonatorRoles.getRole().add(impRole1);
+
+            UserForAuthenticateResponse impersonatorUser = new UserForAuthenticateResponse();
+            impersonatorUser.setRoles(impersonatorRoles);
+
+            AuthenticateResponse resp = new AuthenticateResponse();
+            resp.setUser(user);
+            resp.setToken(token);
+            resp.getAny().add(new JAXBElement<>(new QName("impersonator-user"), UserForAuthenticateResponse.class, impersonatorUser));
+
+            AuthToken aToken = new OpenStackToken(resp);
+
+            OpenStackAuthenticationHeaderManager headerManager =
+                    new OpenStackAuthenticationHeaderManager(null, aToken, true, 0.7, "test", filterDirector, tenantId,
+                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
+            headerManager.setFilterDirectorValues();
+
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString())));
         }
 
         @Test
