@@ -30,11 +30,11 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.{FilterList, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.{JsNull, Json}
+import play.api.libs.json.{JsNull, Json, Writes}
 
 import scala.collection.JavaConverters._
 
@@ -113,15 +113,26 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     def buildUpdateMessage(originServiceId: JsValueWrapper = JsNull, contactEmail: JsValueWrapper = JsNull): String = {
       logger.trace("buildUpdateMessage method called")
 
-      //TODO: Define implicit writes for filters and services
+      implicit val filtersWrites = new Writes[FilterList] {
+        override def writes(filterList: FilterList) = {
+          Json.toJson(filterList.getFilter.asScala.map(filter => filter.getName))
+        }
+      }
+
+      implicit val servicesWrites = new Writes[ServicesList] {
+        override def writes(servicesList: ServicesList) = {
+          Json.toJson(servicesList.getService.asScala.map(service => service.getName))
+        }
+      }
+
       Json.stringify(Json.obj(
         "serviceId" -> originServiceId,
         "contactEmail" -> contactEmail,
         "reposeVersion" -> reposeVer,
         "clusters" -> staticSystemModel.getReposeCluster.asScala.map(cluster =>
           Json.obj(
-            "filters" -> cluster.getFilters.getFilter.asScala.map(filter => filter.getName),
-            "services" -> cluster.getServices.getService.asScala.map(service => service.getName)
+            "filters" -> cluster.getFilters,
+            "services" -> cluster.getServices
           )
         )
       ))
