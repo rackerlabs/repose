@@ -68,7 +68,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse]))
-    var devicePermissions: DeviceList = null
 
     def nullOrWhitespace(str: Option[String]): Option[String] = str.map { _.trim }.filter { !"".equals(_) }
 
@@ -77,33 +76,39 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
     val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
 
-    val clientResponse = ((requestedTenantId, requestedContactId, requestedDeviceId) match {
-      case (None, _, _) => ResponseResult(401, "No tenant ID specified")
-      case (Some(tenant), _, _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
-      case (_, None, _) => ResponseResult(401, "No contact ID specified")
-      case (_, _, None) if !nonAuthorizedPath(mutableHttpRequest.getRequestURL.toString) => ResponseResult(401, "No device ID specified")
-      case (Some(tenant), Some(contact), device) =>
-        val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-
-        datastoreValue(transformedTenant, contact, configuration.getValkyrieServer, requestGuid) match {
-          case deviceList: DeviceList =>
-            devicePermissions = deviceList
-            device match {
-              case Some(deviceId) => authorize(deviceId, deviceList.devices, mutableHttpRequest.getMethod)
-              case None => ResponseResult(200)
-            }
-          case result: ResponseResult => result
-        }
-    }) match {
-      case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
-      case result => result
+    def getDeviceList(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
+      (requestedTenantId, requestedContactId) match {
+        case (None, _) => ResponseResult(401, "No tenant ID specified")
+        case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
+        case (_, None) => ResponseResult(401, "No contact ID specified")
+        case (Some(tenant), Some(contact)) =>
+          val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
+          datastoreValue(transformedTenant, contact, configuration.getValkyrieServer, requestGuid)
+      }
     }
 
-    clientResponse match {
+    def authorizeDevice(deviceList: ValkyrieResult, deviceId: Option[String]): ResponseResult = {
+      (deviceList, deviceId) match {
+        case (response: ResponseResult, _) => response
+        case (devicePermissions: DeviceList, None) if !nonAuthorizedPath(mutableHttpRequest.getRequestURL.toString) => ResponseResult(401, "No device ID specified")
+        case (devicePermissions: DeviceList, None) => ResponseResult(200)
+        case (devicePermissions: DeviceList, Some(device)) => authorize(device, devicePermissions.devices, mutableHttpRequest.getMethod)
+      }
+    }
+
+    def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
+      valkyrieResponse match {
+        case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+        case result => result
+      }
+    }
+
+    val devicePermissions: ValkyrieResult = getDeviceList(requestedTenantId, requestedContactId)
+    mask403s(authorizeDevice(devicePermissions, requestedDeviceId)) match {
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
         try {
-          cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions)
+          cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions.asInstanceOf[DeviceList])
         } catch {
           case rce: ResponseCullingException =>
             logger.debug("Failed to cull response, wiping out response.", rce)
