@@ -200,7 +200,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         )
 
         then:
-        mc.receivedResponse.code == "403"
+        mc.receivedResponse.code == "401"
     }
 
     def "Verify whitelist" () {

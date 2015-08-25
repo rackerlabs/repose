@@ -224,20 +224,20 @@ class BasicValkyrieTest extends ReposeValveTest {
 
         where:
         method   | deviceID | permission      | responseCode
-        "GET"    | "520707" | "view_product"  | "403"
-        "HEAD"   | "520707" | "view_product"  | "403"
-        "GET"    | "520707" | "admin_product" | "403"
-        "HEAD"   | "520707" | "admin_product" | "403"
-        "PUT"    | "520707" | "admin_product" | "403"
-        "POST"   | "520707" | "admin_product" | "403"
-        "PATCH"  | "520707" | "admin_product" | "403"
-        "DELETE" | "520707" | "admin_product" | "403"
-        "GET"    | "520707" | "edit_product"  | "403"
-        "HEAD"   | "520707" | "edit_product"  | "403"
-        "PUT"    | "520707" | "edit_product"  | "403"
-        "POST"   | "520707" | "edit_product"  | "403"
-        "PATCH"  | "520707" | "edit_product"  | "403"
-        "DELETE" | "520707" | "edit_product"  | "403"
+        "GET"    | "520707" | "view_product"  | "401"
+        "HEAD"   | "520707" | "view_product"  | "401"
+        "GET"    | "520707" | "admin_product" | "401"
+        "HEAD"   | "520707" | "admin_product" | "401"
+        "PUT"    | "520707" | "admin_product" | "401"
+        "POST"   | "520707" | "admin_product" | "401"
+        "PATCH"  | "520707" | "admin_product" | "401"
+        "DELETE" | "520707" | "admin_product" | "401"
+        "GET"    | "520707" | "edit_product"  | "401"
+        "HEAD"   | "520707" | "edit_product"  | "401"
+        "PUT"    | "520707" | "edit_product"  | "401"
+        "POST"   | "520707" | "edit_product"  | "401"
+        "PATCH"  | "520707" | "edit_product"  | "401"
+        "DELETE" | "520707" | "edit_product"  | "401"
     }
 
     @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
@@ -268,20 +268,20 @@ class BasicValkyrieTest extends ReposeValveTest {
 
         where:
         method   | tenantID         | deviceID | permission      | responseCode
-        "GET"    | random.nextInt() | "520707" | "view_product"  | "403"
-        "HEAD"   | random.nextInt() | "520707" | "view_product"  | "403"
-        "GET"    | random.nextInt() | "520707" | "admin_product" | "403"
-        "HEAD"   | random.nextInt() | "520707" | "admin_product" | "403"
-        "PUT"    | random.nextInt() | "520707" | "admin_product" | "403"
-        "POST"   | random.nextInt() | "520707" | "admin_product" | "403"
-        "PATCH"  | random.nextInt() | "520707" | "admin_product" | "403"
-        "DELETE" | random.nextInt() | "520707" | "admin_product" | "403"
-        "GET"    | random.nextInt() | "520707" | "edit_product"  | "403"
-        "HEAD"   | random.nextInt() | "520707" | "edit_product"  | "403"
-        "PUT"    | random.nextInt() | "520707" | "edit_product"  | "403"
-        "POST"   | random.nextInt() | "520707" | "edit_product"  | "403"
-        "PATCH"  | random.nextInt() | "520707" | "edit_product"  | "403"
-        "DELETE" | random.nextInt() | "520707" | "edit_product"  | "403"
+        "GET"    | randomTenant() | "520707" | "view_product"  | "401"
+        "HEAD"   | randomTenant() | "520707" | "view_product"  | "401"
+        "GET"    | randomTenant() | "520707" | "admin_product" | "401"
+        "HEAD"   | randomTenant() | "520707" | "admin_product" | "401"
+        "PUT"    | randomTenant() | "520707" | "admin_product" | "401"
+        "POST"   | randomTenant() | "520707" | "admin_product" | "401"
+        "PATCH"  | randomTenant() | "520707" | "admin_product" | "401"
+        "DELETE" | randomTenant() | "520707" | "admin_product" | "401"
+        "GET"    | randomTenant() | "520707" | "edit_product"  | "401"
+        "HEAD"   | randomTenant() | "520707" | "edit_product"  | "401"
+        "PUT"    | randomTenant() | "520707" | "edit_product"  | "401"
+        "POST"   | randomTenant() | "520707" | "edit_product"  | "401"
+        "PATCH"  | randomTenant() | "520707" | "edit_product"  | "401"
+        "DELETE" | randomTenant() | "520707" | "edit_product"  | "401"
     }
 
     def String randomTenant() {
