@@ -222,6 +222,57 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       lastFilterMsg should startWith("Did not attempt to send usage data on update")
     }
 
+    it("should log the message if the post to the collection service fails") {
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      phoneHomeConfig.setEnabled(true)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+
+      when(
+        mockAkkaServiceClient.post(anyString(),
+          anyString(),
+          anyMapOf(classOf[String], classOf[String]),
+          anyString(),
+          any())
+      ).thenReturn(new ServiceClientResponse(400, new ByteArrayInputStream("".getBytes)))
+
+      val phoneHomeService = new PhoneHomeService(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      val msgLogEvents = msgListAppender.getEvents
+      val filterLogEvents = filterListAppender.getEvents
+      val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
+      val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
+
+      verify(mockAkkaServiceClient).post(
+        anyString(),
+        anyString(),
+        anyMapOf(classOf[String], classOf[String]),
+        anyString(),
+        any[MediaType]())
+      msgLogEvents.size() should be > 0
+      filterLogEvents.size() should be > 0
+      updateMsg should include("foo-service")
+      lastFilterMsg should include("Update to the collection service failed with status code")
+    }
+
     it("should send a tracing header to the data collection point if configured to") {
       val collectionUri = "http://phonehome.openrepose.org"
 
