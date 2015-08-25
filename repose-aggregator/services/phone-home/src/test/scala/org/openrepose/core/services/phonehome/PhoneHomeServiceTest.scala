@@ -22,9 +22,12 @@ package org.openrepose.core.services.phonehome
 import java.io.ByteArrayInputStream
 import javax.ws.rs.core.MediaType
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.hamcrest.{Matcher, Matchers => HMatchers}
 import org.mockito.Matchers.{eq => mockitoEq, _}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.config.ConfigurationService
@@ -35,6 +38,10 @@ import org.scalatest.{FunSpec, Matchers}
 import play.api.libs.json.{JsNull, Json}
 
 class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
+
+  val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+  val filterListAppender = ctx.getConfiguration.getAppender("filterList").asInstanceOf[ListAppender]
+  val msgListAppender = ctx.getConfiguration.getAppender("messageList").asInstanceOf[ListAppender]
 
   describe("init") {
     it("should register a system model configuration listener") {
@@ -144,9 +151,76 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
-    it("should log the message if the phone-home element is not present")(pending)
+    it("should log the message if the phone-home element is not present") {
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
 
-    it("should log the message if the phone-home element enabled attribute is false")(pending)
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      systemModel.getReposeCluster.add(reposeCluster)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+
+      val phoneHomeService = new PhoneHomeService(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      val msgLogEvents = msgListAppender.getEvents
+      val filterLogEvents = filterListAppender.getEvents
+      val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
+      val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
+
+      verifyZeroInteractions(mockAkkaServiceClient)
+      msgLogEvents.size() should be > 0
+      filterLogEvents.size() should be > 0
+      updateMsg should include("1.0.0")
+      lastFilterMsg should startWith("Did not attempt to send usage data on update")
+    }
+
+    it("should log the message if the phone-home element enabled attribute is false") {
+      val systemModel = new SystemModel()
+      val reposeCluster = new ReposeCluster()
+      val filterList = new FilterList()
+      val servicesList = new ServicesList()
+      val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+      phoneHomeConfig.setEnabled(false)
+
+      reposeCluster.setFilters(filterList)
+      reposeCluster.setServices(servicesList)
+      phoneHomeConfig.setOriginServiceId("foo-service")
+      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setPhoneHome(phoneHomeConfig)
+
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+
+      val phoneHomeService = new PhoneHomeService(
+        "1.0.0",
+        "/etc/repose/",
+        mockConfigurationService,
+        mockAkkaServiceClient)
+
+      phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
+
+      val msgLogEvents = msgListAppender.getEvents
+      val filterLogEvents = filterListAppender.getEvents
+      val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
+      val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
+
+      verifyZeroInteractions(mockAkkaServiceClient)
+      msgLogEvents.size() should be > 0
+      filterLogEvents.size() should be > 0
+      updateMsg should include("foo-service")
+      lastFilterMsg should startWith("Did not attempt to send usage data on update")
+    }
 
     it("should send a tracing header to the data collection point if configured to") {
       val collectionUri = "http://phonehome.openrepose.org"

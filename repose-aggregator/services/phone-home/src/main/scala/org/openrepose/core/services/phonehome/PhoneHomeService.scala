@@ -86,7 +86,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           buildUpdateMessage(phoneHome.getOriginServiceId, phoneHome.getContactEmail)
         )
       case Some(phoneHome) if !phoneHome.isEnabled =>
-        val updateMessage = buildUpdateMessage()
+        val updateMessage = buildUpdateMessage(phoneHome.getOriginServiceId, phoneHome.getContactEmail)
         logger.warn(buildLogMessage(
           "Did not attempt to send usage data on update -- the phone home service is not enabled",
           updateMessage,
@@ -179,9 +179,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       systemModel = configurationObject
       initialized = true
 
-      Option(configurationObject.getPhoneHome) foreach { phoneHome =>
-        if (phoneHome.isEnabled) sendUpdate()
-      }
+      sendUpdate()
     }
 
     override def isInitialized: Boolean = initialized
