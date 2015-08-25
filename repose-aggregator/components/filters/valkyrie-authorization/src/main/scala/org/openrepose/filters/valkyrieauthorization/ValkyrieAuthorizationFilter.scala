@@ -3,7 +3,7 @@ package org.openrepose.filters.valkyrieauthorization
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.regex.{PatternSyntaxException, Matcher, Pattern}
+import java.util.regex.{Matcher, PatternSyntaxException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
@@ -75,6 +75,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
     val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+    val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
 
     def getDeviceList(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
       (requestedTenantId, requestedContactId) match {
@@ -90,7 +91,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def authorizeDevice(deviceList: ValkyrieResult, deviceId: Option[String]): ResponseResult = {
       (deviceList, deviceId) match {
         case (response: ResponseResult, _) => response
-        case (devicePermissions: DeviceList, None) if !nonAuthorizedPath(mutableHttpRequest.getRequestURL.toString) => ResponseResult(401, "No device ID specified")
+        case (devicePermissions: DeviceList, None) if !nonAuthorizedPath(urlPath) => ResponseResult(401, "No device ID specified")
         case (devicePermissions: DeviceList, None) => ResponseResult(200)
         case (devicePermissions: DeviceList, Some(device)) => authorize(device, devicePermissions.devices, mutableHttpRequest.getMethod)
       }
@@ -108,7 +109,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
         try {
-          cullResponse(mutableHttpRequest.getRequestURL.toString, mutableHttpResponse, devicePermissions.asInstanceOf[DeviceList])
+          cullResponse(urlPath, mutableHttpResponse, devicePermissions.asInstanceOf[DeviceList])
         } catch {
           case rce: ResponseCullingException =>
             logger.debug("Failed to cull response, wiping out response.", rce)
@@ -132,17 +133,16 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     transformedTenant + contactId
   }
 
-  def nonAuthorizedPath(url: => String): Boolean = {
-    val path: String = new URL(url).getPath
+  def nonAuthorizedPath(urlPath: => String): Boolean = {
     lazy val onResourceList: Boolean = Option(configuration.getCollectionResources)
       .getOrElse(new CollectionResources)
       .getResource.asScala.exists { resource =>
-      resource.getPathRegex.r.findFirstIn(path).isDefined
+      resource.getPathRegex.r.pattern.matcher(urlPath).matches()
     }
     lazy val onWhitelist: Boolean = Option(configuration.getOtherWhitelistedResources)
       .getOrElse(new OtherWhitelistedResources)
       .getPathRegex.asScala.exists { pathRegex =>
-      pathRegex.r.findFirstIn(path).isDefined
+      pathRegex.r.pattern.matcher(urlPath).matches()
     }
     onResourceList || onWhitelist
   }
@@ -226,7 +226,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
 
-  def cullResponse(url: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
+  def cullResponse(urlPath: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
       val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse({
@@ -240,55 +240,63 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val matchingResources: mutable.Buffer[Resource] = Option(configuration.getCollectionResources)
-      .getOrElse(new CollectionResources)
-      .getResource.asScala.filter(_.getPathRegex.r.findFirstMatchIn(url).isDefined)
-    if (matchingResources.nonEmpty) {
+    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath): Seq[JsValue] = {
+      jsonArray.filter { value =>
+        val deviceValue: String = Try(JSONPath.query(devicePath.getPath, value).as[String])
+          .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${devicePath.getPath}", jre) } )
+          .get
+
+        try {
+          val matcher: Matcher = devicePath.getRegex.getValue.r.pattern.matcher(deviceValue)
+          if (matcher.matches()) {
+            devicePermissions.devices.filter(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt).nonEmpty
+          } else {
+            throw new ResponseCullingException(s"Regex: ${devicePath.getRegex.getValue} did not match $deviceValue")
+          }
+        } catch {
+          case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
+          case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
+        }
+      }
+    }
+
+    def updateItemCount(json: JsObject, pathToItemCount: String, newCount: Int): JsObject = {
+      Option(pathToItemCount) match {
+        case Some(path) =>
+          JSONPath.query(path, json) match {
+            case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for item count: $path")
+            case _ =>
+              val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { _ => new JsNumber(newCount) })
+              json.transform(countTransform).getOrElse {
+                throw new ResponseCullingException("Unable to transform json while updating the count.")
+              }
+          }
+        case None => json
+      }
+    }
+
+    val matchingResources: Option[mutable.Buffer[Resource]] = Option(configuration.getCollectionResources)
+      .map(_.getResource.asScala.filter(_.getPathRegex.r.pattern.matcher(urlPath).matches()))
+    if (matchingResources.isDefined && matchingResources.get.nonEmpty) {
       val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
       val initialJson: JsValue = Try(Json.parse(input))
         .recover( { case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe) } )
         .get
-      val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
+      val finalJson = matchingResources.get.foldLeft(initialJson) { (resourceJson, resource) =>
         resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
           val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
             .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) } )
             .get
-          val culledArray: Seq[JsValue] = array.filter { value =>
-            val deviceValue: String = Try(JSONPath.query(collection.getJson.getPathToDeviceId.getPath, value).as[String])
-              .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${collection.getJson.getPathToDeviceId.getPath}", jre) } )
-              .get
 
-            try {
-              val matcher: Matcher = Pattern.compile(collection.getJson.getPathToDeviceId.getRegex.getValue).matcher(deviceValue)
-              if (matcher.matches()) {
-                devicePermissions.devices.filter(_.device == matcher.group(collection.getJson.getPathToDeviceId.getRegex.getCaptureGroup).toInt).nonEmpty
-              } else {
-                throw new ResponseCullingException(s"Regex: ${collection.getJson.getPathToDeviceId.getRegex.getValue} did not match $deviceValue")
-              }
-            } catch {
-              case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
-              case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
-            }
-          }
+          val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId)
 
           //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
-          val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { meh => new JsArray(culledArray) })
+          val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { _ => new JsArray(culledArray) })
           val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
             throw new ResponseCullingException("Unable to transform json while culling list.")
           })
 
-          Option(collection.getJson.getPathToItemCount) match {
-            case Some(path) =>
-              JSONPath.query(path, transformedJson) match {
-                case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for item count: $path")
-                case _ =>
-                  val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { _ => new JsNumber(culledArray.size) })
-                  transformedJson.transform(countTransform).getOrElse({
-                    throw new ResponseCullingException("Unable to transform json while updating the count.")
-                  })
-              }
-            case None => transformedJson
-          }
+          updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
         }
       }
       response.getOutputStream.print(finalJson.toString())

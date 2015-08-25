@@ -265,6 +265,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
+        mockServletRequest.setRequestURL("http://foo.com:8080")
         Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456").foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
@@ -350,6 +351,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
+        mockServletRequest.setRequestURL("http://foo.com:8080")
         request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
 
         val mockServletResponse = new MockHttpServletResponse
@@ -399,12 +401,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
     filter.configurationUpdated(createGenericValkyrieConfiguration(null))
 
-    case class AuthorizedPathCheck(url: String, allowed: Boolean)
-    List(AuthorizedPathCheck("http://www.blah.com/foo", true),
-         AuthorizedPathCheck("http://www.blah.com/bar", true),
-         AuthorizedPathCheck("http://www.blah.com/baz", false)).foreach { path =>
-      it(s"${path.url} returns ${path.allowed}") {
-        assert(filter.nonAuthorizedPath(path.url) == path.allowed)
+    case class AuthorizedPathCheck(urlPath: String, allowed: Boolean)
+    List(AuthorizedPathCheck("/foo", true),
+         AuthorizedPathCheck("/bar", true),
+         AuthorizedPathCheck("/baz", false)).foreach { path =>
+      it(s"${path.urlPath} returns ${path.allowed}") {
+        assert(filter.nonAuthorizedPath(path.urlPath) == path.allowed)
       }
     }
   }
