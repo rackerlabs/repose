@@ -38,6 +38,7 @@ import org.rackspace.deproxy.MessageChain
 class PhoneHomeServiceTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
+    def static phonehomeEndpoint
     def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
@@ -55,6 +56,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        phonehomeEndpoint = deproxy.addEndpoint(properties.phonehomePort, 'phone home service')
         //fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         //identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         //fakeIdentityService.checkTokenValid = true

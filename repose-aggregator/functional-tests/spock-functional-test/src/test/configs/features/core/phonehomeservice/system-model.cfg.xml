@@ -18,6 +18,7 @@
     </repose-cluster>
     <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
     <phone-home enabled="true"
+                collection-uri="http://localhost:${phonehomePort}"
                 origin-service-id="repose-test-service"
                 contact-email="repose.core@rackspace.com"/>
 </system-model>
