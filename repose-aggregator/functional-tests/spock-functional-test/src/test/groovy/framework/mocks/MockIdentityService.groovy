@@ -901,6 +901,7 @@ class MockIdentityService {
             """<?xml version="1.0" encoding="UTF-8"?>
 <access
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
     xmlns="http://docs.openstack.org/identity/api/v2.0">
     <token id="\${token}"
         expires="\${expires}">
@@ -914,12 +915,12 @@ class MockIdentityService {
             <role id="234" name="object-store:admin" />
         </roles>
     </user>
-    <RAX-AUTH:impersonator id="\${impersonateid}" username="\${impersonatename}">
+    <rax-auth:impersonator id="\${impersonateid}" name="\${impersonatename}">
         <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
             <role id="123" name="Racker" />
             <role id="234" name="object-store:admin" />
         </roles>
-    </RAX-AUTH:impersonator>
+    </rax-auth:impersonator>
 </access>
 """
     // TODO: Replace this with builder

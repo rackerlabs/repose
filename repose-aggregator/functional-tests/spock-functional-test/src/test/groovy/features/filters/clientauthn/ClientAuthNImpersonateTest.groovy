@@ -78,10 +78,10 @@ class ClientAuthNImpersonateTest extends ReposeValveTest {
         mc.handlings[0].request.headers.contains("X-Impersonator-Id")
         mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Name") == fakeIdentityService.impersonate_name
         mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityService.impersonate_id
-        mc.handlings[0].request.headers.contains("x-impersonate-roles")
+        mc.handlings[0].request.headers.contains("x-impersonator-roles")
         // should check if take roles id or role name???
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-roles").contains("racker")
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-roles").contains("object-store:admin")
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("Racker")
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
     }
 }
 
