@@ -82,7 +82,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         println(file)
         println(reposeLogSearch.printLog())
 
-        then: "simply pass it on down the filter chain"
+        then: "request will pass with simple config"
         mc.receivedResponse.code == "200"
     }
 
@@ -95,7 +95,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
-        then: "simply pass it on down the filter chain"
+        then: "request will pass with config"
         mc.receivedResponse.code == "200"
 
     }
