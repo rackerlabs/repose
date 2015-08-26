@@ -43,6 +43,9 @@ class PhoneHomeServiceTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         reposeLogSearch.cleanLog()
+        // repose start up with no filter
+        def logpath = logFile.substring(0, logFile.indexOf("logs"))
+        reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
@@ -70,9 +73,12 @@ class PhoneHomeServiceTest extends ReposeValveTest {
     def "Verify Phone home service when start repose without any filter"() {
         given:
         // repose start up with no filter
+        def file = reposeLogSearch.getLogFileLocation()
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
+        println(file)
+        println(reposeLogSearch.printLog())
 
         then: "simply pass it on down the filter chain"
         mc.receivedResponse.code == "200"
