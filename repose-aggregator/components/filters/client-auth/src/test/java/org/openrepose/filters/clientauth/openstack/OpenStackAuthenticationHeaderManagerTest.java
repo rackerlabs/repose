@@ -196,6 +196,50 @@ public class OpenStackAuthenticationHeaderManagerTest {
         }
 
         @Test
+        public void shouldConstructivelyAddRolesHeader() {
+            HashSet<String> incValues = new HashSet<>();
+            incValues.add("a");
+            incValues.add("b");
+
+            filterDirector.requestHeaderManager().headersToAdd().put(HeaderName.wrap(OpenStackServiceHeader.ROLES.toString()), incValues);
+
+            Role cRole = new Role();
+            cRole.setName("c");
+            Role dRole = new Role();
+            dRole.setName("d");
+
+            RoleList roles = new RoleList();
+            roles.getRole().add(cRole);
+            roles.getRole().add(dRole);
+
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setRoles(roles);
+
+            Token token = new Token();
+            token.setId("testTknId");
+            token.setExpires(new XMLGregorianCalendarImpl());
+
+            AuthenticateResponse resp = new AuthenticateResponse();
+            resp.setUser(user);
+            resp.setToken(token);
+
+            AuthToken aToken = new OpenStackToken(resp);
+
+            OpenStackAuthenticationHeaderManager headerManager =
+                    new OpenStackAuthenticationHeaderManager(null, aToken, true, 0.7, "test", filterDirector, tenantId,
+                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
+            headerManager.setFilterDirectorValues();
+
+            HashSet<String> expectedValues = new HashSet<>();
+            expectedValues.add("a");
+            expectedValues.add("b");
+            expectedValues.add("c,d");
+
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.ROLES.toString())));
+            assertTrue(filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap(OpenStackServiceHeader.ROLES.toString())).containsAll(expectedValues));
+        }
+
+        @Test
         public void shouldAddImpersonatorRolesHeader() {
             UserForAuthenticateResponse user = new UserForAuthenticateResponse();
             user.setRoles(new RoleList());
