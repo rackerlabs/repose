@@ -108,6 +108,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
         val impersonatorName = (json \ "access" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
+        val impersonatorRoles = (json \ "access" \ "RAX-AUTH:impersonator" \ "roles" \\ "name").map(_.as[String]).toVector
         val validToken = ValidToken(expirationDate,
           userId,
           roleNames,
@@ -117,6 +118,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           tenantIds,
           impersonatorId,
           impersonatorName,
+          impersonatorRoles,
           defaultRegion,
           contactId)
 
@@ -261,6 +263,7 @@ object KeystoneRequestHandler {
                         tenantIds: Seq[String],
                         impersonatorId: Option[String],
                         impersonatorName: Option[String],
+                        impersonatorRoles: Seq[String],
                         defaultRegion: Option[String],
                         contactId: Option[String])
 
