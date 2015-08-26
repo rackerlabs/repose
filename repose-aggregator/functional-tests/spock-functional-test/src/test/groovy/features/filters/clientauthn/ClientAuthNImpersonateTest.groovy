@@ -58,6 +58,10 @@ class ClientAuthNImpersonateTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup() {
+        fakeIdentityService.resetDefaultParameters()
+    }
+
     def "Validates impersonate and x-impersonate-role from headers"() {
 
         fakeIdentityService.with {
@@ -83,5 +87,24 @@ class ClientAuthNImpersonateTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("Racker")
         mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
     }
+
+    def "If no impersonator then no impersonator headers"() {
+        given: "keystone v2v2 with impersonate access"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "should have x-impersonate-roles in headers from request come through repose"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        !mc.handlings[0].request.headers.contains("x-impersonator-id")
+        !mc.handlings[0].request.headers.contains("x-impersonator-name")
+        !mc.handlings[0].request.headers.contains("x-impersonator-roles")
+    }
+
 }
 
