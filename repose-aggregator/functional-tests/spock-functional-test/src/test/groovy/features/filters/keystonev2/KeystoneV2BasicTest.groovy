@@ -129,7 +129,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         path << ["/buildinfo", "/get"]
     }
 
-    def "Verify Repose send Impersonate role in header" () {
+    def "Verify Repose send Impersonate role in header"() {
         given: "keystone v2v2 with impersonate access"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -146,9 +146,9 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Name") == fakeIdentityV2Service.impersonate_name
         mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityV2Service.impersonate_id
-        mc.handlings[0].request.headers.contains("x-impersonate-roles")
+        mc.handlings[0].request.headers.contains("x-impersonator-roles")
         // should check if take roles id or role name???
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-roles").contains("racker")
-        mc.handlings[0].request.headers.getFirstValue("x-impersonate-roles").contains("object-store:admin")
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("Racker")
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
     }
 }
