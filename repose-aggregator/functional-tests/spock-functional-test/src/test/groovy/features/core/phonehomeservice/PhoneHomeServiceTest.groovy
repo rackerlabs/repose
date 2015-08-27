@@ -90,11 +90,12 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params, sleep(5000));
+        def file = reposeLogSearch.getLogFileLocation()
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "request will pass with config"
-        println(reposeLogSearch.printLog())
+        reposeLogSearch.printLog() != null
     }
 }
