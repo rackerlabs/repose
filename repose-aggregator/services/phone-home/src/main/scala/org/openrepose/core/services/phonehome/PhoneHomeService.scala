@@ -30,7 +30,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.{FilterList, ServicesList, SystemModel}
+import org.openrepose.core.systemmodel.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import play.api.libs.json.Json.JsValueWrapper
@@ -58,6 +58,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
   extends LazyLogging {
 
   private final val msgLogger = LoggerFactory.getLogger("phone-home-message")
+  private final val defaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
 
   private var systemModel: SystemModel = _
 
@@ -97,7 +98,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         logger.warn(buildLogMessage(
           "Did not attempt to send usage data on update -- the phone home service is not enabled",
           updateMessage,
-          "<phone-home-collection-uri>"
+          defaultCollectionUri
         ))
         msgLogger.info(updateMessage)
     }
