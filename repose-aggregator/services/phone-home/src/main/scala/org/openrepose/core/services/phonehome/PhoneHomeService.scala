@@ -92,7 +92,6 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           updateMessage,
           phoneHome.getCollectionUri
         ))
-        msgLogger.info(updateMessage)
       case _ =>
         val updateMessage = buildUpdateMessage()
         logger.warn(buildLogMessage(
@@ -100,7 +99,6 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           updateMessage,
           defaultCollectionUri
         ))
-        msgLogger.info(updateMessage)
     }
 
     def buildLogMessage(reason: String, updateMessage: String, collectionUri: String): String = {
@@ -125,7 +123,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         }
       }
 
-      Json.stringify(Json.obj(
+      val updateMessage = Json.stringify(Json.obj(
         "serviceId" -> originServiceId,
         "contactEmail" -> contactEmail,
         "reposeVersion" -> reposeVer,
@@ -136,6 +134,10 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           )
         )
       ))
+
+      msgLogger.info(updateMessage)
+
+      updateMessage
     }
 
     def sendUpdateMessage(collectionUri: String, message: String): Unit = {
@@ -163,8 +165,6 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
             message,
             collectionUri
           ))
-
-          msgLogger.info(message)
         }
       } catch {
         case e: Exception => logger.error("Could not send an update to the collection service", e)
