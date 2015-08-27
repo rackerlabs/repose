@@ -36,8 +36,7 @@ import scala.util.{Failure, Success}
  * This filter is header quality aware; the delegation header with the highest quality will be used to formulate a
  * response.
  */
-class
-DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
+class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("DeRP filter initialized")
