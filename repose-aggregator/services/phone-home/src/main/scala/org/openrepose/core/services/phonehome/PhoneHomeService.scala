@@ -53,7 +53,6 @@ import scala.collection.JavaConverters._
  */
 @Named
 class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVer: String,
-                                 @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) confDir: String,
                                  configurationService: ConfigurationService,
                                  akkaServiceClient: AkkaServiceClient)
   extends LazyLogging {
