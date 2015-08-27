@@ -114,7 +114,7 @@ public class ValidatorConfigurator {
         return config;
     }
 
-    private DispatchHandler getHandlers(ValidatorItem validatorItem, boolean isDelegating, double delegationQuality,
+    private DispatchResultHandler getHandlers(ValidatorItem validatorItem, boolean isDelegating, double delegationQuality,
                                         boolean multiRoleMatch, String configRoot) {
 
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
@@ -144,7 +144,7 @@ public class ValidatorConfigurator {
                 LOG.warn("Cannot write to DOT file: " + dotPath, ex);
             }
         }
-        return new DispatchHandler(handlers.toArray(new ResultHandler[handlers.size()]));
+        return new DispatchResultHandler(scala.collection.JavaConversions.asScalaBuffer(handlers).toList());
     }
 
     private String getPath(String path, String configRoot) {

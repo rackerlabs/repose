@@ -21,6 +21,7 @@ package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.handler.DispatchResultHandler;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import org.junit.Before;
@@ -46,10 +47,10 @@ public class ValidatorInfoTest {
         private ValidatorInfo instance;
         private ValidatorInfo instance2;
 
-        private DispatchHandler getHandlers() {
+        private DispatchResultHandler getHandlers() {
             List<ResultHandler> handlers = new ArrayList<ResultHandler>();
             handlers.add(new ServletResultHandler());
-            return new DispatchHandler(handlers.toArray(new ResultHandler[0]));
+            return new DispatchResultHandler(scala.collection.JavaConversions.asScalaBuffer(handlers).toList());
         }
 
         @Before
