@@ -18,12 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.phonehomeservice
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-
+import org.rackspace.deproxy.Response
 /**
  * Created by jennyvo on 8/25/15.
  *  As Repose Product, I want better insight into how people are using Repose,
@@ -44,9 +43,6 @@ class PhoneHomeServiceTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         reposeLogSearch.cleanLog()
-        // repose start up with no filter
-        def logpath = logFile.substring(0, logFile.indexOf("logs"))
-        reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
@@ -72,19 +68,16 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         }
     }
 
-    def "Verify Phone home service when start repose without any filter"() {
+    def "Verify Phone home service when start repose"() {
         given:
         // repose start up with no filter
-        def file = reposeLogSearch.getLogFileLocation()
-
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
-        println(file)
-        println(reposeLogSearch.printLog())
 
         then: "request will pass with simple config"
-        reposeLogSearch.printLog() != null
+        mc.receivedResponse.code == "200"
+        reposeLogSearch.searchByString("Registering system model listener")
     }
 
     def "Start Repose with some filters"() {
@@ -92,7 +85,12 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params, sleep(5000));
-        def file = reposeLogSearch.getLogFileLocation()
+        def logpath = logFile.substring(0, logFile.indexOf("logs"))
+        reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
+        //def file = reposeLogSearch.getLogFileLocation()
+
+        def headers = ['content-lenght': 0]
+        phonehomeEndpoint.defaultHandler = {return new Response(400, null, headers)}
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
