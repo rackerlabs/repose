@@ -20,10 +20,7 @@
 package org.openrepose.filters.apivalidator
 
 import com.rackspace.com.papi.components.checker.Config
-import com.rackspace.com.papi.components.checker.handler.ApiCoverageHandler
-import com.rackspace.com.papi.components.checker.handler.DelegationHandler
-import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
-import com.rackspace.com.papi.components.checker.handler.MethodLabelHandler
+import com.rackspace.com.papi.components.checker.handler.*
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
@@ -74,9 +71,10 @@ class ValidatorConfiguratorTest {
         ValidatorItem vItem = new ValidatorItem()
         vItem.setEnableApiCoverage(true)
 
-        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
-        assert handlers.handlers[0] instanceof InstrumentedHandler
-        assert handlers.handlers[1] instanceof ApiCoverageHandler
+        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
+        def internalHandlers = scala.collection.JavaConversions.asJavaList(handlers.handlers)
+        assert internalHandlers.get(0) instanceof InstrumentedHandler
+        assert internalHandlers.get(1) instanceof ApiCoverageHandler
     }
 
     @Test
@@ -84,9 +82,10 @@ class ValidatorConfiguratorTest {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
 
-        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
-        assert handlers.handlers[0] instanceof MethodLabelHandler
-        assert handlers.handlers[1] instanceof DelegationHandler
+        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
+        def internalHandlers = scala.collection.JavaConversions.asJavaList(handlers.handlers)
+        assert internalHandlers.get(0) instanceof MethodLabelHandler
+        assert internalHandlers.get(1) instanceof DelegationHandler
     }
 
     @Test
