@@ -49,7 +49,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -92,7 +91,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -137,7 +135,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -166,7 +163,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -204,7 +200,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -250,7 +245,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -305,7 +299,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -351,7 +344,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
@@ -411,7 +403,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
-        "/etc/repose/",
         mockConfigurationService,
         mockAkkaServiceClient)
 
