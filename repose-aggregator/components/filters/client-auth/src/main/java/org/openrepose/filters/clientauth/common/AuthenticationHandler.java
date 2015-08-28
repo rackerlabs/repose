@@ -108,7 +108,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                                                     double delegableQuality, String delegationMessage,
                                                     FilterDirector filterDirector, String extractedResult,
                                                     List<AuthGroup> groups, String endpointsBase64, String contactId,
-                                                    boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality);
+                                                    boolean sendAllTenantIds, boolean sendTenantIdQuality);
 
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
@@ -200,7 +200,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
 
         setFilterDirectorValues(authToken, token, delegable, delegableQuality, delegationMessage.get(), filterDirector,
-                account == null ? "" : account.getResult(), groups, endpointsInBase64, contactId, tenanted, sendAllTenantIds,
+                account == null ? null : account.getResult(), groups, endpointsInBase64, contactId, sendAllTenantIds,
                 sendTenantIdQuality);
 
         delegationMessage.remove();

@@ -51,10 +51,11 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
         endpointsBase64 = "endpointsBase64";
         authToken = Mock()
         authToken.getImpersonatorRoles() >> new HashSet<String>()
+        authToken.getTenantIds() >> new HashSet<String>()
         authToken.getTokenId() >> "tokenId"
         openStackAuthenticationHeaderManager =
                 new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "some message", filterDirector,
-                        tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
+                        tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null, false, false);
 
         when:
         openStackAuthenticationHeaderManager.setFilterDirectorValues()

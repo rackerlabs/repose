@@ -54,6 +54,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String defaultRegion;
     private final Set<String> tenantIds;
     private final String contactId;
+    private String matchingTenantId;
 
     public OpenStackToken(AuthenticateResponse response) {
 
@@ -118,6 +119,11 @@ public class OpenStackToken extends AuthToken implements Serializable {
         }
     }
 
+    @Override
+    public void setMatchingTenantId(String tenantId) {
+        this.matchingTenantId = tenantId;
+    }
+
     private String getDefaultRegion(AuthenticateResponse response) {
         return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(REGION_QNAME), "");
     }
@@ -125,6 +131,11 @@ public class OpenStackToken extends AuthToken implements Serializable {
     @Override
     public String getTenantId() {
         return tenantId;
+    }
+
+    @Override
+    public String getMatchingTenantId() {
+        return matchingTenantId;
     }
 
     @Override

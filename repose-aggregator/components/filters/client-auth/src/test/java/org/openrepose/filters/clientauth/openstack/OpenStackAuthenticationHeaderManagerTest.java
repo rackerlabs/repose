@@ -76,7 +76,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
-                            true, false, false);
+                            false, false);
 
         }
 
@@ -156,7 +156,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, null,
-                            true, false, false);
+                            false, false);
             openStackAuthenticationHeaderManager.setFilterDirectorValues();
 
         }
@@ -189,7 +189,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         public void shouldAddDelegationHeader() {
             OpenStackAuthenticationHeaderManager headerManager =
                     new OpenStackAuthenticationHeaderManager(null, null, true, 0.7, "test", filterDirector, tenantId,
-                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
+                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, false, false);
             headerManager.setFilterDirectorValues();
 
             assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(HttpDelegationHeaderNames.Delegated())));
@@ -266,7 +266,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
 
             OpenStackAuthenticationHeaderManager headerManager =
                     new OpenStackAuthenticationHeaderManager(null, aToken, true, 0.7, "test", filterDirector, tenantId,
-                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, true, false, false);
+                            authGroupList, wwwAuthHeaderContents, endpointsBase64, null, false, false);
             headerManager.setFilterDirectorValues();
 
             assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString())));
@@ -277,7 +277,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
             OpenStackAuthenticationHeaderManager headerManager =
                     new OpenStackAuthenticationHeaderManager(null, authToken, true, 0.7, "test",
                             filterDirector, tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, "butts",
-                            true, false, false);
+                            false, false);
             headerManager.setFilterDirectorValues();
 
 

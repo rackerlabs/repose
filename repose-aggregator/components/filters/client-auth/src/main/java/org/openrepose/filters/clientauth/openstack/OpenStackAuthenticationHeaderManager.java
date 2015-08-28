@@ -48,7 +48,6 @@ public class OpenStackAuthenticationHeaderManager {
     private final Boolean isDelagable;
     private final double delegableQuality;
     private final String delegationMessage;
-    private final Boolean isTenanted;
     private final FilterDirector filterDirector;
     private final String tenantId;
     private final Boolean validToken;
@@ -64,7 +63,7 @@ public class OpenStackAuthenticationHeaderManager {
                                                 double delegableQuality, String delegationMessage,
                                                 FilterDirector filterDirector, String tenantId, List<AuthGroup> groups,
                                                 String wwwAuthHeaderContents, String endpointsBase64, String contactId,
-                                                boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+                                                boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -77,7 +76,6 @@ public class OpenStackAuthenticationHeaderManager {
         this.wwwAuthHeaderContents = wwwAuthHeaderContents;
         this.endpointsBase64 = endpointsBase64;
         this.contactId = contactId;
-        this.isTenanted = tenanted;
         this.sendAllTenantIds = sendAllTenantIds;
         this.sendTenantIdQuality = sendTenantIdQuality;
     }
@@ -182,32 +180,40 @@ public class OpenStackAuthenticationHeaderManager {
     private void setTenant() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
 
+        // IMPORTANT: http://goo.gl/aDKbST
         if (sendAllTenantIds && sendTenantIdQuality) {
-            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
+            if (cachableToken.getTenantId() != null) {
+                filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
+            }
             for (String id : cachableToken.getTenantIds()) {
-                if (!id.equals(cachableToken.getTenantId())) {
+                if (!StringUtilities.nullSafeEquals(id, cachableToken.getTenantId())) {
                     filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id, 0.5);
                 }
             }
         } else if (sendAllTenantIds && !sendTenantIdQuality) {
-            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            if (cachableToken.getTenantId() != null) {
+                filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+            }
             for (String id : cachableToken.getTenantIds()) {
-                if (!id.equals(cachableToken.getTenantId())) {
+                if (!StringUtilities.nullSafeEquals(id, cachableToken.getTenantId())) {
                     filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.TENANT_ID.toString(), id);
                 }
             }
         } else if (!sendAllTenantIds && sendTenantIdQuality) {
-            if (!this.isDelagable && !this.isTenanted) {
-                //TODO: Should this, or any other, instance of putHeader be changed to appendHeader?
+            if (cachableToken.getMatchingTenantId() != null) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getMatchingTenantId(), 1.0);
+            } else if (cachableToken.getTenantId() != null) {
                 filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
-            } else {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId, 1.0);
+            } else if (!cachableToken.getTenantIds().isEmpty()) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantIds().iterator().next(), 1.0);
             }
         } else {
-            if (!this.isDelagable && !this.isTenanted) {
+            if (cachableToken.getMatchingTenantId() != null) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getMatchingTenantId());
+            } else if (cachableToken.getTenantId() != null) {
                 filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
-            } else {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId);
+            } else if (!cachableToken.getTenantIds().isEmpty()) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantIds().iterator().next());
             }
         }
     }
