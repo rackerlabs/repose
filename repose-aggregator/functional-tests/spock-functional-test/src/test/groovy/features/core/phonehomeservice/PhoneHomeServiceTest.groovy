@@ -21,6 +21,7 @@ package features.core.phonehomeservice
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -46,10 +47,16 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         deproxy = new Deproxy()
         reposeLogSearch.cleanLog()
 
+        // empty phone-home.log
+        def logpath = logFile.substring(0, logFile.indexOf("logs"))
+        reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
+        reposeLogSearch.cleanLog()
+
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
-        repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
+        repose.configurationProvider.applyConfigs("features/core/phonehomeservice/common", params);
+        repose.configurationProvider.applyConfigs("features/core/phonehomeservice/nofilter", params);
 
         originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
         phonehomeEndpoint = deproxy.addEndpoint(params.phonehomePort, 'phone home service')
@@ -74,31 +81,53 @@ class PhoneHomeServiceTest extends ReposeValveTest {
     def "Verify Phone home service when start repose"() {
         given:
         // repose start up with no filter
+        def logpath = logFile.substring(0, logFile.indexOf("logs"))
+        reposeLogSearch.setLogFileLocation(logpath + "logs/repose.log")
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "request will pass with simple config"
         mc.receivedResponse.code == "200"
-        reposeLogSearch.searchByString("Registering system model listener")
+        reposeLogSearch.searchByString("PhoneHomeService - Registering system model listener")
+        reposeLogSearch.searchByString("PhoneHomeService - Sending usage data update to data collection service")
     }
 
-    def "Start Repose with some filters"() {
-        given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
-        repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params, sleep(5000));
+    def "Start Repose with some filters verify phone home service log"() {
+        setup: "repose is config with Phone Home Service log"
         def logpath = logFile.substring(0, logFile.indexOf("logs"))
         reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
-        //def file = reposeLogSearch.getLogFileLocation()
+
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("features/core/phonehomeservice/common", params);
+        repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params);
+        repose.start()
 
         def headers = ['content-lenght': 0]
         phonehomeEndpoint.defaultHandler = { return new Response(400, "", headers) }
 
-        when: "send request"
+        when: "repose update system moder"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
+        def log = reposeLogSearch.searchByString("serviceId")
+        def line = getLog(log, "repose-test-service2")
 
-        then: "request will pass with config"
-        reposeLogSearch.printLog() != null
+        then: "log will contains these info"
+        reposeLogSearch.searchByString("serviceId").size() != 0
+        line != null
+        line.contactEmail == "repose.core@rackspace.com"
+        line.reposeVersion == "7.1.4.1-SNAPSHOT"
+        line.clusters[0].filters[0] == "rate-limiting"
+        line.clusters[0].services[0] == "dist-datastore"
+    }
+
+    def getLog(def log, String serviceid) {
+        def slurper = new JsonSlurper()
+        def logline = null
+        for (int i = 0; i < log.size(); i++) {
+            def jsonlog = slurper.parseText(log.get(i))
+            if (jsonlog.serviceId == serviceid)
+                logline = jsonlog
+        }
+        return logline
     }
 }

@@ -11,7 +11,7 @@
         </RollingFile>
         <File name="PhoneHomeMessages" fileName="${repose.home}/logs/phone-home.log" append="true">
             <PatternLayout>
-                <Pattern>%m</Pattern>
+                <Pattern>%m%n</Pattern>
             </PatternLayout>
         </File>
     </Appenders>
