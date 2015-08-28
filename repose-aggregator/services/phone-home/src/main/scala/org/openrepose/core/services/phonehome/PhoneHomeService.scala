@@ -34,7 +34,7 @@ import org.openrepose.core.systemmodel.{FilterList, PhoneHomeServiceConfig, Serv
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.{JsNull, Json, Writes}
+import play.api.libs.json.{JsNull, JsValue, Json, Writes}
 
 import scala.collection.JavaConverters._
 
@@ -112,14 +112,18 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       logger.trace("buildUpdateMessage method called")
 
       implicit val filtersWrites = new Writes[FilterList] {
-        override def writes(filterList: FilterList) = {
-          Json.toJson(filterList.getFilter.asScala.map(filter => filter.getName))
+        override def writes(filterList: FilterList): JsValue = {
+          Option(filterList) map { fltrList =>
+            Json.toJson(fltrList.getFilter.asScala.map(filter => filter.getName))
+          } getOrElse JsNull
         }
       }
 
       implicit val servicesWrites = new Writes[ServicesList] {
-        override def writes(servicesList: ServicesList) = {
-          Json.toJson(servicesList.getService.asScala.map(service => service.getName))
+        override def writes(servicesList: ServicesList): JsValue = {
+          Option(servicesList) map { svcList =>
+            Json.toJson(svcList.getService.asScala.map(service => service.getName))
+          } getOrElse JsNull
         }
       }
 
