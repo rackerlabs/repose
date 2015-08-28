@@ -430,6 +430,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
       token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString, _))
 
+      // Construct and add impersonator roles, if available
+      val impersonatorRoles = token.impersonatorRoles
+      if (impersonatorRoles.nonEmpty) {
+        request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString, impersonatorRoles.mkString(","))
+      }
+
       // Construct and add the tenant id header
       val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, tenantFromUri)
       if (tenantsToPass.nonEmpty) {

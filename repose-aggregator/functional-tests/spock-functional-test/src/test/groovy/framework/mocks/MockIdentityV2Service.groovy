@@ -476,7 +476,6 @@ class MockIdentityV2Service {
                         tenantid     : client_tenantid,
                         tenantname   : client_tenantname,
                         tenantidtwo  : client_tenantid2,
-                        //tenantnametwo: client_tenantname2,
                         token        : client_token,
                         serviceadmin : service_admin_role,
                         contactIdXml : contactIdXml,
@@ -583,7 +582,6 @@ class MockIdentityV2Service {
                 tenantid       : passedtenant,
                 tenantname     : client_tenantname,
                 tenantidtwo    : client_tenantid2,
-                //tenantnametwo  : client_tenantname2,
                 token          : request_token,
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
@@ -1036,8 +1034,9 @@ class MockIdentityV2Service {
                     "name":"compute:admin"
                 },
                 {
+                    "tenantId" : "23456",
                     "id":"234",
-                    "name":"object-store:admin",
+                    "name":"object-store:admin"
                 },
                 {
                     "id":"345",
@@ -1054,7 +1053,7 @@ class MockIdentityV2Service {
                      },
                      {
                         "id":"234",
-                        "name":"object-store:admin",
+                        "name":"object-store:admin"
                      }
            ]
        }
@@ -1062,6 +1061,49 @@ class MockIdentityV2Service {
 }
 """
 
+    def successfulImpersonateJsonRespTemplate =
+            """{
+    "access": {
+        "token": {
+            "id": "\${token}",
+            "expires": "\${expires}",
+            "tenant": {
+                "id": "\${tenantid}",
+                "name": "\${tenantname}"
+            },
+            "RAX-AUTH:authenticatedBy": [
+                "PASSWORD"
+            ]
+        },
+        "RAX-AUTH:impersonator": {
+            "id": "\${userid}",
+            "roles": [
+                {
+                    "id": "ROLEID",
+                    "serviceId": "ROLESERVICEID",
+                    "description": "DESC.",
+                    "name": "ROLENAME"
+                }
+            ],
+            "name": "\${username}"
+        },
+        "user": {
+                    "serviceId": "SERVICEID",
+                    "description": "SERVICEDESC",
+            "id": "\${impersonateid}",
+            "roles": [
+                {
+                    "id": "ROLEID",
+                    "name": "SERVICENAME"
+                },
+                ...
+            ],
+            "name": "\${impersonatename}",
+            "RAX-AUTH:defaultRegion": "REGION"
+        }
+    }
+}
+"""
     // Failure Response for validate token in json
     def identityFailureJsonTemplate =
             """{

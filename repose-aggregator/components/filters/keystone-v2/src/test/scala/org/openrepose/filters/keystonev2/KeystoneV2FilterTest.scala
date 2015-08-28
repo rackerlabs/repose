@@ -1744,7 +1744,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
     }
 
-    it("forwards the user's impersonator information in the x-impersonator-id and x-impersonator-name headers") {
+    it("forwards the user's impersonator information in the x-impersonator-id, x-impersonator-name, and x-impersonator roles headers") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1765,6 +1765,8 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString) shouldBe "567"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("Racker")
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("object-store:admin")
     }
 
     it("forwards the user's default region information in the x-default-region header") {
@@ -2002,6 +2004,7 @@ with HttpDelegationManager {
               tenantIds: Seq[String] = Seq.empty[String],
               impersonatorId: Option[String] = None,
               impersonatorName: Option[String] = None,
+              impersonatorRoles: Seq[String] = Seq.empty[String],
               defaultRegion: Option[String] = None,
               contactId: Option[String] = None) = {
       ValidToken(expirationDate,
@@ -2013,6 +2016,7 @@ with HttpDelegationManager {
         tenantIds,
         impersonatorId,
         impersonatorName,
+        impersonatorRoles,
         defaultRegion,
         contactId)
     }

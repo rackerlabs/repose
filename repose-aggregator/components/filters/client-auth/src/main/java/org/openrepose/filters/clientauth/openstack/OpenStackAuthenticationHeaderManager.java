@@ -165,6 +165,15 @@ public class OpenStackAuthenticationHeaderManager {
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString(), cachableToken.getImpersonatorUsername());
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString(), cachableToken.getImpersonatorTenantId());
         }
+
+        if (!cachableToken.getImpersonatorRoles().isEmpty()) {
+            StringBuilder roles = new StringBuilder();
+            for (String role : cachableToken.getImpersonatorRoles()) {
+                roles.append(role);
+                roles.append(',');
+            }
+            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString(), roles.substring(0, roles.length() - 1));
+        }
     }
 
     /**

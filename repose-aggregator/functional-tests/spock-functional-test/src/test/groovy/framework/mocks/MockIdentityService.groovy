@@ -143,6 +143,8 @@ class MockIdentityService {
     def admin_userid = 67890;
     def sleeptime = 0;
     def contact_id = "${random.nextInt()}"
+    def impersonate_id = ""
+    def impersonate_name = ""
     def contactIdJson = ""
     def contactIdXml = ""
     def additionalRolesXml = ""
@@ -169,6 +171,8 @@ class MockIdentityService {
         contactIdXml = ""
         additionalRolesXml = ""
         additionalRolesJson = ""
+        impersonate_id = ""
+        impersonate_name = ""
     }
 
     def templateEngine = new SimpleTemplateEngine();
@@ -360,7 +364,9 @@ class MockIdentityService {
                 token        : request_token,
                 serviceadmin : service_admin_role,
                 contactIdXml : contactIdXml,
-                contactIdJson: contactIdJson
+                contactIdJson: contactIdJson,
+                impersonateid: impersonate_id,
+                impersonatename: impersonate_name
         ];
         if (contact_id != null && !contact_id.isEmpty()) {
             params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
@@ -384,11 +390,17 @@ class MockIdentityService {
                     template = rackerTokenXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
+                } else if (impersonate_id != ""){
+                    template = impersonateSuccessfulXmlRespTemplate
                 } else {
                     template = identitySuccessXmlTemplate
                 }
             } else {
-                template = identitySuccessJsonTemplate
+                if (impersonate_id != ""){
+                    template = impersonateSuccessfulJsonRespTemplate
+                } else {
+                    template = identitySuccessJsonTemplate
+                }
             }
         } else {
             code = 404
@@ -838,6 +850,79 @@ class MockIdentityService {
 </access>
 """
 
+    def impersonateSuccessfulJsonRespTemplate =
+            """{
+    "access":{
+        "token":{
+            "id":"\${token}",
+            "expires":"\${expires}",
+            "tenant":{
+                "id": "\${tenant}",
+                "name": "\${tenant}"
+            }
+        },
+        "user":{
+            "RAX-AUTH:defaultRegion": "DFW",
+            \${contactIdJson}
+            "id":"\${userid}",
+            "name":"\${username}",
+            "roles":[{
+                    "id":"123",
+                    "name":"compute:admin"
+                },
+                {
+                    "tenantId" : "23456",
+                    "id":"234",
+                    "name":"object-store:admin"
+                },
+                {
+                    "id":"345",
+                    "name":"\${serviceadmin}"
+                }
+            ]
+        },
+        "RAX-AUTH:impersonator":{
+            "id":"\${impersonateid}",
+            "name":"\${impersonatename}",
+            "roles":[{
+                       "id":"123",
+                       "name":"Racker"
+                     },
+                     {
+                        "id":"234",
+                        "name":"object-store:admin"
+                     }
+           ]
+       }
+    }
+}
+"""
+    def impersonateSuccessfulXmlRespTemplate =
+            """<?xml version="1.0" encoding="UTF-8"?>
+<access
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+    xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <token id="\${token}"
+        expires="\${expires}">
+        <tenant id="\${tenant}" name="\${tenant}" />
+    </token>
+    <user
+        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+        id="\${userid}" username="\${username}" rax-auth:defaultRegion="DFW">
+        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <role id="123" name="compute:admin" />
+            <role id="234" name="object-store:admin" />
+        </roles>
+    </user>
+    <rax-auth:impersonator id="\${impersonateid}" name="\${impersonatename}">
+        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <role id="123" name="Racker" />
+            <role id="234" name="object-store:admin" />
+        </roles>
+    </rax-auth:impersonator>
+</access>
+"""
     // TODO: Replace this with builder
     def identityEndpointsJsonTemplate =
             """{

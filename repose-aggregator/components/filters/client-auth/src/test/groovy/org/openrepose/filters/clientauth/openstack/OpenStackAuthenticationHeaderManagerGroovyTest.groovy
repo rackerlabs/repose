@@ -50,6 +50,7 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
         wwwAuthHeaderContents = "test URI";
         endpointsBase64 = "endpointsBase64";
         authToken = Mock()
+        authToken.getImpersonatorRoles() >> new HashSet<String>()
         authToken.getTokenId() >> "tokenId"
         openStackAuthenticationHeaderManager =
                 new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, 0.7, "some message", filterDirector,
