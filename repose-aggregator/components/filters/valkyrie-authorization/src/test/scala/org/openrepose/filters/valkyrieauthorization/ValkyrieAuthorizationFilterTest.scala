@@ -155,10 +155,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     case class ValkyrieResponse(code: Int, payload: String)
     case class Result(code: Int, message: String)
 
-    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //View role
-      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //Without colon in tenant
-      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product"))), //Edit role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product"))) //Admin role
+    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "edit_product"))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "admin_product"))) //Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie") {
         val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
@@ -180,14 +180,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       }
     }
 
-    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //View role
-      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //Without colon in tenant
-      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product"))), //Edit role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product"))), //Admin role
-      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //View role
-      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product"))), //Without colon in tenant
-      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "edit_product"))), //Edit role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieResponse("123456", "admin_product"))) //Admin role
+    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "edit_product"))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "admin_product"))), //Admin role
+      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product"))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "edit_product"))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "admin_product"))) //Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie without device id when on either accepted list") {
         val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
@@ -213,14 +213,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       }
     }
 
-    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), Result(403, "Not Authorized")), //Not a hybrid tenant
-      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("111111", "view_product")), Result(403, "Not Authorized")), //Non matching device
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "view_product")), Result(403, "Not Authorized")), //Non matching role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("123456", "not_a_role")), Result(403, "Not Authorized")), //Not a real role
+    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("111111", "view_product")), Result(403, "Not Authorized")), //Not a hybrid tenant
+      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("111111", "view_product")), Result(403, "Not Authorized")), //Non matching device
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "view_product")), Result(403, "Not Authorized")), //Non matching role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("123456", "not_a_role")), Result(403, "Not Authorized")), //Not a real role
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(403, ""), Result(502, "Valkyrie returned a 403")), //Bad Permissions to Valkyrie
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456")), ValkyrieResponse(404, ""), Result(401, "No contact ID specified")), //Missing Contact
       (RequestProcessor("GET", Map("X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(404, ""), Result(401, "No tenant ID specified")), //Missing Tenant
-      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieResponse("", "view_product")), Result(502, "Valkyrie Response did not match expected contract")), //Malformed Valkyrie Response - Missing Device
+      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, createValkyrieDeviceResponse("", "view_product")), Result(502, "Valkyrie Response did not match expected contract")), //Malformed Valkyrie Response - Missing Device
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, "I'm not really json"), Result(502, "Invalid Json response from Valkyrie")) //Malformed Valkyrie Response - Bad Json
     ).foreach { case (request, valkyrie, result) =>
       List(null, new DelegatingType).foreach { delegation =>
@@ -288,10 +288,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant",
         request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"),
         200,
-        createValkyrieResponse("123456", "view_product"))
+        createValkyrieDeviceResponse("123456", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
-      Mockito.when(mockDatastore.get("someTenant123456")).thenAnswer(new Answer[Serializable] {
+      Mockito.when(mockDatastore.get("VALKYRIE-FILTERdevicessomeTenant123456")).thenAnswer(new Answer[Serializable] {
         var firstAttempt = true
 
         override def answer(invocation: InvocationOnMock): Serializable =
@@ -314,7 +314,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
       assert(mockServletResponse.getStatusCode == 403)
 
-      Mockito.verify(mockDatastore).put("someTenant123456", Vector(filter.DeviceToPermission(123456, "view_product"), filter.DeviceToPermission(1234561, "view_product1")), 300000, TimeUnit.MILLISECONDS)
+      Mockito.verify(mockDatastore).put("VALKYRIE-FILTERdevicessomeTenant123456", Vector(filter.DeviceToPermission(123456, "view_product"), filter.DeviceToPermission(1234561, "view_product1")), 300000, TimeUnit.MILLISECONDS)
 
       val secondRequest = new MockHttpServletRequest
       val secondServletResponse = new MockHttpServletResponse
@@ -326,7 +326,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert(secondServletResponse.getStatusCode == 200)
 
       Mockito.verify(akkaServiceClient, Mockito.times(1)).get(
-        "someTenant" + request.headers.get("X-Contact-Id").get,
+        "VALKYRIE-FILTERdevicessomeTenant" + request.headers.get("X-Contact-Id").get,
         s"http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
@@ -341,7 +341,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       } ") {
         val request = RequestProcessor("PUT", Map("X-Tenant-Id" -> "application:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
 
-        val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "123456"), 200, createValkyrieResponse("123456", "view_product"))
+        val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", request.headers.getOrElse("X-Contact-Id", "123456"), 200, createValkyrieDeviceResponse("123456", "view_product"))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(delegation)
@@ -374,10 +374,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
       val akkaServiceClient = mock[AkkaServiceClient]
       Mockito.when(akkaServiceClient.get(
-        "someTenant123456",
+        "VALKYRIE-FILTERdevicessomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid")))
-        .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createValkyrieResponse("123456", "view_product").getBytes)))
+        .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createValkyrieDeviceResponse("123456", "view_product").getBytes)))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -390,7 +390,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
 
-      Mockito.verify(akkaServiceClient).get("someTenant123456",
+      Mockito.verify(akkaServiceClient).get("VALKYRIE-FILTERdevicessomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/devices/by_contact/123456/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
     }
@@ -400,7 +400,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     import play.api.libs.json._
 
     it("should remove some of the values") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -427,7 +427,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should remove all values") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -454,7 +454,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should remove no values") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -481,7 +481,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should remove no values for non-matching resources") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -508,7 +508,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the regex is un-parseable") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -535,7 +535,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the capture group is to large") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -561,7 +561,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the path for the collection is bad") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -587,7 +587,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the path for the device id is bad") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -613,7 +613,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the path for the count is bad") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -639,7 +639,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should throw a 500 when the response contains bad json") {
-      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieResponse("98765", "view_product"))
+      val akkaServiceClient: AkkaServiceClient = generateMockAkkaClient("someTenant", "123456", 200, createValkyrieDeviceResponse("98765", "view_product"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -695,16 +695,19 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   def generateMockAkkaClient(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): AkkaServiceClient = {
-    val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
+    setMockAkkaBehavior(mock[AkkaServiceClient], "devices", tenant, contactHeader, valkyrieCode, valkyriePayload)
+  }
+
+  def setMockAkkaBehavior(akkaServiceClient: AkkaServiceClient, typeOfCall: String, tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): AkkaServiceClient = {
     Mockito.when(akkaServiceClient.get(
-      tenant + contactHeader,
-      s"http://foo.com:8080/account/$tenant/permissions/contacts/devices/by_contact/$contactHeader/effective",
+      ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + tenant + contactHeader,
+      s"http://foo.com:8080/account/$tenant/permissions/contacts/$typeOfCall/by_contact/$contactHeader/effective",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
     akkaServiceClient
   }
 
-  def createValkyrieResponse(deviceId: String, permissionName: String): String = {
+  def createValkyrieDeviceResponse(deviceId: String, permissionName: String): String = {
     s"""{
         "contact_permissions" :[ {
              "account_number":862323,

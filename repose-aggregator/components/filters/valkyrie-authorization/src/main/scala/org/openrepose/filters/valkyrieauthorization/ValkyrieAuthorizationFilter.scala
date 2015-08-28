@@ -128,8 +128,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     mutableHttpResponse.commitBufferToServletOutputStream()
   }
 
-  def cacheKey(transformedTenant: String, contactId: String): String = {
-    transformedTenant + contactId
+  def cacheKey(typeOfCall: String, transformedTenant: String, contactId: String): String = {
+    ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + transformedTenant + contactId
   }
 
   def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer, requestGuid: Option[String] = None): ValkyrieResult = {
@@ -138,7 +138,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
       val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
       val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contactId/effective"
-      Try(akkaServiceClient.get(cacheKey(transformedTenant, contactId),
+      Try(akkaServiceClient.get(cacheKey("devices", transformedTenant, contactId),
         uri,
         Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestGuidHeader)
       )
@@ -150,7 +150,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           if (response.getStatus == 200) {
             parseDevices(response.getData) match {
               case Success(deviceList) =>
-                datastore.put(cacheKey(transformedTenant, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
+                datastore.put(cacheKey("devices", transformedTenant, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
                 DeviceList(deviceList)
               case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
             }
@@ -162,7 +162,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    Option(datastore.get(cacheKey(transformedTenant, contactId))) match {
+    Option(datastore.get(cacheKey("devices", transformedTenant, contactId))) match {
       case Some(x) => DeviceList(x.asInstanceOf[Vector[DeviceToPermission]])
       case None => valkyrieAuthorize()
     }
@@ -294,6 +294,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def isInitialized: Boolean = initialized
+}
+
+object ValkyrieAuthorizationFilter {
+  val CACHE_PREFIX = "VALKYRIE-FILTER"
 }
 
 case class ResponseCullingException(message: String, throwable: Throwable) extends Exception(message, throwable) {
