@@ -51,10 +51,11 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice", params);
 
+        originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
+        phonehomeEndpoint = deproxy.addEndpoint(params.phonehomePort, 'phone home service')
+
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        phonehomeEndpoint = deproxy.addEndpoint(properties.phonehomePort, 'phone home service')
         //fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         //identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         //fakeIdentityService.checkTokenValid = true
@@ -92,7 +93,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         //def file = reposeLogSearch.getLogFileLocation()
 
         def headers = ['content-lenght': 0]
-        phonehomeEndpoint.defaultHandler = { return new Response(400, null, headers) }
+        phonehomeEndpoint.defaultHandler = { return new Response(400, "", headers) }
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
