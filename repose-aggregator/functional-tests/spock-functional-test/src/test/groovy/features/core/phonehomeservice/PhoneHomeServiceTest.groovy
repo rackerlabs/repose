@@ -18,11 +18,13 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.core.phonehomeservice
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+
 /**
  * Created by jennyvo on 8/25/15.
  *  As Repose Product, I want better insight into how people are using Repose,
@@ -90,7 +92,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         //def file = reposeLogSearch.getLogFileLocation()
 
         def headers = ['content-lenght': 0]
-        phonehomeEndpoint.defaultHandler = {return new Response(400, null, headers)}
+        phonehomeEndpoint.defaultHandler = { return new Response(400, null, headers) }
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
