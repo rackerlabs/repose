@@ -26,6 +26,7 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
@@ -100,7 +101,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       var failureInValidation = false
 
       // Extract the tracing GUID from the request
-      val requestGuid = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+      val requestGuid = Option(TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
 
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request, requestGuid) match {

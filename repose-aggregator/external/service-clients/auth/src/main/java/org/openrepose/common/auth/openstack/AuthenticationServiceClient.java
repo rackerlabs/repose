@@ -31,6 +31,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
@@ -160,7 +161,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, force));
         if (requestGuid != null) {
-            headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+            headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                    requestGuid, headers.get(CommonHttpHeader.VIA.toString())));
         }
         try {
             return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
@@ -179,7 +181,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                        requestGuid, headers.get(CommonHttpHeader.VIA.toString())));
             }
 
             ServiceClientResponse endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
@@ -237,7 +240,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, format);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                        requestGuid, headers.get(CommonHttpHeader.VIA.toString())));
             }
 
             ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken,
@@ -311,7 +315,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(requestGuid, false));
             if (requestGuid != null) {
-                headers.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                        requestGuid, headers.get(CommonHttpHeader.VIA.toString())));
             }
 
             ServiceClientResponse serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
@@ -377,7 +382,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
             if (adminToken == null) {
                 Map<String, String> headerMap = new HashMap<>();
                 if (!StringUtilities.isEmpty(requestGuid)) {
-                    headerMap.put(CommonHttpHeader.TRACE_GUID.toString(), requestGuid);
+                    headerMap.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                            requestGuid, headerMap.get(CommonHttpHeader.VIA.toString())));
                 }
                 final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
                         targetHostUri + "/tokens",

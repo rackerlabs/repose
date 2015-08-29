@@ -368,7 +368,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RequestHeaderHandler);
+            assertTrue(formatter.getLogic() instanceof TraceGuidHandler);
         }
     }
 

@@ -24,6 +24,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.filters.clientauth.atomfeed.*;
 import org.slf4j.LoggerFactory;
@@ -122,7 +123,8 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
         final Map<String, String> headers = new HashMap<>();
 
         if (isOutboundTracing) {
-            headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+            headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                    traceID, headers.get(CommonHttpHeader.VIA.toString())));
         }
 
         if (isAuthed) {
@@ -141,7 +143,8 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
                         throw new FeedException("Failed to obtain credentials.", e);
                     }
                     if (isOutboundTracing) {
-                        headers.put(CommonHttpHeader.TRACE_GUID.toString(), traceID);
+                        headers.put(CommonHttpHeader.TRACE_GUID.toString(), TracingHeaderHelper.createTracingHeader(
+                                traceID, headers.get(CommonHttpHeader.VIA.toString())));
                     }
                     headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
                     resp = client.get(targetFeed, headers);

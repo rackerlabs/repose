@@ -27,7 +27,8 @@ import org.apache.http.client.methods.HttpPatch
 import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
-import org.openrepose.core.logging.TracingKey
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
+import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientResponse
@@ -113,7 +114,7 @@ class RequestProxyServiceImplTest extends Specification {
         request.getMethod() == "PATCH"
         request.getURI().toString() == "http://www.google.com/key"
         request.getHeaders("thing").first().value == "other thing"
-        request.getHeaders("X-Trans-Id").first().value == "LOLOL"
+        TracingHeaderHelper.getTraceGuid(request.getHeaders("X-Trans-Id").first().value) == "LOLOL"
         readBytes == sentBytes
 
         response.status == 418

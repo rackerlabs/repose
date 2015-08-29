@@ -21,7 +21,8 @@ package org.openrepose.nodeservice.distributed.servlet;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.core.logging.TracingKey;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
+import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.core.services.datastore.*;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.ClusterView;
@@ -97,7 +98,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (isRequestValid(request, response)) {
-            String traceGUID = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+            String traceGUID = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
             MDC.put(TracingKey.TRACING_KEY, traceGUID);
             LOG.trace("SERVICING DISTDATASTORE REQUEST");
 

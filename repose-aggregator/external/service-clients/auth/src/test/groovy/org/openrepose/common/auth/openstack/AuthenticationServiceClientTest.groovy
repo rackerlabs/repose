@@ -32,6 +32,7 @@ import org.openrepose.common.auth.AuthServiceOverLimitException
 import org.openrepose.common.auth.ResponseUnmarshaller
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
@@ -186,7 +187,8 @@ class AuthenticationServiceClientTest extends Specification {
 
         def akkaServiceClient = mock(AkkaServiceClient)
         mockAdminTokenRequest(akkaServiceClient, admin)
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()): ""]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token,
+                           (CommonHttpHeader.TRACE_GUID.toString()): TracingHeaderHelper.createTracingHeader("", null)]
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
@@ -221,7 +223,8 @@ class AuthenticationServiceClientTest extends Specification {
 
         def akkaServiceClient = mock(AkkaServiceClient)
         mockAdminTokenRequest(akkaServiceClient, admin, 200)
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token, (CommonHttpHeader.TRACE_GUID.toString()): ""]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token,
+                           (CommonHttpHeader.TRACE_GUID.toString()): TracingHeaderHelper.createTracingHeader("", null)]
         when(akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders))
                 .thenAnswer(new Answer() {
             def increment = 0
@@ -344,7 +347,8 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     private void mockUserEndpointRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200, int timesCalled = 1) {
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()): ""]
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken,
+                           (CommonHttpHeader.TRACE_GUID.toString()): TracingHeaderHelper.createTracingHeader("", null)]
         when(akkaServiceClient.get("ENDPOINTS${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}/endpoints", authHeaders))
                 .thenReturn(new ServiceClientResponse(responseCode, new ByteArrayInputStream(createEndpointResponse().getBytes())))
     }
@@ -400,7 +404,9 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     LinkedHashMap<String, String> headersForUserAuthentication(String adminToken) {
-        ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()): ""]
+        ["Accept": MediaType.APPLICATION_XML,
+         "X-Auth-Token": adminToken,
+         (CommonHttpHeader.TRACE_GUID.toString()): TracingHeaderHelper.createTracingHeader("", null)]
     }
 
     def createAuthenticationServiceClient(def adminUser, def adminPassword, def adminTenant, def akkaServiceClient) {

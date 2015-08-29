@@ -25,6 +25,7 @@ import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -139,7 +140,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         filterDirector.setFilterAction(FilterAction.RETURN);
         int offset = getCacheOffset();
 
-        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+        final String requestGuid = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         ExtractorResult<String> account = null;
         AuthToken token = null;

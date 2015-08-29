@@ -30,6 +30,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.components.authz.rackspace.config.DelegatingType;
 import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
@@ -87,7 +88,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         myDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         String message = "Failure in authorization component";
 
-        final String requestGuid = request.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+        final String requestGuid = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
         try {

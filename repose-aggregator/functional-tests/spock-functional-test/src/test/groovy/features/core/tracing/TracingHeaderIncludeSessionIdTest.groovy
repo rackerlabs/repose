@@ -81,7 +81,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
 
         def headers = [
                 'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token]
+                'X-Auth-Token': fakeIdentityService.client_token,
+                via: 'some_via']
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -95,26 +96,26 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
 
         // request
-        new JsonSlurper().parseText(Base64.decodeBase64(
-                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId ==~ UUID_PATTERN
-        new JsonSlurper().parseText(Base64.decodeBase64(
-                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
-                origin == 'UNKNWON'
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
+                origin == 'some_via'
 
         // response
-        new JsonSlurper().parseText(Base64.decodeBase64(
-                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId ==~ UUID_PATTERN
 
-        new JsonSlurper().parseText(Base64.decodeBase64(
-                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
-                origin == 'UNKNWON'
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
+                origin == 'some_via'
 
         // logs
         reposeLogSearch.searchByString('Trans-Id:' +
-                new JsonSlurper().parseText(Base64.decodeBase64(
-                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                         requestId)
     }
 
@@ -130,7 +131,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def headers = [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityService.client_token,
-                (CommonHttpHeader.TRACE_GUID.toString()): '']
+                (CommonHttpHeader.TRACE_GUID.toString()): '',
+                via: 'some_via']
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -142,30 +144,30 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
 
         // request
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId ==~ UUID_PATTERN
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
-                origin == 'UNKNWON'
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
+                origin == 'some_via'
 
         // response
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId ==~ UUID_PATTERN
 
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
-                origin == 'UNKNWON'
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
+                origin == 'some_via'
 
         // logs
         reposeLogSearch.searchByString('Trans-Id:' +
-                new JsonSlurper().parseText(Base64.decodeBase64(
-                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                new JsonSlurper().parseText(new String(Base64.decodeBase64(
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                         requestId)
     }
 
@@ -197,20 +199,20 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
 
         // request
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId == tracingId
 
         // response
-        new JsonSlurper().parseText(
+        new JsonSlurper().parseText(new String(
                 Base64.decodeBase64(
-                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())).toString()).
+                        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())))).
                 requestId == tracingId
 
         // logs
         reposeLogSearch.searchByString("Trans-Id:$tracingId")
-        reposeLogSearch.searchByString("sessionId:$sessionId")
+        reposeLogSearch.searchByString("sessionId.*?:.*?$sessionId")
     }
 
     def 'Parse externally provided X-Trans-Id header with several fields and add the Request ID to the logging context'() {
@@ -245,8 +247,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
 
         // logs
-        reposeLogSearch.searchByString("Trans-Id:$tracingId")
-        reposeLogSearch.searchByString("sessionId:$sessionId.*favoriteTree:cherry")
+        reposeLogSearch.searchByString(Pattern.quote("Trans-Id:$tracingId"))
+        reposeLogSearch.searchByString("sessionId\":\"$sessionId.*favoriteTree\":\"cherry")
     }
 
     def 'Handle invalid JSON in X-Trans-Id header and add the whole string to the logging context'() {
@@ -279,7 +281,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
 
         // logs
-        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
+        reposeLogSearch.searchByString(Pattern.quote("Trans-Id:$tracingHeader"))
         reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
     }
 
@@ -312,7 +314,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
 
         // logs
-        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
+        reposeLogSearch.searchByString(Pattern.quote("Trans-Id:$tracingHeader"))
         reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
     }
 
@@ -344,7 +346,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
 
         // logs
-        reposeLogSearch.searchByString("Trans-Id:$tracingHeader")
-        reposeLogSearch.searchByString(tracingHeader)
+        reposeLogSearch.searchByString(Pattern.quote("Trans-Id:$tracingHeader"))
+        reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
     }
 }

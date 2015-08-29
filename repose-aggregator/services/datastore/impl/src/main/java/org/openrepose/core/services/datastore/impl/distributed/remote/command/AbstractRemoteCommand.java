@@ -21,13 +21,12 @@ package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.core.logging.TracingKey;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommand;
-import org.slf4j.MDC;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -62,7 +61,8 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = new HashMap<>();
         headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
-        headers.put(CommonHttpHeader.TRACE_GUID.toString(), MDC.get(TracingKey.TRACING_KEY));
+        headers.put(CommonHttpHeader.TRACE_GUID.toString(),
+                TracingHeaderHelper.createTracingHeader(TracingHeaderHelper.getTraceGuid(null), null));
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
 
         return headers;

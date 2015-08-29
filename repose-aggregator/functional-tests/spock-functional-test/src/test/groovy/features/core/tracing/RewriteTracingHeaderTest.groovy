@@ -21,6 +21,7 @@ package features.core.tracing
 
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -48,15 +49,15 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
     def "should not pass the externally provided tracing header (#tracingHeaderInput) through the filter chain"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via:'some_via'])
 
         def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
-        def tracingValues = new JsonSlurper().parseText(tracingHeader)
+        def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
-        tracingValues['requestID'] != 'test-guid-for-rewrite'
-        tracingValues['requestID'] ==~ UUID_PATTERN
-        tracingValues['origin'] == 'UNKNOWN'
+        tracingValues['requestId'] != 'test-guid-for-rewrite'
+        tracingValues['requestId'] ==~ UUID_PATTERN
+        tracingValues['origin'] == 'some_via'
 
         where:
         tracingHeaderInput << ['test-guid-for-rewrite', '', '{"requestId": "4"}', 'eyJyZXF1ZXN0SWQiOiAiNCJ9']
@@ -64,29 +65,29 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
 
     def "should pass a new tracing header through the filter chain if one was not provided"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via:'some_via'])
 
         def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
-        def tracingValues = new JsonSlurper().parseText(tracingHeader)
+        def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
-        tracingValues['requestID'] ==~ UUID_PATTERN
-        tracingValues['origin'] == 'UNKNOWN'
+        tracingValues['requestId'] ==~ UUID_PATTERN
+        tracingValues['origin'] == 'some_via'
     }
 
     @Unroll
     def "should not return the externally provided tracing header (#tracingHeaderInput) if one was provided"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via:'some_via'])
 
         def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
-        def tracingValues = new JsonSlurper().parseText(tracingHeader)
+        def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
-        tracingValues['requestID'] != 'test-guid-for-rewrite'
-        tracingValues['requestID'] ==~ UUID_PATTERN
-        tracingValues['origin'] == 'UNKNOWN'
+        tracingValues['requestId'] != 'test-guid-for-rewrite'
+        tracingValues['requestId'] ==~ UUID_PATTERN
+        tracingValues['origin'] == 'some_via'
 
         where:
         tracingHeaderInput << ['test-guid-for-rewrite', '', '{"requestId": "4"}', 'eyJyZXF1ZXN0SWQiOiAiNCJ9']
@@ -94,13 +95,13 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
 
     def "should return a tracing header if one was not provided"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via:'some_via'])
 
         def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
-        def tracingValues = new JsonSlurper().parseText(tracingHeader)
+        def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
-        tracingValues['requestID'] ==~ UUID_PATTERN
-        tracingValues['origin'] == 'UNKNOWN'
+        tracingValues['requestId'] ==~ UUID_PATTERN
+        tracingValues['origin'] == 'some_via'
     }
 }

@@ -126,7 +126,7 @@ public class HttpLogFormatter {
                 formatter.setLogic(new ResponseMessageHandler(httpLogFormatterState));
                 break;
             case TRACE_GUID:
-                formatter.setLogic(new RequestHeaderHandler(CommonHttpHeader.TRACE_GUID.toString(), extractor.getArguments()));
+                formatter.setLogic(new TraceGuidHandler());
                 break;
         }
     }

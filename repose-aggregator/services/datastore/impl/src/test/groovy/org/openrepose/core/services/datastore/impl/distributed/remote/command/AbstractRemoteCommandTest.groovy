@@ -23,7 +23,8 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.logging.TracingKey
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
+import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.RequestProxyService
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader
@@ -55,7 +56,7 @@ class AbstractRemoteCommandTest {
         Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
         assert (headers.get(DatastoreHeader.HOST_KEY.toString()).equals("hostKey"));
-        assert (headers.get(CommonHttpHeader.TRACE_GUID.toString()).equals("tracingKey"));
+        assert (TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID.toString())).equals("tracingKey"));
         assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR.toString()).equals("ALLOW_FORWARDING"));
     }
 }
