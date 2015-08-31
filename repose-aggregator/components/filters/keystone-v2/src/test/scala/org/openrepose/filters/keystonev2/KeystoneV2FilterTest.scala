@@ -1421,6 +1421,22 @@ with HttpDelegationManager {
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
+    it("will not require a default tenant ID") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(tenantIds = Seq("tenant")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
