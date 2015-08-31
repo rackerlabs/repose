@@ -64,6 +64,7 @@ class MockValkyrie {
     String device_perm = ""
     String contact_id = ""
     String tenant_id = ""
+    String calltype = ""
 
     def sleeptime = 0;
 
@@ -76,7 +77,8 @@ class MockValkyrie {
         /*
          *
          * GET
-         * account/ {TenantId}/permissions/contacts/devices/by_contact/{ContactId}/effective
+         * account device permission: account/ {TenantId}/permissions/contacts/devices/by_contact/{ContactId}/effective or
+         * account level permission: account/ {TenantId}/permissions/contacts/account/by_contact/{ContactId}/effective
          * TenantId : Required
          * ContactId : Required
          * REQUIRED HEADERS: X-Auth-User: username, X-Auth-Token: password (not a GA token)
@@ -86,7 +88,6 @@ class MockValkyrie {
 
         String requestPath = request.getPath()
         String method = request.getMethod()
-
 
         def username
         def password
@@ -102,12 +103,13 @@ class MockValkyrie {
 
         if (method == "GET") {
             if (!missingRequestHeaders) {
-
                 def match = (requestPath =~ permissionsRegex)
                 def tenant = match[0][1]
-                def contact = match[0][2]
+                def call = match[0][2]
+                def contact = match[0][3]
                 contact_id = contact
                 tenant_id = tenant
+                calltype = call
                 _authorizeCount.incrementAndGet()
                 return authorizeHandler(tenant, contact, request)
             } else {
@@ -121,7 +123,7 @@ class MockValkyrie {
     }
 
     static
-    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/devices\/by_contact\/([^\/]+)\/effective/
+    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/(devices|account)\/by_contact\/([^\/]+)\/effective/
 
     Response authorize(String tenant, String contact, Request request) {
 
@@ -141,7 +143,11 @@ class MockValkyrie {
 
         if (!missingRequestHeaders) {
             code = 200;
-            template = validationSuccessTemplate
+            if (calltype == "account"){
+                template = successfulAccountPermissionResp
+            } else {
+                template = validationSuccessTemplate
+            }
         } else {
             code = 403
             template = validationFailureTemplate
@@ -187,7 +193,32 @@ class MockValkyrie {
                             "item_id": \${deviceID2},
                             "id": 0
                         },
+                        {
+                            "item_type_id": 2,
+                            "permission_type_id": 9,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_name": "admin_product",
+                            "item_id": 862323,
+                            "id": 0
+                        },
+                        {
+                            "item_type_id": 2,
+                            "permission_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_name": "edid_product",
+                            "item_id": 862323,
+                            "id": 0
+                        }
+                    ]
+                }"""
 
+    def successfulAccountPermissionResp =
+                """{
+                    "contact_permissions": [
                         {
                             "item_type_id": 2,
                             "permission_type_id": 9,
@@ -260,6 +291,11 @@ class MockValkyrie {
                         }
                     ]
                 }"""
-
-
+        def failureAccountPermissionResp =
+                """{
+                "itemNotFound" : {
+                "message" : "Permission Error.",
+                "code" : 403
+                    }
+                }"""
 }
