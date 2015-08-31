@@ -23,6 +23,7 @@ import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.handler.*;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.components.apivalidator.servlet.config.DelegatingType;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
@@ -65,11 +66,13 @@ public class ValidatorConfigurator {
         List<? extends ValidatorItem> validatorItems = validatorConfiguration.getValidator();
         validators = new ArrayList<ValidatorInfo>(validatorItems.size());
 
-        boolean isDelegating = validatorConfiguration.getDelegating() != null;
-        double delegationQuality = isDelegating ? validatorConfiguration.getDelegating().getQuality() : 0.0;
+        DelegatingType delegatingType = validatorConfiguration.getDelegating();
+        boolean isDelegating = delegatingType != null;
+        double delegationQuality = isDelegating ? delegatingType.getQuality() : 0.0;
+        String componentName = isDelegating ? delegatingType.getComponentName() : "api-checker";
 
         for (ValidatorItem validatorItem : validatorItems) {
-            Config configuration = createConfiguration(validatorItem, isDelegating, delegationQuality, validatorConfiguration.isMultiRoleMatch(), configRoot);
+            Config configuration = createConfiguration(validatorItem, isDelegating, delegationQuality, validatorConfiguration.isMultiRoleMatch(), configRoot, componentName);
             configuration.setPreserveRequestBody(validatorConfiguration.isMultiRoleMatch());
             ValidatorInfo validator = validatorItem.getAny() != null
                     ? new ValidatorInfo(validatorItem.getRole(),
@@ -90,12 +93,12 @@ public class ValidatorConfigurator {
     }
 
     private Config createConfiguration(ValidatorItem validatorItem, boolean isDelegating, double delegationQuality,
-                                       boolean multiRoleMatch, String configRoot) {
+                                       boolean multiRoleMatch, String configRoot, String componentName) {
         Config config = new Config();
 
         config.setXSDEngine(validatorItem.getXsdEngine().value());
         config.setXSLEngine(validatorItem.getXslEngine().value());
-        config.setResultHandler(getHandlers(validatorItem, isDelegating, delegationQuality, multiRoleMatch, configRoot));
+        config.setResultHandler(getHandlers(validatorItem, isDelegating, delegationQuality, multiRoleMatch, configRoot, componentName));
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());
@@ -115,13 +118,13 @@ public class ValidatorConfigurator {
     }
 
     private DispatchResultHandler getHandlers(ValidatorItem validatorItem, boolean isDelegating, double delegationQuality,
-                                        boolean multiRoleMatch, String configRoot) {
+                                        boolean multiRoleMatch, String configRoot, String componentName) {
 
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
         if (isDelegating) {
             handlers.add(new MethodLabelHandler());
-            handlers.add(new DelegationHandler(delegationQuality));
+            handlers.add(new DelegationHandler(delegationQuality, componentName));
         } else if (!multiRoleMatch) {
             handlers.add(new ServletResultHandler());
         }
