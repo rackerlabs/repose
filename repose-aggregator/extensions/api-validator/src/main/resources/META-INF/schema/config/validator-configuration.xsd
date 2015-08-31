@@ -448,6 +448,15 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="component-name" type="xs:string" use="optional" default="api-checker">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the delegation component name for this validator.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:simpleType name="QualityType">
