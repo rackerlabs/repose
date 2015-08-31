@@ -63,6 +63,7 @@ class MockValkyrie {
     String device_id2 = "123456"
     String device_perm = ""
     String contact_id = ""
+    String tenant_id = ""
 
     def sleeptime = 0;
 
@@ -106,6 +107,7 @@ class MockValkyrie {
                 def tenant = match[0][1]
                 def contact = match[0][2]
                 contact_id = contact
+                tenant_id = tenant
                 _authorizeCount.incrementAndGet()
                 return authorizeHandler(tenant, contact, request)
             } else {
