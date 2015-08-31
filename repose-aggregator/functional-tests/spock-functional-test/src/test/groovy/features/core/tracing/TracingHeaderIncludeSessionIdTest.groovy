@@ -90,8 +90,6 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
                 method: 'GET',
                 headers: headers)
 
-        def tracingHeaderRequest = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
-
         then: 'Make sure the request and response contain a new X-Trans-Id header'
         mc.receivedResponse.code == '200'
 
@@ -180,8 +178,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def tracingId = 'd2ff25c3-fa7a-4196-9927-d3dd0eed47d3'
-        def sessionId = '677b358b-9d13-446d-a776-e8c8b9083af6'
+        def tracingId = UUID.randomUUID().toString()
+        def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
         def headers = [
@@ -224,8 +222,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def tracingId = 'd2ff25c3-fa7a-4196-9927-d3dd0eed47d3'
-        def sessionId = '677b358b-9d13-446d-a776-e8c8b9083af6'
+        def tracingId = UUID.randomUUID().toString()
+        def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson(
                 [sessionId: sessionId, requestId: tracingId, user: 'bob', domain: 'pluto', favoriteTree: 'cherry'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
@@ -260,7 +258,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def tracingId = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def tracingId = UUID.randomUUID().toString()
         def jsonTracingHeader = "{'tracingId': $tracingId, I_LIKE_HAM}".toString()
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
         def headers = [
@@ -294,7 +292,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def tracingId = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def tracingId = UUID.randomUUID().toString()
         def tracingHeader = "{{'tracingId': $tracingId, I_LIKE_HAM}".toString()
         def headers = [
                 'content-type': 'application/json',
@@ -327,7 +325,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
         }
 
-        def tracingHeader = '399aee87-061b-4676-b486-cb6ffadb2e8a'
+        def tracingHeader = UUID.randomUUID().toString()
         def headers = [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityService.client_token,
