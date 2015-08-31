@@ -82,7 +82,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def headers = [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityService.client_token,
-                via: 'some_via']
+                via           : 'some_via']
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -127,10 +127,10 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         }
 
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): '',
-                via: 'some_via']
+                via                                     : 'some_via']
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -183,8 +183,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
@@ -228,8 +228,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
                 [sessionId: sessionId, requestId: tracingId, user: 'bob', domain: 'pluto', favoriteTree: 'cherry'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
@@ -262,8 +262,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def jsonTracingHeader = "{'tracingId': $tracingId, I_LIKE_HAM}".toString()
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
@@ -295,8 +295,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def tracingId = UUID.randomUUID().toString()
         def tracingHeader = "{{'tracingId': $tracingId, I_LIKE_HAM}".toString()
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
@@ -327,8 +327,8 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
 
         def tracingHeader = UUID.randomUUID().toString()
         def headers = [
-                'content-type': 'application/json',
-                'X-Auth-Token': fakeIdentityService.client_token,
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
                 (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
