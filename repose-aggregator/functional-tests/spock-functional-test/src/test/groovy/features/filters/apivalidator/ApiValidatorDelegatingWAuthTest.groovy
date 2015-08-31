@@ -94,10 +94,10 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
 
         where:
         roles                      | method   | responseCode | delegateMsg
-        "raxrole-test1"            | "GET"    | "200"        | "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
-        "raxrole-test1,a:observer" | "POST"   | "200"        | "status_code=405`component=api-checker`message=Bad method: POST. The Method does not match the pattern: 'GET';q=0.5"
-        "raxrole-test1,a:observer" | "DELETE" | "200"        | "status_code=405`component=api-checker`message=Bad method: DELETE. The Method does not match the pattern: 'GET';q=0.5"
-        "raxrole-test1,a:admin"    | "PUT"    | "200"        | "status_code=405`component=api-checker`message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
+        "raxrole-test1"            | "GET"    | "200"        | "status_code=404`component=api-validator`message=Resource not found: /{a};q=0.5"
+        "raxrole-test1,a:observer" | "POST"   | "200"        | "status_code=405`component=api-validator`message=Bad method: POST. The Method does not match the pattern: 'GET';q=0.5"
+        "raxrole-test1,a:observer" | "DELETE" | "200"        | "status_code=405`component=api-validator`message=Bad method: DELETE. The Method does not match the pattern: 'GET';q=0.5"
+        "raxrole-test1,a:admin"    | "PUT"    | "200"        | "status_code=405`component=api-validator`message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
     }
 
     @Unroll("Sending request with roles: #roles and admin resp: #authresp")

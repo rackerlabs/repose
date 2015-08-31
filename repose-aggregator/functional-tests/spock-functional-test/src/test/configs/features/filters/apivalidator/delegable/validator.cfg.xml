@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
-    <delegating quality="0.5"/>
+    <delegating quality="0.5" component-name="api-validator"/>
     <validator role="raxrole-test1"
                default="false"
                enable-rax-roles="true"
