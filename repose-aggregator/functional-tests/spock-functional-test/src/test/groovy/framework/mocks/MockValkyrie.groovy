@@ -291,11 +291,5 @@ class MockValkyrie {
                         }
                     ]
                 }"""
-        def failureAccountPermissionResp =
-                """{
-                "itemNotFound" : {
-                "message" : "Permission Error.",
-                "code" : 403
-                    }
-                }"""
+
 }
