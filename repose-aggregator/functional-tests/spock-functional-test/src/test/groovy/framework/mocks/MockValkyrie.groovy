@@ -166,44 +166,95 @@ class MockValkyrie {
             """{
                     "contact_permissions": [
                         {
-                            "account_number": \${tenant},
+                            "item_type_id": 2,
+                            "permission_type_id": 15,
+                            "item_type_name": "accounts",
                             "contact_id": \${contact},
-                            "id": 0,
-                            "item_id": \${deviceID},
-                            "item_type_id": 1,
-                            "item_type_name": "devices",
+                            "account_number": \${tenant},
                             "permission_name": "\${permission}",
-                            "permission_type_id": 12
+                            "item_id": \${deviceID},
+                            "id": 0
                         },
                         {
-                            "account_number": \${tenant},
+                            "item_type_id": 2,
+                            "permission_type_id": 12,
+                            "item_type_name": "accounts",
                             "contact_id": \${contact},
-                            "id": 0,
+                            "account_number": \${tenant},
+                            "permission_name": "\${permission}",
                             "item_id": \${deviceID2},
-                            "item_type_id": 1,
-                            "item_type_name": "devices",
-                            "permission_name": "view_product",
-                            "permission_type_id": 12
+                            "id": 0
+                        },
+
+                        {
+                            "item_type_id": 2,
+                            "permission_type_id": 9,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_name": "upgrade_account",
+                            "item_id": 862323,
+                            "id": 0
                         },
                         {
-                            "account_number": \${tenant},
+                            "item_type_id": 2,
+                            "permission_type_id": 2,
+                            "item_type_name": "accounts",
                             "contact_id": \${contact},
-                            "id": 0,
-                            "item_id": 504360,
-                            "item_type_id": 1,
-                            "item_type_name": "devices",
-                            "permission_name": "admin_product",
-                            "permission_type_id": 14
+                            "account_number": \${tenant},
+                            "permission_name": "edit_ticket",
+                            "item_id": 862323,
+                            "id": 0
                         },
                         {
-                            "account_number": \${tenant},
+                            "item_type_id": 2,
+                            "permission_type_id": 6,
+                            "item_type_name": "accounts",
                             "contact_id": \${contact},
-                            "id": 0,
-                            "item_id": 504362,
-                            "item_type_id": 1,
-                            "item_type_name": "devices",
-                            "permission_name": "edit_product",
-                            "permission_type_id": 13
+                            "account_number": \${tenant},
+                            "permission_name": "view_domain",
+                            "item_id": 862323,
+                            "id": 0
+                        },
+                        {
+                            "item_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 17,
+                            "permission_name": "view_reports",
+                            "item_id": 862323,
+                            "id": 0
+                        },
+                        {
+                            "item_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 10,
+                            "permission_name": "manage_users",
+                            "item_id": 862323,
+                            "id": 0
+                        },
+                        {
+                            "item_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 7,
+                            "permission_name": "edit_domain",
+                            "item_id": 862323,
+                            "id": 0
+                        },
+                        {
+                            "item_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 15,
+                            "permission_name": "account_admin",
+                            "item_id": 862323,
+                            "id": 0
                         }
                     ]
                 }"""
