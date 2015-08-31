@@ -43,6 +43,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with MockitoSugar with HttpDelegationManager {
@@ -396,6 +397,134 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
   }
 
+  describe("when permission to role translation is turned on") {
+    val config = createGenericValkyrieConfiguration(null)
+    config.setTranslatePermissionsToRoles(new Object)
+    val tenantId = "aTenantId"
+    val contactId = "123456"
+    val akkaServiceClient = generateMockAkkaClient(tenantId, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    val filterChain = mock[FilterChain]
+    val mockServletRequest = new MockHttpServletRequest
+    mockServletRequest.setMethod("GET")
+    mockServletRequest.setRequestURL("http://foo.com:8080")
+    mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+    mockServletRequest.setHeader("X-Contact-Id", contactId)
+    val mockServletResponse = new MockHttpServletResponse
+    val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+    filter.configurationUpdated(config)
+
+    it("should translate permissions to roles") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      assert(roles.contains("some_permission"))
+      assert(roles.contains("a_different_permission"))
+    }
+
+    it("should 502 when valkyrie 404s") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 404, "Not found")
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 502)
+    }
+
+    it("should 502 when valkyrie 500s") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 500, "Internal Server Error")
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 502)
+    }
+
+    it("should 502 when we have an exception while talking to valkyrie") {
+      mockServletResponse.resetAll()
+      Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
+        Matchers.eq(s"http://foo.com:8080/account/$tenantId/permissions/contacts/accounts/by_contact/$contactId/effective"),
+        Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 502)
+    }
+  }
+
+  describe("when permission to role translation and delegation is turned on") {
+    val config = createGenericValkyrieConfiguration(null)
+    config.setTranslatePermissionsToRoles(new Object)
+    config.setDelegating(new DelegatingType)
+    val tenantId = "aTenantId"
+    val contactId = "123456"
+    val akkaServiceClient = generateMockAkkaClient(tenantId, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    val filterChain = mock[FilterChain]
+    val mockServletRequest = new MockHttpServletRequest
+    mockServletRequest.setMethod("GET")
+    mockServletRequest.setRequestURL("http://foo.com:8080")
+    mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+    mockServletRequest.setHeader("X-Contact-Id", contactId)
+    val mockServletResponse = new MockHttpServletResponse
+    val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+    filter.configurationUpdated(config)
+
+    it("should translate permissions to roles") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      assert(roles.contains("some_permission"))
+      assert(roles.contains("a_different_permission"))
+    }
+
+    it("should 502 when valkyrie 404s") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 404, "Not found")
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
+    }
+
+    it("should 502 when valkyrie 500s") {
+      mockServletResponse.resetAll()
+      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 500, "Internal Server Error")
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
+    }
+
+    it("should 502 when we have an exception while talking to valkyrie") {
+      mockServletResponse.resetAll()
+      Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
+        Matchers.eq(s"http://foo.com:8080/account/$tenantId/permissions/contacts/accounts/by_contact/$contactId/effective"),
+        Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
+    }
+  }
+
   describe("do filter should cull appropriately") {
     import play.api.libs.json._
 
@@ -729,6 +858,33 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
              "permission_type_id" : 12
            }
          ]
+       }"""
+  }
+
+  def createValkyrieAccountsResponse(permission1: String, permission2: String): String = {
+    s"""{
+           "contact_permissions": [
+               {
+                   "item_type_id": 2,
+                   "permission_type_id": 5,
+                   "item_type_name": "accounts",
+                   "contact_id": 817203,
+                   "account_number": 862323,
+                   "permission_name": "$permission1",
+                   "item_id": 862323,
+                   "id": 0
+               },
+               {
+                   "item_type_id": 2,
+                   "permission_type_id": 9,
+                   "item_type_name": "accounts",
+                   "contact_id": 817203,
+                   "account_number": 862323,
+                   "permission_name": "$permission2",
+                   "item_id": 862323,
+                   "id": 0
+               }
+           ]
        }"""
   }
 
