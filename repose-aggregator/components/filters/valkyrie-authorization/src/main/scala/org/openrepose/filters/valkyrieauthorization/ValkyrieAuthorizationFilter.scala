@@ -78,13 +78,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
 
     def getDeviceList(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
+      def convertToDeviceList(value: java.io.Serializable): DeviceList = DeviceList(value.asInstanceOf[Vector[DeviceToPermission]])
+
       (requestedTenantId, requestedContactId) match {
         case (None, _) => ResponseResult(401, "No tenant ID specified")
         case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
         case (_, None) => ResponseResult(401, "No contact ID specified")
         case (Some(tenant), Some(contact)) =>
           val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-          datastoreValue(transformedTenant, contact, configuration.getValkyrieServer, requestGuid)
+          datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, requestGuid)
       }
     }
 
@@ -132,13 +134,19 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + transformedTenant + contactId
   }
 
-  def datastoreValue(transformedTenant: String, contactId: String, valkyrieServer: ValkyrieServer, requestGuid: Option[String] = None): ValkyrieResult = {
+  def datastoreValue(transformedTenant: String,
+                     contactId: String,
+                     callType: String,
+                     valkyrieServer: ValkyrieServer,
+                     datastoreTransform: java.io.Serializable => ValkyrieResult,
+                     responseParser: InputStream => Try[java.io.Serializable],
+                     requestGuid: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
 
       val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
-      val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/devices/by_contact/$contactId/effective"
-      Try(akkaServiceClient.get(cacheKey("devices", transformedTenant, contactId),
+      val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
+      Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
         uri,
         Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestGuidHeader)
       )
@@ -148,10 +156,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       tryValkyrieCall() match {
         case Success(response) =>
           if (response.getStatus == 200) {
-            parseDevices(response.getData) match {
-              case Success(deviceList) =>
-                datastore.put(cacheKey("devices", transformedTenant, contactId), deviceList, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
-                DeviceList(deviceList)
+            responseParser(response.getData) match {
+              case Success(values) =>
+                datastore.put(cacheKey(callType, transformedTenant, contactId), values, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
+                datastoreTransform(values)
               case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
             }
           } else {
@@ -162,8 +170,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    Option(datastore.get(cacheKey("devices", transformedTenant, contactId))) match {
-      case Some(x) => DeviceList(x.asInstanceOf[Vector[DeviceToPermission]])
+    Option(datastore.get(cacheKey(callType, transformedTenant, contactId))) match {
+      case Some(x) => datastoreTransform(x)
       case None => valkyrieAuthorize()
     }
   }
