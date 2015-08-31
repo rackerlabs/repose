@@ -20,6 +20,7 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -49,7 +50,7 @@ class TracingHeaderTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
 
         then:
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trans-id").matches(".+-.+-.+-.+-.+")
+        TracingHeaderHelper.getTraceGuid(mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-trans-id")).matches(".+-.+-.+-.+-.+")
     }
 
     def "should return a tracing header if one was provided"() {
@@ -63,7 +64,7 @@ class TracingHeaderTest extends ReposeValveTest {
     def "should return a tracing header if one was not provided"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [:])
-        def requestid = mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(mc.getReceivedResponse().getHeaders().getFirstValue("x-trans-id"))
         println(requestid)
 
         then:

@@ -32,7 +32,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
-import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
@@ -154,8 +153,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
         TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName, "0")
       } else {
         // Request a User Token based on the extracted User Name/API Key.
-        val requestGuidHeader = Option(TracingHeaderHelper.getTraceGuid(
-          httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+        val requestGuidHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
           .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
           identityServiceUri,

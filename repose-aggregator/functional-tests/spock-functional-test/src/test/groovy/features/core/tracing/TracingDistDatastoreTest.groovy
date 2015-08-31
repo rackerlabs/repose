@@ -96,8 +96,8 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         //That header is used in the log output
         //Don't actually care about the result of the failure
 
-        //Find the GUID out of :  GUID:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
-        List<String> lines = reposeLogSearch.searchByString("GUID:LOLOL - .*SERVICING DISTDATASTORE REQUEST\$")
+        //Find the GUID out of :  Trans-Id:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
+        List<String> lines = reposeLogSearch.searchByString("Trans-Id:LOLOL - .*SERVICING DISTDATASTORE REQUEST\$")
         lines.size() == 1
     }
 
@@ -117,7 +117,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
                           'X-Trans-Id'   : 'test12345'],
                 requestBody: body
         )
-        List<String> lines = reposeLogSearch.searchByString("GUID:test12345 - .*SERVICING DISTDATASTORE REQUEST\$")
+        List<String> lines = reposeLogSearch.searchByString("Trans-Id:test12345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report success"
         mc.receivedResponse.code == "202"
@@ -133,7 +133,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
                           'X-TTL'        : '10',
                           'X-Trans-Id'   : 'test22345'],
         )
-        lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
+        lines = reposeLogSearch.searchByString("Trans-Id:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report that it is"
         mc.receivedResponse.code == "200"
@@ -150,14 +150,14 @@ class TracingDistDatastoreTest extends ReposeValveTest {
                           'X-TTL'        : '10',
                           'X-Trans-Id'   : 'test32345'],
         )
-        lines = reposeLogSearch.searchByString("GUID:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
+        lines = reposeLogSearch.searchByString("Trans-Id:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
         //mc.sentRequest.headers.contains("x-trans-id")
 
-        //Find the GUID out of :  GUID:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
+        //Find the GUID out of :  Trans-Id:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
         lines.size() == 1
     }
 }

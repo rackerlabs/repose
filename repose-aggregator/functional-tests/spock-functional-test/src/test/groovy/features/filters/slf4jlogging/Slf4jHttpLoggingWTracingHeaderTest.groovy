@@ -21,6 +21,7 @@ package features.filters.slf4jlogging
 
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -52,7 +53,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id"))
 
         then: "Request id from request handling should be the same as Request ID logging"
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Request ID=$requestid").size() == 1

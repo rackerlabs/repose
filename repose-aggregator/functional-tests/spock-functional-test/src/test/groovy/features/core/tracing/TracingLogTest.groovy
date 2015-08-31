@@ -22,6 +22,7 @@ package features.core.tracing
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -89,12 +90,12 @@ class TracingLogTest extends ReposeValveTest {
         then: "Make sure there are appropriate log messages with matching GUIDs"
         mc.receivedResponse.code == "200"
 
-        //Find the GUID out of :  GUID:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
-        List<String> lines = reposeLogSearch.searchByString("GUID:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* Uri is /servers/1111/\$")
+        //Find the GUID out of :  Trans-Id:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
+        List<String> lines = reposeLogSearch.searchByString("Trans-Id:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* Uri is /servers/1111/\$")
         lines.size() == 1
         //Ensure that GUID is used in a log message for the actor threads
         String GUID = (lines.first() =~ "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0][1]
-        def actorLines = reposeLogSearch.searchByString("GUID:$GUID -.*AuthTokenFutureActor request!")
+        def actorLines = reposeLogSearch.searchByString("Trans-Id:$GUID -.*AuthTokenFutureActor request!")
         actorLines.size() == 3
     }
 
@@ -119,13 +120,13 @@ class TracingLogTest extends ReposeValveTest {
                 ]
         )
         // get tracing header from request
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id"))
         println requestid
 
         then: "Make sure there are appropriate log messages with matching GUIDs"
         mc.receivedResponse.code == "200"
 
         // should be able to find the same tracing header from log
-        reposeLogSearch.searchByString("GUID:$requestid -.*AuthTokenFutureActor request!").size() > 0
+        reposeLogSearch.searchByString("Trans-Id:$requestid -.*AuthTokenFutureActor request!").size() > 0
     }
 }

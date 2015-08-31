@@ -21,6 +21,7 @@ package features.filters.herp
 
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -301,7 +302,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         def pslurper = new JsonSlurper()
         def presult = pslurper.parseText(pjsonpart)
         def pmap = buildParamList(parameters)
-        def requestid = mc.handlings[0].request.headers.getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id"))
 
         then:
         "result should be " + responseCode
