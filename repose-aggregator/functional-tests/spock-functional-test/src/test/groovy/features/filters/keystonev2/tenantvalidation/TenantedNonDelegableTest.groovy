@@ -25,6 +25,7 @@ import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class TenantedNonDelegableTest extends ReposeValveTest {
@@ -155,6 +156,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.contains("x-token-expires")
         request2.headers.getFirstValue("x-pp-user") == "username"
         request2.headers.contains("x-roles")
+
         request2.headers.getFirstValue("x-authorization") == "Proxy $responseTenant"
         request2.headers.getFirstValue("x-user-name") == "username"
 
@@ -214,5 +216,180 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.code == "201"
         mc.receivedResponse.headers.findAll("location").size() == 1
         mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
+    @Ignore("Not satisfy requirements REP-2670 - URI tenant will not get added to x-tenant or x-project unless there’s a matching tenant from validate token response")
+    @Unroll("Request Tenant: #requestTenant")
+    def "Request tenant is the only tenant send"() {
+        given: "identity info"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = 123
+            client_tenantid = 12345
+            client_tenantid2 = "nast-id"
+        }
+
+        when: "pass request with request tenant"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/" + requestTenant,
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token]
+                )
+
+        then: "should satisfy the following"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-tenant-id").get(0).split(",").size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == requestTenant
+
+        where:
+        requestTenant << ["12345", "nast-it"]
+    }
+
+    // REP-2670: Ded Auth Changes
+    def "Always add x-tenant to request for origin service use"() {
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+            client_tenantid = "456"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/456", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-name")
+    }
+
+    // REP-2670: Ded Auth Changes
+    @Unroll("Request Tenant: #requestTenant")
+    def "URI tenant will not get added to x-tenant"() {
+        given: "identity info"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = 123
+            client_tenantid = 12345
+            client_tenantid2 = "nast-id"
+        }
+
+        when: "pass request with request tenant"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/" + requestTenant,
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token]
+                )
+
+        then: "should satisfy the following"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-tenant-id").get(0).split(",").size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "12345" // Default tenant
+
+        where:
+        requestTenant << ["12345", "nast-it"]
+    }
+
+    // REP-2670: Ded Auth Changes
+    def "Non-tenant(racker) with tenanted mode" () {
+        fakeIdentityV2Service.with {
+            client_token = "rackerSSO"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+            client_tenantid = "456"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/456", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "456"
+    }
+
+    // REP-2670: Ded Auth Changes
+    @Unroll("tenant: #requestTenant, with return from identity default tenant: #responseTenant")
+    def "authenticate user in tenanted and non delegable mode with requestTenant - success"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenantid = responseTenant
+            client_tenantname = responseTenant
+            service_admin_role = serviceAdminRole
+            client_tenantid2 = requestTenant
+        }
+
+        when:
+        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request2 = mc.handlings[0].request
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
+        request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
+        request2.headers.getFirstValue("x-tenant-name") == responseTenant.toString()
+        request2.headers.contains("x-token-expires")
+        request2.headers.getFirstValue("x-pp-user") == "username"
+        request2.headers.contains("x-roles")
+        request2.headers.getFirstValue("x-authorization") == "Proxy $requestTenant"
+        request2.headers.getFirstValue("x-user-name") == "username"
+
+        mc.receivedResponse.headers.contains("www-authenticate") == false
+
+        where:
+        requestTenant | responseTenant | serviceAdminRole      | responseCode
+        717           | 717            | "not-admin"           | "200"
+        718           | 719            | "not-admin"           | "200"
+    }
+
+    // REP-2670: Ded Auth Changes
+    // Currently, without a default tenantID, we do not make the Valkyrie call.
+    // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
+    // we will rely on a tenantID from the validate token call
+    // apply for this case dedicated user
+    def "Remove reliance on default tenant check" () {
+        given: "keystone v2v2 with dedicated user access"
+        def hybridtenant = "hybrid:12345"
+        fakeIdentityV2Service.with {
+            client_token = "dedicatedUser"
+            client_tenantid = hybridtenant
+        }
+        when:
+        "User passes a request through repose with request tenant"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/"+hybridtenant,
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
+                ]
+        )
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == hybridtenant
     }
 }

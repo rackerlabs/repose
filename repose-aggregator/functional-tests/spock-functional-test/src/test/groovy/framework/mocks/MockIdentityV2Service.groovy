@@ -611,6 +611,8 @@ class MockIdentityV2Service {
                     template = rackerTokenXmlTemplate
                 } else if (tokenId == "rackerSSO") {
                     template = rackerSuccessfulValidateRespXmlTemplate
+                } else if (tokenId == "dedicatedUser") {
+                    template = dedicatedUserSuccessfulRespJsonTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (impersonate_id != "") {
@@ -621,6 +623,8 @@ class MockIdentityV2Service {
             } else {
                 if (tokenId == "rackerSSO"){
                     template = rackerSuccessfulValidateRespJsonTemplate
+                } else if (tokenId == "dedicatedUser") {
+                    template = dedicatedUserSuccessfulRespJsonTemplate
                 } else if (impersonate_id != "") {
                     template = successfulImpersonateValidateTokenJsonTemplate
                 } else {
@@ -1314,7 +1318,7 @@ class MockIdentityV2Service {
             <role id="9" name="Racker"
                 description="Defines a user as being a Racker"
                 serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-            <role name="dl_RackUSA"/>
+            <role name="dl_RackUSA" tenantId="\${tenantid}"/>
             <role name="dl_RackGlobal"/>
             <role name="dl_cloudblock"/>
             <role name="dl_US Managers"/>
@@ -1337,7 +1341,8 @@ class MockIdentityV2Service {
           "name": "Racker",
           "description": "Defines a user as being a Racker",
           "id": "9",
-          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221",
+          "tenantId" : "\${tenantid}"
         }
       ],
       "id": "rackerSSOUsername"
@@ -1345,7 +1350,83 @@ class MockIdentityV2Service {
   }
 }
 """
-
+    def dedicatedUserSuccessfulRespXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns:atom="http://www.w3.org/2005/Atom"
+        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+        xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:ns4="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0">
+    <token id="\${token}" expires="\${expires}">
+        <rax-auth:authenticatedBy>
+            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        </rax-auth:authenticatedBy>
+    </token>
+    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD">
+        <roles>
+            <role id="10015582"
+                  name="monitoring:admin"
+                  description="Monitoring Admin Role for Account User"
+                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
+                  tenantId="\${tenantid}" rax-auth:propagate="false"/>
+            <role id="16"
+                  name="dedicated:default"
+                  description="a role that allows a user access to dedicated service methods"
+                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
+                  tenantId="\${tenantid}"
+                  rax-auth:propagate="true"/>
+            <role id="2"
+                  name="identity:default"
+                  description="Default Role."
+                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
+                  rax-auth:propagate="false"/>
+        </roles>
+    </user>
+</access>
+"""
+    def dedicatedUserSuccessfulRespJsonTemplate =
+            """{
+  "access": {
+    "token": {
+        "id": "\${token}",
+        "expires": "\${expires}",
+        "RAX-AUTH:authenticatedBy": [
+            "PASSWORD"
+        ]
+    },
+    "user": {
+      "id": "dedicatedUser",
+      "roles": [
+        {
+          "tenantId" : "\${tenantid}",
+          "id": "10015582",
+          "serviceId": "bde1268ebabeeabb70a0e702a4626977c331d5c4",
+          "description": "Monitoring Admin Role for Account User",
+          "name": "monitoring:admin"
+        },
+        {
+          "tenantId" : "\${tenantid}",
+          "id": "16",
+          "serviceId": "bde1268ebabeeabb70a0e702a4626977c331d5c4",
+          "description": "a role that allows a user access to dedicated service methods",
+          "name": "dedicated:default"
+        },
+        {
+          "id": "2",
+          "serviceId": "bde1268ebabeeabb70a0e702a4626977c331d5c4",
+          "description": "Default Role.",
+          "name": "identity:default"
+        }
+      ],
+      "name": "dedicated_29502_1099363",
+      "RAX-AUTH:defaultRegion": "ORD"
+    }
+  }
+}
+"""
     def UserGlobalRolesXmlTemplate =
             """<?xml version="1.0" encoding="UTF-8"?>
   <roles
