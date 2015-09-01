@@ -63,6 +63,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   case class DeviceToPermission(device: Int, permission: String)
   case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult //Vector because List isnt serializable until Scala 2.11
+  case class RoleList(roles: Vector[String]) extends ValkyrieResult
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
@@ -98,6 +99,39 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
+    def getRoles(result: ResponseResult): ValkyrieResult = {
+      def convertToRoleList(value: java.io.Serializable): RoleList = RoleList(value.asInstanceOf[Vector[String]])
+
+      def parseRoles(inputStream: InputStream): Try[Vector[String]] = {
+        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
+        try {
+          val json = Json.parse(input)
+          val permissions: Array[JsValue] = (json \ "contact_permissions").as[Array[JsValue]]
+          Success(permissions.map(value => (value \ "permission_name").as[String]).toVector)
+        } catch {
+          case e: Exception =>
+            logger.error(s"Invalid Json response from Valkyrie: $input", e)
+            Failure(new Exception("Invalid Json response from Valkyrie", e))
+        }
+      }
+
+      (result, Option(configuration.getTranslatePermissionsToRoles), requestedTenantId, requestedContactId) match {
+        case (ResponseResult(200, _), Some(_), Some(tenant), Some(contact)) =>
+          val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
+          datastoreValue(transformedTenant, contact, "accounts", configuration.getValkyrieServer, convertToRoleList, parseRoles, requestGuid)
+        case _ => result
+      }
+    }
+
+    def addRoles(result: ValkyrieResult): ResponseResult = {
+      result match {
+        case RoleList(roles) =>
+          roles.foreach(mutableHttpRequest.addHeader("X-Roles", _))
+          ResponseResult(200)
+        case responseResult: ResponseResult => responseResult
+      }
+    }
+
     def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
       valkyrieResponse match {
         case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
@@ -106,7 +140,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     val devicePermissions: ValkyrieResult = getDeviceList(requestedTenantId, requestedContactId)
-    mask403s(authorizeDevice(devicePermissions, requestedDeviceId)) match {
+    mask403s(addRoles(getRoles(authorizeDevice(devicePermissions, requestedDeviceId)))) match {
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
         try {

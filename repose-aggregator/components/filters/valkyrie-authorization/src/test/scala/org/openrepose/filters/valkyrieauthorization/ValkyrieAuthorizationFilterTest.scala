@@ -400,22 +400,33 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   describe("when permission to role translation is turned on") {
     val config = createGenericValkyrieConfiguration(null)
     config.setTranslatePermissionsToRoles(new Object)
-    val tenantId = "aTenantId"
+    val tenantId = "hybrid:98765"
+    val transformedTenant = "98765"
     val contactId = "123456"
-    val akkaServiceClient = generateMockAkkaClient(tenantId, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    val akkaServiceClient = mock[AkkaServiceClient]
     val filterChain = mock[FilterChain]
     val mockServletRequest = new MockHttpServletRequest
-    mockServletRequest.setMethod("GET")
-    mockServletRequest.setRequestURL("http://foo.com:8080")
-    mockServletRequest.setHeader("X-Tenant-Id", tenantId)
-    mockServletRequest.setHeader("X-Contact-Id", contactId)
     val mockServletResponse = new MockHttpServletResponse
     val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
     filter.configurationUpdated(config)
 
-    it("should translate permissions to roles") {
+    def setup() = {
+      mockServletRequest.resetAll()
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+
       mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+
+      Mockito.reset(filterChain)
+      Mockito.reset(akkaServiceClient)
+      setMockAkkaBehavior(akkaServiceClient, "devices", transformedTenant, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    }
+
+    it("should translate permissions to roles") {
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -426,9 +437,43 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert(roles.contains("a_different_permission"))
     }
 
+    it("should 401 when tenant id isn't present") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 401)
+    }
+
+    it("should 401 when contact id isn't present") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 401)
+    }
+
+    it("should 403 when tenant is non-hybrid") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Tenant-Id", "987654")
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 403)
+    }
+
     it("should 502 when valkyrie 404s") {
-      mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 404, "Not found")
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 404, "Not found")
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -436,8 +481,17 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should 502 when valkyrie 500s") {
-      mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 500, "Internal Server Error")
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 500, "Internal Server Error")
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+      assert(mockServletResponse.getStatus == 502)
+    }
+
+    it("should 502 when valkyrie gives an unexpected response") {
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, """{"banana":"phone"}""")
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -445,14 +499,29 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should 502 when we have an exception while talking to valkyrie") {
-      mockServletResponse.resetAll()
+      setup
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
-        Matchers.eq(s"http://foo.com:8080/account/$tenantId/permissions/contacts/accounts/by_contact/$contactId/effective"),
+        Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/accounts/by_contact/$contactId/effective"),
         Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
       assert(mockServletResponse.getStatus == 502)
+    }
+
+    it("should use the values from the datastore when available") {
+      setup
+      Mockito.when(mockDatastore.get(ValkyrieAuthorizationFilter.CACHE_PREFIX + "accounts" + transformedTenant + contactId))
+        .thenReturn(Vector("some_permission", "a_different_permission"), Nil:_*)
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      assert(roles.contains("some_permission"))
+      assert(roles.contains("a_different_permission"))
+
     }
   }
 
@@ -460,22 +529,33 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val config = createGenericValkyrieConfiguration(null)
     config.setTranslatePermissionsToRoles(new Object)
     config.setDelegating(new DelegatingType)
-    val tenantId = "aTenantId"
+    val tenantId = "hybrid:98765"
+    val transformedTenant = "98765"
     val contactId = "123456"
-    val akkaServiceClient = generateMockAkkaClient(tenantId, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    val akkaServiceClient = mock[AkkaServiceClient]
     val filterChain = mock[FilterChain]
     val mockServletRequest = new MockHttpServletRequest
-    mockServletRequest.setMethod("GET")
-    mockServletRequest.setRequestURL("http://foo.com:8080")
-    mockServletRequest.setHeader("X-Tenant-Id", tenantId)
-    mockServletRequest.setHeader("X-Contact-Id", contactId)
     val mockServletResponse = new MockHttpServletResponse
     val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
     filter.configurationUpdated(config)
 
-    it("should translate permissions to roles") {
+    def setup() = {
+      mockServletRequest.resetAll()
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+
       mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+
+      Mockito.reset(filterChain)
+      Mockito.reset(akkaServiceClient)
+      setMockAkkaBehavior(akkaServiceClient, "devices", transformedTenant, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
+    }
+
+    it("should translate permissions to roles") {
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -486,9 +566,52 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert(roles.contains("a_different_permission"))
     }
 
+    it("should 401 when tenant id isn't present") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("401"))
+    }
+
+    it("should 401 when contact id isn't present") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("401"))
+    }
+
+    it("should 403 when tenant is non-hybrid") {
+      setup
+      mockServletRequest.clearHeaders()
+      mockServletRequest.setHeader("X-Tenant-Id", "987654")
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, createValkyrieAccountsResponse("some_permission", "a_different_permission"))
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("403"))
+    }
+
     it("should 502 when valkyrie 404s") {
-      mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 404, "Not found")
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 404, "Not found")
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -499,8 +622,20 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should 502 when valkyrie 500s") {
-      mockServletResponse.resetAll()
-      setMockAkkaBehavior(akkaServiceClient, "accounts", tenantId, contactId, 500, "Internal Server Error")
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 500, "Internal Server Error")
+      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+      filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+      Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+
+      assert(mockServletResponse.getStatus == 200)
+      assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
+    }
+
+    it("should 502 when valkyrie gives an unexpected response") {
+      setup
+      setMockAkkaBehavior(akkaServiceClient, "accounts", transformedTenant, contactId, 200, """{"banana":"phone"}""")
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -511,9 +646,9 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should 502 when we have an exception while talking to valkyrie") {
-      mockServletResponse.resetAll()
+      setup
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
-        Matchers.eq(s"http://foo.com:8080/account/$tenantId/permissions/contacts/accounts/by_contact/$contactId/effective"),
+        Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/accounts/by_contact/$contactId/effective"),
         Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
