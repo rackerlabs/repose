@@ -621,7 +621,7 @@ class MockIdentityV2Service {
                     template = successfulValidateTokenXmlTemplate
                 }
             } else {
-                if (tokenId == "rackerSSO"){
+                if (tokenId == "rackerSSO") {
                     template = rackerSuccessfulValidateRespJsonTemplate
                 } else if (tokenId == "dedicatedUser") {
                     template = dedicatedUserSuccessfulRespJsonTemplate

@@ -152,7 +152,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
     }
 
-    def "If no impersonator then no impersonator headers" () {
+    def "If no impersonator then no impersonator headers"() {
         given: "keystone v2v2 without impersonate access"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -168,33 +168,5 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("x-impersonator-id")
         !mc.handlings[0].request.headers.contains("x-impersonator-name")
         !mc.handlings[0].request.headers.contains("x-impersonator-roles")
-    }
-
-    // REP-2670: Ded Auth Changes
-    // Currently, without a default tenantID, we do not make the Valkyrie call.
-    // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
-    // we will rely on a tenantID from the validate token call
-    // apply for this case dedicated user
-    def "Remove reliance on default tenant check" () {
-        given: "keystone v2v2 with dedicated user access"
-        fakeIdentityV2Service.with {
-            client_token = "dedicatedUser"
-            client_tenantid = "hybrid:12345"
-        }
-        when:
-        "User passes a request through repose with request tenant"
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/hybrid:12345",
-                method: 'GET',
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityV2Service.client_token
-                ]
-        )
-        then: "Things are forward to the origin, because we're not validating existence of tenant"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "hybrid:12345"
     }
 }

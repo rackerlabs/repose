@@ -299,7 +299,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     }
 
     // REP-2670: Ded Auth Changes -Zerotenant
-    def "Non-tenant(racker) with tenanted mode and bypass service admin role" () {
+    def "Non-tenant(racker) with tenanted mode and bypass service admin role"() {
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -358,9 +358,9 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == false
 
         where:
-        requestTenant | responseTenant | serviceAdminRole      | responseCode
-        717           | 717            | "not-admin"           | "200"
-        718           | 719            | "not-admin"           | "200"
+        requestTenant | responseTenant | serviceAdminRole | responseCode
+        717           | 717            | "not-admin"      | "200"
+        718           | 719            | "not-admin"      | "200"
     }
 
     // REP-2670: Ded Auth Changes
@@ -368,7 +368,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
     // we will rely on a tenantID from the validate token call
     // apply for this case dedicated user
-    def "Remove reliance on default tenant check" () {
+    def "Remove reliance on default tenant check"() {
         given: "keystone v2v2 with dedicated user access"
         def hybridtenant = "hybrid:12345"
         fakeIdentityV2Service.with {
@@ -378,7 +378,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         when:
         "User passes a request through repose with request tenant"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/"+hybridtenant,
+                url: "$reposeEndpoint/servers/" + hybridtenant,
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',

@@ -269,7 +269,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
     // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
     // we will rely on a tenantID from the validate token call
     // apply for this case dedicated user
-    def "Remove reliance on default tenant check" () {
+    def "Remove reliance on default tenant check"() {
         given: "keystone v2v2 with dedicated user access"
         fakeIdentityService.with {
             client_token = "dedicatedUser"

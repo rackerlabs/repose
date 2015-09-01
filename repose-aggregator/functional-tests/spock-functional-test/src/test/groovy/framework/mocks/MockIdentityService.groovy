@@ -356,16 +356,16 @@ class MockIdentityService {
         def request_token = tokenId
 
         def params = [
-                expires      : getExpires(),
-                userid       : client_userid,
-                username     : client_username,
-                tenant       : client_tenant,
-                tenanttwo    : client_tenant_file,
-                token        : request_token,
-                serviceadmin : service_admin_role,
-                contactIdXml : contactIdXml,
-                contactIdJson: contactIdJson,
-                impersonateid: impersonate_id,
+                expires        : getExpires(),
+                userid         : client_userid,
+                username       : client_username,
+                tenant         : client_tenant,
+                tenanttwo      : client_tenant_file,
+                token          : request_token,
+                serviceadmin   : service_admin_role,
+                contactIdXml   : contactIdXml,
+                contactIdJson  : contactIdJson,
+                impersonateid  : impersonate_id,
                 impersonatename: impersonate_name
         ];
         if (contact_id != null && !contact_id.isEmpty()) {
@@ -392,13 +392,13 @@ class MockIdentityService {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (tokenId == "dedicatedUser") {
                     template = dedicatedUserSuccessfulRespXmlTemplate
-                } else if (impersonate_id != ""){
+                } else if (impersonate_id != "") {
                     template = impersonateSuccessfulXmlRespTemplate
                 } else {
                     template = identitySuccessXmlTemplate
                 }
             } else {
-                if (impersonate_id != ""){
+                if (impersonate_id != "") {
                     template = impersonateSuccessfulJsonRespTemplate
                 } else if (tokenId == "dedicatedUser") {
                     template = dedicatedUserSuccessfulRespJsonTemplate
