@@ -95,14 +95,14 @@ class BypassTenantRolesWQualityTest extends ReposeValveTest {
         request2.headers.getFirstValue("X-Default-Region") == "DFW"
         request2.headers.contains("x-auth-token")
         request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-tenant-id") == requestTenant + ";" + quality
-        request2.headers.getFirstValue("x-authorization") == "Proxy " + requestTenant
+        request2.headers.getFirstValue("x-tenant-id") == responseTenant + ";" + quality
+        request2.headers.getFirstValue("x-authorization") == "Proxy " + responseTenant
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode | quality
         206           | 206            | "not-admin"           | "200"        | "q=0.9"
         207           | 207            | "not-admin"           | "200"        | "q=0.9"
         208           | 208            | "service:admin-role1" | "200"        | "q=0.9"
-        208           | 209            | "service:admin-role1" | "200"        | "q=0.7"
+        208           | 209            | "service:admin-role1" | "200"        | "q=0.9"
     }
 }
