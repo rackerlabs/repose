@@ -18,7 +18,4 @@
             </collection>
         </resource>
     </collection-resources>
-    <other-whitelisted-resources>
-        <path-regex>/tests(.*)</path-regex>
-    </other-whitelisted-resources>
 </valkyrie-authorization>
