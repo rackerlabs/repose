@@ -56,6 +56,11 @@ class NonTenantedAuthTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup() {
+        fakeIdentityService.resetDefaultParameters()
+        fakeIdentityService.resetHandlers()
+    }
+
     def "Validates a racker token"() {
 
         fakeIdentityService.with {
@@ -88,6 +93,25 @@ class NonTenantedAuthTest extends ReposeValveTest {
         then: "They should get denied because they don't have a tenant"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+    }
+
+    // REP-2670: Ded Auth Changes
+    def "Always add x-tenant to request for origin service use"() {
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-name")
     }
 
 }
