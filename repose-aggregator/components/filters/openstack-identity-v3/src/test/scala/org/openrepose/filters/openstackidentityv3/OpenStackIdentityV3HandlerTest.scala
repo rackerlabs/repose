@@ -168,12 +168,14 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       identityConfig.setForwardGroups(false)
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain(
-        Entry(
-          HeaderName.wrap(OpenStackServiceHeader.ROLES.toString),
-          JavaConversions.setAsJavaSet(Set("admin")))
+
+      val requestHeaderManager = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager()
+      requestHeaderManager.headersToRemove should not contain HeaderName.wrap("X-Roles")
+      requestHeaderManager.headersToAdd should contain(
+          Entry(
+            HeaderName.wrap(OpenStackServiceHeader.ROLES.toString),
+            JavaConversions.setAsJavaSet(Set("admin")))
       )
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToRemove should not contain HeaderName.wrap(OpenStackServiceHeader.ROLES.toString)
     }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
