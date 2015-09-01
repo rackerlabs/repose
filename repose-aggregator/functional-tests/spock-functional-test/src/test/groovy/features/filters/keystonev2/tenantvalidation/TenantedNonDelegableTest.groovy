@@ -298,24 +298,23 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         requestTenant << ["12345", "nast-it"]
     }
 
-    // REP-2670: Ded Auth Changes
-    def "Non-tenant(racker) with tenanted mode" () {
+    // REP-2670: Ded Auth Changes -Zerotenant
+    def "Non-tenant(racker) with tenanted mode and bypass service admin role" () {
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_userid = "456"
-            client_tenantid = "456"
+            service_admin_role = "service:admin-role1"
         }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/456", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/456/", method: 'GET',
+                headers: ['content-type': 'application/json',
+                          'X-Auth-Token': fakeIdentityV2Service.client_token])
 
-        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        then: "Things are forward to the origin, because we're not validating tenant from uri"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "456"
     }
 
     // REP-2670: Ded Auth Changes
