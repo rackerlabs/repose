@@ -193,9 +193,12 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertEquals("On rejected media type, returned status code must be 406", HttpServletResponse.SC_NOT_ACCEPTABLE, director.getResponseStatusCode());
         }
 
-        // This test doesn't make sense. If the accept header is set to a media type that the rate limiting filter
-        // cannot handle, the rate limiting filter should return a 406, or a default media type (ignoring the accept
-        // header)
+        // If the accept header is set to a media type that the rate limiting filter cannot handle,
+        // the rate limiting filter should return a 406, or a body with some default media type
+        // (ignoring the accept header). This test assumes that the latter approach was taken, and
+        // that limits are retrieved from the origin service as xml, combined, and returned to the
+        // requestor. HTTP/1.0 spec dicatates that the former approach be taken, while HTTP/1.1
+        // leaves it as an implementation decision.
         @Test
         public void shouldDescribeLimitsCallWithEmptyAcceptType() {
             Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
