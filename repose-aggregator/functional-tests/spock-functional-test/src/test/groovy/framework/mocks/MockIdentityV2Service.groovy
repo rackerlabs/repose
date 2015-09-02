@@ -1315,7 +1315,7 @@ class MockIdentityV2Service {
         expires="\${expires}"/>
     <user id="rackerSSOUsername">
         <roles>
-            <role id="9" name="Racker"
+            <role id="9" name="\${serviceadmin}"
                 description="Defines a user as being a Racker"
                 serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
             <role name="dl_RackUSA" />
@@ -1338,7 +1338,7 @@ class MockIdentityV2Service {
       "RAX-AUTH:defaultRegion": "",
       "roles": [
         {
-          "name": "Racker",
+          "name": "\${serviceadmin}",
           "description": "Defines a user as being a Racker",
           "id": "9",
           "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
