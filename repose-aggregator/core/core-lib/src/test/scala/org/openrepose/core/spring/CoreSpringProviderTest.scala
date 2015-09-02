@@ -117,6 +117,8 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
          * element.
          *
          * - Update TimeReceivedHandler.DEFAULT_DATE_FORMAT to "yyyy-MM-dd HH:mm:ss"
+         *
+         * - Update UnmarshallerValidatorValidationOnlyTest to un-ignore tests, remove namespace conversion hack
          */
       }
     }

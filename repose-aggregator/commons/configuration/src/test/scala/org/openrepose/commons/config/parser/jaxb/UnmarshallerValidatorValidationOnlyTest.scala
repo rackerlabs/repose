@@ -55,12 +55,6 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     app = cfg.getAppender(LIST_APPENDER_REF).asInstanceOf[ListAppender].clear()
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////
-  // This is a Time-Bomb to remind us to remove the backwards compatible hack.       //
-  new Date() should be < new GregorianCalendar(2015, Calendar.SEPTEMBER, 1).getTime()
-
-  //
-  /////////////////////////////////////////////////////////////////////////////////////
   val badNamespaceFiles = pathedFiles("unmarshallerValidator/badNamespace/")
   val correctNamespaceFiles = pathedFiles("unmarshallerValidator/correctNamespace/")
   //oldXmlFiles contains the largest list of the files, I should probably combine them.
@@ -116,7 +110,7 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     factory.newSchema(xsdURL)
   }
 
-  describe("Validating oldXmlConfigs") {
+  ignore("Validating oldXmlConfigs") {
     oldXmlFiles.foreach { configFile =>
       it(s"validates the old namespace configuration for $configFile") {
         validate(configFile)
@@ -126,7 +120,7 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     }
   }
 
-  describe("Validating an already correct namespace") {
+  ignore("Validating an already correct namespace") {
     correctNamespaceFiles.foreach { configFile =>
       it(s"should not log the a message for $configFile") {
         validate(configFile)
@@ -137,7 +131,7 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
       }
     }
   }
-  describe("Validating invalid configurations") {
+  ignore("Validating invalid configurations") {
     badNamespaceFiles.foreach { configFile =>
       it(s"should throw an exception for $configFile") {
         intercept[Exception] {

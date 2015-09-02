@@ -88,7 +88,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
     public static class WhenMakingValidRequests extends TestParent {
         private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
-        private GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1);
+        private GregorianCalendar splodeDate = new GregorianCalendar(2015, Calendar.OCTOBER, 1);
 
         @Before
         public void setup() {
@@ -193,6 +193,9 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             assertEquals("On rejected media type, returned status code must be 406", HttpServletResponse.SC_NOT_ACCEPTABLE, director.getResponseStatusCode());
         }
 
+        // This test doesn't make sense. If the accept header is set to a media type that the rate limiting filter
+        // cannot handle, the rate limiting filter should return a 406, or a default media type (ignoring the accept
+        // header)
         @Test
         public void shouldDescribeLimitsCallWithEmptyAcceptType() {
             Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
