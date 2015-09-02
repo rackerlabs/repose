@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class BasicValkyrieTest extends ReposeValveTest {
@@ -57,6 +58,8 @@ class BasicValkyrieTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeIdentityService.resetHandlers()
+        fakeValkyrie.resetHandlers()
     }
 
     def cleanupSpec() {
@@ -69,7 +72,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         }
     }
 
-
+    @Ignore
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -139,7 +142,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "DELETE" | randomTenant()             | "520707" | "blah"          | "403"
 
     }
-
+    @Ignore
     @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -196,7 +199,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
         "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
     }
-
+    @Ignore
     @Unroll("Without tenantId - permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if missing tenantId"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -239,7 +242,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "PATCH"  | "520707" | "edit_product"  | "401"
         "DELETE" | "520707" | "edit_product"  | "401"
     }
-
+    @Ignore
     @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if contact id missing"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -282,6 +285,48 @@ class BasicValkyrieTest extends ReposeValveTest {
         "POST"   | randomTenant() | "520707" | "edit_product"  | "401"
         "PATCH"  | randomTenant() | "520707" | "edit_product"  | "401"
         "DELETE" | randomTenant() | "520707" | "edit_product"  | "401"
+    }
+
+    // REP-2670: Ded Auth Changes
+    // Currently, without a default tenantID, we do not make the Valkyrie call.
+    // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
+    // we will rely on a tenantID from the validate token call
+    // apply for this case dedicated user
+    @Unroll("Dedecated User test permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
+    def "Test with dedecatedUser make sure make call to valkyrie"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = "dedicatedUser"
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_perm = permission
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method   | tenantID                   | deviceID | permission     | responseCode
+        "GET"    | randomTenant()             | "520707" | "view_product" | "200"
+        "HEAD"   | randomTenant()             | "520707" | "view_product" | "200"
+        "GET"    | randomTenant() - "hybrid:" | "520707" | "view_product" | "403"
+        "PUT"    | randomTenant()             | "520707" | "view_product" | "403"
+        "POST"   | randomTenant()             | "520707" | "view_product" | "403"
+        "DELETE" | randomTenant()             | "520707" | "view_product" | "403"
+        "PATCH"  | randomTenant()             | "520707" | "view_product" | "403"
     }
 
     def String randomTenant() {
