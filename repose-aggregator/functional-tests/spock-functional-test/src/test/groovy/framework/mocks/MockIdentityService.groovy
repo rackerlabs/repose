@@ -948,12 +948,12 @@ class MockIdentityService {
                   name="monitoring:admin"
                   description="Monitoring Admin Role for Account User"
                   serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
-                  tenantId="\${tenantid}" rax-auth:propagate="false"/>
+                  tenantId="\${tenant}" rax-auth:propagate="false"/>
             <role id="16"
                   name="dedicated:default"
                   description="a role that allows a user access to dedicated service methods"
                   serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
-                  tenantId="\${tenantid}"
+                  tenantId="\${tenant}"
                   rax-auth:propagate="true"/>
             <role id="2"
                   name="identity:default"
@@ -978,14 +978,14 @@ class MockIdentityService {
       "id": "dedicatedUser",
       "roles": [
         {
-          "tenantId" : "\${tenantid}",
+          "tenantId" : "\${tenant}",
           "id": "10015582",
           "serviceId": "bde1268ebabeeabb70a0e702a4626977c331d5c4",
           "description": "Monitoring Admin Role for Account User",
           "name": "monitoring:admin"
         },
         {
-          "tenantId" : "\${tenantid}",
+          "tenantId" : "\${tenant}",
           "id": "16",
           "serviceId": "bde1268ebabeeabb70a0e702a4626977c331d5c4",
           "description": "a role that allows a user access to dedicated service methods",
