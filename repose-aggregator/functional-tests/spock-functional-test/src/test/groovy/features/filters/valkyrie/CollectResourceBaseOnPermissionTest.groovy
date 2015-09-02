@@ -203,4 +203,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.receivedResponse.code == "401"
     }
 
+    def String randomTenant() {
+        "hybrid:" + random.nextInt()
+    }
 }
