@@ -94,7 +94,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
         headerResult match {
           case UserInfo(tenant, contact) =>
-            if(requestedDeviceId.isDefined || Option(configuration.getCollectionResources).isDefined) {
+            if (requestedDeviceId.isDefined || Option(configuration.getCollectionResources).isDefined) {
               val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
               datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, requestGuid)
             } else {
@@ -315,7 +315,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    if(potentialDevicePermissions.isInstanceOf[DeviceList]) {
+    if (potentialDevicePermissions.isInstanceOf[DeviceList]) {
       val devicePermissions = potentialDevicePermissions.asInstanceOf[DeviceList]
       val matchingResources: Option[mutable.Buffer[Resource]] = Option(configuration.getCollectionResources)
         .map(_.getResource.asScala.filter(_.getPathRegex.r.pattern.matcher(urlPath).matches()))
