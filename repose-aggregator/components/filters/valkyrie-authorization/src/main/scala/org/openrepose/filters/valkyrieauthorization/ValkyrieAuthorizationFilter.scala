@@ -61,6 +61,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   trait ValkyrieResult
 
+  case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
   case class DeviceToPermission(device: Int, permission: String)
   case class DeviceList(devices: Vector[DeviceToPermission]) extends ValkyrieResult //Vector because List isnt serializable until Scala 2.11
   case class RoleList(roles: Vector[String]) extends ValkyrieResult
@@ -78,17 +79,29 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
     val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
 
-    def getDeviceList(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
-      def convertToDeviceList(value: java.io.Serializable): DeviceList = DeviceList(value.asInstanceOf[Vector[DeviceToPermission]])
-
+    def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
       (requestedTenantId, requestedContactId) match {
         case (None, _) => ResponseResult(401, "No tenant ID specified")
         case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
         case (_, None) => ResponseResult(401, "No contact ID specified")
-        case (Some(tenant), Some(contact)) =>
-          val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-          datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, requestGuid)
+        case (Some(tenant), Some(contact)) => UserInfo(tenant, contact)
       }
+
+    }
+
+    def getDeviceList(headerResult: ValkyrieResult): ValkyrieResult = {
+      def convertToDeviceList(value: java.io.Serializable): DeviceList = DeviceList(value.asInstanceOf[Vector[DeviceToPermission]])
+
+        headerResult match {
+          case UserInfo(tenant, contact) =>
+            if(requestedDeviceId.isDefined || Option(configuration.getCollectionResources).isDefined) {
+              val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
+              datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, requestGuid)
+            } else {
+              ResponseResult(200)
+            }
+          case _ => headerResult
+        }
     }
 
     def authorizeDevice(deviceList: ValkyrieResult, deviceId: Option[String]): ResponseResult = {
@@ -139,12 +152,12 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val devicePermissions: ValkyrieResult = getDeviceList(requestedTenantId, requestedContactId)
+    val devicePermissions: ValkyrieResult = getDeviceList(checkHeaders(requestedTenantId, requestedContactId))
     mask403s(addRoles(getRoles(authorizeDevice(devicePermissions, requestedDeviceId)))) match {
       case ResponseResult(200, _) =>
         filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
         try {
-          cullResponse(urlPath, mutableHttpResponse, devicePermissions.asInstanceOf[DeviceList])
+          cullResponse(urlPath, mutableHttpResponse, devicePermissions)
         } catch {
           case rce: ResponseCullingException =>
             logger.debug("Failed to cull response, wiping out response.", rce)
@@ -253,7 +266,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
 
-  def cullResponse(urlPath: String, response: MutableHttpServletResponse, devicePermissions: DeviceList): Unit = {
+  def cullResponse(urlPath: String, response: MutableHttpServletResponse, potentialDevicePermissions: ValkyrieResult): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
       val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse({
@@ -267,7 +280,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath): Seq[JsValue] = {
+    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: DeviceList): Seq[JsValue] = {
       jsonArray.filter { value =>
         val deviceValue: String = Try(JSONPath.query(devicePath.getPath, value).as[String])
           .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${devicePath.getPath}", jre) } )
@@ -302,31 +315,34 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val matchingResources: Option[mutable.Buffer[Resource]] = Option(configuration.getCollectionResources)
-      .map(_.getResource.asScala.filter(_.getPathRegex.r.pattern.matcher(urlPath).matches()))
-    if (matchingResources.isDefined && matchingResources.get.nonEmpty) {
-      val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
-      val initialJson: JsValue = Try(Json.parse(input))
-        .recover( { case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe) } )
-        .get
-      val finalJson = matchingResources.get.foldLeft(initialJson) { (resourceJson, resource) =>
-        resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
-          val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
-            .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) } )
-            .get
+    if(potentialDevicePermissions.isInstanceOf[DeviceList]) {
+      val devicePermissions = potentialDevicePermissions.asInstanceOf[DeviceList]
+      val matchingResources: Option[mutable.Buffer[Resource]] = Option(configuration.getCollectionResources)
+        .map(_.getResource.asScala.filter(_.getPathRegex.r.pattern.matcher(urlPath).matches()))
+      if (matchingResources.isDefined && matchingResources.get.nonEmpty) {
+        val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
+        val initialJson: JsValue = Try(Json.parse(input))
+          .recover({ case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe) })
+          .get
+        val finalJson = matchingResources.get.foldLeft(initialJson) { (resourceJson, resource) =>
+          resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
+            val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
+              .recover({ case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) })
+              .get
 
-          val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId)
+            val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId, devicePermissions)
 
-          //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
-          val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { _ => new JsArray(culledArray) })
-          val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
-            throw new ResponseCullingException("Unable to transform json while culling list.")
-          })
+            //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
+            val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { _ => new JsArray(culledArray) })
+            val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
+              throw new ResponseCullingException("Unable to transform json while culling list.")
+            })
 
-          updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
+            updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
+          }
         }
+        response.getOutputStream.print(finalJson.toString())
       }
-      response.getOutputStream.print(finalJson.toString())
     }
   }
 

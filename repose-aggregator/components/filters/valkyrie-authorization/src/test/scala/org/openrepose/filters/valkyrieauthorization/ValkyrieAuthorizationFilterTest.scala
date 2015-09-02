@@ -529,6 +529,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val config = createGenericValkyrieConfiguration(null)
     config.setTranslatePermissionsToRoles(new Object)
     config.setDelegating(new DelegatingType)
+    config.setCollectionResources(null)
     val tenantId = "hybrid:98765"
     val transformedTenant = "98765"
     val contactId = "123456"
@@ -550,7 +551,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       Mockito.reset(filterChain)
       Mockito.reset(akkaServiceClient)
-      setMockAkkaBehavior(akkaServiceClient, "devices", transformedTenant, contactId, 200, createValkyrieDeviceResponse("98765", "view_product"))
     }
 
     it("should translate permissions to roles") {
