@@ -77,7 +77,7 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
         }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/permissions", method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/account/permissions", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
@@ -107,43 +107,6 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
         "GET"  | randomTenant() | "200"
     }
 
-    def "Get Account level permissions and translate to roles with given device id" () {
-        given:
-        fakeIdentityService.with {
-            client_apikey = UUID.randomUUID().toString()
-            client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
-        }
-
-        fakeValkyrie.with {
-            device_id = deviceID
-            device_perm = permission
-        }
-
-        when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
-                ]
-        )
-
-        then:
-        mc.receivedResponse.code == responseCode
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(permission)
-        //**This for tracing header on failed response REP-2147
-        mc.receivedResponse.headers.contains("x-trans-id")
-        //**This part for tracing header test REP-1704**
-        // any requests send to identity also include tracing header
-        mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-trans-id")
-        }
-
-        where:
-        method   | tenantID         | deviceID | permission     | responseCode
-        "GET"    | randomTenant()   | "520707" | "view_product" | "200"
-    }
-
     def "Missing tenant id" () {
         given:
         fakeIdentityService.with {
@@ -153,7 +116,7 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
         }
 
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/permissions", method: "GET",
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/account/permissions", method: "GET",
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
