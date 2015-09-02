@@ -21,4 +21,9 @@
         </destinations>
 
     </repose-cluster>
+
+    <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
+    <phone-home enabled="false"
+                origin-service-id="your-service"
+                contact-email="your@service.com"/>
 </system-model>

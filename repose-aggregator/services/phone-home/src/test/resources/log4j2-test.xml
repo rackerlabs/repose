@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration>
+    <Appenders>
+        <List name="filterList"/>
+        <List name="messageList"/>
+    </Appenders>
+    <Loggers>
+        <Root level="info"/>
+        <Logger name="org.openrepose.core.services.phonehome.PhoneHomeService" level="trace">
+            <AppenderRef ref="filterList"/>
+        </Logger>
+        <Logger name="phone-home-message" level="info">
+            <AppenderRef ref="messageList"/>
+        </Logger>
+    </Loggers>
+</Configuration>

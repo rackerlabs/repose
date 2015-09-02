@@ -136,6 +136,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>phone-home</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <exclusions>
