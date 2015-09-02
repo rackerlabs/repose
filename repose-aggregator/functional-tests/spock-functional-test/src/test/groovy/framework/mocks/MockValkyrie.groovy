@@ -123,7 +123,7 @@ class MockValkyrie {
     }
 
     static
-    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/(devices|account)\/by_contact\/([^\/]+)\/effective/
+    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/(devices|accounts)\/by_contact\/([^\/]+)\/effective/
 
     Response authorize(String tenant, String contact, Request request) {
 
@@ -143,7 +143,7 @@ class MockValkyrie {
 
         if (!missingRequestHeaders) {
             code = 200;
-            if (calltype == "account"){
+            if (calltype == "accounts"){
                 template = successfulAccountPermissionResp
             } else {
                 template = validationSuccessTemplate
