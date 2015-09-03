@@ -18,13 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 class BasicValkyrieTest extends ReposeValveTest {
@@ -72,7 +70,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         }
     }
 
-    @Ignore
+
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -142,7 +140,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "DELETE" | randomTenant()             | "520707" | "blah"          | "403"
 
     }
-    @Ignore
+
     @Unroll("tenant missing prefix 'hybrid': #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if tenant coming from identity prefix 'hybrid' is missing"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -199,7 +197,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "PATCH"  | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
         "DELETE" | "dedicated:" + random.nextInt() | "520707" | "edit_product"  | "403"
     }
-    @Ignore
+
     @Unroll("Without tenantId - permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if missing tenantId"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
@@ -242,7 +240,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         "PATCH"  | "520707" | "edit_product"  | "401"
         "DELETE" | "520707" | "edit_product"  | "401"
     }
-    @Ignore
+
     @Unroll("ContactId missing: #tenantID, permission: #permission for #method and deviceID: #deviceID should return a #responseCode")
     def "Repose return 403 if contact id missing"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
