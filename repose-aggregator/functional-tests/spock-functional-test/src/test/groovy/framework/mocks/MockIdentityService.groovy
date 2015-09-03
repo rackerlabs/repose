@@ -942,7 +942,7 @@ class MockIdentityService {
             <rax-auth:credential>PASSWORD</rax-auth:credential>
         </rax-auth:authenticatedBy>
     </token>
-    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD">
+    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD" \${contactIdXml}>
         <roles>
             <role id="10015582"
                   name="monitoring:admin"

@@ -292,8 +292,8 @@ class BasicValkyrieTest extends ReposeValveTest {
     // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
     // we will rely on a tenantID from the validate token call
     // apply for this case dedicated user
-    @Unroll("Dedecated User test permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
-    def "Test with dedecatedUser make sure make call to valkyrie"() {
+    @Unroll("Dedicated User test permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
+    def "Test with dedicatedUser make sure make call to valkyrie"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
