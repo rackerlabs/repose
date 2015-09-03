@@ -278,7 +278,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     def authorizeTenant(expectedTenant: Option[String], validToken: ValidToken): Try[Unit.type] = {
       Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
-        Option(validateTenant.getBypassValidationRoles) filter {
+        Option(validateTenant.getPreAuthorizedRoles) filter {
           _.getRole.asScala.intersect(validToken.roles).nonEmpty
         } map { _ =>
           Success(Unit)
@@ -337,7 +337,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 region = Option(configuredEndpoint.getRegion)
               )
 
-            val bypassRoles = Option(configuredEndpoint.getBypassValidationRoles)
+            val bypassRoles = Option(configuredEndpoint.getPreAuthorizedRoles)
               .map(_.getRole.asScala)
               .getOrElse(List.empty)
 

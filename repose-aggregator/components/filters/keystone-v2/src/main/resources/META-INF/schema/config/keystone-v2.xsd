@@ -165,7 +165,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
+            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -185,7 +185,7 @@
 
     <xs:complexType name="ServiceEndpointType">
         <xs:sequence>
-            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
+            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
