@@ -203,42 +203,6 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.receivedResponse.code == "401"
     }
 
-    def "Verify whitelist" () {
-        fakeIdentityService.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
-        }
-
-        fakeValkyrie.with {
-            device_id = "520707"
-            device_id2 = "520708"
-            device_perm = "view_product"
-        }
-
-        "Json Response from origin service"
-        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
-
-        when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/tests/something", method: "GET",
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456'
-                ],
-                defaultHandler: jsonResp
-        )
-
-        def body = new String(mc.receivedResponse.body)
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(body)
-
-        then: "check response"
-        mc.handlings.size() == 1
-        mc.receivedResponse.code == "200"
-        result.values.size == 2
-        result.metadata.count == 2
-    }
-
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }

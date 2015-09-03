@@ -19,7 +19,4 @@
             </collection>
         </resource>
     </collection-resources>
-    <other-whitelisted-resources>
-        <path-regex>/thingys/\*</path-regex>
-    </other-whitelisted-resources>
 </valkyrie-authorization>

@@ -41,8 +41,8 @@
         <xs:sequence>
             <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="valkyrie-server" type="ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="translate-permissions-to-roles" minOccurs="0" maxOccurs="1"/>
             <xs:element name="collection-resources" type="CollectionResources" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="other-whitelisted-resources" type="OtherWhitelistedResources" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="300000">
             <xs:annotation>
@@ -228,21 +228,6 @@
                     </xs:simpleContent>
                 </xs:complexType>
             </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="OtherWhitelistedResources">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    A list of resources that don't require a per device authorization nor culling of a collection.
-                    Anything not on this list nor captured under the other cases of this filter will be rejected as
-                    unauthorized.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="path-regex" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
