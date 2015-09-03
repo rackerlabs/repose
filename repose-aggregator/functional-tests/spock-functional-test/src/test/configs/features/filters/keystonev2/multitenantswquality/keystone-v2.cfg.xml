@@ -9,9 +9,9 @@
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <bypass-validation-roles>
+            <pre-authorized-roles>
                 <role>Racker</role>
-            </bypass-validation-roles>
+            </pre-authorized-roles>
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="0.9" roles-tenant-quality="0.7"/>
     </tenant-handling>

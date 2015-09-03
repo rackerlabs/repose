@@ -9,10 +9,10 @@
     <tenant-handling>
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <bypass-validation-roles>
+            <pre-authorized-roles>
                 <role>service:admin-role1</role>
                 <role>service:admin-role2</role>
-            </bypass-validation-roles>
+            </pre-authorized-roles>
         </validate-tenant>
     </tenant-handling>
     <identity-service username="admin_username"

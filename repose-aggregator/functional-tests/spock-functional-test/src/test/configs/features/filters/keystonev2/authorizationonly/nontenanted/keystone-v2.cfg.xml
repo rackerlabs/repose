@@ -15,9 +15,9 @@
     </cache>
 
     <require-service-endpoint public-url="http://localhost2:${targetPort}/">
-        <bypass-validation-roles>
+        <pre-authorized-roles>
             <role>admin</role>
             <role>openstack:admin</role>
-        </bypass-validation-roles>
+        </pre-authorized-roles>
     </require-service-endpoint>
 </keystone-v2>

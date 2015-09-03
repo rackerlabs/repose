@@ -49,20 +49,20 @@
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
 
-            <bypass-validation-roles>
+            <pre-authorized-roles>
                 <role>serviceAdmin</role>
                 <role>racker</role>
-            </bypass-validation-roles>
+            </pre-authorized-roles>
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="1.0" roles-tenant-quality="0.5"/>
     </tenant-handling>
 
    <!-- authorization -->
     <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute">
-        <bypass-validation-roles>
+        <pre-authorized-roles>
             <role>serviceAdmin</role>
             <role>racker</role>
-        </bypass-validation-roles>
+        </pre-authorized-roles>
     </require-service-endpoint>
 
 </keystone-v2>
