@@ -15,10 +15,10 @@
                       set-groups-in-header="true"
             />
 
-    <require-service-endpoint public-url="http://localhost2:${targetPort}/">
-        <pre-authorized-roles>
-            <role>admin</role>
-            <role>openstack:admin</role>
-        </pre-authorized-roles>
-    </require-service-endpoint>
+    <require-service-endpoint public-url="http://localhost2:${targetPort}/"/>
+
+    <pre-authorized-roles>
+        <role>admin</role>
+        <role>openstack:admin</role>
+    </pre-authorized-roles>
 </keystone-v2>

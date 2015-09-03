@@ -66,7 +66,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
-    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
+    val xsdURL: URL = this.getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
     configurationService.subscribeTo(
       SYSTEM_MODEL_CONFIG,
       getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
@@ -278,7 +278,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     def authorizeTenant(expectedTenant: Option[String], validToken: ValidToken): Try[Unit.type] = {
       Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
-        Option(validateTenant.getPreAuthorizedRoles) filter {
+        Option(config.getPreAuthorizedRoles) filter {
           _.getRole.asScala.intersect(validToken.roles).nonEmpty
         } map { _ =>
           Success(Unit)
@@ -337,11 +337,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 region = Option(configuredEndpoint.getRegion)
               )
 
-            val bypassRoles = Option(configuredEndpoint.getPreAuthorizedRoles)
+            val preAuthRoles = Option(config.getPreAuthorizedRoles)
               .map(_.getRole.asScala)
               .getOrElse(List.empty)
 
-            if (bypassRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
+            if (preAuthRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
             else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
           }
         case None => Success(Unit)

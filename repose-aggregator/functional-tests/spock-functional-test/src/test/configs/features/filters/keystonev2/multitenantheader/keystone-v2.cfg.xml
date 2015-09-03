@@ -6,17 +6,19 @@
             <group>600000</group>
         </timeouts>
     </cache>
+
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <pre-authorized-roles>
-                <role>Racker</role>
-            </pre-authorized-roles>
         </validate-tenant>
     </tenant-handling>
+
+    <pre-authorized-roles>
+        <role>Racker</role>
+    </pre-authorized-roles>
 
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"
-                      />
+            />
 </keystone-v2>

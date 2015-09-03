@@ -470,13 +470,12 @@ with HttpDelegationManager {
         |            set-catalog-in-header="false"
         |            />
         |
-        |    <require-service-endpoint public-url="https://compute.north.public.com/v1" region="Global" name="Compute" type="compute">
-        |        <pre-authorized-roles>
-        |            <role>serviceAdmin</role>
-        |            <role>racker</role>
-        |        </pre-authorized-roles>
-        |    </require-service-endpoint>
+        |    <require-service-endpoint public-url="https://compute.north.public.com/v1" region="Global" name="Compute" type="compute"/>
         |
+        |    <pre-authorized-roles>
+        |        <role>serviceAdmin</role>
+        |        <role>racker</role>
+        |    </pre-authorized-roles>
         |</keystone-v2>
       """.stripMargin)
 
@@ -1405,13 +1404,13 @@ with HttpDelegationManager {
         |    <tenant-handling send-all-tenant-ids="true">
         |        <validate-tenant>
         |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
-        |            <pre-authorized-roles>
-        |                <role>serviceAdmin</role>
-        |                <role>racker</role>
-        |            </pre-authorized-roles>
         |        </validate-tenant>
         |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
         |    </tenant-handling>
+        |    <pre-authorized-roles>
+        |        <role>serviceAdmin</role>
+        |        <role>racker</role>
+        |    </pre-authorized-roles>
         |</keystone-v2>
       """.stripMargin)
 

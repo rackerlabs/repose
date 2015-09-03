@@ -10,12 +10,14 @@
     <tenant-handling>
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <pre-authorized-roles>
-                <role>service:admin-role1</role>
-                <role>service:admin-role2</role>
-            </pre-authorized-roles>
         </validate-tenant>
     </tenant-handling>
+
+    <pre-authorized-roles>
+        <role>service:admin-role1</role>
+        <role>service:admin-role2</role>
+    </pre-authorized-roles>
+
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"/>
