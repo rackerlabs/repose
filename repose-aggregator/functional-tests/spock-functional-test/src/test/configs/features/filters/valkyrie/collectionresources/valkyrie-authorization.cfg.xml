@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <valkyrie-authorization
-        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="300000" enable-masking-403s="true">
-    <delegating quality="0.9"/>
-    <valkyrie-server uri="http://theserver:8080" username="myUsername" password="myPassword"/>
+        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="3000">
+    <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
     <collection-resources>
         <resource>
-            <path-regex>/devices/.*</path-regex>
+            <path-regex>/resources.*</path-regex>
             <collection>
                 <json>
                     <path-to-collection>$.values</path-to-collection>
