@@ -999,7 +999,8 @@ class MockIdentityService {
         }
       ],
       "name": "dedicated_29502_1099363",
-      "RAX-AUTH:defaultRegion": "ORD"
+      "RAX-AUTH:defaultRegion": "ORD",
+      \${contactIdJson}
     }
   }
 }
