@@ -2,7 +2,7 @@
 <client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
     <openstack-auth tenanted="true"
                     send-all-tenant-ids="true"
-                    request-groups="false"
+                    request-groups="true"
                     token-cache-timeout="600000"
                     group-cache-timeout="600000"
                     connectionPoolId="client-auth"

@@ -198,6 +198,7 @@ public class OpenStackAuthenticationHeaderManager {
             }
         } else if (!sendAllTenantIds && sendTenantIdQuality) {
             if (!this.isDelagable && !this.isTenanted) {
+                //TODO: Should this, or any other, instance of putHeader be changed to appendHeader?
                 filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId(), 1.0);
             } else {
                 filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId, 1.0);
@@ -231,7 +232,7 @@ public class OpenStackAuthenticationHeaderManager {
         String roles = cachableToken.getRoles();
 
         if (StringUtilities.isNotBlank(roles)) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roles);
+            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.ROLES.toString(), roles);
         }
     }
 

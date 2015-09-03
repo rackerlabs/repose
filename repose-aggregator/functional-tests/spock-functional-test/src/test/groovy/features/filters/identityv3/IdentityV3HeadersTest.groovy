@@ -25,6 +25,7 @@ import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 
 /**
  * Created by jennyvo on 8/26/14.
@@ -53,6 +54,11 @@ class IdentityV3HeadersTest extends ReposeValveTest {
             deproxy.shutdown()
         if (repose)
             repose.stop()
+    }
+
+    def setup() {
+        fakeIdentityV3Service.resetHandlers()
+        fakeIdentityV3Service.resetParameters()
     }
 
     def "When token is validated, set of headers should be generated"() {
@@ -120,5 +126,81 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"
         mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://" + identityEndpoint.hostname + ":" + properties.identityPort
+    }
+
+    // REP-2464: Auth filter should add headers not replace headers
+    // Note: V3 x-pp-user using userid
+    def "Verify auth filter adding headers not replace headers"() {
+        given:
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_domainid = reqDomain
+            client_userid = reqUserId
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                        'x-roles'        : 'test',
+                        'X-Roles'        : 'user',
+                        'x-pp-groups'    : 'Repose Test',
+                        'x-pp-user'      : 'Repose user'
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
+        (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Repose Test")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("service:admin-role1")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("member")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("test")
+        (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("user")
+        (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("Repose user")
+        (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("12345")
+    }
+
+    // REP-2464: Auth filter should add headers not replace headers
+    @Ignore ("We can turn on when impersonator role to header merge in to branch")
+    def "Verify with impersonation, repose should add x-impersonator-roles headers"() {
+        given:
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_domainid = 12345
+            client_userid = 123456
+            impersonate_name = "impersonator_name"
+            impersonate_id = "567"
+        }
+
+        when: "User passes a request with impersonation through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/12345/",
+                method: 'GET',
+                headers: [
+                        'content-type'        : 'application/json',
+                        'X-Subject-Token'     : fakeIdentityV3Service.client_token,
+                        'x-impersonator-roles': 'repose-test'
+                ]
+        )
+
+        then: "repose should add X-Impersonator-Name and X-Impersonator-Id"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Name") == fakeIdentityV3Service.impersonate_name
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityV3Service.impersonate_id
+        (mc.handlings[0].request.headers.findAll("x-impersonator-roles").toString()).contains("Racker")
+        (mc.handlings[0].request.headers.findAll("x-impersonator-roles").toString()).contains("object-store:admin")
+        (mc.handlings[0].request.headers.findAll("x-impersonator-roles").toString()).contains("repose-test")
     }
 }

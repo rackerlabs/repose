@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.openrepose.filters.openstackidentityv3.config._
@@ -58,7 +58,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.setServiceEndpoint(new ServiceEndpoint())
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
-    identityConfig.getValidateProjectIdInUri.setRegex( """/foo/(\d+)""")
+    identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
@@ -157,6 +157,25 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val headers: util.Map[HeaderName, util.Set[String]] = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Name")
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Id")
+    }
+
+    it("should non-destructively add the x-roles header") {
+      when(identityAPI.validateToken("123456", None)).thenReturn(
+        Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Option(List(Role("1", "admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.setHeader("X-Subject-Token", "123456")
+      identityConfig.setForwardGroups(false)
+      identityConfig.setValidateProjectIdInUri(null)
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+
+      val requestHeaderManager = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager()
+      requestHeaderManager.headersToRemove should not contain HeaderName.wrap("X-Roles")
+      requestHeaderManager.headersToAdd should contain(
+          Entry(
+            HeaderName.wrap(OpenStackServiceHeader.ROLES.toString),
+            JavaConversions.setAsJavaSet(Set("admin")))
+      )
     }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
@@ -513,15 +532,15 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     val extractProjectIdFromUri = PrivateMethod[Option[String]]('extractProjectIdFromUri)
 
     it("should return None if the regex does not match") {
-      identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/(\d+)""".r, "/bar/12345") shouldBe None
+      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/bar/12345") shouldBe None
     }
 
     it("should return None if the regex does not contain a capture group") {
-      identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/\d+""".r, "/bar/12345") shouldBe None
+      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/\d+""".r, "/bar/12345") shouldBe None
     }
 
     it("should return Some(projectId) if the regex matches and a capture group is present") {
-      val projectId = identityV3Handler invokePrivate extractProjectIdFromUri( """/foo/(\d+)""".r, "/foo/12345")
+      val projectId = identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/foo/12345")
       projectId shouldBe a[Some[_]]
       projectId.get shouldEqual "12345"
     }
