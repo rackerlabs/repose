@@ -307,6 +307,8 @@ class BasicValkyrieTest extends ReposeValveTest {
             device_perm = permission
         }
 
+        sleep(2000)
+
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
                 headers: [

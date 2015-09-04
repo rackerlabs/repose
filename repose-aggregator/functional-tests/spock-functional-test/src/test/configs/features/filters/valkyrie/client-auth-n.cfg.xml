@@ -2,7 +2,8 @@
 <client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
     <openstack-auth tenanted="false"
                     request-groups="true"
-                    token-cache-timeout="0"
+                    token-cache-timeout="1000"
+                    user-cache-timeout="1000"
                     group-cache-timeout="600000"
                     xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username"
