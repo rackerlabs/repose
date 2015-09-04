@@ -9,12 +9,13 @@
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <bypass-validation-roles>
-                <role>Racker</role>
-            </bypass-validation-roles>
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="0.3"/>
     </tenant-handling>
+
+    <pre-authorized-roles>
+        <role>Racker</role>
+    </pre-authorized-roles>
 
     <identity-service username="admin_username"
                       password="admin_password"

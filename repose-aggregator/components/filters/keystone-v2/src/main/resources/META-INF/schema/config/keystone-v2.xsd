@@ -21,10 +21,7 @@
 
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            elementFormDefault="qualified"
@@ -46,6 +43,7 @@
             <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
@@ -165,15 +163,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            List of roles to bypass the tenant URI validation requirements.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -184,18 +173,6 @@
     </xs:complexType>
 
     <xs:complexType name="ServiceEndpointType">
-        <xs:sequence>
-            <xs:element name="bypass-validation-roles" type="RolesList" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            List of roles to bypass the service endpoint validation requirements.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-
         <xs:attribute name="public-url" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>

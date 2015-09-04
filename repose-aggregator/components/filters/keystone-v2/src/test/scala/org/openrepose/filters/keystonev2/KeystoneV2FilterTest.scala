@@ -470,13 +470,12 @@ with HttpDelegationManager {
         |            set-catalog-in-header="false"
         |            />
         |
-        |    <require-service-endpoint public-url="https://compute.north.public.com/v1" region="Global" name="Compute" type="compute">
-        |        <bypass-validation-roles>
-        |            <role>serviceAdmin</role>
-        |            <role>racker</role>
-        |        </bypass-validation-roles>
-        |    </require-service-endpoint>
+        |    <require-service-endpoint public-url="https://compute.north.public.com/v1" region="Global" name="Compute" type="compute"/>
         |
+        |    <pre-authorized-roles>
+        |        <role>serviceAdmin</role>
+        |        <role>racker</role>
+        |    </pre-authorized-roles>
         |</keystone-v2>
       """.stripMargin)
 
@@ -660,7 +659,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
     }
 
-    it("bypasses validation if the user has the role listed in bypass-validation-roles") {
+    it("bypasses validation if the user has the role listed in pre-authorized-roles") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1405,13 +1404,13 @@ with HttpDelegationManager {
         |    <tenant-handling send-all-tenant-ids="true">
         |        <validate-tenant>
         |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
-        |            <bypass-validation-roles>
-        |                <role>serviceAdmin</role>
-        |                <role>racker</role>
-        |            </bypass-validation-roles>
         |        </validate-tenant>
         |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
         |    </tenant-handling>
+        |    <pre-authorized-roles>
+        |        <role>serviceAdmin</role>
+        |        <role>racker</role>
+        |    </pre-authorized-roles>
         |</keystone-v2>
       """.stripMargin)
 
@@ -1517,7 +1516,7 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
     }
 
-    it("bypasses the URI tenant validation check when a user has a role in the bypass-validation-roles list") {
+    it("bypasses the URI tenant validation check when a user has a role in the pre-authorized-roles list") {
       val request = new MockHttpServletRequest()
       request.setRequestURL("http://www.sample.com/tenant/test")
       request.setRequestURI("/tenant/test")
