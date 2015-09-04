@@ -58,6 +58,7 @@ class BasicValkyrieTest extends ReposeValveTest {
 
     def setup() {
         fakeIdentityService.resetHandlers()
+        fakeIdentityService.resetDefaultParameters()
         fakeValkyrie.resetHandlers()
     }
 
