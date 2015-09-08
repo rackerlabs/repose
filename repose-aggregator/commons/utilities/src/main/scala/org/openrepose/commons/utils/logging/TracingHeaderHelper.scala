@@ -41,6 +41,7 @@ object TracingHeaderHelper extends LazyLogging {
   // JSON contents
   private val TraceGuidKey = "requestId"
   private val OriginKey = "origin"
+  private val UserKey = "user"
 
   def getTraceGuid(tracingHeader: String): String = {
     (Option(MDC.get(TracingKey.TRACING_KEY)), Option(tracingHeader)) match {
@@ -58,9 +59,17 @@ object TracingHeaderHelper extends LazyLogging {
   }
 
   def createTracingHeader(requestId: String, origin: String): String = {
+    createTracingHeader(requestId, origin, None)
+  }
+
+  def createTracingHeader(requestId: String, origin: String, user: String): String = {
+    createTracingHeader(requestId, origin, Option(user))
+  }
+
+  def createTracingHeader(requestId: String, origin: String, user: Option[String]): String = {
     Base64.encodeBase64String(
       ObjectMapper.writeValueAsBytes(
-        Map(TraceGuidKey -> requestId, OriginKey -> origin).asJava))
+        (Map(TraceGuidKey -> requestId, OriginKey -> origin) ++ user.map(UserKey -> _)).asJava))
   }
 
   def decode(tracingHeader: String): String = {

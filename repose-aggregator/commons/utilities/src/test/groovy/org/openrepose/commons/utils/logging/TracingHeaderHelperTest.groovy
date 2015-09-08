@@ -115,6 +115,22 @@ class TracingHeaderHelperTest extends Specification {
         then:
         new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).requestId == requestId
         new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).origin == origin
+        !new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).user
+    }
+
+    def 'create Tracing Header from specified Request ID, Origin, and Username'() {
+        given:
+        def requestId = '67564a55-1fd0-43f9-ab9c-7055c9334f30'
+        def origin = 'some_via'
+        def username = 'Sam'
+
+        when:
+        def tracingHeader = TracingHeaderHelper.createTracingHeader(requestId, origin, username)
+
+        then:
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).requestId == requestId
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).origin == origin
+        new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader))).user == username
     }
 
     def 'decode Tracing Header to printable string'() {
