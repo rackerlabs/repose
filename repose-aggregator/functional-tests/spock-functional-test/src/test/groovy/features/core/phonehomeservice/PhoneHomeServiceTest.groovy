@@ -103,7 +103,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params);
         repose.start()
 
-        def headers = ['content-lenght': 0]
+        def headers = ['content-length': 0]
         phonehomeEndpoint.defaultHandler = { return new Response(400, "", headers) }
 
         when: "repose update system moder"
@@ -115,7 +115,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         reposeLogSearch.searchByString("serviceId").size() != 0
         line != null
         line.contactEmail == "repose.core@rackspace.com"
-        line.reposeVersion == "7.1.4.1-SNAPSHOT"
+        line.reposeVersion == properties.reposeVersion
         line.clusters[0].filters[0] == "rate-limiting"
         line.clusters[0].services[0] == "dist-datastore"
     }
