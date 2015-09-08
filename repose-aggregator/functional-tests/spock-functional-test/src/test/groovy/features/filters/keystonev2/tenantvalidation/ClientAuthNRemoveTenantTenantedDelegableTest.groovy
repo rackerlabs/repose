@@ -144,9 +144,9 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         request2.headers.contains("x-auth-token")
         request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-tenant-id") == requestTenant.toString()
+        request2.headers.getFirstValue("x-tenant-id") == responseTenant.toString()
         request2.headers.getFirstValue("x-identity-status") == "Confirmed"
-        request2.headers.getFirstValue("x-authorization") == "Proxy " + requestTenant
+        request2.headers.getFirstValue("x-authorization") == "Proxy " + responseTenant
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode

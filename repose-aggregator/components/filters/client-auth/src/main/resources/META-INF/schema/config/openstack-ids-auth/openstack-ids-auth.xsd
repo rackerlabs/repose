@@ -274,8 +274,10 @@
     <xs:complexType name="IgnoreTenantRoles">
         <xs:annotation>
             <xs:documentation>
-                <html:p>A list of roles to bypass the tenant requirement check.
-                    Users with the any of the roles specified will not have the requirement for a tenant.
+                <html:p>
+                    A list of roles to bypass the tenant check.
+                    Users with the any of the roles specified will not have the requirement for the existence or
+                    equality of a tenant.
                 </html:p>
             </xs:documentation>
         </xs:annotation>

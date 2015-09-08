@@ -121,8 +121,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           val processingResult =
             getAuthToken flatMap { authToken =>
               validateToken(getAdminToken, authToken) flatMap { validToken =>
-                addTokenHeaders(validToken)
-                authorizeTenant(tenantFromUri, validToken) flatMap { _ =>
+                val doTenantCheck = doAuthorizeTenant(validToken)
+                val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
+                addTokenHeaders(validToken, matchedUriTenant.getOrElse(None))
+                authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
                   lazy val endpoints = getEndpoints(getAdminToken, authToken, validToken) // Prevents making call if its not needed
                   addCatalogHeader(endpoints) flatMap { _ =>
                     authorizeEndpoints(validToken, endpoints) flatMap { _ =>
@@ -199,16 +201,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     /**
      * DEFINING FUNCTIONS IN SCOPE
      */
-    lazy val tenantFromUri: Option[String] = {
-      Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
-        Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
-          val regex = uriExtractionRegex.r
-          request.getRequestURI match {
-            case regex(tenantId, _*) => Some(tenantId)
-            case _ => None
+    def tenantFromUri: Try[Option[String]] = {
+      Try(
+        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
+          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
+            val regex = uriExtractionRegex.r
+            request.getRequestURI match {
+              case regex(tenantId, _*) => Some(tenantId)
+              case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
+            }
           }
         }
-      }
+      )
     }
 
     def isWhitelisted(requestUri: String): Boolean = {
@@ -276,25 +280,38 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def authorizeTenant(expectedTenant: Option[String], validToken: ValidToken): Try[Unit.type] = {
-      Option(config.getTenantHandling.getValidateTenant) map { validateTenant =>
-        Option(config.getPreAuthorizedRoles) filter {
-          _.getRole.asScala.intersect(validToken.roles).nonEmpty
-        } map { _ =>
-          Success(Unit)
-        } getOrElse {
-          logger.trace("Validating tenant")
+    def doAuthorizeTenant(validToken: ValidToken): Boolean = {
+      Option(config.getTenantHandling.getValidateTenant) exists { validateTenant =>
+        Option(config.getPreAuthorizedRoles) forall {
+          _.getRole.asScala.intersect(validToken.roles).isEmpty
+        }
+      }
+    }
 
-          expectedTenant map { reqTenant =>
+    def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Try[Option[String]] = {
+      if (doTenantCheck) {
+        tenantFromUri map {
+          _ flatMap { uriTenant =>
             val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-            tokenTenants.find(reqTenant.equals)
-              .map(_ => Success(Unit))
-              .getOrElse(Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token")))
-          } getOrElse {
-            Failure(UnparseableTenantException("Could not parse tenant from the URI"))
+            tokenTenants.find(uriTenant.equals)
           }
         }
-      } getOrElse Success(Unit)
+      } else {
+        Success(None)
+      }
+    }
+
+    def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Try[Option[String]]): Try[Unit.type] = {
+      logger.trace("Validating tenant")
+
+      if (doTenantCheck) {
+        matchedUriTenant flatMap { uriTenant =>
+          if (uriTenant.isDefined) Success(Unit)
+          else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
+        }
+      } else {
+        Success(Unit)
+      }
     }
 
     def getEndpoints(getAdminToken: Boolean => Try[String], authToken: String, validToken: ValidToken): Try[EndpointsData] = {
@@ -375,7 +392,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     def buildTenantHeader(defaultTenant: Option[String],
                           roleTenants: Seq[String],
-                          uriTenant: Option[String]): Vector[String] = {
+                          matchedUriTenant: Option[String]): Vector[String] = {
       val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
       val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
       val sendQuality = sendTenantIdQuality.isDefined
@@ -385,7 +402,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       case class PreferredTenant(id: String, quality: Double)
 
-      val preferredTenant = (defaultTenant, uriTenant) match {
+      val preferredTenant = (defaultTenant, matchedUriTenant) match {
         case (Some(default), Some(uri)) =>
           val quality = if (default.equals(uri)) {
             math.max(defaultTenantQuality, uriTenantQuality)
@@ -398,11 +415,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         case (Some(default), None) =>
           Some(PreferredTenant(default, defaultTenantQuality))
         case (None, None) =>
-          None
+          if (roleTenants.nonEmpty) Some(PreferredTenant(roleTenants.head, rolesTenantQuality))
+          else None
       }
 
       if (sendAllTenants && sendQuality) {
-        val priorityTenants = (defaultTenant, uriTenant) match {
+        val priorityTenants = (defaultTenant, matchedUriTenant) match {
           case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
           case (Some(default), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
           case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
@@ -418,7 +436,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def addTokenHeaders(token: ValidToken): Unit = {
+    def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
@@ -437,7 +455,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // Construct and add the tenant id header
-      val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, tenantFromUri)
+      val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedUriTenant)
       if (tenantsToPass.nonEmpty) {
         request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
       }
@@ -448,7 +466,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
-      tenantFromUri match {
+      matchedUriTenant match {
         case Some(uriTenant) =>
           request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
         case None =>

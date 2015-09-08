@@ -21,7 +21,9 @@ package org.openrepose.filters.clientauth.common;
 
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author fran
@@ -41,8 +43,7 @@ public class Configurables {
     private final int cacheOffset;
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
-    private final List<String> serviceAdminRoles;
-    private final List<String> ignoreTenantRoles;
+    private final Set<String> ignoreTenantRoles;
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
 
@@ -50,6 +51,9 @@ public class Configurables {
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
                          EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles,
                          boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+        HashSet<String> noTenantRoles = new HashSet<>(serviceAdminRoles);
+        noTenantRoles.addAll(ignoreTenantRoles);
+
         this.delegable = delegable;
         this.delegableQuality = delegableQuality;
         this.authServiceUri = authServiceUri;
@@ -61,8 +65,7 @@ public class Configurables {
         this.cacheOffset = cacheOffset;
         this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
-        this.serviceAdminRoles = serviceAdminRoles;
-        this.ignoreTenantRoles = ignoreTenantRoles;
+        this.ignoreTenantRoles = noTenantRoles;
         this.sendAllTenantIds = sendAllTenantIds;
         this.sendTenantIdQuality = sendTenantIdQuality;
     }
@@ -111,11 +114,7 @@ public class Configurables {
         return cacheOffset;
     }
 
-    public List<String> getServiceAdminRoles() {
-        return serviceAdminRoles;
-    }
-
-    public List<String> getIgnoreTenantRoles() {
+    public Set<String> getIgnoreTenantRoles() {
         return ignoreTenantRoles;
     }
 

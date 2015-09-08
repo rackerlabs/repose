@@ -152,8 +152,8 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
     }
 
-    def "If no impersonator then no impersonator headers" () {
-        given: "keystone v2v2 with impersonate access"
+    def "If no impersonator then no impersonator headers"() {
+        given: "keystone v2v2 without impersonate access"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
         }

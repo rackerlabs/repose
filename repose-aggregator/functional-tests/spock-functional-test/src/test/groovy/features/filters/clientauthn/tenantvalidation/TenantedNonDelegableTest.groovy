@@ -214,5 +214,81 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
+    // REP-2670: Ded Auth Changes
+    def "Always add x-tenant to request for origin service use"() {
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+            client_tenant = "456"
+        }
 
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/456", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-name")
+    }
+
+    // REP-2670: Ded Auth Changes
+    @Unroll("Request Tenant: #requestTenant")
+    def "URI tenant will not get added to x-tenant"() {
+        given: "identity info"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = 123
+            client_tenant = 12345
+            client_tenant_file = "nast-id"
+        }
+
+        when: "pass request with request tenant"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/" + requestTenant,
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token]
+                )
+
+        then: "should satisfy the following"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-tenant-id").get(0).split(",").size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "12345" // Default tenant
+
+        where:
+        requestTenant << ["12345", "nast-it"]
+    }
+
+    // REP-2670: Ded Auth Changes
+    // Currently, without a default tenantID, we do not make the Valkyrie call.
+    // We will remove the requirement for a default tenantID so that when we don’t have a default URI,
+    // we will rely on a tenantID from the validate token call
+    // apply for this case dedicated user
+    def "Remove reliance on default tenant check"() {
+        given: "keystone v2v2 with dedicated user access"
+        fakeIdentityService.with {
+            client_token = "dedicatedUser"
+            client_tenant = "hybrid:12345"
+        }
+        when:
+        "User passes a request through repose with request tenant"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/hybrid:12345",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "hybrid:12345"
+    }
 }

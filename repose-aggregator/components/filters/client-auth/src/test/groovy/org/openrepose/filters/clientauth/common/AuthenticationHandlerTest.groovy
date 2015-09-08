@@ -95,7 +95,7 @@ class AuthenticationHandlerTest extends Specification {
                                                double delegableQuality, String delegationMessage,
                                                FilterDirector filterDirector, String extractedResult,
                                                List<AuthGroup> groups, String endpointsBase64, String contactId,
-                                               boolean tenanted, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+                                               boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         }
 
         protected String checkEndpointsCache(String token) {
