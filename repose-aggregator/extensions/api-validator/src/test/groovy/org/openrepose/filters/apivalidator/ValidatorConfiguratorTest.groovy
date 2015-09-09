@@ -25,6 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
+import scala.collection.JavaConversions
 
 class ValidatorConfiguratorTest {
 
@@ -71,8 +72,8 @@ class ValidatorConfiguratorTest {
         ValidatorItem vItem = new ValidatorItem()
         vItem.setEnableApiCoverage(true)
 
-        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "")
-        def internalHandlers = scala.collection.JavaConversions.asJavaList(handlers.handlers)
+        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "", "")
+        def internalHandlers = JavaConversions.asJavaList(handlers.handlers)
         assert internalHandlers.get(0) instanceof InstrumentedHandler
         assert internalHandlers.get(1) instanceof ApiCoverageHandler
     }
@@ -82,8 +83,8 @@ class ValidatorConfiguratorTest {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
 
-        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "")
-        def internalHandlers = scala.collection.JavaConversions.asJavaList(handlers.handlers)
+        DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "", "")
+        def internalHandlers = JavaConversions.asJavaList(handlers.handlers)
         assert internalHandlers.get(0) instanceof MethodLabelHandler
         assert internalHandlers.get(1) instanceof DelegationHandler
     }
@@ -92,7 +93,7 @@ class ValidatorConfiguratorTest {
     void whenValidateCheckerIsFalseConfigShouldStoreFalse() {
         ValidatorItem vItem = new ValidatorItem();
         vItem.setValidateChecker(false);
-        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "");
+        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "", "")
         assert !config.getValidateChecker();
     }
 

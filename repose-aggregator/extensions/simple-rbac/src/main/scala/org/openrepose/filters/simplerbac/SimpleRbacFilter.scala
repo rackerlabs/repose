@@ -142,7 +142,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     Option(configuration.getDelegating) match {
       case Some(delegating) =>
         dispatchResultHandler.addHandler(new MethodLabelHandler)
-        dispatchResultHandler.addHandler(new DelegationHandler(delegating.getQuality))
+        dispatchResultHandler.addHandler(new DelegationHandler(delegating.getQuality, delegating.getComponentName))
       case _ =>
         dispatchResultHandler.addHandler(new ServletResultHandler)
     }

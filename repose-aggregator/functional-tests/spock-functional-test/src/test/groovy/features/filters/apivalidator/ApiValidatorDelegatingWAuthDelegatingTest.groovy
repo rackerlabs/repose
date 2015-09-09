@@ -118,10 +118,10 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
         where:
         reqtenant | adminrole | clienttoken       | roles                      | method   | responseCode | identitystatus  | delegateMsg
-        ""        | "regular" | ""                | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate" | "status_code=404`component=api-checker`message=Resource not found: /{a};q=0.5"
-        "test"    | "admin1"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
-        "test"    | "admin2"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{test};q=0.5"
-        12345     | "default" | UUID.randomUUID() | "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"     | "status_code=404`component=api-checker`message=Resource not found: /a/{12345};q=0.5"
+        ""        | "regular" | ""                | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate" | "status_code=404`component=api-validator`message=Resource not found: /{a};q=0.5"
+        "test"    | "admin1"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{test};q=0.5"
+        "test"    | "admin2"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{test};q=0.5"
+        12345     | "default" | UUID.randomUUID() | "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{12345};q=0.5"
     }
 
     @Unroll("Sending request with roles: #roles and admin resp: #authresp")
