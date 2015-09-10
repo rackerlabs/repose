@@ -731,7 +731,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeaders("a").size() shouldEqual 2
-      originalResponse.getHeaders("a") should contain("b,c") //TODO: Improve this check
+      originalResponse.getHeaders("a") should contain("b,c")
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
