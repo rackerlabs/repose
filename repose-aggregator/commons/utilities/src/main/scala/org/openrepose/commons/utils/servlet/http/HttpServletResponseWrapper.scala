@@ -107,7 +107,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def getPreferredSplittableHeaders(name: String): util.List[String] =
     getPreferredHeaderValues(getSplittableHeaders(name))
 
-  override def getSplittableHeaders(name: String): util.List[String] = getSplittableHeaderValues(name)
+  override def getSplittableHeaders(name: String): util.List[String] =
+    getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
 
   /**
    * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
@@ -233,11 +234,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
 
-  private def getSplittableHeaderValues(name: String): Seq[String] =
-    getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
-
   private def getPreferredHeaderValues(values: Seq[String]): Seq[String] = {
-    //TODO: a;q=0.8,b;q=0.8,c;foo=bar;q=0.4 -- Maybe a regex would work better? Kind of gross...
     case class HeaderValue(headerValue: String) {
       val value = headerValue.split(";").head
       val quality = {

@@ -63,7 +63,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       wrappedResponse.addHeader("a", "a;q=fish")
 
-      a [QualityFormatException] should be thrownBy wrappedResponse.getPreferredHeaders("a")
+      a[QualityFormatException] should be thrownBy wrappedResponse.getPreferredHeaders("a")
     }
 
     it("should not return any headers added by preceding interactions") {
@@ -91,6 +91,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.removeHeader("a")
 
       wrappedResponse.getPreferredHeaders("a") should be('empty)
+    }
+
+    it("should not return query parameters in the header value") {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
+      wrappedResponse.addHeader("A", "b;bar=baz")
+
+      wrappedResponse.getPreferredSplittableHeaders("A") should contain only "b"
     }
 
     it("should return header values with the casing they were added with") {
@@ -207,6 +216,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getHeader("a") shouldBe null
     }
 
+    it("should return the full header value, with query parameters included") {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
+
+      wrappedResponse.getHeader("A") shouldEqual "a;q=0.8;foo=bar"
+    }
+
     it("should return header values with the casing they were added with") {
       val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -254,6 +271,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getHeaders("a") should be('empty)
     }
 
+    it("should return the full headers value, with query parameters included") {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
+      wrappedResponse.addHeader("A", "b;bar=baz")
+
+      wrappedResponse.getHeaders("A") should contain only("a;q=0.8;foo=bar", "b;bar=baz")
+    }
+
     it("should return header values with the casing they were added with") {
       val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -291,6 +317,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getSplittableHeaders("a") should be('empty)
     }
 
+    it("should return the full header values, with query parameters included") {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a;q=0.8;foo=bar,b;bar=baz")
+
+      wrappedResponse.getSplittableHeaders("A") should contain only("a;q=0.8;foo=bar", "b;bar=baz")
+    }
+
     it("should return header values with the casing they were added with") {
       val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -316,7 +350,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       wrappedResponse.addHeader("a", "a;q=fish")
 
-      a [QualityFormatException] should be thrownBy wrappedResponse.getPreferredHeaders("a")
+      a[QualityFormatException] should be thrownBy wrappedResponse.getPreferredHeaders("a")
     }
 
     it("should not return any headers added by preceding interactions") {
@@ -343,6 +377,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.removeHeader("a")
 
       wrappedResponse.getPreferredSplittableHeaders("a") should be('empty)
+    }
+
+    it("should not return query parameters in the header value") {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a;q=0.8;foo=bar,b;bar=baz")
+
+      wrappedResponse.getPreferredSplittableHeaders("A") should contain only "b"
     }
 
     it("should return split headers added by succeeding interactions") {
