@@ -157,7 +157,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       .getOrElse(List.empty)
     val reqAuthRoles = mutableHttpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
 
-    if (preAuthRoles.intersect(reqAuthRoles).isEmpty) {
+    if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
+      filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+    } else {
       val devicePermissions: ValkyrieResult = getDeviceList(checkHeaders(requestedTenantId, requestedContactId))
       mask403s(addRoles(getRoles(authorizeDevice(devicePermissions, requestedDeviceId)))) match {
         case ResponseResult(200, _) =>
