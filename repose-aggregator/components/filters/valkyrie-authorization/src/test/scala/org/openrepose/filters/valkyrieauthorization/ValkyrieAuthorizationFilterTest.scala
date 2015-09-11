@@ -21,6 +21,7 @@ package org.openrepose.filters.valkyrieauthorization
 
 import java.io.ByteArrayInputStream
 import java.net.URL
+import java.util
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
@@ -282,6 +283,30 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
           assert(mockServletResponse.getStatusCode == 502)
         }
       }
+    }
+
+    it("should bypasses validation if the user has a role listed in pre-authorized-roles") {
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+
+      val configuration = createGenericValkyrieConfiguration(null)
+      val preAuthorizedRoles: RolesList = new RolesList
+      val roles: util.List[String] = preAuthorizedRoles.getRole
+      val superRootAdminUser = "superRootAdminUser"
+      roles.add(superRootAdminUser)
+      configuration.setPreAuthorizedRoles(preAuthorizedRoles)
+
+      filter.configurationUpdated(configuration)
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Roles", superRootAdminUser)
+      val mockServletResponse = new MockHttpServletResponse
+      val mockFilterChain = mock[FilterChain]
+
+      filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+      assert(mockServletResponse.getStatusCode == 200)
     }
 
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
