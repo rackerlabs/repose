@@ -20,6 +20,6 @@
     </collection-resources>
     <pre-authorized-roles>
         <role>admin</role>
-        <role>service:admin</role>
+        <role>racker</role>
     </pre-authorized-roles>
 </valkyrie-authorization>
