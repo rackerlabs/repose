@@ -152,24 +152,31 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    val devicePermissions: ValkyrieResult = getDeviceList(checkHeaders(requestedTenantId, requestedContactId))
-    mask403s(addRoles(getRoles(authorizeDevice(devicePermissions, requestedDeviceId)))) match {
-      case ResponseResult(200, _) =>
-        filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-        try {
-          cullResponse(urlPath, mutableHttpResponse, devicePermissions)
-        } catch {
-          case rce: ResponseCullingException =>
-            logger.debug("Failed to cull response, wiping out response.", rce)
-            mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.message)
-        }
-      case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
-        buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
-          values.foreach { value => mutableHttpRequest.addHeader(key, value) }
-        }
-        filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-      case ResponseResult(code, message) =>
-        mutableHttpResponse.sendError(code, message)
+    val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
+      .map(_.getRole.asScala)
+      .getOrElse(List.empty)
+    val reqAuthRoles = mutableHttpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
+
+    if (preAuthRoles.intersect(reqAuthRoles).isEmpty) {
+      val devicePermissions: ValkyrieResult = getDeviceList(checkHeaders(requestedTenantId, requestedContactId))
+      mask403s(addRoles(getRoles(authorizeDevice(devicePermissions, requestedDeviceId)))) match {
+        case ResponseResult(200, _) =>
+          filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+          try {
+            cullResponse(urlPath, mutableHttpResponse, devicePermissions)
+          } catch {
+            case rce: ResponseCullingException =>
+              logger.debug("Failed to cull response, wiping out response.", rce)
+              mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.message)
+          }
+        case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
+          buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
+            values.foreach { value => mutableHttpRequest.addHeader(key, value) }
+          }
+          filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+        case ResponseResult(code, message) =>
+          mutableHttpResponse.sendError(code, message)
+      }
     }
 
     //weep for what we must do with this flaming pile, note above where it was wrapped pointlessly just to break the chain
@@ -265,7 +272,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
   }
 
-
   def cullResponse(urlPath: String, response: MutableHttpServletResponse, potentialDevicePermissions: ValkyrieResult): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
@@ -289,7 +295,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         try {
           val matcher: Matcher = devicePath.getRegex.getValue.r.pattern.matcher(deviceValue)
           if (matcher.matches()) {
-            devicePermissions.devices.filter(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt).nonEmpty
+            devicePermissions.devices.exists(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt)
           } else {
             throw new ResponseCullingException(s"Regex: ${devicePath.getRegex.getValue} did not match $deviceValue")
           }
