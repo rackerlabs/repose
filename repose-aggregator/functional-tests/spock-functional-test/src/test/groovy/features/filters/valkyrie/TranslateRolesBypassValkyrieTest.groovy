@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
  * Created by jennyvo on 9/11/15.
  *  Bypass the calls to Valkyrie if configured roles exist.
@@ -70,11 +71,11 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
         }
     }
 
-    def setup () {
+    def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
     }
 
-    def "Get Account level permissions and translate to roles" () {
+    def "Get Account level permissions and translate to roles"() {
         given:
         fakeIdentityV2Service.with {
             client_apikey = UUID.randomUUID().toString()
@@ -113,7 +114,7 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
         "GET"  | randomTenant() | "200"
     }
 
-    def "Bypass valkyrie test" () {
+    def "Bypass valkyrie test"() {
         given: "a list permission devices defined in Valkyrie token without tenantid associated with"
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"

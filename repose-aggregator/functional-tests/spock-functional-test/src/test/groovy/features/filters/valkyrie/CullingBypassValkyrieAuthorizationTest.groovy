@@ -20,6 +20,8 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
@@ -121,6 +123,7 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
         }
     }
 
+    @Category(Slow)
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list"() {
         given: "a list permission devices defined in Valkyrie"
