@@ -29,4 +29,8 @@
             </collection>
         </resource>
     </collection-resources>
+    <pre-authorized-roles>
+        <role>admin</role>
+        <role>openstack:admin</role>
+    </pre-authorized-roles>
 </valkyrie-authorization>
