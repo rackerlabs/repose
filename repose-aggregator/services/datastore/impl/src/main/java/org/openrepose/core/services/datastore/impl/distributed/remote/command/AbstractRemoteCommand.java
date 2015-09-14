@@ -37,6 +37,7 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     private final InetSocketAddress remoteEndpoint;
     private final String cacheObjectKey;
     private String hostKey;
+    private String tracingHeader;
 
     public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         this.cacheObjectKey = cacheObjectKey;
@@ -61,8 +62,7 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = new HashMap<>();
         headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
-        headers.put(CommonHttpHeader.TRACE_GUID.toString(),
-                TracingHeaderHelper.createTracingHeader(TracingHeaderHelper.getTraceGuid(null), null));
+        headers.put(CommonHttpHeader.TRACE_GUID.toString(), tracingHeader);
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
 
         return headers;
@@ -79,5 +79,10 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     @Override
     public void setHostKey(String hostKey) {
         this.hostKey = hostKey;
+    }
+
+    @Override
+    public void setTracingHeader(String tracingHeader) {
+        this.tracingHeader = tracingHeader;
     }
 }
