@@ -28,11 +28,11 @@ import java.util.List;
 
 public interface AuthenticationService {
 
-    AuthenticateResponse validateToken(String tenant, String userToken, String requestGuid) throws AuthServiceException;
+    AuthenticateResponse validateToken(String tenant, String userToken, String tracingHeader) throws AuthServiceException;
 
-    List<Endpoint> getEndpointsForToken(String userToken, String requestGuid) throws AuthServiceException;
+    List<Endpoint> getEndpointsForToken(String userToken, String tracingHeader) throws AuthServiceException;
 
-    AuthGroups getGroups(String userId, String requestGuid) throws AuthServiceException;
+    AuthGroups getGroups(String userId, String tracingHeader) throws AuthServiceException;
 
-    String getBase64EndpointsStringForHeaders(String userToken, String format, String requestGuid) throws AuthServiceException;
+    String getBase64EndpointsStringForHeaders(String userToken, String format, String tracingHeader) throws AuthServiceException;
 }
