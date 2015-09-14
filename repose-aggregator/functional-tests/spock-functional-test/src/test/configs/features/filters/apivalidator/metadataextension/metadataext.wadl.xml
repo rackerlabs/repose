@@ -16,7 +16,7 @@
         <!-- at least one pattern with '*' is required, this is the admin role,
                  multiple admins are allowed...-->
         <rax:metaRole name="admin" pattern="*"/>
-        <rax:metaRole name="superadmin" pattern="*"/>
+        <rax:metaRole name="superAdmin" pattern="*"/>
         <!-- pattern is optional, if it is left off then the roleName followed by a colon is assumed.
                  In this case the pattern is 'customer:role:' -->
         <rax:metaRole name="customer:role"/>
@@ -24,6 +24,7 @@
                  One role per metaRole, since this is an edge case...
              -->
         <rax:metaRole name="service:role" pattern="service:"/>
+        <rax:metaRole name="another_role" pattern="service:"/>
         <!-- Another edge case regex stuff in the pattern should not mess things up.
                  This silly combination of role name and pattern should work.
                  The pattern is not a regEx |||: is simply treated as a string.
