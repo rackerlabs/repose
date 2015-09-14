@@ -26,9 +26,12 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
@@ -41,7 +44,9 @@ import org.openrepose.filters.clientauth.config.WhiteList;
 import org.openrepose.filters.clientauth.openstack.OpenStackAuthenticationHandlerFactory;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +67,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private static final Long MINIMUM_INTERVAL = new Long("10000");
     private final Datastore datastore;
     private final HttpClientService httpClientService;
+    private final String reposeVersion;
     private AuthenticationHandler authenticationModule;
     private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
     private UriMatcher uriMatcher;
@@ -70,10 +76,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private boolean isOutboundTracing;
 
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
+    public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient, String reposeVersion) {
         this.datastore = datastore;
         this.httpClientService = httpClientService;
         this.akkaServiceClient = akkaServiceClient;
+        this.reposeVersion = reposeVersion;
     }
 
     @Override
@@ -174,6 +181,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 SaxAuthFeedReader rdr = new SaxAuthFeedReader(
                         new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(), httpClientService),
                         akkaServiceClient,
+                        reposeVersion,
                         feed.getUri(),
                         feed.getId(),
                         isOutboundTracing);

@@ -26,10 +26,12 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.SystemModel;
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -47,6 +49,7 @@ public class ClientAuthenticationFilter implements Filter {
     private final ConfigurationService configurationService;
     private final HttpClientService httpClientService;
     private final AkkaServiceClient akkaServiceClient;
+    private final String reposeVersion;
     private String config;
     private ClientAuthenticationHandlerFactory handlerFactory;
     private SystemModelConfigurationListener systemModelConfigurationListener;
@@ -55,11 +58,13 @@ public class ClientAuthenticationFilter implements Filter {
     public ClientAuthenticationFilter(DatastoreService datastoreService,
                                       ConfigurationService configurationService,
                                       HttpClientService httpClientService,
-                                      AkkaServiceClient akkaServiceClient) {
+                                      AkkaServiceClient akkaServiceClient,
+                                      @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.datastoreService = datastoreService;
         this.httpClientService = httpClientService;
         this.akkaServiceClient = akkaServiceClient;
         this.configurationService = configurationService;
+        this.reposeVersion = reposeVersion;
     }
 
     @Override
@@ -79,7 +84,7 @@ public class ClientAuthenticationFilter implements Filter {
         LOG.warn("This filter is deprecated; use the keystone-v2 filter");
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ClientAuthenticationHandlerFactory(datastoreService.getDefaultDatastore(), httpClientService, akkaServiceClient);
+        handlerFactory = new ClientAuthenticationHandlerFactory(datastoreService.getDefaultDatastore(), httpClientService, akkaServiceClient, reposeVersion);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, ClientAuthConfig.class);
         URL smXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
