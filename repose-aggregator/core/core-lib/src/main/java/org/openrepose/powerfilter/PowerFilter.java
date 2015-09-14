@@ -381,8 +381,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 if (currentSystemModel.get().isTracingHeader()) {
                     if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
                         mutableHttpRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
-                                TracingHeaderHelper.createTracingHeader(
-                                        traceGUID, mutableHttpRequest.getHeader(CommonHttpHeader.VIA.toString())));
+                                TracingHeaderHelper.createTracingHeader(traceGUID, mutableHttpRequest.getHeader(CommonHttpHeader.VIA.toString())));
                     }
                     String tracingHeader = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
