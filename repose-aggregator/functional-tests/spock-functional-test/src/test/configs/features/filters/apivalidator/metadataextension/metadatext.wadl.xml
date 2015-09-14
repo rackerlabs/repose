@@ -9,8 +9,8 @@
     <rax:metadata id="standardMeta">
         <!-- I propose we support very simple patterns * and sameThing: (or anyOther string which will be prepended) -->
         <rax:metaRole name="admin" pattern="*"/>
-        <rax:metaRole name="billing:role" pattern="billing:view"/>
-        <rax:metaRole name="service:role" pattern="service:view"/>
+        <rax:metaRole name="billing:role" pattern="billing:"/>
+        <rax:metaRole name="service:role" pattern="service:"/>
     </rax:metadata>
     <rax:metadata id="customMeta">
         <!-- at least one pattern with '*' is required, this is the admin role,
@@ -23,7 +23,7 @@
         <!-- multiple roles are allowed as well with the same pattern.
                  One role per metaRole, since this is an edge case...
              -->
-        <rax:metaRole name="service:role" pattern="service:audit"/>
+        <rax:metaRole name="service:role" pattern="service:"/>
         <!-- Another edge case regex stuff in the pattern should not mess things up.
                  This silly combination of role name and pattern should work.
                  The pattern is not a regEx |||: is simply treated as a string.
