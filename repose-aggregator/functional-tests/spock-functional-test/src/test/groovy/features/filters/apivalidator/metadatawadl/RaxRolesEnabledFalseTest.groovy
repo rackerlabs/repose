@@ -51,8 +51,8 @@ class RaxRolesEnabledFalseTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll ("Roles: #headers, path: #path and respcode: #responseCode")
-    def "Test standard meta role when rax roles not enabled" () {
+    @Unroll("Roles: #headers, path: #path, method: #method and respcode: #responseCode")
+    def "Test standard meta role when rax roles not enabled"() {
         given:
         MessageChain mc
 
@@ -63,14 +63,14 @@ class RaxRolesEnabledFalseTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode().equals(responseCode)
 
         where:
-        method      | path                              | headers                                      | responseCode
-        "GET"       | "standard/metadata/test"          | ["x-roles": "repose_test, admin"]            | "403"
-        "PUT"       | "standard/metadata/billing:view"  | ["x-roles": "repose_test, billing:role"]     | "403"
-        "POST"      | "standard/metadata/service:foo"   | ["x-roles": "repose_test, service:role"]     | "403"
-        "DELETE"    | "standard/metadata/service:view"  | ["x-roles": "repose_test, service:role"]     | "403"
-        "GET"       | "custom/metadata/test"            | ["x-roles": "repose_test, admin"]            | "403"
-        "PUT"       | "custom/metadata/test"            | ["x-roles": "repose_test, superadmin"]       | "403"
-        "POST"      | "custom/metadata/"                | ["x-roles": "repose_test, customer:role"]    | "403"
-        "DELETE"    | "custom/metadata/service:view"    | ["x-roles": "repose_test, service:role"]     | "403"
+        method   | path                             | headers                                   | responseCode
+        "GET"    | "standard/metadata/test"         | ["x-roles": "repose_test, admin"]         | "403"
+        "PUT"    | "standard/metadata/billing:view" | ["x-roles": "repose_test, billing:role"]  | "403"
+        "POST"   | "standard/metadata/service:foo"  | ["x-roles": "repose_test, service:role"]  | "403"
+        "DELETE" | "standard/metadata/service:view" | ["x-roles": "repose_test, service:role"]  | "403"
+        "GET"    | "custom/metadata/test"           | ["x-roles": "repose_test, admin"]         | "403"
+        "PUT"    | "custom/metadata/test"           | ["x-roles": "repose_test, superadmin"]    | "403"
+        "POST"   | "custom/metadata/"               | ["x-roles": "repose_test, customer:role"] | "403"
+        "DELETE" | "custom/metadata/service:view"   | ["x-roles": "repose_test, service:role"]  | "403"
     }
 }

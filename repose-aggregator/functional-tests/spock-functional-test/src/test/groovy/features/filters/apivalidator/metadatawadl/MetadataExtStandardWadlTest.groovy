@@ -49,25 +49,46 @@ class MetadataExtStandardWadlTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll ("Roles: #headers, path: #path and respcode: #responseCode")
-    def "Test standard meta role" () {
+    @Unroll("Method: #method, path: #path, role: #headers and respcode: #responseCode")
+    def "Test standard meta role"() {
         given:
         MessageChain mc
 
         when:
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/" + path, headers: headers)
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/" + path, method: method, headers: headers)
 
         then:
         mc.getReceivedResponse().getCode().equals(responseCode)
 
         where:
-        path                                | headers                                      | responseCode
-        "standard/metadata/test"            | ["x-roles": "repose_test, admin"]            | "200"
-        "standard/metadata/billing:view"    | ["x-roles": "repose_test, billing:role"]     | "200"
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, service:role"]     | "200"
-        "custom/metadata/test"              | ["x-roles": "repose_test, admin"]            | "200"
-        "custom/metadata/test"              | ["x-roles": "repose_test, superadmin"]       | "200"
-        "custom/metadata/"                  | ["x-roles": "repose_test, customer:role"]    | "200"
-        "custom/metadata/service:view"      | ["x-roles": "repose_test, service:role"]     | "200"
+        method   | path                             | headers                                   | responseCode
+        "GET"    | "standard/metadata/test"         | ["x-roles": "repose_test, admin"]         | "200"
+        "GET"    | "standard/metadata/billing:view" | ["x-roles": "repose_test, billing:role"]  | "200"
+        "GET"    | "standard/metadata/service:foo"  | ["x-roles": "repose_test, service:role"]  | "200"
+        "GET"    | "custom/metadata/test"           | ["x-roles": "repose_test, admin"]         | "200"
+        "GET"    | "custom/metadata/test"           | ["x-roles": "repose_test, superadmin"]    | "200"
+        "GET"    | "custom/metadata/"               | ["x-roles": "repose_test, customer:role"] | "200"
+        "GET"    | "custom/metadata/service:view"   | ["x-roles": "repose_test, service:role"]  | "200"
+        "PUT"    | "standard/metadata/test"         | ["x-roles": "repose_test, admin"]         | "200"
+        "PUT"    | "standard/metadata/billing:view" | ["x-roles": "repose_test, billing:role"]  | "200"
+        "PUT"    | "standard/metadata/service:foo"  | ["x-roles": "repose_test, service:role"]  | "200"
+        "PUT"    | "custom/metadata/test"           | ["x-roles": "repose_test, admin"]         | "200"
+        "PUT"    | "custom/metadata/test"           | ["x-roles": "repose_test, superadmin"]    | "200"
+        "PUT"    | "custom/metadata/"               | ["x-roles": "repose_test, customer:role"] | "200"
+        "PUT"    | "custom/metadata/service:view"   | ["x-roles": "repose_test, service:role"]  | "200"
+        "POST"   | "standard/metadata/test"         | ["x-roles": "repose_test, admin"]         | "200"
+        "POST"   | "standard/metadata/billing:view" | ["x-roles": "repose_test, billing:role"]  | "200"
+        "POST"   | "standard/metadata/service:foo"  | ["x-roles": "repose_test, service:role"]  | "200"
+        "POST"   | "custom/metadata/test"           | ["x-roles": "repose_test, admin"]         | "200"
+        "POST"   | "custom/metadata/test"           | ["x-roles": "repose_test, superadmin"]    | "200"
+        "POST"   | "custom/metadata/"               | ["x-roles": "repose_test, customer:role"] | "200"
+        "POST"   | "custom/metadata/service:view"   | ["x-roles": "repose_test, service:role"]  | "200"
+        "DELETE" | "standard/metadata/test"         | ["x-roles": "repose_test, admin"]         | "200"
+        "DELETE" | "standard/metadata/billing:view" | ["x-roles": "repose_test, billing:role"]  | "200"
+        "DELETE" | "standard/metadata/service:foo"  | ["x-roles": "repose_test, service:role"]  | "200"
+        "DELETE" | "custom/metadata/test"           | ["x-roles": "repose_test, admin"]         | "200"
+        "DELETE" | "custom/metadata/test"           | ["x-roles": "repose_test, superadmin"]    | "200"
+        "DELETE" | "custom/metadata/"               | ["x-roles": "repose_test, customer:role"] | "200"
+        "DELETE" | "custom/metadata/service:view"   | ["x-roles": "repose_test, service:role"]  | "200"
     }
 }

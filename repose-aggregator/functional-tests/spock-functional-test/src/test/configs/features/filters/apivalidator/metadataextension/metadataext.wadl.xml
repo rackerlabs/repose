@@ -16,7 +16,7 @@
         <!-- at least one pattern with '*' is required, this is the admin role,
                  multiple admins are allowed...-->
         <rax:metaRole name="admin" pattern="*"/>
-        <rax:metaRole name="superAdmin" pattern="*"/>
+        <rax:metaRole name="superadmin" pattern="*"/>
         <!-- pattern is optional, if it is left off then the roleName followed by a colon is assumed.
                  In this case the pattern is 'customer:role:' -->
         <rax:metaRole name="customer:role"/>
