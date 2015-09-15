@@ -52,8 +52,8 @@ class RaxRolesEnabledFalseTest extends ReposeValveTest {
     }
 
     // Standard/Custom GET's, PUT's, DELETE's, and POST's are forbidden when RAX-Roles are not enabled.
-    // Access should be forbidden(403).
-    @Unroll("Method: #method, Path: #path, Roles: #headers, and respcode: 403")
+    // Access should be not found (404).
+    @Unroll("Method: #method, Path: #path, Roles: #headers, and respcode: 404")
     def "Test metadata extension when rax roles not enabled"() {
         given:
         MessageChain mc
@@ -62,7 +62,7 @@ class RaxRolesEnabledFalseTest extends ReposeValveTest {
         mc = deproxy.makeRequest(url: reposeEndpoint + "/" + path, method: method, headers: headers)
 
         then:
-        mc.getReceivedResponse().getCode().equals("403")
+        mc.getReceivedResponse().getCode().equals("404")
 
         where:
         method    | path                       | headers

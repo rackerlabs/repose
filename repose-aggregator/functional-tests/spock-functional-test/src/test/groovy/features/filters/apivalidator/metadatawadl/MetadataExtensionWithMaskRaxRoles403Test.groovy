@@ -215,9 +215,15 @@ class MetadataExtensionWithMaskRaxRoles403Test extends ReposeValveTest {
     def "Test positive metadata extension access with #method"() {
         given:
         MessageChain mc
+        def requestBody = """<?xml version='1.0' encoding='UTF-8'?>
+        |<metadata xmlns="http://docs.rackspace.com/metadata/api">
+        |  <meta key="name">test_server</meta>
+        |  <meta key="type">test</meta>
+        |</metadata>""".stripMargin()
 
         when:
-        mc = deproxy.makeRequest(method: method, url: reposeEndpoint + "/" + path, headers: headers)
+        headers.put("content-type", "application/xml")
+        mc = deproxy.makeRequest(method: method, url: reposeEndpoint + "/" + path, headers: headers, requestBody: requestBody)
 
         then:
         mc.getReceivedResponse().getCode().equals(responseCode)

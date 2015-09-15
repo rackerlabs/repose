@@ -120,8 +120,8 @@ class MetadataExtensionTest extends ReposeValveTest {
         "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, ???"]
     }
 
-    // Standard/Custom POST's are not allowed(403) regardless of roles.
-    @Unroll("Method: POST, Path: #path, Roles: #headers, and respcode: 403")
+    // Standard/Custom POST's are not allowed(405) regardless of roles.
+    @Unroll("Method: POST, Path: #path, Roles: #headers, and respcode: 405")
     def "Test negative metadata extension access with POST"() {
         given:
         MessageChain mc
@@ -130,7 +130,7 @@ class MetadataExtensionTest extends ReposeValveTest {
         mc = deproxy.makeRequest(method: "POST", url: reposeEndpoint + "/" + path, headers: headers)
 
         then:
-        mc.getReceivedResponse().getCode().equals("403")
+        mc.getReceivedResponse().getCode().equals("405")
 
         where:
         path                                | headers
@@ -214,9 +214,15 @@ class MetadataExtensionTest extends ReposeValveTest {
     def "Test positive metadata extension access with #method"() {
         given:
         MessageChain mc
+        def requestBody = """<?xml version='1.0' encoding='UTF-8'?>
+        |<metadata xmlns="http://docs.rackspace.com/metadata/api">
+        |  <meta key="name">test_server</meta>
+        |  <meta key="type">test</meta>
+        |</metadata>""".stripMargin()
 
         when:
-        mc = deproxy.makeRequest(method: method, url: reposeEndpoint + "/" + path, headers: headers)
+        headers.put("content-type", "application/xml")
+        mc = deproxy.makeRequest(method: method, url: reposeEndpoint + "/" + path, headers: headers, requestBody: requestBody)
 
         then:
         mc.getReceivedResponse().getCode().equals(responseCode)
