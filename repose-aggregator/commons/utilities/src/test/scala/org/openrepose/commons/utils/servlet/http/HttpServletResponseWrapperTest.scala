@@ -1,15 +1,39 @@
+/*
+ * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+ * Repose
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ */
 package org.openrepose.commons.utils.servlet.http
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletResponse
 
 import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
+import scala.io.Source
+
 @RunWith(classOf[JUnitRunner])
-class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers {
+class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
   // Think of: casing, preceding/succeeding components, ordering, quality
 
@@ -23,13 +47,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any header names added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getHeaderNames should not contain "a"
     }
 
     it("should return all header names added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -38,7 +62,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any header names removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -48,7 +72,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header names with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a")
       wrappedResponse.addHeader("b", "b")
@@ -59,7 +83,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("getPreferredHeaders") {
     it("should throw a QualityFormatException if the quality is not parseable") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a;q=fish")
 
@@ -69,13 +93,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getPreferredHeaders("a") should be('empty)
     }
 
     it("should return headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a", 0.8)
       wrappedResponse.addHeader("a", "b", 0.8)
@@ -85,7 +109,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -94,7 +118,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return query parameters in the header value") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
       wrappedResponse.addHeader("A", "b;bar=baz")
@@ -103,7 +127,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "B")
@@ -116,13 +140,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any header names added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getHeaderNamesList should not contain "a"
     }
 
     it("should return all header names added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -131,7 +155,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any header names removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -141,7 +165,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header names with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a")
       wrappedResponse.addHeader("b", "b")
@@ -154,13 +178,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not contain any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.containsHeader("a") shouldBe false
     }
 
     it("should contain all headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -170,7 +194,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not contain any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("b", "b")
@@ -181,7 +205,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should contain headers irrespective of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a")
 
@@ -194,13 +218,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getHeader("a") shouldBe null
     }
 
     it("should return a header added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
 
@@ -208,7 +232,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -217,7 +241,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return the full header value, with query parameters included") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
 
@@ -225,7 +249,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a")
       wrappedResponse.addHeader("b", "B")
@@ -235,7 +259,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return the first header value if multiple exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -248,13 +272,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getHeaders("a") should be('empty)
     }
 
     it("should return headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -263,7 +287,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -272,7 +296,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return the full headers value, with query parameters included") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
       wrappedResponse.addHeader("A", "b;bar=baz")
@@ -281,7 +305,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "B")
@@ -294,13 +318,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getSplittableHeaders("a") should be('empty)
     }
 
     it("should return headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -309,7 +333,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -318,7 +342,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return the full header values, with query parameters included") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar,b;bar=baz")
 
@@ -326,7 +350,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "B")
@@ -335,7 +359,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return a comma-serparated header value as multiple header values") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a,b")
 
@@ -346,7 +370,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("getPreferredSplittableHeaders") {
     it("should throw a QualityFormatException if the quality is not parseable") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a;q=fish")
 
@@ -356,13 +380,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getPreferredSplittableHeaders("a") should be('empty)
     }
 
     it("should return headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -371,7 +395,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -380,7 +404,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return query parameters in the header value") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar,b;bar=baz")
 
@@ -388,7 +412,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return split headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a", 0.8)
       wrappedResponse.appendHeader("a", "b", 0.8)
@@ -398,7 +422,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "B")
@@ -407,7 +431,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return a comma-serparated header value as multiple header values") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a,b")
 
@@ -418,19 +442,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("addHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "a")
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("b", "b")
       wrappedResponse.commitToResponse()
@@ -441,7 +465,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "b")
 
@@ -449,7 +473,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -459,7 +483,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("A", "b")
@@ -469,7 +493,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.addHeader("a", "b")
@@ -479,7 +503,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -490,7 +514,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header with a quality when provided") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("b", "b", 0.5)
       wrappedResponse.commitToResponse()
@@ -499,7 +523,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header with a quality, even if the quality is 1.0") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("b", "b", 1.0)
       wrappedResponse.commitToResponse()
@@ -510,19 +534,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("addIntHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addIntHeader("b", 2)
       wrappedResponse.commitToResponse()
@@ -533,7 +557,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addIntHeader("a", 1)
 
@@ -541,7 +565,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addIntHeader("a", 1)
       wrappedResponse.addIntHeader("a", 2)
@@ -551,7 +575,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addIntHeader("a", 1)
       wrappedResponse.addIntHeader("A", 2)
@@ -561,7 +585,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.addIntHeader("a", 1)
@@ -571,7 +595,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addIntHeader("a", 1)
       wrappedResponse.removeHeader("a")
@@ -584,19 +608,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("addDateHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
     }
 
     it("should add a new header, in a RFC2616 compliant format, if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       val now = System.currentTimeMillis()
 
@@ -609,7 +633,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       val now = System.currentTimeMillis()
 
@@ -620,7 +644,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -632,7 +656,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -644,7 +668,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
 
       wrappedResponse.removeHeader("a")
@@ -655,7 +679,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -670,31 +694,31 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("appendHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH and a quality is passed") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a", 0.5)
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY and a quality is passed") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a", 0.5)
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("b", "b")
       wrappedResponse.commitToResponse()
@@ -705,7 +729,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("a", "b")
 
@@ -713,7 +737,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should append a value if the header already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("a", "a")
       wrappedResponse.appendHeader("a", "b")
@@ -723,7 +747,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should append a value to the end of the last value if the header already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -735,7 +759,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("a", "a")
       wrappedResponse.appendHeader("A", "b")
@@ -745,7 +769,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.appendHeader("a", "b")
@@ -755,7 +779,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -766,7 +790,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header with a quality when provided") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.appendHeader("b", "b", 0.5)
       wrappedResponse.commitToResponse()
@@ -777,19 +801,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("replaceHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.replaceHeader("a", "a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.replaceHeader("a", "a")
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("b", "b")
       wrappedResponse.commitToResponse()
@@ -800,7 +824,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("a", "b")
 
@@ -810,7 +834,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unwritable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("a", "b")
       wrappedResponse.commitToResponse()
@@ -819,7 +843,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value if a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("a", "a")
       wrappedResponse.replaceHeader("a", "b")
@@ -829,7 +853,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value of a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("a", "a")
       wrappedResponse.replaceHeader("A", "b")
@@ -839,7 +863,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.replaceHeader("a", "b")
@@ -849,7 +873,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -860,7 +884,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header with a quality when provided") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.replaceHeader("b", "b", 0.5)
       wrappedResponse.commitToResponse()
@@ -873,13 +897,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not return any headers added by preceding interactions") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.getHeadersList("a") should be('empty)
     }
 
     it("should return headers added by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "b")
@@ -888,7 +912,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should not return any headers removed by succeeding interactions") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -897,7 +921,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return header values with the casing they were added with") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.addHeader("a", "B")
@@ -908,19 +932,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("setHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setHeader("a", "a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setHeader("a", "a")
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("b", "b")
       wrappedResponse.commitToResponse()
@@ -931,7 +955,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.setHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("a", "b")
 
@@ -941,7 +965,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unwritable, add a new header if it does not exist") {
       originalResponse.setHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("a", "b")
       wrappedResponse.commitToResponse()
@@ -950,7 +974,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value if a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("a", "a")
       wrappedResponse.setHeader("a", "b")
@@ -960,7 +984,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value of a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("a", "a")
       wrappedResponse.setHeader("A", "b")
@@ -970,7 +994,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.setHeader("a", "b")
@@ -980,7 +1004,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -993,19 +1017,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("setIntHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setIntHeader("a", 1)
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setIntHeader("a", 1)
     }
 
     it("should add a new header if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("b", 1)
       wrappedResponse.commitToResponse()
@@ -1016,7 +1040,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.setIntHeader("a", 1)
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("a", 2)
 
@@ -1026,7 +1050,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unwritable, add a new header if it does not exist") {
       originalResponse.setIntHeader("a", 1)
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("a", 2)
       wrappedResponse.commitToResponse()
@@ -1035,7 +1059,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value if a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("a", 1)
       wrappedResponse.setIntHeader("a", 2)
@@ -1045,7 +1069,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value of a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("a", 1)
       wrappedResponse.setIntHeader("A", 2)
@@ -1055,7 +1079,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.setIntHeader("a", 2)
@@ -1065,7 +1089,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setIntHeader("a", 1)
       wrappedResponse.removeHeader("a")
@@ -1078,19 +1102,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("setDateHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setDateHeader("a", System.currentTimeMillis())
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.setDateHeader("a", System.currentTimeMillis())
     }
 
     it("should add a new header, in a RFC2616 compliant format, if it does not exist") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       val now = System.currentTimeMillis()
 
@@ -1103,7 +1127,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should treat preceding interactions as unreadable, add a new header if it does not exist") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       val now = System.currentTimeMillis()
 
@@ -1114,7 +1138,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value of a header if it already exists") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -1126,7 +1150,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should overwrite the value of a header if it already exists, regardless of casing") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -1138,7 +1162,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
 
       wrappedResponse.removeHeader("a")
@@ -1149,7 +1173,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should add a header even if it was previously added then deleted") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val now = System.currentTimeMillis()
       val later = now + 1000
 
@@ -1164,13 +1188,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("removeHeader") {
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.removeHeader("a")
     }
 
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.removeHeader("a")
     }
@@ -1178,7 +1202,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not remove a header from the wrapped response") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.removeHeader("a")
       wrappedResponse.commitToResponse()
@@ -1187,7 +1211,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should remove a header that has been added") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
@@ -1196,12 +1220,152 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should remove a header in a case-insensitive way") {
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("A")
 
       wrappedResponse.getHeader("a") shouldBe null
+    }
+  }
+
+  describe("getOutputStreamAsInputStream") {
+    it("should throw an IllegalStateException if the body mode is set to PASSTHROUGH") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.getOutputStreamAsInputStream
+    }
+
+    it("should return an input stream containing the contents of the output stream if the body mode is set to READONLY") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsInputStream
+
+      Source.fromInputStream(wrappedBody).mkString shouldEqual body
+    }
+
+    it("should return an input stream containing the contents of the output stream if the body mode is set to MUTABLE") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsInputStream
+
+      Source.fromInputStream(wrappedBody).mkString shouldEqual body
+    }
+  }
+
+  describe("setOutput") {
+    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
+    }
+
+    it("should throw an IllegalStateException if the header mode is set to READONLY") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
+    }
+
+    it("should set the output") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      val body = "test body"
+      wrappedResponse.setOutput(new ByteArrayInputStream(body.getBytes))
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsInputStream
+
+      Source.fromInputStream(wrappedBody).mkString shouldEqual body
+    }
+
+    it("should set the output, clearing any previous output") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+      wrappedResponse.getOutputStream.print("foo")
+
+      val body = "test body"
+      wrappedResponse.setOutput(new ByteArrayInputStream(body.getBytes))
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsInputStream
+
+      Source.fromInputStream(wrappedBody).mkString shouldEqual body
+    }
+  }
+
+  describe("getWriter") {
+    it("should print to the wrapped output stream") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getWriter.print(body)
+      wrappedResponse.getWriter.flush()
+      wrappedResponse.commitToResponse()
+
+      out.toString shouldEqual body
+    }
+
+    it("should not allow a call to getPrintWriter after getOutputStream") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getOutputStream
+      a[IllegalStateException] should be thrownBy wrappedResponse.getWriter
+    }
+  }
+
+  describe("getOutputStream") {
+    it("should return a passthrough output stream type if the body mode is set to PASSTHROUGH") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getOutputStream shouldBe a[PassthroughServletOutputStream]
+    }
+
+    it("should return a read-only output stream type if the body mode is set to READONLY") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      wrappedResponse.getOutputStream shouldBe a[ReadOnlyServletOutputStream]
+    }
+
+    it("should return a mutable output stream type if the body mode is set to MUTABLE") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getOutputStream shouldBe a[MutableServletOutputStream]
+    }
+
+    it("should print to the wrapped output stream") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getOutputStream.print(body)
+      wrappedResponse.commitToResponse()
+
+      out.toString shouldEqual body
+    }
+
+    it("should not allow a call to getOutputStream after getPrintWriter") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getWriter
+      a[IllegalStateException] should be thrownBy wrappedResponse.getOutputStream
+    }
+  }
+
+  describe("flushBuffer") {
+    it("should flush all written data to the underlying output stream") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getWriter.print(body)
+      wrappedResponse.flushBuffer()
+      wrappedResponse.commitToResponse()
+
+      out.toString shouldEqual body
     }
   }
 
@@ -1213,7 +1377,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       (ResponseMode.READONLY, ResponseMode.READONLY)
     ) foreach { case (headerMode, bodyMode) =>
       it(s"should throw an IllegalStateException if the header mode is set to ${headerMode.name()} and body mode is set to ${bodyMode.name()}") {
-        val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
 
         an[IllegalStateException] should be thrownBy wrappedResponse.commitToResponse()
       }
@@ -1222,7 +1386,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     it("should not alter pre-existing headers in the wrapped response") {
       originalResponse.addHeader("a", "a")
 
-      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       wrappedResponse.addHeader("b", "b")
 
       wrappedResponse.commitToResponse()
@@ -1230,5 +1394,18 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       originalResponse.getHeaders("a") should contain only "a"
       originalResponse.getHeaders("b") should contain only "b"
     }
+
+    it("should write a modified body through the desired output stream") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getOutputStream.print(body)
+
+      wrappedResponse.commitToResponse()
+
+      out.toString shouldEqual body
+    }
   }
+
 }

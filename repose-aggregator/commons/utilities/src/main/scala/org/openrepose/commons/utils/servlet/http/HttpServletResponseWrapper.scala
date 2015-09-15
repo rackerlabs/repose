@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.InputStream
+import java.io.{InputStream, PrintWriter}
 import java.util
 import java.util.Date
 import javax.servlet.ServletOutputStream
@@ -58,10 +58,10 @@ import scala.util.Try
  * output stream which will be used to write to the underlying output stream when commitToResponse is called. This mode
  * will also break chunked encoding because the response can't be streamed directly through.
  *
- * Note that mutation to the {@link HttpServletResponse} will be treated by this wrapper as permanent. Therefore, mutation
+ * Note that mutation to the [[HttpServletResponse]] will be treated by this wrapper as permanent. Therefore, mutation
  * should not be performed prior to downstream processing. In practice, mutation should not be performed on the response
- * prior to calling the {@link doFilter()} method. The reason is that writing to a {@link ServletOutputStream} or
- * {@link PrintWriter} can not be undone, so for the sake of consistency, headers are handled in the same manner. In
+ * prior to calling the doFilter() method. The reason is that writing to a [[ServletOutputStream]] or
+ * [[PrintWriter]] can not be undone, so for the sake of consistency, headers are handled in the same manner. In
  * fact, headers written prior to wrapping a request will not appear to exist within the wrapped response.
  *
  * @constructor the main constructor to be used for this class
@@ -75,9 +75,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
   with HeaderInteractor {
 
+  object ResponseBodyType extends Enumeration {
+    val Available, OutputStream, PrintWriter = Value
+  }
+
+  private val bodyOutputStream = bodyMode match {
+    case ResponseMode.PASSTHROUGH => new PassthroughServletOutputStream(desiredOutputStream)
+    case ResponseMode.READONLY => new ReadOnlyServletOutputStream(desiredOutputStream)
+    case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
+  }
+
+  private val bodyPrintWriter = new PrintWriter(bodyOutputStream)
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
   private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
+  private var responseBodyType = ResponseBodyType.Available
 
   /**
    * This constructor chains to the main constructor using the original responses output stream  as the last argument.
@@ -199,12 +211,39 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   /**
    * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
    */
-  def getOutputStreamAsInputStream: InputStream = ???
+  def getOutputStreamAsInputStream: InputStream = bodyOutputStream.getOutputStreamAsInputStream
 
   /**
    * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
    */
-  def setOutput(inputStream: InputStream): Unit = ???
+  def setOutput(inputStream: InputStream): Unit = bodyOutputStream.setOutput(inputStream)
+
+  override def getWriter: PrintWriter = {
+    responseBodyType match {
+      case ResponseBodyType.OutputStream =>
+        throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
+      case _ =>
+        responseBodyType = ResponseBodyType.PrintWriter
+        bodyPrintWriter
+    }
+  }
+
+  override def getOutputStream: ServletOutputStream = {
+    responseBodyType match {
+      case ResponseBodyType.PrintWriter =>
+        throw new IllegalStateException("Cannot call getOutputStream after calling getWriter")
+      case _ =>
+        responseBodyType = ResponseBodyType.OutputStream
+        bodyOutputStream
+    }
+  }
+
+  override def flushBuffer(): Unit = {
+    responseBodyType match {
+      case ResponseBodyType.PrintWriter => bodyPrintWriter.flush()
+      case _ => bodyOutputStream.flush()
+    }
+  }
 
   /**
    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
@@ -222,11 +261,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     )
 
     //Write the body, if the body mode is set to mutable
-    val writeBody = Try(
-      ifMutable(bodyMode) {
-        //TODO: Commit the response body
-      }
-    )
+    val writeBody = Try(bodyOutputStream.commit())
 
     //Throw a failure exception (both should be identical) if neither the header nor body mode is set to mutable
     if (writeHeaders.isFailure && writeBody.isFailure) writeHeaders.get
