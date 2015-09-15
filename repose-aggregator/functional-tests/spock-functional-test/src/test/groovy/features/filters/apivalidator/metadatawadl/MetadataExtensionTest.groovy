@@ -62,62 +62,20 @@ class MetadataExtensionTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode().equals("200")
 
         where:
-        path                                | headers
-        "standard/metadata/foo"             | ["x-roles": "repose_test, admin"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, admin"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, admin"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, admin"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, admin"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, admin"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, admin"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, billing:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, billing:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, billing:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, service:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, service:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, service:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, superAdmin"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, superAdmin"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, superAdmin"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, customer:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, customer:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, customer:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, another_role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, another_role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, another_role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, ???"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, ???"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, ???"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, ???"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, ???"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, ???"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, ???"]
+        [path, headers] << [["standard/metadata/foo",
+                             "standard/metadata/billing:foo",
+                             "standard/metadata/service:foo",
+                             "custom/metadata/foo",
+                             "custom/metadata/customer:role:foo",
+                             "custom/metadata/service:foo",
+                             "custom/metadata/%7C%7C%7C:foo"],
+                            [["x-roles": "repose_test, admin"],
+                             ["x-roles": "repose_test, billing:role"],
+                             ["x-roles": "repose_test, service:role"],
+                             ["x-roles": "repose_test, superAdmin"],
+                             ["x-roles": "repose_test, customer:role"],
+                             ["x-roles": "repose_test, another_role"],
+                             ["x-roles": "repose_test, ???"]]].combinations()
     }
 
     // Standard/Custom POST's are not allowed(405) regardless of roles.
@@ -133,62 +91,21 @@ class MetadataExtensionTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode().equals("405")
 
         where:
-        path                                | headers
-        "standard/metadata/foo"             | ["x-roles": "repose_test, admin"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, admin"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, admin"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, admin"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, admin"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, admin"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, admin"]
+        [path, headers] << [["standard/metadata/foo",
+                             "standard/metadata/billing:foo",
+                             "standard/metadata/service:foo",
+                             "custom/metadata/foo",
+                             "custom/metadata/customer:role:foo",
+                             "custom/metadata/service:foo",
+                             "custom/metadata/%7C%7C%7C:foo"],
+                            [["x-roles": "repose_test, admin"],
+                             ["x-roles": "repose_test, billing:role"],
+                             ["x-roles": "repose_test, service:role"],
+                             ["x-roles": "repose_test, superAdmin"],
+                             ["x-roles": "repose_test, customer:role"],
+                             ["x-roles": "repose_test, another_role"],
+                             ["x-roles": "repose_test, ???"]]].combinations()
 
-        "standard/metadata/foo"             | ["x-roles": "repose_test, billing:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, billing:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, billing:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, billing:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, service:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, service:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, service:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, service:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, superAdmin"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, superAdmin"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, superAdmin"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, superAdmin"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, customer:role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, customer:role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, customer:role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, customer:role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, another_role"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, another_role"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, another_role"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, another_role"]
-
-        "standard/metadata/foo"             | ["x-roles": "repose_test, ???"]
-        "standard/metadata/billing:foo"     | ["x-roles": "repose_test, ???"]
-        "standard/metadata/service:foo"     | ["x-roles": "repose_test, ???"]
-        "custom/metadata/foo"               | ["x-roles": "repose_test, ???"]
-        "custom/metadata/customer:role:foo" | ["x-roles": "repose_test, ???"]
-        "custom/metadata/service:foo"       | ["x-roles": "repose_test, ???"]
-        "custom/metadata/%7C%7C%7C:foo"     | ["x-roles": "repose_test, ???"]
     }
 
     // Standard PUT's and DELETE's are allowed or forbidden(403) based on roles.
