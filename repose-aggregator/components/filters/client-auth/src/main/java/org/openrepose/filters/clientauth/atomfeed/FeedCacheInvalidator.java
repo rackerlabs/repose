@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed;
 
-import org.openrepose.core.logging.TracingKey;
+import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;

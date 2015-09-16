@@ -22,6 +22,7 @@ package org.openrepose.nodeservice.httpcomponent;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -36,9 +37,10 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
+import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.commons.utils.proxy.ProxyRequestException;
 import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.proxy.HttpException;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -202,7 +204,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         //Tack on the tracing ID for requests via the dist datastore
         String traceGUID = MDC.get(TracingKey.TRACING_KEY);
         if (!StringUtils.isEmpty(traceGUID)) {
-            base.addHeader(CommonHttpHeader.TRACE_GUID.toString(), traceGUID);
+            Header viaHeader = base.getFirstHeader(CommonHttpHeader.VIA.toString());
+            base.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
+                    TracingHeaderHelper.createTracingHeader(traceGUID, viaHeader != null ? viaHeader.getValue() : null)
+            );
         }
     }
 

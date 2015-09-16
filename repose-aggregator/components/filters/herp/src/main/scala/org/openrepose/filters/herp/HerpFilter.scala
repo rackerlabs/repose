@@ -33,6 +33,7 @@ import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -143,7 +144,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "timestamp" -> System.currentTimeMillis,
       "responseCode" -> httpServletResponse.getStatus,
       "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
-      "guid" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+      "guid" -> Option(stripHeaderParams(TracingHeaderHelper.getTraceGuid(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))))
         .getOrElse(java.util.UUID.randomUUID.toString),
       "serviceCode" -> serviceCode,
       "region" -> region,

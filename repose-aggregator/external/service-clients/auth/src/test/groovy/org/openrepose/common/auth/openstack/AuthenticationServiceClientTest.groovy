@@ -400,7 +400,9 @@ class AuthenticationServiceClientTest extends Specification {
     }
 
     LinkedHashMap<String, String> headersForUserAuthentication(String adminToken) {
-        ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken, (CommonHttpHeader.TRACE_GUID.toString()): ""]
+        ["Accept": MediaType.APPLICATION_XML,
+         "X-Auth-Token": adminToken,
+         (CommonHttpHeader.TRACE_GUID.toString()): ""]
     }
 
     def createAuthenticationServiceClient(def adminUser, def adminPassword, def adminTenant, def akkaServiceClient) {

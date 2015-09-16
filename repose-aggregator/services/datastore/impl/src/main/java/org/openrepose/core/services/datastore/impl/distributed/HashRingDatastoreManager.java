@@ -28,11 +28,12 @@ import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteComm
 public class HashRingDatastoreManager implements DatastoreManager {
 
     private static final String HOST_KEY = "temp-host-key";
+    private static final String TRACING_HEADER = "temp-tracing-header";
     private final HashRingDatastore datastore;
 
     public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore) {
         datastore = new HashRingDatastore(
-                new RemoteCommandExecutor(configuration.getProxyService(), HOST_KEY),
+                new RemoteCommandExecutor(configuration.getProxyService(), HOST_KEY, TRACING_HEADER),
                 configuration.getClusterView(),
                 "",
                 localDatastore,

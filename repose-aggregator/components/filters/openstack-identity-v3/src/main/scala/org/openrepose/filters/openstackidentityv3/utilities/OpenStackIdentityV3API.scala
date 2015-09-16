@@ -58,7 +58,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
   private val tokenCacheTtl = config.getTokenCacheTimeout
   private val groupsCacheTtl = config.getGroupsCacheTimeout
 
-  def getAdminToken(requestGuid: Option[String] = None, checkCache: Boolean = true): Try[String] = {
+  def getAdminToken(tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[String] = {
     def createAdminAuthRequest() = {
       val username = config.getOpenstackIdentityService.getUsername
       val password = config.getOpenstackIdentityService.getPassword
@@ -94,9 +94,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case Some(adminToken) if checkCache =>
         Success(adminToken)
       case _ =>
-        val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
+        val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
           .getOrElse(Map())
-        val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestGuidHeader
+        val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
         val authTokenResponse = Option(akkaServiceClient.post(
           ADMIN_TOKEN_KEY,
           identityServiceUri + TOKEN_ENDPOINT,
@@ -137,20 +137,20 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def validateToken(subjectToken: String, requestGuid: Option[String] = None, checkCache: Boolean = true): Try[AuthenticateResponse] = {
+  def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[AuthenticateResponse] = {
     getFromCache[AuthenticateResponse](TOKEN_KEY_PREFIX + subjectToken) match {
       case Some(cachedSubjectTokenObject) =>
         Success(cachedSubjectTokenObject)
       case None =>
-        getAdminToken(requestGuid, checkCache) match {
+        getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
+            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
               OpenStackIdentityV3Headers.X_SUBJECT_TOKEN -> subjectToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
-            ) ++ requestGuidHeader
+            ) ++ requestTracingHeader
             val validateTokenResponse = Option(akkaServiceClient.get(
               TOKEN_KEY_PREFIX + subjectToken,
               identityServiceUri + TOKEN_ENDPOINT,
@@ -177,7 +177,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && checkCache =>
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
-                validateToken(subjectToken, requestGuid, checkCache = false)
+                validateToken(subjectToken, tracingHeader, checkCache = false)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
                 logger.error(s"Retry after fetching a new admin token failed. Aborting subject token validation for: '${subjectToken}'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
@@ -196,19 +196,19 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def getGroups(userId: String, requestGuid: Option[String] = None, checkCache: Boolean = true): Try[List[Group]] = {
+  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[Group]] = {
     getFromCache[mutable.ArrayBuffer[Group]](GROUPS_KEY_PREFIX + userId) match {
       case Some(cachedGroups) =>
         Success(cachedGroups.toList)
       case None =>
-        getAdminToken(requestGuid, checkCache) match {
+        getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid))
+            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
-            ) ++ requestGuidHeader
+            ) ++ requestTracingHeader
             val groupsResponse = Option(akkaServiceClient.get(
               GROUPS_KEY_PREFIX + userId,
               identityServiceUri + GROUPS_ENDPOINT(userId),
@@ -238,7 +238,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 Failure(new InvalidUserForGroupsException("Failed to fetch groups"))
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && checkCache =>
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
-                getGroups(userId, requestGuid, checkCache = false)
+                getGroups(userId, tracingHeader, checkCache = false)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
                 logger.error(s"Retry after fetching a new admin token failed. Aborting groups retrieval for: '${userId}'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))

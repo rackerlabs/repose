@@ -76,7 +76,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
     val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
-    val requestGuid = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+    val tracingHeader = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
     val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
 
     def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
@@ -96,7 +96,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           case UserInfo(tenant, contact) =>
             if (requestedDeviceId.isDefined || Option(configuration.getCollectionResources).isDefined) {
               val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-              datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, requestGuid)
+              datastoreValue(transformedTenant, contact, "devices", configuration.getValkyrieServer, convertToDeviceList, parseDevices, tracingHeader)
             } else {
               ResponseResult(200)
             }
@@ -131,7 +131,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       (result, Option(configuration.getTranslatePermissionsToRoles), requestedTenantId, requestedContactId) match {
         case (ResponseResult(200, _), Some(_), Some(tenant), Some(contact)) =>
           val transformedTenant = tenant.substring(tenant.indexOf(":") + 1, tenant.length)
-          datastoreValue(transformedTenant, contact, "accounts", configuration.getValkyrieServer, convertToRoleList, parseRoles, requestGuid)
+          datastoreValue(transformedTenant, contact, "accounts", configuration.getValkyrieServer, convertToRoleList, parseRoles, tracingHeader)
         case _ => result
       }
     }
@@ -187,15 +187,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      valkyrieServer: ValkyrieServer,
                      datastoreTransform: java.io.Serializable => ValkyrieResult,
                      responseParser: InputStream => Try[java.io.Serializable],
-                     requestGuid: Option[String] = None): ValkyrieResult = {
+                     tracingHeader: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
 
-      val requestGuidHeader = requestGuid.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
+      val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
       val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
       Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
         uri,
-        Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestGuidHeader)
+        Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestTracingHeader)
       )
     }
 

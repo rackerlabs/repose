@@ -71,17 +71,17 @@ class AuthenticationHandlerTest extends Specification {
         }
 
         @Override
-        protected AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) {
+        protected AuthToken validateToken(ExtractorResult<String> account, String token, String tracingHeader) {
             return null
         }
 
         @Override
-        protected AuthGroups getGroups(String group, String requestGuid) {
+        protected AuthGroups getGroups(String group, String tracingHeader) {
             return null
         }
 
         @Override
-        protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String requestGuid) {
+        protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String tracingHeader) {
             return null
         }
 

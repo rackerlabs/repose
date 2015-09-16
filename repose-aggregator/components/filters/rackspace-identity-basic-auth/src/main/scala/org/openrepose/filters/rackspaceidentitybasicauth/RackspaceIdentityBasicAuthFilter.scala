@@ -153,11 +153,11 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
         TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName, "0")
       } else {
         // Request a User Token based on the extracted User Name/API Key.
-        val requestGuidHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+        val requestTracingHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
           .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
           identityServiceUri,
-          Map[String, String]().++(requestGuidHeader).asJava,
+          Map[String, String]().++(requestTracingHeader).asJava,
           createAuthRequest(authValue).toString(),
           MediaType.APPLICATION_XML_TYPE))
 

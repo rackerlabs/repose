@@ -20,7 +20,7 @@ class AuthNFilterDeprecationTest extends Specification {
 
     def 'logs a deprecation warning upon init'() {
         given:
-        def filter = new ClientAuthenticationFilter(mock(DatastoreService.class), mock(ConfigurationService.class), null, null)
+        def filter = new ClientAuthenticationFilter(mock(DatastoreService.class), mock(ConfigurationService.class), null, null, "0.0.0.0")
 
         when:
         filter.init(new MockFilterConfig())

@@ -21,6 +21,7 @@ package features.filters.herp
 
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -63,7 +64,7 @@ class HerpTracingLogTest extends ReposeValveTest {
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
-        def requestid = messageChain.receivedResponse.headers.getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(messageChain.receivedResponse.headers.getFirstValue("x-trans-id"))
         println requestid
 
         then:

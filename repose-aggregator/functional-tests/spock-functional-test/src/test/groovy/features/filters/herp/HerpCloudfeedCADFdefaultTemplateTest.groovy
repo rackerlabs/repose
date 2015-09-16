@@ -20,6 +20,7 @@
 package features.filters.herp
 
 import framework.ReposeValveTest
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -169,8 +170,8 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code.equals("200")
-        mc.handlings[0].request.headers.getFirstValue("x-trans-id") == event.@requestID.text()
-        mc.receivedResponse.headers.getFirstValue("x-trans-id") == event.@requestID.text()
+        TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id")) == event.@requestID.text()
+        TracingHeaderHelper.getTraceGuid(mc.receivedResponse.headers.getFirstValue("x-trans-id")) == event.@requestID.text()
 
         where:
         username | request                      | method   | reqBody | respMsg

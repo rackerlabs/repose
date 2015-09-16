@@ -22,6 +22,7 @@ package features.filters.valkyrie
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
@@ -97,7 +98,7 @@ class TracingLogWValkyrieTest extends ReposeValveTest {
                 ]
         )
 
-        def requestid = mc.receivedResponse.headers.getFirstValue("x-trans-id")
+        def requestid = TracingHeaderHelper.getTraceGuid(mc.receivedResponse.headers.getFirstValue("x-trans-id"))
 
         then: "check response"
         mc.receivedResponse.code == responseCode

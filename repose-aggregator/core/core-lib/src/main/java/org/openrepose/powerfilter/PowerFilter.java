@@ -23,11 +23,12 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.logging.TracingHeaderHelper;
+import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.logging.TracingKey;
 import org.openrepose.core.proxy.ServletContextWrapper;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -361,7 +362,8 @@ public class PowerFilter extends DelegatingFilterProxy {
         if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
             traceGUID = UUID.randomUUID().toString();
         } else {
-            traceGUID = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+            traceGUID = TracingHeaderHelper.getTraceGuid(
+                    mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
@@ -379,10 +381,11 @@ public class PowerFilter extends DelegatingFilterProxy {
                 if (currentSystemModel.get().isTracingHeader()) {
                     if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
                         mutableHttpRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
-                                traceGUID);
+                                TracingHeaderHelper.createTracingHeader(traceGUID, mutableHttpRequest.getHeader(CommonHttpHeader.VIA.toString())));
                     }
-                    mutableHttpResponse.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
-                            mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
+                    String tracingHeader = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+                    LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
+                    mutableHttpResponse.addHeader(CommonHttpHeader.TRACE_GUID.toString(), tracingHeader);
                 }
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }

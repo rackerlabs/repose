@@ -116,15 +116,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthToken validateToken(ExtractorResult<String> account, String token, String requestGuid) throws AuthServiceException {
+    public AuthToken validateToken(ExtractorResult<String> account, String token, String tracingHeader) throws AuthServiceException {
         AuthToken authToken = null;
 
         if (account != null) {
-            AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token, requestGuid);
+            AuthenticateResponse authResponse = authenticationService.validateToken(account.getResult(), token, tracingHeader);
             delegationMessage.set(AuthenticationServiceClient.getDelegationMessage()); // Must be set before validateTenant call in case that call overwrites this value
             authToken = validateTenant(authResponse, account.getResult());
         } else {
-            AuthenticateResponse authResp = authenticationService.validateToken(null, token, requestGuid);
+            AuthenticateResponse authResp = authenticationService.validateToken(null, token, tracingHeader);
             delegationMessage.set(AuthenticationServiceClient.getDelegationMessage());
             if (authResp != null) {
                 authToken = new OpenStackToken(authResp);
@@ -136,8 +136,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public AuthGroups getGroups(String group, String requestGuid) throws AuthServiceException {
-        return authenticationService.getGroups(group, requestGuid);
+    public AuthGroups getGroups(String group, String tracingHeader) throws AuthServiceException {
+        return authenticationService.getGroups(group, tracingHeader);
     }
 
     @Override
@@ -187,8 +187,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String requestGuid) throws AuthServiceException {
-        return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat(), requestGuid);
+    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration, String tracingHeader) throws AuthServiceException {
+        return authenticationService.getBase64EndpointsStringForHeaders(token, endpointsConfiguration.getFormat(), tracingHeader);
     }
 
     @Override
