@@ -19,8 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import javax.servlet.ServletOutputStream
+import java.io.ByteArrayInputStream
 import javax.servlet.http.HttpServletResponse
 
 import com.mockrunner.mock.web.MockHttpServletResponse
@@ -34,8 +33,6 @@ import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
-
-  // Think of: casing, preceding/succeeding components, ordering, quality
 
   var originalResponse: HttpServletResponse = _
 
