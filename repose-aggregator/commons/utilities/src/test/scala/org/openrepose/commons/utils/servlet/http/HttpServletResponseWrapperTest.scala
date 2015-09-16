@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse
 import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{eq => mEq, _}
+import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -456,16 +458,22 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("addHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "a")
+      wrappedResponse.addHeader("b", "b")
+
+      verify(mockResponse).addHeader("b", "b")
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "a")
+      wrappedResponse.addHeader("b", "b")
+
+      verify(mockResponse).addHeader("b", "b")
     }
 
     it("should add a new header if it does not exist") {
@@ -548,16 +556,22 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("addIntHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
+      wrappedResponse.addIntHeader("b", 2)
+
+      verify(mockResponse).addHeader("b", "2")
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
+      wrappedResponse.addIntHeader("b", 2)
+
+      verify(mockResponse).addHeader("b", "2")
     }
 
     it("should add a new header if it does not exist") {
@@ -622,16 +636,23 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("addDateHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
+      wrappedResponse.addDateHeader("b", System.currentTimeMillis())
+
+      verify(mockResponse).addHeader(mEq("b"), anyString())
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val now = System.currentTimeMillis()
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
+      wrappedResponse.addDateHeader("b", System.currentTimeMillis())
+
+      verify(mockResponse).addHeader(mEq("b"), anyString())
     }
 
     it("should add a new header, in a RFC2616 compliant format, if it does not exist") {
@@ -714,10 +735,26 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a")
     }
 
+    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH and the header already exists") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b")
+    }
+
     it("should throw an IllegalStateException if the header mode is set to READONLY") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a")
+    }
+
+    it("should throw an IllegalStateException if the header mode is set to READONLY and the header already exists") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b")
     }
 
     it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH and a quality is passed") {
@@ -726,10 +763,26 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a", 0.5)
     }
 
+    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH, a quality is passed, and the header already exists") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b", 0.5)
+    }
+
     it("should throw an IllegalStateException if the header mode is set to READONLY and a quality is passed") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
       an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "a", 0.5)
+    }
+
+    it("should throw an IllegalStateException if the header mode is set to READONLY, a quality is passed, and the header already exists") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b", 0.5)
     }
 
     it("should add a new header if it does not exist") {
@@ -815,16 +868,40 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("replaceHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.replaceHeader("a", "a")
+      wrappedResponse.replaceHeader("b", "b")
+
+      verify(mockResponse).setHeader("b", "b")
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.replaceHeader("a", "a")
+      wrappedResponse.replaceHeader("b", "b")
+
+      verify(mockResponse).setHeader("b", "b")
+    }
+
+    it("should write through to the wrapped response if header mode is PASSTHROUGH and a quality is passed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.replaceHeader("b", "b", 0.5)
+
+      verify(mockResponse).setHeader(mEq("b"), anyString())
+    }
+
+    it("should write through to the wrapped response if header mode is READONLY and a quality is passed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.replaceHeader("b", "b", 0.5)
+
+      verify(mockResponse).setHeader(mEq("b"), anyString())
     }
 
     it("should add a new header if it does not exist") {
@@ -946,16 +1023,22 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setHeader("a", "a")
+      wrappedResponse.setHeader("b", "b")
+
+      verify(mockResponse).setHeader("b", "b")
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setHeader("a", "a")
+      wrappedResponse.setHeader("b", "b")
+
+      verify(mockResponse).setHeader("b", "b")
     }
 
     it("should add a new header if it does not exist") {
@@ -1031,16 +1114,22 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setIntHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setIntHeader("a", 1)
+      wrappedResponse.setIntHeader("b", 2)
+
+      verify(mockResponse).setHeader("b", "2")
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setIntHeader("a", 1)
+      wrappedResponse.setIntHeader("b", 2)
+
+      verify(mockResponse).setHeader("b", "2")
     }
 
     it("should add a new header if it does not exist") {
@@ -1116,16 +1205,22 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setDateHeader") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is PASSTHROUGH") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setDateHeader("a", System.currentTimeMillis())
+      wrappedResponse.setDateHeader("b", System.currentTimeMillis())
+
+      verify(mockResponse).setHeader(mEq("b"), anyString())
     }
 
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+    it("should write through to the wrapped response if header mode is READONLY") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.setDateHeader("a", System.currentTimeMillis())
+      wrappedResponse.setDateHeader("b", System.currentTimeMillis())
+
+      verify(mockResponse).setHeader(mEq("b"), anyString())
     }
 
     it("should add a new header, in a RFC2616 compliant format, if it does not exist") {

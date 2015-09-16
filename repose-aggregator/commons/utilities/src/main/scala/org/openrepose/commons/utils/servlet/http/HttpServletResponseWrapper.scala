@@ -29,7 +29,6 @@ import org.apache.http.client.utils.DateUtils
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
-import scala.util.Try
 
 /**
  * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
@@ -127,30 +126,22 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def getSplittableHeaders(name: String): util.List[String] =
     getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def addHeader(name: String, value: String): Unit = {
-    ifMutable(headerMode) {
-      headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
+    headerMode match {
+      case ResponseMode.MUTABLE =>
+        headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
+      case _ =>
+        super.addHeader(name, value)
     }
   }
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def addHeader(name: String, value: String, quality: Double): Unit =
     addHeader(name, s"$value;q=$quality")
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def addIntHeader(name: String, value: Int): Unit = addHeader(name, value.toString)
 
   /**
    * Formats the input time (as milliseconds since the epoch) to a format defined in RFC2616.
-   *
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
    */
   override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
     addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
@@ -159,12 +150,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
    * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
    */
   override def appendHeader(name: String, value: String): Unit = {
-    val existingValues = getHeaders(name)
-    existingValues.lastOption match {
-      case Some(currentLastValue) =>
-        val newLastValue = currentLastValue + "," + value
-        headerMap = headerMap + (name -> (existingValues.dropRight(1).toSeq :+ newLastValue))
-      case None => addHeader(name, value)
+    ifMutable(headerMode) {
+      val existingValues = getHeaders(name)
+      existingValues.lastOption match {
+        case Some(currentLastValue) =>
+          val newLastValue = currentLastValue + "," + value
+          headerMap = headerMap + (name -> (existingValues.dropRight(1).toSeq :+ newLastValue))
+        case None => addHeader(name, value)
+      }
     }
   }
 
@@ -174,23 +167,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def appendHeader(name: String, value: String, quality: Double): Unit =
     appendHeader(name, s"$value;q=$quality")
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def setHeader(name: String, value: String): Unit = {
-    ifMutable(headerMode) {
-      headerMap = headerMap + (name -> Seq(value))
+    headerMode match {
+      case ResponseMode.MUTABLE => headerMap = headerMap + (name -> Seq(value))
+      case _ => super.setHeader(name, value)
     }
   }
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def setIntHeader(name: String, value: Int): Unit = setHeader(name, value.toString)
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def setDateHeader(name: String, timeSinceEpoch: Long): Unit =
     setHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
@@ -203,14 +188,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def replaceHeader(name: String, value: String): Unit = setHeader(name, value)
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
   /**
