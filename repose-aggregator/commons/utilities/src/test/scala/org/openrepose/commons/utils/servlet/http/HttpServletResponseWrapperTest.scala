@@ -19,9 +19,9 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.ByteArrayInputStream
-import javax.servlet.ServletResponse
+import java.io.{ByteArrayInputStream, IOException}
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.{ServletOutputStream, ServletResponse}
 
 import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.http.client.utils.DateUtils
@@ -1516,6 +1516,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       out.toString shouldEqual body
     }
-  }
 
+    it("should throw an IOException if the underlying stream does") {
+      val out = mock[ServletOutputStream]
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE, out)
+
+      when(out.write(any[Array[Byte]], anyInt(), anyInt())).thenThrow(new IOException())
+
+      an[IOException] should be thrownBy wrappedResponse.commitToResponse()
+    }
+  }
 }

@@ -233,22 +233,29 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
    */
   def commitToResponse(): Unit = {
-    //Write the headers, if the header mode is set to mutable
-    val writeHeaders = Try(
-      ifMutable(headerMode) {
-        headerMap foreach { case (name, values) =>
-          values foreach { value =>
-            super.addHeader(name, value)
-          }
+    def writeHeaders(): Unit = {
+      headerMap foreach { case (name, values) =>
+        values foreach { value =>
+          super.addHeader(name, value)
         }
       }
-    )
+    }
 
-    //Write the body, if the body mode is set to mutable
-    val writeBody = Try(bodyOutputStream.commit())
+    def writeBody(): Unit = {
+      bodyOutputStream.commit()
+    }
 
-    //Throw a failure exception (both should be identical) if neither the header nor body mode is set to mutable
-    if (writeHeaders.isFailure && writeBody.isFailure) writeHeaders.get
+    (headerMode, bodyMode) match {
+      case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
+        writeHeaders()
+        writeBody()
+      case (ResponseMode.MUTABLE, _) =>
+        writeHeaders()
+      case (_, ResponseMode.MUTABLE) =>
+        writeBody()
+      case (_, _) =>
+        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+    }
   }
 
   private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
