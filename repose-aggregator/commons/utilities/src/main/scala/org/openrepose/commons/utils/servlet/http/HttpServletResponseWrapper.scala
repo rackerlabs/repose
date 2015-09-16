@@ -62,7 +62,7 @@ import scala.util.Try
  * should not be performed prior to downstream processing. In practice, mutation should not be performed on the response
  * prior to calling the doFilter() method. The reason is that writing to a [[ServletOutputStream]] or
  * [[PrintWriter]] can not be undone, so for the sake of consistency, headers are handled in the same manner. In
- * fact, headers written prior to wrapping a request will not appear to exist within the wrapped response.
+ * fact, headers written prior to wrapping a response will not appear to exist within the wrapped response.
  *
  * @constructor the main constructor to be used for this class
  * @param originalResponse the response to be wrapped
@@ -75,22 +75,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
   with HeaderInteractor {
 
-  object ResponseBodyType extends Enumeration {
-    val Available, OutputStream, PrintWriter = Value
-  }
-
-  private val bodyOutputStream = bodyMode match {
-    case ResponseMode.PASSTHROUGH => new PassthroughServletOutputStream(desiredOutputStream)
-    case ResponseMode.READONLY => new ReadOnlyServletOutputStream(desiredOutputStream)
-    case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
-  }
-
-  private val bodyPrintWriter = new PrintWriter(bodyOutputStream)
-  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
-
-  private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
-  private var responseBodyType = ResponseBodyType.Available
-
   /**
    * This constructor chains to the main constructor using the original responses output stream  as the last argument.
    *
@@ -101,6 +85,22 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
    */
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
+
+  object ResponseBodyType extends Enumeration {
+    val Available, OutputStream, PrintWriter = Value
+  }
+
+  private val bodyOutputStream = bodyMode match {
+    case ResponseMode.PASSTHROUGH => new PassthroughServletOutputStream(desiredOutputStream)
+    case ResponseMode.READONLY => new ReadOnlyServletOutputStream(desiredOutputStream)
+    case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
+  }
+
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
+  private lazy val bodyPrintWriter = new PrintWriter(bodyOutputStream)
+
+  private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
+  private var responseBodyType = ResponseBodyType.Available
 
   override def getHeaderNamesList: util.List[String] = getHeaderNames.toList
 
