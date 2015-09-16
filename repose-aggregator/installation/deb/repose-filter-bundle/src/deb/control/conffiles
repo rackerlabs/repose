@@ -1,4 +1,5 @@
 /etc/repose/client-auth-n.cfg.xml
+/etc/repose/keystone-v2.cfg.xml
 /etc/repose/openstack-authorization.cfg.xml
 /etc/repose/uri-normalization.cfg.xml
 /etc/repose/header-normalization.cfg.xml
