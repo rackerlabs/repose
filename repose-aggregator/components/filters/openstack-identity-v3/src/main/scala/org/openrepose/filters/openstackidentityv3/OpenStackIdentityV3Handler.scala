@@ -250,7 +250,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def isAuthorized(authResponse: AuthenticateResponse) = {
     configuredServiceEndpoint forall { configuredEndpoint =>
-      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint])
+      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.flatMap(service => service.endpoints)).getOrElse(List.empty[Endpoint])
 
       containsRequiredEndpoint(tokenEndpoints, configuredEndpoint)
     }
@@ -346,7 +346,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def isUriWhitelisted(requestUri: String, whiteList: WhiteList) = {
     val convertedWhiteList = Option(whiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String])
-    convertedWhiteList.filter(requestUri.matches).nonEmpty
+    convertedWhiteList.exists(requestUri.matches)
   }
 
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {

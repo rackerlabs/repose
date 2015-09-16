@@ -176,11 +176,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
               // IF there is a sub key,
               // THEN try the map;
               // ELSE just bail.
-              if (keySplit.size > 1) {
+              if (keySplit.length > 1) {
                 // Retrieve the Scala version of the Map.
                 valuesMap.get(keySplit(0) + "_SCALA") match {
                   case Some(scalaValue: Map[String, Array[String]]) =>
-                    scalaValue.getOrElse(keySplit(1), Array("")).filter { s => pattern.findFirstIn(s).isDefined }.nonEmpty
+                    scalaValue.getOrElse(keySplit(1), Array("")).exists { s => pattern.findFirstIn(s).isDefined }
                   case _ => false
                 }
               } else {
