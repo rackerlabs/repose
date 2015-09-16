@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.servlet.http
 
 import java.io.ByteArrayInputStream
+import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletResponse
 
 import com.mockrunner.mock.web.MockHttpServletResponse
@@ -38,6 +39,23 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   before {
     originalResponse = new MockHttpServletResponse()
+  }
+
+  describe("getResponse") {
+    it("should throw an UnsupportedOperationException") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[UnsupportedOperationException] should be thrownBy wrappedResponse.getResponse
+    }
+  }
+
+  describe("setResponse") {
+    it("should throw an UnsupportedOperationException") {
+      val mockServletResponse = mock[ServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[UnsupportedOperationException] should be thrownBy wrappedResponse.setResponse(mockServletResponse)
+    }
   }
 
   describe("getHeaderNames") {

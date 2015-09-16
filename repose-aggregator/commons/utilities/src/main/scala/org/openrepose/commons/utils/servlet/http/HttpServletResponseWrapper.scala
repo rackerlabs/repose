@@ -22,8 +22,8 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.{InputStream, PrintWriter}
 import java.util
 import java.util.Date
-import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.{ServletOutputStream, ServletResponse}
 
 import org.apache.http.client.utils.DateUtils
 
@@ -101,6 +101,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
   private var responseBodyType = ResponseBodyType.Available
+
+  override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
+
+  override def setResponse(servletResponse: ServletResponse): Unit =
+    throw new UnsupportedOperationException("setResponse is not supported")
 
   override def getHeaderNamesList: util.List[String] = getHeaderNames.toList
 
