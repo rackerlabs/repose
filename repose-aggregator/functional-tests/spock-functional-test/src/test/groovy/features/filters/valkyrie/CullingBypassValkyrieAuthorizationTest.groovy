@@ -238,6 +238,11 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
 
         then: "check response"
         mc.receivedResponse.code == "200"
+        // verify not interact with valkyrie
+        mc.orphanedHandlings.each {
+            e -> assert !e.request.path.contains("/resources")
+        }
+
 
     }
 

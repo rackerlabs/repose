@@ -108,6 +108,8 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
         }
+        // include request make to valkyrie
+        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/accounts/by_contact/(|-)\\d*/effective"
 
         where:
         method | tenantID       | responseCode
@@ -131,6 +133,12 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
+        // verify not interact with valkyrie
+        if (mc.orphanedHandlings.size() > 0) {
+            mc.orphanedHandlings.each {
+                e -> assert !e.request.path.contains("/account")
+            }
+        }
     }
 
     def String randomTenant() {

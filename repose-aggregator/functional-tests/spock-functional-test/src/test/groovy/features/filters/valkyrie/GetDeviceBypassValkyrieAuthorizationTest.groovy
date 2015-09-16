@@ -72,6 +72,7 @@ class GetDeviceBypassValkyrieAuthorizationTest extends ReposeValveTest {
     }
 
     def setup () {
+        fakeIdentityV2Service.resetHandlers()
         fakeIdentityV2Service.resetDefaultParameters()
     }
 
@@ -107,6 +108,8 @@ class GetDeviceBypassValkyrieAuthorizationTest extends ReposeValveTest {
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
         }
+        // include request make to valkyrie
+        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/devices/by_contact/(|-)\\d*/effective"
 
 
         where:
@@ -115,6 +118,7 @@ class GetDeviceBypassValkyrieAuthorizationTest extends ReposeValveTest {
         "HEAD" | randomTenant() | "520707" | "view_product" | "200"
     }
 
+    @Unroll
     def "Bypass valkyrie test"() {
         given: "token without tenantid associated with"
         fakeIdentityV2Service.with {
@@ -137,6 +141,12 @@ class GetDeviceBypassValkyrieAuthorizationTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
+        // verify not interact with valkyrie
+        if (mc.orphanedHandlings.size() > 0) {
+            mc.orphanedHandlings.each {
+                e -> assert !e.request.path.contains("/account")
+            }
+        }
 
         where:
         method   | deviceID | permission
