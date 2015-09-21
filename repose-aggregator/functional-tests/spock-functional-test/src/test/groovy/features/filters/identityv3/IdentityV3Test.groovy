@@ -22,6 +22,7 @@ package features.filters.identityv3
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
+import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -54,6 +55,11 @@ class IdentityV3Test extends ReposeValveTest {
             deproxy.shutdown()
         if (repose)
             repose.stop()
+    }
+
+    def setup() {
+        fakeIdentityV3Service.resetParameters()
+        fakeIdentityV3Service.resetHandlers()
     }
 
     def "Test send request with user token"() {
@@ -150,5 +156,31 @@ class IdentityV3Test extends ReposeValveTest {
         "413"            | "503"
         "404"            | "401"
         "500"            | "500"
+    }
+
+    def "Handle large Token test"() {
+        given: "keystone v3 with random generate at least 226 char token"
+        def largetoken = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        println largetoken
+        def reqDomain = fakeIdentityV3Service.client_domainid
+
+        fakeIdentityV3Service.with {
+            client_token = largetoken
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
     }
 }
