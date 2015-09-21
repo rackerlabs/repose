@@ -28,6 +28,7 @@ import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito._
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -255,6 +256,38 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.removeHeader("a")
 
       wrappedResponse.getHeader("a") shouldBe null
+    }
+
+    it("should return a header value added in PASSTHROUGH mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      wrappedResponse.getHeader("a") shouldEqual "a"
+    }
+
+    it("should return a header value added in READONLY mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("a", "a")
+
+      wrappedResponse.getHeader("a") shouldEqual "a"
+    }
+
+    it("should return a header value set in PASSTHROUGH mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setHeader("a", "a")
+
+      wrappedResponse.getHeader("a") shouldEqual "a"
+    }
+
+    it("should return a header value set in READONLY mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setHeader("a", "a")
+
+      wrappedResponse.getHeader("a") shouldEqual "a"
     }
 
     it("should return the full header value, with query parameters included") {
@@ -1462,6 +1495,198 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       wrappedResponse.getWriter
       a[IllegalStateException] should be thrownBy wrappedResponse.getOutputStream
+    }
+  }
+
+  describe("setContentLength") {
+    it("should make the content length header visible by getHeader(s) in PASSTHROUGH mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentLength(100)
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldEqual "100"
+    }
+
+    it("should make the content length header visible by getHeader(s) in READONLY mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentLength(100)
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldEqual "100"
+    }
+
+    it("should make the content length header visible by getHeader(s) in MUTABLE mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentLength(100)
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldEqual "100"
+    }
+
+    it("should not set the Content-Length header if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      wrappedResponse.setContentLength(100)
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldBe null
+    }
+  }
+
+  describe("getContentType") {
+    it("should return null if no content type has been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getContentType shouldBe null
+    }
+
+    it("should return the content type if it has been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+
+      wrappedResponse.getContentType shouldEqual "text/plain"
+    }
+  }
+
+  describe("setContentType") {
+    it("should make the content type header visible by getHeader(s) in PASSTHROUGH mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldEqual "text/plain"
+    }
+
+    it("should make the content type header visible by getHeader(s) in READONLY mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldEqual "text/plain"
+    }
+
+    it("should make the content type header visible by getHeader(s) in MUTABLE mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldEqual "text/plain"
+    }
+
+    it("should set the content type with a character encoding if one has been provided") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain;charset=UTF-8")
+
+      wrappedResponse.getContentType should (include("text/plain") and include("charset=UTF-8"))
+    }
+
+    it("should set the content type without a character encoding if one has been provided after calling getWriter") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getWriter
+      wrappedResponse.setContentType("text/plain;charset=UTF-8")
+
+      wrappedResponse.getContentType shouldEqual "text/plain"
+    }
+
+    it("should not set the Content-Type header if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      wrappedResponse.setContentType("text/plain")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldBe null
+    }
+  }
+
+  describe("getCharacterEncoding") {
+    it("should return ISO-8859-1 if no content type has been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getCharacterEncoding shouldBe "ISO-8859-1"
+    }
+
+    it("should return the character encoding if it has been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getCharacterEncoding shouldEqual "UTF-8"
+    }
+  }
+
+  describe("setCharacterEncoding") {
+    it("should make the character encoding visible in the Content-Type header in PASSTHROUGH mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) should include("charset=UTF-8")
+    }
+
+    it("should make the character encoding visible in the Content-Type header in READONLY mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.READONLY, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) should include("charset=UTF-8")
+    }
+
+    it("should make the character encoding visible in the Content-Type header in MUTABLE mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) should include("charset=UTF-8")
+    }
+
+    it("should override an existing character encoding") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-16")
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) should (include("charset=UTF-8") and not include "charset=UTF-16")
+    }
+
+    it("should not modify the Content-Type header if it has not been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldBe null
+    }
+
+    it("should not set the character encoding after calling getWriter") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.getWriter
+      wrappedResponse.setCharacterEncoding("UTF-8")
+
+      wrappedResponse.getContentType shouldEqual "text/plain"
+    }
+
+    it("should not set the character encoding if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      wrappedResponse.setCharacterEncoding("text/plain")
+
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE.toString) shouldBe null
     }
   }
 

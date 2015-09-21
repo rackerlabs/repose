@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 
 import org.apache.http.client.utils.DateUtils
+import org.openrepose.commons.utils.http.CommonHttpHeader
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
@@ -194,6 +195,38 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
+  override def setContentLength(i: Int): Unit = {
+    if (!isCommitted) {
+      setIntHeader(CommonHttpHeader.CONTENT_LENGTH.toString, i)
+    }
+  }
+
+  override def getContentType: String = getHeader(CommonHttpHeader.CONTENT_TYPE.toString)
+
+  override def setContentType(s: String): Unit = {
+    if (!isCommitted) {
+      val contentType =
+        if (responseBodyType != ResponseBodyType.PrintWriter) s
+        else s.split(';')(0)
+
+      setHeader(CommonHttpHeader.CONTENT_TYPE.toString, contentType)
+    }
+  }
+
+  override def getCharacterEncoding: String = {
+    Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString))
+      .map(_.split("charset=")(1))
+      .getOrElse("ISO-8859-1")
+  }
+
+  override def setCharacterEncoding(s: String): Unit = {
+    if (!isCommitted && responseBodyType != ResponseBodyType.PrintWriter) {
+      Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString))
+        .map(_.split(';')(0))
+        .foreach(contentType => setHeader(CommonHttpHeader.CONTENT_TYPE.toString, contentType + ";charset=" + s))
+    }
+  }
+
   /**
    * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
    */
@@ -230,6 +263,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       case _ => bodyOutputStream.flush()
     }
   }
+
+  override def resetBuffer(): Unit = super.resetBuffer()
+
+  override def reset(): Unit = ???
 
   /**
    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
