@@ -127,11 +127,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
 
   override def addHeader(name: String, value: String): Unit = {
-    headerMode match {
-      case ResponseMode.MUTABLE =>
-        headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
-      case _ =>
-        super.addHeader(name, value)
+    headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
+
+    if (headerMode != ResponseMode.MUTABLE) {
+      // Write through to the wrapped response immediately
+      super.addHeader(name, value)
     }
   }
 
@@ -168,9 +168,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     appendHeader(name, s"$value;q=$quality")
 
   override def setHeader(name: String, value: String): Unit = {
-    headerMode match {
-      case ResponseMode.MUTABLE => headerMap = headerMap + (name -> Seq(value))
-      case _ => super.setHeader(name, value)
+    headerMap = headerMap + (name -> Seq(value))
+
+    if (headerMode != ResponseMode.MUTABLE) {
+      // Write through to the wrapped response immediately
+      super.setHeader(name, value)
     }
   }
 
