@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>services-pom</artifactId>
+        <groupId>org.openrepose</groupId>
+        <version>7.1.5.2-SNAPSHOT</version>
+    </parent>
+
+    <name>Repose Services - Atom Feed Service</name>
+    <artifactId>atom-feed-service-support</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        The Atom Feed service may be used to interact with services which satisfy the Atom Syndication format.
+
+        A component may register a listener with the Atom Feed service which will be notified any time a new message
+        is posted to an associated feed.
+    </description>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+    </modules>
+</project>
