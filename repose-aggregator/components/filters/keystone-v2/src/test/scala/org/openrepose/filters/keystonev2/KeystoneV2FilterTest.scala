@@ -2009,6 +2009,41 @@ with HttpDelegationManager {
     }
   }
 
+  describe("Self-validating tokens") {
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            uri="https://some.identity.com"
+        |            set-groups-in-header="false"
+        |            />
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+
+    val config: MockFilterConfig = new MockFilterConfig
+    filter.init(config)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+    it("should validate a token without using an admin token") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        VALID_TOKEN, AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+  }
+
   object TestValidToken {
     def apply(expirationDate: String = "",
               userId: String = "",
