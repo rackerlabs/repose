@@ -730,7 +730,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       val later = now + 1000
 
       wrappedResponse.addDateHeader("a", now)
-      wrappedResponse.addDateHeader("a", later)
+      wrappedResponse.addDateHeader("A", later)
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeaders("a").size() shouldEqual 2
