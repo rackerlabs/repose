@@ -273,7 +273,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  override def reset(): Unit = ???
+  override def reset(): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call reset after the response has been committed")
+    } else {
+      super.reset()
+      headerMap = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
+      resetBuffer()
+    }
+  }
 
   /**
    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
