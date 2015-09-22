@@ -22,6 +22,9 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            elementFormDefault="qualified"
@@ -59,7 +62,7 @@
     </xs:complexType>
 
     <xs:complexType name="IdentityServiceType">
-        <xs:attribute name="username" type="xs:string" use="required">
+        <xs:attribute name="username" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Admin username to access Rackspace Keystone V2 identity service.</html:p>
@@ -67,7 +70,7 @@
             </xs:annotation>
 
         </xs:attribute>
-        <xs:attribute name="password" type="xs:string" use="required">
+        <xs:attribute name="password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Admin user password to access Rackspace Keystone V2 identity service.</html:p>
@@ -112,6 +115,11 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="@username and @password"
+                   xerces:message="Must provide both a username and a password"
+                   saxon:message="Must provide both a username and a password"/>
     </xs:complexType>
 
     <xs:complexType name="TenantHandlingType">
