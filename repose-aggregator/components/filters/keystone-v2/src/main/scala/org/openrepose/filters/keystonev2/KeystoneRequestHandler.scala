@@ -81,8 +81,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
               case Failure(f) =>
                 Failure(IdentityCommunicationException("Token not found in identity response during admin authentication", f))
             }
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting admin token"))
+          case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
+            Failure(OverLimitException(statusCode, buildRetryValue(serviceClientResponse), "Rate limited when getting admin token"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException("Identity Service not available to get admin token"))
           case _ => Failure(IdentityResponseProcessingException("Unable to successfully get admin token from Identity"))
@@ -224,8 +224,8 @@ object KeystoneRequestHandler {
             Failure(AdminTokenUnauthorizedException(s"Admin token unauthorized to make $call request"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException(s"Admin token forbidden from making $call request"))
           case SC_NOT_FOUND => Failure(InvalidTokenException(s"Token is not valid for $call request"))
-          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
+          case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
+            Failure(OverLimitException(statusCode, buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException(s"Identity Service not available for $call request"))
           case _ => Failure(IdentityResponseProcessingException(s"Unhandled response from Identity for $call request"))
@@ -250,7 +250,7 @@ object KeystoneRequestHandler {
 
   case class IdentityCommunicationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
-  case class OverLimitException(retryAfter: String, message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class OverLimitException(statusCode: Int, retryAfter: String, message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 

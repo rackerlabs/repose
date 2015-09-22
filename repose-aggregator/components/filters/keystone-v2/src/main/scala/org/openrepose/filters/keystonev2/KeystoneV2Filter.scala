@@ -102,6 +102,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
     lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
+    lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
+      Option(config.getIdentityService.getPassword).isEmpty
 
     /**
      * BEGIN PROCESSING
@@ -145,7 +147,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
             case Failure(e: OverLimitException) =>
               response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
-              Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+              if (isSelfValidating) {
+                Reject(e.statusCode, Some(e.getMessage))
+              } else {
+                Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+              }
             case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
               Reject(HttpServletResponse.SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
             case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
@@ -238,9 +244,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def getValidatingToken(authToken: String, force: Boolean): Try[String] = {
       logger.trace("Getting the validating token")
 
-      (Option(config.getIdentityService.getUsername), Option(config.getIdentityService.getPassword)) match {
-        case (Some(username), Some(password)) => getAdminToken(username, password, force)
-        case _ => Success(authToken)
+      if (isSelfValidating) {
+        Success(authToken)
+      } else {
+        getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword, force)
       }
     }
 

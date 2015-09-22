@@ -2042,6 +2042,48 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
     }
+
+    it("rejects with 413 if we are rate limited by identity (413)") {
+      val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        VALID_TOKEN, AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+    }
+
+    it("rejects with 429 if we are rate limited by identity (429)") {
+      val retryValue = DateUtils.formatDate(new DateTime().plusHours(1).toDate)
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        VALID_TOKEN, AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "Rate limited by identity!", Map(HttpHeaders.RETRY_AFTER -> retryValue))
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getErrorCode shouldBe SC_TOO_MANY_REQUESTS
+      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+
+      filterChain.getLastRequest should be(null)
+      filterChain.getLastResponse should be(null)
+    }
   }
 
   object TestValidToken {
