@@ -117,7 +117,7 @@
         </xs:attribute>
 
         <xs:assert vc:minVersion="1.1"
-                   test="@username and @password"
+                   test="if (@username or @password) then (@username and @password) else true()"
                    xerces:message="Must provide both a username and a password"
                    saxon:message="Must provide both a username and a password"/>
     </xs:complexType>
