@@ -139,9 +139,9 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("A", "a;q=0.8;foo=bar")
-      wrappedResponse.addHeader("A", "b;bar=baz")
+      wrappedResponse.addHeader("A", "b;bar=baz,c")
 
-      wrappedResponse.getPreferredSplittableHeaders("A") should contain only "b"
+      wrappedResponse.getPreferredHeaders("A") should contain only "b"
     }
 
     it("should return header values with the casing they were added with") {
