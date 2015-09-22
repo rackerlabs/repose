@@ -23,6 +23,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 9/22/15.
@@ -79,5 +80,93 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
+    }
+    
+    def "Validate client token with belongsTo test"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            validateTenant = "belongstotest"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should pass"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+    }
+
+    def "Validate racker token without tenant"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = "rackerSSO"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should pass"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+    }
+
+    @Unroll("When pass request with white list uri: #path")
+    def "Verify white list"() {
+        given:
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
+                headers: ['content-type': 'application/json'])
+
+        then: "They should pass"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        where:
+        path << ["/buildinfo", "/get"]
+    }
+
+    def "Verify Repose send Impersonate role in header"() {
+        given: "keystone v2v2 with impersonate access"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            impersonate_id = "12345"
+            impersonate_name = "repose_test"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "should have x-impersonate-roles in headers from request come through repose"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Name") == fakeIdentityV2Service.impersonate_name
+        mc.handlings[0].request.headers.getFirstValue("X-Impersonator-Id") == fakeIdentityV2Service.impersonate_id
+        mc.handlings[0].request.headers.contains("x-impersonator-roles")
+        // should check if take roles id or role name???
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("Racker")
+        mc.handlings[0].request.headers.getFirstValue("x-impersonator-roles").contains("object-store:admin")
+    }
+
+    def "If no impersonator then no impersonator headers"() {
+        given: "keystone v2v2 without impersonate access"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "should have x-impersonate-roles in headers from request come through repose"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        !mc.handlings[0].request.headers.contains("x-impersonator-id")
+        !mc.handlings[0].request.headers.contains("x-impersonator-name")
+        !mc.handlings[0].request.headers.contains("x-impersonator-roles")
     }
 }
