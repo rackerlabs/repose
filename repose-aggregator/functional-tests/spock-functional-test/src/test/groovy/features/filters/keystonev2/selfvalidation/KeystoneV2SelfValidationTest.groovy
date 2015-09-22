@@ -81,7 +81,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
     }
-    
+
     def "Validate client token with belongsTo test"() {
         given:
         fakeIdentityV2Service.with {
