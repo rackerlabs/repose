@@ -50,6 +50,8 @@ class ReadOnlyServletOutputStream(servletOutputStream: ServletOutputStream)
   override def commit(): Unit =
     throw new IllegalStateException("Method not available for READONLY response mode")
 
+  override def resetBuffer(): Unit = byteArrayOutputStream.reset()
+
   override def close(): Unit = byteArrayOutputStream.close()
 
   override def toString: String = byteArrayOutputStream.toString

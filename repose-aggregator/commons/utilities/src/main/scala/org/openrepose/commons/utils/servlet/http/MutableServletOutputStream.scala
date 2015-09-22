@@ -44,6 +44,8 @@ class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
 
   override def commit(): Unit = byteArrayOutputStream.writeTo(servletOutputStream)
 
+  override def resetBuffer(): Unit = byteArrayOutputStream.reset()
+
   override def close(): Unit = byteArrayOutputStream.close()
 
   override def toString: String = byteArrayOutputStream.toString

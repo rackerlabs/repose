@@ -39,4 +39,9 @@ trait ExtendedServletOutputStream extends ServletOutputStream {
    * Applies any un-applied changes. Specifically, writes data from this object into a wrapped OutputStream.
    */
   def commit(): Unit
+
+  /**
+   * Clears any internal buffers maintained by this OutputStream.
+   */
+  def resetBuffer(): Unit
 }

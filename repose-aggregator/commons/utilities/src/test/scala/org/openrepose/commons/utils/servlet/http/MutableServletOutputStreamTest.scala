@@ -27,6 +27,8 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
+import scala.io.Source
+
 class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("write") {
@@ -98,6 +100,19 @@ class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoS
       mutableOutputStream.commit()
 
       mockOutputStream.toString shouldEqual "foo"
+    }
+  }
+
+  describe("resetBuffer") {
+    it("should clear the internal buffer") {
+      val mockOutputStream = mock[ServletOutputStream]
+      val readOnlyOutputStream = new ReadOnlyServletOutputStream(mockOutputStream)
+
+      readOnlyOutputStream.write("foo".getBytes)
+      readOnlyOutputStream.resetBuffer()
+
+      val bufferString = Source.fromInputStream(readOnlyOutputStream.getOutputStreamAsInputStream).mkString
+      bufferString shouldEqual ""
     }
   }
 }

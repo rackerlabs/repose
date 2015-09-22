@@ -1704,6 +1704,36 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
+  describe("resetBuffer") {
+    it("should throw an IllegalStateException if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.resetBuffer()
+    }
+
+    it("should clear the contents of the response body without clearing the status code or headers") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.setOutput(new ByteArrayInputStream("foo".getBytes))
+      wrappedResponse.addHeader("foo", "foo")
+      wrappedResponse.setStatus(418)
+
+      wrappedResponse.resetBuffer()
+
+      val postFlushBody = Source.fromInputStream(wrappedResponse.getOutputStreamAsInputStream).mkString
+      wrappedResponse.getStatus shouldEqual 418
+      wrappedResponse.getHeader("foo") shouldEqual "foo"
+      postFlushBody shouldEqual ""
+    }
+  }
+
+  describe("reset") {
+    pending
+  }
+
   describe("commitToResponse") {
     Seq(
       (ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH),

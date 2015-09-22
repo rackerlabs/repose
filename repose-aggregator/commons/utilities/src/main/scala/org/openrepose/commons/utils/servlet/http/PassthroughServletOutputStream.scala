@@ -38,4 +38,7 @@ class PassthroughServletOutputStream(servletOutputStream: ServletOutputStream) e
 
   override def commit(): Unit =
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
+
+  // Since this OutputStream does not maintain a buffer, do nothing
+  override def resetBuffer(): Unit = {}
 }

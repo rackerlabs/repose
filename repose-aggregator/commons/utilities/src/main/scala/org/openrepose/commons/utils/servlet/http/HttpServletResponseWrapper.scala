@@ -264,7 +264,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  override def resetBuffer(): Unit = super.resetBuffer()
+  override def resetBuffer(): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
+    } else {
+      super.resetBuffer()
+      bodyOutputStream.resetBuffer()
+    }
+  }
 
   override def reset(): Unit = ???
 
