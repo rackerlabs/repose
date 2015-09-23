@@ -215,7 +215,7 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
         given: "a list permission devices defined in Valkyrie token without tenantid associated with"
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
-            service_admin_role = "racker"
+            service_admin_role = "racker,slacker"
         }
 
         fakeValkyrie.with {
