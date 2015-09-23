@@ -1318,7 +1318,7 @@ class MockIdentityV2Service {
             <role id="9" name="\${serviceadmin}"
                 description="Defines a user as being a Racker"
                 serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-            <role name="dl_RackUSA" />
+            <role id="100" name="dl_RackUSA" />
             <role name="dl_RackGlobal"/>
             <role name="dl_cloudblock"/>
             <role name="dl_US Managers"/>
@@ -1341,6 +1341,12 @@ class MockIdentityV2Service {
           "name": "\${serviceadmin}",
           "description": "Defines a user as being a Racker",
           "id": "9",
+          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        {
+          "name": "test_repose",
+          "id" : "100",
+          "description" : "Defines a user a repose dev",
           "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
         }
       ],
