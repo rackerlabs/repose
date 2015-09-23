@@ -48,6 +48,7 @@
         <module>herp</module>
         <module>valkyrie-authorization</module>
         <module>keystone-v2</module>
+        <module>cors</module>
     </modules>
 
     <properties>
