@@ -150,10 +150,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               if (isSelfValidating) {
                 Reject(e.statusCode, Some(e.getMessage))
               } else {
-                Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+                Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
               }
             case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
-              Reject(HttpServletResponse.SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+              Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
             case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
           }
         }
@@ -184,13 +184,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
               logger.trace(s"Processing response with status code: $statusCode")
 
-              if (response.getStatus == HttpServletResponse.SC_UNAUTHORIZED) {
+              if (response.getStatus == SC_UNAUTHORIZED) {
                 response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
             case None =>
               logger.debug(s"Rejecting with status $statusCode")
 
-              if (statusCode == HttpServletResponse.SC_UNAUTHORIZED) {
+              if (statusCode == SC_UNAUTHORIZED) {
                 response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
 
