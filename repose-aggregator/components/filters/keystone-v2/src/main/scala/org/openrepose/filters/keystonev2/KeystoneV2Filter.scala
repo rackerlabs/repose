@@ -102,6 +102,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
     lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
+    lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
+      Option(config.getIdentityService.getPassword).isEmpty
 
     /**
      * BEGIN PROCESSING
@@ -120,15 +122,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         } else {
           val processingResult =
             getAuthToken flatMap { authToken =>
-              validateToken(getAdminToken, authToken) flatMap { validToken =>
+              validateToken(authToken) flatMap { validToken =>
                 val doTenantCheck = doAuthorizeTenant(validToken)
                 val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
                 addTokenHeaders(validToken, matchedUriTenant.getOrElse(None))
                 authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
-                  lazy val endpoints = getEndpoints(getAdminToken, authToken, validToken) // Prevents making call if its not needed
+                  lazy val endpoints = getEndpoints(authToken, validToken) // Prevents making call if its not needed
                   addCatalogHeader(endpoints) flatMap { _ =>
                     authorizeEndpoints(validToken, endpoints) flatMap { _ =>
-                      addGroupsHeader(getGroups(getAdminToken, authToken, validToken))
+                      addGroupsHeader(getGroups(authToken, validToken))
                     }
                   }
                 }
@@ -145,9 +147,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
             case Failure(e: OverLimitException) =>
               response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
-              Reject(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+              if (isSelfValidating) {
+                Reject(e.statusCode, Some(e.getMessage))
+              } else {
+                Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+              }
             case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
-              Reject(HttpServletResponse.SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+              Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
             case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
           }
         }
@@ -178,13 +184,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
               logger.trace(s"Processing response with status code: $statusCode")
 
-              if (response.getStatus == HttpServletResponse.SC_UNAUTHORIZED) {
+              if (response.getStatus == SC_UNAUTHORIZED) {
                 response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
             case None =>
               logger.debug(s"Rejecting with status $statusCode")
 
-              if (statusCode == HttpServletResponse.SC_UNAUTHORIZED) {
+              if (statusCode == SC_UNAUTHORIZED) {
                 response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
               }
 
@@ -235,7 +241,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def getAdminToken(force: Boolean): Try[String] = {
+    def getValidatingToken(authToken: String, force: Boolean): Try[String] = {
+      logger.trace("Getting the validating token")
+
+      if (isSelfValidating) {
+        Success(authToken)
+      } else {
+        getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword, force)
+      }
+    }
+
+    def getAdminToken(username: String, password: String, force: Boolean): Try[String] = {
       logger.trace("Getting an admin token with the configured credentials")
 
       // If force is true, clear the cache and acquire a new token
@@ -244,7 +260,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       Option(datastore.get(ADMIN_TOKEN_KEY).asInstanceOf[String]) match {
         case Some(cachedAdminToken) => Success(cachedAdminToken)
         case None =>
-          requestHandler.getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword) match {
+          requestHandler.getAdminToken(username, password) match {
             case Success(adminToken) =>
               datastore.put(ADMIN_TOKEN_KEY, adminToken)
               Success(adminToken)
@@ -253,17 +269,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def validateToken(getAdminToken: Boolean => Try[String], authToken: String): Try[ValidToken] = {
+    def validateToken(authToken: String): Try[ValidToken] = {
       logger.trace(s"Validating token: $authToken")
 
       Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
         Success(validationResult)
       } getOrElse {
-        getAdminToken(false) flatMap { validatingToken =>
+        getValidatingToken(authToken, force = false) flatMap { validatingToken =>
           requestHandler.validateToken(validatingToken, authToken) recoverWith {
             case _: AdminTokenUnauthorizedException =>
               // Force acquiring of the admin token, and call the validation function again (retry once)
-              getAdminToken(true) match {
+              getValidatingToken(authToken, force = true) match {
                 case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken)
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
@@ -314,18 +330,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def getEndpoints(getAdminToken: Boolean => Try[String], authToken: String, validToken: ValidToken): Try[EndpointsData] = {
+    def getEndpoints(authToken: String, validToken: ValidToken): Try[EndpointsData] = {
       logger.trace(s"Getting endpoints for: $authToken")
 
       // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
       Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) match {
         case Some(endpointsData) => Success(endpointsData)
         case None =>
-          getAdminToken(false) flatMap { adminToken =>
+          getValidatingToken(authToken, force = false) flatMap { adminToken =>
             requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the endpoints function again (retry once)
-                getAdminToken(true) match {
+                getValidatingToken(authToken, force = true) match {
                   case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
@@ -365,17 +381,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def getGroups(getAdminToken: Boolean => Try[String], authToken: String, validToken: ValidToken): Try[Vector[String]] = {
+    def getGroups(authToken: String, validToken: ValidToken): Try[Vector[String]] = {
       logger.trace(s"Getting groups for: $authToken")
 
       Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) match {
         case Some(groups) => Success(groups)
         case None =>
-          getAdminToken(false) flatMap { adminToken =>
+          getValidatingToken(authToken, force = false) flatMap { adminToken =>
             requestHandler.getGroups(adminToken, authToken) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the endpoints function again (retry once)
-                getAdminToken(true) match {
+                getValidatingToken(authToken, force = true) match {
                   case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, authToken)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
