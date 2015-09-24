@@ -300,7 +300,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Roles", superRootAdminUser)
+      mockServletRequest.setHeader("X-Roles", s"$superRootAdminUser,buttsRole")
       val mockServletResponse = new MockHttpServletResponse
       val mockFilterChain = mock[FilterChain]
 

@@ -156,6 +156,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       .map(_.getRole.asScala)
       .getOrElse(List.empty)
     val reqAuthRoles = mutableHttpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
+      .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
 
     if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
       filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
