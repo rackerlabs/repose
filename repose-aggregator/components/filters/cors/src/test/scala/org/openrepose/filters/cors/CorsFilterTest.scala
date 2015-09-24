@@ -19,16 +19,81 @@
  */
 package org.openrepose.filters.cors
 
+import javax.servlet.FilterChain
+
 import org.junit.runner.RunWith
-import org.scalatest.FunSpec
+import org.mockito.Mockito._
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
 
 @RunWith(classOf[JUnitRunner])
-class CorsFilterTest extends FunSpec {
+class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
-  describe("doFilter") {
-    it("should do nothing") {
-      // everyone is a winner!
+  val HttpMethods = List("OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT", "CUSTOM")
+
+  var corsFilter: CorsFilter = _
+  var servletRequest: MockHttpServletRequest = _
+  var servletResponse: MockHttpServletResponse = _
+  var filterChain: FilterChain = _
+
+  before {
+    servletRequest = new MockHttpServletRequest
+    servletResponse = new MockHttpServletResponse
+    filterChain = mock(classOf[FilterChain])
+
+    corsFilter = new CorsFilter
+  }
+
+  describe("the doFilter method") {
+    describe("when a non-CORS request is received") {
+      HttpMethods.foreach { httpMethod =>
+        it (s"should call the next filter in the filter chain for HTTP method $httpMethod") {
+          // given no request headers
+          servletRequest.setMethod(httpMethod)
+
+          corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          verify(filterChain).doFilter(servletRequest, servletResponse)
+        }
+      }
+
+      HttpMethods.foreach { httpMethod =>
+        it(s"should not add CORS specific headers for HTTP method $httpMethod") {
+          // given no request headers
+          servletRequest.setMethod(httpMethod)
+
+          corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldBe null
+        }
+      }
+
+      HttpMethods.filter{_ != "OPTIONS"}.foreach { httpMethod =>
+        it(s"should have 'Origin' in the Vary header for HTTP method $httpMethod") {
+          // given no request headers
+          servletRequest.setMethod(httpMethod)
+
+          corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+          servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(CommonHttpHeader.ORIGIN.toString)
+        }
+      }
+
+      it("should have the preflight request headers in the Vary header for HTTP method OPTIONS") {
+        // given no request headers
+        servletRequest.setMethod("OPTIONS")
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
+          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+      }
     }
   }
 

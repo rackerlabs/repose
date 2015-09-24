@@ -20,11 +20,32 @@
 package org.openrepose.filters.cors
 
 import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-class CorsFilter extends Filter {
-  override def init(filterConfig: FilterConfig): Unit = ???
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.utils.http.CommonHttpHeader
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
+class CorsFilter extends Filter with LazyLogging {
+  override def init(filterConfig: FilterConfig): Unit = {
+    logger.trace("CORS filter initialized.")
+  }
 
-  override def destroy(): Unit = ???
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
+    val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
+
+    filterChain.doFilter(servletRequest, servletResponse)
+
+    httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ORIGIN.toString)
+
+    if (httpServletRequest.getMethod == "OPTIONS") {
+      // the response depends on the values of these headers in the request
+      httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString)
+      httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+    }
+  }
+
+  override def destroy(): Unit = {
+    logger.trace("CORS filter destroyed")
+  }
 }
