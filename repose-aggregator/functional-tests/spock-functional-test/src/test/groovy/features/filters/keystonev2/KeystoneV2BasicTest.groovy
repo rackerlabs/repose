@@ -21,6 +21,7 @@ package features.filters.keystonev2
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
+import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
@@ -168,5 +169,22 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("x-impersonator-id")
         !mc.handlings[0].request.headers.contains("x-impersonator-name")
         !mc.handlings[0].request.headers.contains("x-impersonator-roles")
+    }
+
+    def "Handle large Token test"() {
+        given: "keystone v2v2 with random generate at least 226 char token"
+        def largetoken = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        println largetoken
+        fakeIdentityV2Service.with {
+            client_token = largetoken
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "should have x-impersonate-roles in headers from request come through repose"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
     }
 }
