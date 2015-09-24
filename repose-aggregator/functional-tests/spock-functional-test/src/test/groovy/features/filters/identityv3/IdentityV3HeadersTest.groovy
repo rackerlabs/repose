@@ -165,6 +165,7 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("test")
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("user")
         (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("Repose user")
+        (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("username")
     }
 
     @Ignore ("We can turn on when impersonator role to header merge in to branch")
