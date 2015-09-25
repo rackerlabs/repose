@@ -19,7 +19,8 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{ByteArrayInputStream, IOException}
+import java.io.{ByteArrayInputStream, IOException, UnsupportedEncodingException}
+import java.nio.charset.UnsupportedCharsetException
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 
@@ -1458,6 +1459,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getOutputStream
       a[IllegalStateException] should be thrownBy wrappedResponse.getWriter
     }
+
+    it("should throw an UnsupportedEncodingException if getCharacterEncoding returns an unsupported encoding") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.toString, "foo; charset=bar")
+
+      an[UnsupportedEncodingException] should be thrownBy wrappedResponse.getWriter
+    }
   }
 
   describe("getOutputStream") {
@@ -1623,6 +1632,12 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setCharacterEncoding") {
+    it("should throw an UnsupportedEncodingException if the provided encoding is not supported") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[UnsupportedCharsetException] should be thrownBy wrappedResponse.setCharacterEncoding("foo")
+    }
+
     it("should make the character encoding visible in the Content-Type header in PASSTHROUGH mode") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
@@ -1692,6 +1707,18 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
   describe("flushBuffer") {
     it("should flush all written data to the underlying output stream") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getOutputStream.print(body)
+      wrappedResponse.flushBuffer()
+      wrappedResponse.commitToResponse()
+
+      out.toString shouldEqual body
+    }
+
+    it("should flush all written data to the underlying output stream via PrintWriter") {
       val out = new ByteArrayServletOutputStream()
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
 

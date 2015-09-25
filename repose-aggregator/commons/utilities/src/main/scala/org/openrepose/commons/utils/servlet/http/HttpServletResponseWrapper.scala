@@ -19,7 +19,8 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{InputStream, PrintWriter}
+import java.io.{InputStream, OutputStreamWriter, PrintWriter, UnsupportedEncodingException}
+import java.nio.charset.{Charset, StandardCharsets}
 import java.util
 import java.util.Date
 import javax.servlet.http.HttpServletResponse
@@ -97,8 +98,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
-  private lazy val bodyPrintWriter = new PrintWriter(bodyOutputStream)
 
+  private var bodyPrintWriter: PrintWriter = _
+  private var characterEncoding: String = StandardCharsets.ISO_8859_1.toString
   private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
   private var responseBodyType = ResponseBodyType.Available
 
@@ -195,35 +197,46 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
-  override def setContentLength(i: Int): Unit = {
+  override def setContentLength(contentLength: Int): Unit = {
     if (!isCommitted) {
-      setIntHeader(CommonHttpHeader.CONTENT_LENGTH.toString, i)
+      setIntHeader(CommonHttpHeader.CONTENT_LENGTH.toString, contentLength)
     }
   }
 
   override def getContentType: String = getHeader(CommonHttpHeader.CONTENT_TYPE.toString)
 
-  override def setContentType(s: String): Unit = {
+  override def setContentType(contentType: String): Unit = {
     if (!isCommitted) {
-      val contentType =
-        if (responseBodyType != ResponseBodyType.PrintWriter) s
-        else s.split(';')(0)
+      val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
+      val charEnc = charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
+      val modifiedContentType = contentType.replaceAll(""";\s*charset\s*=\s*[^;]+""", "")
 
-      setHeader(CommonHttpHeader.CONTENT_TYPE.toString, contentType)
+      setHeader(CommonHttpHeader.CONTENT_TYPE.toString, modifiedContentType)
+      charEnc.foreach(setCharacterEncoding)
     }
   }
 
   override def getCharacterEncoding: String = {
-    Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString))
-      .map(_.split("charset=")(1))
-      .getOrElse("ISO-8859-1")
+    Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString)) flatMap { contentType =>
+      val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
+      charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
+    } getOrElse characterEncoding
   }
 
-  override def setCharacterEncoding(s: String): Unit = {
+  override def setCharacterEncoding(charEncoding: String): Unit = {
     if (!isCommitted && responseBodyType != ResponseBodyType.PrintWriter) {
-      Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString))
-        .map(_.split(';')(0))
-        .foreach(contentType => setHeader(CommonHttpHeader.CONTENT_TYPE.toString, contentType + ";charset=" + s))
+      // Verify that the provided character encoding is valid
+      val charset = Charset.forName(charEncoding)
+
+      if (!Charset.isSupported(charEncoding) || !charset.isRegistered) {
+        // Verify that the charset is supported and registered with IANA
+        throw new UnsupportedEncodingException("setCharacterEncoding: " + charEncoding + " is not a supported encoding")
+      } else {
+        characterEncoding = charEncoding
+        Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString))
+          .map(_.replaceAll(""";\s*charset\s*=\s*[^;]+""", "")) // Strip out the current character encoding
+          .foreach(contentType => setHeader(CommonHttpHeader.CONTENT_TYPE.toString, contentType + ";charset=" + charEncoding))
+      }
     }
   }
 
@@ -241,8 +254,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     responseBodyType match {
       case ResponseBodyType.OutputStream =>
         throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
-      case _ =>
+      case ResponseBodyType.Available =>
         responseBodyType = ResponseBodyType.PrintWriter
+        bodyPrintWriter = new PrintWriter(new OutputStreamWriter(bodyOutputStream, getCharacterEncoding))
+        bodyPrintWriter
+      case ResponseBodyType.PrintWriter =>
         bodyPrintWriter
     }
   }
