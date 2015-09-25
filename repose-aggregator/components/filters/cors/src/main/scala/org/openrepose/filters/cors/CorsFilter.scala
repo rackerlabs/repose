@@ -24,6 +24,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.filters.cors.CorsFilter.{NonCorsRequest, ActualRequest, PreflightRequest}
 
 class CorsFilter extends Filter with LazyLogging {
   override def init(filterConfig: FilterConfig): Unit = {
@@ -33,13 +34,34 @@ class CorsFilter extends Filter with LazyLogging {
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
     val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
+    val requestedHeaders = Option(httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString))
+    val isOptions = httpServletRequest.getMethod == "OPTIONS"
 
-    filterChain.doFilter(servletRequest, servletResponse)
+    val requestType =
+      (Option(httpServletRequest.getHeader(CommonHttpHeader.ORIGIN.toString)),
+        isOptions,
+        Option(httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString))) match {
+        case (Some(origin), true, Some(requestedMethod)) => PreflightRequest(origin, requestedMethod)
+        case (Some(origin), _, _) => ActualRequest(origin)
+        case _ => NonCorsRequest
+    }
+
+    requestType match {
+      case PreflightRequest(origin, requestedMethod) =>
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString, requestedMethod)
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString, "true")
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString, origin)
+        if (requestedHeaders.nonEmpty) {
+          httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString, requestedHeaders.get)
+        }
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK)
+      case NonCorsRequest =>
+        filterChain.doFilter(servletRequest, servletResponse)
+    }
 
     httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ORIGIN.toString)
 
-    if (httpServletRequest.getMethod == "OPTIONS") {
-      // the response depends on the values of these headers in the request
+    if (isOptions) {
       httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString)
       httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
     }
@@ -48,4 +70,11 @@ class CorsFilter extends Filter with LazyLogging {
   override def destroy(): Unit = {
     logger.trace("CORS filter destroyed")
   }
+}
+
+object CorsFilter {
+  sealed trait RequestType
+  object NonCorsRequest extends RequestType
+  case class PreflightRequest(origin: String, requestedMethod: String) extends RequestType
+  case class ActualRequest(origin: String) extends RequestType
 }
