@@ -154,11 +154,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
    */
   override def appendHeader(name: String, value: String): Unit = {
     ifMutable(headerMode) {
-      val existingValues = getHeaders(name)
-      existingValues.lastOption match {
-        case Some(currentLastValue) =>
-          val newLastValue = currentLastValue + "," + value
-          headerMap = headerMap + (name -> (existingValues.dropRight(1).toSeq :+ newLastValue))
+      val existingValues = getHeadersList(name)
+      existingValues.headOption match {
+        case Some(currentHeadValue) =>
+          val newHeadValue = currentHeadValue + "," + value
+          headerMap = headerMap + (name -> (newHeadValue +: existingValues.tail))
         case None => addHeader(name, value)
       }
     }

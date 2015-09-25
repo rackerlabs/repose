@@ -848,7 +848,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       originalResponse.getHeader("a") should (include("a") and include("b"))
     }
 
-    it("should append a value to the end of the last value if the header already exists") {
+    it("should append a value to the end of the first value if the header already exists") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.addHeader("a", "a")
@@ -857,7 +857,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeaders("a").size() shouldEqual 2
-      originalResponse.getHeaders("a") should contain("b,c")
+      originalResponse.getHeaders("a") should contain("a,c")
     }
 
     it("should add a value to a header if it already exists, regardless of casing") {
