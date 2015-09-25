@@ -1438,6 +1438,16 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       Source.fromInputStream(wrappedBody).mkString shouldEqual body
     }
+
+    it("should set the output, allowing for a new write interface to be used") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+      wrappedResponse.getOutputStream.print("foo")
+
+      val body = "test body"
+      wrappedResponse.setOutput(new ByteArrayInputStream(body.getBytes))
+
+      noException should be thrownBy wrappedResponse.getWriter
+    }
   }
 
   describe("getWriter") {

@@ -248,7 +248,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   /**
    * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
    */
-  def setOutput(inputStream: InputStream): Unit = bodyOutputStream.setOutput(inputStream)
+  def setOutput(inputStream: InputStream): Unit = {
+    responseBodyType = ResponseBodyType.Available
+    bodyOutputStream.setOutput(inputStream)
+  }
 
   override def getWriter: PrintWriter = {
     responseBodyType match {
