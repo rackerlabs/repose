@@ -26,6 +26,8 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.hamcrest.{Matcher, Matchers => HMatchers}
+import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
@@ -33,10 +35,12 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientRespons
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.systemmodel._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import play.api.libs.json.{JsNull, Json}
 
+@RunWith(classOf[JUnitRunner])
 class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
   val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -426,12 +430,17 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
+      val stringArgumentCaptor = ArgumentCaptor.forClass(classOf[String])
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
-        mockitoEq(expectedMessage),
+        stringArgumentCaptor.capture,
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+      val postBody = stringArgumentCaptor.getValue.toString
+      assert("""\{"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*","serviceId"""".r
+        .findFirstIn(postBody).isDefined)
+      assert(postBody.endsWith(expectedMessage.substring(1)))
     }
   }
 }
