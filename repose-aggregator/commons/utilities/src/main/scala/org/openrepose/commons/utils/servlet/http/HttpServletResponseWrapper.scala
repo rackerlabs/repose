@@ -99,10 +99,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
+  private var flushedBuffer: Boolean = false
+  private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
   private var bodyPrintWriter: PrintWriter = _
   private var characterEncoding: String = StandardCharsets.ISO_8859_1.toString
   private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
-  private var responseBodyType = ResponseBodyType.Available
 
   override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
 
@@ -132,8 +133,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def addHeader(name: String, value: String): Unit = {
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
+    // Write through to the wrapped response immediately
     if (headerMode != ResponseMode.MUTABLE) {
-      // Write through to the wrapped response immediately
       super.addHeader(name, value)
     }
   }
@@ -277,10 +278,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def flushBuffer(): Unit = {
+    // Flush any buffered output from the writer which will, in turn, flush the underlying OutputStream.
+    // Flush the raw OutputStream for consistency.
+    // Note: Flushing the raw OutputStream should be a no-op.
     responseBodyType match {
       case ResponseBodyType.PrintWriter => bodyPrintWriter.flush()
       case _ => bodyOutputStream.flush()
     }
+
+    // If we are not in a mutable mode, immediately flush the wrapped response.
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      originalResponse.flushBuffer()
+    }
+
+    // Track that the user intended to commit the response.
+    flushedBuffer = true
   }
 
   override def resetBuffer(): Unit = {
@@ -328,6 +340,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         writeBody()
       case (_, _) =>
         throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+    }
+
+    if (flushedBuffer) {
+      originalResponse.flushBuffer()
     }
   }
 

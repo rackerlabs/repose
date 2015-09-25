@@ -1739,6 +1739,26 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       out.toString shouldEqual body
     }
+
+    it("should flush the wrapped response if not in a mutable mode") {
+      val mockResponse = new MockHttpServletResponse() {
+        var committed = false
+
+        override def flushBuffer(): Unit = committed = true
+
+        override def isCommitted: Boolean = committed
+      }
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418)
+      wrappedResponse.setHeader("foo", "bar")
+      wrappedResponse.getWriter.print("foo")
+      wrappedResponse.flushBuffer()
+
+      wrappedResponse.isCommitted shouldBe true
+      mockResponse.getStatus shouldEqual 418
+      mockResponse.getHeader("foo") shouldEqual "bar"
+    }
   }
 
   describe("resetBuffer") {
@@ -1838,6 +1858,23 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       when(out.write(any[Array[Byte]], anyInt(), anyInt())).thenThrow(new IOException())
 
       an[IOException] should be thrownBy wrappedResponse.commitToResponse()
+    }
+
+    it("should flush the wrapped response if flushBuffer has been called") {
+      val mockResponse = new MockHttpServletResponse() {
+        var committed = false
+
+        override def flushBuffer(): Unit = committed = true
+
+        override def isCommitted: Boolean = committed
+      }
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.flushBuffer()
+      wrappedResponse.commitToResponse()
+
+      mockResponse.isCommitted shouldBe true
+      wrappedResponse.isCommitted shouldBe true
     }
   }
 }
