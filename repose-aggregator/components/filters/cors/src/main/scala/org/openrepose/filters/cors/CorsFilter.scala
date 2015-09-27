@@ -26,6 +26,8 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.filters.cors.CorsFilter.{NonCorsRequest, ActualRequest, PreflightRequest}
 
+import scala.collection.JavaConverters._
+
 class CorsFilter extends Filter with LazyLogging {
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("CORS filter initialized.")
@@ -42,28 +44,42 @@ class CorsFilter extends Filter with LazyLogging {
         isOptions,
         Option(httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString))) match {
         case (Some(origin), true, Some(requestedMethod)) => PreflightRequest(origin, requestedMethod)
-        case (Some(origin), _, _) => ActualRequest(origin)
+        case (Some(origin), _, None) => ActualRequest(origin)
         case _ => NonCorsRequest
     }
 
     requestType match {
-      case PreflightRequest(origin, requestedMethod) =>
-        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString, requestedMethod)
-        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString, "true")
-        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString, origin)
-        if (requestedHeaders.nonEmpty) {
-          httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString, requestedHeaders.get)
-        }
-        httpServletResponse.setStatus(HttpServletResponse.SC_OK)
-      case NonCorsRequest =>
-        filterChain.doFilter(servletRequest, servletResponse)
+      case PreflightRequest(_,_) => // do not process the rest of the filter chain nor hit the origin service
+      case ActualRequest(_) => filterChain.doFilter(httpServletRequest, httpServletResponse)
+      case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
     }
 
     httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ORIGIN.toString)
-
     if (isOptions) {
       httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString)
       httpServletResponse.addHeader(CommonHttpHeader.VARY.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+    }
+
+    requestType match {
+      case PreflightRequest(origin, requestedMethod) =>
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString, "true")
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString, origin)
+
+        if (requestedHeaders.nonEmpty) {
+          httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString, requestedHeaders.get)
+        }
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString, requestedMethod)
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK)
+      case ActualRequest(origin) =>
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString, "true")
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString, origin)
+
+        // clone the list of header names so we can add headers while we iterate through it
+        (List() ++ httpServletResponse.getHeaderNames.asScala).foreach {
+          httpServletResponse.addHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString, _)
+        }
+      case NonCorsRequest =>
+        // nothing else to do for Non-CORS requests
     }
   }
 
