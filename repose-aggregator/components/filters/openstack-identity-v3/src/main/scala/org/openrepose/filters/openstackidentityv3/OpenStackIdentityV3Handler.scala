@@ -181,13 +181,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         // Set the appropriate headers
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-        token.get.user.name.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
+        token.get.user.name.foreach { user =>
+          requestHeaderManager.appendHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
+          requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, user, 1.0)
+        }
         token.get.roles.foreach { roles =>
           requestHeaderManager.appendHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
         }
         token.get.user.id.foreach { id =>
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
-          requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
         token.get.user.rax_default_region.foreach { defaultRegion =>
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)

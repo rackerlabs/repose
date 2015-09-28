@@ -128,8 +128,6 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://" + identityEndpoint.hostname + ":" + properties.identityPort
     }
 
-    // REP-2464: Auth filter should add headers not replace headers
-    // Note: V3 x-pp-user using userid
     def "Verify auth filter adding headers not replace headers"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
@@ -167,10 +165,9 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("test")
         (mc.handlings[0].request.headers.findAll("x-roles").toString()).contains("user")
         (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("Repose user")
-        (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("12345")
+        (mc.handlings[0].request.headers.findAll("x-pp-user").toString()).contains("username;q=1.0")
     }
 
-    // REP-2464: Auth filter should add headers not replace headers
     @Ignore ("We can turn on when impersonator role to header merge in to branch")
     def "Verify with impersonation, repose should add x-impersonator-roles headers"() {
         given:
