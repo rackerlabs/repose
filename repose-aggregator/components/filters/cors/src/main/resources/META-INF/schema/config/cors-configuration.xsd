@@ -105,7 +105,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="allowed-methods" type="Methods" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="allowed-methods" type="Methods" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="path" type="xs:string" use="required"/>

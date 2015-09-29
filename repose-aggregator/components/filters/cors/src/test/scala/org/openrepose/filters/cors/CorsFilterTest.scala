@@ -569,6 +569,18 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
         servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
       }
+
+      it("should permit multiple HTTP methods specified in both global config and a specific resource with no methods") {
+        corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET", "POST"), List(("/players", List()))))
+        servletRequest.setMethod("OPTIONS")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.setRequestURI("/players")
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST")
+      }
     }
   }
 
@@ -583,6 +595,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         List("OPTIONS", "POST", "PATCH"));
       resources <- List(
         List(),
+        List(("/v1/.*", List())),
         List(("/v1/.*", List("GET", "PUT"))),
         List(("/v1/.*", List("GET", "PUT")), ("/v2/.*", List("DELETE"))))
     ) {
@@ -619,9 +632,14 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       configResources.getResource.addAll(resources.map { case (path, resourceAllowedMethods) =>
         val configResource = new Resource
         configResource.setPath(path)
-        val resourceConfigMethods = new Methods
-        resourceConfigMethods.getMethod.addAll(resourceAllowedMethods.asJava)
-        configResource.setAllowedMethods(resourceConfigMethods)
+
+        // leave the list of methods null if there's nothing to configure
+        if (resourceAllowedMethods.nonEmpty) {
+          val resourceConfigMethods = new Methods
+          resourceConfigMethods.getMethod.addAll(resourceAllowedMethods.asJava)
+          configResource.setAllowedMethods(resourceConfigMethods)
+        }
+
         configResource
       }.asJava)
       config.setResources(configResources)

@@ -126,7 +126,9 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
     resources = Option(config.getResources)
       .map(_.getResource.asScala).getOrElse(List())
-      .map(configResource => Resource(configResource.getPath.r, configResource.getAllowedMethods.getMethod.asScala))
+      .map { configResource =>
+      Resource(configResource.getPath.r,
+        Option(configResource.getAllowedMethods).map(_.getMethod.asScala).getOrElse(List()))}
 
     initialized = true
   }
