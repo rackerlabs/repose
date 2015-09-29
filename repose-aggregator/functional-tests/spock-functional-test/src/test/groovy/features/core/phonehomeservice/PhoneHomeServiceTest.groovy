@@ -120,7 +120,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         line.clusters[0].services[0] == "dist-datastore"
 
         // REP-2733 PhoneHomeService Report Java Runtime Environment Version and More
-        line.createdAt =~ "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}"
+        line.createdAt =~ "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z"
         line.createdAtMillis =~ "[0-9]{13}"
         line.jreVersion =~ ".*" //System.getProperty("java.version")
         line.jvmName =~ ".*"//System.getProperty("java.vm.name")
