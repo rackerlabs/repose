@@ -118,7 +118,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         line.reposeVersion == properties.reposeVersion
         line.clusters[0].filters[0] == "rate-limiting"
         line.clusters[0].services[0] == "dist-datastore"
-        
+
         // REP-2733 PhoneHomeService Report Java Runtime Environment Version and More
         line.createdAt =~ "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}"
         line.createdAtMillis =~ "[0-9]{13}"
