@@ -233,7 +233,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456")), ValkyrieResponse(200, "I'm not really json"), Result(502, "Invalid Json response from Valkyrie")) //Malformed Valkyrie Response - Bad Json
     ).foreach { case (request, valkyrie, result) =>
       List(null, new DelegatingType).foreach { delegation =>
-        val delegating = if (Option(delegation).isDefined) true else false
+        val delegating = Option(delegation).isDefined
         it(s"should be ${result.code} where delegation is $delegating for $request with Valkyrie response of $valkyrie") {
           setMockAkkaBehavior("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
 
@@ -263,7 +263,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     List(null, new DelegatingType).foreach { delegation =>
-      val delegating = if (Option(delegation).isDefined) true else false
+      val delegating = Option(delegation).isDefined
       it(s"should return a 502 and delegation is $delegating with appropriate message when unable to communicate with Valkyrie") {
         Mockito.when(akkaServiceClient.get(Matchers.any(), Matchers.any(), Matchers.any())).thenThrow(new AkkaServiceClientException("Valkyrie is missing", new Exception()))
 
