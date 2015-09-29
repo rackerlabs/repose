@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing>
+    <allow-origines></allow-origines>
+    <allow-methods>
+        <method>GET</method>
+        <method>POST</method>
+        <method>PUT</method>
+        <method>DELETE</method>
+    </allow-methods>
+    <resources>
+        <resource path="/testget">
+            <allows-methods>
+                <methods>GET</methods>
+            </allows-methods>
+        </resource>
+        <resource path="/testpost">
+            <allows-methods>
+                <methods>POST</methods>
+            </allows-methods>
+        </resource>
+    </resources>
+</cross-origin-resource-sharing>
