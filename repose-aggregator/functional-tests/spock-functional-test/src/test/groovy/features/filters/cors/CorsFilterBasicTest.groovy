@@ -53,7 +53,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "When send request with cors filter the specific headers should be added"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
+        MessageChain mc = deproxy.makeRequest(url: origin, method: method)
 
         then:
         mc.receivedResponse.code == "200"
@@ -62,7 +62,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD).size() == 1
 
         where:
-        method << ["GET", "POST", "PUT", "DELETE"]
+        [method,origin] << [["GET", "HEAD"],[reposeEndpoint, "http://test.repose.site/status", reposeEndpoint+"/status"]]
     }
 
     def "When send request to specify resource" () {
@@ -80,13 +80,27 @@ class CorsFilterBasicTest extends ReposeValveTest {
         path            | method        | handling
         "/testget/foo"  | "GET"         | 1
         "/testget/boo"  | "GET"         | 1
+        "/testget/boo"  | "HEAD"        | 1
         "/testget/boo"  | "POST"        | 0
         "/testget/boo"  | "PUT"         | 0
         "/testget/boo"  | "DELETE"      | 0
         "/testpost/boo" | "POST"        | 1
         "/testpost/foo" | "POST"        | 1
-        "/testpost/boo" | "GET"         | 0
+        "/testpost/boo" | "GET"         | 1
+        "/testpost/boo" | "HEAD"        | 1
         "/testpost/boo" | "PUT"         | 0
         "/testpost/boo" | "DELETE"      | 0
+        "/allothers"    | "PUT"         | 1
+        "/allothers"    | "POST"        | 1
+        "/allothers"    | "DELETE"      | 1
+        "/allothers"    | "PATCH"       | 1
+        "/allothers"    | "GET"         | 1
+        "/allothers"    | "HEAD"        | 1
+        "/status"       | "GET"         | 1
+        "/status"       | "HEAD"        | 1
+        "/status"       | "POST"        | 0
+        "/status"       | "PUT"         | 0
+        "/status"       | "PATCH"       | 0
+        "/status"       | "DELETE"      | 0
     }
 }
