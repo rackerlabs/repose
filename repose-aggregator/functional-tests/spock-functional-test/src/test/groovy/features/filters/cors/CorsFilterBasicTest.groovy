@@ -31,6 +31,7 @@ import static org.junit.Assert.*
  */
 class CorsFilterBasicTest extends ReposeValveTest {
     def setupSpec() {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
