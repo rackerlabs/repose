@@ -30,7 +30,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{HeaderConstant, CommonHttpHeader}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.cors.config.{Resource, CorsConfig}
+import org.openrepose.filters.cors.config.CorsConfig
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -87,7 +87,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
             Option(httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)).foreach {
               httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)}
             getValidMethodsForResource(httpServletRequest.getRequestURI).foreach {
-              httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)}
+              httpServletResponse.addHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)}
             httpServletResponse.setStatus(HttpServletResponse.SC_OK)
           case ActualRequest =>
             filterChain.doFilter(httpServletRequest, httpServletResponse)
@@ -123,7 +123,11 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     }
 
     allowedMethods = Option(config.getAllowedMethods).map(_.getMethod.asScala).getOrElse(List())
-    resources = Option(config.getResources).map(_.getResource.asScala).getOrElse(List())
+
+    resources = Option(config.getResources)
+      .map(_.getResource.asScala).getOrElse(List())
+      .map(configResource => Resource(configResource.getPath.r, configResource.getAllowedMethods.getMethod.asScala))
+
     initialized = true
   }
 
@@ -131,8 +135,11 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
   def isOriginAllowed(requestOrigin: String): Boolean = allowedOrigins.exists(_.findFirstIn(requestOrigin).isDefined)
 
-  def getValidMethodsForResource(path: String): List[String] = {
-    List("OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT")
+  def getValidMethodsForResource(path: String): Iterable[String] = {
+    val resource = resources.find(_.path.findFirstIn(path).isDefined)
+    logger.debug(s"Matched path $path with configured resource: $resource")
+
+    allowedMethods ++ resource.map(_.methods).getOrElse(List())
   }
 }
 
@@ -150,4 +157,6 @@ object CorsFilter {
   sealed trait CorsValidationResult
   object Pass extends CorsValidationResult
   object OriginNotAllowed extends CorsValidationResult
+
+  case class Resource(path: Regex, methods: Iterable[String])
 }
