@@ -123,8 +123,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
       headerResult match {
         case UserInfo(tenant, contact) =>
-          // authorize device            || cull list                  || translate account permissions
-          if(requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
+          //  authorize device            || cull list                  || translate account permissions
+          if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
             datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
           } else {
             ResponseResult(200)
