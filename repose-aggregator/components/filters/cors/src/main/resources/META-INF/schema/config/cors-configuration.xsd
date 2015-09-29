@@ -32,7 +32,10 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    The root config type for the Cross-Origin Resource Sharing (CORS) filter configuration file.
+                    The root config type for the Cross-Origin Resource Sharing (CORS) filter configuration file.  The
+                    allowed-* elements apply globally to all endpoints.  The resources element allows you to add
+                    additional allowed-* options (currently only allowed-methods) to a subset of resources that can be
+                    specified by their path using regex.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
