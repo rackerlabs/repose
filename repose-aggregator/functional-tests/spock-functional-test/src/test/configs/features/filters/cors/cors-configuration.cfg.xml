@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing>
-    <allow-origines></allow-origines>
+    <allow-origins>
+        <origin regex="true">http://localhost:.*</origin>
+        <origin regex="true">http://.*.reposetest.site/.*</origin>
+    </allow-origins>
     <allow-methods>
         <method>GET</method>
         <method>POST</method>
@@ -8,12 +11,12 @@
         <method>DELETE</method>
     </allow-methods>
     <resources>
-        <resource path="/testget">
+        <resource path="/testget/.*">
             <allows-methods>
                 <methods>GET</methods>
             </allows-methods>
         </resource>
-        <resource path="/testpost">
+        <resource path="/testpost/.*">
             <allows-methods>
                 <methods>POST</methods>
             </allows-methods>

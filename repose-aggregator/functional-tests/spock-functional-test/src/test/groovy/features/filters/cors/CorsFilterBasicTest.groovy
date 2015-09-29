@@ -23,6 +23,8 @@ import framework.ReposeValveTest
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
+import static org.junit.Assert.*
 
 /**
  * Created by jennyvo on 9/29/15.
@@ -46,6 +48,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
+    @Unroll ("Cors origin allow method: #method")
     def "When send request with cors filter the specific headers should be added"() {
 
         when:
@@ -54,9 +57,35 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.getHandlings().size() == 1
+        mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ORIGIN).size() == 1
         mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD).size() == 1
 
         where:
         method << ["GET", "POST", "PUT", "DELETE"]
+    }
+
+    def "When send request to specify resource" () {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.getHandlings().size() == handling
+        if (handling == 1) {
+            assertTrue(mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD).size() == 1)
+        }
+
+        where:
+        path            | method        | handling
+        "/testget/foo"  | "GET"         | 1
+        "/testget/boo"  | "GET"         | 1
+        "/testget/boo"  | "POST"        | 0
+        "/testget/boo"  | "PUT"         | 0
+        "/testget/boo"  | "DELETE"      | 0
+        "/testpost/boo" | "POST"        | 1
+        "/testpost/foo" | "POST"        | 1
+        "/testpost/boo" | "GET"         | 0
+        "/testpost/boo" | "PUT"         | 0
+        "/testpost/boo" | "DELETE"      | 0
     }
 }
