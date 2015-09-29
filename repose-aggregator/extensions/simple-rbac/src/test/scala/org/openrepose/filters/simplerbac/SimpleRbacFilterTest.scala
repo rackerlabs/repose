@@ -444,4 +444,32 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
       }
     }
   }
+
+  List(
+    //Path                Result
+    ("/path/to/some/sub", SC_OK),
+    ("/path/to-some/sub", SC_METHOD_NOT_ALLOWED)
+  ).foreach { case (path, result) =>
+    val resultShould: Int => String = { int => if (int == SC_OK) "should" else "should not" }
+    it(s"${resultShould(result)} allow the request to PARAM resource $path.") {
+      Given("a request")
+      val resources = new ResourcesType
+      resources.setValue(
+        """
+          |/path/to/good               ALL       ANY
+          |/path/{param1}/{param2}/sub GET       ANY
+          |""".stripMargin.trim()
+      )
+      config.setResources(resources)
+      servletRequest.setRequestURI(path)
+      servletRequest.setMethod("GET")
+      filter.configurationUpdated(config)
+
+      When("the request is to access a parameterized resource")
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      Then("the request should be allowed access")
+      servletResponse.getStatus shouldBe result
+    }
+  }
 }
