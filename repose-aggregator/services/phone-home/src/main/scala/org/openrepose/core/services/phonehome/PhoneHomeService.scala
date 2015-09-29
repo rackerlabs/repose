@@ -20,7 +20,7 @@
 package org.openrepose.core.services.phonehome
 
 import java.text.SimpleDateFormat
-import java.util.{Date, UUID}
+import java.util.{TimeZone, Date, UUID}
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
@@ -128,24 +128,20 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         }
       }
 
-      def getCurrentFormattedDateTime(): String = {
-        // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
-        // "For formatting, if the offset value from GMT is 0, 'Z' is produced."
-        // This only manipulates the Time Zones that produce a 'Z'.
-        val formattedString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date())
-        if (formattedString.endsWith("Z")) {
-          formattedString.substring(0, formattedString.length() - 1) + "+00:00"
-        } else {
-          formattedString
-        }
+      def getCurrentFormattedDateTime(dateTime: Long): String = {
+        val simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+        simpleDateFormat.format(new Date(dateTime))
       }
 
+      val currentTimeMillis = System.currentTimeMillis
+
       val updateMessage = Json.stringify(Json.obj(
-        "createdAt" -> getCurrentFormattedDateTime,
-        "createdAtMillis" -> System.currentTimeMillis,
+        "serviceId" -> originServiceId,
+        "createdAt" -> getCurrentFormattedDateTime(currentTimeMillis),
+        "createdAtMillis" -> currentTimeMillis,
         "jreVersion" -> System.getProperty("java.version", "UNKNOWN"),
         "jvmName" -> System.getProperty("java.vm.name", "UNKNOWN"),
-        "serviceId" -> originServiceId,
         "contactEmail" -> contactEmail,
         "reposeVersion" -> reposeVer,
         "clusters" -> staticSystemModel.getReposeCluster.asScala.map(cluster =>

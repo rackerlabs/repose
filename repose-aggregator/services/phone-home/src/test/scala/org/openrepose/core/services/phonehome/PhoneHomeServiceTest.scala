@@ -428,19 +428,20 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         )
       ))
 
+      // Escape all the JSON to make it RegEx Compatible.
+      val expectedBuilder = new StringBuilder(expectedMessage.replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]"))
+      val idx = expectedBuilder.indexOf("foo-service")+"foo-service\",".length
+      // Insert the Date/Time/Version RegEx.
+      expectedBuilder.insert(idx, """"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*",""")
+
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      val stringArgumentCaptor = ArgumentCaptor.forClass(classOf[String])
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
-        stringArgumentCaptor.capture,
+        org.mockito.Matchers.matches(expectedBuilder.toString()),
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
-      val postBody = stringArgumentCaptor.getValue.toString
-      assert("""\{"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*","serviceId"""".r
-        .findFirstIn(postBody).isDefined)
-      assert(postBody.endsWith(expectedMessage.substring(1)))
     }
   }
 }
