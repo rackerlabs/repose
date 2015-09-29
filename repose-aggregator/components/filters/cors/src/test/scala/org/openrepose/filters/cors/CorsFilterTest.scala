@@ -26,6 +26,8 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.filters.cors.config._
+import org.openrepose.filters.cors.config.Origins.Origin
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
 import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
@@ -47,7 +49,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])
 
-    corsFilter = new CorsFilter
+    corsFilter = new CorsFilter(null)
+    allowAllOriginsAndGets()
   }
 
   describe("the doFilter method") {
@@ -104,7 +107,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
       }
     }
 
@@ -149,7 +152,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) shouldEqual requestMethod
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should not be null
         }
 
         List("X-Auth-Token", "X-Panda, X-Unicorn", "Accept, User-Agent, X-Trans-Id").foreach { requestHeader =>
@@ -205,7 +208,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-            CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+            CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
         }
       }
     }
@@ -260,9 +263,11 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            // Access-Control-Expose-Headers should have all of the response headers in it except for itself
+            // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
             servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString) should contain theSameElementsAs
-              servletResponse.getHeaderNames.asScala.filter{_ != CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString}
+              servletResponse.getHeaderNames.asScala.filter { headerName =>
+                headerName != CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
+                  headerName != CommonHttpHeader.VARY.toString}
           }
         }
 
@@ -305,9 +310,187 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+      }
+    }
+
+    describe("origin filtering") {
+      it("should allow a preflight request with a specific origin") {
+        servletRequest.setMethod("OPTIONS")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("http://totally.allowed")
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe 200  // preflight success
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://totally.allowed"
+      }
+
+      it("should allow a preflight request with a regex matched origin") {
+        servletRequest.setMethod("OPTIONS")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://good.enough.com:8080")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("http://.*good.enough.*")
+        configOrigin.setRegex(true)
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe 200  // preflight success
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://good.enough.com:8080"
+      }
+
+      it("should deny a preflight request with an unmatched origin") {
+        servletRequest.setMethod("OPTIONS")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://not.going.to.work:9000")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("NOPE")
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe 403
+      }
+
+      it("should allow an actual request with a specific origin") {
+        servletRequest.setMethod("GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://let.me.in:8000")
+        servletResponse.setStatus(-321)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("http://let.me.in:8000")
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe -321  // verify unchanged
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://let.me.in:8000"
+      }
+
+      it("should allow an actual request with a regex matched origin") {
+        servletRequest.setMethod("GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "https://you.can.trust.me:8443")
+        servletResponse.setStatus(-321)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("https://.*trust.*443")
+        configOrigin.setRegex(true)
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe -321  // verify unchanged
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "https://you.can.trust.me:8443"
+      }
+
+      it("should deny an actual request with an unmatched origin") {
+        servletRequest.setMethod("GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://no.way.bro:80")
+        servletResponse.setStatus(-321)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("NOPE")
+        configOrigin.setRegex(true)
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe 403
+      }
+
+      it("should allow a non-CORS request that does not have an origin header") {
+        servletRequest.setMethod("GET")
+        servletResponse.setStatus(-321)
+
+        val configOrigin = new Origin
+        configOrigin.setValue("NOPE")
+        setConfiguredAllowedOriginsTo(List(configOrigin))
+
+        corsFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        servletResponse.getStatus shouldBe -321  // verify unchanged
       }
     }
   }
 
+  describe("configuration") {
+    for (
+      origins <- List(
+        List("http://legit.com:8080"),
+        List("http://potato.com", "https://panda.com:8443", "pancakes.and.bacon"));
+      methods <- List(
+        List(),
+        List("GET"),
+        List("OPTIONS", "POST", "PATCH"));
+      resources <- List(
+        List(),
+        List(("/v1/.*", List("GET", "PUT"))),
+        List(("/v1/.*", List("GET", "PUT")), ("/v2/.*", List("DELETE"))))
+    ) {
+      it(s"should be able to load configuration for origins $origins, methods $methods, resources $resources") {
+        corsFilter.configurationUpdated(createConfig(origins, methods, resources))
+      }
+    }
+  }
+
+  def createConfig(allowedOrigins: List[String],
+                   allowedMethods: List[String],
+                   resources: List[(String, List[String])]): CorsConfig = {
+    val config = new CorsConfig
+
+    val configOrigins = new Origins
+    configOrigins.getOrigin.addAll(allowedOrigins.map { value =>
+      val origin = new Origin
+      origin.setValue(value)
+      origin.setRegex(true)
+      origin
+    }.asJava)
+    config.setAllowedOrigins(configOrigins)
+
+    // leave the list of methods null if there's nothing to configure
+    if (allowedMethods.nonEmpty) {
+      val configMethods = new Methods
+      configMethods.getMethod.addAll(allowedMethods.asJava)
+      config.setAllowedMethods(configMethods)
+    }
+
+    // leave the list of resources null if there's nothing to configure
+    if (resources.nonEmpty) {
+      val configResources = new Resources
+      configResources.getResource.addAll(resources.map { case (path, resourceAllowedMethods) =>
+        val configResource = new Resource
+        configResource.setPath(path)
+        val resourceConfigMethods = new Methods
+        resourceConfigMethods.getMethod.addAll(resourceAllowedMethods.asJava)
+        configResource.setAllowedMethods(resourceConfigMethods)
+        configResource
+      }.asJava)
+      config.setResources(configResources)
+    }
+
+    config
+  }
+
+  def allowAllOriginsAndGets(): Unit = {
+    corsFilter.configurationUpdated(createConfig(List(".*"), List("GET"), List()))
+  }
+
+  def setConfiguredAllowedOriginsTo(origins: List[Origin]): Unit = {
+    val config = new CorsConfig
+    val configOrigins = new Origins
+    configOrigins.getOrigin.addAll(origins.asJava)
+    config.setAllowedOrigins(configOrigins)
+    corsFilter.configurationUpdated(config)
+  }
 }

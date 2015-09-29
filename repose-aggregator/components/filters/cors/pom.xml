@@ -65,10 +65,23 @@
             <artifactId>utilities</artifactId>
         </dependency>
 
+        <!-- Updated listener and configuration service -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-service-api</artifactId>
+        </dependency>
+
+        <!-- FilterConfigHelper -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
         <!-- LogFactory, needed by MockHttpServletRequest/Response -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- MockHttpServletRequest/Response -->
@@ -77,5 +90,33 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- JAXB -->
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <configuration>
+                    <specVersion>2.1</specVersion>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
