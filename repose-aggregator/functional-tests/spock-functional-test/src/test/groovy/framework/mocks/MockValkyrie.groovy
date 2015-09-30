@@ -34,6 +34,7 @@ class MockValkyrie {
     public MockValkyrie(int port) {
 
         resetHandlers()
+        resetParameters()
         this.port = port
     }
 
@@ -55,6 +56,16 @@ class MockValkyrie {
     void resetHandlers() {
         handler = this.&handleRequest
         authorizeHandler = this.&authorize
+    }
+
+    void resetParameters(){
+        device_id = "234567"
+        device_id2 = "123456"
+        device_perm = "butts"
+        account_perm = "also_butts"
+        contact_id = ""
+        tenant_id = ""
+        sleeptime = 0
     }
 
     Closure<Response> authorizeHandler
