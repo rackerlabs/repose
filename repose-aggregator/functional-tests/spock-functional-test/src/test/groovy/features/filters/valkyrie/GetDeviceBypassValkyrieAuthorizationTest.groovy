@@ -109,7 +109,7 @@ class GetDeviceBypassValkyrieAuthorizationTest extends ReposeValveTest {
             e -> assert e.request.headers.contains("x-trans-id")
         }
         // include request make to valkyrie
-        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/devices/by_contact/(|-)\\d*/effective"
+        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/any/by_contact/(|-)\\d*/effective"
 
 
         where:

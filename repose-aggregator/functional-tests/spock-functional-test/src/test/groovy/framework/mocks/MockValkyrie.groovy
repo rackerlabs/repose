@@ -34,6 +34,7 @@ class MockValkyrie {
     public MockValkyrie(int port) {
 
         resetHandlers()
+        resetParameters()
         this.port = port
     }
 
@@ -57,14 +58,24 @@ class MockValkyrie {
         authorizeHandler = this.&authorize
     }
 
+    void resetParameters() {
+        device_id = "234567"
+        device_id2 = "123456"
+        device_perm = "butts"
+        account_perm = "also_butts"
+        contact_id = ""
+        tenant_id = ""
+        sleeptime = 0
+    }
+
     Closure<Response> authorizeHandler
 
-    String device_id = ""
+    String device_id = "234567"
     String device_id2 = "123456"
-    String device_perm = ""
+    String device_perm = "butts"
+    String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
-    String calltype = ""
 
     def sleeptime = 0;
 
@@ -109,7 +120,6 @@ class MockValkyrie {
                 def contact = match[0][3]
                 contact_id = contact
                 tenant_id = tenant
-                calltype = call
                 _authorizeCount.incrementAndGet()
                 return authorizeHandler(tenant, contact, request)
             } else {
@@ -123,16 +133,17 @@ class MockValkyrie {
     }
 
     static
-    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/(devices|accounts)\/by_contact\/([^\/]+)\/effective/
+    final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/any\/by_contact\/([^\/]+)\/effective/
 
     Response authorize(String tenant, String contact, Request request) {
 
         def params = [
-                contact   : contact,
-                tenant    : tenant,
-                deviceID  : device_id,
-                deviceID2  : device_id2,
-                permission: device_perm
+                contact     : contact,
+                tenant      : tenant,
+                deviceID    : device_id,
+                deviceID2   : device_id2,
+                permission  : device_perm,
+                account_perm: account_perm,
         ];
 
         def code;
@@ -143,11 +154,7 @@ class MockValkyrie {
 
         if (!missingRequestHeaders) {
             code = 200;
-            if (calltype == "accounts"){
-                template = successfulAccountPermissionResp
-            } else {
-                template = validationSuccessTemplate
-            }
+            template = validationSuccessTemplate
         } else {
             code = 403
             template = validationFailureTemplate
@@ -176,7 +183,7 @@ class MockValkyrie {
                         {
                             "item_type_id": 2,
                             "permission_type_id": 15,
-                            "item_type_name": "accounts",
+                            "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
                             "permission_name": "\${permission}",
@@ -186,7 +193,7 @@ class MockValkyrie {
                         {
                             "item_type_id": 2,
                             "permission_type_id": 12,
-                            "item_type_name": "accounts",
+                            "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
                             "permission_name": "\${permission}",
@@ -196,7 +203,7 @@ class MockValkyrie {
                         {
                             "item_type_id": 2,
                             "permission_type_id": 9,
-                            "item_type_name": "accounts",
+                            "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
                             "permission_name": "admin_product",
@@ -206,19 +213,13 @@ class MockValkyrie {
                         {
                             "item_type_id": 2,
                             "permission_type_id": 2,
-                            "item_type_name": "accounts",
+                            "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
                             "permission_name": "edid_product",
                             "item_id": 862323,
                             "id": 0
-                        }
-                    ]
-                }"""
-
-    def successfulAccountPermissionResp =
-                """{
-                    "contact_permissions": [
+                        },
                         {
                             "item_type_id": 2,
                             "permission_type_id": 9,
@@ -285,11 +286,10 @@ class MockValkyrie {
                             "contact_id": \${contact},
                             "account_number": \${tenant},
                             "permission_type_id": 15,
-                            "permission_name": "account_admin",
+                            "permission_name": "\${account_perm}",
                             "item_id": 862323,
                             "id": 0
                         }
                     ]
                 }"""
-
 }

@@ -60,6 +60,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
         fakeIdentityService.resetDefaultParameters()
         fakeValkyrie.resetHandlers()
+        fakeValkyrie.resetParameters()
     }
 
     def cleanupSpec() {
@@ -140,6 +141,50 @@ class BasicValkyrieTest extends ReposeValveTest {
         "POST"   | randomTenant()             | "520707" | "_22_reimer"    | "403"
         "PATCH"  | randomTenant()             | "520707" | "blah"          | "403"
         "DELETE" | randomTenant()             | "520707" | "blah"          | "403"
+
+    }
+
+    @Unroll("account_admin for #method with tenant: #tenantID should return a #responseCode")
+    def "account_admin's should be able to get any devices"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            account_perm = "account_admin"
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/666", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+
+
+        where:
+        method   | tenantID       | responseCode
+        "HEAD"   | randomTenant() | "200"
+        "GET"    | randomTenant() | "200"
+        "PUT"    | randomTenant() | "200"
+        "POST"   | randomTenant() | "200"
+        "DELETE" | randomTenant() | "200"
+        "PATCH"  | randomTenant() | "200"
 
     }
 
@@ -270,7 +315,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method   | tenantID         | deviceID | permission      | responseCode
+        method   | tenantID       | deviceID | permission      | responseCode
         "GET"    | randomTenant() | "520707" | "view_product"  | "401"
         "HEAD"   | randomTenant() | "520707" | "view_product"  | "401"
         "GET"    | randomTenant() | "520707" | "admin_product" | "401"
