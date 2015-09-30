@@ -75,6 +75,9 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             client_tenant = tenantID
         }
+        fakeValkyrie.with {
+                    account_perm = "test_perm"
+        }
 
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/account/permissions", method: method,
@@ -86,7 +89,7 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("account_admin")
+        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("test_perm")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")

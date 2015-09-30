@@ -82,6 +82,9 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
+        fakeValkyrie.with {
+                            account_perm = "test_perm"
+        }
 
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/account/permissions", method: method,
@@ -93,7 +96,7 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("account_admin")
+        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("test_perm")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")
@@ -109,7 +112,7 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
             e -> assert e.request.headers.contains("x-trans-id")
         }
         // include request make to valkyrie
-        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/accounts/by_contact/(|-)\\d*/effective"
+        assert mc.orphanedHandlings[3].request.path =~ "/account/(|-)\\d*/permissions/contacts/any/by_contact/(|-)\\d*/effective"
 
         where:
         method | tenantID       | responseCode
