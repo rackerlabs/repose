@@ -24,6 +24,7 @@ nbactions.xml
 *.ipr
 *.iws
 .idea/
+local/
 
 # Gradle bits from: https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle

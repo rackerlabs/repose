@@ -131,7 +131,12 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           new StreamSource(new ByteArrayInputStream(wadl.getBytes), "file://simple-rbac.wadl"),
           config
         )
-       logger.error("Unable to generate the WADL; check the provided resources.")
+    }
+    if (rbacWadl.isEmpty) {
+      logger.error("Unable to generate the WADL; check the provided resources.")
+    }
+    if (!isInitialized) {
+      logger.error("Failed to initialize; check the provided resources.")
     }
   }
 
@@ -187,16 +192,19 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     case class Resource(path: String, methods: Set[String], roles: Set[String])
 
     def parseLine(line: String): Option[Resource] = {
-      val values = line.split("\\s+")
-      if (values.length == 3) {
-        Some(new Resource(
-          values(0),
-          Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
-          Try(values(2).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
-        ))
-      } else {
-        logger.warn(s"Malformed RBAC Resource: $line")
-        None
+      val values = line.trim.split("\\s+")
+      values.length match {
+        case 3 =>
+          Some(new Resource(
+            values(0),
+            Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
+            Try(values(2).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
+          ))
+        case 1 if values(0).length == 0 =>
+          None
+        case _ =>
+          logger.warn(s"Malformed RBAC Resource: $line")
+          None
       }
     }
 
@@ -211,6 +219,11 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                         |    >
                         |  <resources base="http://localhost">""".stripMargin
         val resources = values.map { value =>
+          def toParams(resource: Resource) =
+            "\\{[^\\}]*\\}".r.findAllIn(resource.path).map { param =>
+              val name = param.substring(1, param.length-1)
+              s"""      <param  name="$name" style="template"/>\n"""
+            }.mkString
           def toMethods(resource: Resource, uuid: UUID) = {
             val roles = resource.roles.mkString(" ")
             val raxRoles = roles match {
@@ -225,16 +238,17 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                      |      <method name="POST"   id="_$uuid-POST"   $raxRoles/>
                      |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles/>""".stripMargin
                 case method =>
-                  val methodToUpper = method.toUpperCase
-                  s"""      <method name="$methodToUpper"   id="_$uuid-$methodToUpper"    $raxRoles/>"""
+                  val methodToUpper = (method.toUpperCase+"\"").padTo(7,' ')
+                  s"""      <method name="$methodToUpper id="_$uuid-$methodToUpper $raxRoles/>"""
               }
             }.mkString("\n")
           }
           val path = value.path
           val uuid = UUID.randomUUID
+          val params = toParams(value)
           val methods = toMethods(value, uuid)
           s"""    <resource id="_$uuid" path=\"$path">
-             |$methods
+             |$params$methods
              |    </resource>""".stripMargin
         }.mkString("\n")
         val footer = s"""  </resources>

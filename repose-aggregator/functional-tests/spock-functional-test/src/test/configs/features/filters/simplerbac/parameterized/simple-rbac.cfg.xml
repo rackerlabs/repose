@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+             roles-header-name="X-ROLES"
+             mask-rax-roles-403="false"
+        >
+    <resources>
+        /path/{to}/{some}/this  GET       super,useradmin,admin,user
+        /path/{to}/{some}/this  PUT       super,useradmin,admin
+        /path/{to}/{some}/this  POST      super,useradmin
+        /path/{to}/{some}/this  DELETE    super
+
+        /path/{to}/{some}/that  get,put   any
+        /path/{to}/{some}/that  all       super
+
+        /path/{to}/{some}/test  get,post  user,useradmin
+    </resources>
+</simple-rbac>
