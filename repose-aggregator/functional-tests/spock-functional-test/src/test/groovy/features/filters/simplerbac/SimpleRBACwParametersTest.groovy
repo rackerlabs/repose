@@ -42,7 +42,6 @@ class SimpleRBACwParametersTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/simplerbac", params)
         repose.configurationProvider.applyConfigs("features/filters/simplerbac/parameterized", params)
-        repose.enableSuspend()
         repose.start()
     }
 
