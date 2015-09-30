@@ -24,8 +24,6 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-import spock.lang.Ignore
-import static org.junit.Assert.*
 
 /**
  * Created by jennyvo on 9/29/15.
@@ -50,11 +48,28 @@ class CorsFilterBasicTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll
+    @Unroll("OPTIONS request without origin header Method: #method")
+    def "OPTIONS request without origin header will bypass CORS and make to origin service"() {
+        def headers = [
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 1  // OPTIONS request without origin will make to it origin service
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], [reposeEndpoint, 'http://test.repose.site:80']].combinations()
+    }
+
+    @Unroll("Sending preflight request with origin #origin and request method #method ")
     def "When sending preflight request with cors filter, the specific headers should be added for requested method #method, origin #origin, and path #path"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString()): origin,
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
                 (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
@@ -64,55 +79,103 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 0  // preflight request doesn't make it to the origin service
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
 
         where:
-        method | path      | origin
-        'GET'  | '/'       | reposeEndpoint
-        'GET'  | '/status' | reposeEndpoint
-        'GET'  | '/status' | 'http://test.repose.site:80'
-        'HEAD' | '/'       | reposeEndpoint
-        'HEAD' | '/status' | reposeEndpoint
-        'HEAD' | '/status' | 'http://test.repose.site:80'
+        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], [reposeEndpoint, 'http://test.repose.site:80']].combinations()
     }
 
-    @Ignore
-    @Unroll
-    def "When send request to specific resource for path #path and method #method" () {
+    @Unroll("Allowed resource and Origin request header with method #method, path #path, and origin #origin")
+    def "Origin request header is allow in the config"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then:
-        mc.receivedResponse.code == "200"
-        mc.getHandlings().size() == handling
-        if (handling == 1) {
-            assertTrue(mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()).size() == 1)
-        }
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
 
         where:
-        path            | method        | handling
-        '/testget/foo'  | 'GET'         | 1
-        '/testget/boo'  | 'GET'         | 1
-        '/testget/boo'  | 'HEAD'        | 1
-        '/testget/boo'  | 'POST'        | 0
-        '/testget/boo'  | 'PUT'         | 0
-        '/testget/boo'  | 'DELETE'      | 0
-        '/testpost/boo' | 'POST'        | 1
-        '/testpost/foo' | 'POST'        | 1
-        '/testpost/boo' | 'GET'         | 1
-        '/testpost/boo' | 'HEAD'        | 1
-        '/testpost/boo' | 'PUT'         | 0
-        '/testpost/boo' | 'DELETE'      | 0
-        '/allothers'    | 'PUT'         | 1
-        '/allothers'    | 'POST'        | 1
-        '/allothers'    | 'DELETE'      | 1
-        '/allothers'    | 'PATCH'       | 1
-        '/allothers'    | 'GET'         | 1
-        '/allothers'    | 'HEAD'        | 1
-        '/status'       | 'GET'         | 1
-        '/status'       | 'HEAD'        | 1
-        '/status'       | 'POST'        | 0
-        '/status'       | 'PUT'         | 0
-        '/status'       | 'PATCH'       | 0
-        '/status'       | 'DELETE'      | 0
+        [method, path, origin] << [["PUT", "POST", "GET", "HEAD"], ["/status"],
+                                   [reposeEndpoint, "http://test.repose.site:80"]].combinations()
+    }
+
+    @Unroll("Allowed Resource with Origin request header with method #method, path #path, and origin #origin")
+    def "Origin request header is allow resource in the config"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"], ["/testupdate"],
+                                   [reposeEndpoint, "http://test.repose.site:80"]].combinations()
+    }
+
+    @Unroll("Not allowed Origin request header with method #method, path #path, and origin #origin")
+    def "Origin request header is not allow in the config response 403"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then:
+        mc.receivedResponse.code == '403'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                                   ["/", "/status"],
+                                   ["http://test.com", "http://test.home.site:80"]].combinations()
+    }
+
+    @Unroll("Not allowed resource with origin request header with method #method, path #path, and origin #origin")
+    def "Origin request method is not allow resource in the config"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        method   | path      | origin
+        "PATCH"  | "/status" | reposeEndpoint
+        "DELETE" | "/status" | "http://test.repose.site:80"
+        "PATCH"  | "/"       | reposeEndpoint
+        "DELETE" | "/"       | "http://test.repose.site:80"
+        "PUT"    | "/"       | reposeEndpoint
+        "POST"   | "/"       | "http://test.repose.site:80"
+
     }
 }
