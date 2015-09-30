@@ -132,10 +132,10 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           config
         )
     }
-    if(rbacWadl.isEmpty) {
+    if (rbacWadl.isEmpty) {
       logger.error("Unable to generate the WADL; check the provided resources.")
     }
-    if(!isInitialized) {
+    if (!isInitialized) {
       logger.error("Failed to initialize; check the provided resources.")
     }
   }
@@ -192,7 +192,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     case class Resource(path: String, methods: Set[String], roles: Set[String])
 
     def parseLine(line: String): Option[Resource] = {
-      val values = line.split("\\s+")
+      val values = line.trim.split("\\s+")
       values.length match {
         case 3 =>
           Some(new Resource(
