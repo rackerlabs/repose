@@ -19,7 +19,8 @@
  */
 package org.openrepose.core.services.phonehome
 
-import java.util.UUID
+import java.text.SimpleDateFormat
+import java.util.{TimeZone, Date, UUID}
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
@@ -127,8 +128,20 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         }
       }
 
+      def getCurrentFormattedDateTime(dateTime: Long): String = {
+        val simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+        simpleDateFormat.format(new Date(dateTime))
+      }
+
+      val currentTimeMillis = System.currentTimeMillis
+
       val updateMessage = Json.stringify(Json.obj(
         "serviceId" -> originServiceId,
+        "createdAt" -> getCurrentFormattedDateTime(currentTimeMillis),
+        "createdAtMillis" -> currentTimeMillis,
+        "jreVersion" -> System.getProperty("java.version", "UNKNOWN"),
+        "jvmName" -> System.getProperty("java.vm.name", "UNKNOWN"),
         "contactEmail" -> contactEmail,
         "reposeVersion" -> reposeVer,
         "clusters" -> staticSystemModel.getReposeCluster.asScala.map(cluster =>
