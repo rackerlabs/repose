@@ -26,9 +26,6 @@ import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
 
-// 200
-// 403
-
 /**
  * Created by jennyvo on 6/1/15.
  */
