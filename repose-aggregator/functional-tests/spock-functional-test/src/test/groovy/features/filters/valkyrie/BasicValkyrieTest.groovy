@@ -315,7 +315,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method   | tenantID         | deviceID | permission      | responseCode
+        method   | tenantID       | deviceID | permission      | responseCode
         "GET"    | randomTenant() | "520707" | "view_product"  | "401"
         "HEAD"   | randomTenant() | "520707" | "view_product"  | "401"
         "GET"    | randomTenant() | "520707" | "admin_product" | "401"

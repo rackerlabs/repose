@@ -58,7 +58,7 @@ class MockValkyrie {
         authorizeHandler = this.&authorize
     }
 
-    void resetParameters(){
+    void resetParameters() {
         device_id = "234567"
         device_id2 = "123456"
         device_perm = "butts"
@@ -138,12 +138,12 @@ class MockValkyrie {
     Response authorize(String tenant, String contact, Request request) {
 
         def params = [
-                contact      : contact,
-                tenant       : tenant,
-                deviceID     : device_id,
-                deviceID2    : device_id2,
-                permission   : device_perm,
-                account_perm : account_perm,
+                contact     : contact,
+                tenant      : tenant,
+                deviceID    : device_id,
+                deviceID2   : device_id2,
+                permission  : device_perm,
+                account_perm: account_perm,
         ];
 
         def code;
