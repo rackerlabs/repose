@@ -147,7 +147,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
 object CorsFilter {
   private final val DEFAULT_CONFIG = "cors.cfg.xml"
-  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/highly-efficient-record-processor.xsd"
+  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/cors-configuration.xsd"
 
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 

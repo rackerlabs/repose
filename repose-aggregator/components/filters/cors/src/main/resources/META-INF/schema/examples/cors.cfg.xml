@@ -22,13 +22,13 @@
 <cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
     <allowed-origins>
         <!-- Allow this host as an origin (Chrome and Safari treat some same-origin requests as CORS requests) -->
-        <origin regex="true">http://.*.here.rackspace.com:80"</origin>
+        <origin regex="true">http://.*.here.rackspace.com:80</origin>
 
         <!-- Allow any rackspace sub-domain on any port to request resources from this host -->
-        <origin regex="true">http://.*.rackspace.com:.*"</origin>
+        <origin regex="true">http://.*.rackspace.com:.*</origin>
 
         <!-- Allow our partner site to request resources from this host -->
-        <origin>https://partner.somewhere-else.com:8443"</origin>
+        <origin>https://partner.somewhere-else.com:8443</origin>
     </allowed-origins>
 
     <!-- All resources support GET and HEAD -->

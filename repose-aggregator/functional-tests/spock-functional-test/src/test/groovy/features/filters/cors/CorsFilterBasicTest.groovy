@@ -24,6 +24,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+import spock.lang.Ignore
 import static org.junit.Assert.*
 
 /**
@@ -49,23 +50,34 @@ class CorsFilterBasicTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll ("Cors origin allow method: #method")
-    def "When send request with cors filter the specific headers should be added"() {
+    @Unroll
+    def "When sending preflight request with cors filter, the specific headers should be added for requested method #method, origin #origin, and path #path"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString()): origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: origin, method: method)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then:
-        mc.receivedResponse.code == "200"
-        mc.getHandlings().size() == 1
-        mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ORIGIN).size() == 1
-        mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD).size() == 1
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 0  // preflight request doesn't make it to the origin service
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
 
         where:
-        [method,origin] << [["GET", "HEAD"],[reposeEndpoint, "http://test.repose.site/status", reposeEndpoint+"/status"]]
+        method | path      | origin
+        'GET'  | '/'       | reposeEndpoint
+        'GET'  | '/status' | reposeEndpoint
+        'GET'  | '/status' | 'http://test.repose.site:80'
+        'HEAD' | '/'       | reposeEndpoint
+        'HEAD' | '/status' | reposeEndpoint
+        'HEAD' | '/status' | 'http://test.repose.site:80'
     }
 
-    def "When send request to specify resource" () {
+    @Ignore
+    @Unroll
+    def "When send request to specific resource for path #path and method #method" () {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
 
@@ -73,34 +85,34 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.getHandlings().size() == handling
         if (handling == 1) {
-            assertTrue(mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD).size() == 1)
+            assertTrue(mc.handlings[0].request.getHeaders().findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()).size() == 1)
         }
 
         where:
         path            | method        | handling
-        "/testget/foo"  | "GET"         | 1
-        "/testget/boo"  | "GET"         | 1
-        "/testget/boo"  | "HEAD"        | 1
-        "/testget/boo"  | "POST"        | 0
-        "/testget/boo"  | "PUT"         | 0
-        "/testget/boo"  | "DELETE"      | 0
-        "/testpost/boo" | "POST"        | 1
-        "/testpost/foo" | "POST"        | 1
-        "/testpost/boo" | "GET"         | 1
-        "/testpost/boo" | "HEAD"        | 1
-        "/testpost/boo" | "PUT"         | 0
-        "/testpost/boo" | "DELETE"      | 0
-        "/allothers"    | "PUT"         | 1
-        "/allothers"    | "POST"        | 1
-        "/allothers"    | "DELETE"      | 1
-        "/allothers"    | "PATCH"       | 1
-        "/allothers"    | "GET"         | 1
-        "/allothers"    | "HEAD"        | 1
-        "/status"       | "GET"         | 1
-        "/status"       | "HEAD"        | 1
-        "/status"       | "POST"        | 0
-        "/status"       | "PUT"         | 0
-        "/status"       | "PATCH"       | 0
-        "/status"       | "DELETE"      | 0
+        '/testget/foo'  | 'GET'         | 1
+        '/testget/boo'  | 'GET'         | 1
+        '/testget/boo'  | 'HEAD'        | 1
+        '/testget/boo'  | 'POST'        | 0
+        '/testget/boo'  | 'PUT'         | 0
+        '/testget/boo'  | 'DELETE'      | 0
+        '/testpost/boo' | 'POST'        | 1
+        '/testpost/foo' | 'POST'        | 1
+        '/testpost/boo' | 'GET'         | 1
+        '/testpost/boo' | 'HEAD'        | 1
+        '/testpost/boo' | 'PUT'         | 0
+        '/testpost/boo' | 'DELETE'      | 0
+        '/allothers'    | 'PUT'         | 1
+        '/allothers'    | 'POST'        | 1
+        '/allothers'    | 'DELETE'      | 1
+        '/allothers'    | 'PATCH'       | 1
+        '/allothers'    | 'GET'         | 1
+        '/allothers'    | 'HEAD'        | 1
+        '/status'       | 'GET'         | 1
+        '/status'       | 'HEAD'        | 1
+        '/status'       | 'POST'        | 0
+        '/status'       | 'PUT'         | 0
+        '/status'       | 'PATCH'       | 0
+        '/status'       | 'DELETE'      | 0
     }
 }
