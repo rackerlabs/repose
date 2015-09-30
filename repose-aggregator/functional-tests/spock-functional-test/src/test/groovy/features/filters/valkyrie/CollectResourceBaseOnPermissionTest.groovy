@@ -173,6 +173,50 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
+    def "account_admin always get the whole response"() {
+        given: "a list permission devices defined in Valkyrie"
+        def tenantID = randomTenant()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            account_perm = "account_admin"
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+        def body = new String(mc.receivedResponse.body)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        result.values.size == 2
+        result.metadata.count == 2
+
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+    }
+
     def "Test missing tenantid"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
