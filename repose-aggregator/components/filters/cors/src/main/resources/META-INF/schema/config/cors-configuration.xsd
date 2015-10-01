@@ -41,7 +41,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="allowed-origins" type="Origins" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="allowed-origins" type="Origins" minOccurs="1" maxOccurs="1"/>
             <xs:element name="allowed-methods" type="Methods" minOccurs="0" maxOccurs="1"/>
             <xs:element name="resources" type="Resources" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>

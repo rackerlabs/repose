@@ -64,17 +64,28 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
     val isOptions = httpServletRequest.getMethod == "OPTIONS"
     val origin = httpServletRequest.getHeader(CommonHttpHeader.ORIGIN)
-    val requestedMethod = httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+    val requestMethodHeader = httpServletRequest.getHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+    lazy val validMethods = getValidMethodsForResource(httpServletRequest.getRequestURI)
 
-    val requestType = (Option(origin), isOptions, Option(requestedMethod)) match {
+    val requestType = (Option(origin), isOptions, Option(requestMethodHeader)) match {
         case (Some(_), true, Some(_)) => PreflightRequest
         case (Some(_), _, None) => ActualRequest
         case _ => NonCorsRequest
     }
 
+    val requestedMethod = requestType match {
+      case PreflightRequest => requestMethodHeader
+      case _ => httpServletRequest.getMethod
+    }
+
     val validationResult = requestType match {
       case NonCorsRequest => Pass
-      case _ => if (isOriginAllowed(origin)) Pass else OriginNotAllowed
+      case _ =>
+        (isOriginAllowed(origin), validMethods.exists(requestedMethod == _)) match {
+          case (true, true) => Pass
+          case (false, _) => OriginNotAllowed
+          case (true, false) => MethodNotAllowed
+        }
     }
 
     validationResult match {
@@ -102,12 +113,16 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       case OriginNotAllowed =>
         httpServletResponse.setHeader(CommonHttpHeader.ORIGIN, "null")
         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
+      case MethodNotAllowed =>
+        httpServletResponse.setHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
+        httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
     }
 
     // always add the Vary header
     httpServletResponse.addHeader(CommonHttpHeader.VARY, CommonHttpHeader.ORIGIN)
     if (isOptions) {
       httpServletResponse.addHeader(CommonHttpHeader.VARY, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
+      httpServletResponse.addHeader(CommonHttpHeader.VARY, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
     }
   }
 
@@ -159,6 +174,7 @@ object CorsFilter {
   sealed trait CorsValidationResult
   object Pass extends CorsValidationResult
   object OriginNotAllowed extends CorsValidationResult
+  object MethodNotAllowed extends CorsValidationResult
 
   case class Resource(path: Regex, methods: Iterable[String])
 }

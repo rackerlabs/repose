@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.{HeaderConstant, CommonHttpHeader}
 import org.openrepose.filters.cors.config._
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
@@ -33,9 +33,12 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
 
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 @RunWith(classOf[JUnitRunner])
 class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+
+  import CorsFilterTest._
 
   val HttpMethods = List("OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT", "CUSTOM")
 
@@ -50,7 +53,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     filterChain = mock(classOf[FilterChain])
 
     corsFilter = new CorsFilter(null)
-    allowAllOriginsAndGets()
+    allowAllOriginsAndMethods()
   }
 
   describe("the doFilter method") {
@@ -71,11 +74,11 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe null
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString) shouldBe null
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString) shouldBe null
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) shouldBe null
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldBe null
         }
 
         it(s"should not have an HTTP status set for HTTP method $httpMethod") {
@@ -96,7 +99,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(CommonHttpHeader.ORIGIN.toString)
+          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](CommonHttpHeader.ORIGIN)
         }
       }
 
@@ -106,8 +109,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+        servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+          CommonHttpHeader.ORIGIN, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
     }
 
@@ -115,20 +118,20 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       HttpMethods.foreach { requestMethod =>
         it(s"should return an HTTP status of 200 for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
           servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getStatus shouldBe 200
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldBe null
         }
 
         it(s"should not call the next filter for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
@@ -137,78 +140,78 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
         it(s"should not add actual request specific headers for HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) shouldBe null
         }
 
         it(s"should have the Access-Control-Allow-Methods header set for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should not be null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not be null
         }
 
         List("X-Auth-Token", "X-Panda, X-Unicorn", "Accept, User-Agent, X-Trans-Id").foreach { requestHeader =>
           it(s"should have the Access-Control-Allow-Headers header set for request HTTP method $requestMethod and request headers $requestHeader") {
             servletRequest.setMethod("OPTIONS")
-            servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
-            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString, requestHeader)
+            servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
+            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, requestHeader)
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldEqual requestHeader
+            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldEqual requestHeader
           }
         }
 
         it(s"should not have the Access-Control-Allow-Headers header set when none requested for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldBe null
         }
 
         it(s"should have the Access-Control-Allow-Credentials header set to true for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString) shouldEqual "true"
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) shouldEqual "true"
         }
 
         List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443").foreach { origin =>
           it(s"should have the Access-Control-Allow-Origin set to the Origin of the request for request HTTP method $requestMethod and origin $origin") {
             servletRequest.setMethod("OPTIONS")
-            servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, origin)
-            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+            servletRequest.addHeader(CommonHttpHeader.ORIGIN, origin)
+            servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldEqual origin
+            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldEqual origin
           }
         }
 
         it(s"should have the Vary header correctly populated for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, requestMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-            CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+            CommonHttpHeader.ORIGIN, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
         }
       }
     }
@@ -217,7 +220,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       HttpMethods.foreach { httpMethod =>
         it (s"should call the next filter in the filter chain for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
@@ -226,17 +229,17 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
         it(s"should not add preflight specific headers for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) shouldBe null
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) shouldBe null
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldBe null
         }
 
         it(s"should not have an HTTP status set for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
           servletResponse.setStatus(-321)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
@@ -251,7 +254,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         ).foreach { responseHeaders =>
           it(s"should include the response headers in Access-Control-Expose-Headers for HTTP method $httpMethod and headers $responseHeaders") {
             servletRequest.setMethod(httpMethod)
-            servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+            servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
             // only add the headers to the response when the filterchain doFilter method is called
             doAnswer(new Answer[Void]() {
@@ -264,7 +267,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
-            servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString) should contain theSameElementsAs
+            servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
                 headerName != CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
                   headerName != CommonHttpHeader.VARY.toString}
@@ -273,21 +276,21 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
         it(s"should have the Access-Control-Allow-Credentials header set to true for request HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString) shouldEqual "true"
+          servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) shouldEqual "true"
         }
 
         List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443").foreach { origin =>
           it(s"should have the Access-Control-Allow-Origin set to the Origin of the request for request HTTP method $httpMethod and origin $origin") {
             servletRequest.setMethod(httpMethod)
-            servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, origin)
+            servletRequest.addHeader(CommonHttpHeader.ORIGIN, origin)
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldEqual origin
+            servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldEqual origin
           }
         }
       }
@@ -295,30 +298,30 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       HttpMethods.filter{_ != "OPTIONS"}.foreach { httpMethod =>
         it(s"should have 'Origin' in the Vary header for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(CommonHttpHeader.ORIGIN.toString)
+          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](CommonHttpHeader.ORIGIN)
         }
       }
 
       it("should have the preflight request headers in the Vary header for HTTP method OPTIONS") {
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.VARY.toString) should contain theSameElementsAs List(
-          CommonHttpHeader.ORIGIN.toString, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString)
+        servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+          CommonHttpHeader.ORIGIN, CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
     }
 
     describe("when origin filtering") {
       it("should allow a preflight request with a specific origin") {
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
@@ -328,13 +331,13 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe 200  // preflight success
-        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://totally.allowed"
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://totally.allowed"
       }
 
       it("should allow a preflight request with a regex matched origin") {
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://good.enough.com:8080")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://good.enough.com:8080")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
@@ -345,13 +348,13 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe 200  // preflight success
-        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://good.enough.com:8080"
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://good.enough.com:8080"
       }
 
       it("should deny a preflight request with an unmatched origin") {
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://not.going.to.work:9000")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "GET")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://not.going.to.work:9000")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
@@ -365,7 +368,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
       it("should allow an actual request with a specific origin") {
         servletRequest.setMethod("GET")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://let.me.in:8000")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://let.me.in:8000")
         servletResponse.setStatus(-321)
 
         val configOrigin = new Origin
@@ -375,12 +378,12 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe -321  // verify unchanged
-        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "http://let.me.in:8000"
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://let.me.in:8000"
       }
 
       it("should allow an actual request with a regex matched origin") {
         servletRequest.setMethod("GET")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "https://you.can.trust.me:8443")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "https://you.can.trust.me:8443")
         servletResponse.setStatus(-321)
 
         val configOrigin = new Origin
@@ -391,12 +394,12 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe -321  // verify unchanged
-        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString) shouldBe "https://you.can.trust.me:8443"
+        servletResponse.getHeader(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "https://you.can.trust.me:8443"
       }
 
       it("should deny an actual request with an unmatched origin") {
         servletRequest.setMethod("GET")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://no.way.bro:80")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://no.way.bro:80")
         servletResponse.setStatus(-321)
 
         val configOrigin = new Origin
@@ -428,158 +431,158 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         it(s"should permit HTTP method $httpMethod when it is globally allowed in config") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List(httpMethod), List()))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain (httpMethod)
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not globally allowed in config") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("TRANSMUTE"), List()))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should not contain httpMethod
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not contain httpMethod
         }
 
         it(s"should permit HTTP method $httpMethod when it is configured for the root resource") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("NOTHING"), List(("/.*", List(httpMethod)))))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain (httpMethod)
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not configured and a root resource allows something else") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("TRANSMUTE"), List(("/.*", List("DESTROY")))))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should not contain httpMethod
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not contain httpMethod
         }
 
         it(s"should not permit HTTP method $httpMethod when a specific child resource eclipses the root resource permission") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("TRANSMUTE"), List(("/servers", List("CREATE")), ("/.*", List(httpMethod)))))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/servers")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should not contain httpMethod
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not contain httpMethod
         }
 
         it(s"should permit HTTP method $httpMethod when a specific child resource does not but global config does") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List(httpMethod), List(("/servers", List("TRANSMUTE")), ("/.*", List("DESTROY")))))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/servers")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain (httpMethod)
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
         }
 
         it(s"should permit HTTP method $httpMethod when a specific child resource allows it") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("STARE"), List(("/servers", List(httpMethod)), ("/.*", List("DESTROY")))))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/servers")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain (httpMethod)
+          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
         }
 
-        it(s"should always permit the same HTTP methods no matter what the request method is for method $httpMethod") {
+        it(s"should return a 403 when the requested method is not allowed for method $httpMethod") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("POKE"), List()))
           servletRequest.setMethod("OPTIONS")
-          servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, httpMethod)
+          servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+          servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, httpMethod)
           servletRequest.setRequestURI("/servers")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain ("POKE")
+          servletResponse.getStatus == 403
         }
       }
 
       it("should permit multiple HTTP methods specified in global config") {
         corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET", "POST", "PUT", "DELETE"), List()))
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletRequest.setRequestURI("/")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific resource") {
         corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET", "POST"), List(("/players", List("PUT", "DELETE")))))
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletRequest.setRequestURI("/players")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific root resource") {
         corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET", "POST"), List(("/.*", List("PUT", "PATCH")))))
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletRequest.setRequestURI("/players")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
       }
 
       it("should be able to handle a path param with a configured resource path specified with regex") {
         corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET"), List(("/players/[^/]+/achievements", List("POST", "PUT", "PATCH")))))
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletRequest.setRequestURI("/players/bob_loblaw/achievements")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific resource with no methods") {
         corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET", "POST"), List(("/players", List()))))
         servletRequest.setMethod("OPTIONS")
-        servletRequest.addHeader(CommonHttpHeader.ORIGIN.toString, "http://totally.allowed")
-        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString, "PING")
+        servletRequest.addHeader(CommonHttpHeader.ORIGIN, "http://totally.allowed")
+        servletRequest.addHeader(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
         servletRequest.setRequestURI("/players")
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString) should contain theSameElementsAs List("GET", "POST")
+        servletResponse.getHeaders(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST")
       }
     }
   }
@@ -648,8 +651,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     config
   }
 
-  def allowAllOriginsAndGets(): Unit = {
-    corsFilter.configurationUpdated(createCorsConfig(List(".*"), List("GET"), List()))
+  def allowAllOriginsAndMethods(): Unit = {
+    corsFilter.configurationUpdated(createCorsConfig(List(".*"), HttpMethods, List()))
   }
 
   def setConfiguredAllowedOriginsTo(origins: List[Origin]): Unit = {
@@ -657,6 +660,16 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     val configOrigins = new Origins
     configOrigins.getOrigin.addAll(origins.asJava)
     config.setAllowedOrigins(configOrigins)
+
+    // allow all of the methods since we're not testing that here
+    val configMethods = new Methods
+    configMethods.getMethod.addAll(HttpMethods.asJava)
+    config.setAllowedMethods(configMethods)
+
     corsFilter.configurationUpdated(config)
   }
+}
+
+object CorsFilterTest {
+  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 }
