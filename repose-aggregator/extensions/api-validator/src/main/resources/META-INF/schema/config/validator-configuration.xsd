@@ -448,7 +448,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="component-name" type="xs:string" use="optional" default="api-checker">
+        <xs:attribute name="component-name" type="xs:string" use="optional" default="api-validator">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
