@@ -86,6 +86,48 @@ class CorsFilterBasicTest extends ReposeValveTest {
         [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], [reposeEndpoint, 'http://test.repose.site:80']].combinations()
     }
 
+    @Unroll("Prefight request Not allowed Origin request header with method #method, path #path, and origin #origin")
+    def "Origin request header is not allow in the config response 403"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then:
+        mc.receivedResponse.code == '403'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                                   ["/", "/status"],
+                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+    }
+
+    @Unroll("Actual request Not allowed Origin request header with method #method, path #path, and origin #origin")
+    def "Actual Request with Origin request header is not allow in the config response 403"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        mc.receivedResponse.code == '403'
+        mc.getHandlings().size() == 0
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                                   ["/", "/status"],
+                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+    }
+
     @Unroll("Allowed resource and Origin request header with method #method, path #path, and origin #origin")
     def "Origin request header is allow in the config"() {
         given:
@@ -128,27 +170,6 @@ class CorsFilterBasicTest extends ReposeValveTest {
         where:
         [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"], ["/testupdate"],
                                    [reposeEndpoint, "http://test.repose.site:80"]].combinations()
-    }
-
-    @Unroll("Not allowed Origin request header with method #method, path #path, and origin #origin")
-    def "Origin request header is not allow in the config response 403"() {
-        given:
-        def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
-
-        when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
-
-        then:
-        mc.receivedResponse.code == '403'
-        mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.contains("Vary")
-
-        where:
-        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                   ["/", "/status"],
-                                   ["http://test.com", "http://test.home.site:80"]].combinations()
     }
 
     @Unroll("Not allowed resource with origin request header with method #method, path #path, and origin #origin")
