@@ -8,7 +8,7 @@
             enable-api-coverage="true"
             dot-output="/tmp/default.dot"
             check-well-formed="false"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
             check-plain-params="true"
             do-xsd-grammar-transform="true"
@@ -26,7 +26,7 @@
             role="embedded"
             default="false"
             check-well-formed="false"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
             check-headers="true">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
