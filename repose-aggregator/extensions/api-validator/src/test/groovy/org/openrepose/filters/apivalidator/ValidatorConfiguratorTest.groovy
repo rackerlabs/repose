@@ -97,6 +97,24 @@ class ValidatorConfiguratorTest {
         assert !config.getValidateChecker();
     }
 
+    @Test
+    void whenCheckXsdGrammarIsTrueConfigJsonShouldBeFalse() {
+        ValidatorItem vItem = new ValidatorItem();
+        vItem.checkXsdGrammar = true;
+        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "", "")
+        assert config.getCheckXSDGrammar();
+        assert !config.getCheckJSONGrammar();
+    }
+
+    @Test
+    void whenCheckGrammarsIsTrueConfigBothShouldBeTrue() {
+        ValidatorItem vItem = new ValidatorItem();
+        vItem.checkGrammars = true;
+        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "", "")
+        assert config.getCheckXSDGrammar();
+        assert config.getCheckJSONGrammar();
+    }
+
     static String getFilePath(URL path) {
         int d = path.getPath().lastIndexOf("/")
 
