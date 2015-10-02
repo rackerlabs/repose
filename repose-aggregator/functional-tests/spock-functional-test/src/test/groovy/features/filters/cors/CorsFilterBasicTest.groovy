@@ -183,10 +183,36 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then:
-        mc.receivedResponse.code == '200'
+        mc.receivedResponse.code == '403'
         mc.getHandlings().size() == 0
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
         !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        method   | path      | origin
+        "PATCH"  | "/status" | reposeEndpoint
+        "DELETE" | "/status" | "http://test.repose.site:80"
+        "PATCH"  | "/"       | reposeEndpoint
+        "DELETE" | "/"       | "http://test.repose.site:80"
+        "PUT"    | "/"       | reposeEndpoint
+        "POST"   | "/"       | "http://test.repose.site:80"
+
+    }
+
+    @Unroll("Actual Request Not allowed resource with method #method, path #path, and origin #origin")
+    def "Actual Request request method is not allow resource in the config"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        mc.receivedResponse.code == '403'
+        mc.getHandlings().size() == 0
         mc.receivedResponse.headers.contains("Vary")
 
         where:
