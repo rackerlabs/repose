@@ -5,7 +5,7 @@
             role="group1"
             default="false"
             check-well-formed="true"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
             xsd-engine="SaxonEE"
             xpath-version="2"
