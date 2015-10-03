@@ -182,6 +182,9 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         xPPUsers.length == 4
 
         and: "Need to verify the response while we're at it"
+        JSONObject responseLine1 = convertToJson("Intrafilter Response Log", 1)
+        def responseUsers = responseLine1.get("headers").get("x-pp-user").split(",")
+        responseUsers.length == 3
     }
 
     private JSONObject convertToJson(String searchString, int entryNumber) {
