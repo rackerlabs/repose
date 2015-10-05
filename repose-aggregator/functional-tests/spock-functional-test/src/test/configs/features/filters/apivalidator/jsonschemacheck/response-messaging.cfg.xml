@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
+<response-messaging xmlns="http://docs.openrepose.org/repose/response-messaging/v1.0">
 
     <status-code id="400" code-regex="400">
         <message media-type="*/*">
@@ -116,7 +116,7 @@
         </message>
     </status-code>
 
-    <status-code id="4xx" code-regex="4\d\d" overwrite="ALWAYS">
+    <status-code id="4xx" code-regex="4\d\d" overwrite="IF_EMPTY">
         <message media-type="application/xml" content-type="application/xml">
             <![CDATA[
 <response

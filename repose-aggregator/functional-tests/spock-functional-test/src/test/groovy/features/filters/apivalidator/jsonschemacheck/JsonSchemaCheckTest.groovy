@@ -23,6 +23,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 10/2/15.
@@ -47,7 +48,7 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def "GET on /path/to/test Json checking"() {
+    def "PUT to /path/to/test Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
         def customHandler = { return new Response(200, "OK") }
@@ -56,29 +57,88 @@ class JsonSchemaCheckTest extends ReposeValveTest {
                 "Accept"         : "application/json",
                 "Content-Type"   : "application/json",
                 "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy"
+                "User-Agent"     : "gdeproxy",
+                "x-roles"        : "group1"
         ]
 
         def reqBody = """{
-            "firstName" : "Jorge",
-            "lastName" : "Williams",
-            "age" : 38
+            "firstName" : "Test",
+            "lastName" : "Repose",
+            "age" : 100
             }"""
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'GET', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
+                method: 'PUT', headers: headers,
+                requestBody: reqBody, defaultHandler: customHandler
         )
 
         then:
         "result should be " + 200
         messageChain.receivedResponse.code.equals("200")
-        messageChain.receivedResponse.headers["Content-Type"].equals("application/json")
     }
 
-    def "GET on /path/to/test Json checking Invalid Json"() {
+    def "PUT to /path/to/something invalid path Json checking should get 404"() {
+        setup: "declare messageChain to be of type MessageChain"
+        MessageChain messageChain
+        //def customHandler = { return new Response(200, "OK") }
+
+        def Map<String, String> headers = [
+                "Accept"         : "application/json",
+                "Content-Type"   : "application/json",
+                "Host"           : "localhost",
+                "User-Agent"     : "gdeproxy",
+                "x-roles"        : "group1"
+        ]
+
+        def reqBody = """{
+            "firstName" : "Test",
+            "lastName" : "Repose",
+            "age" : 100
+            }"""
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/something",
+                method: 'PUT', headers: headers,
+                requestBody: reqBody
+        )
+
+        then:
+        "result should be " + 404
+        messageChain.receivedResponse.code.equals("404")
+    }
+
+    def "PUT to /path/to/test Json checking Invalid Json should get 400"() {
+        setup: "declare messageChain to be of type MessageChain"
+        MessageChain messageChain
+
+        def Map<String, String> headers = [
+                "Accept"         : "application/json",
+                "Content-Type"   : "application/json",
+                "Host"           : "localhost",
+                "User-Agent"     : "gdeproxy",
+                "x-roles"        : "group1"
+        ]
+
+        def reqBody = """{
+            "firstname" : "Test",
+            "lastName" : "Repose",
+            "age" : 100
+            }"""
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
+                method: 'PUT', headers: headers,
+                requestBody: reqBody
+        )
+
+        then:
+        "result should be " + 400
+        messageChain.receivedResponse.code.equals("400")
+        messageChain.receivedResponse.body.toString().contains('Message Bad Content: object has missing required properties (["firstName"]')
+    }
+
+    def "POST to /path/to/post by pass Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
         def customHandler = { return new Response(200, "OK") }
@@ -87,25 +147,61 @@ class JsonSchemaCheckTest extends ReposeValveTest {
                 "Accept"         : "application/json",
                 "Content-Type"   : "application/json",
                 "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy"
+                "User-Agent"     : "gdeproxy",
+                "x-roles"        : "group1"
         ]
 
         def reqBody = """{
-            "firstName" : "Jorge",
-            "lastName" : "Williams",
-            "age" : 38
-            }}"""
+            "name" : "Test Repose",
+            "age" : 100
+            }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'GET', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/post",
+                method: 'POST', headers: headers,
+                requestBody: reqBody, defaultHandler: customHandler
         )
 
         then:
-        "result should be " + 400
-        messageChain.receivedResponse.code.equals("400")
-        messageChain.receivedResponse.headers["Content-Type"].equals("application/json")
+        "result should be " + 200
+        messageChain.receivedResponse.code.equals("200")
+    }
+
+    @Unroll ("#method to #path not allow resp 405")
+    def "Method not allow to resources resp 405"() {
+        setup: "declare messageChain to be of type MessageChain"
+        MessageChain messageChain
+        def customHandler = { return new Response(200, "OK") }
+
+        def Map<String, String> headers = [
+                "Accept"         : "application/json",
+                "Content-Type"   : "application/json",
+                "Host"           : "localhost",
+                "User-Agent"     : "gdeproxy",
+                "x-roles"        : "group1"
+        ]
+
+        def reqBody = """{
+            "firstName" : "Test",
+            "lastName" : "Repose",
+            "age" : 100
+            }"""
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path,
+                method: method, headers: headers,
+                requestBody: reqBody, defaultHandler: customHandler
+        )
+
+        then:
+        "result should be " + 405
+        messageChain.receivedResponse.code.equals("405")
+
+        where:
+        method      | path
+        "PUT"       | "/path/to/post"
+        "POST"      | "/path/to/test"
+        "GET"       | "/path/to/post"
+        "GET"       | "/path/to/test"
     }
 }
