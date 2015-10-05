@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
     <allowed-origins>
-        <origin regex="true">http://localhost:.+</origin>
+        <origin regex="true">http://openrepose.com:.+</origin>
         <origin>http://test.repose.site:80</origin>
     </allowed-origins>
 

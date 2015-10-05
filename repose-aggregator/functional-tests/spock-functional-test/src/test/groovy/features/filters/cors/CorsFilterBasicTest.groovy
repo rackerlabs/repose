@@ -62,10 +62,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], [reposeEndpoint, 'http://test.repose.site:80']].combinations()
+        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], ['http://openrepose.com:80', 'http://test.repose.site:80']].combinations()
     }
 
-    @Unroll("Sending preflight request with origin #origin and request method #method ")
+    @Unroll("Preflight request with origin #origin and request method #method ")
     def "When sending preflight request with cors filter, the specific headers should be added for requested method #method, origin #origin, and path #path"() {
         given:
         def headers = [
@@ -83,7 +83,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], [reposeEndpoint, 'http://test.repose.site:80']].combinations()
+        [method, path, origin] << [['GET', 'HEAD'], ['/', '/status'], ['http://openrepose.com:80', 'http://test.repose.site:80']].combinations()
     }
 
     @Unroll("Prefight request Not allowed Origin request header with method #method, path #path, and origin #origin")
@@ -128,7 +128,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
                                    ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
     }
 
-    @Unroll("Allowed resource and Origin request header with method #method, path #path, and origin #origin")
+    @Unroll("Preflight request, Allowed resource and Origin request header with method #method, path #path, and origin #origin")
     def "Origin request header is allow in the config"() {
         given:
         def headers = [
@@ -147,10 +147,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         where:
         [method, path, origin] << [["PUT", "POST", "GET", "HEAD"], ["/status"],
-                                   [reposeEndpoint, "http://test.repose.site:80"]].combinations()
+                                   ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
-    @Unroll("Allowed Resource with Origin request header with method #method, path #path, and origin #origin")
+    @Unroll("Preflight request, Allowed Resource with Origin request header with method #method, path #path, and origin #origin")
     def "Origin request header is allow resource in the config"() {
         given:
         def headers = [
@@ -169,10 +169,33 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         where:
         [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"], ["/testupdate"],
-                                   [reposeEndpoint, "http://test.repose.site:80"]].combinations()
+                                   ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
-    @Unroll("Not allowed resource with origin request header with method #method, path #path, and origin #origin")
+    @Unroll("Actual request, Allowed Resource with Origin request header with method #method, path #path, and origin #origin")
+    def "Actual request with allow resource in the config"() {
+        given:
+        def headers = [
+                (CommonHttpHeader.ORIGIN.toString())                       : origin,
+                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.getHandlings().size() == 1
+        mc.getHandlings().get(0).request.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()).contains(method)
+        //mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        //mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"], ["/testupdate"],
+                                   ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+    }
+
+    @Unroll("Preflight request, Not allowed resource with origin request header with method #method, path #path, and origin #origin")
     def "Origin request method is not allow resource in the config"() {
         given:
         def headers = [
@@ -191,11 +214,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         where:
         method   | path      | origin
-        "PATCH"  | "/status" | reposeEndpoint
+        "PATCH"  | "/status" | 'http://openrepose.com:80'
         "DELETE" | "/status" | "http://test.repose.site:80"
-        "PATCH"  | "/"       | reposeEndpoint
+        "PATCH"  | "/"       | 'http://openrepose.com:80'
         "DELETE" | "/"       | "http://test.repose.site:80"
-        "PUT"    | "/"       | reposeEndpoint
+        "PUT"    | "/"       | 'http://openrepose.com:80'
         "POST"   | "/"       | "http://test.repose.site:80"
 
     }
