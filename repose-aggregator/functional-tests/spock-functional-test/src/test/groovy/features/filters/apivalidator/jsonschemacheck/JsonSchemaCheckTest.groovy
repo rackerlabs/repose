@@ -54,11 +54,11 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy",
-                "x-roles"        : "group1"
+                "Accept"      : "application/json",
+                "Content-Type": "application/json",
+                "Host"        : "localhost",
+                "User-Agent"  : "gdeproxy",
+                "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -84,11 +84,11 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         //def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy",
-                "x-roles"        : "group1"
+                "Accept"      : "application/json",
+                "Content-Type": "application/json",
+                "Host"        : "localhost",
+                "User-Agent"  : "gdeproxy",
+                "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -113,11 +113,11 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         MessageChain messageChain
 
         def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy",
-                "x-roles"        : "group1"
+                "Accept"      : "application/json",
+                "Content-Type": "application/json",
+                "Host"        : "localhost",
+                "User-Agent"  : "gdeproxy",
+                "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -144,11 +144,11 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy",
-                "x-roles"        : "group1"
+                "Accept"      : "application/json",
+                "Content-Type": "application/json",
+                "Host"        : "localhost",
+                "User-Agent"  : "gdeproxy",
+                "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -167,18 +167,18 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("200")
     }
 
-    @Unroll ("#method to #path not allow resp 405")
+    @Unroll("#method to #path not allow resp 405")
     def "Method not allow to resources resp 405"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
         def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy",
-                "x-roles"        : "group1"
+                "Accept"      : "application/json",
+                "Content-Type": "application/json",
+                "Host"        : "localhost",
+                "User-Agent"  : "gdeproxy",
+                "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -198,10 +198,10 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("405")
 
         where:
-        method      | path
-        "PUT"       | "/path/to/post"
-        "POST"      | "/path/to/test"
-        "GET"       | "/path/to/post"
-        "GET"       | "/path/to/test"
+        method | path
+        "PUT"  | "/path/to/post"
+        "POST" | "/path/to/test"
+        "GET"  | "/path/to/post"
+        "GET"  | "/path/to/test"
     }
 }
