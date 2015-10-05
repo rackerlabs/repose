@@ -21,8 +21,15 @@
             </allowed-methods>
         </resource>
 
+        <!-- /testoptions additionally allows OPTIONS -->
+        <resource path="/testoptions.*">
+            <allowed-methods>
+                <method>OPTIONS</method>
+            </allowed-methods>
+        </resource>
+
         <!-- All other endpoints support POST, PUT, PATCH, and DELETE -->
-        <resource path="/testupdate*">
+        <resource path="/testupdate.*">
             <allowed-methods>
                 <method>POST</method>
                 <method>PUT</method>
