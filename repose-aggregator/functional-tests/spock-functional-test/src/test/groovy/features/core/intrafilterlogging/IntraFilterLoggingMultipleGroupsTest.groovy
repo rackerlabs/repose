@@ -66,7 +66,7 @@ class IntraFilterLoggingMultipleGroupsTest extends ReposeValveTest {
         fakeIdentityV2Service.resetDefaultParameters()
     }
 
-    def "Verify log all groups to x-pp-groups and more"() {
+    def "Verify log all groups to x-pp-groups from translation filter going into echo filter"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -86,7 +86,8 @@ class IntraFilterLoggingMultipleGroupsTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
                 headers: headers)
 
-        String tracelogLine = reposeLogSearch.searchByString('TRACE intrafilter-logging - ."preamble":"Intrafilter Request Log","timestamp":(.*),"currentFilter":"header-translation')
+        //We want to make sure that the incoming bits to the echo filter show all the users that were translated
+        String tracelogLine = reposeLogSearch.searchByString('TRACE intrafilter-logging - ."preamble":"Intrafilter Request Log","timestamp":(.*),"currentFilter":"echo')
         String jsonpart = tracelogLine.substring(tracelogLine.indexOf("{"))
         println(jsonpart)
         def slurper = new JsonSlurper()
@@ -94,21 +95,8 @@ class IntraFilterLoggingMultipleGroupsTest extends ReposeValveTest {
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").contains("Repose_test_group")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").contains("test")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").contains("user")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").contains("0")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").toString().contains("compute:admin")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").toString().contains("object-store:admin")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-pp-groups").toString().contains("service:admin-role1")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-roles").contains("test")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-roles").contains("user")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-roles").toString().contains("compute:admin")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-roles").toString().contains("object-store:admin")
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("x-roles").toString().contains("service:admin-role1")
+        mc.handlings.size() == 0 //Hitting the echo filter instead
+        //No need to assert that repose didn't split filters, we've got many tests to prove that
 
         //intrafilterlogging check after headers translation
         logresult.headers["x-roles"].toString().contains("test")
