@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 ### BEGIN INIT INFO
 # Provides: repose-valve
@@ -32,6 +32,21 @@ CLEAN=/usr/bin/clean-repose-deploy
 
 # Can override the defaults in /etc/sysconfig
 . /etc/sysconfig/repose
+
+# First validate that we have a java executable on the path
+command -v java >/dev/null 2>&1 || { echo "Repose requires a java executable on the path! Exiting!"; exit 1; }
+
+# We've found a java on the path, now validate that the minor is at least 7
+# testing to figure out java version stuff
+# We're not guaranteed to have bash on debians, so we have to use sh stuff
+VERSION=$(java -version 2>&1 | grep ' version' | awk '{ print substr($3, 2, length($3)-2); }')
+JAVA_MINOR=$(echo $VERSION | tr "." " " | cut -d " " -f2)
+
+if [ "$JAVA_MINOR" -lt "7" ]; then
+  echo "Repose requires a java version of at least 7 to function."
+  echo "Please install a JRE 1.7 or greater"
+  exit 1
+fi
 
 ###########################
 # Start daemon
