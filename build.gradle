@@ -146,7 +146,8 @@ allprojects {
     def generatedSources = "${projectDir}/build/src/generated-sources"
 
     //Don't forget to add that generated sources to the list of things we need to do
-    sourceSets.main.java.srcDirs += generatedSources
+    //ADD IT TO THE SCALA SOURCES
+    sourceSets.main.scala.srcDirs += generatedSources
 
     task transformXSDs() {
         description "Makes our XSDs safe for jaxb, because XSD 1.1, or just copy them if there's no XSD to translate"
