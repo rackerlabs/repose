@@ -96,6 +96,10 @@ allprojects {
     test {
         //Set this for stupid xml and it's anger at log4j2
         systemProperty "javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"
+
+        filter {
+            includeTestsMatching "*Test"
+        }
     }
 
     dependencies {
