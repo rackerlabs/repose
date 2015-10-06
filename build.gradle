@@ -287,3 +287,5 @@ project(":repose-aggregator:core:core-service-api") {
                 "com.google.guava:guava:$guavaVersion"
     }
 }
+
+//We got through the entire :repose-aggregator:commons:configuration without having to configure anything for it :|
