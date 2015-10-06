@@ -1,0 +1,146 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.spring.io/plugins-release' }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.6'
+        classpath "com.github.jacobono:gradle-jaxb-plugin:1.3.5"
+    }
+}
+
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'scala'
+    apply plugin: 'groovy'
+
+//We want to have all these plugins configured for us
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+
+    //Add jaxb support
+    apply plugin: 'com.github.jacobono.jaxb'
+
+//All our projects will use mavenCentral for their maven source (at least)
+    repositories {
+        mavenCentral()
+        maven {
+            //TODO: maybe need creds: http://gradle.org/docs/current/userguide/dependency_management.html#sub:maven_repo
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate"
+        }
+        maven {
+            //For play-json
+            url "http://repo.typesafe.com/typesafe/maven-releases"
+        }
+    }
+    /*
+ * If you want to override dependencies, you can do it here. You can also ban them from here I think
+ */
+    configurations {
+        all {
+            resolutionStrategy.eachDependency {
+                //Make sure that all commons-loggings are replaced by the jcl-over-slf4j bridge
+                if (it.requested.name == 'commons-logging') {
+                    it.useTarget 'org.slf4j:jcl-over-slf4j:1.7.7'
+                }
+            }
+        }
+    }
+/*
+ * Set our source levels
+ */
+    compileJava {
+        sourceCompatibility = "1.7"
+        targetCompatibility = "1.7"
+    }
+
+//Tell the scala compile tasks not to use the ant based compiler
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+
+/**
+ * Create all the source directories, a handy task
+ */
+    task 'create-dirs' << {
+        sourceSets.all { set ->
+            set.allSource.srcDirs.each { it.mkdirs() }
+        }
+    }
+
+    test {
+        //Set this for stupid xml and it's anger at log4j2
+        systemProperty "javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"
+    }
+
+    dependencies {
+        testCompile "org.codehaus.groovy:groovy-all:2.1.3",
+                "org.spockframework:spock-core:0.7-groovy-2.0",
+                "org.hamcrest:hamcrest-all:1.3",                //This order matters!
+                "org.powermock:powermock-module-junit4:1.5.4",  //This order matters!
+                "org.powermock:powermock-api-mockito:1.5.4",    //This order matters!
+                "org.mockito:mockito-all:1.9.5",                //This order matters!
+                "junit:junit:4.11",                          //This order matters!
+                "org.glassfish:javax.servlet:3.1", //TODO: This shouldn't be here
+                "javax:javaee-web-api:6.0", //TODO: this shouldn't be here
+                "javax.transaction:transaction-api:1.1", //TODO: this shouldn't be here
+
+                "org.apache.logging.log4j:log4j-api:${log4jVersion}",
+                "org.apache.logging.log4j:log4j-core:${log4jVersion}",
+                "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+        testCompile("com.mockrunner:mockrunner-servlet:1.0.0") {
+            exclude module: 'commons-logging'
+            exclude module: 'servlet-api'
+            exclude module: 'xercesImpl'
+        }
+
+
+        testCompile group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
+
+        //Use the latest version of the zinc compiler
+        zinc "com.typesafe.zinc:zinc:0.3.7"
+    }
+}
+
+project(":repose-aggregator:commons:configuration") {
+    dependencies {
+        compile project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:core:core-service-api"),
+                "xerces:xerces-xsd11:2.12.0-rax",
+                "xalan:xalan:2.7.1",
+                "commons-pool:commons-pool:${commonsPoolVersion}"
+
+        testCompile "org.scala-lang:scala-library:${scalaVersion}",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:${scalaLoggingVersion}"
+    }
+}
+
+project(":repose-aggregator:commons:utilities") {
+    dependencies {
+        compile project(":repose-aggregator:services:httpclient:api"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxbRuntimeVersion}",
+                "org.apache.httpcomponents:httpclient:$httpClientVersion",
+                "commons-pool:commons-pool:$commonsPoolVersion",
+                "commons-codec:commons-codec:1.10",
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "org.apache.logging.log4j:log4j-api:$log4jVersion",
+                "org.glassfish:javax.servlet:3.1", //TODO: this API is some weird hybrid of 2.5 and 3.1.0
+                "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.apache.httpcomponents:httpcore:$httpClientVersion"
+
+        testCompile "javax.ws.rs:javax.ws.rs-api:2.0.1",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion"
+
+    }
+}
+
+project(":repose-aggregator:services:httpclient:api") {
+    dependencies {
+        compile "org.apache.httpcomponents:httpclient:$httpClientVersion"
+    }
+}
