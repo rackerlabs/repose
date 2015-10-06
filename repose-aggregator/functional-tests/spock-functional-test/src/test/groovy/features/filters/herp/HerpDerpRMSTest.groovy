@@ -84,12 +84,12 @@ class HerpDerpRMSTest extends ReposeValveTest {
 
 
         where:
-        method   | path           | roles                         | responseCode | msgBody              | component     | quality
-        "GET"    | "servers/"     | "raxRolesEnabled"             | "403"        | "Forbidden"          | "api-checker" | 0.6
-        "POST"   | "servers/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
-        "PUT"    | "servers/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed" | "api-checker" | 0.6
-        "DELETE" | "servers/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-checker" | 0.6
-        "GET"    | "get/"         | "raxRolesEnabled"             | "404"        | "Resource not found" | "api-checker" | 0.6
+        method   | path           | roles                         | responseCode | msgBody              | component       | quality
+        "GET"    | "servers/"     | "raxRolesEnabled"             | "403"        | "Forbidden"          | "api-validator" | 0.6
+        "POST"   | "servers/1235" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-validator" | 0.6
+        "PUT"    | "servers/"     | "raxRolesEnabled, a:admin"    | "405"        | "Method not allowed" | "api-validator" | 0.6
+        "DELETE" | "servers/test" | "raxRolesEnabled, a:observer" | "404"        | "Resource not found" | "api-validator" | 0.6
+        "GET"    | "get/"         | "raxRolesEnabled"             | "404"        | "Resource not found" | "api-validator" | 0.6
 
     }
 

@@ -87,11 +87,11 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
 
         where:
         method   | path           | roles                       | apiDelegatingMsg
-        "GET"    | "servers/"     | "raxrole-test1"             | "status_code=403.component=api-checker.message=.*;q=0.5"
-        "POST"   | "servers/1234" | "raxrole-test1, a:admin"    | "status_code=404.component=api-checker.message=.*;q=0.5"
-        "PUT"    | "servers/"     | "raxrole-test1, a:admin"    | "status_code=405.component=api-checker.message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
-        "DELETE" | "servers/"     | "raxrole-test1"             | "status_code=403.component=api-checker.message=.*;q=0.5"
-        "GET"    | "get/"         | "raxrole-test1, a:observer" | "status_code=404.component=api-checker.message=.*;q=0.5"
+        "GET"    | "servers/"     | "raxrole-test1"             | "status_code=403.component=api-validator.message=.*;q=0.5"
+        "POST"   | "servers/1234" | "raxrole-test1, a:admin"    | "status_code=404.component=api-validator.message=.*;q=0.5"
+        "PUT"    | "servers/"     | "raxrole-test1, a:admin"    | "status_code=405.component=api-validator.message=Bad method: PUT. The Method does not match the pattern: 'DELETE|GET|POST';q=0.5"
+        "DELETE" | "servers/"     | "raxrole-test1"             | "status_code=403.component=api-validator.message=.*;q=0.5"
+        "GET"    | "get/"         | "raxrole-test1, a:observer" | "status_code=404.component=api-validator.message=.*;q=0.5"
     }
 
     @Unroll("#authResponseCode, #responseCode")
@@ -109,7 +109,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
                     new Response(authResponseCode, null, null, responseBody)
             }
         }
-        def apidelegatingmsg = "status_code=404.component=api-checker.message=.*;q=0.5"
+        def apidelegatingmsg = "status_code=404.component=api-validator.message=.*;q=0.5"
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject",
@@ -137,7 +137,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
     //helper function to validate delegating auth and api-checker messages
     def void msgCheckingHelper(List delegatingmsgs, String authmsg, String apimsg) {
         for (int i = 0; i < delegatingmsgs.size(); i++) {
-            if (delegatingmsgs.get(i).toString().contains("api-checker")) {
+            if (delegatingmsgs.get(i).toString().contains("api-validator")) {
                 assert delegatingmsgs.get(i) =~ apimsg
             } else {
                 assert delegatingmsgs.get(i) =~ authmsg

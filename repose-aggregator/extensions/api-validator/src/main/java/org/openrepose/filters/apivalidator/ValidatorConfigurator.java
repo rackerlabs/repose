@@ -69,7 +69,7 @@ public class ValidatorConfigurator {
         DelegatingType delegatingType = validatorConfiguration.getDelegating();
         boolean isDelegating = delegatingType != null;
         double delegationQuality = isDelegating ? delegatingType.getQuality() : 0.0;
-        String componentName = isDelegating ? delegatingType.getComponentName() : "api-checker";
+        String componentName = isDelegating ? delegatingType.getComponentName() : "api-validator";
 
         for (ValidatorItem validatorItem : validatorItems) {
             Config configuration = createConfiguration(validatorItem, isDelegating, delegationQuality, validatorConfiguration.isMultiRoleMatch(), configRoot, componentName);
