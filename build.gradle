@@ -46,6 +46,8 @@ allprojects {
                 }
             }
         }
+        //Needed to set up the scala compiler by hand
+        scalaCompiler
     }
 /*
  * Set our source levels
@@ -59,6 +61,28 @@ allprojects {
     tasks.withType(ScalaCompile) {
         scalaCompileOptions.useAnt = false
     }
+
+    /**
+     * This pile of stuff is required to have scalac be our joint java/scala compiler and avoid having to specify
+     * it for each project. The alternative is to specify the sourceSets logic on projects where java code depends
+     * on scala code (in the same project). There's no other way to alter the ordering of the compile steps, java
+     * always gets compiled first.
+     */
+    //Tell this project to do joint compilation
+    sourceSets.main.scala.srcDir "src/main/java"
+    sourceSets.main.java.srcDirs = []
+
+    dependencies {
+        scalaCompiler "org.scala-lang:scala-compiler:${scalaVersion}"
+    }
+
+    tasks.withType(ScalaCompile) {
+        scalaClasspath = configurations.scalaCompiler
+    }
+    /**
+     * END OF MANUAL SCALA COMPILER SETTING
+     */
+
 
 /**
  * Create all the source directories, a handy task
@@ -128,13 +152,13 @@ project(":repose-aggregator:commons:utilities") {
                 "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
                 "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
                 "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "javax.ws.rs:javax.ws.rs-api:2.0.1",
                 "org.apache.logging.log4j:log4j-api:$log4jVersion",
                 "org.glassfish:javax.servlet:3.1", //TODO: this API is some weird hybrid of 2.5 and 3.1.0
                 "org.slf4j:slf4j-api:$slf4jVersion",
                 "org.apache.httpcomponents:httpcore:$httpClientVersion"
 
-        testCompile "javax.ws.rs:javax.ws.rs-api:2.0.1",
-                "org.scalatest:scalatest_2.10:$scalaTestVersion"
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
 
     }
 }
