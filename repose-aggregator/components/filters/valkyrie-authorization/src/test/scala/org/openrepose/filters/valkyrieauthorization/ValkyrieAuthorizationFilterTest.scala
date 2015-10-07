@@ -427,6 +427,65 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     }
   }
 
+  describe("when permission to role translation is turned on and request includes a Device ID") {
+    val config = createGenericValkyrieConfiguration(null)
+    config.setTranslatePermissionsToRoles(new Object)
+    val tenantId = "hybrid:98765"
+    val transformedTenant = "98765"
+    val contactId = "123456"
+    val deviceId = "98765"
+    val filterChain = mock[FilterChain]
+    val mockServletRequest = new MockHttpServletRequest
+    val mockServletResponse = new MockHttpServletResponse
+    val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+    filter.configurationUpdated(config)
+
+    def setup() = {
+      mockServletRequest.resetAll()
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.setHeader("X-Contact-Id", contactId)
+
+      mockServletResponse.resetAll()
+
+      Mockito.reset(filterChain)
+    }
+
+    List("view_product", "edit_product", "admin_product").foreach { devicePermission =>
+      it(s"should translate permissions to roles with device permission $devicePermission") {
+        setup()
+        val devices = devicePermissions(deviceId, devicePermission)
+        mockServletRequest.setHeader("X-Device-Id", deviceId)
+        setMockAkkaBehavior(transformedTenant, contactId, 200,
+          createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+        val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+
+        filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+        Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
+        val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+        assert(roles.contains("some_permission"))
+        assert(roles.contains("a_different_permission"))
+        assert(roles.contains(devicePermission))
+      }
+    }
+
+    List("remember_product", "consider_product", "admire_product").foreach { devicePermission =>
+      it(s"should not be authorized to translate permissions to roles with device permission $devicePermission") {
+        setup()
+        val devices = devicePermissions(deviceId, devicePermission)
+        mockServletRequest.setHeader("X-Device-Id", deviceId)
+        setMockAkkaBehavior(transformedTenant, contactId, 200,
+          createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+
+        filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
+
+        assert(mockServletResponse.getStatusCode == 403)
+      }
+    }
+  }
+
   describe("when permission to role translation is turned on") {
     val config = createGenericValkyrieConfiguration(null)
     config.setTranslatePermissionsToRoles(new Object)
