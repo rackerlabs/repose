@@ -153,14 +153,14 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   def isOriginAllowed(requestOrigin: String): Boolean = allowedOrigins.exists(_.findFirstIn(requestOrigin).isDefined)
 
   def getValidMethodsForResource(path: String): Iterable[String] = {
-    resources.find(_.path.findFirstIn(path).isDefined) match {
+    allowedMethods ++ (resources.find(_.path.findFirstIn(path).isDefined) match {
       case Some(matchedResource) =>
         logger.debug(s"Matched path $path with configured resource: $matchedResource")
-        allowedMethods ++ matchedResource.methods
+        matchedResource.methods
       case None =>
         logger.debug(s"Did not find a configured resource matching path $path")
-        allowedMethods
-    }
+        Nil
+    })
   }
 }
 
