@@ -22,6 +22,7 @@ package features.filters.identitybasicauth
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
+import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -125,6 +126,22 @@ class BasicAuthTest extends ReposeValveTest {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "get a token and validate it"
+        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+    def "When the request send with invalid long key or username, then will fail to authenticate"() {
+        given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
+        def key = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":"+key).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
