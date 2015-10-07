@@ -63,7 +63,13 @@ public class ResponseLog {
         List<String> headerNames = (List<String>) mutableHttpServletResponse.getHeaderNames();
 
         for (String headerName : headerNames) {
-            headerMap.put(headerName, mutableHttpServletResponse.getHeader(headerName));
+            StringBuilder allHeaderValues = new StringBuilder();
+            for (String value : mutableHttpServletResponse.getHeaders(headerName)) {
+                allHeaderValues.append(value).append(",");
+            }
+            //Clobber the last character
+            allHeaderValues.deleteCharAt(allHeaderValues.length() - 1);
+            headerMap.put(headerName, allHeaderValues.toString());
         }
 
         return headerMap;

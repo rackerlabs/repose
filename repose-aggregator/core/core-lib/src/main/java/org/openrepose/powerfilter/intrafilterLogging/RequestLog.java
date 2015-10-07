@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,13 @@ public class RequestLog {
         List<String> headerNames = Collections.list(mutableHttpServletRequest.getHeaderNames());
 
         for (String headerName : headerNames) {
-            headerMap.put(headerName, mutableHttpServletRequest.getHeader(headerName));
+            StringBuilder allHeaderValues = new StringBuilder();
+            for (String value : Collections.list(mutableHttpServletRequest.getHeaders(headerName))) {
+                allHeaderValues.append(value).append(",");
+            }
+            //Clobber the last character
+            allHeaderValues.deleteCharAt(allHeaderValues.length() - 1);
+            headerMap.put(headerName, allHeaderValues.toString());
         }
 
         return headerMap;

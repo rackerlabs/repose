@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -145,6 +145,46 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         sendtoken                  | respcode | respmsg         | type               | respbody
         "this-is-a-token"          | "200"    | "OK"            | "application/json" | "{\"response\": \"amazing\""
         "this-is-an-invalid-token" | "401"    | "Invalid Token" | "plain/text"       | "{\"response\": \"Unauthorized\""
+    }
+
+    def "ensure that intrafilter logging isn't munching the x-pp-user headers"() {
+        given:
+        fakeIdentityService.client_token = "this-is-a-token"
+
+        when: "User passes a request through repose with multiple x-pp-groups headers"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/server123", method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityService.client_token,
+                          'x-pp-user'   : "Developers;q=1.0 , Secure Developers;q=0.9 , service:admin-role1 , member"],
+                defaultHandler: { request ->
+                    return new Response(200, "OK", [
+                            "Content-Type": "application/json",
+                            "x-pp-user"   : "one,two,three"
+                    ], """{"response": "amazing"}""")
+                })
+
+        then: "Making sure it was logged, and that it went through repose correctly"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        reposeLogSearch.searchByString("TRACE intrafilter-logging").size() == 4
+        reposeLogSearch.searchByString("Intrafilter Request Log").size() == 2
+        reposeLogSearch.searchByString("Intrafilter Response Log").size() == 2
+
+        // This part of test what will be in the TRACE log to expect
+        and: "Checking to make sure that we didn't clobber the x-pp-user header entries in the log output"
+
+        JSONObject authreqline1 = convertToJson("Intrafilter Request Log", 0)
+
+        //Need to assert that the splittable headers are logged properly, not just the first one (or the last one)
+        //get the headers object out
+        def xPPUsers = authreqline1.get("headers").get("x-pp-user").split(",")
+
+        //We expect that THERE ARE FOUR LIGHTS.... er entries in the xPPUser header
+        xPPUsers.length == 4
+
+        and: "Need to verify the response while we're at it"
+        JSONObject responseLine1 = convertToJson("Intrafilter Response Log", 1)
+        def responseUsers = responseLine1.get("headers").get("x-pp-user").split(",")
+        responseUsers.length == 3
     }
 
     private JSONObject convertToJson(String searchString, int entryNumber) {
