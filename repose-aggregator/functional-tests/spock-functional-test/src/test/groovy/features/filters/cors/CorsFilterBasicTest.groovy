@@ -20,7 +20,7 @@
 package features.filters.cors
 
 import framework.ReposeValveTest
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.CorsHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -52,7 +52,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll("Non-CORS request with method OPTIONS and a CORS header request Method: #method")
     def "OPTIONS request without origin header will bypass CORS and make to origin service"() {
         def headers = [
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -60,9 +60,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 1  // OPTIONS request without origin will make to it origin service
-        !mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString())
-        !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString())
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString())
+        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString())
         mc.receivedResponse.headers.contains("Vary")
         mc.receivedResponse.headers.findAll('Vary') == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
@@ -73,7 +73,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Actual request with method OPTIONS"() {
         given:
         def origin = 'http://openrepose.com:80'
-        def headers = [(CommonHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + '/testoptions', method: 'OPTIONS', headers: headers)
@@ -81,9 +81,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 1   // actual request should make it through to the origin service
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains("Vary")
         mc.receivedResponse.headers.findAll('Vary') == ['origin', 'access-control-request-headers', 'access-control-request-method']
     }
@@ -92,8 +92,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "When sending preflight request with cors filter, the specific headers should be added for requested method #method, origin #origin, and path #path"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -101,9 +101,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 0  // preflight request doesn't make it to the origin service
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains("Vary")
 
         where:
@@ -114,8 +114,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Origin request header is not allow in the config response 403"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -134,7 +134,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll("Actual request Not allowed Origin request header with method #method, path #path, and origin #origin")
     def "Actual Request with Origin request header is not allow in the config response 403"() {
         given:
-        def headers = [(CommonHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -154,8 +154,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Origin request header is allow in the config"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -163,9 +163,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains("Vary")
 
         where:
@@ -177,8 +177,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Origin request header is allow resource in the config"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -186,9 +186,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains("Vary")
 
         where:
@@ -199,7 +199,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll
     def "Actual request with allowed Resource with Origin request header with method #method, path #path, and origin #origin and headers #responseHeaders"() {
         given:
-        def headers = [(CommonHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
         // have deproxy add the response headers
         def handler = { request -> new Response(200, 'OK', (responseHeaders as List<String>).collectEntries{[(it): 'value']})}
 
@@ -210,10 +210,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 1
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        !mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains('Vary')
 
         where:
@@ -227,7 +227,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll("Actual request, Allowed Resource with Origin request header with method #method, path #path, and origin #origin")
     def "Actual request with allow resource in the config"() {
         given:
-        def headers = [(CommonHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -246,8 +246,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Origin request method is not allow resource in the config"() {
         given:
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString())                       : origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -255,9 +255,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '403'
         mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
         mc.receivedResponse.headers.contains("Vary")
         mc.receivedResponse.headers.findAll('Vary') == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
@@ -275,7 +275,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll("Actual Request Not allowed resource with method #method, path #path, and origin #origin")
     def "Actual Request request method is not allow resource in the config"() {
         given:
-        def headers = [(CommonHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -283,9 +283,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '403'
         mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        !mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
         mc.receivedResponse.headers.contains('Vary')
         mc.receivedResponse.headers.findAll('Vary') == ['origin']
 
@@ -306,9 +306,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         def origin = 'http://openrepose.com:80'
         def path = '/testupdate'
         def headers = [
-                (CommonHttpHeader.ORIGIN.toString()): origin,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method,
-                (CommonHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString()): requestHeaders
+                (CorsHttpHeader.ORIGIN.toString()): origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString()): requestHeaders
         ]
 
         when:
@@ -317,12 +317,12 @@ class CorsFilterBasicTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.getHandlings().size() == 0
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        mc.receivedResponse.headers.findAll(CommonHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == requestHeaders
-        !mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == requestHeaders
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
         mc.receivedResponse.headers.contains('Vary')
         mc.receivedResponse.headers.findAll('Vary') == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
