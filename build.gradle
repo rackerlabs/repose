@@ -238,6 +238,10 @@ allprojects {
     }
 }
 
+/**
+ * Commons projects
+ */
+
 project(":repose-aggregator:commons:configuration") {
     dependencies {
         compile project(":repose-aggregator:commons:utilities"),
@@ -273,12 +277,9 @@ project(":repose-aggregator:commons:utilities") {
 
     }
 }
-
-project(":repose-aggregator:services:httpclient:api") {
-    dependencies {
-        compile "org.apache.httpcomponents:httpclient:$httpClientVersion"
-    }
-}
+/**
+ * END OF COMMONS
+ */
 
 project(":repose-aggregator:core:core-service-api") {
 
@@ -386,7 +387,7 @@ project(":repose-aggregator:core:core-lib") {
     task copyTestArtifacts << {
         copy {
             from configurations.testingArtifacts
-            into 'build/earFiles'
+            into 'build/earFiles' //TODO: this is going to require additional changes to the source tree
 
         }
     }
@@ -409,7 +410,16 @@ This requires all filtering to be done by @value@, not the maven style of doing 
 
 //Make sure we have our test artifacts before testing
     test.dependsOn("copyTestArtifacts")
+
+    //We can joint compile the java and scala, and are already doing that,
+    //and so we need to ensure that the scala stuff is compiled first for this project,
+    // Some of the groovy code references scala code.
+    compileTestGroovy.dependsOn("compileTestScala")
 }
+
+/**
+ * SERVICES
+ */
 
 project(":repose-aggregator:services:phone-home") {
     dependencies {
@@ -497,7 +507,6 @@ project(":repose-aggregator:services:rate-limiting-service") {
 
     }
 }
-
 project(":repose-aggregator:services:health-check:api") {
     dependencies {
         compile project(":repose-aggregator:core:core-service-api"),
@@ -510,5 +519,44 @@ project(":repose-aggregator:services:health-check:impl") {
     dependencies {
         compile project(":repose-aggregator:services:health-check:api"),
                 "javax.inject:javax.inject:1"
+    }
+}
+project(":repose-aggregator:services:httpclient:api") {
+    dependencies {
+        compile "org.apache.httpcomponents:httpclient:$httpClientVersion"
+    }
+}
+
+project(":repose-aggregator:services:httpclient:impl") {
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile project(":repose-aggregator:services:httpclient:api"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:services:health-check:api"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.apache.httpcomponents:httpclient:4.2.5", //TODO: commons-codec exclusion?
+                "javax.inject:javax.inject:1"
+
+        testCompile "xerces:xerces-xsd11:$xercesRaxVersion"
+
+    }
+}
+
+/**
+ * END OF SERVICES
+ */
+
+/**
+ * EXTERNAL
+ */
+
+project(":repose-aggregator:external:jee6-schemas") {
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
     }
 }
