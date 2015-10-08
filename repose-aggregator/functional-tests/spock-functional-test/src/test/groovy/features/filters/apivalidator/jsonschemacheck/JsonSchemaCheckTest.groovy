@@ -22,7 +22,6 @@ package features.filters.apivalidator.jsonschemacheck
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -51,7 +50,6 @@ class JsonSchemaCheckTest extends ReposeValveTest {
     def "PUT to /path/to/test Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
                 "Accept"      : "application/json",
@@ -70,7 +68,7 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
                 method: 'PUT', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler
+                requestBody: reqBody
         )
 
         then:
@@ -81,7 +79,6 @@ class JsonSchemaCheckTest extends ReposeValveTest {
     def "PUT to /path/to/something invalid path Json checking should get 404"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        //def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
                 "Accept"      : "application/json",
@@ -141,7 +138,6 @@ class JsonSchemaCheckTest extends ReposeValveTest {
     def "POST to /path/to/post by pass Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
                 "Accept"      : "application/json",
@@ -159,7 +155,7 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/post",
                 method: 'POST', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler
+                requestBody: reqBody
         )
 
         then:
@@ -171,7 +167,6 @@ class JsonSchemaCheckTest extends ReposeValveTest {
     def "Method not allow to resources resp 405"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        def customHandler = { return new Response(200, "OK") }
 
         def Map<String, String> headers = [
                 "Accept"      : "application/json",
@@ -190,7 +185,7 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + path,
                 method: method, headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler
+                requestBody: reqBody
         )
 
         then:
