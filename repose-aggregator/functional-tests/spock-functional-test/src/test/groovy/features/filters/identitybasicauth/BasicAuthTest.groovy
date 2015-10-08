@@ -141,7 +141,7 @@ class BasicAuthTest extends ReposeValveTest {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def key = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":"+key).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
