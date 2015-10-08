@@ -89,8 +89,6 @@ allprojects {
      * END OF MANUAL SCALA COMPILER SETTING
      */
 
-    group = "org.openrepose"
-
 /**
  * Create all the source directories, a handy task
  */
