@@ -78,8 +78,8 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
-    def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
+    @Unroll("#method device #deviceID with permission #permission, tenant: #tenantID should return a #responseCode")
+    def "Test verify only user request device permission will be added to x-roles"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
@@ -103,6 +103,7 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
 
         then: "check response"
         mc.receivedResponse.code == responseCode
+        // account permissions are added to x-roles
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")
@@ -112,23 +113,26 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         // user device permission translate to roles
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(permission)
         mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceID
+        // other device permissions not included
+        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[0])
+        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[1])
 
         where:
-        method   | tenantID       | deviceID | permission      | responseCode
-        "GET"    | randomTenant() | "520707" | "view_product"  | "200"
-        "HEAD"   | randomTenant() | "520707" | "view_product"  | "200"
-        "GET"    | randomTenant() | "520707" | "admin_product" | "200"
-        "HEAD"   | randomTenant() | "520707" | "admin_product" | "200"
-        "PUT"    | randomTenant() | "520707" | "admin_product" | "200"
-        "POST"   | randomTenant() | "520707" | "admin_product" | "200"
-        "PATCH"  | randomTenant() | "520707" | "admin_product" | "200"
-        "DELETE" | randomTenant() | "520707" | "admin_product" | "200"
-        "GET"    | randomTenant() | "520708" | "edit_product"  | "200"
-        "HEAD"   | randomTenant() | "520708" | "edit_product"  | "200"
-        "PUT"    | randomTenant() | "520708" | "edit_product"  | "200"
-        "POST"   | randomTenant() | "520708" | "edit_product"  | "200"
-        "PATCH"  | randomTenant() | "520708" | "edit_product"  | "200"
-        "DELETE" | randomTenant() | "520708" | "edit_product"  | "200"
+        method   | tenantID       | deviceID | permission      | notincluderoles                   | responseCode
+        "GET"    | randomTenant() | "520707" | "view_product"  | ['admin_product', 'edit_product'] | "200"
+        "HEAD"   | randomTenant() | "520707" | "view_product"  | ['admin_product', 'edit_product'] | "200"
+        "GET"    | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "HEAD"   | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "PUT"    | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "POST"   | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "PATCH"  | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "DELETE" | randomTenant() | "520707" | "admin_product" | ['view_product', 'edit_product']  | "200"
+        "GET"    | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
+        "HEAD"   | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
+        "PUT"    | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
+        "POST"   | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
+        "PATCH"  | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
+        "DELETE" | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
     }
 
     def String randomTenant() {
