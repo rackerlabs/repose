@@ -2,11 +2,18 @@ buildscript {
     repositories {
         maven { url 'http://repo.spring.io/plugins-release' }
         maven { url "https://plugins.gradle.org/m2/" }
+        jcenter()
     }
     dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.6'
     }
 }
+
+//This is needed to use the Replace tokens ant task in any projects.
+// It cannot be imported in the project, it must be imported at the parent level
+import org.apache.tools.ant.filters.ReplaceTokens
+
 
 allprojects {
     apply plugin: 'java'
@@ -289,3 +296,221 @@ project(":repose-aggregator:core:core-service-api") {
 }
 
 //We got through the entire :repose-aggregator:commons:configuration without having to configure anything for it :|
+project(":repose-aggregator:components:cli-utils") {
+
+    apply plugin: 'application'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'maven-publish'
+
+    mainClassName = "org.openrepose.cli.CommandDriver"
+
+    shadowJar {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+
+    publishing {
+        publications {
+            shadow(MavenPublication) {
+                from components.java
+                artifact shadowJar
+            }
+        }
+    }
+
+    //TODO: NEEDS THE SHADE PLUGIN
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:commons:utilities")
+    }
+}
+
+project(":repose-aggregator:core:core-lib") {
+    configurations {
+        testingArtifacts {
+            transitive = false
+        }
+    }
+
+    dependencies {
+        compile "javax.inject:javax.inject:1",
+                project(":repose-aggregator:external:jee6-schemas"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:commons:configuration"),
+                project(":repose-aggregator:services:service-client:api"),
+                project(":repose-aggregator:services:service-client:impl"),
+                project(":repose-aggregator:services:health-check:api"),
+                project(":repose-aggregator:services:health-check:impl"),
+                project(":repose-aggregator:services:httpclient:api"),
+                project(":repose-aggregator:services:httpclient:impl"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:datastore:impl"),
+                project(":repose-aggregator:services:phone-home"),
+                "org.apache.httpcomponents:httpclient:$httpClientVersion",
+                "org.springframework:spring-core:$springVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "org.springframework:spring-context:$springVersion",
+                "org.springframework:spring-web:$springVersion",
+                "com.google.guava:guava:$guavaVersion",
+                "commons-io:commons-io:2.4",
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "joda-time:joda-time:2.6",
+                "org.eclipse.jetty:jetty-server:$jettyVersion",
+                "com.yammer.metrics:metrics-core:$yammerVersion",
+                "com.yammer.metrics:metrics-graphite:$yammerVersion",
+                "javax.ws.rs:javax.ws.rs-api:$javaxWsApiVersion",
+                "org.apache.logging.log4j:log4j-flume-ng:$log4jVersion",
+                "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+                "org.apache.logging.log4j:log4j-api:$log4jVersion",
+                "org.apache.logging.log4j:log4j-core:$log4jVersion",
+                "org.apache.logging.log4j:log4j-jul:$log4jVersion",
+                "org.apache.logging.log4j:log4j-iostreams:$log4jVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "com.typesafe:config:$typesafeConfigVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "javax.servlet:javax.servlet-api:3.1.0"
+
+        testCompile "org.springframework:spring-test:$springVersion",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+
+        testingArtifacts "org.openrepose.filters.core.test:core-test-filter-bundle:$testArtifactVersion",
+                "org.openrepose.filters.core.test:busted-application-name-ear:$testArtifactVersion",
+                "org.openrepose.filters.core.test:busted-web-fragment-ear:$testArtifactVersion",
+                "org.openrepose.filters.core.test:second-filter-bundle:$testArtifactVersion"
+    }
+
+    task copyTestArtifacts << {
+        copy {
+            from configurations.testingArtifacts
+            into 'build/earFiles'
+
+        }
+    }
+
+//For the ReplaceTokens ant filter
+
+/*
+TODO: GOING TO HAVE TO DUPE RESOURCES OR SOMETHING, CANT EXIST IN PARALLEL WITH MAVEN :(
+This requires all filtering to be done by @value@, not the maven style of doing ${some.value}
+ */
+    processResources {
+        //Hack all the properties to a toString value, because I don't care!
+        filter(ReplaceTokens, tokens: project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] })
+    }
+
+    processTestResources {
+        //Hack all the properties to a toString value, because I don't care!
+        filter(ReplaceTokens, tokens: project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] })
+    }
+
+//Make sure we have our test artifacts before testing
+    test.dependsOn("copyTestArtifacts")
+}
+
+project(":repose-aggregator:services:phone-home") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:service-client:api"),
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "com.typesafe.play:play-json_2.10:$playJsonVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "javax.inject:javax.inject:1"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.sun.jersey:jersey-server:$jerseyServerVersion"
+    }
+}
+
+project(":repose-aggregator:services:service-client:api") {
+    dependencies {
+        compile project(":repose-aggregator:commons:utilities")
+    }
+}
+
+project(":repose-aggregator:services:service-client:impl") {
+    dependencies {
+        compile project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:service-client:api"),
+                project(":repose-aggregator:services:httpclient:api"),
+                "com.typesafe.akka:akka-actor_2.10:2.2.3",
+                "com.typesafe:config:$typesafeConfigVersion",
+                "com.google.guava:guava:$guavaVersion",
+                "commons-io:commons-io:2.4",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "javax.inject:javax.inject:1"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.sun.jersey:jersey-server:$jerseyServerVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "org.eclipse.jetty:jetty-server:$jettyVersion"
+
+        //TODO: the mavens did some extraction of the reference.conf for akka, but I really think that's not necessary....
+    }
+}
+
+project(":repose-aggregator:services:datastore:api") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities")
+    }
+}
+
+project(":repose-aggregator:services:datastore:impl") {
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:health-check:api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:rate-limiting-service"),
+                "com.google.guava:guava:$guavaVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.eclipse.jetty:jetty-server:$jettyVersion",
+                "org.eclipse.jetty:jetty-servlet:$jettyVersion",
+                "net.sf.ehcache:ehcache-core:2.6.0",
+                "com.yammer.metrics:metrics-ehcache:$yammerVersion",
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "javax.inject:javax.inject:1"
+
+        testCompile "xerces:xerces-xsd11:$xercesRaxVersion"
+    }
+}
+
+project(":repose-aggregator:services:rate-limiting-service") {
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile project(":repose-aggregator:services:datastore:api"),
+                "xerces:xerces-xsd11:$xercesRaxVersion",
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+
+    }
+}
+
+project(":repose-aggregator:services:health-check:api") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities")
+
+    }
+}
+
+project(":repose-aggregator:services:health-check:impl") {
+    dependencies {
+        compile project(":repose-aggregator:services:health-check:api"),
+                "javax.inject:javax.inject:1"
+    }
+}
