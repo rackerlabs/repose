@@ -24,6 +24,7 @@
 
             <resources base="http://localhost:${targetPort}">
                 <resource path="/path/to/test" id="path-to-test">
+                    <param name="X-TEST" style="header" type="xsd:string" rax:message="Not Present" required="true"/>
                     <method name="GET" id="path-to-test-GET">
                         <request>
                             <representation mediaType="application/json"/>
