@@ -133,7 +133,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    def authorizeDevice(permissions: ValkyrieResult, deviceId: Option[String]): ValkyrieResult = {
+    def authorizeDevice(valkyrieCallResult: ValkyrieResult, deviceId: Option[String]): ValkyrieResult = {
       def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
         val deviceBasedResult: ValkyrieResult = permissions.devices.find(_.device.toString == deviceId).map { deviceToPermission =>
           lazy val permissionsWithDevicePermissions = permissions.copy(roles = permissions.roles :+ deviceToPermission.permission)
@@ -158,7 +158,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         }
       }
 
-      (permissions, deviceId) match {
+      (valkyrieCallResult, deviceId) match {
         case (permissions: UserPermissions, Some(device)) => authorize(device, permissions, mutableHttpRequest.getMethod)
         case (result, _) => result
       }
