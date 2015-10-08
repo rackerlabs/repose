@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  ~ Repose
+  ~ _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  ~ Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  ~ _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~ =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0"
+           xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
+    <xs:element name="cross-origin-resource-sharing" type="CorsConfig"/>
+
+    <xs:complexType name="CorsConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The root config type for the Cross-Origin Resource Sharing (CORS) filter configuration file.  The
+                    allowed-* elements apply globally to all endpoints.  The resources element allows you to add
+                    additional allowed-* options (currently only allowed-methods) to a subset of resources that can be
+                    specified by their path using regex.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="allowed-origins" type="Origins" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="allowed-methods" type="Methods" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="resources" type="Resources" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Origins">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    List of valid cross-origins that are allowed to access resources on this host.  At a minimum, the
+                    current host should be included in this list for the clients that send the Origin header for
+                    same-origin requests (e.g. Chrome and Safari).  You can optionally mark a value as being a regex
+                    pattern.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="origin" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="regex" type="xs:boolean" default="false"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Methods">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    List of allowed HTTP methods (either globally or for a given resource depending on context).
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="method" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Resources">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of resources with additional features (e.g. allowed HTTP methods).</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="resource" type="Resource" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Resource">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A resource specified by a path (regex) that has additional features (e.g. allowed HTTP methods).
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="allowed-methods" type="Methods" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="path" type="xs:string" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

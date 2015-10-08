@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  ~ Repose
+  ~ _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  ~ Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  ~ _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~ =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+    <allowed-origins>
+        <!-- Allow this host as an origin (Chrome and Safari treat some same-origin requests as CORS requests) -->
+        <origin regex="true">http://.*.here.rackspace.com:80</origin>
+
+        <!-- Allow any rackspace sub-domain on any port to request resources from this host -->
+        <origin regex="true">http://.*.rackspace.com:.*</origin>
+
+        <!-- Allow our partner site to request resources from this host -->
+        <origin>https://partner.somewhere-else.com:8443</origin>
+    </allowed-origins>
+
+    <!-- All resources support GET and HEAD -->
+    <allowed-methods>
+        <method>GET</method>
+        <method>HEAD</method>
+    </allowed-methods>
+
+    <!-- Resource specific configuration -->
+    <resources>
+        <!-- /v1/status doesn't support anything other than GET and HEAD -->
+        <resource path="/v1/status.*"/>
+
+        <!-- The rest of /v1 supports POST and PUT in addition to GET and HEAD -->
+        <resource path="/v1/.*">
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+            </allowed-methods>
+        </resource>
+
+        <!-- All other non /v1 endpoints support POST, PUT, PATCH, and DELETE -->
+        <resource path="/.*">
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>PATCH</method>
+                <method>DELETE</method>
+            </allowed-methods>
+        </resource>
+    </resources>
+</cross-origin-resource-sharing>

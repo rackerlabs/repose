@@ -199,6 +199,11 @@
             <artifactId>keystone-v2</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>cors</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
