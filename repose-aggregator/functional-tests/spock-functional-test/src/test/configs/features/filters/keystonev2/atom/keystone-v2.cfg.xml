@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <cache-settings>
+    <cache>
         <timeouts>
             <token>600000</token>
             <group>600000</group>
@@ -9,7 +9,7 @@
         <eviction-feeds>
             <rs-identity-feed uri="http://localhost:${atomPort}/feed" id="feed-id1"/>
         </eviction-feeds>
-    </cache-settings>
+    </cache>
 
     <identity-service username="admin_username"
                       password="admin_password"

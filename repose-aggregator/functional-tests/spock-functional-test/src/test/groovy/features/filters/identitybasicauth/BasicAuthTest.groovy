@@ -18,7 +18,6 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.identitybasicauth
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -27,6 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
@@ -137,9 +137,9 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    def "When the request send with invalid long key or username, then will fail to authenticate"() {
+    def "When the request send with invalid 0 < key < 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
-        def key = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        def key = RandomStringUtils.random(99, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
         ]
@@ -147,8 +147,44 @@ class BasicAuthTest extends ReposeValveTest {
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "get a token and validate it"
+        then: "response with 400 bad request"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+    // identity currently return 400 bad request for api-key > 100 characters
+    // repose log REP-2880 to work on compliant with this response
+    @IgnoreIf({ new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime() })
+    def "When the request send with invalid long key > 100 , then will fail to authenticate"() {
+        given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
+        def key = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "response with 400 bad request"
+        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+    @IgnoreIf({new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime()})
+    def "When the request send with username > 100 , then will fail to authenticate"() {
+        given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
+        def username = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString(( username + ":" +fakeIdentityService.client_apikey).bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "response with 400 bad request"
+        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
