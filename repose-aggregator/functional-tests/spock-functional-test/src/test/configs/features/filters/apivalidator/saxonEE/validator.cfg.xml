@@ -5,7 +5,7 @@
             role="group1"
             default="false"
             check-well-formed="false"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
             xsd-engine="SaxonEE">
 
@@ -76,7 +76,7 @@
             default="false"
             wadl="group2.wadl"
             check-well-formed="false"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"/>
 
     <validator
@@ -84,7 +84,7 @@
             default="false"
             wadl="default.wadl"
             check-well-formed="true"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
 
             enable-ignore-xsd-extension="false"/>
@@ -94,7 +94,7 @@
             default="true"
             wadl="default.wadl"
             check-well-formed="false"
-            check-xsd-grammar="true"
+            check-grammars="true"
             check-elements="true"
             check-headers="true"/>
 </validators>

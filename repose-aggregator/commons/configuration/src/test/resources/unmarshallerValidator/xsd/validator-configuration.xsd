@@ -202,8 +202,20 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If set to true and the wadl references an XSD grammer, checks that the
-                        incoming request body is validated against the XSD grammer.
+                        If set to true and the wadl references an XSD grammar, checks that the
+                        incoming request body is validated against the XSD grammar.
+                        Deprecated: This attribute is deprecated. Use check-grammars attribute instead.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-grammars" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl references an XSD or JSON grammar(s), then the
+                        incoming request body will be validated against the grammar(s).
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

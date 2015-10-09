@@ -100,7 +100,8 @@ public class ValidatorConfigurator {
         config.setXSLEngine(validatorItem.getXslEngine().value());
         config.setResultHandler(getHandlers(validatorItem, isDelegating, delegationQuality, multiRoleMatch, configRoot, componentName));
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
-        config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
+        config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar() || validatorItem.isCheckGrammars());
+        config.setCheckJSONGrammar(validatorItem.isCheckGrammars());
         config.setCheckElements(validatorItem.isCheckElements());
         config.setXPathVersion(validatorItem.getXpathVersion());
         config.setCheckPlainParams(validatorItem.isCheckPlainParams());

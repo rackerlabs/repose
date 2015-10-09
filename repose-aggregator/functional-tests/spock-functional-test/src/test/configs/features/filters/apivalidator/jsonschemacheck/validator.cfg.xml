@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
     <validator
             role="group1"
-            default="false"
+            default="true"
             check-well-formed="true"
             check-grammars="true"
-            check-elements="true"
-            xsd-engine="SaxonEE"
-            xpath-version="2"
-            check-plain-params="true"
-            enable-pre-process-extension="false"
-            join-xpath-checks="true"
-            check-headers="true">
+            check-plain-params="true">
 
         <application xmlns="http://wadl.dev.java.net/2009/02"
              xmlns:rax="http://docs.rackspace.com/api"
@@ -24,9 +18,15 @@
 
             <resources base="http://localhost:${targetPort}">
                 <resource path="/path/to/test" id="path-to-test">
-                    <param name="X-TEST" style="header" type="xsd:string" rax:message="Not Present" required="true"/>
-                    <method name="GET" id="path-to-test-GET">
+                    <method name="PUT" id="path-to-test-PUT">
                         <request>
+                            <representation mediaType="application/json"/>
+                        </request>
+                    </method>
+                </resource>
+                <resource path="/path/to/post" id="path-to-post">
+                    <method name="POST" id="path-to-test-POST">
+                        <request rax:ignoreJSONSchema="true">
                             <representation mediaType="application/json"/>
                         </request>
                     </method>
