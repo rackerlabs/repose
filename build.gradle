@@ -168,7 +168,6 @@ allprojects {
      * Jaxb translation tasks that needs to happen before the jaxb stuff can actually be run
      * This removes the XSD 1.1 elements that jaxb does not support
      */
-
     def jaxbSafeXSDSources = "${projectDir}/build/src/generated-xsd"
     def generatedSources = "${projectDir}/build/src/generated-sources"
 
@@ -908,6 +907,54 @@ project(":repose-aggregator:functional-tests:glassfish-support") {
     }
 }
 
+project(":repose-aggregator:functional-tests:tomcat-support") {
+    apply plugin: 'application'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    dependencies {
+        compile project(":repose-aggregator:functional-tests:container-support"),
+                project(":repose-aggregator:functional-tests:mocks-util"),
+                "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion",
+                "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatVersion",
+                "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatVersion",
+                "org.apache.tomcat:tomcat-jasper:$tomcatVersion",
+                "org.apache.tomcat:tomcat-jasper-el:$tomcatVersion",
+                "org.apache.tomcat:tomcat-jsp-api:$tomcatVersion",
+                "commons-cli:commons-cli:1.2",
+                "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+                "org.apache.logging.log4j:log4j-api:$log4jVersion",
+                "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    }
+
+    mainClassName = "org.openrepose.commons.utils.test.tomcat.ReposeTomcatServer"
+
+    tasks.build.dependsOn("shadowJar")
+
+    artifacts {
+        shadow shadowJar
+    }
+}
+
+project(":repose-aggregator:functional-tests:test-support") {
+    apply plugin: 'war'
+
+    dependencies {
+        compile "com.sun.jersey:jersey-server:1.9.1",
+                project(":repose-aggregator:external:os-auth-schemas"),
+                project(":repose-aggregator:services:rate-limiting-service"),
+                project(":repose-aggregator:components:filters:rate-limiting"),
+                project(":repose-aggregator:commons:utilities"),
+                "net.sourceforge.pjl-comp-filter:pjl-comp-filter:1.7", //TODO: should this not be our version?
+                "com.sun.jersey:jersey-client:1.16",
+                "com.fasterxml.jackson.core:jacon-annotations:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+
+        testCompile "com.sun.jersey.test.framework:jersey-test-framework:1.0.3.1",
+                "javax.mail:mail:1.4.4"
+    }
+}
+
 project(":repose-aggregator:functional-tests:mocks-servlet") {
     apply plugin: 'war'
 
@@ -920,8 +967,10 @@ project(":repose-aggregator:functional-tests:mocks-servlet") {
     }
 
     dependencies {
-        compile "com.sun.jersey:jersey-server:$jerseyServerVersion",
-                project(":repose-aggregator:functional-tests:mocks-util")
+        compile project(":repose-aggregator:functional-tests:mocks-util"),
+                "com.sun.jersey:jersey-server:$jerseyServerVersion",
+                "org.slf4j:slf4j-api:$slf4jVersion"
+
     }
 }
 project(":repose-aggregator:functional-tests:mocks-util") {
@@ -935,5 +984,253 @@ project(":repose-aggregator:functional-tests:mocks-util") {
         compile "commons-io:commons-io:2.4",
                 "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
                 "javax.servlet:javax.servlet-api:3.1.0"
+    }
+}
+
+project(":repose-aggregator:functional-tests:spock-functional-test") {
+
+    //Define the configurations to pull in shadow-jar, ear, or war dependencies
+    configurations {
+        filterBundles { transitive = false }
+        tomcat { transitive = false }
+        glassfish { transitive = false }
+        valve { transitive = false }
+        rootWar { transitive = false }
+        mocks { transitive = false }
+    }
+
+    dependencies {
+
+        filterBundles project(path: ":repose-aggregator:components:filters:filter-bundle", configuration: "earFile"),
+                project(path: ":repose-aggregator:experimental:experimental-filter-bundle", configuration: "earFile"),
+                project(path: ":repose-aggregator:extensions:extensions-filter-bundle", configuration: "earFile"),
+                "org.openrepose.filters.core.test:classloader-bundle-one:3.0",
+                "org.openrepose.filters.core.test:classloader-bundle-two:3.0",
+                "org.openrepose.filters.core.test:classloader-bundle-three:3.0",
+                "org.openrepose.filters.core.test:classloader-bundle-four:3.0",
+                "org.openrepose.filters.core.test:classloader-bundle-five:3.0"
+
+        tomcat project(path: ":repose-aggregator:functional-tests:tomcat-support", configuration: "shadow")
+
+        glassfish project(path: ":repose-aggregator:functional-tests:glassfish-support", configuration: "shadow")
+
+        valve project(path: ":repose-aggregator:core:valve", configuration: "shadow")
+
+        rootWar project(path: ":repose-aggregator:core:web-application", configuration: "warFile")
+
+        mocks project(path: ":repose-aggregator:functional-tests:mocks-servlet", configuration: "warFile")
+
+        compile project(":repose-aggregator:functional-tests:mocks-util"),
+                project(":repose-aggregator:functional-tests:mocks-servlet"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:commons:configuration"),
+                project(":repose-aggregator:services:datastore:api"),
+                "org.glassfish.main.extras:glassfish-embedded-all:3.1.2.2",
+                "org.codehaus.jackson:jackson-core-lgpl:1.9.13",
+                "joda-time:joda-time:$jodaTimeVersion",
+                "org.eclipse.jetty:jetty-server:$jettyVersion",
+                "commons-io:commons-io:2.4",
+                "org.linkedin:org.linkedin.util-groovy:1.8.0",
+                "org.apache.httpcomponents:httpclient:$httpClientVersion",
+                "org.rackspace:deproxy:0.21",
+                "xerces:xerces-xsd11:2.12.0-rax",
+                "commons-codec:commons-codec:1.8"
+    }
+
+    sourceSets {
+        configs {
+            resources {
+                srcDir 'src/test/configs' //TODO: don't want to filter these
+            }
+        }
+    }
+
+    //Define some stuff that's used for the functional tests
+    def reposeHome = "$buildDir/repose_home"
+    def filterTokens = project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] }
+
+    filterTokens += [
+            "repose.home"                : reposeHome,
+            "repose.config.directory"    : "$buildDir/repose_home/configs",
+            "repose.raw.config.directory": "$projectDir/src/test/configs",
+            "repose.valve.jar.location"  : "$reposeHome/valve-$version-all.jar",
+            "repose.config.templates"    : "$buildDir/resources/configs",
+            "repose.root.war.location"   : "$reposeHome/ROOT.war",
+            "target.hostname"            : "localhost",
+            "repose.container"           : "valve"
+    ].collectEntries { k, v -> [k.toString(), v.toString()] } //Stupid ancient ant tasks
+
+    processResources {
+        //Hack all the properties to a toString value, because I don't care!
+        filter(ReplaceTokens, tokens: filterTokens)
+    }
+
+    processTestResources {
+        //Hack all the properties to a toString value, because I don't care!
+        filter(ReplaceTokens, tokens: filterTokens)
+    }
+
+    //We don't actually want to run the functional tests every time we do this :D
+    test.enabled = false
+
+    task("test", overwrite: true) {
+        doLast {
+            println("I AM THE LIZARD KING")
+        }
+    }
+
+    task("copyFilterBundles", type: Copy) {
+        from configurations.filterBundles
+        into "$reposeHome/artifacts"
+    }
+
+    task("copyTomcat", type: Copy) {
+        from configurations.tomcat
+        into "$reposeHome"
+    }
+
+    task("copyGlassfish", type: Copy) {
+        from configurations.glassfish
+        into reposeHome
+    }
+
+    task("copyValve", type: Copy) {
+        from configurations.valve
+        into reposeHome
+    }
+
+    task("copyRootWar", type: Copy) {
+        from configurations.rootWar
+        into reposeHome
+    }
+
+    task("copyMocksWar", type: Copy) {
+        from configurations.mocks
+        into reposeHome
+    }
+
+    tasks.build.dependsOn(["copyFilterBundles", "copyTomcat", "copyGlassfish", "copyValve", "copyRootWar", "copyMocksWar"])
+
+    task("integrationTests", type: Test) {
+        dependsOn(["build"])
+        description "Run *ALL* the integration tests"
+        testClassesDir = sourceSets.test.output.classesDir
+        classpath = sourceSets.test.runtimeClasspath + sourceSets.configs.runtimeClasspath
+    }
+
+    tasks.addRule("Pattern: iTest<ClassName>") { String taskName ->
+        if (taskName.startsWith("iTest")) {
+            def testClass = (taskName - "iTest")
+            task(taskName, type: Test) {
+                description("Run a single integration test")
+                dependsOn(['build'])
+                testClassesDir = sourceSets.test.output.classesDir
+                classpath = sourceSets.test.runtimeClasspath + sourceSets.configs.runtimeClasspath
+                include "**/${testClass}.*"
+
+                testLogging {
+                    events 'started', 'passed'
+                }
+            }
+        }
+    }
+}
+
+/**
+ * FILTER BUNDLE!
+ */
+project(":repose-aggregator:components:filters:filter-bundle") {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+//One of the things we depend on needs this repo
+    repositories {
+        maven {
+            url "http://repo.typesafe.com/typesafe/maven-releases"
+        }
+    }
+
+    configurations {
+        earFile
+    }
+
+    artifacts {
+        earFile ear
+    }
+
+//All the projects this guy depends on. We don't put them in dependencies, because we have to hit them up twice.
+    def deps = [
+            ':repose-aggregator:components:filters:add-header',
+            ':repose-aggregator:components:filters:client-auth',
+            ':repose-aggregator:components:filters:client-authorization',
+            ':repose-aggregator:components:filters:client-ip-identity',
+            ':repose-aggregator:components:filters:compression',
+            ':repose-aggregator:components:filters:content-normalization',
+            ':repose-aggregator:components:filters:content-type-stripper',
+            ':repose-aggregator:components:filters:derp',
+            ':repose-aggregator:components:filters:destination-router',
+            ':repose-aggregator:components:filters:echo',
+            ':repose-aggregator:components:filters:flush-output',
+            ':repose-aggregator:components:filters:forwarded-proto',
+            ':repose-aggregator:components:filters:header-id-mapping',
+            ':repose-aggregator:components:filters:header-identity',
+            ':repose-aggregator:components:filters:header-normalization',
+            ':repose-aggregator:components:filters:header-translation',
+            ':repose-aggregator:components:filters:herp',
+            ':repose-aggregator:components:filters:iri-validator',
+            ':repose-aggregator:components:filters:keystone-v2',
+            ':repose-aggregator:components:filters:merge-header',
+            ':repose-aggregator:components:filters:openstack-identity-v3',
+            ':repose-aggregator:components:filters:rackspace-auth-user',
+            ':repose-aggregator:components:filters:rackspace-identity-basic-auth',
+            ':repose-aggregator:components:filters:rate-limiting',
+            ':repose-aggregator:components:filters:slf4j-http-logging',
+            ':repose-aggregator:components:filters:translation',
+            ':repose-aggregator:components:filters:uri-identity',
+            ':repose-aggregator:components:filters:uri-normalization',
+            ':repose-aggregator:components:filters:uri-stripper',
+            ':repose-aggregator:components:filters:versioning'
+    ]
+
+    dependencies {
+        deps.each { proj ->
+            deploy project(proj)
+            //Followed this advice:
+            // http://stackoverflow.com/questions/24366424/gradle-ear-with-transitive-libs-from-other-projects
+            earlib project(path: proj, configuration: 'compile')
+        }
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
+    }
+}
+project(":repose-aggregator:components:filters:add-header") {
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0"
     }
 }
