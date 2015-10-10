@@ -113,6 +113,12 @@ allprojects {
 
     //Defining some common things that can be referenced elsewhere in other projects, but not *all* projects
     ext {
+
+        //Define a project property that's the default location for the XSL as well as the schema base
+        //This is common for like 99% of the repose projects, deviate by overriding it in your own project
+        jaxbXsltFile = "${rootDir}/gradle/xsl/remove-1.1-elements.xsl"
+        jaxbSchemaBase = "$projectDir/src/main/resources/META-INF/schema"
+
         //We use these dependencies in pretty much *all* projects. They don't pull in anything too dangerous
         //They're safe to stick on all the projects test classpath
         commonTestDeps = [
@@ -175,22 +181,9 @@ allprojects {
 
         def targetDir = file(jaxbSafeXSDSources)
 
-        def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
-        def xsltFile = "${rootDir}/gradle/xsl/remove-1.1-elements.xsl"
-
-        //If they set a property for the jaxbXSLT file override our default
-        if (project.hasProperty('jaxbXsltFile')) {
-            xsltFile = project.jaxbXsltFile
-        }
-
-        if (project.hasProperty('jaxbSchemaBase')) {
-            logger.lifecycle "Project has jaxbSchemaBase: ${project.jaxbSchemaBase}"
-            schemaBaseDir = project.jaxbSchemaBase
-        }
-
         inputs.files(
-                fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
-                file(xsltFile)
+                fileTree(dir: project.jaxbSchemaBase, includes: ["**/*.xsd", "**/*.xjb"]),
+                file(project.jaxbXsltFile)
         )
         outputs.dir jaxbSafeXSDSources
 
@@ -198,19 +191,19 @@ allprojects {
             targetDir.mkdirs()
 
             //Find all XSDs in the src/main/resources/META-INF.schema
-            if (file(xsltFile).exists()) {
+            if (file(project.jaxbXsltFile).exists()) {
                 logger.lifecycle("Transforming Schemas")
                 ant.xslt(
                         extension: '.xsd',
-                        basedir: schemaBaseDir,
+                        basedir: project.jaxbSchemaBase,
                         includes: "**/*.xsd",
-                        style: xsltFile,
+                        style: project.jaxbXsltFile,
                         destdir: "${jaxbSafeXSDSources}"
                 )
             } else {
                 logger.lifecycle("NOT Transforming Schemas")
                 ant.copy(todir: jaxbSafeXSDSources) {
-                    fileset(dir: schemaBaseDir, includes: "**/*.xsd")
+                    fileset(dir: project.jaxbSchemaBase, includes: "**/*.xsd")
 
                 }
 
@@ -220,7 +213,7 @@ allprojects {
             ant.copy(
                     todir: jaxbSafeXSDSources
             ) {
-                fileset(dir: schemaBaseDir, includes: "**/*.xjb")
+                fileset(dir: project.jaxbSchemaBase, includes: "**/*.xjb")
             }
         }
     }
@@ -933,7 +926,7 @@ project(":repose-aggregator:functional-tests:mocks-servlet") {
 }
 project(":repose-aggregator:functional-tests:mocks-util") {
 
-    //TODO: Need new xsd munching... uh oh
+    //Override the default project property to point at a different jaxb schema base
     project.ext.jaxbSchemaBase = "$projectDir/src/main/resources/META-INF/request-info"
 
     tasks.compileScala.dependsOn(jaxb)
