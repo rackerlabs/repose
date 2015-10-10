@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.identitybasicauth
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -172,12 +173,12 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    @IgnoreIf({new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime()})
+    @IgnoreIf({ new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime() })
     def "When the request send with username > 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def username = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString(( username + ":" +fakeIdentityService.client_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
