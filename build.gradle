@@ -106,14 +106,15 @@ allprojects {
         //Set this for stupid xml and it's anger at log4j2
         systemProperty "javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"
 
-        filter {
-            includeTestsMatching "*Test"
-        }
+        //NOTE: There's some annoying output in the logs about Unable to load Junit4 runner. I don't know why.
+        // It seems to only be a warning when it tries to load some fallback runner.
     }
 
     //Defining some common things that can be referenced elsewhere in other projects, but not *all* projects
     ext {
 
+        //Most projects don't have special jaxb args they want to send.
+        jaxbArgs = ""
         //Define a project property that's the default location for the XSL as well as the schema base
         //This is common for like 99% of the repose projects, deviate by overriding it in your own project
         jaxbXsltFile = "${rootDir}/gradle/xsl/remove-1.1-elements.xsl"
@@ -159,7 +160,9 @@ allprojects {
         //Jaxb compiler stuffs
         jaxbTasks 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41',
                 'com.sun.xml.bind:jaxb-impl:2.2.7-b41',
-                'javax.xml.bind:jaxb-api:2.2.7'
+                'javax.xml.bind:jaxb-api:2.2.7',
+                'org.jvnet.jaxb2_commons:jaxb2-default-value:1.1', //Jaxb plugin
+                'org.jvnet.jaxb2_commons:jaxb2-fluent-api:3.0' //Jaxb Plugin
 
 
     }
@@ -191,7 +194,6 @@ allprojects {
 
             //Find all XSDs in the src/main/resources/META-INF.schema
             if (file(project.jaxbXsltFile).exists()) {
-                logger.lifecycle("Transforming Schemas")
                 ant.xslt(
                         extension: '.xsd',
                         basedir: project.jaxbSchemaBase,
@@ -231,15 +233,15 @@ allprojects {
         doLast {
             jaxbTargetDir.mkdirs()
             ant.taskdef(name: 'xjc',
-                    classname: 'com.sun.tools.xjc.XJCTask',
+                    classname: 'com.sun.tools.xjc.XJC2Task',
                     classpath: configurations.jaxbTasks.asPath
             )
             ant.jaxbTargetDir = jaxbTargetDir
-            logger.lifecycle("Generating the JaxBees")
             ant.xjc(
                     destdir: '${jaxbTargetDir}',
                     extension: true //Some of our jaxb stuff requires extensions...
             ) {
+                arg(line: project.jaxbArgs)
                 schema(dir: jaxbSafeXSDSources, includes: "**/*.xsd")
                 binding(dir: jaxbSafeXSDSources, includes: "**/*.xjb")
             }
@@ -735,7 +737,6 @@ project(":repose-aggregator:external:service-clients:auth") {
     }
 }
 
-
 /**
  * Experimental Filter Bundle
  **/
@@ -973,7 +974,7 @@ project(":repose-aggregator:functional-tests:test-support") {
                 project(":repose-aggregator:commons:utilities"),
                 "net.sourceforge.pjl-comp-filter:pjl-comp-filter:1.7", //TODO: should this not be our version?
                 "com.sun.jersey:jersey-client:1.16",
-                "com.fasterxml.jackson.core:jacon-annotations:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
                 "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
                 "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
@@ -1282,6 +1283,7 @@ project(":repose-aggregator:components:filters:client-auth") {
 }
 
 project(":repose-aggregator:components:filters:client-authorization") {
+    tasks.compileScala.dependsOn(jaxb)
     dependencies {
         compile project(":repose-aggregator:core:core-lib"),
                 project(":repose-aggregator:core:core-service-api"),
@@ -1300,31 +1302,360 @@ project(":repose-aggregator:components:filters:client-authorization") {
                 "cglib:cglib-nodep:2.2.2"
     }
 }
-project(":repose-aggregator:components:filters:client-ip-identity"){ }
-project(":repose-aggregator:components:filters:compression"){ }
-project(":repose-aggregator:components:filters:content-normalization"){ }
-project(":repose-aggregator:components:filters:content-type-stripper"){ }
-project(":repose-aggregator:components:filters:derp"){ }
-project(":repose-aggregator:components:filters:destination-router"){ }
-project(":repose-aggregator:components:filters:echo"){ }
-project(":repose-aggregator:components:filters:flush-output"){ }
-project(":repose-aggregator:components:filters:forwarded-proto"){ }
-project(":repose-aggregator:components:filters:header-id-mapping"){ }
-project(":repose-aggregator:components:filters:header-identity"){ }
-project(":repose-aggregator:components:filters:header-normalization"){ }
-project(":repose-aggregator:components:filters:header-translation"){ }
-project(":repose-aggregator:components:filters:herp"){ }
-project(":repose-aggregator:components:filters:iri-validator"){ }
-project(":repose-aggregator:components:filters:keystone-v2"){ }
-project(":repose-aggregator:components:filters:merge-header"){ }
-project(":repose-aggregator:components:filters:openstack-identity-v3"){ }
-project(":repose-aggregator:components:filters:rackspace-auth-user"){ }
-project(":repose-aggregator:components:filters:rackspace-identity-basic-auth"){ }
-project(":repose-aggregator:components:filters:rate-limiting"){ }
-project(":repose-aggregator:components:filters:slf4j-http-logging"){ }
-project(":repose-aggregator:components:filters:translation"){ }
-project(":repose-aggregator:components:filters:uri-identity"){ }
-project(":repose-aggregator:components:filters:uri-normalization"){ }
-project(":repose-aggregator:components:filters:uri-stripper"){ }
-project(":repose-aggregator:components:filters:versioning"){ }
+project(":repose-aggregator:components:filters:client-ip-identity") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:compression") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:external:pjl-compressingFilter"),
+                "org.springframework:spring-core:$springVersion",
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:content-normalization") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+
+        testCompile "com.mockrunner:mockrunner-servlet:1.0.0"
+    }
+}
+project(":repose-aggregator:components:filters:content-type-stripper") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.apache.commons:commons-lang3:3.3.2",
+                "org.scala-lang:scala-library:$scalaVersion"
+
+        testCompile "org.springframework:spring-test:$springVersion",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:derp") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:destination-router") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:echo") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities")
+    }
+}
+project(":repose-aggregator:components:filters:flush-output") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities")
+    }
+}
+project(":repose-aggregator:components:filters:forwarded-proto") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.springframework:spring-test:$springVersion",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0"
+    }
+}
+project(":repose-aggregator:components:filters:header-id-mapping") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:header-identity") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:header-normalization") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:header-translation") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:herp") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "com.github.jknack:handlebars:2.0.0",
+                "org.springframework:spring-web:$springVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "org.springframework:spring-test:$springVersion"
+    }
+}
+project(":repose-aggregator:components:filters:iri-validator") {
+    dependencies {
+        compile "org.apache.jena:jena-iri:1.1.1",
+                "javax.inject:javax.inject:1",
+                "javax.servlet:javax.servlet-api:3.1.0",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:keystone-v2") {
+    project.ext.jaxbArgs = "-Xdefault-value -Xfluent-api"
+
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:service-client:api"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion",
+                "org.apache.httpcomponents:httpclient:$httpClientVersion",
+                "joda-time:joda-time:$jodaTimeVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    }
+}
+project(":repose-aggregator:components:filters:merge-header") {
+    //TODO: this filter is using the wrong convention!
+    project.ext.jaxbSchemaBase = "$projectDir/src/main/resources/META-INF/config"
+
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:openstack-identity-v3") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:httpclient:api"),
+                "commons-codec:commons-codec:1.7",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "io.spray:spray-json_2.10:1.2.6",
+                "joda-time:joda-time:$jodaTimeVersion",
+                "org.joda:joda-convert:1.7",
+                "org.openrepose:http-delegation:$httpDelegationVersion"
+
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "org.springframework:spring-test:$springVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    }
+}
+project(":repose-aggregator:components:filters:rackspace-auth-user") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:datastore:api"),
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "com.typesafe.play:play-json_2.10:$playJsonVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:rackspace-identity-basic-auth") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:service-client:api"),
+                project(":repose-aggregator:services:httpclient:api"),
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    }
+}
+project(":repose-aggregator:components:filters:rate-limiting") {
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:rate-limiting-service"),
+                project(":repose-aggregator:services:datastore:api"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "com.sun.jersey:jersey-server:$jerseyServerVersion",
+                "com.google.guava:guava:$guavaVersion",
+                "commons-pool:commons-pool:$commonsPoolVersion",
+                "xalan:xalan:2.7.1"
+
+        testCompile "org.glassfish.jersey.core:jersey-common:2.14",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    }
+}
+project(":repose-aggregator:components:filters:slf4j-http-logging") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.scala-lang:scala-library:$scalaVersion",
+                "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    }
+}
+project(":repose-aggregator:components:filters:translation") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:commons:configuration"), //TODO: This project does bad things
+                "commons-pool:commons-pool:$commonsPoolVersion",
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "org.springframework:spring-web:$springVersion",
+                "net.sf.saxon:saxon:$saxonVersion",
+                "net.sf.saxon:saxon-ee:$saxonVersion",
+                "com.xmlcalabash:calabash:0.9.38",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "xalan:xalan:2.7.1",
+                "commons-pool:commons-pool:1.6"
+
+        testCompile "org.scala-lang:scala-library:$scalaVersion",
+                "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+project(":repose-aggregator:components:filters:uri-identity") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:uri-normalization") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:uri-stripper") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+project(":repose-aggregator:components:filters:versioning") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:health-check:api"),
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "com.google.guava:guava:$guavaVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "xalan:xalan:2.7.1",
+                "commons-pool:commons-pool:$commonsPoolVersion"
+
+        testCompile "xmlunit:xmlunit:1.3",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "com.mockrunner:mockrunner-servlet:1.0.0"
+    }
+}
 
