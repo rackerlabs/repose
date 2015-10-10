@@ -672,6 +672,31 @@ project(":repose-aggregator:external:jee6-schemas") {
     }
 }
 
+project(":repose-aggregator:external:pjl-compressingFilter") {
+    repositories {
+        maven {
+            url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+        }
+    }
+
+    //Because this is an "external" filter, we have to exclude some of our dependencies we're mashing into *every* project
+    // Until we stop mashing those dependencies into every project...
+    configurations {
+        //all*.exclude group: "org.glassfish", module: "javax.servlet"
+        all*.exclude group: "com.mockrunner", module: "mockrunner-servlet"
+    }
+
+    dependencies {
+        compile project(":repose-aggregator:commons:utilities")
+
+        //Explicitly not using our managed version of this, because we're not making any further changes to the code
+        // The newer mockrunner library causes problems.
+        //There's some ordering here that's borking lots of things
+        testCompile "com.mockrunner:mockrunner:0.4.1",
+                "org.jboss.spec:jboss-javaee-6.0:1.0.0.Final"
+    }
+}
+
 /**
  * Experimental Filter Bundle
  **/
