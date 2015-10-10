@@ -495,6 +495,36 @@ project(":repose-aggregator:core:valve") {
     }
 }
 
+project(":repose-aggregator:core:web-application") {
+    apply plugin: 'war'
+
+    configurations {
+        warFile
+    }
+
+    artifacts {
+        warFile war
+    }
+
+//TODO: i'm not sure this is the right way to do things
+    war.archiveName = "ROOT.war"
+
+    dependencies {
+        compile project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:core:core-lib"),
+                "com.typesafe:config:$typesafeConfigVersion",
+                "org.scala-lang:scala-library:$scalaVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "org.springframework:spring-context:$springVersion",
+                "org.springframework:spring-web:$springVersion",
+                "org.springframework:spring-core:$springVersion",
+                "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+                "org.apache.logging.log4j:log4j-core:$log4jVersion"
+
+        testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    }
+}
+
 /**
  * SERVICES
  */
