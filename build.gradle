@@ -111,29 +111,41 @@ allprojects {
         }
     }
 
-    dependencies {
-        testCompile "org.codehaus.groovy:groovy-all:2.1.3",
+    //Defining some common things that can be referenced elsewhere in other projects, but not *all* projects
+    ext {
+        //We use these dependencies in pretty much *all* projects. They don't pull in anything too dangerous
+        //They're safe to stick on all the projects test classpath
+        commonTestDeps = [
+                "org.codehaus.groovy:groovy-all:2.1.3",
                 "org.spockframework:spock-core:0.7-groovy-2.0",
                 "org.hamcrest:hamcrest-all:1.3",                //This order matters!
                 "org.powermock:powermock-module-junit4:1.5.4",  //This order matters!
                 "org.powermock:powermock-api-mockito:1.5.4",    //This order matters!
                 "org.mockito:mockito-all:1.9.5",                //This order matters!
                 "junit:junit:4.11",                          //This order matters!
-                "org.glassfish:javax.servlet:3.1", //TODO: This shouldn't be here
-                "javax:javaee-web-api:6.0", //TODO: this shouldn't be here
-                "javax.transaction:transaction-api:1.1", //TODO: this shouldn't be here
-
                 "org.apache.logging.log4j:log4j-api:${log4jVersion}",
                 "org.apache.logging.log4j:log4j-core:${log4jVersion}",
-                "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
-        testCompile("com.mockrunner:mockrunner-servlet:1.0.0") {
-            exclude module: 'commons-logging'
-            exclude module: 'servlet-api'
-            exclude module: 'xercesImpl'
-        }
+                "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
+                [group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"]
+        ]
+    }
 
+    dependencies {
+        testCompile commonTestDeps
+        //TODO: delete all this crap when we get done with the mess!
+        //NONE of these things have been necessary explicitly so far (we'll pull in the mockrunner-servlet code when needed
+//        testCompile
+//                "org.glassfish:javax.servlet:3.1", //TODO: This shouldn't be here
+//                "javax:javaee-web-api:6.0", //TODO: this shouldn't be here
+//                "javax.transaction:transaction-api:1.1", //TODO: this shouldn't be here
 
-        testCompile group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
+//        testCompile("com.mockrunner:mockrunner-servlet:1.0.0") {
+//            exclude module: 'commons-logging'
+//            exclude module: 'servlet-api'
+//            exclude module: 'xercesImpl'
+//        }
+
+        //testCompile group: "org.apache.logging.log4j", name: "log4j-core", version: "${log4jVersion}", classifier: "tests"
 
         //Use the latest version of the zinc compiler
         zinc "com.typesafe.zinc:zinc:0.3.7"
@@ -278,6 +290,13 @@ project(":repose-aggregator:commons:utilities") {
                 "org.apache.httpcomponents:httpcore:$httpClientVersion"
 
         testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+
+        testCompile("com.mockrunner:mockrunner-servlet:1.0.0") {
+            exclude module: 'commons-logging'
+            exclude module: 'servlet-api'
+            exclude module: 'xercesImpl'
+        }
+
 
     }
 }
