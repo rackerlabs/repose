@@ -102,7 +102,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       )
   }
 
-
+  //NOTE This number doesn't actually matter. We're using automated port selection thanks to testMode=true
   val httpsPort = 10235
 
   //Create an SSL configuration for the jaxb thingies
@@ -140,7 +140,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
 
   //For each one of these, create a jetty server, talk to it, and make sure the SSL stuff is doing what is described
 
-  def selectiveRequest(protocols: Array[String] = null, ciphers: Array[String] = null): Unit = {
+  def selectiveRequest(port: Int, protocols: Array[String] = null, ciphers: Array[String] = null): Unit = {
     //Protocol names come from here:
     //http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#SSLContext
 
@@ -156,8 +156,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
     )
 
     val client = HttpClients.custom().setSSLSocketFactory(sf).build()
+    //TODO: have to discover the port...?
 
-    val get = new HttpGet(s"https://localhost:$httpsPort")
+    val get = new HttpGet(s"https://localhost:$port")
     val response = client.execute(get)
   }
 
@@ -167,15 +168,16 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedProtocols = List("TLSv1")))
+      Some(sslConfig(excludedProtocols = List("TLSv1"))),
+      testMode = true
     )
     repose.start()
 
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(Array("TLSv1"))
+        selectiveRequest(repose.runningHttpsPort, Array("TLSv1"))
       }
-      selectiveRequest(Array("TLSv1.2"))
+      selectiveRequest(repose.runningHttpsPort, Array("TLSv1.2"))
     } finally {
       repose.shutdown()
     }
@@ -186,15 +188,16 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")))
+      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2"))),
+      testMode = true
     )
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(Array("TLSv1"))
+        selectiveRequest(repose.runningHttpsPort, Array("TLSv1"))
       }
-      selectiveRequest(Array("TLSv1.1"))
-      selectiveRequest(Array("TLSv1.2"))
+      selectiveRequest(repose.runningHttpsPort, Array("TLSv1.1"))
+      selectiveRequest(repose.runningHttpsPort, Array("TLSv1.2"))
     } finally {
       repose.shutdown()
     }
@@ -206,12 +209,13 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)))
+      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head))),
+      testMode = true
     )
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = Array(defaultEnabledCiphers.head))
+        selectiveRequest(repose.runningHttpsPort, ciphers = Array(defaultEnabledCiphers.head))
       }
     } finally {
       repose.shutdown()
@@ -224,12 +228,13 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head)))
+      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head))),
+      testMode = true
     )
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = Array(defaultEnabledCiphers.tail.head))
+        selectiveRequest(repose.runningHttpsPort, ciphers = Array(defaultEnabledCiphers.tail.head))
       }
     } finally {
       repose.shutdown()
@@ -242,7 +247,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false))
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false)),
+      testMode = true
     )
     repose.start()
 
@@ -261,14 +267,15 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true))
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true)),
+      testMode = true
     )
     repose.start()
 
     //TODO: I can test this with openssl s_client commands, but not otherwise
     import scala.sys.process._
     try {
-      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 0
+      ("echo R" #| s"openssl s_client -connect localhost:${repose.runningHttpsPort}" !) shouldBe 0
     } finally {
       repose.shutdown()
     }
@@ -280,7 +287,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(".*TLS.*")))
+      Some(sslConfig(excludedCiphers = List(".*TLS.*"))),
+      testMode = true
     )
     repose.start()
     try {
@@ -292,9 +300,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
         case s if s.matches(".*SSL.*") => s
       }
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = tlsCiphers.toArray)
+        selectiveRequest(repose.runningHttpsPort, ciphers = tlsCiphers.toArray)
       }
-      selectiveRequest(ciphers = sslCiphers.toArray)
+      selectiveRequest(repose.runningHttpsPort, ciphers = sslCiphers.toArray)
     } finally {
       repose.shutdown()
     }
@@ -306,7 +314,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(".*SSL.*")))
+      Some(sslConfig(includedCiphers = List(".*SSL.*"))),
+      testMode = true
     )
     repose.start()
     try {
@@ -318,10 +327,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with 
         case s if s.matches(".*SSL.*") => s
       }
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = tlsCiphers.toArray)
+        selectiveRequest(repose.runningHttpsPort, ciphers = tlsCiphers.toArray)
       }
 
-      selectiveRequest(ciphers = sslCiphers.toArray)
+      selectiveRequest(repose.runningHttpsPort, ciphers = sslCiphers.toArray)
     } finally {
       repose.shutdown()
     }
