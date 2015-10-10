@@ -683,6 +683,15 @@ project(":repose-aggregator:external:jee6-schemas") {
         compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
     }
 }
+project(":repose-aggregator:external:os-auth-schemas") {
+    project.ext.jaxbXsltFile = "$projectDir/src/main/resources/META-INF/schema/xsl/s1.0p.xsl"
+
+    tasks.compileScala.dependsOn(jaxb)
+
+    dependencies {
+        compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
 
 project(":repose-aggregator:external:pjl-compressingFilter") {
     repositories {
@@ -708,6 +717,24 @@ project(":repose-aggregator:external:pjl-compressingFilter") {
                 "org.jboss.spec:jboss-javaee-6.0:1.0.0.Final"
     }
 }
+
+project(":repose-aggregator:external:service-clients:auth") {
+    dependencies {
+        compile project(":repose-aggregator:external:os-auth-schemas"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:services:httpclient:api"),
+                project(":repose-aggregator:services:service-client:api"),
+                project(":repose-aggregator:core:core-lib"),
+                "commons-codec:commons-codec:1.8",
+                "commons-pool:commons-pool:$commonsPoolVersion",
+                "com.sun.jersey:jersey-client:$jerseyServerVersion",
+                "com.sun.jersey:jersey-server:$jerseyServerVersion",
+                "commons-io:commons-io:2.4"
+
+        testCompile "javax.mail:mail:1.4.4"
+    }
+}
+
 
 /**
  * Experimental Filter Bundle
@@ -1219,9 +1246,7 @@ project(":repose-aggregator:components:filters:filter-bundle") {
     }
 }
 project(":repose-aggregator:components:filters:add-header") {
-
     tasks.compileScala.dependsOn(jaxb)
-
     dependencies {
         compile project(":repose-aggregator:core:core-lib"),
                 project(":repose-aggregator:core:core-service-api"),
@@ -1232,5 +1257,25 @@ project(":repose-aggregator:components:filters:add-header") {
 
         testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion",
                 "com.mockrunner:mockrunner-servlet:1.0.0"
+    }
+}
+project(":repose-aggregator:components:filters:client-auth") {
+    tasks.compileScala.dependsOn(jaxb)
+    dependencies {
+        compile project(":repose-aggregator:core:core-lib"),
+                project(":repose-aggregator:core:core-service-api"),
+                project(":repose-aggregator:commons:utilities"),
+                project(":repose-aggregator:external:service-clients:auth"),
+                project(":repose-aggregator:services:datastore:api"),
+                project(":repose-aggregator:services:service-client:api"),
+                project(":repose-aggregator:external:os-auth-schemas"),
+                project(":repose-aggregator:services:httpclient:api"),
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion",
+                "org.openrepose:http-delegation:$httpDelegationVersion"
+
+        testCompile "net.sf.ehcache:ehcache-core:2.6.0",
+                "com.mockrunner:mockrunner-servlet:1.0.0",
+                "cglib:cglib-nodep:2.2.2"
     }
 }
