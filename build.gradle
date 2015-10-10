@@ -1,12 +1,16 @@
 buildscript {
     repositories {
+        //for the shadow jar and propdeps plugin
         maven { url 'http://repo.spring.io/plugins-release' }
-        maven { url "https://plugins.gradle.org/m2/" }
+        //maven { url "https://plugins.gradle.org/m2/" }
+        //for maven-publish-auth
+        maven { url "http://repository.jboss.org/nexus/content/groups/public/" }
         jcenter()
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.6'
+        classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
     }
 }
 
@@ -665,5 +669,80 @@ project(":repose-aggregator:external:jee6-schemas") {
 
     dependencies {
         compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:$jaxbRuntimeVersion"
+    }
+}
+
+/**
+ * Experimental Filter Bundle
+ **/
+project(":repose-aggregator:experimental:exception-filter") {
+    dependencies {
+        compile "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "javax.inject:javax.inject:1",
+                "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.glassfish:javax.servlet:3.1" //TODO: provided?
+    }
+}
+
+project(":repose-aggregator:experimental:servlet-contract-filter") {
+    dependencies {
+        compile "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "javax.inject:javax.inject:1",
+                "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.glassfish:javax.servlet:3.1" //TODO: provided?
+    }
+}
+
+project(":repose-aggregator:experimental:tightly-coupled-filter") {
+    dependencies {
+        compile project(path: ":repose-aggregator:commons:utilities", transitive: false),
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "javax.inject:javax.inject:1",
+                "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.glassfish:javax.servlet:3.1" //TODO: provided?
+    }
+}
+
+project(":repose-aggregator:experimental:experimental-filter-bundle") {
+    apply plugin: 'ear'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    configurations {
+        earFile
+    }
+
+    artifacts {
+        earFile ear
+    }
+
+    //All the projects this guy depends on. We don't put them in dependencies, because we have to hit them up twice.
+    def deps = [
+            ':repose-aggregator:experimental:exception-filter',
+            ':repose-aggregator:experimental:experimental-filter-bundle',
+            ':repose-aggregator:experimental:servlet-contract-filter',
+            ':repose-aggregator:experimental:tightly-coupled-filter'
+    ]
+
+    dependencies {
+        deps.each { proj ->
+            deploy project(proj)
+            earlib project(path: proj, configuration: 'compile')
+        }
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact ear
+            }
+        }
+        repositories {
+            maven {
+                name "releases.maven.research.rackspace.com"
+                url "http://maven.research.rackspacecloud.com/content/repositories/releases"
+            }
+        }
     }
 }
