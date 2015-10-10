@@ -437,7 +437,6 @@ project(":repose-aggregator:core:valve") {
         }
     }
 
-
     dependencies {
         compile project(":repose-aggregator:core:core-lib"),
                 project(":repose-aggregator:core:core-service-api"),
@@ -468,8 +467,16 @@ project(":repose-aggregator:core:valve") {
     }
 
     processTestResources {
-        //Hack all the properties to a toString value, because I don't care!
-        filter(ReplaceTokens, tokens: project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] })
+        from('src/main/resources') {
+            //Copy all the resources without filtering!
+            //This is needed because filtering breaks the binary .jks file, but we still need to copy it
+        }
+        from('src/main/resources') {
+            //Copy the resources that actually need to be filtered!
+            include '**/*.conf'
+            //Hack all the properties to a toString value, because I don't care!
+            filter(ReplaceTokens, tokens: project.properties.collectEntries { k, v -> [k.toString(), v.toString() ?: ''] })
+        }
     }
 
     mainClassName = "org.openrepose.valve.Main"
@@ -486,8 +493,6 @@ project(":repose-aggregator:core:valve") {
     artifacts {
         shadow shadowJar
     }
-
-
 }
 
 /**
