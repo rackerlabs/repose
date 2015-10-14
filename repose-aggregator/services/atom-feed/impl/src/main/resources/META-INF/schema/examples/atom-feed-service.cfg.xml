@@ -3,9 +3,9 @@
 <atom-feed-service xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <feed id="non-authenticating-feed"/>
+    <feed id="non-authenticating-feed" uri="http://public.atom.com/feed"/>
 
-    <feed id="authenticating-feed">
+    <feed id="authenticating-feed" uri="http://private.atom.com/feed">
         <authentication xsi:type="OpenStackIdentityAuthenticationType"
                         uri="http://identity.jware.com"
                         username="zombiekid"

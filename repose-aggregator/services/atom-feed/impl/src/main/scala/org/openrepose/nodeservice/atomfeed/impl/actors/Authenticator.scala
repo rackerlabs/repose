@@ -17,18 +17,23 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.atomfeed;
+package org.openrepose.nodeservice.atomfeed.impl.actors
 
-/**
- * An instance of an {@link AtomFeedListener} may be registered with the {@link AtomFeedService} to enable programmatic
- * notifications when a feed is updated. The listener may then perform arbitrary processing given the updated feed.
- */
-public interface AtomFeedListener {
+import java.net.URLConnection
 
-    /**
-     * A callback method which will be called whenever the Atom Service reads a new Atom entry.
-     *
-     * @param atomEntry An object encapsulating the data from an Atom entry.
-     */
-    void onNewAtomEntry(AtomEntry atomEntry);
+import akka.actor.Actor
+import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+
+object Authenticator {
+  case class AuthenticateURLConnection(uRLConnection: URLConnection)
+}
+
+class Authenticator(authenticatedRequestFactory: AuthenticatedRequestFactory) extends Actor {
+
+  import Authenticator._
+
+  override def receive: Receive = {
+    case AuthenticateURLConnection(urlConnection) =>
+      sender ! authenticatedRequestFactory.authenticateRequest(urlConnection)
+  }
 }

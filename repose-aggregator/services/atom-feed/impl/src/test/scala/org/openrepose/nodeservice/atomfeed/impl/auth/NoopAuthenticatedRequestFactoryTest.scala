@@ -17,10 +17,22 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.atomfeed;
+package org.openrepose.nodeservice.atomfeed.impl.auth
 
-/**
- * A representation of the request to be made to an Atom service to fetch Atom entries.
- */
-public interface AtomFeedRequest {
+import java.net.URLConnection
+
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+
+@RunWith(classOf[JUnitRunner])
+class NoopAuthenticatedRequestFactoryTest extends FunSuite with MockitoSugar {
+
+  test("a request being authenticated is returned unchanged") {
+    val mockConnection = mock[URLConnection]
+    val noopAuthFactory = new NoopAuthenticatedRequestFactory()
+
+    assert(noopAuthFactory.authenticateRequest(mockConnection) == mockConnection)
+  }
 }

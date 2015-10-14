@@ -55,6 +55,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the URI at which this feed can be read.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="polling-frequency" type="PositiveIntType" use="optional" default="5">
             <xs:annotation>
                 <xs:documentation>
@@ -63,7 +71,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="entry-order" type="EntryOrderType" use="optional" default="read">
+        <xs:attribute name="entry-order" type="EntryOrderType" use="optional" default="update">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -77,13 +85,23 @@
 
     <xs:simpleType name="EntryOrderType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="read">
+            <xs:enumeration value="random">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
-                            With this ordering, a feed listener will receive events in the order which they were read
-                            from the feed. Read order, also known as feed order, is not guaranteed to match the order
-                            in which events were published.
+                            With this ordering, a feed listener will receive events with no ordering guarantees.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+
+            <xs:enumeration value="update">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            With this ordering, a feed listener will receive events in the order in which they were
+                            updated. That is, entries will be ordered chronologically based on their updated field
+                            from oldest to newest.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
@@ -110,7 +128,7 @@
 
     <xs:complexType name="AuthenticationType">
         <xs:attribute name="fqcn" type="xs:string"
-                      default="org.openrepose.core.services.atomfeed.impl.NoopAuthenticatedRequestFactory">
+                      default="org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Defines the fully qualified class name of a class which can authenticate requests.</html:p>
@@ -123,7 +141,7 @@
         <xs:complexContent>
             <xs:restriction base="AuthenticationType">
                 <xs:attribute name="fqcn" type="xs:string"
-                              fixed="org.openrepose.core.services.atomfeed.impl.OpenStackIdentityAuthenticatedRequestFactory"/>
+                              fixed="org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityAuthenticatedRequestFactory"/>
             </xs:restriction>
         </xs:complexContent>
     </xs:complexType>

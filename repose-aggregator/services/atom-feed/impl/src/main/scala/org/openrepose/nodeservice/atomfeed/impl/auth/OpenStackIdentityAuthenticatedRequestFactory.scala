@@ -17,10 +17,16 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.atomfeed;
+package org.openrepose.nodeservice.atomfeed.impl.auth
+
+import java.net.URLConnection
+
+import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 
 /**
- * An encapsulation of the data from an Atom entry.
+ * Fetches a token from the OpenStack Identity service, if necessary, then adds the token to the request.
  */
-public interface AtomEntry {
+class OpenStackIdentityAuthenticatedRequestFactory extends AuthenticatedRequestFactory {
+
+  override def authenticateRequest(atomFeedUrlConnection: URLConnection): URLConnection = ???
 }

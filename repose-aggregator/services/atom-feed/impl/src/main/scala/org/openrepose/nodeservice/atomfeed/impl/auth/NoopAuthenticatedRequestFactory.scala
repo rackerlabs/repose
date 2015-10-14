@@ -17,18 +17,16 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.atomfeed;
+package org.openrepose.nodeservice.atomfeed.impl.auth
+
+import java.net.URLConnection
+
+import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 
 /**
- * A factory which will perform any necessary processing to authenticate a request to the Atom service.
+ * Performs no operation on the request.
  */
-public interface AuthenticatedRequestFactory {
+class NoopAuthenticatedRequestFactory extends AuthenticatedRequestFactory {
 
-    /**
-     * Mutates a request to adhere to some authentication scheme compatible with the Atom service.
-     *
-     * @param atomFeedRequest The unauthenticated request to be made to the Atom service.
-     * @return The mutated request with authentication mutations applied.
-     */
-    AtomFeedRequest authenticateRequest(AtomFeedRequest atomFeedRequest);
+  override def authenticateRequest(atomFeedUrlConnection: URLConnection): URLConnection = atomFeedUrlConnection
 }

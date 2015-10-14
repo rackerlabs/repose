@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.atomfeed;
+package org.openrepose.nodeservice.atomfeed;
 
 /**
  * The Atom Feed service may be used to interact with services which satisfy the Atom Syndication format.
@@ -33,6 +33,7 @@ public interface AtomFeedService {
      * @param feedId   A unique ID which matches the ID of the feed that the listener will listen to.
      * @param listener An {@link AtomFeedListener} which will process new Atom events from the associated feed.
      * @return A unique ID which represents the registered listener.
+     * @throws IllegalStateException if the service is not running.
      */
     String registerListener(String feedId, AtomFeedListener listener);
 
@@ -41,6 +42,14 @@ public interface AtomFeedService {
      *
      * @param listenerId A unique ID which represents a listener. This value is likely returned by the
      *                   registerListener method.
+     * @throws IllegalStateException if the service is not running.
      */
     void unregisterListener(String listenerId);
+
+    /**
+     * Indicates whether or not the service is running.
+     *
+     * @return A boolean where true means that the service is running, and false means that it is not.
+     */
+    boolean isRunning();
 }
