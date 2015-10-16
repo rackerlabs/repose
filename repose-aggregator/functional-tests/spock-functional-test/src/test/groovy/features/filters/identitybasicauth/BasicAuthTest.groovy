@@ -199,7 +199,7 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 403 Forbidden"
         mc.receivedResponse.code == HttpServletResponse.SC_FORBIDDEN.toString()
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When identity returns a 404 Not Found, repose will return a 401 Unauthorized"() {
