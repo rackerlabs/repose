@@ -689,6 +689,14 @@ class MockIdentityV3Service {
                 "links": {
                     "self": "https://identity:35357/v3/groups/a62db1"
                 },
+                "name": "Repose Developers"
+            },
+            {
+                "domain_id": "\${domainid}",
+                "id": "a62db2",
+                "links": {
+                    "self": "https://identity:35357/v3/groups/a62db2"
+                },
                 "name": "Secure Developers"
             }
         ],

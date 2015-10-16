@@ -38,6 +38,7 @@ class IdentityV3Test extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
+        reposeLogSearch.cleanLog()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
@@ -87,6 +88,9 @@ class IdentityV3Test extends ReposeValveTest {
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        // REP-2886 fix: ERROR org.openrepose.powerfilter.PowerFilterChain - Failure in filter: OpenStackIdentityV3Filter
+        // when missing group discription
+        reposeLogSearch.searchByString("ERROR org.openrepose.powerfilter.PowerFilterChain - Failure in filter: OpenStackIdentityV3Filter").size() == 0
     }
 
     def "Tracing header should include in request to Identity"() {
