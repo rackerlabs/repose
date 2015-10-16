@@ -134,6 +134,8 @@ class MockIdentityService {
     def client_username = 'username';
     def client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
     def client_apikey = 'this-is-the-api-key';
+    def forbidden_apikey = 'this-api-key-results-in-forbidden'
+    def not_found_apikey = 'this-api-key-results-in-not-found'
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
@@ -158,6 +160,8 @@ class MockIdentityService {
         client_username = 'username';
         client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
         client_apikey = 'this-is-the-api-key';
+        forbidden_apikey = 'this-api-key-results-in-forbidden'
+        not_found_apikey = 'this-api-key-results-in-not-found'
         admin_token = 'this-is-the-admin-token';
         admin_tenant = 'this-is-the-admin-tenant'
         admin_username = 'admin_username';
@@ -565,11 +569,16 @@ class MockIdentityService {
             //Magic numbers are how large of a value identity will parse before giving back a 400 Bad Request
             if (apikey.length() > 100 || username.length() > 100) {
                 code = 400
+            } else if (request.body.toString().contains(forbidden_apikey)) {
+                code = 403
+            }else if (request.body.toString().contains(not_found_apikey)) {
+                code = 404
             } else {
                 code = 401
             }
 
             if (xml) {
+                //TODO: This failure template is *ONLY* valid for token not found, NOT USEFUL
                 template = identityFailureXmlTemplate
             } else {
                 template = identityFailureJsonTemplate

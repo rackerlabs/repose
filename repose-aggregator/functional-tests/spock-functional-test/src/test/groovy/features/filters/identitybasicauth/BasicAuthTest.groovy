@@ -187,6 +187,37 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
+    def "When identity returns a 403 Unauthorized, repose will also return a 403 unauthorized"() {
+        given: "the HTTP Basic authentication header containing the User Name and forbidden API key"
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey).bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "response with 403 Forbidden"
+        mc.receivedResponse.code == HttpServletResponse.SC_FORBIDDEN.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+    def "When identity returns a 404 Not Found, repose will return a 401 Unauthorized"() {
+        given: "the HTTP Basic authentication header containing the User Name and not found apikey"
+        def headers = [
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey).bytes)
+        ]
+
+        when: "the request does have an HTTP Basic authentication header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "response with 401 Unauthorized"
+        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.handlings.size() == 0
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+    }
+
+
     @Ignore
     // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
