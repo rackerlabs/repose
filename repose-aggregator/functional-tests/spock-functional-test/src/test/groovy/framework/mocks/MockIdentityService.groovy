@@ -571,7 +571,7 @@ class MockIdentityService {
                 code = 400
             } else if (request.body.toString().contains(forbidden_apikey)) {
                 code = 403
-            }else if (request.body.toString().contains(not_found_apikey)) {
+            } else if (request.body.toString().contains(not_found_apikey)) {
                 code = 404
             } else {
                 code = 401
