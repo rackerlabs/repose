@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -155,8 +155,6 @@ class BasicAuthTest extends ReposeValveTest {
     }
 
     // identity currently return 400 bad request for api-key > 100 characters
-    // repose log REP-2880 to work on compliant with this response
-    @IgnoreIf({ new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime() })
     def "When the request send with invalid long key > 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def key = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
@@ -167,25 +165,24 @@ class BasicAuthTest extends ReposeValveTest {
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "response with 400 bad request"
-        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST.toString()
+        then: "response with 401 Unauthorized"
+        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    @IgnoreIf({ new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime() })
     def "When the request send with username > 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def username = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + fakeIdentityService.client_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + "randomAPIKey").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "response with 400 bad request"
-        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST.toString()
+        then: "response with 401 Unauthorized"
+        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }

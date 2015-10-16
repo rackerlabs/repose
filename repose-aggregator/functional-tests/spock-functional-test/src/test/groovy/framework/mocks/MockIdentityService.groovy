@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -556,7 +556,19 @@ class MockIdentityService {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            code = 401
+            //If the username or the apikey are longer than 120 characters, barf back a 400, bad request response
+            //I have to parse the XML body of the request to mimic behavior in identity
+            def auth = new XmlSlurper().parseText(request.body.toString())
+            String username = auth.apiKeyCredentials['@username']
+            String apikey = auth.apiKeyCredentials['@apiKey']
+
+            //Magic numbers are how large of a value identity will parse before giving back a 400 Bad Request
+            if (apikey.length() > 100 || username.length() > 100) {
+                code = 400
+            } else {
+                code = 401
+            }
+
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {
