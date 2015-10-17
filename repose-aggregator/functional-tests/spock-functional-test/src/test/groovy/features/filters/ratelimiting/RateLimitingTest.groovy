@@ -512,6 +512,8 @@ class RateLimitingTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
 
+    //This one also fails sometimes because of state :(
+    //I get back a 413 occasionally
     def "Origin response code should not change when using rate limiting filter"() {
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -522,8 +524,9 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("302")
         messageChain.handlings.size() == 1
     }
+
     //issue REP-2233
-    @Category(Bug.class)
+    //*sigh* this fails because of state, previous test executions cause it to die :(
     def "Check limit group"() {
         when: "the user send their request"
         waitForLimitReset(["x-pp-group": "all-limits-small"])
