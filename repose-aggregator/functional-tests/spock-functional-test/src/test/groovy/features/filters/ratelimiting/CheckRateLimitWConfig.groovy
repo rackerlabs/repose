@@ -25,13 +25,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-/**
- * Created by jennyvo on 5/20/15.
- */
 class CheckRateLimitWConfig extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
     def setupSpec() {
@@ -54,33 +50,16 @@ class CheckRateLimitWConfig extends ReposeValveTest {
     def cleanup() {
         waitForLimitReset()
     }
-    /*
-    REP-2181 Fix JSON support for rate limits get limits call
 
-*/
-
+    //2233
     @Unroll("Check absolute and remaining limit for each limit group #limitgroup and #user")
     def "Check absolute limit on json"() {
         when: "the user send request to get rate limit with endpoint doesn't match with limit group"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + limitgroup + acceptHeaderJson);
         def jsonbody = mc1.receivedResponse.body
-        println jsonbody
         def json = JsonSlurper.newInstance().parseText(jsonbody)
-        def listnode = json.limits.rate["limit"]
-        List limitlist = []
-        println listnode.size()
-        //for (int i=0; i < listnode.size(); i++) {
-        //    assert listnode[i].unit[0] == checklimit[i].unit
-        //   assert listnode[i].remaining[0] == checklimit[i].remaining
-        //    assert listnode[i].verb[0] == checklimit[i].verb
-        //    assert listnode[i].value[0] == checklimit[i].value
-        //}
-        listnode.each { limit ->
-            println limit.toString()
-            limitlist.add(limit[0])
-
-        }
+        println(jsonbody)
 
         then:
         mc1.handlings.size() == 1
@@ -98,8 +77,8 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         ["X-PP-Groups": "multi-limits"]     | ["X-PP-User": "multilimits"] | multilimit
         ["X-PP-Groups": "query-limits"]     | ["X-PP-User": "querylimits"] | querylimit
         ["X-PP-Groups": "unlimited"]        | ["X-PP-User": "unlimited"]   | unlimitedlimit
-        //**defect on get limit for multi group config issue REP-2233
-        //["X-PP-Groups": "user"]             | ["X-PP-User": "default"]     | defaultlimit
+        //This one should also pass, but it's being affected by a state bug: REP-2233
+        ["X-PP-Groups": "user"]             | ["X-PP-User": "default"]     | defaultlimit
     }
 
     private int parseAbsoluteLimitFromJSON(String body, int limit) {
@@ -127,23 +106,34 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         }
     }
 
-    private boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
-        //def json = JsonSlurper.newInstance().parseText(jsonbody)
-        boolean check = true
-        def listnode = json.limits.rate["limit"]
-        listnode.eachWithIndex { entry, int i ->
-            if (entry.unit[0] != checklimit[i].unit ||
-                    entry.remaining[0] != checklimit[i].remaining ||
-                    entry.verb[0] != checklimit[i].verb ||
-                    entry.value[0] != checklimit[i].value) {
-                check = false
-            }
+    //Just doing the assertions provides a much better output from spock
+    static boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
 
+        def listnode = json.limits.rate["limit"].flatten()
+        //Have to massage away the "next-available" from the listnode list
+        listnode = listnode.collect { entry ->
+            entry.remove("next-available")
+            entry
         }
-        return check
+        println("LISTNODE:   ${listnode}")
+        println("CHECKLIMIT: ${checklimit}")
+
+        //Subtract the required checks from the results on repose
+        // If the list is empty, then we checked *everything* and didn't get any other limits back
+        // If it's nonempty, we got other limits back that we didn't check for
+        def onlyAllChecksFound = listnode - checklimit
+        assert onlyAllChecksFound.size() == 0
+
+        //Subtract the result from repose from our checks
+        // If the result is an empty list, then all the checks were found!
+        def allChecksFound = checklimit - listnode
+        assert allChecksFound.size() == 0
+
+        return true
     }
 
     // Describe the limits from limitgroups in the config
+    //The ordering on these is totally bogus. There's no way this can work reliably :(
     final static List<Map> customerlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
@@ -172,15 +162,18 @@ class CheckRateLimitWConfig extends ReposeValveTest {
             ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
+    // Re ordering to match the config, even though that's not the order repose might return it in, it's better for
+    // my sanity
     final static List<Map> multiregexlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'POST', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
+            ['unit': 'HOUR', 'remaining': 100, 'verb': 'POST', 'value': 100],
             ['unit': 'DAY', 'remaining': 50, 'verb': 'PUT', 'value': 50],
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50],
-            ['unit': 'HOUR', 'remaining': 100, 'verb': 'POST', 'value': 100]
+            ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
     final static List<Map> alllimit = [
@@ -197,19 +190,16 @@ class CheckRateLimitWConfig extends ReposeValveTest {
     final static List<Map> querylimit = [
             ['unit': 'HOUR', 'remaining': 0, 'verb': 'GET', 'value': 1],
     ]
-    final static List<Map> unlimitedlimit = [
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
-            ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
-            ['unit': 'HOUR', 'remaining': 10, 'verb': 'POST', 'value': 10],
-            ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
-    ]
+
+    //The limits for unlimited should be EMPTY, no limits for this guy
+    final static List<Map> unlimitedlimit = []
+
     final static List<Map> defaultlimit = [
-            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
-            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
             ['unit': 'MINUTE', 'remaining': 1000, 'verb': 'GET', 'value': 1000],
+            ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'HOUR', 'remaining': 10, 'verb': 'POST', 'value': 10],
             ['unit': 'DAY', 'remaining': 5, 'verb': 'PUT', 'value': 5],
+            ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5]
     ]
 }
 
