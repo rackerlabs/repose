@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -299,10 +299,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         where:
         reqTenant | identityStatusCode       | filterStatusCode
-        9400      | SC_BAD_REQUEST           | SC_INTERNAL_SERVER_ERROR
+        9400      | SC_BAD_REQUEST           | SC_UNAUTHORIZED
         9401      | SC_UNAUTHORIZED          | SC_UNAUTHORIZED
-        9403      | SC_FORBIDDEN             | SC_INTERNAL_SERVER_ERROR
-        9404      | SC_NOT_FOUND             | SC_INTERNAL_SERVER_ERROR
+        9403      | SC_FORBIDDEN             | SC_FORBIDDEN
+        9404      | SC_NOT_FOUND             | SC_UNAUTHORIZED
         9500      | SC_INTERNAL_SERVER_ERROR | SC_INTERNAL_SERVER_ERROR
         9501      | SC_NOT_IMPLEMENTED       | SC_INTERNAL_SERVER_ERROR
         9502      | SC_BAD_GATEWAY           | SC_INTERNAL_SERVER_ERROR
