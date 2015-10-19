@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,6 +59,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
     @Override
     public NextAvailableResponse updateLimit(String user, List<Pair<String, ConfiguredRatelimit>> matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws IOException {
+        //TODO: this is where the actual change happens.
         UserRateLimit patchResult = (UserRateLimit) datastore.patch(user, new UserRateLimit.Patch(matchingLimits), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(largestUnit));
 
         if (patchResult.getLimitMap().keySet().size() >= datastoreWarnLimit) {

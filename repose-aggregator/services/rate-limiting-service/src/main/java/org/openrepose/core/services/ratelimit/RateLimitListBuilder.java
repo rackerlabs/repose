@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ package org.openrepose.core.services.ratelimit;
 
 import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.config.*;
+import org.openrepose.core.services.ratelimit.utils.RateLimitDebugUtils;
 import org.slf4j.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -82,7 +83,7 @@ public class RateLimitListBuilder {
         for (ConfiguredLimitGroup configuredLimitGroup : configuredLimitGroups) {
             for (ConfiguredRatelimit configuredRateLimit : configuredLimitGroup.getLimit()) {
                 final CachedRateLimit cachedLimit = getCachedRateLimitFromSet(configuredRateLimit, cachedRateLimits.values());
-
+                LOG.debug("CACHED RATE LIMIT: {}", RateLimitDebugUtils.debugCachedRateLimit(cachedLimit));
                 processLiveRateLimits(configuredRateLimit, cal, cachedLimit);
             }
         }
@@ -107,6 +108,7 @@ public class RateLimitListBuilder {
     private void processLiveRateLimits(ConfiguredRatelimit configuredRateLimit, Calendar cal, CachedRateLimit cachedLimit) {
         // TODO remove for loop since every except the method will be the same
         for (HttpMethod method : configuredRateLimit.getHttpMethods()) {
+            LOG.debug("PROCESSING LIVE RATE LIMIT FOR {} : {}", method, RateLimitDebugUtils.debugConfiguredRatelimit(configuredRateLimit));
             final RateLimit limit = new RateLimit();
 
             limit.setValue(configuredRateLimit.getValue());
@@ -115,10 +117,12 @@ public class RateLimitListBuilder {
 
             long now = System.currentTimeMillis(), earliestExpirationDate = now;
             int remainingRequests = configuredRateLimit.getValue();
+            LOG.debug("REMAINING REQUESTS: {}", remainingRequests);
 
             if (cachedLimit != null) {
                 earliestExpirationDate = cachedLimit.getNextExpirationTime();
                 remainingRequests = cachedLimit.maxAmount() - cachedLimit.amount();
+                LOG.debug("was given a cached limit, change our remaining requests to {}", remainingRequests);
             }
 
             cal.setTimeInMillis(earliestExpirationDate);
@@ -127,9 +131,11 @@ public class RateLimitListBuilder {
             limit.setNextAvailable(DATATYPE_FACTORY.newXMLGregorianCalendar((GregorianCalendar) cal));
 
             final String configId = configuredRateLimit.getId();
-            ResourceRateLimits rateLimits = liveRateLimitMap.get(configId);
+            LOG.debug("CONFIG ID: {}", configId);
+            ResourceRateLimits rateLimits = liveRateLimitMap.get(configId); //This is maybe it?
 
             if (rateLimits == null) {
+                LOG.debug("FOUND A RESOURCE RATE LIMIT IN THE LIVE LIMIT MAP");
                 rateLimits = new ResourceRateLimits();
                 rateLimits.setRegex(configuredRateLimit.getUriRegex());
                 rateLimits.setUri(configuredRateLimit.getUri());

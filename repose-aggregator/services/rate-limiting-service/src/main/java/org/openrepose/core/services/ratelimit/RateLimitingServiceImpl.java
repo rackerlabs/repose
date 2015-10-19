@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+import org.openrepose.core.services.ratelimit.utils.RateLimitDebugUtils;
 import org.openrepose.core.services.ratelimit.utils.StringUtilities;
 import org.slf4j.Logger;
 
@@ -66,16 +67,23 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         if (StringUtilities.isBlank(user)) {
             throw new IllegalArgumentException("User required when querying rate limits.");
         }
+        LOG.debug("QUERYING LIMITS FOR {} with groups {}", user, groups);
 
         final Map<String, CachedRateLimit> cachedLimits = cache.getUserRateLimits(user);
+        RateLimitDebugUtils.debugLogCachedLimits(cachedLimits);
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
+        RateLimitDebugUtils.debugLogConfiguredLimitGroup(configuredLimitGroup);
         final RateLimitListBuilder limitsBuilder = new RateLimitListBuilder(cachedLimits, configuredLimitGroup);
 
-        return limitsBuilder.toRateLimitList();
+        RateLimitList list = limitsBuilder.toRateLimitList();
+
+        LOG.debug("BUILT LIST: {}", list);
+        return list;
     }
 
     @Override
     public void trackLimits(String user, List<String> groups, String uri, Map<String, String[]> parameterMap, String httpMethod, int datastoreWarnLimit) throws OverLimitException {
+        LOG.debug("Tracking limits for {} with groups {}", user, groups);
 
         if (StringUtilities.isBlank(user)) {
             throw new IllegalArgumentException("User required when tracking rate limits.");
@@ -97,12 +105,18 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
 
             // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParamNames(), parameterMap)) {
-                matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
-                        rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
+            if (uriMatcher.matches() &&
+                    httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) &&
+                    queryParameterNameMatches(rateLimit.getQueryParamNames(), parameterMap)) {
+
+                String limitKey = LimitKey.getLimitKey(configuredLimitGroup.getId(), rateLimit.getId(), uriMatcher, useCaptureGroups);
+                LOG.debug("ADDING MATCHED LIMIT: {}, {}", limitKey, rateLimit);
+
+                matchingConfiguredLimits.add(Pair.of(limitKey, rateLimit));
 
                 if (rateLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = rateLimit.getUnit();
+                    LOG.debug("Setting the largest unit to {}", largestUnit);
                 }
             }
         }
@@ -130,6 +144,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         if (!matchingGlobalConfiguredLimits.isEmpty()) {
+            LOG.debug("FOUND GLOBALLY CONFIGURED LIMITS!!!!");
             rateLimiter.handleRateLimit(GLOBAL_LIMIT_USER, matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: GLOBAL_LIMIT_USER is not guaranteed to be unique
         }
     }

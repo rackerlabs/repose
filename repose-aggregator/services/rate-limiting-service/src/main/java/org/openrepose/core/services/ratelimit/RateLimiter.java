@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.core.services.ratelimit.config.TimeUnit;
 import org.openrepose.core.services.ratelimit.exception.CacheException;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
+import org.openrepose.core.services.ratelimit.utils.RateLimitDebugUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -42,6 +43,9 @@ public class RateLimiter {
     }
 
     public void handleRateLimit(String user, List<Pair<String, ConfiguredRatelimit>> matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws OverLimitException {
+        LOG.debug("IN HANDLE RATE LIMIT FOR {}", user);
+
+        RateLimitDebugUtils.debugLogMatchingLimitsList(user, matchingLimits);
 
         // Get the next, shortest available time that a user has to wait for
         try {
