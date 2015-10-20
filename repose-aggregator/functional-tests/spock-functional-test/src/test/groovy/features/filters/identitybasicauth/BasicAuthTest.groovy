@@ -186,7 +186,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    def "When identity returns a 403 Unauthorized, repose will also return a 403 unauthorized"() {
+    def "When identity returns a 403 Forbidden, repose will also return a 403 Forbidden"() {
         given: "the HTTP Basic authentication header containing the User Name and forbidden API key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey).bytes)
