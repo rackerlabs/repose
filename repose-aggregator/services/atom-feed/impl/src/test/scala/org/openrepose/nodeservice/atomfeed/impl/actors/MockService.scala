@@ -32,9 +32,9 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
-class MockAtomFeedService {
+class MockService {
 
-  private implicit val system = ActorSystem("mock-atom-service")
+  private implicit val system = ActorSystem("mock-service")
   private implicit val materializer = ActorMaterializer()
 
   private val serverSource = Http().bind(interface = "localhost", port = 0)

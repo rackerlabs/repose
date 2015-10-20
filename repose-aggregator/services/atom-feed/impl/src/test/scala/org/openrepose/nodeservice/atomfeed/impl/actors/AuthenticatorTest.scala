@@ -21,24 +21,25 @@ package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.net.URLConnection
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 import akka.util.Timeout
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.openrepose.docs.repose.atom_feed_service.v1.AuthenticationType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import org.openrepose.nodeservice.atomfeed.impl.actors.Authenticator.AuthenticateURLConnection
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSuiteLike}
+import org.scalatest.{BeforeAndAfter, FunSuiteLike, Matchers}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class AuthenticatorTest(_system: ActorSystem)
-  extends TestKit(_system) with FunSuiteLike with MockitoSugar with BeforeAndAfter {
+  extends TestKit(_system) with FunSuiteLike with MockitoSugar with BeforeAndAfter with Matchers {
 
   def this() = this(ActorSystem("AuthenticatorTest"))
 
@@ -49,6 +50,22 @@ class AuthenticatorTest(_system: ActorSystem)
 
   before {
     Mockito.reset(mockAuthReqFactory)
+  }
+
+  test("the props factory returns the props for an Authenticator if a valid fqcn is provided") {
+    val authConfig = new AuthenticationType()
+    authConfig.setFqcn("org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory")
+
+    val props = Authenticator.props(authConfig)
+
+    props shouldBe a[Props]
+  }
+
+  test("the props factory throws an IllegalArgumentException if an invalid fqcn is provided") {
+    val authConfig = new AuthenticationType()
+    authConfig.setFqcn("java.lang.Object")
+
+    an[IllegalArgumentException] should be thrownBy Authenticator.props(authConfig)
   }
 
   test("a request is authenticated by the provided factory") {

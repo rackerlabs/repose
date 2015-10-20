@@ -89,6 +89,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_I
               actorSystem.actorOf(FeedReader.props(
                 feedConfig.getUri,
                 (arf: ActorRefFactory) =>
+                  arf.actorOf(Authenticator.props(feedConfig.getAuthentication)),
+                (arf: ActorRefFactory) =>
                   arf.actorOf(Notifier.props(feedListeners.getOrElse(feedId, Map.empty).values.toSet)),
                 feedConfig.getEntryOrder
               )),
@@ -156,7 +158,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_I
 
   private def ifRunning[T](f: => T): T = {
     if (running) f
-    else throw new IllegalStateException("service is not running")
+    else throw new IllegalStateException("Service is not running")
   }
 
   private def getListenersForFeed(feedId: String): Map[String, AtomFeedListener] = {

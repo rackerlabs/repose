@@ -19,30 +19,45 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
-import java.io.StringWriter
-import java.net.URL
+import java.io.{IOException, StringWriter}
+import java.net.{URL, URLConnection, UnknownServiceException}
 import java.util.Date
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
+import akka.pattern.ask
+import akka.util.Timeout
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
+import org.apache.abdera.parser.ParseException
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
+import org.openrepose.nodeservice.atomfeed.impl.actors.Authenticator.InvalidateCache
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object FeedReader {
   object ReadFeed
 
-  def props(feedUri: String, notifierMaker: ActorRefFactory => ActorRef, order: EntryOrderType): Props =
-    Props(new FeedReader(feedUri, notifierMaker, order))
+  def props(feedUri: String,
+            authenticatorMaker: ActorRefFactory => ActorRef,
+            notifierMaker: ActorRefFactory => ActorRef,
+            order: EntryOrderType): Props =
+    Props(new FeedReader(feedUri, authenticatorMaker, notifierMaker, order))
 }
 
-class FeedReader(feedUri: String, notifierMaker: ActorRefFactory => ActorRef, order: EntryOrderType)
-  extends Actor {
+class FeedReader(feedUri: String,
+                 authenticatorMaker: ActorRefFactory => ActorRef,
+                 notifierMaker: ActorRefFactory => ActorRef,
+                 order: EntryOrderType)
+  extends Actor with LazyLogging {
 
   import FeedReader._
 
+  val authenticator = authenticatorMaker(context)
   val notifier = notifierMaker(context)
 
   val abdera = Abdera.getInstance()
@@ -53,27 +68,47 @@ class FeedReader(feedUri: String, notifierMaker: ActorRefFactory => ActorRef, or
 
   override def receive: Receive = {
     case ReadFeed =>
-      val feed = parser.parse[Feed](feedUrl.openStream(), feedUrl.toString).getRoot
+      // TODO: Configurable wait on authentication?
+      implicit val timeout = Timeout(5 seconds)
 
-      // According to RFC 4287, "this specification assigns no significance to the order of atom:entry elements within
-      // the feed."
-      // So we'll sort the list of all atom entries and only take those which have been updated more recently
-      // than the last time the feed was read.
-      //
-      // The order configuration item is not currently used. Notifying listeners of entries based on the time at which
-      // they were last updated satisfies both "random" and "update" orderings.
-      val newEntries = feed.sortEntriesByUpdated(true).getEntries.toList.takeWhile(_.getUpdated.after(highWaterMark))
+      val connectionFuture = ask(authenticator, feedUrl.openConnection()).mapTo[URLConnection]
+      val authenticatedConnection = Option(Await.result(connectionFuture, timeout.duration))
 
-      newEntries.headOption foreach { newestEntry =>
-        highWaterMark = newestEntry.getUpdated
+      authenticatedConnection match {
+        case Some(connection) =>
+          try {
+            val feed = parser.parse[Feed](connection.getInputStream, feedUrl.toString).getRoot
 
-        val newEntryStrings = newEntries map { atomEntry =>
-          val entryString = new StringWriter()
-          atomEntry.writeTo(entryString)
-          entryString.toString
-        }
+            // According to RFC 4287, "this specification assigns no significance to the order of atom:entry elements within
+            // the feed."
+            // So we'll sort the list of all atom entries and only take those which have been updated more recently
+            // than the last time the feed was read.
+            //
+            // The order configuration item is not currently used. Notifying listeners of entries based on the time at which
+            // they were last updated satisfies both "random" and "update" orderings.
+            val newEntries = feed.sortEntriesByUpdated(true).getEntries.toList.takeWhile(_.getUpdated.after(highWaterMark))
 
-        notifier ! NotifyListeners(newEntryStrings.reverse)
+            newEntries.headOption foreach { newestEntry =>
+              highWaterMark = newestEntry.getUpdated
+
+              val newEntryStrings = newEntries map { atomEntry =>
+                val entryString = new StringWriter()
+                atomEntry.writeTo(entryString)
+                entryString.toString
+              }
+
+              notifier ! NotifyListeners(newEntryStrings.reverse)
+            }
+          } catch {
+            case e@(_: UnknownServiceException | _: IOException) =>
+              logger.warn("Connection to Atom service failed -- an invalid URI may have been provided, or " +
+                "authentication credentials may be invalid", e)
+              authenticator ! InvalidateCache
+            case pe: ParseException =>
+              logger.warn("Failed to parse the Atom feed", pe)
+          }
+        case None =>
+          logger.error("Authentication failed -- connection to Atom service could not be established")
       }
   }
 }

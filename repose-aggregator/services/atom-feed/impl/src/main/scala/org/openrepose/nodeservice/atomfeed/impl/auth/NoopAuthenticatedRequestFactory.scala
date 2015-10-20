@@ -29,4 +29,6 @@ import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 class NoopAuthenticatedRequestFactory extends AuthenticatedRequestFactory {
 
   override def authenticateRequest(atomFeedUrlConnection: URLConnection): URLConnection = atomFeedUrlConnection
+
+  override def invalidateCache(): Unit = {}
 }

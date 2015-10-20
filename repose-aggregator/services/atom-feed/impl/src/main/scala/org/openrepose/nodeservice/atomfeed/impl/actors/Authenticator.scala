@@ -21,11 +21,41 @@ package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.net.URLConnection
 
-import akka.actor.Actor
+import akka.actor.{Actor, Props, Status}
+import org.openrepose.docs.repose.atom_feed_service.v1.AuthenticationType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 
 object Authenticator {
+  object InvalidateCache
   case class AuthenticateURLConnection(uRLConnection: URLConnection)
+
+  def props(authenticationConfig: AuthenticationType): Props = {
+    val fqcn = authenticationConfig.getFqcn
+
+    val arfInstance = try {
+      val arfClass = Class.forName(fqcn).asSubclass(classOf[AuthenticatedRequestFactory])
+
+      val arfConstructors = arfClass.getConstructors
+      arfConstructors find { constructor =>
+        val paramTypes = constructor.getParameterTypes
+        paramTypes.size == 1 && classOf[AuthenticationType].isAssignableFrom(paramTypes(0))
+      } map { constructor =>
+        constructor.newInstance(authenticationConfig)
+      } orElse {
+        arfConstructors.find(_.getParameterTypes.size == 0).map(_.newInstance())
+      }
+    } catch {
+      case cnfe: ClassNotFoundException =>
+        throw new IllegalArgumentException(fqcn + " was not found", cnfe)
+      case cce: ClassCastException =>
+        throw new IllegalArgumentException(fqcn + " is not an AuthenticatedRequestFactory", cce)
+    }
+
+    arfInstance match {
+      case Some(arf: AuthenticatedRequestFactory) => Props(new Authenticator(arf))
+      case _ => throw new IllegalArgumentException(fqcn + " is not a valid AuthenticatedRequestFactory")
+    }
+  }
 }
 
 class Authenticator(authenticatedRequestFactory: AuthenticatedRequestFactory) extends Actor {
@@ -34,6 +64,13 @@ class Authenticator(authenticatedRequestFactory: AuthenticatedRequestFactory) ex
 
   override def receive: Receive = {
     case AuthenticateURLConnection(urlConnection) =>
-      sender ! authenticatedRequestFactory.authenticateRequest(urlConnection)
+      try {
+        sender ! authenticatedRequestFactory.authenticateRequest(urlConnection)
+      } catch {
+        case e: Exception =>
+          sender ! Status.Failure(e)
+          throw e
+      }
+    case InvalidateCache => authenticatedRequestFactory.invalidateCache()
   }
 }

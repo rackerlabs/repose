@@ -33,4 +33,9 @@ public interface AuthenticatedRequestFactory {
      * @return The {@link URLConnection} with authentication mutations applied.
      */
     URLConnection authenticateRequest(URLConnection atomFeedUrlConnection);
+
+    /**
+     * Invalidates any cached authentication data.
+     */
+    void invalidateCache();
 }

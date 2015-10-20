@@ -28,7 +28,7 @@ import akka.testkit.{TestActorRef, TestKit, TestProbe}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
-import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
+import org.openrepose.docs.repose.atom_feed_service.v1.{AuthenticationType, EntryOrderType}
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.ReadFeed
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
 import org.scalatest.junit.JUnitRunner
@@ -47,10 +47,10 @@ class FeedReaderTest(_system: ActorSystem)
 
   var feed: Feed = _
   var actorRef: TestActorRef[FeedReader] = _
-  var mockAtomFeedService: MockAtomFeedService = _
+  var mockAtomFeedService: MockService = _
 
   before {
-    mockAtomFeedService = new MockAtomFeedService()
+    mockAtomFeedService = new MockService()
 
     feed = abdera.newFeed()
     feed.setId("tag:openrepose.org,2007:/feed")
@@ -75,7 +75,11 @@ class FeedReaderTest(_system: ActorSystem)
     mockAtomFeedService.start()
 
     actorRef = TestActorRef(
-      new FeedReader(mockAtomFeedService.getUrl + "/feed", _ => notifierProbe.ref, EntryOrderType.RANDOM)
+      new FeedReader(mockAtomFeedService.getUrl + "/feed",
+        actorRefFactory =>
+          actorRefFactory.actorOf(Authenticator.props(new AuthenticationType())),
+        _ => notifierProbe.ref,
+        EntryOrderType.RANDOM)
     )
   }
 
