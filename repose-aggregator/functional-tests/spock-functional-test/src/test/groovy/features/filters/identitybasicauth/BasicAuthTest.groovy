@@ -26,8 +26,6 @@ import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
-import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
@@ -55,6 +53,7 @@ class BasicAuthTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeIdentityService.resetHandlers()
         fakeIdentityService.with {
             // This is required to ensure that one piece of the authentication data is changed
             // so that the cached version in the Akka Client is not used.
@@ -216,9 +215,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
-
-
-    @Ignore
+    // REP-2880 - should fix this (removed @Ignore)
     // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
@@ -243,9 +240,9 @@ class BasicAuthTest extends ReposeValveTest {
 
         where:
         reqTenant | identityStatusCode                           | filterStatusCode
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_UNAUTHORIZED
         9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_FORBIDDEN
         9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_UNAUTHORIZED
         9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
