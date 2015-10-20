@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+    <request-endpoint uri-regex="/service2/limits" include-absolute-limits="true"/>
+
+    <limit-group id="highlimits" groups="higher test" default="false">
+        <limit id="one" uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="30"/>
+        <limit id="two" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="100"/>
+        <limit id="three" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
+    </limit-group>
+
+    <limit-group id="unlimitedlimits" groups="unlimited" default="false"/>
+
+    <limit-group id="customerlimits" groups="user customer" default="true">
+        <limit id="one" uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="MINUTE"
+               value="1000"/>
+        <limit id="two" uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="three" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="10"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="5"/>
+        <limit id="five" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="5"/>
+    </limit-group>
+
+</rate-limiting>
+
