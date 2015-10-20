@@ -27,7 +27,6 @@ import spock.lang.Unroll
 
 class RatelimitingMultiUserStateTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
     def setupSpec() {
@@ -47,63 +46,31 @@ class RatelimitingMultiUserStateTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def cleanup() {
-        waitForLimitReset()
-    }
-
     //2233
-    @Unroll("Check absolute and remaining limit for each limit group #limitgroup and #user")
-    def "Check absolute limit on json"() {
-        when: "the user send request to get rate limit with endpoint doesn't match with limit group"
+    @Unroll("Validate limits for #limitgroup match configuration")
+    def "Validate limits in JSON that match the config"() {
+        when: "I send a request to repose to get the limits for the rate limiting filter"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + limitgroup + acceptHeaderJson);
-        def jsonbody = mc1.receivedResponse.body
-        def json = JsonSlurper.newInstance().parseText(jsonbody)
+        def json = JsonSlurper.newInstance().parseText(mc1.receivedResponse.body.toString())
 
         then:
         mc1.handlings.size() == 1
         checkAbsoluteLimitJsonResponse(json, checklimit)
 
         where:
-        limitgroup                          | user                         | checklimit
-        ["X-PP-Groups": "query-limits"]     | ["X-PP-User": "querylimits"] | querylimit
-        //The state after this point, using this limit group somehow breaks everything else in this limit, same problem
-        ["X-PP-Groups": "customer"]         | ["X-PP-User": "customer"]    | customerlimit
-        ["X-PP-Groups": "higher"]           | ["X-PP-User": "test"]        | highlimit
-        ["X-PP-Groups": "reset-limits"]     | ["X-PP-User": "reset123"]    | resetlimit
-        ["X-PP-Groups": "unique"]           | ["X-PP-User": "user1"]       | uniquelimit
-        ["X-PP-Groups": "multiregex"]       | ["X-PP-User": "multiregex"]  | multiregexlimit
-        ["X-PP-Groups": "all-limits"]       | ["X-PP-User": "all"]         | alllimit
-        ["X-PP-Groups": "all-limits-small"] | ["X-PP-User": "allsmall"]    | allsmalllimit
-        ["X-PP-Groups": "multi-limits"]     | ["X-PP-User": "multilimits"] | multilimit
-        ["X-PP-Groups": "unlimited"]        | ["X-PP-User": "unlimited"]   | unlimitedlimit
-        //This one should also pass, but it's being affected by a state bug: REP-2233
-        ["X-PP-Groups": "user"]             | ["X-PP-User": "default"]     | defaultlimit
-    }
-
-    private int parseAbsoluteLimitFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].value
-    }
-
-    //using this for now
-    private int parseRemainingFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].remaining
-    }
-
-    private String getDefaultLimits(Map group = null) {
-        def groupHeader = (group != null) ? group : groupHeaderDefault
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderJson);
-
-        return messageChain.receivedResponse.body
-    }
-
-    private void waitForLimitReset(Map group = null) {
-        while (parseRemainingFromJSON(getDefaultLimits(group), 0) != parseAbsoluteLimitFromJSON(getDefaultLimits(group), 0)) {
-            sleep(1000)
-        }
+        limitgroup                          | checklimit
+        ["X-PP-Groups": "query-limits"]     | querylimit //Every request after this used to fail, but shouldn't
+        ["X-PP-Groups": "customer"]         | customerlimit
+        ["X-PP-Groups": "higher"]           | highlimit
+        ["X-PP-Groups": "reset-limits"]     | resetlimit
+        ["X-PP-Groups": "unique"]           | uniquelimit
+        ["X-PP-Groups": "multiregex"]       | multiregexlimit
+        ["X-PP-Groups": "all-limits"]       | alllimit
+        ["X-PP-Groups": "all-limits-small"] | allsmalllimit
+        ["X-PP-Groups": "multi-limits"]     | multilimit
+        ["X-PP-Groups": "unlimited"]        | unlimitedlimit
+        ["X-PP-Groups": "user"]             | defaultlimit
     }
 
     //Just doing the assertions provides a much better output from spock
@@ -133,7 +100,6 @@ class RatelimitingMultiUserStateTest extends ReposeValveTest {
     }
 
     // Describe the limits from limitgroups in the config
-    //The ordering on these is totally bogus. There's no way this can work reliably :(
     final static List<Map> customerlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
@@ -162,8 +128,6 @@ class RatelimitingMultiUserStateTest extends ReposeValveTest {
             ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
-    // Re ordering to match the config, even though that's not the order repose might return it in, it's better for
-    // my sanity
     final static List<Map> multiregexlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
