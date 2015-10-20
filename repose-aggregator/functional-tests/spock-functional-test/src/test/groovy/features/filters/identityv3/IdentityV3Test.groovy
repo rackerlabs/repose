@@ -90,7 +90,7 @@ class IdentityV3Test extends ReposeValveTest {
         mc.handlings.size() == 1
         // REP-2886 fix: ERROR org.openrepose.powerfilter.PowerFilterChain - Failure in filter: OpenStackIdentityV3Filter
         // when missing group discription
-        reposeLogSearch.searchByString("ERROR org.openrepose.powerfilter.PowerFilterChain - Failure in filter: OpenStackIdentityV3Filter").size() == 0
+        reposeLogSearch.searchByString("ERROR org.openrepose.powerfilter.PowerFilterChain - Failure in filter: OpenStackIdentityV3Filter  -  Reason: Object is missing required member 'description'").size() == 0
     }
 
     def "Tracing header should include in request to Identity"() {
