@@ -25,7 +25,6 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.IgnoreIf
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
@@ -122,7 +121,6 @@ class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
 
     // identity currently return 400 bad request for api-key > 100 characters
     // repose log REP-2880 to work on compliant with this response
-    @IgnoreIf({ new Date() < (new GregorianCalendar(2015, Calendar.NOVEMBER, 10)).getTime() })
     def "When req with invalid key > 100 char using delegable mode with quality"() {
         given:
         def key = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
@@ -138,10 +136,10 @@ class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
                 headers: headers)
 
         then:
-        mc.receivedResponse.code == "400"
+        mc.receivedResponse.code == "401"
         mc.receivedResponse.headers.contains("content-type")
         // may expect different message here
-        mc.receivedResponse.body.contains("Failed to authenticate user: " + fakeIdentityService.client_username)
+        mc.receivedResponse.body.contains("Bad Request received from identity service for " + fakeIdentityService.client_username)
         mc.handlings.size() == 0
         mc.getOrphanedHandlings().size() == 1
     }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -113,22 +113,45 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
       }
     }
 
-    def processFailedToken(code: Int, userName: String, retry: String, encodedCredentials: String): Unit = {
-      code match {
-        case (HttpServletResponse.SC_UNAUTHORIZED) =>
-          delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+    def processFailedToken(tokenResponseInfo: TokenCreationInfo, encodedCredentials: String): Unit = {
+      import HttpServletResponse._
+      tokenResponseInfo match {
+        case TokenCreationInfo(SC_UNAUTHORIZED, _, userName, _, _) =>
+          delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
+            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED) // (401)
             filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
-        case (HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS) => // (413 | 429)
-          delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE) // (503)
+        case TokenCreationInfo((SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS), _, userName, Some(retry), _) => // (413 | 429)
+          delegateOrElse(SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
+            filterDirector.setResponseStatusCode(SC_SERVICE_UNAVAILABLE) // (503)
             filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry)
           }
+        case TokenCreationInfo(SC_BAD_REQUEST, _, userName, _, identityResponseBody) =>
+          identityResponseBody.foreach { responseContent =>
+            logger.warn(s"Bad Request received from identity for $userName. Identity Response: $responseContent")
+          }
+          delegateOrElse(SC_UNAUTHORIZED, s"Bad Request received from identity service for $userName") {
+            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED)
+            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+          }
+        case TokenCreationInfo(SC_FORBIDDEN, _, userName, _, _) =>
+          delegateOrElse(SC_FORBIDDEN, s"$userName is forbidden") {
+            filterDirector.setResponseStatusCode(SC_FORBIDDEN) // (401)
+            //Not removing it from the datastore, they're forbidden, cache is legit
+          }
+        case TokenCreationInfo(SC_NOT_FOUND, _, userName, _, _) =>
+          logger.warn(s"404 Received from identity attempting to authenticate $userName")
+
+          delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
+            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED) // (401)
+            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+          }
         case (_) =>
-          delegateOrElse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+          delegateOrElse(SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
+            filterDirector.setResponseStatusCode(SC_INTERNAL_SERVER_ERROR) // (500)
           }
       }
       if (delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
@@ -150,7 +173,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
       }
 
       if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
-        TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName, "0")
+        TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName)
       } else {
         // Request a User Token based on the extracted User Name/API Key.
         val requestTracingHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
@@ -166,24 +189,30 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
           if (statusCode == HttpServletResponse.SC_OK) {
             val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
             val idString = (xmlString \\ "access" \ "token" \ "@id").text
-            TokenCreationInfo(statusCode, Option(idString), userName, "0")
-          } else if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
-            // (413 | 429)
-            val retryHeaders = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
-            if (retryHeaders.isEmpty) {
-              logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
-              val retryCalendar = new GregorianCalendar()
-              retryCalendar.add(Calendar.SECOND, 5)
-              val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-              TokenCreationInfo(statusCode, None, userName, retryString)
-            } else {
-              TokenCreationInfo(statusCode, None, userName, retryHeaders.head.getValue)
-            }
+            TokenCreationInfo(statusCode, Option(idString), userName)
           } else {
-            TokenCreationInfo(statusCode, None, userName, "0")
+            val responseBody = Some(Source.fromInputStream(tokenResponse.getData).mkString)
+            //Figure out what our Retry Headers are, if identity returned us a rate limited response.
+            val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
+              // (413 | 429)
+              val identityRetryHeader = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
+              if (identityRetryHeader.isEmpty) {
+                logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
+                val retryCalendar = new GregorianCalendar()
+                retryCalendar.add(Calendar.SECOND, 5)
+                val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+                Some(retryString)
+              } else {
+                Some(identityRetryHeader.head.getValue)
+              }
+            } else {
+              //Retry headers are only set for 413 or 429
+              None
+            }
+            TokenCreationInfo(statusCode, None, userName, retryHeaders, responseBody)
           }
         } getOrElse {
-          TokenCreationInfo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None, userName, "0")
+          TokenCreationInfo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None, userName)
         }
       }
     }
@@ -191,14 +220,14 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     def processNoCachedToken(encodedCredentials: String): Unit = {
       // request a token
       getUserToken(encodedCredentials) match {
-        case TokenCreationInfo(code, Some(token), userName, _) =>
+        case TokenCreationInfo(_, Some(token), _, _, _) =>
           val tokenStr = token.toString
           if (tokenCacheTtlMillis > 0) {
             datastore.put(TOKEN_KEY_PREFIX + encodedCredentials, tokenStr, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
           }
           filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
-        case TokenCreationInfo(code, _, userName, retry) =>
-          processFailedToken(code, userName, retry, encodedCredentials)
+        case failure: TokenCreationInfo =>
+          processFailedToken(failure, encodedCredentials)
       }
     }
 
@@ -249,6 +278,14 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
   }
 
-  case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String, retry: String)
+  /**
+   * Token creation info encapsulates the response from identity.
+   * @param responseCode Response code received from identity
+   * @param responseBody Optional Response body from identity if it's not successful
+   * @param userId The user ID parsed from a successful response (if any)
+   * @param userName
+   * @param retry
+   */
+  case class TokenCreationInfo(responseCode: Int, userId: Option[String], userName: String, retry: Option[String] = None, responseBody: Option[String] = None)
 
 }

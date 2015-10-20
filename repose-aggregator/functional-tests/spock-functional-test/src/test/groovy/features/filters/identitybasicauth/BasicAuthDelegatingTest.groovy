@@ -157,6 +157,14 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         "Invalid key or username" | "DELETE" | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
         "Invalid key or username" | "PATCH"  | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
     }
+    /*
+        REP-2880 - Basic auth repose response
+        Identity response
+            400 => 401, make sure this is logged as it could be caused by a broken contract.
+                suggested test case -root cause was the api key length was 1 char over the limit. This caused a 500 back to feeds because we weren't catching the case.
+            403 => 403
+            404 => 401
+     */
 
     @Unroll("Sending request with auth admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
@@ -184,10 +192,10 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
 
         where:
         reqTenant | identityStatusCode          | delegatedMsg //(these msgs need to be update when done with impl
-        9400      | SC_BAD_REQUEST              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9400      | SC_BAD_REQUEST              | "status_code=401`component=Rackspace Identity Basic Auth`message=Bad Request received from identity service for username"
         9401      | SC_UNAUTHORIZED             | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
-        9403      | SC_FORBIDDEN                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
-        9404      | SC_NOT_FOUND                | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
+        9403      | SC_FORBIDDEN                | "status_code=403`component=Rackspace Identity Basic Auth`message=$fakeIdentityService.client_username is forbidden"
+        9404      | SC_NOT_FOUND                | "status_code=401`component=Rackspace Identity Basic Auth`message=Failed to authenticate user: $fakeIdentityService.client_username"
         9500      | SC_INTERNAL_SERVER_ERROR    | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
         9501      | SC_NOT_IMPLEMENTED          | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
         9502      | SC_BAD_GATEWAY              | "status_code=500`component=Rackspace Identity Basic Auth`message=Failed with internal server error"
