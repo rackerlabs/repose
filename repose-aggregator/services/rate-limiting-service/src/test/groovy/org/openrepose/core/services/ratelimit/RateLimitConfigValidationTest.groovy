@@ -28,7 +28,8 @@ class RateLimitConfigValidationTest extends Specification {
         def loadedConfig = configResource(invalidRateLimit)
 
         then: "that validation will fail"
-        //TODO: an exception
+        //It throws a ClassCastException, and logs that it wasn't able to validate.
+        thrown(ClassCastException)
         loadedConfig == null
     }
 }
