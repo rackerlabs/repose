@@ -19,7 +19,9 @@
  */
 package org.openrepose.core.services.serviceclient.akka.impl;
 
-import akka.actor.*;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
@@ -67,12 +69,8 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
                 .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
 
-        tokenActorRef = actorSystem.actorOf(new Props(new UntypedActorFactory() {
-            public UntypedActor create() {
-
-                return new AuthTokenFutureActor(serviceClient);
-            }
-        }).withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
+        tokenActorRef = actorSystem.actorOf(Props.create(AuthTokenFutureActor.class, serviceClient)
+                .withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
     }
 
 
