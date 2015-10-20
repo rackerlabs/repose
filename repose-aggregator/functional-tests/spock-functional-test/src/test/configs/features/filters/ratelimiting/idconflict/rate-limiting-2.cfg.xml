@@ -1,0 +1,15 @@
+<rate-limiting overLimit-429-responseCode="true" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+    <request-endpoint uri-regex="/rate2/limits" include-absolute-limits="true"/>
+
+    <limit-group id="multi2-limits" groups="multi2-limits" default="false">
+        <limit id="test" uri="rate2/*" uri-regex="/rate2/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
+    </limit-group>
+
+    <limit-group id="secondFilterGroup" groups="higher2 test2" default="true">
+        <limit id="one" uri="/rate2/thingy/*" uri-regex="/rate2/thingy/(.*)" http-methods="GET" unit="MINUTE" value="30"/>
+        <limit id="two" uri="/rate2/thingy/*" uri-regex="/rate2/thingy/(.*)" http-methods="POST" unit="HOUR" value="100"/>
+        <limit id="three" uri="/rate2/thingy/*" uri-regex="/rate2/thingy/(.*)" http-methods="PUT" unit="DAY" value="50"/>
+        <limit id="four" uri="/rate2/thingy/*" uri-regex="/rate2/thingy/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
+    </limit-group>
+</rate-limiting>
+
