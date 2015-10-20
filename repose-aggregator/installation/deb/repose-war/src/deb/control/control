@@ -1,4 +1,4 @@
-Package: [[artifactId]]
+Package: [[artifactName]]
 Version: [[version]]
 Section: misc
 Priority: optional
