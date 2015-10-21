@@ -7,7 +7,7 @@
     </limit-group>
 
     <limit-group id="patchmethod" groups="patchmethod" default="false">
-        <limit id="test" uri="/patchmethod/*" uri-regex="/patchmethod/(.*)" http-methods="PATCH" unit="MINUTE"
+        <limit id="testpatch" uri="/patchmethod/*" uri-regex="/patchmethod/(.*)" http-methods="PATCH" unit="MINUTE"
                value="4"/>
     </limit-group>
 
