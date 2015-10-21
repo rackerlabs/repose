@@ -27,13 +27,14 @@
     <header-name>x-pp-group</header-name>
 
     <!-- then create 0..n classifications. They are ordered, so the first match wins.
-    A default catch all is not supplied. If you want to have it always lable, define one.
+    A default catch all is not supplied. If you want to have it always label, define one.
     -->
     <classifications>
         <!-- Classifications follow the CIDR rules: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
         You can specify ipv4-cidr and/or ipv6-cidr. If either matches, the label is applied to the specified header
         and matching stops. If neither matches, nothing happens.
-        labels must be unique. You may specify multiple cidr notations space separated in either IPv4 or IPv6.
+        labels must be unique.
+        You may specify multiple cidr notations space separated in either IPv4 or IPv6.
         -->
         <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
         <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
