@@ -9,7 +9,7 @@
     </limit-group>
 
     <limit-group id="limited3" groups="BETA_Group1 IP_Standard1" default="false">
-        <limit id="test" uri="/*" uri-regex="/(.*)" http-methods="GET" unit="MINUTE" value="300"/>
+        <limit id="test3" uri="/*" uri-regex="/(.*)" http-methods="GET" unit="MINUTE" value="300"/>
     </limit-group>
 </rate-limiting>
 
