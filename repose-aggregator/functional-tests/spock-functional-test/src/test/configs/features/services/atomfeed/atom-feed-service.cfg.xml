@@ -7,7 +7,7 @@
 
     <feed id="authenticating-feed" uri="http://private.atom.com/feed">
         <authentication xsi:type="OpenStackIdentityAuthenticationType"
-                        uri="http://identity.jware.com"
+                        uri="http://localhost:${identityPort}"
                         username="zombiekid"
                         password="iliketurtles"/>
     </feed>
