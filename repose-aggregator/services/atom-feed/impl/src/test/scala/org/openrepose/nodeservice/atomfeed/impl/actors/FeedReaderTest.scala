@@ -74,10 +74,13 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.start()
 
+    val authType = new AuthenticationType()
+    authType.setFqcn("org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory")
+
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
         actorRefFactory =>
-          actorRefFactory.actorOf(Authenticator.props(new AuthenticationType())),
+          actorRefFactory.actorOf(Authenticator.props(authType)),
         _ => notifierProbe.ref,
         EntryOrderType.RANDOM)
     )

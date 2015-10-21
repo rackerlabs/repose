@@ -27,7 +27,7 @@ import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 
 object Authenticator {
   object InvalidateCache
-  case class AuthenticateURLConnection(uRLConnection: URLConnection)
+  case class AuthenticateURLConnection(urlConnection: URLConnection)
 
   def props(authenticationConfig: AuthenticationType): Props = {
     val fqcn = authenticationConfig.getFqcn

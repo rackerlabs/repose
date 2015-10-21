@@ -31,7 +31,7 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.apache.abdera.parser.ParseException
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
-import org.openrepose.nodeservice.atomfeed.impl.actors.Authenticator.InvalidateCache
+import org.openrepose.nodeservice.atomfeed.impl.actors.Authenticator.{AuthenticateURLConnection, InvalidateCache}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
 
 import scala.collection.JavaConversions._
@@ -71,7 +71,7 @@ class FeedReader(feedUri: String,
       // TODO: Configurable wait on authentication?
       implicit val timeout = Timeout(5 seconds)
 
-      val connectionFuture = ask(authenticator, feedUrl.openConnection()).mapTo[URLConnection]
+      val connectionFuture = ask(authenticator, AuthenticateURLConnection(feedUrl.openConnection())).mapTo[URLConnection]
       val authenticatedConnection = Option(Await.result(connectionFuture, timeout.duration))
 
       authenticatedConnection match {
