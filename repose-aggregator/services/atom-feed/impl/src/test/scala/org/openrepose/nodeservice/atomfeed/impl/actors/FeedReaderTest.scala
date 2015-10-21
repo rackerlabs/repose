@@ -20,28 +20,35 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.StringWriter
+import java.net.URLConnection
 import java.util.Date
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.model._
 import akka.testkit.{TestActorRef, TestKit, TestProbe}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
-import org.openrepose.docs.repose.atom_feed_service.v1.{AuthenticationType, EntryOrderType}
+import org.mockito.AdditionalAnswers
+import org.mockito.Matchers.any
+import org.mockito.Mockito.{reset, verify, when}
+import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
+import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.ReadFeed
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike}
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class FeedReaderTest(_system: ActorSystem)
-  extends TestKit(_system) with FunSuiteLike with BeforeAndAfter {
+  extends TestKit(_system) with FunSuiteLike with BeforeAndAfter with MockitoSugar {
 
   def this() = this(ActorSystem("FeedReaderTest"))
 
+  val mockAuthRequestFactory = mock[AuthenticatedRequestFactory]
   val notifierProbe = TestProbe()
   val abdera = Abdera.getInstance()
 
@@ -50,6 +57,9 @@ class FeedReaderTest(_system: ActorSystem)
   var mockAtomFeedService: MockService = _
 
   before {
+    reset(mockAuthRequestFactory)
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection])).thenAnswer(AdditionalAnswers.returnsFirstArg())
+
     mockAtomFeedService = new MockService()
 
     feed = abdera.newFeed()
@@ -74,13 +84,9 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.start()
 
-    val authType = new AuthenticationType()
-    authType.setFqcn("org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory")
-
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
-        actorRefFactory =>
-          actorRefFactory.actorOf(Authenticator.props(authType)),
+        actorFactory => actorFactory.actorOf(Props(new Authenticator(mockAuthRequestFactory))),
         _ => notifierProbe.ref,
         EntryOrderType.RANDOM)
     )
@@ -180,5 +186,18 @@ class FeedReaderTest(_system: ActorSystem)
 
     val entries = notifierProbe.expectMsgClass(classOf[NotifyListeners]).atomEntries
     assert(entries.map(_.hashCode) == List(newEntryHash, oldEntryHash))
+  }
+
+  test("a failed connection to the atom service should invalidate the authentication cache") {
+    actorRef = TestActorRef(
+      new FeedReader("http://bogus.url/feed",
+        actorFactory => actorFactory.actorOf(Props(new Authenticator(mockAuthRequestFactory))),
+        _ => notifierProbe.ref,
+        EntryOrderType.RANDOM)
+    )
+
+    actorRef ! ReadFeed
+
+    verify(mockAuthRequestFactory).invalidateCache()
   }
 }
