@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
     <repose-cluster id="repose">
 
@@ -7,6 +8,7 @@
         </nodes>
 
         <filters>
+            <filter name="keystone-v2"/>
         </filters>
 
         <services>
