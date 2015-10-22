@@ -34,7 +34,7 @@ public class ReposeSpringProperties {
      */
     public static class CORE {
         public static final String REPOSE_VERSION = "${repose-version}";
-        public static final String CONFIG_ROOT = "${powerapi-config-directory}";
+        public static final String CONFIG_ROOT = "${repose-config-directory}";
         public static final String INSECURE = "${repose-insecurity}";
     }
 

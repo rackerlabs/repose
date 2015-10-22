@@ -126,12 +126,15 @@ Repose will search for configurations in a user specified directory.
     The configuration files should be user readable and writable (chmod 600)
 
 Setting the Configuration Root Directory
-    Using web.xml, the web XML should contain:
+    If using the Valve deployment, simple pass the configuration directory to the Java process using the "-c" option.
 
-    <context-param>
-        <param-name>powerapi-config-directory</param-name>
-        <param-value>/etc/repose/</param-value>
-    </context-param>
+    If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
+
+    <Context docBase="ROOT.war">
+      <Parameter name="repose-config-directory" value="/etc/repose" override="false"/>
+      <Parameter name="repose-cluster-id" value="repose"/>
+      <Parameter name="repose-node-id" value="repose_node1"/>
+    </Context>
 
 ###Configuration Mappings###
 

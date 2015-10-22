@@ -8,7 +8,7 @@
 
     <!-- This tells Power API where to look for its configurations -->
     <context-param>
-        <param-name>powerapi-config-directory</param-name>
+        <param-name>repose-config-directory</param-name>
         <param-value>${repose.config.directory}</param-value>
     </context-param>
     <context-param>

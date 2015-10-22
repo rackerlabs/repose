@@ -64,7 +64,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     void start() {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory}"
+        String webXmlOverrides = "-Drepose-config-directory=${configDirectory}"
         if (clusterId != null) {
             webXmlOverrides += " -Drepose-cluster-id=${clusterId}"
         }

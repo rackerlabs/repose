@@ -44,13 +44,18 @@ public class ReposeInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
 
         //Get the values out of the system properties that we'll need
-        String configRoot = System.getProperty(
+        String configRoot = servletContext.getInitParameter(
                 ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT));
         boolean insecure = Boolean.parseBoolean(
-                System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), "false"));
+                servletContext.getInitParameter(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE)));
 
-        String clusterId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID));
-        String nodeId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID));
+        //Default the configuration root to /etc/repose
+        if (configRoot == null) {
+            configRoot = "/etc/repose";
+        }
+
+        String clusterId = servletContext.getInitParameter(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID));
+        String nodeId = servletContext.getInitParameter(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID));
 
         CoreSpringProvider csp = CoreSpringProvider.getInstance();
         csp.initializeCoreContext(configRoot, insecure);
