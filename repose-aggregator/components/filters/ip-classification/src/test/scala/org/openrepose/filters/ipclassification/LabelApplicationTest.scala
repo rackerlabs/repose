@@ -60,7 +60,7 @@ class LabelApplicationTest extends FunSpec with Matchers {
     filter.configurationUpdated(Marshaller.configFromString(validConfig))
     //TODO: is this desireable behavior? More logic is needed if not.
     it("returns the IpV6 catch all, since the servlet filter doesn't know that it's IPv6 or IPv4") {
-      filter.getClassificationLabel("8.8.8.8") should equal(None)
+      filter.getClassificationLabel("8.8.8.8") should equal(Some("ipv6-match-all"))
     }
     it("returns the ipv6 catchall label") {
       filter.getClassificationLabel("2002::1") should equal(Some("ipv6-match-all"))
