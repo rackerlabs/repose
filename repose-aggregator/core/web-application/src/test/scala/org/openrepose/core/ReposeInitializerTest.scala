@@ -23,8 +23,11 @@ import java.util
 import javax.servlet.{DispatcherType, FilterRegistration, ServletContext, ServletRegistration}
 
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{anyString, eq => mockEq}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.core.spring.ReposeSpringProperties
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.openrepose.core.spring.ReposeSpringProperties._
 import org.openrepose.powerfilter.EmptyServlet
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -35,14 +38,13 @@ import org.springframework.web.filter.DelegatingFilterProxy
 @RunWith(classOf[JUnitRunner])
 class ReposeInitializerTest extends FunSpec with BeforeAndAfterAll with Matchers with MockitoSugar {
 
-  override def beforeAll() {
-    //NOTE: have to set up these things since the initializer needs this stuff
-    import ReposeSpringProperties._
-    System.setProperty(stripSpringValueStupidity(CORE.CONFIG_ROOT), "/config/root")
-    System.setProperty(stripSpringValueStupidity(CORE.INSECURE), "false")
-    System.setProperty(stripSpringValueStupidity(NODE.CLUSTER_ID), "cluster")
-    System.setProperty(stripSpringValueStupidity(NODE.NODE_ID), "node")
-  }
+  //NOTE: have to set up these things since the initializer needs this stuff
+  val springProperties = Map(
+    stripSpringValueStupidity(CORE.CONFIG_ROOT) -> "/config/root",
+    stripSpringValueStupidity(CORE.INSECURE) -> "false",
+    stripSpringValueStupidity(NODE.CLUSTER_ID) -> "cluster",
+    stripSpringValueStupidity(NODE.NODE_ID) -> "node"
+  )
 
   describe("The repose initializer") {
     it("should add the core context to the servlet context") {
@@ -50,7 +52,13 @@ class ReposeInitializerTest extends FunSpec with BeforeAndAfterAll with Matchers
       val initializer = new ReposeInitializer
       val context: ServletContext = mock[ServletContext]
       when(context.addServlet("emptyServlet", classOf[EmptyServlet])).thenReturn(mock[ServletRegistration.Dynamic])
-      when(context.addFilter(org.mockito.Matchers.eq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(mock[FilterRegistration.Dynamic])
+      when(context.addFilter(mockEq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(mock[FilterRegistration.Dynamic])
+      when(context.getInitParameter(anyString())).thenAnswer(new Answer[String]() {
+        override def answer(invocation: InvocationOnMock): String = {
+          val paramName = invocation.getArguments()(0).asInstanceOf[String]
+          springProperties.get(paramName).orNull
+        }
+      })
       initializer.onStartup(context)
       verify(context).addListener(org.mockito.Matchers.any(classOf[ContextLoaderListener]))
     }
@@ -59,7 +67,13 @@ class ReposeInitializerTest extends FunSpec with BeforeAndAfterAll with Matchers
       val context: ServletContext = mock[ServletContext]
       val servletRegistration: ServletRegistration.Dynamic = mock[ServletRegistration.Dynamic]
       when(context.addServlet("emptyServlet", classOf[EmptyServlet])).thenReturn(servletRegistration)
-      when(context.addFilter(org.mockito.Matchers.eq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(mock[FilterRegistration.Dynamic])
+      when(context.addFilter(mockEq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(mock[FilterRegistration.Dynamic])
+      when(context.getInitParameter(anyString())).thenAnswer(new Answer[String]() {
+        override def answer(invocation: InvocationOnMock): String = {
+          val paramName = invocation.getArguments()(0).asInstanceOf[String]
+          springProperties.get(paramName).orNull
+        }
+      })
       initializer.onStartup(context)
       verify(servletRegistration).addMapping("/*")
     }
@@ -68,7 +82,13 @@ class ReposeInitializerTest extends FunSpec with BeforeAndAfterAll with Matchers
       val context: ServletContext = mock[ServletContext]
       when(context.addServlet("emptyServlet", classOf[EmptyServlet])).thenReturn(mock[ServletRegistration.Dynamic])
       val filterRegistration: FilterRegistration.Dynamic = mock[FilterRegistration.Dynamic]
-      when(context.addFilter(org.mockito.Matchers.eq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(filterRegistration)
+      when(context.addFilter(mockEq("springDelegatingFilterProxy"), org.mockito.Matchers.any(classOf[DelegatingFilterProxy]))).thenReturn(filterRegistration)
+      when(context.getInitParameter(anyString())).thenAnswer(new Answer[String]() {
+        override def answer(invocation: InvocationOnMock): String = {
+          val paramName = invocation.getArguments()(0).asInstanceOf[String]
+          springProperties.get(paramName).orNull
+        }
+      })
       initializer.onStartup(context)
       verify(filterRegistration).addMappingForUrlPatterns(util.EnumSet.allOf(classOf[DispatcherType]), false, "/*")
     }
