@@ -49,8 +49,10 @@ with UpdateListener[IpClassificationConfig] {
 
   type CIDRTuple = (String, CIDRUtils)
   private val cidrList = new ConcurrentLinkedQueue[CIDRTuple]()
-  private var headerName: String = _
-  private var headerQuality: Double = _
+  private var groupHeaderName: String = _
+  private var groupHeaderQuality: Double = _
+  private var userHeaderName: String = _
+  private var userHeaderQuality: Double = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -77,8 +79,12 @@ with UpdateListener[IpClassificationConfig] {
     val filterDirector = new FilterDirectorImpl()
 
     getClassificationLabel(httpServletRequest.getRemoteAddr).foreach { label =>
-      filterDirector.requestHeaderManager.appendHeader(headerName, label, headerQuality)
+      filterDirector.requestHeaderManager.appendHeader(groupHeaderName, label, groupHeaderQuality)
     }
+
+    //Always set the user header name to the current IP address
+    //TODO: apparently we append users as well?
+    filterDirector.requestHeaderManager().appendHeader(userHeaderName, httpServletRequest.getRemoteAddr, userHeaderQuality)
 
     filterDirector.setFilterAction(FilterAction.PASS) //Don't need to process a response with this filter, so ship it
     filterDirector
@@ -124,11 +130,19 @@ with UpdateListener[IpClassificationConfig] {
     cidrList.addAll(items)
 
     //Blergh, no useful defaults in XSD when I add complex types :(
-    headerName = Option(config.getHeaderName).map { headerName =>
+    groupHeaderName = Option(config.getGroupHeaderName).map { headerName =>
       headerName.getValue
-    } getOrElse "x-pp-group"
+    } getOrElse "x-pp-groups"
 
-    headerQuality = Option(config.getHeaderName).map { headerName =>
+    groupHeaderQuality = Option(config.getGroupHeaderName).map { headerName =>
+      headerName.getQuality
+    } getOrElse 0.4D
+
+    userHeaderName = Option(config.getUserHeaderName).map { headerName =>
+      headerName.getValue
+    } getOrElse "x-pp-user"
+
+    userHeaderQuality = Option(config.getUserHeaderName).map { headerName =>
       headerName.getQuality
     } getOrElse 0.4D
 

@@ -10,8 +10,6 @@ class LabelApplicationTest extends FunSpec with Matchers {
     val validConfig =
       """<?xml version="1.0" encoding="UTF-8"?>
         |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-        |    <header-name>x-pp-group</header-name>
-        |
         |    <classifications>
         |        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
         |        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
@@ -46,8 +44,6 @@ class LabelApplicationTest extends FunSpec with Matchers {
     val validConfig =
       """<?xml version="1.0" encoding="UTF-8"?>
         |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-        |    <header-name>x-pp-group</header-name>
-        |
         |    <classifications>
         |        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
         |        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>

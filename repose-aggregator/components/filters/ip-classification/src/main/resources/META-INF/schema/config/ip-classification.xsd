@@ -39,7 +39,8 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-group"/>
+            <xs:element name="user-header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-user"/>
+            <xs:element name="group-header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-groups"/>
             <xs:element name="classifications" type="ClassificationsType" minOccurs="1" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
