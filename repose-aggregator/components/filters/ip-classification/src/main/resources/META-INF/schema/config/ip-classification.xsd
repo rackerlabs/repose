@@ -25,8 +25,8 @@
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
-           targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/ip-classification/v1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
 
