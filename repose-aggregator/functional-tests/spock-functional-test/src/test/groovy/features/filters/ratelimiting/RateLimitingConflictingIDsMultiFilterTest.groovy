@@ -25,9 +25,11 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+/**
+ * This test provides proof that the fix for REP-2233 works even with multiple filters.
+ */
 class RateLimitingConflictingIDsMultiFilterTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
     def setupSpec() {
@@ -47,7 +49,6 @@ class RateLimitingConflictingIDsMultiFilterTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    //2233
     def "Verify that we don't clobber IDs when multiple rate limiting filters are used"() {
         when: "I send a request through repose that has a conflicting Limit ID in a separate filter file"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",

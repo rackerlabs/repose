@@ -25,6 +25,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+/**
+ * This test proves that the fix for REP-2233 does work
+ */
 class RatelimitingMultiUserStateTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
@@ -46,7 +49,6 @@ class RatelimitingMultiUserStateTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    //2233
     @Unroll("Validate limits for #limitgroup match configuration")
     def "Validate limits in JSON that match the config"() {
         when: "I send a request to repose to get the limits for the rate limiting filter"
