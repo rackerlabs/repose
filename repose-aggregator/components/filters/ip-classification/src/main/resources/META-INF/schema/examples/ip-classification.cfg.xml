@@ -24,7 +24,7 @@
      specify what header to put the group name in. This is the default. It will always add an additional header, not
      clobbering the existing value.
     -->
-    <header-name>x-pp-group</header-name>
+    <header-name quality="0.4">x-pp-group</header-name>
 
     <!-- then create 0..n classifications. They are ordered, so the first match wins.
     A default catch all is not supplied. If you want to have it always label, define one.

@@ -50,6 +50,7 @@ with UpdateListener[IpClassificationConfig] {
   type CIDRTuple = (String, CIDRUtils)
   private val cidrList = new ConcurrentLinkedQueue[CIDRTuple]()
   private var headerName: String = _
+  private var headerQuality: Double = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -76,7 +77,7 @@ with UpdateListener[IpClassificationConfig] {
     val filterDirector = new FilterDirectorImpl()
 
     getClassificationLabel(httpServletRequest.getRemoteAddr).foreach { label =>
-      filterDirector.requestHeaderManager.appendHeader(headerName, label)
+      filterDirector.requestHeaderManager.appendHeader(headerName, label, headerQuality)
     }
 
     filterDirector.setFilterAction(FilterAction.PASS) //Don't need to process a response with this filter, so ship it
@@ -101,9 +102,9 @@ with UpdateListener[IpClassificationConfig] {
     val classifications = config.getClassifications.getClassification.toList
     classifications.foreach { classification =>
       val label = classification.getLabel
-      def splitCIDR(javaCIDR: String):List[String] = {
+      def splitCIDR(javaCIDR: String): List[String] = {
 
-        Option(javaCIDR).map {cidr =>
+        Option(javaCIDR).map { cidr =>
           cidr.split(" ").toList
         } getOrElse {
           List.empty[String]
@@ -122,7 +123,14 @@ with UpdateListener[IpClassificationConfig] {
     cidrList.clear()
     cidrList.addAll(items)
 
-    headerName = config.getHeaderName
+    //Blergh, no useful defaults in XSD when I add complex types :(
+    headerName = Option(config.getHeaderName).map { headerName =>
+      headerName.getValue
+    } getOrElse "x-pp-group"
+
+    headerQuality = Option(config.getHeaderName).map { headerName =>
+      headerName.getQuality
+    } getOrElse 0.4D
 
     initialized = true
   }

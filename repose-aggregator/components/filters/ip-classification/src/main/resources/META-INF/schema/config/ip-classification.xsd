@@ -39,9 +39,32 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="header-name" type="xs:string" minOccurs="0" maxOccurs="1" default="x-pp-group"/>
+            <xs:element name="header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-group"/>
             <xs:element name="classifications" type="ClassificationsType" minOccurs="1" maxOccurs="1"/>
         </xs:all>
+    </xs:complexType>
+
+    <!-- because this becaomse a complex type now, I cannot use defaults. Have to put them in the scala :( -->
+    <!-- well, the quality could be optional, but not the name, and if the name isn't there, the quality isn't there either -->
+    <xs:complexType name="HeaderType">
+        <!-- quality attribute follows the default from ip-identity -->
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The header name to put the classification label in</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.4">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The IPv6 CIDR notation to match against.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+
     </xs:complexType>
 
     <xs:complexType name="ClassificationsType">
@@ -87,4 +110,10 @@
         </xs:assert>
     </xs:complexType>
 
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
