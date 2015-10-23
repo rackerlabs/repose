@@ -1,8 +1,11 @@
 package org.openrepose.filters.ipclassification
 
+import org.junit.runner.RunWith
 import org.openrepose.filters.ipclassification.config.IpClassificationConfig
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class ConfigValidationTest extends FunSpec with Matchers {
 
   //Only testing that valid config is valid
