@@ -10,7 +10,7 @@
     </limit-group>
 
     <limit-group id="captures" groups="captures" default="false">
-        <limit id="test" uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL"
+        <limit id="test2" uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL"
                unit="MINUTE" value="2"/>
     </limit-group>
 
