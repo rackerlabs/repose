@@ -27,7 +27,6 @@ import spock.lang.Unroll
 
 class CheckRateLimitWConfig extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
     def setupSpec() {
@@ -47,17 +46,12 @@ class CheckRateLimitWConfig extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def cleanup() {
-        waitForLimitReset()
-    }
-
-    //2233
-    @Unroll("Check absolute and remaining limit for each limit group #limitgroup and #user")
+    @Unroll("Check absolute and remaining limit for limit group #limitgroup ")
     def "Check absolute limit on json"() {
         when: "the user send request to get rate limit with endpoint doesn't match with limit group"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + limitgroup + acceptHeaderJson);
-        def jsonbody = mc1.receivedResponse.body
+        def jsonbody = mc1.receivedResponse.body.toString()
         def json = JsonSlurper.newInstance().parseText(jsonbody)
         println(jsonbody)
 
@@ -66,44 +60,18 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         checkAbsoluteLimitJsonResponse(json, checklimit)
 
         where:
-        limitgroup                          | user                         | checklimit
-        ["X-PP-Groups": "customer"]         | ["X-PP-User": "customer"]    | customerlimit
-        ["X-PP-Groups": "higher"]           | ["X-PP-User": "test"]        | highlimit
-        ["X-PP-Groups": "reset-limits"]     | ["X-PP-User": "reset123"]    | resetlimit
-        ["X-PP-Groups": "unique"]           | ["X-PP-User": "user1"]       | uniquelimit
-        ["X-PP-Groups": "multiregex"]       | ["X-PP-User": "multiregex"]  | multiregexlimit
-        ["X-PP-Groups": "all-limits"]       | ["X-PP-User": "all"]         | alllimit
-        ["X-PP-Groups": "all-limits-small"] | ["X-PP-User": "allsmall"]    | allsmalllimit
-        ["X-PP-Groups": "multi-limits"]     | ["X-PP-User": "multilimits"] | multilimit
-        ["X-PP-Groups": "query-limits"]     | ["X-PP-User": "querylimits"] | querylimit
-        ["X-PP-Groups": "unlimited"]        | ["X-PP-User": "unlimited"]   | unlimitedlimit
-        //This one should also pass, but it's being affected by a state bug: REP-2233
-        ["X-PP-Groups": "user"]             | ["X-PP-User": "default"]     | defaultlimit
-    }
-
-    private int parseAbsoluteLimitFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].value
-    }
-
-    //using this for now
-    private int parseRemainingFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].remaining
-    }
-
-    private String getDefaultLimits(Map group = null) {
-        def groupHeader = (group != null) ? group : groupHeaderDefault
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderJson);
-
-        return messageChain.receivedResponse.body
-    }
-
-    private void waitForLimitReset(Map group = null) {
-        while (parseRemainingFromJSON(getDefaultLimits(group), 0) != parseAbsoluteLimitFromJSON(getDefaultLimits(group), 0)) {
-            sleep(1000)
-        }
+        limitgroup                          | checklimit
+        ["X-PP-Groups": "customer"]         | customerlimit
+        ["X-PP-Groups": "higher"]           | highlimit
+        ["X-PP-Groups": "reset-limits"]     | resetlimit
+        ["X-PP-Groups": "unique"]           | uniquelimit
+        ["X-PP-Groups": "multiregex"]       | multiregexlimit
+        ["X-PP-Groups": "all-limits"]       | alllimit
+        ["X-PP-Groups": "all-limits-small"] | allsmalllimit
+        ["X-PP-Groups": "multi-limits"]     | multilimit
+        ["X-PP-Groups": "query-limits"]     | querylimit
+        ["X-PP-Groups": "unlimited"]        | unlimitedlimit
+        ["X-PP-Groups": "user"]             | defaultlimit
     }
 
     //Just doing the assertions provides a much better output from spock
