@@ -126,7 +126,7 @@ Repose will search for configurations in a user specified directory.
     The configuration files should be user readable and writable (chmod 600)
 
 Setting the Configuration Root Directory
-    If using the Valve deployment, simple pass the configuration directory to the Java process using the "-c" option.
+    If using the Valve deployment, simply pass the configuration directory to the Java process using the "-c" option.
 
     If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
     <Context docBase="ROOT.war">
