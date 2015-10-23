@@ -20,14 +20,9 @@
 package features.filters.ipclassification
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
-import spock.lang.Shared
-import spock.lang.Unroll
 
 class IpClassificationTest extends ReposeValveTest {
 
@@ -69,6 +64,53 @@ class IpClassificationTest extends ReposeValveTest {
 
         and: "Repose will send x-pp-groups with the configured value"
         ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.4")
+    }
 
+    def "verify classifying with other config"() {
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipclassification/otherconfig", params)
+        sleep(10000)
+
+        when: "Request is sent through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
+        def sentRequest = ((MessageChain) mc).handlings[0]
+
+        then: "Repose will send x-pp-group with the configured value"
+        mc.handlings.size() == 1
+
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        def user = sentRequest.request.headers.getFirstValue("x-pp-user")
+        //The possible IPv4 addresses
+        user == "127.0.0.1;q=0.7" || user == "0:0:0:0:0:0:0:1;q=0.7" || user == "::1;q=0.7"
+
+        and: "Repose will send x-pp-groups with the configured value"
+        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.5")
+    }
+
+    def "classifying with multi-match config only get the 1st match"() {
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipclassification/multigroupsmatch", params)
+        sleep(10000)
+
+        when: "Request is sent through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
+        def sentRequest = ((MessageChain) mc).handlings[0]
+
+        then: "Repose will send x-pp-group with the configured value"
+        mc.handlings.size() == 1
+
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        def user = sentRequest.request.headers.getFirstValue("x-pp-user")
+        //The possible IPv4 addresses
+        user == "127.0.0.1;q=0.7" || user == "0:0:0:0:0:0:0:1;q=0.7" || user == "::1;q=0.7"
+
+        and: "Repose will send x-pp-groups with the configured value"
+        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("match-all-group;q=0.5")
+        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.5")
+        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-lan-ip;q=0.5")
     }
 }
