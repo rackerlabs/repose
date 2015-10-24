@@ -20,7 +20,6 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
-import framework.category.Bug
 import framework.category.Slow
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
@@ -525,11 +524,12 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("302")
         messageChain.handlings.size() == 1
     }
-    //issue REP-2233
-    @Category(Bug.class)
+
     def "Check limit group"() {
+        given: "The limits have been reset for the request we're about to make"
+        waitForLimitReset(["X-PP-Groups": "all-limits-small"])
+
         when: "the user send their request"
-        waitForLimitReset(["x-pp-group": "all-limits-small"])
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'] + acceptHeaderJson)
         def jsonbody = messageChain.receivedResponse.body
