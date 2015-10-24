@@ -26,35 +26,23 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import org.w3c.dom.Document
-import org.xml.sax.InputSource
+import spock.lang.Shared
 import spock.lang.Unroll
 
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
-
-/*
+/**
  * Rate limiting tests ported over from python and JMeter
  *  update test to get limits response in json to parse response and calculate
  *  since often get inconsistent xml response fro limits cause Rate Limiting Tests flaky.
  */
-
 class RateLimitingTest extends ReposeValveTest {
     final handler = { return new Response(200, "OK") }
 
-    final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
-    final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
-    final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
+    static final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
+    static final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
+    static final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
-    final def absoluteLimitResponse = {
-        return new Response("200",
-                "OK", ["Content-Type": "application/xml"],
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                        "<limits xmlns=\"http://docs.openstack.org/common/api/v1.0\"><absolute>" +
-                        "<limit name=\"Admin\" value=\"15\"/><limit name=\"Tech\" value=\"10\"/>" +
-                        "<limit name=\"Demo\" value=\"5\"/></absolute></limits>")
-    }
+    @Shared
+    private RateLimitMeasurementUtilities rlmu
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -64,6 +52,9 @@ class RateLimitingTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
         repose.start()
+
+        //Set up our rate limit utils
+        rlmu = new RateLimitMeasurementUtilities(deproxy, reposeEndpoint, groupHeaderDefault, userHeaderDefault)
     }
 
     def cleanupSpec() {
@@ -74,12 +65,12 @@ class RateLimitingTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        waitForLimitReset()
+        rlmu.waitForLimitReset()
     }
 
     def "When a limit is tested, method should not make a difference"() {
         given: "the rate-limit has not been reached"
-        waitForLimitReset()
+        rlmu.waitForLimitReset()
 
         when: "the user sends their request and the rate-limit has not been reached"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
@@ -134,7 +125,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When a limit has been reached, request should not pass"() {
         given: "the rate-limit has been reached"
-        useAllRemainingRequests("user", "all-limits-small", "/service/limits")
+        rlmu.useAllRemainingRequests("user", "all-limits-small", "/service/limits")
 
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -148,7 +139,7 @@ class RateLimitingTest extends ReposeValveTest {
     @Category(Slow.class)
     def "When a limit has been reached, the limit should reset after one minute"() {
         given: "the limit has been reached"
-        useAllRemainingRequests("user", "all-limits-small", "/service/limits")
+        rlmu.useAllRemainingRequests("user", "all-limits-small", "/service/limits")
 
         when: "another request is sent"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -170,7 +161,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting requests with multiple X-PP-User values, should allow requests with new username"() {
         given: "the limit has been reached for the default user"
-        useAllRemainingRequests("user", "all-limits-small", "/service/limits")
+        rlmu.useAllRemainingRequests("user", "all-limits-small", "/service/limits")
 
         when: "a request is made by a different user"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -182,7 +173,6 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting requests with multiple X-PP-Group values, should allow requests with new group with higher priority"() {
         given: "the limit has been reached for a user in a certain group"
-//        useAllRemainingRequests("user","customer","/service/test")
         MessageChain messageChain = null;
 
         for (x in 0..3) {
@@ -223,7 +213,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
         given:
-        useAllRemainingRequests("user", "multiregex", "/service/endpoint1")
+        rlmu.useAllRemainingRequests("user", "multiregex", "/service/endpoint1")
 
         when:
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/endpoint1", method: "GET",
@@ -262,7 +252,7 @@ class RateLimitingTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/makeput", method: "PUT",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         def slurper = new JsonSlurper()
-        def result = slurper.parseText(getSpecificUserLimits(
+        def result = slurper.parseText(rlmu.getSpecificUserLimits(
                 ["X-PP-Groups": "reset-limits", "X-PP-User": "123"]
         ))
 
@@ -281,7 +271,7 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         slurper = new JsonSlurper()
-        result = slurper.parseText(getSpecificUserLimits(
+        result = slurper.parseText(rlmu.getSpecificUserLimits(
                 ["X-PP-Groups": "reset-limits", "X-PP-User": "123"]
         ))
 
@@ -307,7 +297,7 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         slurper = new JsonSlurper()
-        result = slurper.parseText(getSpecificUserLimits(
+        result = slurper.parseText(rlmu.getSpecificUserLimits(
                 ["X-PP-Groups": "reset-limits", "X-PP-User": "123"]
         ))
 
@@ -513,7 +503,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "Origin response code should not change when using rate limiting filter"() {
         given: "the ratelimits haven't been hit"
-        waitForLimitReset(['X-PP-Groups': 'all-limits-small'])
+        rlmu.waitForLimitReset(['X-PP-Groups': 'all-limits-small'])
 
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
@@ -527,7 +517,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "Check limit group"() {
         given: "The limits have been reset for the request we're about to make"
-        waitForLimitReset(["X-PP-Groups": "all-limits-small"])
+        rlmu.waitForLimitReset(["X-PP-Groups": "all-limits-small"])
 
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
@@ -537,83 +527,13 @@ class RateLimitingTest extends ReposeValveTest {
         def json = JsonSlurper.newInstance().parseText(jsonbody)
         def listnode = json.limits.rate["limit"]
         List limitlist = []
-        println listnode.size()
 
         then: "the response code does not change"
         messageChain.receivedResponse.code.equals("200")
         messageChain.handlings.size() == 1
-        checkAbsoluteLimitJsonResponse(json, allsmalllimit)
+        rlmu.checkAbsoluteLimitJsonResponse(json, allsmalllimit)
     }
 
-    // Helper methods
-    private int parseAbsoluteFromXML(String s, int limit) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
-        factory.setNamespaceAware(true)
-        DocumentBuilder documentBuilder = factory.newDocumentBuilder()
-        Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
-
-        document.getDocumentElement().normalize()
-
-        return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("value").getNodeValue())
-    }
-
-    private int parseAbsoluteLimitFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].value
-    }
-
-    //using this for now
-    private int parseRemainingFromJSON(String body, int limit) {
-        def json = JsonSlurper.newInstance().parseText(body)
-        return json.limits.rate[limit].limit[0].remaining
-    }
-
-    private String getDefaultLimits(Map group = null) {
-        def groupHeader = (group != null) ? group : groupHeaderDefault
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderJson);
-
-        return messageChain.receivedResponse.body
-    }
-
-    private String getSpecificUserLimits(Map headers) {
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: headers + acceptHeaderJson);
-
-        return messageChain.receivedResponse.body
-    }
-
-    private void waitForLimitReset(Map group = null) {
-        while (parseRemainingFromJSON(getDefaultLimits(group), 0) != parseAbsoluteLimitFromJSON(getDefaultLimits(group), 0)) {
-            sleep(1000)
-        }
-    }
-
-    private void useAllRemainingRequests(String user, String group, String path) {
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
-                headers: ["X-PP-User": user, "X-PP-Groups": group]);
-
-        while (!messageChain.receivedResponse.code.equals("413")) {
-            messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
-                    headers: ["X-PP-User": user, "X-PP-Groups": group]);
-        }
-    }
-
-    private boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
-        //def json = JsonSlurper.newInstance().parseText(jsonbody)
-        boolean check = true
-        def listnode = json.limits.rate["limit"]
-        listnode.eachWithIndex { entry, int i ->
-            if (entry.unit[0] != checklimit[i].unit ||
-                    entry.remaining[0] != checklimit[i].remaining ||
-                    entry.verb[0] != checklimit[i].verb ||
-                    entry.value[0] != checklimit[i].value) {
-                check = false
-            }
-
-        }
-        return check
-    }
 
     final static List<Map> allsmalllimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'ALL', 'value': 3]
