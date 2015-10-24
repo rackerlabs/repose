@@ -57,7 +57,7 @@ class RateLimitingConflictingIDsMultiFilterTest extends ReposeValveTest {
 
         then: "the limit reporting for the first filter is accurate"
         mc1.handlings.size() == 1
-        checkAbsoluteLimitJsonResponse(json, highlimit)
+        RateLimitMeasurementUtilities.checkAbsoluteLimitJsonResponse(json, highlimit)
 
         when: "I send a request through repose to get the limits for the other filter"
         MessageChain mc2 = deproxy.makeRequest(url: reposeEndpoint + "/rate2/limits", method: "GET",
@@ -66,33 +66,7 @@ class RateLimitingConflictingIDsMultiFilterTest extends ReposeValveTest {
 
         then:
         mc2.handlings.size() == 1
-        checkAbsoluteLimitJsonResponse(json2, secondFilterGroup)
-    }
-
-    //Just doing the assertions provides a much better output from spock
-    static boolean checkAbsoluteLimitJsonResponse(Map json, List checklimit) {
-
-        def listnode = json.limits.rate["limit"].flatten()
-        //Have to massage away the "next-available" from the listnode list
-        listnode = listnode.collect { entry ->
-            entry.remove("next-available")
-            entry
-        }
-        println("LISTNODE:   ${listnode}")
-        println("CHECKLIMIT: ${checklimit}")
-
-        //Subtract the required checks from the results on repose
-        // If the list is empty, then we checked *everything* and didn't get any other limits back
-        // If it's nonempty, we got other limits back that we didn't check for
-        def onlyAllChecksFound = listnode - checklimit
-        assert onlyAllChecksFound.size() == 0
-
-        //Subtract the result from repose from our checks
-        // If the result is an empty list, then all the checks were found!
-        def allChecksFound = checklimit - listnode
-        assert allChecksFound.size() == 0
-
-        return true
+        RateLimitMeasurementUtilities.checkAbsoluteLimitJsonResponse(json2, secondFilterGroup)
     }
 
     // Describe the limits from limitgroups in the configs
