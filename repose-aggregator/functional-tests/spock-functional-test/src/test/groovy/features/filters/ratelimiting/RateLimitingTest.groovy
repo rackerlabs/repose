@@ -513,6 +513,9 @@ class RateLimitingTest extends ReposeValveTest {
     }
 
     def "Origin response code should not change when using rate limiting filter"() {
+        given: "the ratelimits haven't been hit"
+        waitForLimitReset(['X-PP-Groups': 'all-limits-small'])
+
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'],
