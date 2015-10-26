@@ -71,7 +71,7 @@ class IpClassificationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
         repose.configurationProvider.applyConfigs("features/filters/ipclassification/otherconfig", params)
-        sleep(10000)
+        repose.start()
 
         when: "Request is sent through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
@@ -94,7 +94,7 @@ class IpClassificationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
         repose.configurationProvider.applyConfigs("features/filters/ipclassification/multigroupsmatch", params)
-        sleep(10000)
+        repose.start()
 
         when: "Request is sent through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
@@ -109,8 +109,8 @@ class IpClassificationTest extends ReposeValveTest {
         user == "127.0.0.1;q=0.7" || user == "0:0:0:0:0:0:0:1;q=0.7" || user == "::1;q=0.7"
 
         and: "Repose will send x-pp-groups with the configured value"
-        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("match-all-group;q=0.5")
-        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.5")
-        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-lan-ip;q=0.5")
+        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("match-all-group;q=0.6")
+        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.6")
+        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-lan-ip;q=0.6")
     }
 }

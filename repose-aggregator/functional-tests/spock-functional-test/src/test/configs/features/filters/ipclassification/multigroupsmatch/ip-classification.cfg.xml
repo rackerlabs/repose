@@ -20,7 +20,7 @@
   -->
 
 <ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-    <group-header-name quality="0.5" />
+    <group-header-name quality="0.6" />
     <user-header-name quality="0.7" />
     <classifications>
         <classification label="match-all-group" ipv4-cidr="0.0.0.0/0"/>
