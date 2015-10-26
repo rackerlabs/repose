@@ -353,21 +353,21 @@ class RateLimitingTest extends ReposeValveTest {
     def "When rate limiting with 429 response code set with capture groups false"() {
         when: "requests remain"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all", method: "GET",
-                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderDefault)
+                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code.equals("200")
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all1", method: "GET",
-                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderDefault)
+                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code.equals("200")
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all2", method: "GET",
-                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderDefault)
+                headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code.equals("200")
@@ -383,14 +383,14 @@ class RateLimitingTest extends ReposeValveTest {
     def "When rate limiting /limits"() {
         when: "requests remain"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderDefault)
+                headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code.equals("200")
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderDefault)
+                headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should be rate limited"
         messageChain.receivedResponse.code.equals("413")
