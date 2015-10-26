@@ -31,16 +31,16 @@ import java.util.Set;
 public class XslUpdateListener implements UpdateListener<ConfigurationResource> {
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(XslUpdateListener.class);
-    private final TranslationHandlerFactory handlerFactory;
+    private final TranslationFilter translationFilter;
     private final ConfigurationService configurationService;
     private final Set<String> watchList;
     private final String configRoot;
     private boolean isInitialized = false;
 
-    public XslUpdateListener(TranslationHandlerFactory handlerFactory, ConfigurationService configurationService, String configRoot) {
-        this.handlerFactory = handlerFactory;
+    public XslUpdateListener(TranslationFilter translationFilter, ConfigurationService configurationService, String configRoot) {
+        this.translationFilter = translationFilter;
         this.configurationService = configurationService;
-        this.watchList = new HashSet<String>();
+        this.watchList = new HashSet<>();
         this.configRoot = configRoot;
     }
 
@@ -70,7 +70,7 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     @Override
     public void configurationUpdated(ConfigurationResource config) {
         LOG.info("XSL file changed: " + config.name());
-        handlerFactory.buildProcessorPools();
+        translationFilter.buildProcessorPools();
         isInitialized = true;
     }
 
@@ -78,5 +78,4 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     public boolean isInitialized() {
         return isInitialized;
     }
-
 }
