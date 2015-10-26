@@ -3,7 +3,9 @@
         xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
         cache-timeout-millis="300000"
         enable-masking-403s="true"
-        enable-bypass-account-admin="false">
+        enable-bypass-account-admin="false"
+        connection-pool-id="valkyrie-auth-pool">
+
     <!-- Used is you wish to use delegating authorization, see derp filter -->
     <delegating quality="0.9"/>
     <!-- Which valkyrie instance to hit and with which credentials -->
