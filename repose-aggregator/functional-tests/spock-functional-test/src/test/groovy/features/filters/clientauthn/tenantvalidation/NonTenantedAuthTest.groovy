@@ -79,6 +79,26 @@ class NonTenantedAuthTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
+    def "Validate RackerSSO token no tenant"() {
+        given: "client auth with racker user access"
+        fakeIdentityService.with {
+            client_token = "rackerSSO"
+            service_admin_role = "non-admin"
+        }
+
+        when: "pass request with request tenant"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/12345",
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token]
+                )
+
+        then: "should satisfy the following"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+    }
+
     def "Fails when a racker token doesn't have the authorized role"() {
         fakeIdentityService.with {
             client_token = "rackerFailure"
