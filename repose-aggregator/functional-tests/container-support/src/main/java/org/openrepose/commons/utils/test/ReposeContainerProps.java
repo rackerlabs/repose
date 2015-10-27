@@ -23,13 +23,20 @@ public class ReposeContainerProps {
 
     String startPort;
     String war;
+    String configDir;
+    String clusterId;
+    String nodeId;
     String[] originServiceWars;
 
-    public ReposeContainerProps(String startPort, String war, String... originServiceWars) {
+    public ReposeContainerProps(String startPort, String war, String configDir, String clusterId, String nodeId,
+                                String... originServiceWars) {
+
         this.startPort = startPort;
         this.war = war;
+        this.configDir = configDir;
+        this.clusterId = clusterId;
+        this.nodeId = nodeId;
         this.originServiceWars = originServiceWars;
-
     }
 
     public String getStartPort() {
@@ -38,6 +45,18 @@ public class ReposeContainerProps {
 
     public String getWar() {
         return war;
+    }
+
+    public String getConfigDirectory() {
+        return configDir;
+    }
+
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    public String getNodeId() {
+        return nodeId;
     }
 
     public String[] getOriginServiceWars() {

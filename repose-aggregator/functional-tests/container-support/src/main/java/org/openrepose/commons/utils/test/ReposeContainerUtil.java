@@ -33,15 +33,32 @@ public class ReposeContainerUtil {
 
         Option portOpt = new Option("p", true, "Repose port to listen on");
         Option rootwarOpt = new Option("w", true, "Location of ROOT.war");
+        Option configDirOpt = new Option("d", true, "Location of the configuration directory");
+        Option clusterIdOpt = new Option("c", true, "Cluster ID of the node being launched");
+        Option nodeIdOpt = new Option("n", true, "Node ID of the node being launched");
         Option applicationWarsOpt = new Option("war", true, "");
 
         portOpt.setRequired(true);
         rootwarOpt.setRequired(true);
-        options.addOption(portOpt).addOption(rootwarOpt).addOption(applicationWarsOpt);
-        final CommandLine cmdline;
+        clusterIdOpt.setRequired(true);
+        nodeIdOpt.setRequired(true);
+        options.addOption(portOpt)
+                .addOption(rootwarOpt)
+                .addOption(configDirOpt)
+                .addOption(clusterIdOpt)
+                .addOption(nodeIdOpt)
+                .addOption(applicationWarsOpt);
 
+        final CommandLine cmdline;
         cmdline = parser.parse(options, args);
 
-        return new ReposeContainerProps(cmdline.getOptionValue("p"), cmdline.getOptionValue("w"), cmdline.getOptionValues("war"));
+        return new ReposeContainerProps(
+                cmdline.getOptionValue("p"),
+                cmdline.getOptionValue("w"),
+                cmdline.getOptionValue("d"),
+                cmdline.getOptionValue("c"),
+                cmdline.getOptionValue("n"),
+                cmdline.getOptionValues("war")
+        );
     }
 }

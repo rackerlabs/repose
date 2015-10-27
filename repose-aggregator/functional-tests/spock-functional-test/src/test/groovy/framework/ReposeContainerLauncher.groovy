@@ -64,13 +64,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     void start() {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Drepose-config-directory=${configDirectory}"
-        if (clusterId != null) {
-            webXmlOverrides += " -Drepose-cluster-id=${clusterId}"
-        }
-        if (nodeId != null) {
-            webXmlOverrides += " -Drepose-node-id=${nodeId}"
-        }
+        String webXmlOverrides = "";
 
         if (debugEnabled) {
             if (!debugPort) {
@@ -85,7 +79,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
             }
         }
 
-        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
+        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -d ${configDirectory} -c ${clusterId} -n ${nodeId}"
 
         if (appWars != null || appWars.length != 0) {
             for (String path : appWars) {
