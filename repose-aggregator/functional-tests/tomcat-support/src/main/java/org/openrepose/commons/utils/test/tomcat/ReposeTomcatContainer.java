@@ -50,7 +50,7 @@ public class ReposeTomcatContainer extends ReposeContainer {
 
         String configDir = props.getConfigDirectory();
         if (configDir != null) {
-            reposeContext.addParameter("powerapi-config-directory", configDir);
+            reposeContext.addParameter("repose-config-directory", configDir);
         }
 
         if (props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0) {
