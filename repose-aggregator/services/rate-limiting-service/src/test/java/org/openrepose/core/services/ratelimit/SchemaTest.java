@@ -45,6 +45,7 @@ public class SchemaTest {
 
         private String method;
         private Validator validator;
+
         public WhenValidatingConfiguredMethod(String method) {
             this.method = method;
         }
@@ -148,8 +149,8 @@ public class SchemaTest {
                             "        <limit id=\"two\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits2' groups='customer2'> " +
-                            "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
-                            "        <limit id=\"two\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "        <limit id=\"three\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "        <limit id=\"four\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "</rate-limiting>";
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));

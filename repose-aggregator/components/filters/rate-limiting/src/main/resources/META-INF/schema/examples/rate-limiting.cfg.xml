@@ -9,7 +9,7 @@
         <limit id="four" uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="POST" unit="DAY" value="2"/>
     </limit-group>
     <limit-group id="admin-limits" groups="admin">
-        <limit id="one" uri="/service/admin/*" uri-regex="/service/admin/(.*)" http-methods="GET POST PUT DELETE"
+        <limit id="five" uri="/service/admin/*" uri-regex="/service/admin/(.*)" http-methods="GET POST PUT DELETE"
                unit="SECOND" value="1"/>
     </limit-group>
 </rate-limiting>

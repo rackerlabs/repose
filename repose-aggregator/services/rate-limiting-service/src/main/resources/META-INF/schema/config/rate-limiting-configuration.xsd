@@ -8,9 +8,9 @@
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -162,6 +162,10 @@
                    xerces:message="Only one default limit group may be defined"
                    saxon:message="Only one default limit group may be defined"/>
 
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(limit-group/limit/@id)) = count(limit-group/limit/@id)"
+                   xerces:message="ALL Limits must have unique ids across all limit groups"
+                   saxon:message="ALL Limits must have unique ids across all limit groups" xpathDefaultNamespace="##targetNamespace"/>
+
         <!-- TODO: assert at least one limit-group or global-limit-group is present -->
 
     </xs:complexType>
@@ -281,7 +285,7 @@
             $second-pass in rl:limit[ @uri = $first-pass/@uri  and (: ids are the same :)
             @uri-regex = $first-pass/@uri-regex and (: hrefs are the same :)
             tokenize((string-join(@http-methods, ' ')), ' ') = tokenize((string-join($first-pass/@http-methods, ' ')), ' ') (: Some methods match :)
-                ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)                    
+                ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)
                 = count(rl:limit)"
                 xerces:message="Unique http-methods, and uri-regexes within a limit group"
                 saxon:message="Unique http-methods, and uri-regexes within a limit group"/-->

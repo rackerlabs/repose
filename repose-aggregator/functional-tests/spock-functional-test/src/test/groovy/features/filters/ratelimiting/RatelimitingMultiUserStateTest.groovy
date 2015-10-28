@@ -25,7 +25,10 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-class CheckRateLimitWConfig extends ReposeValveTest {
+/**
+ * This test proves that the fix for REP-2233 does work
+ */
+class RatelimitingMultiUserStateTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
@@ -46,14 +49,12 @@ class CheckRateLimitWConfig extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    @Unroll("Check absolute and remaining limit for limit group #limitgroup ")
-    def "Check absolute limit on json"() {
-        when: "the user send request to get rate limit with endpoint doesn't match with limit group"
+    @Unroll("Validate limits for #limitgroup match configuration")
+    def "Validate limits in JSON that match the config"() {
+        when: "I send a request to repose to get the limits for the rate limiting filter"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + limitgroup + acceptHeaderJson);
-        def jsonbody = mc1.receivedResponse.body.toString()
-        def json = JsonSlurper.newInstance().parseText(jsonbody)
-        println(jsonbody)
+        def json = JsonSlurper.newInstance().parseText(mc1.receivedResponse.body.toString())
 
         then:
         mc1.handlings.size() == 1
@@ -61,6 +62,7 @@ class CheckRateLimitWConfig extends ReposeValveTest {
 
         where:
         limitgroup                          | checklimit
+        ["X-PP-Groups": "query-limits"]     | querylimit //Every request after this used to fail, but shouldn't
         ["X-PP-Groups": "customer"]         | customerlimit
         ["X-PP-Groups": "higher"]           | highlimit
         ["X-PP-Groups": "reset-limits"]     | resetlimit
@@ -69,13 +71,11 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         ["X-PP-Groups": "all-limits"]       | alllimit
         ["X-PP-Groups": "all-limits-small"] | allsmalllimit
         ["X-PP-Groups": "multi-limits"]     | multilimit
-        ["X-PP-Groups": "query-limits"]     | querylimit
         ["X-PP-Groups": "unlimited"]        | unlimitedlimit
         ["X-PP-Groups": "user"]             | defaultlimit
     }
 
     // Describe the limits from limitgroups in the config
-    //The ordering on these is totally bogus. There's no way this can work reliably :(
     final static List<Map> customerlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'DAY', 'remaining': 5, 'verb': 'DELETE', 'value': 5],
@@ -104,8 +104,6 @@ class CheckRateLimitWConfig extends ReposeValveTest {
             ['unit': 'DAY', 'remaining': 50, 'verb': 'DELETE', 'value': 50]
     ]
 
-    // Re ordering to match the config, even though that's not the order repose might return it in, it's better for
-    // my sanity
     final static List<Map> multiregexlimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'GET', 'value': 3],

@@ -15,7 +15,7 @@
     </limit-group>
 
     <limit-group id="method" groups="test3" default="false">
-        <limit id="test2" uri="/method/jkl/test/*" uri-regex="/method/(.+)/test/.+" http-methods="GET" unit="MINUTE"
+        <limit id="test3" uri="/method/jkl/test/*" uri-regex="/method/(.+)/test/.+" http-methods="GET" unit="MINUTE"
                value="3"/>
     </limit-group>
 
