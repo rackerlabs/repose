@@ -316,7 +316,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     potentialUserPermissions match {
       case UserPermissions(roles, devicePermissions) =>
-        if (!roles.contains("account_admin")) {
+        if (!configuration.isEnableBypassAccountAdmin || !roles.contains("account_admin")) {
           if (matchingResources.nonEmpty) {
             val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
