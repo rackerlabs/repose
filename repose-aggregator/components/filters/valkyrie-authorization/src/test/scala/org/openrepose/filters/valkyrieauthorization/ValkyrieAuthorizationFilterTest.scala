@@ -829,11 +829,38 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
     }
 
-    it("should remove no values for account admins") {
+    it("should remove no values for account admins with Bypass Account Admin enabled") {
       setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission")))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(createOriginServiceResponse("98765", "98765"))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+    }
+
+    it("should remove values for account admins with Bypass Account Admin disabled") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = false))
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
@@ -1042,6 +1069,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
+    createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin = true)
+  }
+
+  def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
     server.setUri("http://foo.com:8080")
@@ -1067,6 +1098,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val collectionResources: CollectionResources = new CollectionResources
     collectionResources.getResource.add(resource)
     configuration.setCollectionResources(collectionResources)
+    configuration.setEnableBypassAccountAdmin(enableBypassAccountAdmin)
     configuration
   }
 
