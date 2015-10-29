@@ -18,8 +18,6 @@
   limitations under the License.
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
-
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
@@ -28,13 +26,17 @@
            attributeFormDefault="unqualified">
 
     <!-- Elements -->
+    <!-- This provides for the original behavior by default and the new root element provides the long term default. -->
+    <!-- NOTE: The default behavior of the root element's enable-bypass-account-admin attribute will be changing in a future release. -->
     <xs:element name="valkyrie-authorization" type="ValkyrieAuthorizationConfig"/>
+    <xs:element name="valkyrie-authorization-new" type="ValkyrieAuthorizationConfig-NEW"/>
 
     <!-- Types -->
     <xs:complexType name="ValkyrieAuthorizationConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The root config type for the valkyrie authorization filter configuration file.</html:p>
+                <html:p>NOTE: The default behavior of this element's enable-bypass-account-admin attribute will be inverted in a future release.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -56,6 +58,66 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Instead of returning a 403, instead return a 404 instead</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-bypass-account-admin" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If enabled (true), then the secondary authorization call is bypassed and also no culling of the
+                        Origin Service response will occur (DEFAULT).
+                    </html:p>
+                    <html:p>
+                        If disabled (false), then a secondary authorization call will be made and has the potential to increase
+                        in the response time.
+                    </html:p>
+                    <html:p>NOTE: The default value of this attribute will be inverted in a future release.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ValkyrieAuthorizationConfig-NEW">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The new root config type for the valkyrie authorization filter configuration file.</html:p>
+                <html:p>NOTE: This NEW element will be removed in a future release and will become the default behavior of the original element in a future release.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="valkyrie-server" type="ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="translate-permissions-to-roles" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="collection-resources" type="CollectionResources" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="300000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Time in milliseconds to cache valkyrie response. The default is 5 minutes.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-masking-403s" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Instead of returning a 403, instead return a 404 instead</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-bypass-account-admin" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If disabled (false), then a secondary authorization call will be made and has the potential to increase
+                        in the response time (DEFAULT).
+                    </html:p>
+                    <html:p>
+                        If enabled (true), then the secondary authorization call is bypassed and also no culling of the
+                        Origin Service response will occur.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
