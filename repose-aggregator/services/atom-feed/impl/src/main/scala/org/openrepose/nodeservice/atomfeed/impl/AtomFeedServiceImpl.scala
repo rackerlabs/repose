@@ -19,7 +19,7 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl
 
-import javax.annotation.PostConstruct
+import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
 import akka.actor.{ActorRefFactory, ActorSystem, Cancellable}
@@ -71,6 +71,16 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_I
       SystemModelConfigurationListener,
       classOf[SystemModel]
     )
+  }
+
+  @PreDestroy
+  def destroy(): Unit = {
+    configurationService.unsubscribeFrom(DEFAULT_CONFIG, AtomFeedServiceConfigurationListener)
+    configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigurationListener)
+
+    if (running) {
+      actorSystem.shutdown()
+    }
   }
 
   override def registerListener(feedId: String, listener: AtomFeedListener): String = {

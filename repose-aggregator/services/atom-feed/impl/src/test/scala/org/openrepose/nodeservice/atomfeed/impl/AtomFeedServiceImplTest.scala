@@ -83,6 +83,17 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
     }
   }
 
+  describe("destroy") {
+    it("should unregister configuration listeners") {
+      val atomFeedService = new AtomFeedServiceImpl("", "", mockConfigService)
+
+      atomFeedService.destroy()
+
+      verify(mockConfigService).unsubscribeFrom("atom-feed-service.cfg.xml", atomFeedService.AtomFeedServiceConfigurationListener)
+      verify(mockConfigService).unsubscribeFrom("system-model.cfg.xml", atomFeedService.SystemModelConfigurationListener)
+    }
+  }
+
   describe("configurationUpdated") {
     it("should stop the service if it is not listed in the system model for this node") {
       val systemModel = getSystemModelWithService
