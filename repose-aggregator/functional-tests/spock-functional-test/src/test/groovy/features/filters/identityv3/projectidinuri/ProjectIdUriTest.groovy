@@ -155,6 +155,32 @@ class ProjectIdUriTest extends ReposeValveTest {
         719            | 720             | "service:admin-role2" | "200"
     }
 
+    def "When project-id uri doesn't match identity response project no bypass roles"() {
+        given:
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_projectid = 12345
+            service_admin_role = "non-admin"
+            client_userid = 1234
+        }
+
+        when:
+        "User passes a request through repose with request project not matching"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/999/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "401"
+        mc.handlings.size() == 0
+    }
+
     def "Should split request headers according to rfc by default"() {
         given:
         def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
