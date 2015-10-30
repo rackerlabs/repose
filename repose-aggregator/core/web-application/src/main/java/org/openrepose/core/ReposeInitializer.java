@@ -52,6 +52,7 @@ public class ReposeInitializer implements WebApplicationInitializer {
         String configRoot = System.getProperty(CONFIG_ROOT);
         String clusterId = System.getProperty(CLUSTER_ID);
         String nodeId = System.getProperty(NODE_ID);
+        String insecureString = System.getProperty(INSECURE);
 
         if (configRoot == null) {
             configRoot = servletContext.getInitParameter(CONFIG_ROOT);
@@ -65,8 +66,11 @@ public class ReposeInitializer implements WebApplicationInitializer {
         if (nodeId == null) {
             nodeId = servletContext.getInitParameter(NODE_ID);
         }
+        if (insecureString == null) {
+            insecureString = servletContext.getInitParameter(INSECURE);
+        }
 
-        boolean insecure = Boolean.parseBoolean(System.getProperty(INSECURE)) || Boolean.parseBoolean(servletContext.getInitParameter(INSECURE));
+        boolean insecure = Boolean.parseBoolean(insecureString);
 
         CoreSpringProvider csp = CoreSpringProvider.getInstance();
         csp.initializeCoreContext(configRoot, insecure);
