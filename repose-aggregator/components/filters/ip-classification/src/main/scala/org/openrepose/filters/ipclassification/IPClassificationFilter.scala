@@ -20,8 +20,7 @@
 package org.openrepose.filters.ipclassification
 
 import java.net.URL
-import java.util
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -41,30 +40,31 @@ with UpdateListener[IpClassificationConfig] {
 
   private final val DEFAULT_CONFIG = "ip-classification.cfg.xml"
   private var initialized = false
-  private var config: String = _
+  private var configName: String = _
 
-  type CIDRTuple = (String, CIDRUtils)
-  private val cidrList = new ConcurrentLinkedQueue[CIDRTuple]()
+  case class LabeledCIDR(label: String, cidr: CIDRUtils)
+
+  private val cidrList: AtomicReference[List[LabeledCIDR]] = new AtomicReference[List[LabeledCIDR]]()
   private var groupHeaderName: String = _
   private var groupHeaderQuality: Double = _
   private var userHeaderName: String = _
   private var userHeaderQuality: Double = _
 
   override def init(filterConfig: FilterConfig): Unit = {
-    config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
-    logger.info(s"Initializing using config $config")
+    configName = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    logger.info(s"Initializing using config $configName")
     val xsdURL: URL = getClass.getResource("/META-INF/config/schema/ip-classification.xsd")
 
     configurationService.subscribeTo(
       filterConfig.getFilterName,
-      config,
+      configName,
       xsdURL,
       this,
       classOf[IpClassificationConfig]
     )
   }
 
-  override def destroy(): Unit = configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
+  override def destroy(): Unit = configurationService.unsubscribeFrom(configName, this.asInstanceOf[UpdateListener[_]])
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
@@ -89,22 +89,26 @@ with UpdateListener[IpClassificationConfig] {
   }
 
   def getClassificationLabel(ipAddress: String): Option[String] = {
-    import scala.collection.JavaConversions._
-    cidrList.toList.find { case (_, cidrUtil) =>
-      cidrUtil.isInRange(ipAddress)
-    } map { case (label, _) =>
-      label
+    cidrList.get().find { labeledCidr =>
+      labeledCidr.cidr.isInRange(ipAddress)
+    } map { foundLabeledCidr =>
+      foundLabeledCidr.label
     }
   }
 
-  override def configurationUpdated(config: IpClassificationConfig): Unit = {
+  override def configurationUpdated(classificationConfig: IpClassificationConfig): Unit = {
     //Update all the CIDRs
     //Create a new list to replace the old one
-    val items = new util.ArrayList[CIDRTuple]()
 
     import scala.collection.JavaConversions._
-    val classifications = config.getClassifications.getClassification.toList
-    classifications.foreach { classification =>
+    val classifications = classificationConfig.getClassifications.getClassification.toList
+
+    /**
+     * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
+     * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
+     * them, but this does the same thing
+     */
+    val replacementCidrList: List[LabeledCIDR] = classifications.flatMap { classification =>
       val label = classification.getLabel
       def splitCIDR(javaCIDR: String): List[String] = {
 
@@ -115,32 +119,32 @@ with UpdateListener[IpClassificationConfig] {
         }
       }
 
+      //TODO: if we don't care that IPv6 CIDRS will also match IPv4 addresses we can union these before matching
+      //TODO: else we'll have to build some detection into the system to determine if the source IP is ipv4 or ipv6
       splitCIDR(classification.getIpv4Cidr).map { cidr =>
-        items.add((label, new CIDRUtils(cidr)))
-      }
-      splitCIDR(classification.getIpv6Cidr).map { cidr =>
-        items.add((label, new CIDRUtils(cidr)))
+        LabeledCIDR(label, new CIDRUtils(cidr))
+      } ::: splitCIDR(classification.getIpv6Cidr).map { cidr =>
+        LabeledCIDR(label, new CIDRUtils(cidr))
       }
     }
 
-    //We have loaded all the config, clear it and add all the new ones
-    cidrList.clear()
-    cidrList.addAll(items)
+    //Replace our object! Atomically
+    cidrList.set(replacementCidrList)
 
     //Blergh, no useful defaults in XSD when I add complex types :(
-    groupHeaderName = Option(config.getGroupHeaderName).map { headerName =>
+    groupHeaderName = Option(classificationConfig.getGroupHeaderName).map { headerName =>
       headerName.getValue
     } getOrElse "x-pp-groups"
 
-    groupHeaderQuality = Option(config.getGroupHeaderName).map { headerName =>
+    groupHeaderQuality = Option(classificationConfig.getGroupHeaderName).map { headerName =>
       headerName.getQuality
     } getOrElse 0.4D
 
-    userHeaderName = Option(config.getUserHeaderName).map { headerName =>
+    userHeaderName = Option(classificationConfig.getUserHeaderName).map { headerName =>
       headerName.getValue
     } getOrElse "x-pp-user"
 
-    userHeaderQuality = Option(config.getUserHeaderName).map { headerName =>
+    userHeaderQuality = Option(classificationConfig.getUserHeaderName).map { headerName =>
       headerName.getQuality
     } getOrElse 0.4D
 
