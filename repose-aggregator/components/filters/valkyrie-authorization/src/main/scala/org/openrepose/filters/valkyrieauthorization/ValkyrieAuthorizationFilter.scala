@@ -36,6 +36,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   with LazyLogging {
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
+  private final val ACCOUNT_ADMIN = "account_admin"
+
   val datastore = datastoreService.getDefaultDatastore
 
   var configurationFile: String = DEFAULT_CONFIG
@@ -135,6 +137,47 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
+    def getInventory(headerResult: ValkyrieResult): ValkyrieResult = {
+      def parseInventory(inputStream: InputStream): Try[UserPermissions] = {
+        def parseJson(values: Array[JsValue]): UserPermissions = {
+          if (values.isEmpty) {
+            UserPermissions(Vector.empty[String], Vector.empty[DeviceToPermission])
+          } else {
+            val permissions: UserPermissions = parseJson(values.tail)
+            val currentItem: JsValue = values.head
+            (currentItem \ "id").as[Int] match {
+              case id if id > 0 =>
+                UserPermissions(permissions.roles,
+                  DeviceToPermission(id, ACCOUNT_ADMIN) +: permissions.devices)
+              case _ => permissions
+            }
+          }
+        }
+
+        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
+        try {
+          val json = Json.parse(input)
+          val inventory: Array[JsValue] = (json \ "inventory").as[Array[JsValue]]
+          Success(parseJson(inventory))
+        } catch {
+          case e: Exception =>
+            logger.error(s"Invalid Json response from Valkyrie: $input", e)
+            Failure(new Exception("Invalid Json response from Valkyrie", e))
+        }
+      }
+
+      headerResult match {
+        case UserInfo(tenant, contact) =>
+          //  authorize device            || cull list                  || translate account permissions
+          if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
+            datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parseInventory, tracingHeader)
+          } else {
+            ResponseResult(200)
+          }
+        case _ => headerResult
+      }
+    }
+
     def authorizeDevice(valkyrieCallResult: ValkyrieResult, deviceIdHeader: Option[String]): ValkyrieResult = {
       def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
         val deviceBasedResult: ValkyrieResult = permissions.devices.find(_.device.toString == deviceId).map { deviceToPermission =>
@@ -151,7 +194,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
         deviceBasedResult match {
           case ResponseResult(403, _) =>
-            if (permissions.roles.contains("account_admin")) {
+            if (permissions.roles.contains(ACCOUNT_ADMIN)) {
               permissions
             } else {
               deviceBasedResult
@@ -192,12 +235,26 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
       filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
     } else {
-      val userPermissions: ValkyrieResult = getPermissions(checkHeaders(requestedTenantId, requestedContactId))
-      mask403s(addRoles(authorizeDevice(userPermissions, requestedDeviceId))) match {
+      val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
+      val userPermissions: ValkyrieResult = getPermissions(checkHeader)
+      val allPermissions: ValkyrieResult =  userPermissions match {
+        case UserPermissions(roles, devicePermissions) =>
+          if (!configuration.isEnableBypassAccountAdmin && roles.contains(ACCOUNT_ADMIN)) {
+              getInventory(checkHeader) match {
+              case UserPermissions(_, adminPermissions) =>
+                UserPermissions(roles, adminPermissions ++ devicePermissions)
+              case _ => userPermissions
+            }
+          } else {
+            userPermissions
+          }
+        case _ => userPermissions
+      }
+      mask403s(addRoles(authorizeDevice(allPermissions, requestedDeviceId))) match {
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           try {
-            cullResponse(urlPath, mutableHttpResponse, userPermissions, matchingResources)
+            cullResponse(urlPath, mutableHttpResponse, allPermissions, matchingResources)
           } catch {
             case rce: ResponseCullingException =>
               logger.debug("Failed to cull response, wiping out response.", rce)
@@ -231,11 +288,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      tracingHeader: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
-
       val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
-      val uri = valkyrieServer.getUri + s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
+      val uri = if(callType.equals(ACCOUNT_ADMIN)) {
+        s"/account/$transformedTenant/inventory"
+      } else {
+        s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
+      }
       Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
-        uri,
+        valkyrieServer.getUri + uri,
         Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestTracingHeader)
       )
     }
@@ -316,7 +376,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     potentialUserPermissions match {
       case UserPermissions(roles, devicePermissions) =>
-        if (!configuration.isEnableBypassAccountAdmin || !roles.contains("account_admin")) {
+        if (!configuration.isEnableBypassAccountAdmin || !roles.contains(ACCOUNT_ADMIN)) {
           if (matchingResources.nonEmpty) {
             val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
