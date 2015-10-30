@@ -79,7 +79,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
             }
         }
 
-        def cmd = "java -Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} " +
+        def cmd = "java -Drepose-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} " +
                 "-Drepose-node-id=${nodeId} ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} " +
                 "-w ${rootWarLocation} -d ${configDirectory} -c ${clusterId} -n ${nodeId}"
 
