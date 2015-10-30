@@ -19,7 +19,7 @@
                 <json>
                     <!-- json path to the array that holds the collection -->
                     <path-to-collection>$.values</path-to-collection>
-                    <path-to-device-id>
+                    <path-to-device-id null-id-action="keep">
                         <!-- json path relative to the object within the array to the field that contains the device id -->
                         <path>$.uri</path>
                         <!-- regex to capture the device id -->
