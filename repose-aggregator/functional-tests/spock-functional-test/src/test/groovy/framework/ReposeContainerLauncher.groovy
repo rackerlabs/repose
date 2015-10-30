@@ -79,7 +79,9 @@ class ReposeContainerLauncher extends ReposeLauncher {
             }
         }
 
-        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -d ${configDirectory} -c ${clusterId} -n ${nodeId}"
+        def cmd = "java -Drepose-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} " +
+                "-Drepose-node-id=${nodeId} ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} " +
+                "-w ${rootWarLocation} -d ${configDirectory} -c ${clusterId} -n ${nodeId}"
 
         if (appWars != null || appWars.length != 0) {
             for (String path : appWars) {
