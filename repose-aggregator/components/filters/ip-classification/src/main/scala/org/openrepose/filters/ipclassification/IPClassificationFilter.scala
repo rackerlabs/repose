@@ -24,22 +24,18 @@ import java.util
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.{FilterDirectorImpl, FilterLogicHandlerDelegate}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.ipclassification.config.IpClassificationConfig
 
 @Named
-class IPClassificationFilter @Inject()(configurationService: ConfigurationService) extends AbstractFilterLogicHandler
-with Filter
+class IPClassificationFilter @Inject()(configurationService: ConfigurationService) extends Filter
 with LazyLogging
 with UpdateListener[IpClassificationConfig] {
 
@@ -71,23 +67,25 @@ with UpdateListener[IpClassificationConfig] {
   override def destroy(): Unit = configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(this)
-  }
+    if (!initialized) {
+      logger.error("IP Classification filter has not yet initialized...")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
+    } else {
+      logger.trace("IP Classification filter handling request...")
+      val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
 
-  override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    logger.debug("Handling HTTP request!")
-    val filterDirector = new FilterDirectorImpl()
+      getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
+        request.addHeader(groupHeaderName, s"$label;q=$groupHeaderQuality")
+      }
 
-    getClassificationLabel(httpServletRequest.getRemoteAddr).foreach { label =>
-      filterDirector.requestHeaderManager.appendHeader(groupHeaderName, label, groupHeaderQuality)
+      //Always set the user header name to the current IP address
+      request.addHeader(userHeaderName, s"${servletRequest.getRemoteAddr};q=$userHeaderQuality")
+
+      logger.trace("IP Classification filter passing request...")
+      filterChain.doFilter(request, servletResponse)
+
+      logger.trace("IP Classification filter returning response...")
     }
-
-    //Always set the user header name to the current IP address
-    //TODO: apparently we append users as well?
-    filterDirector.requestHeaderManager().appendHeader(userHeaderName, httpServletRequest.getRemoteAddr, userHeaderQuality)
-
-    filterDirector.setFilterAction(FilterAction.PASS) //Don't need to process a response with this filter, so ship it
-    filterDirector
   }
 
   def getClassificationLabel(ipAddress: String): Option[String] = {
