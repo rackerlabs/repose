@@ -858,6 +858,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
     it("should remove values for account admins with Bypass Account Admin disabled") {
       setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission")))
+      setAdminAkkaBehavior("someTenant", "123456", 200, accountInventory("98765", "98766"))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = false))
@@ -872,15 +873,15 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
       Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit =
-          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(createOriginServiceResponse("98765", "98765"))
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(createOriginServiceResponse("98766", "98767"))
       })
 
       filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 1)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 1)
     }
 
     it("should remove no values for non-matching resources") {
@@ -1110,6 +1111,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
   }
 
+  def setAdminAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
+    Mockito.when(akkaServiceClient.get(
+      ValkyrieAuthorizationFilter.CACHE_PREFIX + "account_admin" + tenant + contactHeader,
+      s"http://foo.com:8080/account/$tenant/inventory",
+      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
+      .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
+  }
+
   def createValkyrieResponse(permissions: String*): String = {
     s"""{
         "contact_permissions" :[
@@ -1161,6 +1170,55 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
              "item_id": 862323,
              "id": 0
          }"""
+  }
+
+  def accountInventory(deviceIdOne: String, deviceIdTwo: String): String = {
+    s"""{
+       |    "inventory": [
+       |        {
+       |            "status": "Online",
+       |            "datacenter": "Datacenter (ABC1)",
+       |            "name": "126327-hyp1.abc.rvi.local",
+       |            "ipv6_network": "",
+       |            "type": "Server",
+       |            "primary_ipv4": "",
+       |            "primary_ipv6": "",
+       |            "primary_ipv4_gateway": "",
+       |            "datacenter_id": 1,
+       |            "platform": "Super Server",
+       |            "nickname": null,
+       |            "os": "Penguin Power",
+       |            "account_number": 11,
+       |            "primary_ipv4_netmask": "",
+       |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
+       |            "ipv6_server_allocation_block": "",
+       |            "permissions": [
+       |                "racker"
+       |            ]
+       |        },
+       |        {
+       |            "status": "Online",
+       |            "datacenter": "Datacenter (ABC1)",
+       |            "name": "783621-hyp1.abc.rvi.local",
+       |            "ipv6_network": "",
+       |            "type": "Server",
+       |            "primary_ipv4": "",
+       |            "primary_ipv6": "",
+       |            "primary_ipv4_gateway": "",
+       |            "datacenter_id": 1,
+       |            "platform": "Super Server",
+       |            "nickname": null,
+       |            "os": "Penguin Power",
+       |            "account_number": 11,
+       |            "primary_ipv4_netmask": "",
+       |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
+       |            "ipv6_server_allocation_block": "",
+       |            "permissions": [
+       |                "racker"
+       |            ]
+       |        }
+       |    ]
+       |}""".stripMargin.trim
   }
 
   def createOriginServiceResponse(deviceId1: String, deviceId2: String): String = {
