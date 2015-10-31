@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
@@ -49,7 +50,7 @@ public class ReposeLocalCacheTest {
             token = "token";
             userId = "userId";
             reposeLocalCacheMock = mock(ReposeLocalCache.class);
-            datastoreService = new DatastoreServiceImpl();
+            datastoreService = new DatastoreServiceImpl(mock(ConfigurationService.class));
         }
 
         @Test
