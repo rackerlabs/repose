@@ -154,13 +154,13 @@ class MockValkyrie {
 
         if (!missingRequestHeaders) {
             code = 200;
-            template = validationSuccessTemplate
+            template = validationSuccessTemplate(params)
         } else {
             code = 403
-            template = validationFailureTemplate
+            template = validationFailureTemplate(params)
         }
 
-        def body = templateEngine.createTemplate(template).make(params)
+        def body = template//templateEngine.createTemplate(template).make(params)
         if (sleeptime > 0) {
             sleep(sleeptime)
         }
@@ -168,17 +168,36 @@ class MockValkyrie {
     }
 
 
-    def validationFailureTemplate =
-            """{
+    String validationFailureTemplate(def params) {
+        """{
                 "itemNotFound" : {
                 "message" : "Permission Error.",
                 "code" : 403
                     }
                 }
             """
+    }
 
-    def validationSuccessTemplate =
-            """{
+    String validationSuccessTemplate(Map<String, String> params) {
+
+        //Build up a pile of hyoog json results
+        StringBuilder lotsOJson = new StringBuilder()
+        5000.times { x ->
+            lotsOJson.append(templateEngine.createTemplate("""{
+                            "item_type_id": 2,
+                            "item_type_name": "accounts",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 7,
+                            "permission_name": "edit_domain",
+                            "item_id": ${x + 5000},
+                            "id": 0
+                        },""").make(params))
+        }
+        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
+
+        //Create the original template stuff and get a string of it
+        String originalTemplate = templateEngine.createTemplate("""{
                     "contact_permissions": [
                         {
                             "item_type_id": 2,
@@ -289,7 +308,10 @@ class MockValkyrie {
                             "permission_name": "\${account_perm}",
                             "item_id": 862323,
                             "id": 0
-                        }
-                    ]
-                }"""
+                        },
+                """).make(params).toString()
+
+        //Now glue all the things together
+        originalTemplate + lotsOJson + "]}"
+    }
 }
