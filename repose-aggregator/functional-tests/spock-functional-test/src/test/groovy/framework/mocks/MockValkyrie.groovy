@@ -182,7 +182,7 @@ class MockValkyrie {
 
         //Build up a pile of hyoog json results
         StringBuilder lotsOJson = new StringBuilder()
-        10.times { x ->
+        1000.times { x ->
             lotsOJson.append(templateEngine.createTemplate("""{
                             "item_type_id": 2,
                             "item_type_name": "accounts",
