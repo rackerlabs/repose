@@ -29,6 +29,7 @@ import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.slf4j.Logger;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 public class EHCacheDatastoreManager implements DatastoreManager {
@@ -37,24 +38,35 @@ public class EHCacheDatastoreManager implements DatastoreManager {
     private static final String CACHE_NAME_PREFIX = "PAPI_LOCAL";
     private static final String CACHE_MANAGER_NAME = "LocalDatastoreCacheManager";
     private final CacheManager cacheManagerInstance;
-    private final String cacheName;
-    private Ehcache instrumentedCache;
+    private final Ehcache instrumentedCache;
 
-    public EHCacheDatastoreManager() {
+    public EHCacheDatastoreManager(InputStream ehCacheConfiguration) {
+        CacheManager newCacheManager;
 
-        Configuration defaultConfiguration = new Configuration();
-        defaultConfiguration.setName(CACHE_MANAGER_NAME);
-        defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
-        defaultConfiguration.setUpdateCheck(false);
+        String cacheName;
+        if (ehCacheConfiguration == null) {
+            Configuration defaultConfiguration = new Configuration();
+            defaultConfiguration.setName(CACHE_MANAGER_NAME);
+            defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+            defaultConfiguration.setUpdateCheck(false);
+            newCacheManager = CacheManager.newInstance(defaultConfiguration);
 
-        this.cacheManagerInstance = CacheManager.newInstance(defaultConfiguration);
+            cacheName = CACHE_NAME_PREFIX + ":" + newCacheManager.getName() + UUID.randomUUID().toString();
 
-        cacheName = CACHE_NAME_PREFIX + ":" + cacheManagerInstance.getName() + UUID.randomUUID().toString();
+            final Ehcache cache = new Cache(cacheName, 20000, false, false, 5, 2);
+            newCacheManager.addCache(cache);
+            this.instrumentedCache = InstrumentedEhcache.instrument(cache);
+        } else {
+            newCacheManager = CacheManager.newInstance(ehCacheConfiguration);
 
-        final Ehcache cache = new Cache(cacheName, 20000, false, false, 5, 2);
-        cacheManagerInstance.addCache(cache);
+            cacheName = CACHE_NAME_PREFIX + ":" + newCacheManager.getName() + UUID.randomUUID().toString();
 
-        this.instrumentedCache = InstrumentedEhcache.instrument(cache);
+            newCacheManager.addCache(cacheName);
+
+            this.instrumentedCache = InstrumentedEhcache.instrument(newCacheManager.getCache(cacheName));
+        }
+
+        this.cacheManagerInstance = newCacheManager;
     }
 
     @Override
