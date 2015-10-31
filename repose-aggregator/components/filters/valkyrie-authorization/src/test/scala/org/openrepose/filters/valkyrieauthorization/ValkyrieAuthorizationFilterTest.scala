@@ -346,7 +346,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
       assert(mockServletResponse.getStatusCode == 403)
 
-      Mockito.verify(mockDatastore).put("VALKYRIE-FILTERanysomeTenant123456", filter.UserPermissions(Vector.empty[String], Vector(filter.DeviceToPermission(123456, "view_product"), filter.DeviceToPermission(1234561, "view_product1"))), 300000, TimeUnit.MILLISECONDS)
+      Mockito.verify(mockDatastore).put("VALKYRIE-FILTERanysomeTenant123456", filter.UserPermissions(Vector.empty[String], Vector(filter.DeviceToPermission(1234561, "view_product1"), filter.DeviceToPermission(123456, "view_product"))), 300000, TimeUnit.MILLISECONDS)
 
       val secondRequest = new MockHttpServletRequest
       val secondServletResponse = new MockHttpServletResponse
@@ -461,8 +461,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
       val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
-      assert(roles.contains("some_permission"))
       assert(roles.contains("a_different_permission"))
+      assert(roles.contains("some_permission"))
     }
 
     it("should 401 when tenant id isn't present") {
@@ -588,8 +588,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
       val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
-      assert(roles.contains("some_permission"))
       assert(roles.contains("a_different_permission"))
+      assert(roles.contains("some_permission"))
     }
 
     it("should 401 when tenant id isn't present") {
