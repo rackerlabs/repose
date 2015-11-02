@@ -40,9 +40,9 @@ class MockValkyrie {
 
     int port
 
-    boolean missingRequestHeaders = false;
+    boolean missingRequestHeaders = false
 
-    protected AtomicInteger _authorizeCount = new AtomicInteger(0);
+    protected AtomicInteger _authorizeCount = new AtomicInteger(0)
 
 
     void resetCounts() {
@@ -76,10 +76,11 @@ class MockValkyrie {
     String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
+    Integer multiplier = 1
 
-    def sleeptime = 0;
+    def sleeptime = 0
 
-    def templateEngine = new SimpleTemplateEngine();
+    def templateEngine = new SimpleTemplateEngine()
 
     def handler = { Request request -> return handleRequest(request) }
 
@@ -124,12 +125,12 @@ class MockValkyrie {
                 return authorizeHandler(tenant, contact, request)
             } else {
                 // return default error response if required headers are present
-                return new Response(403);
+                return new Response(403)
             }
 
         }
 
-        return new Response(501);
+        return new Response(501)
     }
 
     static
@@ -144,23 +145,22 @@ class MockValkyrie {
                 deviceID2   : device_id2,
                 permission  : device_perm,
                 account_perm: account_perm,
-        ];
+        ]
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
 
+        def body
         if (!missingRequestHeaders) {
-            code = 200;
-            template = validationSuccessTemplate(params)
+            code = 200
+            body = validationSuccessTemplate(params)
         } else {
             code = 403
-            template = validationFailureTemplate(params)
+            body = validationFailureTemplate(params)
         }
 
-        def body = template//templateEngine.createTemplate(template).make(params)
         if (sleeptime > 0) {
             sleep(sleeptime)
         }
@@ -182,7 +182,11 @@ class MockValkyrie {
 
         //Build up a pile of hyoog json results
         StringBuilder lotsOJson = new StringBuilder()
+<<<<<<< HEAD
         1000.times { x ->
+=======
+        multiplier.times { x ->
+>>>>>>> Added a multiplier for the MockValkyrie success template in order to force large (i.e. hyoog) success returns.
             lotsOJson.append(templateEngine.createTemplate("""{
                             "item_type_id": 2,
                             "item_type_name": "accounts",
