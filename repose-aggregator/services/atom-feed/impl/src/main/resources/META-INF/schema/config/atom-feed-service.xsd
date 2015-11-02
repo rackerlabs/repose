@@ -127,6 +127,10 @@
     </xs:simpleType>
 
     <xs:complexType name="AuthenticationType">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+        </xs:sequence>
+
         <xs:attribute name="fqcn" type="xs:string"
                       default="org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory">
             <xs:annotation>
@@ -135,6 +139,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:anyAttribute processContents="skip"/>
     </xs:complexType>
 
     <xs:complexType name="OpenStackIdentityFQCNType">
