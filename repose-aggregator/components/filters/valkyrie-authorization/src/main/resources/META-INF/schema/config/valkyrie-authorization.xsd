@@ -26,8 +26,6 @@
            attributeFormDefault="unqualified">
 
     <!-- Elements -->
-    <!-- This provides for the original behavior by default and the new root element provides the long term default. -->
-    <!-- NOTE: The default behavior of the root element's enable-bypass-account-admin attribute will be changing in a future release. -->
     <xs:element name="valkyrie-authorization" type="ValkyrieAuthorizationConfig"/>
 
     <!-- Types -->
