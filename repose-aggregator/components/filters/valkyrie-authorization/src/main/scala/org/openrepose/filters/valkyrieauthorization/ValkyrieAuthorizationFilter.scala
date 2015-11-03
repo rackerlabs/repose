@@ -23,6 +23,7 @@ import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
@@ -92,19 +93,20 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def getPermissions(headerResult: ValkyrieResult): ValkyrieResult = {
       def parsePermissions(inputStream: InputStream): Try[UserPermissions] = {
-        def parseJson(values: Array[JsValue]): UserPermissions = {
+
+        @tailrec
+        def parseJson(permissionName: List[String], deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
           if (values.isEmpty) {
-            UserPermissions(Vector.empty[String], Vector.empty[DeviceToPermission])
+            UserPermissions(permissionName.toVector, deviceToPermissions.toVector)
           } else {
-            val permissions: UserPermissions = parseJson(values.tail)
             val currentPermission: JsValue = values.head
             (currentPermission \ "item_type_name").as[String] match {
               case "accounts" =>
-                UserPermissions((currentPermission \ "permission_name").as[String] +: permissions.roles, permissions.devices)
+                parseJson((currentPermission \ "permission_name").as[String] +: permissionName, deviceToPermissions, values.tail)
               case "devices" =>
-                UserPermissions(permissions.roles,
-                  DeviceToPermission((currentPermission \ "item_id").as[Int], (currentPermission \ "permission_name").as[String]) +: permissions.devices)
-              case _ => permissions
+                parseJson(permissionName,
+                  DeviceToPermission((currentPermission \ "item_id").as[Int], (currentPermission \ "permission_name").as[String]) +: deviceToPermissions, values.tail)
+              case _ => parseJson(permissionName, deviceToPermissions, values.tail)
             }
           }
         }
@@ -112,8 +114,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
         try {
           val json = Json.parse(input)
-          val permissions: Array[JsValue] = (json \ "contact_permissions").as[Array[JsValue]]
-          Success(parseJson(permissions))
+          val permissions: List[JsValue] = (json \ "contact_permissions").as[List[JsValue]]
+          Success(parseJson(List.empty[String], List.empty[DeviceToPermission], permissions))
         } catch {
           case e: Exception =>
             logger.error(s"Invalid Json response from Valkyrie: $input", e)
