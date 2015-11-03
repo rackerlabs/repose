@@ -20,6 +20,7 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
@@ -27,10 +28,12 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 8/13/15.
  */
+
 class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -106,6 +109,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeValkyrie.resetParameters()
     }
 
     def cleanupSpec() {
@@ -118,6 +122,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         }
     }
 
+    @Category(Slow)
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list"() {
         given: "a list permission devices defined in Valkyrie"
@@ -247,7 +252,105 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.receivedResponse.code == "401"
     }
 
+    @Category(Slow)
+    def "Test get match resource list with large list 500 devices"() {
+        given: "a list permission devices defined in Valkyrie"
+        def tenantID = randomTenant()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            account_perm = "account_admin"
+        }
+
+        def jsonbody = genJsonResp(500)
+        //print jsonbody
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+        def body = new String(mc.receivedResponse.body)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        result.values.size == 501
+        result.metadata.count == 501
+
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+    }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
+    }
+
+    def String randomDevice() {
+        def listdevices = ["520707", "520708", "520709", "520710", "520711", "520712", "520713"]
+        return listdevices.get(random.nextInt(listdevices.size()))
+    }
+
+    def String genJsonResp(def number) {
+        def value = number + 1
+        String meat = """{
+        "values": ["""
+        1.upto(number) {
+            meat += """{
+                "id": "en6bShuX7a",
+                "label": "brad@morgabra.com",
+                "ip_addresses": null,
+                "metadata": {
+                    "userId": "325742",
+                    "email": "brad@morgabra.com"
+                },
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + randomDevice() + """",
+                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1405963090100,
+                "updated_at": 1409247144717
+            },"""
+        }
+        meat += """{
+                "id": "enADqSly1y",
+                "label": "test",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + randomDevice() + """",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
+            }],
+            "metadata": {
+                "count": $value,
+                "limit": $value,
+                "marker": null,
+                "next_marker": "enB11JvqNv",
+                "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
+            }
+        }"""
     }
 }
