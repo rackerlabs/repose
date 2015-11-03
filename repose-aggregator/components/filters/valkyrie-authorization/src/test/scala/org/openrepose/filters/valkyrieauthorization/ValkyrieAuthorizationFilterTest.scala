@@ -464,7 +464,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
         Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-        val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+        val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
         assert(roles.contains("some_permission"))
         assert(roles.contains("a_different_permission"))
         assert(roles.contains(devicePermission))
@@ -519,7 +519,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("a_different_permission"))
       assert(roles.contains("some_permission"))
     }
@@ -605,7 +605,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("some_permission"))
       assert(roles.contains("a_different_permission"))
 
@@ -646,7 +646,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("a_different_permission"))
       assert(roles.contains("some_permission"))
     }
@@ -798,7 +798,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
+      assert((json \ "values").asInstanceOf[JsArray].value.isEmpty)
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
     }
 
