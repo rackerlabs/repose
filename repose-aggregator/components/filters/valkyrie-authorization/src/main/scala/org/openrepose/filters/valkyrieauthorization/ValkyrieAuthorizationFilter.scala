@@ -139,17 +139,17 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def getInventory(headerResult: ValkyrieResult): ValkyrieResult = {
       def parseInventory(inputStream: InputStream): Try[UserPermissions] = {
-        def parseJson(values: Array[JsValue]): UserPermissions = {
+
+        @tailrec
+        def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
           if (values.isEmpty) {
-            UserPermissions(Vector.empty[String], Vector.empty[DeviceToPermission])
+            UserPermissions(List(ACCOUNT_ADMIN).toVector, deviceToPermissions.toVector)
           } else {
-            val permissions: UserPermissions = parseJson(values.tail)
             val currentItem: JsValue = values.head
             (currentItem \ "id").as[Int] match {
               case id if id > 0 =>
-                UserPermissions(permissions.roles,
-                  DeviceToPermission(id, ACCOUNT_ADMIN) +: permissions.devices)
-              case _ => permissions
+                parseJson(DeviceToPermission(id, ACCOUNT_ADMIN) +: deviceToPermissions, values.tail)
+              case _ => parseJson(deviceToPermissions, values.tail)
             }
           }
         }
@@ -157,8 +157,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
         try {
           val json = Json.parse(input)
-          val inventory: Array[JsValue] = (json \ "inventory").as[Array[JsValue]]
-          Success(parseJson(inventory))
+          val inventory: List[JsValue] = (json \ "inventory").as[List[JsValue]]
+          Success(parseJson(List.empty[DeviceToPermission], inventory))
         } catch {
           case e: Exception =>
             logger.error(s"Invalid Json response from Valkyrie: $input", e)
@@ -186,6 +186,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             case "view_product" if List("GET", "HEAD").contains(method) => permissionsWithDevicePermissions
             case "edit_product" => permissionsWithDevicePermissions
             case "admin_product" => permissionsWithDevicePermissions
+            case ACCOUNT_ADMIN => permissionsWithDevicePermissions
             case _ => ResponseResult(403, "Not Authorized")
           }
         } getOrElse {
@@ -236,21 +237,22 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
     } else {
       val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
-      val userPermissions: ValkyrieResult = getPermissions(checkHeader)
-      val allPermissions: ValkyrieResult =  userPermissions match {
-        case UserPermissions(roles, devicePermissions) =>
-          if (!configuration.isEnableBypassAccountAdmin && roles.contains(ACCOUNT_ADMIN)) {
+      val userPermissions = getPermissions(checkHeader)
+      val authPermissions = authorizeDevice(userPermissions, requestedDeviceId)
+      val allPermissions =  authPermissions match {
+        case UserPermissions(deviceRoles, devicePermissions) =>
+          if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
               getInventory(checkHeader) match {
-              case UserPermissions(_, adminPermissions) =>
-                UserPermissions(roles, adminPermissions ++ devicePermissions)
-              case _ => userPermissions
+              case UserPermissions(adminRoles, adminPermissions) =>
+                UserPermissions(deviceRoles ++ adminRoles, devicePermissions ++ adminPermissions)
+              case _ => authPermissions
             }
           } else {
-            userPermissions
+            authPermissions
           }
-        case _ => userPermissions
+        case _ => authPermissions
       }
-      mask403s(addRoles(authorizeDevice(allPermissions, requestedDeviceId))) match {
+      mask403s(addRoles(allPermissions)) match {
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           try {
@@ -289,7 +291,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
       val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
-      val uri = if(callType.equals(ACCOUNT_ADMIN)) {
+      val uri = if (callType.equals(ACCOUNT_ADMIN)) {
         s"/account/$transformedTenant/inventory"
       } else {
         s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
