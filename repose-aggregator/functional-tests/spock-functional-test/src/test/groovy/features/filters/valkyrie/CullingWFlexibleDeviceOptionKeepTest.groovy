@@ -39,7 +39,7 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
-    def static deviceId1 = "520707"
+    def static deviceId1 = ""
     def static deviceId2 = "520708"
 
     def static random = new Random()
@@ -93,6 +93,7 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction", params);
 
         repose.start()
 
