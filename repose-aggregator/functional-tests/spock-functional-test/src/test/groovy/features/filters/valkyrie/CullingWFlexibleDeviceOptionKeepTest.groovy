@@ -30,6 +30,8 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 10/30/15.
+ * flexible device id uri - uri null with null-id-action
+ *  uri is null (not null or empty deviceid from uri):
  */
 class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
     def static originEndpoint
@@ -39,7 +41,7 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
-    def static deviceId1 = ""
+    def static deviceId1 = "520707"
     def static deviceId2 = "520708"
 
     def static random = new Random()
@@ -73,11 +75,24 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
                 "scheduled_suppressions": [],
                 "created_at": 1411055897191,
                 "updated_at": 1411055897191
+            },
+            {
+                "id": "enADqSly1x",
+                "label": "test2",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": null,
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
             }
         ],
         "metadata": {
-            "count": 2,
-            "limit": 2,
+            "count": 4,
+            "limit": 4,
             "marker": null,
             "next_marker": "enB11JvqNv",
             "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
@@ -146,7 +161,9 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
                 ],
                 defaultHandler: jsonResp
         )
+
         def body = new String(mc.receivedResponse.body)
+        print body
         def slurper = new JsonSlurper()
         def result = slurper.parseText(body)
 
@@ -166,10 +183,10 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
 
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 2
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 2
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 3
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 1
     }
 
     def String randomTenant() {
