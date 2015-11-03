@@ -155,7 +155,11 @@ class MockValkyrie {
         def body
         if (!missingRequestHeaders) {
             code = 200
-            body = validationSuccessTemplate(params)
+            if (request.getPath().contains("inventory")) {
+                body = inventorySuccessTemplate(params)
+            } else /*if (request.getPath().contains("permissions"))*/ {
+                body = validationSuccessTemplate(params)
+            }
         } else {
             code = 403
             body = validationFailureTemplate(params)
@@ -179,26 +183,6 @@ class MockValkyrie {
     }
 
     String validationSuccessTemplate(Map<String, String> params) {
-
-        //Build up a pile of hyoog json results
-        StringBuilder lotsOJson = new StringBuilder()
-<<<<<<< HEAD
-        1000.times { x ->
-=======
-        multiplier.times { x ->
->>>>>>> Added a multiplier for the MockValkyrie success template in order to force large (i.e. hyoog) success returns.
-            lotsOJson.append(templateEngine.createTemplate("""{
-                            "item_type_id": 2,
-                            "item_type_name": "accounts",
-                            "contact_id": \${contact},
-                            "account_number": \${tenant},
-                            "permission_type_id": 7,
-                            "permission_name": "edit_domain",
-                            "item_id": ${x + 5000},
-                            "id": 0
-                        },""").make(params))
-        }
-        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
 
         //Create the original template stuff and get a string of it
         String originalTemplate = templateEngine.createTemplate("""{
@@ -239,7 +223,7 @@ class MockValkyrie {
                             "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
-                            "permission_name": "edid_product",
+                            "permission_name": "edit_product",
                             "item_id": 862323,
                             "id": 0
                         },
@@ -314,6 +298,102 @@ class MockValkyrie {
                             "id": 0
                         },
                 """).make(params).toString()
+
+        //Build up a pile of hyoog json results
+        StringBuilder lotsOJson = new StringBuilder()
+        multiplier.times { x ->
+            lotsOJson.append(templateEngine.createTemplate("""{
+                            "item_type_id": 2,
+                            "item_type_name": "devices",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 7,
+                            "permission_name": "hyoog_json",
+                            "item_id": ${x + 5000},
+                            "id": 0
+                        },""").make(params))
+        }
+        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
+
+        //Now glue all the things together
+        originalTemplate + lotsOJson + "]}"
+    }
+
+    String inventorySuccessTemplate(Map<String, String> params) {
+
+        //Create the original template stuff and get a string of it
+        String originalTemplate = templateEngine.createTemplate("""{
+                "inventory": [
+                    {
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "\${deviceID}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": \${deviceID}
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "racker"
+                        ]
+                    },
+                    {
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "\${deviceID2}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": \${deviceID2}
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "racker"
+                        ]
+                    },
+                """).make(params).toString()
+
+        //Build up a pile of hyoog json results
+        StringBuilder lotsOJson = new StringBuilder()
+        multiplier.times { x ->
+            lotsOJson.append(templateEngine.createTemplate("""{
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "${x + 5000}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": ${x + 5000},
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "hyoog_json"
+                        ]
+                    },""").make(params))
+        }
+        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
 
         //Now glue all the things together
         originalTemplate + lotsOJson + "]}"
