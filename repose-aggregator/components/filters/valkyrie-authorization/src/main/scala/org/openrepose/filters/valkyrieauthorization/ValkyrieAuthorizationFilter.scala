@@ -73,7 +73,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse]))
 
-    def nullOrWhitespace(str: Option[String]): Option[String] = str.map { _.trim }.filter { !"".equals(_) }
+    def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
 
     val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
     val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
@@ -253,7 +253,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           try {
-            cullResponse(urlPath, mutableHttpResponse, authPermissions, matchingResources)
+            cullResponse(mutableHttpResponse, authPermissions, matchingResources)
           } catch {
             case rce: ResponseCullingException =>
               logger.debug("Failed to cull response, wiping out response.", rce)
@@ -323,7 +323,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
   }
 
-  def cullResponse(urlPath: String, response: MutableHttpServletResponse, potentialUserPermissions: ValkyrieResult,
+  def cullResponse(response: MutableHttpServletResponse, potentialUserPermissions: ValkyrieResult,
                    matchingResources: Seq[Resource]): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
@@ -340,20 +340,28 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: Vector[DeviceToPermission]): Seq[JsValue] = {
       jsonArray.filter { value =>
-        val deviceValue: String = Try(JSONPath.query(devicePath.getPath, value).as[String])
-          .recover( { case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${devicePath.getPath}", jre) } )
-          .get
+        JSONPath.query(devicePath.getPath, value) match {
+          case JsNull =>
+            devicePath.getNullIdAction match {
+              case NullDeviceIdAction.KEEP => true
+              case NullDeviceIdAction.REMOVE => false
+            }
+          case jsValue =>
+            val deviceValue: String = Try(jsValue.as[String])
+              .recover({ case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${devicePath.getPath}", jre) })
+              .get
 
-        try {
-          val matcher: Matcher = devicePath.getRegex.getValue.r.pattern.matcher(deviceValue)
-          if (matcher.matches()) {
-            devicePermissions.exists(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt)
-          } else {
-            throw new ResponseCullingException(s"Regex: ${devicePath.getRegex.getValue} did not match $deviceValue")
-          }
-        } catch {
-          case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
-          case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
+            try {
+              val matcher: Matcher = devicePath.getRegex.getValue.r.pattern.matcher(deviceValue)
+              if (matcher.matches()) {
+                devicePermissions.exists(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt)
+              } else {
+                throw new ResponseCullingException(s"Regex: ${devicePath.getRegex.getValue} did not match $deviceValue")
+              }
+            } catch {
+              case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
+              case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
+            }
         }
       }
     }
