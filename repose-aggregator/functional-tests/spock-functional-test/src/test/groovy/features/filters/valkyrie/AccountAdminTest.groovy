@@ -46,7 +46,6 @@ class AccountAdminTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/accountadmin", params);
 
-        repose.setDoSuspend(true)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

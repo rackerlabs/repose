@@ -115,14 +115,18 @@ class MockValkyrie {
 
         if (method == "GET") {
             if (!missingRequestHeaders) {
-                def match = (requestPath =~ permissionsRegex)
-                def tenant = match[0][1]
-                def call = match[0][2]
-                def contact = match[0][3]
-                contact_id = contact
-                tenant_id = tenant
-                _authorizeCount.incrementAndGet()
-                return authorizeHandler(tenant, contact, request)
+                if (request.getPath().contains("inventory")) {
+                    def match = (requestPath =~ inventoryRegex)
+                    tenant_id = match[0][1]
+                    contact_id = null
+                    _authorizeCount.incrementAndGet()
+                } else /*if (request.getPath().contains("permissions"))*/ {
+                    def match = (requestPath =~ permissionsRegex)
+                    tenant_id = match[0][1]
+                    contact_id = match[0][3]
+                    _authorizeCount.incrementAndGet()
+                }
+                return authorizeHandler(tenant_id, contact_id, request)
             } else {
                 // return default error response if required headers are present
                 return new Response(403)
@@ -132,6 +136,9 @@ class MockValkyrie {
 
         return new Response(501)
     }
+
+    static
+    final String inventoryRegex = /^\/account\/([^\/]+)\/inventory/
 
     static
     final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/any\/by_contact\/([^\/]+)\/effective/
@@ -339,7 +346,7 @@ class MockValkyrie {
                         "os": "Penguin Power",
                         "account_number": 11,
                         "primary_ipv4_netmask": "",
-                        "id": \${deviceID}
+                        "id": \${deviceID},
                         "ipv6_server_allocation_block": "",
                         "permissions": [
                             "racker"
@@ -360,7 +367,7 @@ class MockValkyrie {
                         "os": "Penguin Power",
                         "account_number": 11,
                         "primary_ipv4_netmask": "",
-                        "id": \${deviceID2}
+                        "id": \${deviceID2},
                         "ipv6_server_allocation_block": "",
                         "permissions": [
                             "racker"
@@ -374,7 +381,7 @@ class MockValkyrie {
             lotsOJson.append(templateEngine.createTemplate("""{
                         "status": "Online",
                         "datacenter": "Datacenter (ABC1)",
-                        "name": "${x + 5000}-hyp1.abc.rvi.local",
+                        "name": "${x + 7000}-hyp1.abc.rvi.local",
                         "ipv6_network": "",
                         "type": "Server",
                         "primary_ipv4": "",
@@ -386,7 +393,7 @@ class MockValkyrie {
                         "os": "Penguin Power",
                         "account_number": 11,
                         "primary_ipv4_netmask": "",
-                        "id": ${x + 5000},
+                        "id": ${x + 7000},
                         "ipv6_server_allocation_block": "",
                         "permissions": [
                             "hyoog_json"
