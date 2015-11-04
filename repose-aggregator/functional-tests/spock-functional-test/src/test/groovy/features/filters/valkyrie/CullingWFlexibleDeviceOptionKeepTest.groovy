@@ -20,6 +20,7 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
@@ -27,12 +28,14 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 10/30/15.
  * flexible device id uri - uri null with null-id-action
  *  uri is null (not null or empty deviceid from uri):
  */
+@Category(Slow)
 class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -134,8 +137,8 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
-    def "Test get match resource list"() {
+    @Unroll("Null uri keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    def "Test get match resource list with null uri keep"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -163,7 +166,6 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         )
 
         def body = new String(mc.receivedResponse.body)
-        print body
         def slurper = new JsonSlurper()
         def result = slurper.parseText(body)
 
@@ -187,6 +189,70 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 2
         "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 3
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 1
+    }
+
+    @Unroll("Null uri remove - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    def "Test Match Resource list with null uri remove"() {
+        given: "reconfig repose with null uri remove action"
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction/remove", params);
+        repose.start()
+
+        "a list of permission defined in valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        def body = new String(mc.receivedResponse.body)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == responseCode
+        result.values.size == size
+        result.metadata.count == size
+
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+
+        where:
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
     def String randomTenant() {
