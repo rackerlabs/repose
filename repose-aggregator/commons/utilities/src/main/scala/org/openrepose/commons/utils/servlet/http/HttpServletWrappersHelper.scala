@@ -22,9 +22,9 @@ package org.openrepose.commons.utils.servlet.http
 import java.util
 
 import org.apache.http.HttpHeaders._
+import org.openrepose.commons.utils.http.media.{MediaType, MimeType}
 
 import scala.collection.JavaConverters._
-import org.openrepose.commons.utils.http.media.{MimeType, MediaType}
 
 /**
  * This class is full of helper methods to replace the old org.openrepose.commons.utils.http.media classes.
@@ -35,7 +35,7 @@ object HttpServletWrappersHelper {
   }
 
   def processMediaType(headerValues: util.List[String]): util.List[MediaType] = {
-        headerValues.asScala.map(processMediaType).asJava
+    headerValues.asScala.map(processMediaType).asJava
   }
 
   def processMediaType(headerValue: String): MediaType = {
