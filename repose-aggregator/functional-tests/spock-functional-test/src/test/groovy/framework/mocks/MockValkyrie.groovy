@@ -76,6 +76,7 @@ class MockValkyrie {
     String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
+    Integer fixnumber = 10
     Integer multiplier = 1
 
     def sleeptime = 0
@@ -112,7 +113,6 @@ class MockValkyrie {
         else
             password = request.headers.getFirstValue('X-Auth-Token')
 
-
         if (method == "GET") {
             if (!missingRequestHeaders) {
                 if (request.getPath().contains("inventory")) {
@@ -123,7 +123,7 @@ class MockValkyrie {
                 } else /*if (request.getPath().contains("permissions"))*/ {
                     def match = (requestPath =~ permissionsRegex)
                     tenant_id = match[0][1]
-                    contact_id = match[0][3]
+                    contact_id = match[0][2]
                     _authorizeCount.incrementAndGet()
                 }
                 return authorizeHandler(tenant_id, contact_id, request)
@@ -308,7 +308,7 @@ class MockValkyrie {
 
         //Build up a pile of hyoog json results
         StringBuilder lotsOJson = new StringBuilder()
-        multiplier.times { x ->
+        fixnumber.times { x ->
             lotsOJson.append(templateEngine.createTemplate("""{
                             "item_type_id": 2,
                             "item_type_name": "devices",
@@ -316,7 +316,7 @@ class MockValkyrie {
                             "account_number": \${tenant},
                             "permission_type_id": 7,
                             "permission_name": "hyoog_json",
-                            "item_id": ${x + 5000},
+                            "item_id": ${x + 1000},
                             "id": 0
                         },""").make(params))
         }
@@ -381,7 +381,7 @@ class MockValkyrie {
             lotsOJson.append(templateEngine.createTemplate("""{
                         "status": "Online",
                         "datacenter": "Datacenter (ABC1)",
-                        "name": "${x + 7000}-hyp1.abc.rvi.local",
+                        "name": "${x + 5000}-hyp1.abc.rvi.local",
                         "ipv6_network": "",
                         "type": "Server",
                         "primary_ipv4": "",
@@ -393,7 +393,7 @@ class MockValkyrie {
                         "os": "Penguin Power",
                         "account_number": 11,
                         "primary_ipv4_netmask": "",
-                        "id": ${x + 7000},
+                        "id": ${x + 5000},
                         "ipv6_server_allocation_block": "",
                         "permissions": [
                             "hyoog_json"
@@ -405,4 +405,6 @@ class MockValkyrie {
         //Now glue all the things together
         originalTemplate + lotsOJson + "]}"
     }
+
+
 }
