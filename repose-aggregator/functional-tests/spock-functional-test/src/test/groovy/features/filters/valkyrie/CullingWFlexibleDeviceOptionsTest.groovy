@@ -165,8 +165,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
             device_perm = permission
         }
 
-        def jsonbd = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
-        println jsonbd
+        def jsonrespbody = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
 
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
@@ -217,6 +216,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
+        def jsonrespbody = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -264,6 +264,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
+        def jsonrespbody = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -286,14 +287,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
         result.values.size == size
         result.metadata.count == size
-
-        //**This for tracing header on failed response REP-2147
-        mc.receivedResponse.headers.contains("x-trans-id")
-        //**This part for tracing header test REP-1704**
-        // any requests send to identity also include tracing header
-        mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-trans-id")
-        }
 
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
@@ -328,6 +321,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
+        def jsonrespbody = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -350,14 +344,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
         result.values.size == size
         result.metadata.count == size
-
-        //**This for tracing header on failed response REP-2147
-        mc.receivedResponse.headers.contains("x-trans-id")
-        //**This part for tracing header test REP-1704**
-        // any requests send to identity also include tracing header
-        mc.orphanedHandlings.each {
-            e -> assert e.request.headers.contains("x-trans-id")
-        }
 
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
