@@ -32,11 +32,14 @@ import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 10/30/15.
- * flexible device id uri - uri null with null-id-action
- *  uri is null (not null or empty deviceid from uri):
+ * flexible device id uri - uri null with device-id-mismatch-action
+ *      1, fail (default)
+ *      2, keep
+ *      3, remove
+ *
  */
 @Category(Slow)
-class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
+class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -91,6 +94,19 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
                 "scheduled_suppressions": [],
                 "created_at": 1411055897191,
                 "updated_at": 1411055897191
+            },
+            {
+                "id": "enADqSly1z",
+                "label": "test3",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
             }
         ],
         "metadata": {
@@ -111,8 +127,6 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction", params);
-
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -137,9 +151,104 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
         }
     }
 
+    @Unroll("Null uri fail default - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    def "Test device uri mismatch with default (fail)"() {
+        given: "a list permission devices defined in Valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
+    }
+
+
+    @Unroll("Null uri fail - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    def "Test device uri mismatch with fail option"() {
+        given: "reconfig repose with null uri fail action"
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction", params);
+        repose.start()
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+
+        where:
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
+    }
+
     @Unroll("Null uri keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list with null uri keep"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "reconfig repose with null uri keep action"
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/nullidaction/keep", params);
+        repose.start()
+
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenant = tenantID
@@ -185,10 +294,10 @@ class CullingWFlexibleDeviceOptionKeepTest extends ReposeValveTest {
 
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 2
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 2
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 3
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 3
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 3
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 4
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 2
     }
 
     @Unroll("Null uri remove - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
