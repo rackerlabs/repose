@@ -11,7 +11,7 @@
     <!-- Activates role translation -->
     <translate-permissions-to-roles/>
     <!-- Sets up response resource culling -->
-    <collection-resources>
+    <collection-resources device-id-mismatch-action="fail">
         <resource>
             <!-- The resource that you want response culling on -->
             <path-regex>/devices/.*</path-regex>
@@ -19,7 +19,7 @@
                 <json>
                     <!-- json path to the array that holds the collection -->
                     <path-to-collection>$.values</path-to-collection>
-                    <path-to-device-id null-id-action="keep">
+                    <path-to-device-id>
                         <!-- json path relative to the object within the array to the field that contains the device id -->
                         <path>$.uri</path>
                         <!-- regex to capture the device id -->
