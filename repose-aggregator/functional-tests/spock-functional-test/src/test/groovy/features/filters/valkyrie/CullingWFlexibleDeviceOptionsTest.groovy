@@ -151,7 +151,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("Null uri fail default - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    @Unroll("Fail default - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test device uri mismatch with default (fail)"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
@@ -164,6 +164,9 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
             device_id2 = deviceID2
             device_perm = permission
         }
+
+        def jsonbd = genJsonResp([520707,520708],["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"])
+        println jsonbd
 
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
@@ -191,7 +194,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
     }
 
 
-    @Unroll("Null uri fail - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    @Unroll("Fail - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test device uri mismatch with fail option"() {
         given: "reconfig repose with null uri fail action"
         def params = properties.getDefaultTemplateParams()
@@ -238,7 +241,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
     }
 
-    @Unroll("Null uri keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    @Unroll("Keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list with null uri keep"() {
         given: "reconfig repose with null uri keep action"
         def params = properties.getDefaultTemplateParams()
@@ -300,7 +303,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 2
     }
 
-    @Unroll("Null uri remove - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
+    @Unroll("Remove - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test Match Resource list with null uri remove"() {
         given: "reconfig repose with null uri remove action"
         def params = properties.getDefaultTemplateParams()
@@ -366,5 +369,66 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
 
     def String randomTenant() {
         "hybrid:" + random.nextInt()
+    }
+
+    def genJsonResp(List devices, List uri) {
+        def value = devices.size() + uri.size() + 1
+        String meat = """{
+        "values": ["""
+        devices.each{ device ->
+            meat += """{
+                "id": "en6bShuX7a",
+                "label": "brad@morgabra.com",
+                "ip_addresses": null,
+                "metadata": {
+                    "userId": "325742",
+                    "email": "brad@morgabra.com"
+                },
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + device + """",
+                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1405963090100,
+                "updated_at": 1409247144717
+            },"""
+        }
+
+        uri.each { eachuri ->
+            meat += """{
+                "id": "enADqSly1y",
+                "label": "test",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": """ + eachuri + """",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
+            },"""
+        }
+        meat += """{
+                "id": "enADqSly1y",
+                "label": "test",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": null,
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
+            }],
+            "metadata": {
+                "count": $value,
+                "limit": $value,
+                "marker": null,
+                "next_marker": "enB11JvqNv",
+                "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
+            }
+        }"""
     }
 }
