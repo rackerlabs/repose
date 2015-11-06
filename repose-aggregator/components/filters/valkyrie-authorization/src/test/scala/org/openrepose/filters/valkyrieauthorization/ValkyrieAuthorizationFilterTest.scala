@@ -1391,51 +1391,51 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def accountInventory(deviceIdOne: String, deviceIdTwo: String): String = {
     s"""{
-       |    "inventory": [
-       |        {
-       |            "status": "Online",
-       |            "datacenter": "Datacenter (ABC1)",
-       |            "name": "126327-hyp1.abc.rvi.local",
-       |            "ipv6_network": "",
-       |            "type": "Server",
-       |            "primary_ipv4": "",
-       |            "primary_ipv6": "",
-       |            "primary_ipv4_gateway": "",
-       |            "datacenter_id": 1,
-       |            "platform": "Super Server",
-       |            "nickname": null,
-       |            "os": "Penguin Power",
-       |            "account_number": 11,
-       |            "primary_ipv4_netmask": "",
-       |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
-       |            "ipv6_server_allocation_block": "",
-       |            "permissions": [
-       |                "racker"
-       |            ]
-       |        },
-       |        {
-       |            "status": "Online",
-       |            "datacenter": "Datacenter (ABC1)",
-       |            "name": "783621-hyp1.abc.rvi.local",
-       |            "ipv6_network": "",
-       |            "type": "Server",
-       |            "primary_ipv4": "",
-       |            "primary_ipv6": "",
-       |            "primary_ipv4_gateway": "",
-       |            "datacenter_id": 1,
-       |            "platform": "Super Server",
-       |            "nickname": null,
-       |            "os": "Penguin Power",
-       |            "account_number": 11,
-       |            "primary_ipv4_netmask": "",
-       |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
-       |            "ipv6_server_allocation_block": "",
-       |            "permissions": [
-       |                "racker"
-       |            ]
-       |        }
-       |    ]
-       |}""".stripMargin.trim
+        |    "inventory": [
+        |        {
+        |            "status": "Online",
+        |            "datacenter": "Datacenter (ABC1)",
+        |            "name": "126327-hyp1.abc.rvi.local",
+        |            "ipv6_network": "",
+        |            "type": "Server",
+        |            "primary_ipv4": "",
+        |            "primary_ipv6": "",
+        |            "primary_ipv4_gateway": "",
+        |            "datacenter_id": 1,
+        |            "platform": "Super Server",
+        |            "nickname": null,
+        |            "os": "Penguin Power",
+        |            "account_number": 11,
+        |            "primary_ipv4_netmask": "",
+        |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
+        |            "ipv6_server_allocation_block": "",
+        |            "permissions": [
+        |                "racker"
+        |            ]
+        |        },
+        |        {
+        |            "status": "Online",
+        |            "datacenter": "Datacenter (ABC1)",
+        |            "name": "783621-hyp1.abc.rvi.local",
+        |            "ipv6_network": "",
+        |            "type": "Server",
+        |            "primary_ipv4": "",
+        |            "primary_ipv6": "",
+        |            "primary_ipv4_gateway": "",
+        |            "datacenter_id": 1,
+        |            "platform": "Super Server",
+        |            "nickname": null,
+        |            "os": "Penguin Power",
+        |            "account_number": 11,
+        |            "primary_ipv4_netmask": "",
+        |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
+        |            "ipv6_server_allocation_block": "",
+        |            "permissions": [
+        |                "racker"
+        |            ]
+        |        }
+        |    ]
+        |}""".stripMargin.trim
   }
 
   def createOriginServiceResponse(deviceId1: String, deviceId2: String): String = {
@@ -1482,6 +1482,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   def replaceUriValueWith(jsonString: String, replacement: String): String = {
-    jsonString.replaceAll(s"""\"uri\"\\s*:\\s*.+,""", s"""\"uri\": $replacement,""")
+    jsonString.replaceAll( s"""\"uri\"\\s*:\\s*.+,""", s"""\"uri\": $replacement,""")
   }
 }
