@@ -23,7 +23,7 @@ import net.sf.saxon.Configuration
 import net.sf.saxon.Controller
 import net.sf.saxon.Filter
 import net.sf.saxon.value.TextFragmentValue
-import org.openrepose.filters.translation.TranslationHandler
+import org.openrepose.filters.translation.TranslationFilter
 import org.openrepose.filters.translation.xslt.XsltParameter
 import spock.lang.Specification
 
@@ -33,9 +33,6 @@ import javax.xml.transform.sax.SAXTransformerFactory
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-/**
- * Created by dimi5963 on 9/8/14.
- */
 class XmlFilterChainExecutorTest extends Specification {
 
     SAXTransformerFactory factory;
@@ -47,7 +44,6 @@ class XmlFilterChainExecutorTest extends Specification {
     Transformer transformer;
     Filter filter;
     Controller controller;
-    Configuration configuration;
 
     def setup() {
 
@@ -71,7 +67,7 @@ class XmlFilterChainExecutorTest extends Specification {
         given:
         XmlFilterChainExecutor executor = new XmlFilterChainExecutor(chain)
         controller.getDocumentPool().add(new TextFragmentValue("butts", "a uri"), "a uri")
-        inputs.add(new XsltParameter(TranslationHandler.INPUT_HEADERS_URI, "a uri"))
+        inputs.add(new XsltParameter(TranslationFilter.INPUT_HEADERS_URI, "a uri"))
         when:
         executor.executeChain(input, out, inputs, outputs)
         then:

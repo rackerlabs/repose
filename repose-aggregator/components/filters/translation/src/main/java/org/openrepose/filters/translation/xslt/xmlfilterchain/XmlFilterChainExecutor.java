@@ -27,7 +27,7 @@ import org.apache.xalan.transformer.TrAXFilter;
 import org.openrepose.docs.repose.httpx.v1.Headers;
 import org.openrepose.docs.repose.httpx.v1.QueryParameters;
 import org.openrepose.docs.repose.httpx.v1.RequestInformation;
-import org.openrepose.filters.translation.TranslationHandler;
+import org.openrepose.filters.translation.TranslationFilter;
 import org.openrepose.filters.translation.resolvers.*;
 import org.openrepose.filters.translation.xslt.XsltException;
 import org.openrepose.filters.translation.xslt.XsltParameter;
@@ -52,7 +52,6 @@ import java.util.Properties;
 public class XmlFilterChainExecutor {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlFilterChainExecutor.class);
-    private static final String REQUEST_ID_PARAM = "requestId";
     private final XmlFilterChain chain;
     private final Properties format = new Properties();
 
@@ -61,7 +60,6 @@ public class XmlFilterChainExecutor {
         this.chain = chain;
         format.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
         format.put(OutputKeys.ENCODING, "UTF-8");
-
     }
 
     protected SourceUriResolverChain getResolverChain(Transformer transformer) {
@@ -76,9 +74,7 @@ public class XmlFilterChainExecutor {
         } else {
             resolverChain = (SourceUriResolverChain) resolver;
         }
-
         return resolverChain;
-
     }
 
     protected OutputStreamUriParameterResolver getOutputUriResolver(Transformer transformer) {
@@ -89,10 +85,8 @@ public class XmlFilterChainExecutor {
                 resolver = new OutputStreamUriParameterResolver(controller.getOutputURIResolver());
                 controller.setOutputURIResolver(resolver);
             }
-
             return (OutputStreamUriParameterResolver) resolver;
         }
-
         return null;
     }
 
@@ -132,7 +126,6 @@ public class XmlFilterChainExecutor {
                 }
             }
         }
-
     }
 
     private void setAlternateOutputs(Transformer transformer, List<XsltParameter<? extends OutputStream>> outputs) {
@@ -159,7 +152,6 @@ public class XmlFilterChainExecutor {
                 if (filter.getReader() instanceof net.sf.saxon.Filter) {
                     net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
                     transformer = saxonFilter.getTransformer();
-                    net.sf.saxon.Controller controller = (net.sf.saxon.Controller) transformer;
                 } else if (filter.getReader() instanceof TrAXFilter) {
                     TrAXFilter traxFilter = (TrAXFilter) filter.getReader();
                     transformer = traxFilter.getTransformer();
@@ -174,7 +166,6 @@ public class XmlFilterChainExecutor {
                     setAlternateOutputs(transformer, outputs);
                 }
             }
-
 
             Transformer transformer = chain.getFactory().newTransformer();
             transformer.setOutputProperties(format);
@@ -196,7 +187,7 @@ public class XmlFilterChainExecutor {
     }
 
     private List<String> findInputUris(List<XsltParameter> inputs) {
-        List<String> uris = new ArrayList<String>();
+        List<String> uris = new ArrayList<>();
         for (XsltParameter parameter : inputs) {
             if (isInputUriName(parameter.getName())) {
                 uris.add((String) parameter.getValue());
@@ -206,9 +197,9 @@ public class XmlFilterChainExecutor {
     }
 
     private boolean isInputUriName(String name) {
-        return TranslationHandler.INPUT_HEADERS_URI.equals(name) ||
-                TranslationHandler.INPUT_QUERY_URI.equals(name) ||
-                TranslationHandler.INPUT_REQUEST_URI.equals(name);
+        return TranslationFilter.INPUT_HEADERS_URI.equals(name) ||
+                TranslationFilter.INPUT_QUERY_URI.equals(name) ||
+                TranslationFilter.INPUT_REQUEST_URI.equals(name);
     }
 
     private void removeInputUrisFromPool(DocumentPool documentPool, List<String> uris) {

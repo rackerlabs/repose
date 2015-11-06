@@ -24,7 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.filters.translation.TranslationHandlerFactory;
+import org.openrepose.filters.translation.TranslationFilter;
 import org.openrepose.filters.translation.xslt.StyleSheetInfo;
 import org.openrepose.filters.translation.xslt.XsltParameter;
 
@@ -32,7 +32,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class XsltFilterChainBuilderTest {
 
         @BeforeClass
         public static void before() {
-            System.setProperty("javax.xml.transform.TransformerFactory", TranslationHandlerFactory.SAXON_HE_FACTORY_NAME);
+            System.setProperty("javax.xml.transform.TransformerFactory", TranslationFilter.SAXON_HE_FACTORY_NAME);
             factory = (SAXTransformerFactory) TransformerFactory.newInstance();
         }
 
@@ -71,7 +70,6 @@ public class XsltFilterChainBuilderTest {
             assertNotNull("Should build a filter chain", chain);
             assertEquals("Should have 1 filter", 1, chain.getFilters().size());
         }
-
     }
 
     public static class WhenExecutingChains {
@@ -82,7 +80,7 @@ public class XsltFilterChainBuilderTest {
 
         @BeforeClass
         public static void before() {
-            System.setProperty("javax.xml.transform.TransformerFactory", TranslationHandlerFactory.SAXON_HE_FACTORY_NAME);
+            System.setProperty("javax.xml.transform.TransformerFactory", TranslationFilter.SAXON_HE_FACTORY_NAME);
             factory = (SAXTransformerFactory) TransformerFactory.newInstance();
         }
 
@@ -95,9 +93,7 @@ public class XsltFilterChainBuilderTest {
 
         @Test
         public void shouldUseInputOutputStreams() {
-            List<XsltParameter> inputs = new ArrayList<XsltParameter>();
-
-            List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
+            List<XsltParameter> inputs = new ArrayList<>();
 
             XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
             chain.executeChain(body, output, inputs, null);
@@ -105,9 +101,6 @@ public class XsltFilterChainBuilderTest {
             String outResult = output.toString();
 
             assertTrue("Shoudl have main output", outResult.length() > 0);
-
         }
-
     }
-
 }
