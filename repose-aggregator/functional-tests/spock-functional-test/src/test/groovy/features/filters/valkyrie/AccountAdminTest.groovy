@@ -98,7 +98,7 @@ class AccountAdminTest extends ReposeValveTest {
         fakeValkyrie.with {
             device_id = deviceID
             device_perm = permission
-            multiplier = 500
+            inventory_multiplier = 500
         }
 
         when: "a #method request is made to access device #deviceID"
@@ -141,7 +141,7 @@ class AccountAdminTest extends ReposeValveTest {
 
         fakeValkyrie.with {
             account_perm = "account_admin"
-            multiplier = 500
+            inventory_multiplier = 500
         }
 
         def jsonbody = genJsonResp(5000)

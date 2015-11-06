@@ -76,8 +76,8 @@ class MockValkyrie {
     String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
-    Integer fixnumber = 10
-    Integer multiplier = 1
+    Integer device_multiplier = 10
+    Integer inventory_multiplier = 1
 
     def sleeptime = 0
 
@@ -308,7 +308,7 @@ class MockValkyrie {
 
         //Build up a pile of hyoog json results
         StringBuilder lotsOJson = new StringBuilder()
-        fixnumber.times { x ->
+        device_multiplier.times { x ->
             lotsOJson.append(templateEngine.createTemplate("""{
                             "item_type_id": 2,
                             "item_type_name": "devices",
@@ -377,7 +377,7 @@ class MockValkyrie {
 
         //Build up a pile of hyoog json results
         StringBuilder lotsOJson = new StringBuilder()
-        multiplier.times { x ->
+        inventory_multiplier.times { x ->
             lotsOJson.append(templateEngine.createTemplate("""{
                         "status": "Online",
                         "datacenter": "Datacenter (ABC1)",
@@ -405,6 +405,4 @@ class MockValkyrie {
         //Now glue all the things together
         originalTemplate + lotsOJson + "]}"
     }
-
-
 }
