@@ -29,11 +29,12 @@ import org.openrepose.commons.utils.io.ByteBufferInputStream;
 import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
 import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
+import org.openrepose.commons.utils.servlet.filter.FilterAction;
+import org.openrepose.commons.utils.servlet.http.HandleRequestResult;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletWrappersHelper;
 import org.openrepose.core.filter.FilterConfigHelper;
-import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.filters.translation.config.*;
@@ -50,8 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +59,9 @@ import java.util.List;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.openrepose.commons.utils.servlet.filter.FilterAction.PROCESS_RESPONSE;
+import static org.openrepose.commons.utils.servlet.filter.FilterAction.RETURN;
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
-import static org.openrepose.core.filter.logic.FilterAction.PROCESS_RESPONSE;
-import static org.openrepose.core.filter.logic.FilterAction.RETURN;
 
 @Named
 public class TranslationFilter implements Filter, UpdateListener<TranslationConfig> {
@@ -161,30 +161,21 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                 MUTABLE,
                 response.getOutputStream()
         );
-        //new FilterLogicHandlerDelegate(requestWrapper, responseWrapper, chain).doFilter(this);
 
-        final FilterAction filterAction = handleRequest(requestWrapper, responseWrapper);
+        final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
 
-        switch (filterAction) {
+        switch (handleRequestResult.getFilterAction()) {
             case NOT_SET:
                 chain.doFilter(request, response);
                 break;
-
             case PASS:
-                //requestFilterDirector.applyTo(requestWrapper);
-                chain.doFilter(requestWrapper, responseWrapper);
+                chain.doFilter(handleRequestResult.getRequest(), handleRequestResult.getResponse());
                 break;
-
             case PROCESS_RESPONSE:
-                //requestFilterDirector.applyTo(requestWrapper);
-                chain.doFilter(requestWrapper, responseWrapper);
-
-                handleResponse(requestWrapper, responseWrapper);
-                //responseDirector.applyTo(responseWrapper);
+                chain.doFilter(handleRequestResult.getRequest(), handleRequestResult.getResponse());
+                handleResponse(handleRequestResult.getRequest(), handleRequestResult.getResponse());
                 break;
-
             case RETURN:
-                //requestFilterDirector.applyTo(responseWrapper);
                 break;
         }
     }
@@ -240,13 +231,14 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         RESPONSE
     }
 
-    public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
-        FilterAction rtn = RETURN;
+    public HandleRequestResult handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
+        FilterAction filterAction = RETURN;
+        HttpServletRequestWrapper rtnRequest = request;
         response.setStatus(SC_INTERNAL_SERVER_ERROR);
-        MediaType contentType = HttpServletWrappersHelper.getContentType(request);
-        List<MediaType> acceptValues = HttpServletWrappersHelper.getAcceptValues(request);
+        MediaType contentType = HttpServletWrappersHelper.getContentType(rtnRequest);
+        List<MediaType> acceptValues = HttpServletWrappersHelper.getAcceptValues(rtnRequest);
         List<XmlChainPool> pools = getHandlerChainPool(
-                request.getMethod(),
+                rtnRequest.getMethod(),
                 contentType,
                 acceptValues,
                 "",
@@ -254,30 +246,27 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         );
 
         if (pools.isEmpty()) {
-            rtn = PROCESS_RESPONSE;
+            filterAction = PROCESS_RESPONSE;
         } else {
             try {
-                ServletInputStream in = request.getInputStream();
+                ServletInputStream in = rtnRequest.getInputStream();
                 TranslationResult result = null;
                 for (XmlChainPool pool : pools) {
                     final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
                     result = pool.executePool(
                             new TranslationPreProcessor(in, contentType, true).getBodyStream(),
                             new ByteBufferServletOutputStream(internalBuffer),
-                            getInputParameters(TranslationType.REQUEST, request, response, result)
+                            getInputParameters(TranslationType.REQUEST, rtnRequest, response, result)
                     );
 
                     if (result.isSuccess()) {
-                        in = new ByteBufferInputStream(internalBuffer);
-                        // @TODO: This seems to be missing from the new Repose HttpServletRequestWrapper
-                        request.replaceInputStream(in);
-                        //result.applyResults(filterDirector);
+                        rtnRequest = new HttpServletRequestWrapper(rtnRequest, new ByteBufferInputStream(internalBuffer));
                         if (StringUtilities.isNotBlank(pool.getResultContentType())) {
-                            request.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
+                            rtnRequest.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
                             contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
                         }
                         response.setStatus(SC_OK);
-                        rtn = PROCESS_RESPONSE;
+                        filterAction = PROCESS_RESPONSE;
                     } else {
                         response.setStatus(SC_BAD_REQUEST);
                         break;
@@ -288,7 +277,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
             }
         }
 
-        return rtn;
+        return new HandleRequestResult(filterAction, rtnRequest, response);
     }
 
     public void handleResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
@@ -305,6 +294,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         if (!pools.isEmpty()) {
             try {
                 InputStream in = response.getOutputStreamAsInputStream();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 if (in != null) {
 
                     TranslationResult result = null;
@@ -312,17 +302,16 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                         if (in.available() > 0) {
                             result = pool.executePool(
                                     new TranslationPreProcessor(in, contentType, true).getBodyStream(),
-                                    response.getOutputStream(),
+                                    baos,
                                     getInputParameters(TranslationType.RESPONSE, request, response, result)
                             );
 
                             if (result.isSuccess()) {
-                                //result.applyResults(filterDirector);
                                 if (StringUtilities.isNotBlank(pool.getResultContentType())) {
                                     request.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
                                     contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
                                 }
-                                in = response.getOutputStreamAsInputStream();
+                                response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
                             } else {
                                 response.setStatus(SC_INTERNAL_SERVER_ERROR);
                                 response.setContentLength(0);
