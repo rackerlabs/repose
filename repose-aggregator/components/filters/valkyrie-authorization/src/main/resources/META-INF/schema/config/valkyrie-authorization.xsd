@@ -158,7 +158,7 @@
         <xs:sequence>
             <xs:element name="resource" type="Resource" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="device-id-mismatch-action" type="NullDeviceIdAction" use="optional" default="fail">
+        <xs:attribute name="device-id-mismatch-action" type="DeviceIdMismatchAction" use="optional" default="fail">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The action to take when a null value is found where a device id is expected.</html:p>
@@ -263,7 +263,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:simpleType name="NullDeviceIdAction">
+    <xs:simpleType name="DeviceIdMismatchAction">
         <xs:restriction base="xs:string">
             <xs:enumeration value="keep"/>
             <xs:enumeration value="remove"/>

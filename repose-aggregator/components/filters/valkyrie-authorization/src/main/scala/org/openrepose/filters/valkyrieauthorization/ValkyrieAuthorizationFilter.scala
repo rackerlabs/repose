@@ -3,7 +3,7 @@ package org.openrepose.filters.valkyrieauthorization
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.regex.{Matcher, PatternSyntaxException}
+import java.util.regex.PatternSyntaxException
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
@@ -26,6 +26,7 @@ import play.api.libs.json._
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -34,6 +35,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   with UpdateListener[ValkyrieAuthorizationConfig]
   with HttpDelegationManager
   with LazyLogging {
+
+  import ValkyrieAuthorizationFilter._
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
   private final val ACCOUNT_ADMIN = "account_admin"
@@ -60,14 +63,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   override def destroy(): Unit = {
     configurationService.unsubscribeFrom(configurationFile, this)
   }
-
-  trait ValkyrieResult
-
-  case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
-  case class UserPermissions(roles: Vector[String], devices: Vector[DeviceToPermission]) extends ValkyrieResult
-  case class DevicePermissions(devices: Vector[DeviceToPermission]) extends ValkyrieResult
-  case class DeviceToPermission(device: Int, permission: String)
-  case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
@@ -257,7 +252,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           } catch {
             case rce: ResponseCullingException =>
               logger.debug("Failed to cull response, wiping out response.", rce)
-              mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.message)
+              mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
           }
         case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
           buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
@@ -272,10 +267,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     //weep for what we must do with this flaming pile, note above where it was wrapped pointlessly just to break the chain
     mutableHttpResponse.writeHeadersToResponse()
     mutableHttpResponse.commitBufferToServletOutputStream()
-  }
-
-  def cacheKey(typeOfCall: String, transformedTenant: String, contactId: String): String = {
-    ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + transformedTenant + contactId
   }
 
   def datastoreValue(transformedTenant: String,
@@ -323,6 +314,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
   }
 
+  def cacheKey(typeOfCall: String, transformedTenant: String, contactId: String): String = {
+    ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + transformedTenant + contactId
+  }
+
   def cullResponse(response: MutableHttpServletResponse, potentialUserPermissions: ValkyrieResult,
                    matchingResources: Seq[Resource]): Unit = {
 
@@ -339,30 +334,46 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: Vector[DeviceToPermission]): Seq[JsValue] = {
-      jsonArray.filter { value =>
-        JSONPath.query(devicePath.getPath, value) match {
-          case JsNull =>
-            devicePath.getNullIdAction match {
-              case NullDeviceIdAction.KEEP => true
-              case NullDeviceIdAction.REMOVE => false
-            }
-          case jsValue =>
-            val deviceValue: String = Try(jsValue.as[String])
-              .recover({ case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for device id: ${devicePath.getPath}", jre) })
-              .get
-
-            try {
-              val matcher: Matcher = devicePath.getRegex.getValue.r.pattern.matcher(deviceValue)
-              if (matcher.matches()) {
-                devicePermissions.exists(_.device == matcher.group(devicePath.getRegex.getCaptureGroup).toInt)
-              } else {
-                throw new ResponseCullingException(s"Regex: ${devicePath.getRegex.getValue} did not match $deviceValue")
-              }
-            } catch {
-              case pse: PatternSyntaxException => throw new ResponseCullingException("Unable to parse regex for device id", pse)
-              case ioobe: IndexOutOfBoundsException => throw new ResponseCullingException("Bad capture group specified", ioobe)
-            }
+      def extractDeviceIdFieldValue(jsValue: JsValue): Try[String] = {
+        JSONPath.query(devicePath.getPath, jsValue) match {
+          case jsValue: JsNumber =>
+            Success(jsValue.value.toString())
+          case jsValue: JsString =>
+            Success(jsValue.value)
+          case _: JsUndefined =>
+            Failure(new InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}"))
+          case _ =>
+            Failure(new InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
         }
+      }
+
+      def parseDeviceId(fieldValue: String): Try[String] = {
+        Try {
+          val matcher = devicePath.getRegex.getValue.r.pattern.matcher(fieldValue)
+          if (matcher.matches()) {
+            matcher.group(devicePath.getRegex.getCaptureGroup)
+          } else {
+            throw new NonMatchingRegexException(s"Regex: ${devicePath.getRegex.getValue} did not match $fieldValue")
+          }
+        } recoverWith {
+          case pse: PatternSyntaxException => Failure(new InvalidRegexException("Unable to parse regex for device id", pse))
+          case ioobe: IndexOutOfBoundsException => Failure(new InvalidCaptureGroupException("Bad capture group specified", ioobe))
+        }
+      }
+
+      jsonArray filter { value =>
+        extractDeviceIdFieldValue(value) flatMap { deviceIdFieldValue =>
+          parseDeviceId(deviceIdFieldValue)
+        } map { deviceId =>
+          devicePermissions.exists(_.device == deviceId.toInt)
+        } recover {
+          case e@(_: InvalidJsonTypeException | _: NonMatchingRegexException) =>
+            configuration.getCollectionResources.getDeviceIdMismatchAction match {
+              case DeviceIdMismatchAction.KEEP => true
+              case DeviceIdMismatchAction.REMOVE => false
+              case DeviceIdMismatchAction.FAIL => throw e
+            }
+        } get
       }
     }
 
@@ -419,12 +430,34 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def isInitialized: Boolean = initialized
+
+  trait ValkyrieResult
+
+  case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
+
+  case class UserPermissions(roles: Vector[String], devices: Vector[DeviceToPermission]) extends ValkyrieResult
+
+  case class DevicePermissions(devices: Vector[DeviceToPermission]) extends ValkyrieResult
+
+  case class DeviceToPermission(device: Int, permission: String)
+
+  case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
+
 }
 
 object ValkyrieAuthorizationFilter {
   val CACHE_PREFIX = "VALKYRIE-FILTER"
-}
 
-case class ResponseCullingException(message: String, throwable: Throwable) extends Exception(message, throwable) {
-  def this(message: String) = this(message, null)
+  class ResponseCullingException(message: String, throwable: Throwable = null) extends Exception(message, throwable)
+
+  class InvalidJsonPathException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
+
+  class InvalidJsonTypeException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
+
+  class InvalidRegexException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
+
+  class InvalidCaptureGroupException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
+
+  class NonMatchingRegexException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
+
 }
