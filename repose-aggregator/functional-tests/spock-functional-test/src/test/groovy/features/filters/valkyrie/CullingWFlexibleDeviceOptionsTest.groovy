@@ -114,7 +114,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
                 "ip_addresses": null,
                 "metadata": null,
                 "managed": false,
-                "uri": "http://core.rackspace.com",
+                "uri": "http://core.rackspace.com/account/123456",
                 "agent_id": null,
                 "active_suppressions": [],
                 "scheduled_suppressions": [],
