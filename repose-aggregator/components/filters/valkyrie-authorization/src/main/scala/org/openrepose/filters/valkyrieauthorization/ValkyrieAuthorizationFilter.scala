@@ -143,7 +143,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         @tailrec
         def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
           if (values.isEmpty) {
-            UserPermissions(List(ACCOUNT_ADMIN).toVector, deviceToPermissions.toVector)
+            UserPermissions(Vector.empty[String], deviceToPermissions.toVector)
           } else {
             val currentItem: JsValue = values.head
             (currentItem \ "id").as[Int] match {
