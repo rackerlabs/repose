@@ -464,7 +464,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
         Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-        val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+        val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
         assert(roles.contains("some_permission"))
         assert(roles.contains("a_different_permission"))
         assert(roles.contains(devicePermission))
@@ -519,7 +519,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("a_different_permission"))
       assert(roles.contains("some_permission"))
     }
@@ -605,7 +605,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("some_permission"))
       assert(roles.contains("a_different_permission"))
 
@@ -646,7 +646,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
-      val roles: Iterator[String] = captor.getValue.getHeaders("X-Roles").asScala
+      val roles = captor.getValue.getHeaders("X-Roles").asScala.toList
       assert(roles.contains("a_different_permission"))
       assert(roles.contains("some_permission"))
     }
@@ -798,7 +798,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
+      assert((json \ "values").asInstanceOf[JsArray].value.isEmpty)
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
     }
 
@@ -829,7 +829,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
     }
 
-    it("should remove no values for account admins") {
+    it("should remove no values for account admins with Bypass Account Admin enabled") {
       setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission")))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
@@ -854,6 +854,34 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val json: JsValue = Json.parse(content)
       assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+    }
+
+    it("should remove values for account admins with Bypass Account Admin disabled") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission")))
+      setAdminAkkaBehavior("someTenant", "123456", 200, accountInventory("98765", "98766"))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = false))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(createOriginServiceResponse("98766", "98767"))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 1)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 1)
     }
 
     it("should remove no values for non-matching resources") {
@@ -1042,6 +1070,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
+    createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin = true)
+  }
+
+  def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
     server.setUri("http://foo.com:8080")
@@ -1067,6 +1099,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     val collectionResources: CollectionResources = new CollectionResources
     collectionResources.getResource.add(resource)
     configuration.setCollectionResources(collectionResources)
+    configuration.setEnableBypassAccountAdmin(enableBypassAccountAdmin)
     configuration
   }
 
@@ -1074,6 +1107,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     Mockito.when(akkaServiceClient.get(
       ValkyrieAuthorizationFilter.CACHE_PREFIX + "any" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/permissions/contacts/any/by_contact/$contactHeader/effective",
+      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
+      .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
+  }
+
+  def setAdminAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
+    Mockito.when(akkaServiceClient.get(
+      ValkyrieAuthorizationFilter.CACHE_PREFIX + "account_admin" + tenant + contactHeader,
+      s"http://foo.com:8080/account/$tenant/inventory",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
   }
@@ -1129,6 +1170,55 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
              "item_id": 862323,
              "id": 0
          }"""
+  }
+
+  def accountInventory(deviceIdOne: String, deviceIdTwo: String): String = {
+    s"""{
+       |    "inventory": [
+       |        {
+       |            "status": "Online",
+       |            "datacenter": "Datacenter (ABC1)",
+       |            "name": "126327-hyp1.abc.rvi.local",
+       |            "ipv6_network": "",
+       |            "type": "Server",
+       |            "primary_ipv4": "",
+       |            "primary_ipv6": "",
+       |            "primary_ipv4_gateway": "",
+       |            "datacenter_id": 1,
+       |            "platform": "Super Server",
+       |            "nickname": null,
+       |            "os": "Penguin Power",
+       |            "account_number": 11,
+       |            "primary_ipv4_netmask": "",
+       |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
+       |            "ipv6_server_allocation_block": "",
+       |            "permissions": [
+       |                "racker"
+       |            ]
+       |        },
+       |        {
+       |            "status": "Online",
+       |            "datacenter": "Datacenter (ABC1)",
+       |            "name": "783621-hyp1.abc.rvi.local",
+       |            "ipv6_network": "",
+       |            "type": "Server",
+       |            "primary_ipv4": "",
+       |            "primary_ipv6": "",
+       |            "primary_ipv4_gateway": "",
+       |            "datacenter_id": 1,
+       |            "platform": "Super Server",
+       |            "nickname": null,
+       |            "os": "Penguin Power",
+       |            "account_number": 11,
+       |            "primary_ipv4_netmask": "",
+       |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
+       |            "ipv6_server_allocation_block": "",
+       |            "permissions": [
+       |                "racker"
+       |            ]
+       |        }
+       |    ]
+       |}""".stripMargin.trim
   }
 
   def createOriginServiceResponse(deviceId1: String, deviceId2: String): String = {

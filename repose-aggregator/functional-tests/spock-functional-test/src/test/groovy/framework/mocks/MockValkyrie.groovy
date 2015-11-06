@@ -40,9 +40,9 @@ class MockValkyrie {
 
     int port
 
-    boolean missingRequestHeaders = false;
+    boolean missingRequestHeaders = false
 
-    protected AtomicInteger _authorizeCount = new AtomicInteger(0);
+    protected AtomicInteger _authorizeCount = new AtomicInteger(0)
 
 
     void resetCounts() {
@@ -76,10 +76,12 @@ class MockValkyrie {
     String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
+    Integer device_multiplier = 10
+    Integer inventory_multiplier = 1
 
-    def sleeptime = 0;
+    def sleeptime = 0
 
-    def templateEngine = new SimpleTemplateEngine();
+    def templateEngine = new SimpleTemplateEngine()
 
     def handler = { Request request -> return handleRequest(request) }
 
@@ -111,26 +113,32 @@ class MockValkyrie {
         else
             password = request.headers.getFirstValue('X-Auth-Token')
 
-
         if (method == "GET") {
             if (!missingRequestHeaders) {
-                def match = (requestPath =~ permissionsRegex)
-                def tenant = match[0][1]
-                def call = match[0][2]
-                def contact = match[0][3]
-                contact_id = contact
-                tenant_id = tenant
-                _authorizeCount.incrementAndGet()
-                return authorizeHandler(tenant, contact, request)
+                if (request.getPath().contains("inventory")) {
+                    def match = (requestPath =~ inventoryRegex)
+                    tenant_id = match[0][1]
+                    contact_id = null
+                    _authorizeCount.incrementAndGet()
+                } else /*if (request.getPath().contains("permissions"))*/ {
+                    def match = (requestPath =~ permissionsRegex)
+                    tenant_id = match[0][1]
+                    contact_id = match[0][2]
+                    _authorizeCount.incrementAndGet()
+                }
+                return authorizeHandler(tenant_id, contact_id, request)
             } else {
                 // return default error response if required headers are present
-                return new Response(403);
+                return new Response(403)
             }
 
         }
 
-        return new Response(501);
+        return new Response(501)
     }
+
+    static
+    final String inventoryRegex = /^\/account\/([^\/]+)\/inventory/
 
     static
     final String permissionsRegex = /^\/account\/([^\/]+)\/permissions\/contacts\/any\/by_contact\/([^\/]+)\/effective/
@@ -144,23 +152,26 @@ class MockValkyrie {
                 deviceID2   : device_id2,
                 permission  : device_perm,
                 account_perm: account_perm,
-        ];
+        ]
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
 
+        def body
         if (!missingRequestHeaders) {
-            code = 200;
-            template = validationSuccessTemplate(params)
+            code = 200
+            if (request.getPath().contains("inventory")) {
+                body = inventorySuccessTemplate(params)
+            } else /*if (request.getPath().contains("permissions"))*/ {
+                body = validationSuccessTemplate(params)
+            }
         } else {
             code = 403
-            template = validationFailureTemplate(params)
+            body = validationFailureTemplate(params)
         }
 
-        def body = template//templateEngine.createTemplate(template).make(params)
         if (sleeptime > 0) {
             sleep(sleeptime)
         }
@@ -179,22 +190,6 @@ class MockValkyrie {
     }
 
     String validationSuccessTemplate(Map<String, String> params) {
-
-        //Build up a pile of hyoog json results
-        StringBuilder lotsOJson = new StringBuilder()
-        10.times { x ->
-            lotsOJson.append(templateEngine.createTemplate("""{
-                            "item_type_id": 2,
-                            "item_type_name": "accounts",
-                            "contact_id": \${contact},
-                            "account_number": \${tenant},
-                            "permission_type_id": 7,
-                            "permission_name": "edit_domain",
-                            "item_id": ${x + 5000},
-                            "id": 0
-                        },""").make(params))
-        }
-        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
 
         //Create the original template stuff and get a string of it
         String originalTemplate = templateEngine.createTemplate("""{
@@ -235,7 +230,7 @@ class MockValkyrie {
                             "item_type_name": "devices",
                             "contact_id": \${contact},
                             "account_number": \${tenant},
-                            "permission_name": "edid_product",
+                            "permission_name": "edit_product",
                             "item_id": 862323,
                             "id": 0
                         },
@@ -310,6 +305,102 @@ class MockValkyrie {
                             "id": 0
                         },
                 """).make(params).toString()
+
+        //Build up a pile of hyoog json results
+        StringBuilder lotsOJson = new StringBuilder()
+        device_multiplier.times { x ->
+            lotsOJson.append(templateEngine.createTemplate("""{
+                            "item_type_id": 2,
+                            "item_type_name": "devices",
+                            "contact_id": \${contact},
+                            "account_number": \${tenant},
+                            "permission_type_id": 7,
+                            "permission_name": "hyoog_json",
+                            "item_id": ${x + 1000},
+                            "id": 0
+                        },""").make(params))
+        }
+        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
+
+        //Now glue all the things together
+        originalTemplate + lotsOJson + "]}"
+    }
+
+    String inventorySuccessTemplate(Map<String, String> params) {
+
+        //Create the original template stuff and get a string of it
+        String originalTemplate = templateEngine.createTemplate("""{
+                "inventory": [
+                    {
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "\${deviceID}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": \${deviceID},
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "racker"
+                        ]
+                    },
+                    {
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "\${deviceID2}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": \${deviceID2},
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "racker"
+                        ]
+                    },
+                """).make(params).toString()
+
+        //Build up a pile of hyoog json results
+        StringBuilder lotsOJson = new StringBuilder()
+        inventory_multiplier.times { x ->
+            lotsOJson.append(templateEngine.createTemplate("""{
+                        "status": "Online",
+                        "datacenter": "Datacenter (ABC1)",
+                        "name": "${x + 5000}-hyp1.abc.rvi.local",
+                        "ipv6_network": "",
+                        "type": "Server",
+                        "primary_ipv4": "",
+                        "primary_ipv6": "",
+                        "primary_ipv4_gateway": "",
+                        "datacenter_id": 1,
+                        "platform": "Super Server",
+                        "nickname": null,
+                        "os": "Penguin Power",
+                        "account_number": 11,
+                        "primary_ipv4_netmask": "",
+                        "id": ${x + 5000},
+                        "ipv6_server_allocation_block": "",
+                        "permissions": [
+                            "hyoog_json"
+                        ]
+                    },""").make(params))
+        }
+        lotsOJson.deleteCharAt(lotsOJson.size() - 1) //Delete the pesky trailing comma
 
         //Now glue all the things together
         originalTemplate + lotsOJson + "]}"

@@ -18,8 +18,6 @@
   limitations under the License.
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
-
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
@@ -56,6 +54,20 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Instead of returning a 403, instead return a 404 instead</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-bypass-account-admin" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If disabled (false), then a secondary authorization call will be made and has the potential to increase
+                        in the response time (DEFAULT).
+                    </html:p>
+                    <html:p>
+                        If enabled (true), then the secondary authorization call is bypassed and also no culling of the
+                        Origin Service response will occur.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

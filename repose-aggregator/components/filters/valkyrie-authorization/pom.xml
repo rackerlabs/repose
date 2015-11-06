@@ -39,11 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>http-delegation</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
