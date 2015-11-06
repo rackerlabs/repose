@@ -101,7 +101,20 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
                 "ip_addresses": null,
                 "metadata": null,
                 "managed": false,
-                "uri": "http://core.rackspace.com/accounts/123456/devices/",
+                "uri": "foo/bar",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": [],
+                "created_at": 1411055897191,
+                "updated_at": 1411055897191
+            },
+            {
+                "id": "enADqSly11",
+                "label": "test3",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": "http://core.rackspace.com",
                 "agent_id": null,
                 "active_suppressions": [],
                 "scheduled_suppressions": [],
@@ -121,6 +134,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
+        reposeLogSearch.cleanLog()
 
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
@@ -165,8 +179,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
             device_perm = permission
         }
 
-        def jsonrespbody = genJsonResp([520707, 520708], uri)
-
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
@@ -185,11 +197,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0    | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0    | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
     }
 
 
@@ -216,7 +228,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -234,11 +245,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0    | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0    | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
     }
 
     @Unroll("Keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
@@ -264,7 +275,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -289,11 +299,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         result.metadata.count == size
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 4    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 4    | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 5    | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 3    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 4
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 4
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 5
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 3
     }
 
     @Unroll("Remove - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
@@ -321,7 +331,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -346,75 +355,15 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         result.metadata.count == size
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1    | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2    | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
 
-    def genJsonResp(List devices, List uri) {
-        def value = devices.size() + uri.size() + 1
-        String meat = """{
-        "values": ["""
-        devices.each { device ->
-            meat += """{
-                "id": "en6bShuX7a",
-                "label": "brad@morgabra.com",
-                "ip_addresses": null,
-                "metadata": {
-                    "userId": "325742",
-                    "email": "brad@morgabra.com"
-                },
-                "managed": false,
-                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + device + """",
-                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
-                "active_suppressions": [],
-                "scheduled_suppressions": [],
-                "created_at": 1405963090100,
-                "updated_at": 1409247144717
-            },"""
-        }
-
-        uri.each { eachuri ->
-            meat += """{
-                "id": "enADqSly1y",
-                "label": "test",
-                "ip_addresses": null,
-                "metadata": null,
-                "managed": false,
-                "uri": """ + eachuri + """",
-                "agent_id": null,
-                "active_suppressions": [],
-                "scheduled_suppressions": [],
-                "created_at": 1411055897191,
-                "updated_at": 1411055897191
-            },"""
-        }
-        meat += """{
-                "id": "enADqSly1y",
-                "label": "test",
-                "ip_addresses": null,
-                "metadata": null,
-                "managed": false,
-                "uri": null,
-                "agent_id": null,
-                "active_suppressions": [],
-                "scheduled_suppressions": [],
-                "created_at": 1411055897191,
-                "updated_at": 1411055897191
-            }],
-            "metadata": {
-                "count": $value,
-                "limit": $value,
-                "marker": null,
-                "next_marker": "enB11JvqNv",
-                "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
-            }
-        }"""
-    }
 }
