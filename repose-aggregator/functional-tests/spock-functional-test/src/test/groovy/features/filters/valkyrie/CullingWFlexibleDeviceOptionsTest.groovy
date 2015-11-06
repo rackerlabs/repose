@@ -165,7 +165,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
             device_perm = permission
         }
 
-        def jsonrespbody = genJsonResp([520707,520708],uri)
+        def jsonrespbody = genJsonResp([520707, 520708], uri)
 
         "Json Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
@@ -185,11 +185,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size   | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0      | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0      | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0      | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0      | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0    | ["/devices/520707", "520707"]
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0    | ["/accounts/123456/devices/520707", ""]
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
     }
 
 
@@ -216,7 +216,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707,520708], uri)
+        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -234,11 +234,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size   | uri
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0      | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0      | ["/devices/520707", "520707"]
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0      | ["/accounts/123456/devices/520707", ""]
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0      | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size | uri
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "boo/boo"]
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0    | ["/devices/520707", "520707"]
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0    | ["/accounts/123456/devices/520707", ""]
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0    | ["http://core.rackspace.com/accounts/123456/devices/", "520707"]
     }
 
     @Unroll("Keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
@@ -264,7 +264,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707,520708],uri)
+        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -321,7 +321,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         }
 
         "Json Response from origin service"
-        def jsonrespbody = genJsonResp([520707,520708],uri)
+        def jsonrespbody = genJsonResp([520707, 520708], uri)
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -361,7 +361,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         def value = devices.size() + uri.size() + 1
         String meat = """{
         "values": ["""
-        devices.each{ device ->
+        devices.each { device ->
             meat += """{
                 "id": "en6bShuX7a",
                 "label": "brad@morgabra.com",
