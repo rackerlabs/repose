@@ -21,6 +21,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config._
+import org.openrepose.filters.valkyrieauthorization.exceptions._
 import play.api.libs.json._
 
 import scala.annotation.tailrec
@@ -36,10 +37,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   with HttpDelegationManager
   with LazyLogging {
 
-  import ValkyrieAuthorizationFilter._
-
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
   private final val ACCOUNT_ADMIN = "account_admin"
+  private final val CACHE_PREFIX = "VALKYRIE-FILTER"
 
   val datastore = datastoreService.getDefaultDatastore
 
@@ -323,7 +323,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def getJsPathFromString(jsonPath: String): JsPath = {
       val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse({
-        throw new ResponseCullingException(s"Unable to parse JsonPath: $jsonPath")
+        throw MalformedJsonPathException(s"Unable to parse JsonPath: $jsonPath")
       })
       pathTokens.foldLeft(new JsPath) { (path, token) =>
         token match {
@@ -341,9 +341,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           case jsValue: JsString =>
             Success(jsValue.value)
           case _: JsUndefined =>
-            Failure(new InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}"))
+            Failure(InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}"))
           case _ =>
-            Failure(new InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
+            Failure(InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
         }
       }
 
@@ -353,11 +353,11 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           if (matcher.matches()) {
             matcher.group(devicePath.getRegex.getCaptureGroup)
           } else {
-            throw new NonMatchingRegexException(s"Regex: ${devicePath.getRegex.getValue} did not match $fieldValue")
+            throw NonMatchingRegexException(s"Regex: ${devicePath.getRegex.getValue} did not match $fieldValue")
           }
         } recoverWith {
-          case pse: PatternSyntaxException => Failure(new InvalidRegexException("Unable to parse regex for device id", pse))
-          case ioobe: IndexOutOfBoundsException => Failure(new InvalidCaptureGroupException("Bad capture group specified", ioobe))
+          case pse: PatternSyntaxException => Failure(MalformedRegexException("Unable to parse regex for device id", pse))
+          case ioobe: IndexOutOfBoundsException => Failure(InvalidCaptureGroupException("Bad capture group specified", ioobe))
         }
       }
 
@@ -381,11 +381,11 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       Option(pathToItemCount) match {
         case Some(path) =>
           JSONPath.query(path, json) match {
-            case undefined: JsUndefined => throw new ResponseCullingException(s"Invalid path specified for item count: $path")
+            case undefined: JsUndefined => throw InvalidJsonPathException(s"Invalid path specified for item count: $path")
             case _ =>
               val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { _ => new JsNumber(newCount) })
               json.transform(countTransform).getOrElse {
-                throw new ResponseCullingException("Unable to transform json while updating the count.")
+                throw TransformException("Unable to transform json while updating the count.")
               }
           }
         case None => json
@@ -398,12 +398,12 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           if (matchingResources.nonEmpty) {
             val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
-              .recover({ case jpe: JsonParseException => throw new ResponseCullingException("Response contained improper json.", jpe) })
+              .recover({ case jpe: JsonParseException => throw UnexpectedJsonException("Response contained improper json.", jpe) })
               .get
             val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
               resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
                 val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
-                  .recover({ case jre: JsResultException => throw new ResponseCullingException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) })
+                  .recover({ case jre: JsResultException => throw InvalidJsonPathException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) })
                   .get
 
                 val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId, devicePermissions)
@@ -411,7 +411,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                 //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
                 val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { _ => new JsArray(culledArray) })
                 val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
-                  throw new ResponseCullingException("Unable to transform json while culling list.")
+                  throw TransformException("Unable to transform json while culling list.")
                 })
 
                 updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
@@ -442,22 +442,5 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   case class DeviceToPermission(device: Int, permission: String)
 
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
-
-}
-
-object ValkyrieAuthorizationFilter {
-  val CACHE_PREFIX = "VALKYRIE-FILTER"
-
-  class ResponseCullingException(message: String, throwable: Throwable = null) extends Exception(message, throwable)
-
-  class InvalidJsonPathException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
-
-  class InvalidJsonTypeException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
-
-  class InvalidRegexException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
-
-  class InvalidCaptureGroupException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
-
-  class NonMatchingRegexException(message: String, throwable: Throwable = null) extends ResponseCullingException(message, throwable)
 
 }
