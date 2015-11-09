@@ -61,8 +61,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If disabled (false), then a secondary authorization call will be made and has the potential to increase
-                        in the response time (DEFAULT).
+                        If disabled (false), then a secondary authorization call will be made and has the potential to
+                        increase in the response time (DEFAULT).
                     </html:p>
                     <html:p>
                         If enabled (true), then the secondary authorization call is bypassed and also no culling of the
@@ -161,7 +161,9 @@
         <xs:attribute name="device-id-mismatch-action" type="DeviceIdMismatchAction" use="optional" default="fail">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The action to take when a null value is found where a device id is expected.</html:p>
+                    <html:p>
+                        The action to take when a null or non-matching value is found where a device ID is expected.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
