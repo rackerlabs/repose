@@ -91,7 +91,7 @@ class AkkaTimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
                 ]
         )
 
-        then: "Request should not be passed from repose"
+        then: "Request should be passed from repose"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
