@@ -152,9 +152,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def setup() {
-    }
-
     def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
@@ -197,11 +194,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"
     }
 
 
@@ -245,11 +242,11 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | responseCode | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"        | 0
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"        | 0
+        method | tenantID       | deviceID | deviceID2 | permission     | responseCode
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "500"
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"
     }
 
     @Unroll("Keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
