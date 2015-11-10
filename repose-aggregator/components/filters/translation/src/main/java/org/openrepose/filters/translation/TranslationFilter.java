@@ -20,6 +20,7 @@
 package org.openrepose.filters.translation;
 
 import com.saxonica.config.EnterpriseTransformerFactory;
+import net.sf.saxon.TransformerFactoryImpl;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -137,6 +138,8 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                 etf.getConfiguration().getDynamicLoader().setClassLoader(this.getClass().getClassLoader());
             } else {
                 updateTransformerPool(SAXON_HE_FACTORY_NAME);
+                TransformerFactoryImpl tfi = (TransformerFactoryImpl) transformerFactory;
+                tfi.getConfiguration().getDynamicLoader().setClassLoader(this.getClass().getClassLoader());
             }
 
             xslListener.unsubscribe();
