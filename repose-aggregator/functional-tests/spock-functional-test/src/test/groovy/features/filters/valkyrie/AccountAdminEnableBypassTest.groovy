@@ -17,6 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
+
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
@@ -27,12 +28,11 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
- * Updated by jennyvo on 11/04/15.
- * if account_admin role make additional call (inventory) to valkyrie to get the full list of devices
- *  Test with:
- *      mock valkyrie return with a list of > 500 devices
+ * Created by mlopez on 11/10/15.
+ * if account_admin role and enable-bypass-account-admin is true in config, don't bother making the inventory call and
+ * just allow all the things.
  */
-class AccountAdminTest extends ReposeValveTest {
+class AccountAdminEnableBypassTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -51,6 +51,7 @@ class AccountAdminTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/accountadmin", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/accountadmin/enablebypass", params);
 
         repose.start()
 
@@ -94,7 +95,7 @@ class AccountAdminTest extends ReposeValveTest {
         }
 
         fakeValkyrie.with {
-            device_id = deviceId
+            device_id = deviceId + "0" // don't give user permission to device
             device_perm = "edit_product"
             account_perm = permission
             inventory_multiplier = 500
@@ -118,51 +119,7 @@ class AccountAdminTest extends ReposeValveTest {
         mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceId
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
-        mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
-
-        where:
-        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
-    }
-
-    @Unroll
-    def "user with account_admin role can NOT access a device it does NOT has permissions to for method #method"() {
-        given:
-        def deviceId = "520707"
-        def deviceIdPerm = "123456"
-        def tenantId = randomTenant()
-        def permission = "account_admin"
-
-        fakeIdentityService.with {
-            client_apikey = UUID.randomUUID().toString()
-            client_token = UUID.randomUUID().toString()
-            client_tenant = tenantId
-        }
-
-        fakeValkyrie.with {
-            device_id = deviceIdPerm
-            device_perm = "edit_product"
-            account_perm = permission
-            inventory_multiplier = 50
-        }
-
-        when: "a #method request is made to access device #deviceID"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceId, method: method,
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
-                ]
-        )
-
-        def accountid = fakeValkyrie.tenant_id
-        def contactid = fakeIdentityService.contact_id
-
-        then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
-        mc.receivedResponse.code == "403"
-        // the request didn't make it to the origin service
-        mc.getHandlings().isEmpty()
-        // orphanedhandlings should include the original call + account inventoty call
-        mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
-        mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
+        !mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
 
         where:
         method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
