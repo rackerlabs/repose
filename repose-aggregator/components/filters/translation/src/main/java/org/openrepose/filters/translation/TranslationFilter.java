@@ -85,8 +85,8 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
     private String config;
     private boolean isInitialized = false;
 
-    private List<XmlChainPool> responseProcessorPools;
     private List<XmlChainPool> requestProcessorPools;
+    private List<XmlChainPool> responseProcessorPools;
     private XslUpdateListener xslListener;
     private SAXTransformerFactory transformerFactory;
     private TranslationConfig configuration;
@@ -166,17 +166,21 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         );
 
         final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
+        HttpServletRequestWrapper handleRequestWrapper = handleRequestResult.getRequest();
+        HttpServletResponseWrapper handleResponseWrapper = handleRequestResult.getResponse();
 
         switch (handleRequestResult.getFilterAction()) {
             case NOT_SET:
                 chain.doFilter(request, response);
                 break;
             case PASS:
-                chain.doFilter(handleRequestResult.getRequest(), handleRequestResult.getResponse());
+                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                handleResponseWrapper.commitToResponse();
                 break;
             case PROCESS_RESPONSE:
-                chain.doFilter(handleRequestResult.getRequest(), handleRequestResult.getResponse());
-                handleResponse(handleRequestResult.getRequest(), handleRequestResult.getResponse());
+                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                handleResponse(handleRequestWrapper, handleResponseWrapper);
+                handleResponseWrapper.commitToResponse();
                 break;
             case RETURN:
                 break;
@@ -237,7 +241,6 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
     public HandleRequestResult handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction = RETURN;
         HttpServletRequestWrapper rtnRequest = request;
-        response.setStatus(SC_INTERNAL_SERVER_ERROR);
         MediaType contentType = HttpServletWrappersHelper.getContentType(rtnRequest);
         List<MediaType> acceptValues = HttpServletWrappersHelper.getAcceptValues(rtnRequest);
         List<XmlChainPool> pools = getHandlerChainPool(
@@ -277,6 +280,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                 }
             } catch (IOException ex) {
                 LOG.error("Error executing request transformer chain", ex);
+                response.setStatus(SC_INTERNAL_SERVER_ERROR);
             }
         }
 
