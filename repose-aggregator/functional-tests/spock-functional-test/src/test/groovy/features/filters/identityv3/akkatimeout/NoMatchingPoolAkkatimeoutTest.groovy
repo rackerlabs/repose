@@ -17,44 +17,41 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.akkatimeout
+package features.filters.identityv3.akkatimeout
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityV2Service
+import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.junit.experimental.categories.Category
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Created by jennyvo on 11/9/15.
- *  Verify wrong pool id in the keystone config will take default from xsd
+ *  When no matching pool id in keystone-v3 filter it will use default in xsd (30 sec)
  */
-@Category(Slow)
-class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
-
+@Category(Slow.class)
+class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-
-    def static MockIdentityV2Service fakeIdentityV2Service
+    def static MockIdentityV3Service fakeIdentityV3Service
 
     def setupSpec() {
-
         deproxy = new Deproxy()
+        reposeLogSearch.cleanLog()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/diffpool", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout/diffpool", params)
         repose.start()
+        waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityV2Service.handler)
-
-
+                'identity service', null, fakeIdentityV3Service.handler)
     }
 
     def cleanupSpec() {
@@ -65,57 +62,63 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityV2Service.resetHandlers()
+        fakeIdentityV3Service.resetParameters()
+        fakeIdentityV3Service.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
-        fakeIdentityV2Service.with {
+    def "Identity V3 akka service client using connection pool"() {
+        given:
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenantid = 613
-            service_admin_role = "not-admin"
-            client_userid = 1234
-            sleeptime = 29000
+            client_domainid = reqDomain
+            client_userid = reqUserId
+            sleeptime = 28000
         }
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/613/",
+                url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityV2Service.client_token
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )
 
-        then: "Request should not be passed from repose"
+        then: "Request should pass through"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than socket connection time out"() {
-        reposeLogSearch.cleanLog()
-        fakeIdentityV2Service.with {
+    def "Identity V3 akka service client using connection pool time out"() {
+        given:
+        def reqDomain = fakeIdentityV3Service.client_domainid
+        def reqUserId = fakeIdentityV3Service.client_userid
+
+        fakeIdentityV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenantid = 613
-            service_admin_role = "not-admin"
-            client_userid = 1234
-            sleeptime = 35000
+            client_domainid = reqDomain
+            client_userid = reqUserId
+            sleeptime = 32000
         }
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/613/",
+                url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityV2Service.client_token
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
                 ]
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
+        mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
         mc.handlings.size() == 0
         sleep(1000)
         reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
