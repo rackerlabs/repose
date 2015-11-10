@@ -315,7 +315,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   def cacheKey(typeOfCall: String, transformedTenant: String, contactId: String): String = {
-    ValkyrieAuthorizationFilter.CACHE_PREFIX + typeOfCall + transformedTenant + contactId
+    CACHE_PREFIX + typeOfCall + transformedTenant + contactId
   }
 
   def cullResponse(response: MutableHttpServletResponse, potentialUserPermissions: ValkyrieResult,
