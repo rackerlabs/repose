@@ -190,7 +190,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
         deviceBasedResult match {
           case ResponseResult(403, _) =>
-            if (permissions.roles.contains(ACCOUNT_ADMIN)) {
+            if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
               permissions
             } else {
               deviceBasedResult
@@ -233,25 +233,25 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     } else {
       val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
       val userPermissions = getPermissions(checkHeader)
-      val authPermissions = authorizeDevice(userPermissions, requestedDeviceId)
-      val allPermissions =  authPermissions match {
+      val allPermissions = userPermissions match {
         case UserPermissions(deviceRoles, devicePermissions) =>
           if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
               getInventory(checkHeader) match {
               case UserPermissions(adminRoles, adminPermissions) =>
                 UserPermissions(deviceRoles ++ adminRoles, devicePermissions ++ adminPermissions)
-              case _ => authPermissions
+              case _ => userPermissions
             }
           } else {
-            authPermissions
+            userPermissions
           }
-        case _ => authPermissions
+        case _ => userPermissions
       }
-      mask403s(addRoles(allPermissions)) match {
+      val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
+      mask403s(addRoles(authPermissions)) match {
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           try {
-            cullResponse(urlPath, mutableHttpResponse, allPermissions, matchingResources)
+            cullResponse(urlPath, mutableHttpResponse, authPermissions, matchingResources)
           } catch {
             case rce: ResponseCullingException =>
               logger.debug("Failed to cull response, wiping out response.", rce)
