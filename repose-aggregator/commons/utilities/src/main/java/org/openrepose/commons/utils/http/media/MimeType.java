@@ -24,15 +24,15 @@ import org.openrepose.commons.utils.StringUtilities;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 
-    APPLICATION_XML("application", "xml"),
-    APPLICATION_JSON("application", "json"),
     APPLICATION_ATOM_XML("application", "atom+xml"),
-    APPLICATION_XHTML_XML("application", "xhtml+xml"),
     APPLICATION_RDF_XML("application", "rdf+xml"),
     APPLICATION_RSS_XML("application", "rss+xml"),
     APPLICATION_SOAP_XML("application", "soap+xml"),
+    APPLICATION_XHTML_XML("application", "xhtml+xml"),
     APPLICATION_XML_DTD("application", "xml-dtd"),
     APPLICATION_XOP_XML("application", "xop+xml"),
+    APPLICATION_XML("application", "xml"),
+    APPLICATION_JSON("application", "json"),
     TEXT_HTML("text", "html"),
     TEXT_PLAIN("text", "plain"),
     TEXT_XML("text", "xml"),
@@ -45,10 +45,9 @@ public enum MimeType {
 
     private final String type, subType, mimeType;
 
-    private MimeType(String type, String subType) {
+    MimeType(String type, String subType) {
         this.type = type;
         this.subType = subType;
-
         this.mimeType = type + "/" + subType;
     }
 
@@ -60,7 +59,6 @@ public enum MimeType {
                 }
             }
         }
-
         return UNKNOWN;
     }
 
@@ -73,15 +71,12 @@ public enum MimeType {
                 }
             }
 
-
             for (MimeType ct : values()) {
                 if (mimeType.contains(ct.getSubType())) {
-
                     return ct;
                 }
             }
         }
-
         return UNKNOWN;
     }
 
