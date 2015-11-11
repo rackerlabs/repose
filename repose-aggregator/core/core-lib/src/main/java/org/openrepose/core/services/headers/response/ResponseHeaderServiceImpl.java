@@ -23,7 +23,6 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -37,6 +36,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -78,7 +78,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     }
 
     @Override
-    public void setVia(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+    public void setVia(MutableHttpServletRequest request, HttpServletResponse response) {
         final String existingVia = response.getHeader(CommonHttpHeader.VIA.toString());
         final String myVia = viaHeaderBuilder.buildVia(request);
         final String via = StringUtilities.isBlank(existingVia) ? myVia : existingVia + ", " + myVia;
@@ -87,7 +87,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     }
 
     @Override
-    public void fixLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse response, RouteDestination destination, String destinationLocationUri, String proxiedRootContext) {
+    public void fixLocationHeader(HttpServletRequest originalRequest, HttpServletResponse response, RouteDestination destination, String destinationLocationUri, String proxiedRootContext) {
         String destinationUri = cleanPath(destinationLocationUri);
         if (!destinationUri.matches("^https?://.*")) {
             // local dispatch
