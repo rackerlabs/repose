@@ -21,6 +21,7 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
@@ -28,10 +29,12 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 /**
  * Created by mlopez on 11/10/15.
  */
+@Category(Slow)
 class CollectResourceAdminBypassTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

@@ -28,6 +28,7 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/10/15.
+ *  Enable bypass Account Admin test
  */
 class EnableBypassAccountAdminTest extends ReposeValveTest {
     def static originEndpoint
@@ -97,9 +98,6 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
                         'X-Auth-Token': fakeIdentityService.client_token,
                 ]
         )
-
-        def accountid = fakeValkyrie.tenant_id
-        def contactid = fakeIdentityService.contact_id
 
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
         mc.receivedResponse.code == "200"
