@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
 
 /**
@@ -250,7 +251,7 @@ public class PowerFilterChain implements FilterChain {
         final HttpServletResponseWrapper httpServletResponseWrapper = new HttpServletResponseWrapper(
                 (HttpServletResponse) servletResponse,
                 MUTABLE,
-                MUTABLE,
+                PASSTHROUGH,
                 servletResponse.getOutputStream()
         );
 
