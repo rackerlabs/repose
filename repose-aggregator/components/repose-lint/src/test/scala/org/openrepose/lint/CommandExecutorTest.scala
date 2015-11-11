@@ -19,24 +19,42 @@
  */
 package org.openrepose.lint
 
+import java.io.{ByteArrayOutputStream, PrintStream}
+
 import com.typesafe.config.Config
 import org.junit.runner.RunWith
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
-import org.scalatest.FunSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class CommandExecutorTest extends FunSpec with MockitoSugar {
+class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
 
   val mockConfig = mock[Config]
   when(mockConfig.getString(anyString())).thenReturn("1.0.0.0-test")
 
   describe("execute") {
     it("should exit if the command cannot be parsed") {
-      CommandExecutor.execute(System.in, System.out, System.err, mockConfig, Array())
-      ???
+      val err = new ByteArrayOutputStream()
+
+      Console.setErr(err)
+
+      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("butts"))
+
+      val errString = new String(err.toByteArray)
+
+      exitCode shouldEqual 1
+      errString should include("Unknown argument")
+    }
+
+    it("should execute the command") {
+      pending
+    }
+
+    it("should notify the user if a command fails") {
+      pending
     }
   }
 }

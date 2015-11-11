@@ -61,10 +61,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -81,10 +79,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -101,10 +97,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -118,10 +112,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -135,10 +127,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -152,10 +142,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -169,10 +157,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -186,10 +172,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -203,10 +187,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -220,10 +202,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -237,10 +217,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -254,10 +232,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -271,10 +247,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
@@ -289,10 +263,8 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
 
       Console.setOut(out)
-      Console.setErr(err)
 
       VerifyTryItNowCommand.perform(config)
 
