@@ -63,12 +63,18 @@
             </resource>
         </resources>
 
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+
         <plugins>
             <!-- Builds the JAR artifact after additional processing -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
+                <version>2.4.1</version>
 
                 <executions>
                     <execution>
@@ -94,7 +100,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.openrepose.lint.Main</mainClass>
+                                    <mainClass>org.openrepose.lint.Lint</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

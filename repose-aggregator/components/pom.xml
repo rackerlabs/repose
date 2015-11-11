@@ -13,6 +13,7 @@
 
     <description>
         Repose filters except for:
+        repose-lint - Command line utility which flags suspicious usage
         cli-utils - Command Line Interface utilities
         filter-bundle - packages all filters
         xsl - stylesheet used by many filters during build
