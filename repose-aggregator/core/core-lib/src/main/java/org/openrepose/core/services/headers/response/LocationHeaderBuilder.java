@@ -22,9 +22,9 @@ package org.openrepose.core.services.headers.response;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.proxy.TargetHostInfo;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -35,7 +35,7 @@ public class LocationHeaderBuilder {
     private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Integer DEFAULT_HTTPS_PORT = 443;
 
-    public void setLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
+    public void setLocationHeader(HttpServletRequest originalRequest, HttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
         final URL locationUrl = getLocationUrl(servletResponse);
 
         if (locationUrl == null) {
@@ -78,12 +78,11 @@ public class LocationHeaderBuilder {
         return new URL(myHostName.toString());
     }
 
-    private URL getLocationUrl(MutableHttpServletResponse servletResponse) throws MalformedURLException {
+    private URL getLocationUrl(HttpServletResponse servletResponse) throws MalformedURLException {
         String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION.name());
         if (StringUtilities.isNotBlank(locationHeader)) {
             return new URL(locationHeader);
         }
-
         return null;
     }
 
