@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<<<<<<< HEAD
 <!--
   ~ _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
   ~ Repose
@@ -22,6 +23,11 @@
 
 <valkyrie-authorization xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
                         cache-timeout-millis="300000" enable-bypass-account-admin="true">
+=======
+<valkyrie-authorization xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+                        cache-timeout-millis="300000"
+                        enable-bypass-account-admin="true">
+>>>>>>> add tests for account_admin with enable-bypass-account-admin true/false
     <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
     <translate-permissions-to-roles/>
 </valkyrie-authorization>
