@@ -267,11 +267,25 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
     }
 
     it("should check multiple clusters if present") {
-      pending
+      val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
+      val config = new LintConfig(configDir = configDir)
+
+      val out = new ByteArrayOutputStream()
+      val err = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+      Console.setErr(err)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+
+      outputString should include regex "Verifying.*cluster_1.*"
+      outputString should include regex "Verifying.*cluster_2.*"
     }
 
     it("should check multiple filers if present") {
-      val configDir = new File(getClass.getResource("/configs/duplicatefilters/").toURI)
+      val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
       val config = new LintConfig(configDir = configDir)
 
       val out = new ByteArrayOutputStream()
