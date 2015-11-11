@@ -48,12 +48,14 @@ import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with MockitoSugar with HttpDelegationManager {
+  private final val CACHE_PREFIX = "VALKYRIE-FILTER"
+
   //todo: I suspect some of these tests are repetitive now, although they test it from different perspectives so
   // probably still worthwhile. I think some describe mocking behavior where it's not neccessary as well. Short
   // timelines mean i can't dig into them right now.
   val akkaServiceClient = mock[AkkaServiceClient]
   val mockDatastoreService = mock[DatastoreService]
-  private val mockDatastore: Datastore = mock[Datastore]
+  val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
   before {
@@ -654,7 +656,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
     it("should use the values from the datastore when available") {
       setup()
-      Mockito.when(mockDatastore.get(ValkyrieAuthorizationFilter.CACHE_PREFIX + "any" + transformedTenant + contactId))
+      Mockito.when(mockDatastore.get(CACHE_PREFIX + "any" + transformedTenant + contactId))
         .thenReturn(filter.UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[filter.DeviceToPermission]), Nil: _*)
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
@@ -1322,7 +1324,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def setMockAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
     Mockito.when(akkaServiceClient.get(
-      ValkyrieAuthorizationFilter.CACHE_PREFIX + "any" + tenant + contactHeader,
+      CACHE_PREFIX + "any" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/permissions/contacts/any/by_contact/$contactHeader/effective",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
@@ -1330,7 +1332,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def setAdminAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
     Mockito.when(akkaServiceClient.get(
-      ValkyrieAuthorizationFilter.CACHE_PREFIX + "account_admin" + tenant + contactHeader,
+      CACHE_PREFIX + "account_admin" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/inventory",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
