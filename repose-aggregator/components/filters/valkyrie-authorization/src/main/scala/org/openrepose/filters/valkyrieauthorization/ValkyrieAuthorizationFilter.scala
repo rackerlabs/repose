@@ -21,7 +21,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.valkyrieauthorization.config._
-import org.openrepose.filters.valkyrieauthorization.exceptions._
 import play.api.libs.json._
 
 import scala.annotation.tailrec

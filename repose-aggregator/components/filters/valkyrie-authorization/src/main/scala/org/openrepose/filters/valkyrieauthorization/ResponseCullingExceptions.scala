@@ -17,9 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization.exceptions
+package org.openrepose.filters.valkyrieauthorization
 
-sealed trait ResponseCullingException
+sealed trait ResponseCullingException extends Exception
 
 case class UnexpectedJsonException(message: String, throwable: Throwable = null)
   extends Exception(message, throwable) with ResponseCullingException
