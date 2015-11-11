@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <valkyrie-authorization
-        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="3000" enable-bypass-account-admin="true">
+        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="3000" enable-bypass-account-admin="false">
     <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
     <collection-resources>
         <resource>

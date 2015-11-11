@@ -17,6 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
+
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
@@ -29,9 +30,9 @@ import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 8/13/15.
+ * Created by mlopez on 11/10/15.
  */
-class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
+class CollectResourceAdminBypassTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -91,6 +92,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/adminbypass", params);
 
         repose.start()
 
@@ -166,7 +168,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
-    def "account_admin is also culled when bypass is not enabled in configuration"() {
+    def "account_admin always get the whole response when bypass is enabled in configuration"() {
         given: "a list permission devices defined in Valkyrie"
         def tenantID = randomTenant()
         fakeIdentityService.with {
@@ -175,8 +177,6 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         }
 
         fakeValkyrie.with {
-            device_id = "520707"
-            device_id2 = "511123"
             account_perm = "account_admin"
         }
 
@@ -200,8 +200,8 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         then: "check response"
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        result.values.size == 1
-        result.metadata.count == 1
+        result.values.size == 2
+        result.metadata.count == 2
 
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
