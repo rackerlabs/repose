@@ -130,7 +130,7 @@ Setting the Configuration Root Directory
 
     If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
     <Context docBase="ROOT.war">
-      <Parameter name="repose-config-directory" value="/etc/repose" override="false"/>
+      <Parameter name="powerapi-config-directory" value="/etc/repose" override="false"/>
       <Parameter name="repose-cluster-id" value="repose"/>
       <Parameter name="repose-node-id" value="repose_node1"/>
     </Context>
