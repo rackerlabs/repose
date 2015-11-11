@@ -254,19 +254,13 @@ public class PowerFilterChain implements FilterChain {
                 servletResponse.getOutputStream()
         );
 
-        final MutableHttpServletResponse mutableHttpResponse =
-                MutableHttpServletResponse.wrap(mutableHttpRequest, httpServletResponseWrapper);
-
         try {
-            if (isResponseOk(mutableHttpResponse)) {
-                containerFilterChain.doFilter(mutableHttpRequest, mutableHttpResponse);
+            if (isResponseOk(httpServletResponseWrapper)) {
+                containerFilterChain.doFilter(mutableHttpRequest, httpServletResponseWrapper);
             }
-
-            if (isResponseOk(mutableHttpResponse)) {
-                router.route(mutableHttpRequest, mutableHttpResponse);
+            if (isResponseOk(httpServletResponseWrapper)) {
+                router.route(mutableHttpRequest, httpServletResponseWrapper);
             }
-            mutableHttpResponse.writeHeadersToResponse();
-            mutableHttpResponse.flushBuffer();
             splitResponseHeaders(httpServletResponseWrapper);
             httpServletResponseWrapper.commitToResponse();
         } catch (Exception ex) {
