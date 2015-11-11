@@ -1,0 +1,9 @@
+Package: [[artifactName]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: Repose Development <repose-development@lists.openrepose.org>
+Description: Debian Package for Repose Lint
+Homepage: http://openrepose.org
+Depends: java7-runtime-headless

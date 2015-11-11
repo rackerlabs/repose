@@ -16,6 +16,7 @@
     </description>
 
     <modules>
+        <module>repose-lint</module>
         <module>repose-cli-utils</module>
         <module>repose-war</module>
         <module>repose-filter-bundle</module>

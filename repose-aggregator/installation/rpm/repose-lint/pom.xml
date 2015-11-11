@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>rpm</artifactId>
+        <version>7.2.2.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Repose - Installation Repose Lint RPM</name>
+    <artifactId>repose-lint-rpm</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        RPM package containing the repose-lint utility.
+    </description>
+
+    <properties>
+        <artifactName>repose-lint</artifactName>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-repose-lint-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.openrepose</groupId>
+                                            <artifactId>repose-lint</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <destFileName>repose-lint.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+
+                        <configuration>
+                            <name>${artifactName}</name>
+
+                            <mappings>
+                                <!-- The JAR file -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>555</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${project.build.directory}/repose-lint.jar
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!--The git.properties file -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/doc/${artifactName}
+                                    </directory>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>444</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/target/git.properties
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!--This adds the license file on installation.-->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/doc/${artifactName}/
+                                    </directory>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>444</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../../CONTRIBUTORS.txt
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../configs/docs/DEPENDENCIES.txt
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+
+                            <requires>
+                                <require>java &gt;= 1.7.0</require>
+                            </requires>
+
+                            <group>Applications/Internet</group>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
