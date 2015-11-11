@@ -20,11 +20,13 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 /**
  * Updated by jennyvo on 11/04/15.
@@ -32,6 +34,7 @@ import spock.lang.Unroll
  *  Test with:
  *      mock valkyrie return with a list of > 500 devices
  */
+@Category(Slow.class)
 class AccountAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -125,28 +128,20 @@ class AccountAdminTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "user with account_admin role can NOT access a device it does NOT has permissions to for method #method"() {
-        given:
-        def deviceId = "520707"
-        def deviceIdPerm = "123456"
-        def tenantId = randomTenant()
-        def permission = "account_admin"
-
+    def "Enablebypass false, account_admin user request with an X-Device-Id header value not contained in the user's permissions will not be permitted"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantId
+            client_tenant = randomTenant()
         }
 
         fakeValkyrie.with {
-            device_id = deviceIdPerm
-            device_perm = "edit_product"
-            account_perm = permission
-            inventory_multiplier = 50
+            account_perm = "account_admin"
         }
 
-        when: "a #method request is made to access device #deviceID"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceId, method: method,
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/99999", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
@@ -163,6 +158,36 @@ class AccountAdminTest extends ReposeValveTest {
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
+
+        where:
+        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
+    }
+
+    @Unroll()
+    def "account_admin user request with an X-Device-Id header value that exists in their permissions should be permitted"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = randomTenant()
+        }
+
+        fakeValkyrie.with {
+            device_perm = "account_admin"
+            device_id = "99999"
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/99999", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
 
         where:
         method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]

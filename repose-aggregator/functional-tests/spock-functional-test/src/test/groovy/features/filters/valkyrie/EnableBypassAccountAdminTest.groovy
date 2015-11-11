@@ -77,13 +77,13 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("account_admin for #method with tenant: #tenantID should return a #responseCode")
+    @Unroll()
     def "account_admin user request with an X-Device-Id header value not contained in the user's permissions will be permitted"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenant = randomTenant()
         }
 
         fakeValkyrie.with {
@@ -95,22 +95,20 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'X-device-id' : '99999'
                 ]
         )
 
-        then: "check response"
-        mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 1
+        def accountid = fakeValkyrie.tenant_id
+        def contactid = fakeIdentityService.contact_id
+
+        then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
+        mc.receivedResponse.code == "200"
+        // user device permission translate to roles
+        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("account_admin")
+        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == "99999"
 
         where:
-        method   | tenantID       | responseCode
-        "HEAD"   | randomTenant() | "200"
-        "GET"    | randomTenant() | "200"
-        "PUT"    | randomTenant() | "200"
-        "POST"   | randomTenant() | "200"
-        "DELETE" | randomTenant() | "200"
-        "PATCH"  | randomTenant() | "200"
+        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
     }
 
     def String randomTenant() {
