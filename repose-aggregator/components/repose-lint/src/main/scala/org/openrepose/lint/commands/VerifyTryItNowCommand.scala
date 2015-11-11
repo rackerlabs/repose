@@ -108,7 +108,7 @@ object VerifyTryItNowCommand extends Command {
                 case None => println(s"auth-n filter (#$filterIndex) DOES NOT HAVE ignore-tenant role foyer")
               }
             case None =>
-              println(s"auth-n (#$filterIndex) configuration NOT FOUND")
+              println(s"auth-n filter (#$filterIndex) configuration NOT FOUND")
           }
 
           filterIndex += 1
@@ -130,9 +130,9 @@ object VerifyTryItNowCommand extends Command {
           val config = getFile(configFile).map(XML.loadFile)
 
           if ((filter \ "@uri-regex").nonEmpty) {
-            println(s"auth-z (#$filterIndex) filter IS filtered by uri-regex")
+            println(s"auth-z filter (#$filterIndex) IS filtered by uri-regex")
           } else {
-            println(s"auth-z (#$filterIndex) filter IS NOT filtered by uri-regex")
+            println(s"auth-z filter (#$filterIndex) IS NOT filtered by uri-regex")
           }
 
           config match {
@@ -143,7 +143,7 @@ object VerifyTryItNowCommand extends Command {
                 case None => println(s"auth-z filter (#$filterIndex) DOES NOT HAVE ignore-tenant role foyer")
               }
             case None =>
-              println(s"auth-z (#$filterIndex) configuration NOT FOUND")
+              println(s"auth-z filter (#$filterIndex) configuration NOT FOUND")
           }
 
           filterIndex += 1
@@ -190,7 +190,7 @@ object VerifyTryItNowCommand extends Command {
                 println(s"keystone-v2 filter (#$filterIndex) DOES NOT HAVE service catalog authorization enabled")
               }
             case None =>
-              println(s"keystone-v2 (#$filterIndex) configuration NOT FOUND")
+              println(s"keystone-v2 filter (#$filterIndex) configuration NOT FOUND")
           }
 
           filterIndex += 1
@@ -237,7 +237,7 @@ object VerifyTryItNowCommand extends Command {
                 println(s"identity-v3 filter (#$filterIndex) DOES NOT HAVE service catalog authorization enabled")
               }
             case None =>
-              println(s"identity-v3 (#$filterIndex) configuration NOT FOUND")
+              println(s"identity-v3 filter (#$filterIndex) configuration NOT FOUND")
           }
 
           filterIndex += 1

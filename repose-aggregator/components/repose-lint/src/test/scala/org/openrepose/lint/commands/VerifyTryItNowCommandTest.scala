@@ -270,8 +270,28 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       pending
     }
 
-    it("should check multiple filters if present") {
-      pending
+    it("should check multiple filers if present") {
+      val configDir = new File(getClass.getResource("/configs/duplicatefilters/").toURI)
+      val config = new LintConfig(configDir = configDir)
+
+      val out = new ByteArrayOutputStream()
+      val err = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+      Console.setErr(err)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+
+      outputString should include regex "auth-n.*(#1).*"
+      outputString should include regex "auth-n.*(#2).*"
+      outputString should include regex "auth-z.*(#1).*"
+      outputString should include regex "auth-z.*(#2).*"
+      outputString should include regex "keystone-v2.*(#1).*"
+      outputString should include regex "keystone-v2.*(#2).*"
+      outputString should include regex "identity-v3.*(#1).*"
+      outputString should include regex "identity-v3.*(#2).*"
     }
 
     List("2.8.x", "3.x", "4.x", "5.x", "6.x", "7.x") foreach { version =>
