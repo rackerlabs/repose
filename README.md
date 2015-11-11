@@ -137,7 +137,7 @@ Setting the Configuration Root Directory
 
     As an alternative, the web.xml file within the war itself can be modified to include the following:
     <context-param>
-        <param-name>powerapi-config-directory</param-name>
+        <param-name>repose-config-directory</param-name>
         <param-value>/etc/repose</param-value>
     </context-param>
     <context-param>
