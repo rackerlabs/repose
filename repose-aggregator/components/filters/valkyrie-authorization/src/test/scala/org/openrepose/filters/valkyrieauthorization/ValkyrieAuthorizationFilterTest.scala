@@ -436,6 +436,27 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       }
     }
 
+    it("should return a failure if the inventory call fails") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission"), devicePermissions("12345", "admin_product")))
+      setAdminAkkaBehavior("someTenant", "123456", 500, "")
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(createGenericValkyrieConfiguration(null, false))
+
+      val mockServletRequest = new MockHttpServletRequest
+      val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "12345", "X-Contact-Id" -> "123456"))
+      mockServletRequest.setMethod(request.method)
+      mockServletRequest.setRequestURL(request.url)
+      request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+
+      val mockServletResponse = new MockHttpServletResponse
+      val mockFilterChain = mock[FilterChain]
+
+      filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+      assert(mockServletResponse.getStatusCode == 502)
+    }
+
     it("should send a request guid to valkyrie if present in incoming request") {
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456",
         "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
