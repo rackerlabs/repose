@@ -17,6 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
+
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
@@ -31,10 +32,10 @@ import spock.lang.Unroll
 import org.junit.experimental.categories.Category
 
 /**
- * Created by jennyvo on 8/13/15.
+ * Created by mlopez on 11/10/15.
  */
 @Category(Slow)
-class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
+class CollectResourceAdminBypassTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -94,6 +95,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/adminbypass", params);
 
         repose.start()
 
@@ -169,8 +171,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "200"        | 0
     }
 
-    @Unroll("account_admin with device id permission: #deviceid1, #deviceid2, response list no. item #size")
-    def "enable-bypass-account-admin false, account_admin only get device within its permission"() {
+    def "account_admin always get the whole response when bypass is enabled in configuration"() {
         given: "a list permission devices defined in Valkyrie"
         def tenantID = randomTenant()
         fakeIdentityService.with {
@@ -179,9 +180,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         }
 
         fakeValkyrie.with {
-            device_perm = "account_admin"
-            device_id = deviceid1
-            device_id2 = deviceid2
+            account_perm = "account_admin"
         }
 
         "Json Response from origin service"
@@ -204,17 +203,46 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         then: "check response"
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        result.values.size == size
-        result.metadata.count == size
+        result.values.size == 2
+        result.metadata.count == 2
 
-        where:
-        deviceid1 | deviceid2 | size
-        "520707"  | "520708"  | 2
-        "520708"  | "520707"  | 2
-        "520713"  | "520707"  | 1
-        "520708"  | "520711"  | 1
-        "520712"  | "520711"  | 0
+        //**This for tracing header on failed response REP-2147
+        mc.receivedResponse.headers.contains("x-trans-id")
+        //**This part for tracing header test REP-1704**
+        // any requests send to identity also include tracing header
+        mc.orphanedHandlings.each {
+            e -> assert e.request.headers.contains("x-trans-id")
+        }
+    }
 
+    def "Test missing tenantid"() {
+        given: "a list permission devices defined in Valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = ""
+        }
+
+        fakeValkyrie.with {
+            device_id = "520707"
+            device_id2 = "520708"
+            device_perm = "view_product"
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456'
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then:
+        mc.receivedResponse.code == "401"
     }
 
     def String randomTenant() {

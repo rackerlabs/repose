@@ -23,21 +23,18 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
 import framework.mocks.MockValkyrie
-import groovy.json.JsonSlurper
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 /**
  * Updated by jennyvo on 11/04/15.
  * if account_admin role make additional call (inventory) to valkyrie to get the full list of devices
  *  Test with:
  *      mock valkyrie return with a list of > 500 devices
- *      mock origin services response return > 5000 devices
  */
-@Category(Slow)
+@Category(Slow.class)
 class AccountAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -86,23 +83,28 @@ class AccountAdminTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("#method device #deviceID with permission #permission, tenant: #tenantID should return a #responseCode")
-    def "#method device #deviceID with permission #permission, tenant: #tenantID should return a #responseCode"() {
-        given: "A "
+    @Unroll
+    def "user with account_admin role can access a device it has permissions to for method #method"() {
+        given:
+        def deviceId = "520707"
+        def tenantId = randomTenant()
+        def permission = "account_admin"
+
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenant = tenantId
         }
 
         fakeValkyrie.with {
-            device_id = deviceID
-            device_perm = permission
-            inventory_multiplier = 500
+            device_id = deviceId
+            device_perm = "edit_product"
+            account_perm = permission
+            inventory_multiplier = 10
         }
 
         when: "a #method request is made to access device #deviceID"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceId, method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
@@ -113,119 +115,85 @@ class AccountAdminTest extends ReposeValveTest {
         def contactid = fakeIdentityService.contact_id
 
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
-        mc.receivedResponse.code == responseCode
+        mc.receivedResponse.code == "200"
         // user device permission translate to roles
         mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(permission)
-        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceID
+        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceId
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
 
         where:
-        method   | tenantID       | deviceID | permission      | responseCode
-        "HEAD"   | randomTenant() | "520707" | "account_admin" | "200"
-        "GET"    | randomTenant() | "520707" | "account_admin" | "200"
-        "PUT"    | randomTenant() | "520707" | "account_admin" | "200"
-        "POST"   | randomTenant() | "520707" | "account_admin" | "200"
-        "PATCH"  | randomTenant() | "520707" | "account_admin" | "200"
-        "DELETE" | randomTenant() | "520707" | "account_admin" | "200"
+        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
     }
 
-    def "Test get match resource list with large list 5000 devices"() {
-        given: "a list permission devices defined in Valkyrie"
-        def tenantID = randomTenant()
+    @Unroll
+    def "Enablebypass false, account_admin user request with an X-Device-Id header value not contained in the user's permissions will not be permitted"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenant = randomTenant()
         }
 
         fakeValkyrie.with {
             account_perm = "account_admin"
-            inventory_multiplier = 500
         }
 
-        def jsonbody = genJsonResp(5000)
-
-        "Json Response from origin service"
-        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonbody) }
-
         when: "a request is made against a device with Valkyrie set permissions"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/9999", method: "GET",
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/99999", method: method,
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
-                ],
-                defaultHandler: jsonResp
+                ]
         )
+
         def accountid = fakeValkyrie.tenant_id
         def contactid = fakeIdentityService.contact_id
-        def body = new String(mc.receivedResponse.body)
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(body)
 
-        then: "check response"
-        mc.handlings.size() == 1
-        mc.receivedResponse.code == "200"
-        result.values.size == 5001
-        result.metadata.count == 5001
+        then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
+        mc.receivedResponse.code == "403"
+        // the request didn't make it to the origin service
+        mc.getHandlings().isEmpty()
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
+
+        where:
+        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
+    }
+
+    @Unroll()
+    def "account_admin user request with an X-Device-Id header value that exists in their permissions should be permitted"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenant = randomTenant()
+        }
+
+        fakeValkyrie.with {
+            device_perm = "account_admin"
+            device_id = "99999"
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/99999", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        where:
+        method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
     }
 
     def String randomTenant() {
         "hybrid:" + random.nextInt()
-    }
-
-    def String randomDevice() {
-        def listdevices = ["520707", "520708", "520709", "520710", "520711", "520712", "520713"]
-        return listdevices.get(random.nextInt(listdevices.size()))
-    }
-
-    def String genJsonResp(def number) {
-        def value = number + 1
-        String meat = """{
-        "values": ["""
-        1.upto(number) {
-            meat += """{
-                "id": "en6bShuX7a",
-                "label": "brad@morgabra.com",
-                "ip_addresses": null,
-                "metadata": {
-                    "userId": "325742",
-                    "email": "brad@morgabra.com"
-                },
-                "managed": false,
-                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + randomDevice() + """",
-                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
-                "active_suppressions": [],
-                "scheduled_suppressions": [],
-                "created_at": 1405963090100,
-                "updated_at": 1409247144717
-            },"""
-        }
-        meat += """{
-                "id": "enADqSly1y",
-                "label": "test",
-                "ip_addresses": null,
-                "metadata": null,
-                "managed": false,
-                "uri": "http://core.rackspace.com/accounts/123456/devices/""" + randomDevice() + """",
-                "agent_id": null,
-                "active_suppressions": [],
-                "scheduled_suppressions": [],
-                "created_at": 1411055897191,
-                "updated_at": 1411055897191
-            }],
-            "metadata": {
-                "count": $value,
-                "limit": $value,
-                "marker": null,
-                "next_marker": "enB11JvqNv",
-                "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
-            }
-        }"""
     }
 }

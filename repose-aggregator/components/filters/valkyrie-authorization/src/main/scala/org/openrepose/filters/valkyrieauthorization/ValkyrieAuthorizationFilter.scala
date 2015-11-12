@@ -65,6 +65,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
   case class UserPermissions(roles: Vector[String], devices: Vector[DeviceToPermission]) extends ValkyrieResult
+  case class DevicePermissions(devices: Vector[DeviceToPermission]) extends ValkyrieResult
   case class DeviceToPermission(device: Int, permission: String)
   case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
 
@@ -137,13 +138,13 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    def getInventory(headerResult: ValkyrieResult): ValkyrieResult = {
-      def parseInventory(inputStream: InputStream): Try[UserPermissions] = {
+    def getInventory(userPermissions: ValkyrieResult, checkHeader: ValkyrieResult): ValkyrieResult = {
+      def parseInventory(inputStream: InputStream): Try[DevicePermissions] = {
 
         @tailrec
-        def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
+        def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): DevicePermissions = {
           if (values.isEmpty) {
-            UserPermissions(Vector.empty[String], deviceToPermissions.toVector)
+            DevicePermissions(deviceToPermissions.toVector)
           } else {
             val currentItem: JsValue = values.head
             (currentItem \ "id").as[Int] match {
@@ -166,10 +167,23 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         }
       }
 
-      headerResult match {
-        case UserInfo(tenant, contact) =>
-          datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parseInventory, tracingHeader)
-        case _ => headerResult
+      userPermissions match {
+        case UserPermissions(deviceRoles, devicePermissions) =>
+          if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
+            val inventoryResult = checkHeader match {
+              case UserInfo(tenant, contact) =>
+                datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
+              case _ => userPermissions
+            }
+            inventoryResult match {
+              case DevicePermissions(adminPermissions) =>
+                UserPermissions(deviceRoles, devicePermissions ++ adminPermissions)
+              case _ => inventoryResult
+            }
+          } else {
+            userPermissions
+          }
+        case _ => userPermissions
       }
     }
 
@@ -190,7 +204,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
         deviceBasedResult match {
           case ResponseResult(403, _) =>
-            if (permissions.roles.contains(ACCOUNT_ADMIN)) {
+            if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
               permissions
             } else {
               deviceBasedResult
@@ -233,25 +247,13 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     } else {
       val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
       val userPermissions = getPermissions(checkHeader)
-      val authPermissions = authorizeDevice(userPermissions, requestedDeviceId)
-      val allPermissions =  authPermissions match {
-        case UserPermissions(deviceRoles, devicePermissions) =>
-          if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
-              getInventory(checkHeader) match {
-              case UserPermissions(adminRoles, adminPermissions) =>
-                UserPermissions(deviceRoles ++ adminRoles, devicePermissions ++ adminPermissions)
-              case _ => authPermissions
-            }
-          } else {
-            authPermissions
-          }
-        case _ => authPermissions
-      }
-      mask403s(addRoles(allPermissions)) match {
+      val allPermissions = getInventory(userPermissions, checkHeader)
+      val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
+      mask403s(addRoles(authPermissions)) match {
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           try {
-            cullResponse(urlPath, mutableHttpResponse, allPermissions, matchingResources)
+            cullResponse(urlPath, mutableHttpResponse, authPermissions, matchingResources)
           } catch {
             case rce: ResponseCullingException =>
               logger.debug("Failed to cull response, wiping out response.", rce)
