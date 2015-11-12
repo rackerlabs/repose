@@ -100,7 +100,7 @@ class AccountAdminTest extends ReposeValveTest {
             device_id = deviceId
             device_perm = "edit_product"
             account_perm = permission
-            inventory_multiplier = 500
+            inventory_multiplier = 10
         }
 
         when: "a #method request is made to access device #deviceID"
