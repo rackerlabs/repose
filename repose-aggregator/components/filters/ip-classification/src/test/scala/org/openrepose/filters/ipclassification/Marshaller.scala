@@ -31,14 +31,12 @@ object Marshaller {
   val ipClassificationConfig = getClass.getResource("/META-INF/schema/config/ip-classification.xsd")
 
   def configFromResource(resource: String, xsdURL: URL = ipClassificationConfig): IpClassificationConfig = {
-
     val parser = JaxbConfigurationParser.getXmlConfigurationParser(
       classOf[IpClassificationConfig],
       xsdURL,
-      this.getClass.getClassLoader)
-
+      this.getClass.getClassLoader
+    )
     val configResource = new BufferedURLConfigurationResource(this.getClass.getResource(resource))
-
     parser.read(configResource)
   }
 
@@ -46,11 +44,9 @@ object Marshaller {
     val parser = JaxbConfigurationParser.getXmlConfigurationParser(
       classOf[IpClassificationConfig],
       xsdURL,
-      this.getClass.getClassLoader)
-
+      this.getClass.getClassLoader
+    )
     val configResource = new ByteArrayConfigurationResource("", content.getBytes(StandardCharsets.UTF_8))
-
     parser.read(configResource)
   }
-
 }
