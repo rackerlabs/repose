@@ -36,9 +36,19 @@
         labels must be unique.
         You may specify multiple cidr notations space separated in either IPv4 or IPv6.
         -->
-        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
-        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
-        <classification label="bolth-group" ipv4-cidr="10.10.220.0/24" ipv6-cidr="2001:1938:80:bc::1/64"/>
-        <classification label="ipv4-match-all" ipv4-cidr="0.0.0.0/0"/>
+        <classification label="sample-group">
+            <cidr-ip>192.168.1.0/24</cidr-ip>
+            <cidr-ip>192.168.0.1/32</cidr-ip>
+        </classification>
+        <classification label="sample-ipv6-group">
+            <cidr-ip>2001:db8::/48</cidr-ip>
+        </classification>
+        <classification label="bolth-group">
+            <cidr-ip>10.10.220.0/24</cidr-ip>
+            <cidr-ip>2001:1938:80:bc::1/64</cidr-ip>
+        </classification>
+        <classification label="ipv4-match-all">
+            <cidr-ip>0.0.0.0/0</cidr-ip>
+        </classification>
     </classifications>
 </ip-classification>
