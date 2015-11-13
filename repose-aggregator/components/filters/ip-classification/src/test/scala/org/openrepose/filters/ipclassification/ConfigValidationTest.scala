@@ -19,12 +19,21 @@ class ConfigValidationTest extends FunSpec with Matchers {
           |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
           |    <group-header-name quality="0.5">group-header</group-header-name>
           |    <user-header-name quality="0.5">user-header</user-header-name>
-          |
           |    <classifications>
-          |        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
-          |        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
-          |        <classification label="bolth-group" ipv4-cidr="10.10.220.0/24" ipv6-cidr="2001:1938:80:bc::1/64"/>
-          |        <classification label="ipv4-match-all" ipv4-cidr="0.0.0.0/0"/>
+          |        <classification label="sample-group">
+          |            <cidr-ip>192.168.1.0/24</cidr-ip>
+          |            <cidr-ip>192.168.0.1/32</cidr-ip>
+          |        </classification>
+          |        <classification label="sample-ipv6-group">
+          |            <cidr-ip>2001:db8::/48</cidr-ip>
+          |        </classification>
+          |        <classification label="bolth-group">
+          |            <cidr-ip>10.10.220.0/24</cidr-ip>
+          |            <cidr-ip>2001:1938:80:bc::1/64</cidr-ip>
+          |        </classification>
+          |        <classification label="ipv4-match-all">
+          |            <cidr-ip>0.0.0.0/0</cidr-ip>
+          |        </classification>
           |    </classifications>
           |</ip-classification>
         """.stripMargin
@@ -38,17 +47,18 @@ class ConfigValidationTest extends FunSpec with Matchers {
       resultant.getGroupHeaderName.getValue should equal("group-header")
       resultant.getGroupHeaderName.getQuality should equal(0.5D)
     }
-    //TODO: if we want default values, we have to re-work where the defaults are specified, because XSD
-    ignore("returns a default group header name when one is not specified") {
+    //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
+    //      IF the element is present but empty, THEN you get default values.
+    //      IF the element is NOT present, THEN you get a NULL value back.
+    it("returns a default group header name when only an empty element is specified") {
       val validConfig =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-          |
+          |    <group-header-name/>
           |    <classifications>
-          |        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
-          |        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
-          |        <classification label="bolth-group" ipv4-cidr="10.10.220.0/24" ipv6-cidr="2001:1938:80:bc::1/64"/>
-          |        <classification label="ipv4-match-all" ipv4-cidr="0.0.0.0/0"/>
+          |        <classification label="ipv4-match-all">
+          |            <cidr-ip>0.0.0.0/0</cidr-ip>
+          |        </classification>
           |    </classifications>
           |</ip-classification>
         """.stripMargin
@@ -59,17 +69,18 @@ class ConfigValidationTest extends FunSpec with Matchers {
       resultant.getGroupHeaderName.getValue should be("x-pp-groups")
       resultant.getGroupHeaderName.getQuality should be(0.4)
     }
-    //TODO: if we want default values, we have to re-work where the defaults are specified, because XSD
-    ignore("returns a default user header name when one is not specified") {
+    //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
+    //      IF the element is present but empty, THEN you get default values.
+    //      IF the element is NOT present, THEN you get a NULL value back.
+    it("returns a default user header name when only an empty element is specified") {
       val validConfig =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-          |
+          |    <user-header-name/>
           |    <classifications>
-          |        <classification label="sample-group" ipv4-cidr="192.168.1.0/24 192.168.0.1/32"/>
-          |        <classification label="sample-ipv6-group" ipv6-cidr="2001:db8::/48"/>
-          |        <classification label="bolth-group" ipv4-cidr="10.10.220.0/24" ipv6-cidr="2001:1938:80:bc::1/64"/>
-          |        <classification label="ipv4-match-all" ipv4-cidr="0.0.0.0/0"/>
+          |        <classification label="ipv4-match-all">
+          |            <cidr-ip>0.0.0.0/0</cidr-ip>
+          |        </classification>
           |    </classifications>
           |</ip-classification>
         """.stripMargin
@@ -81,11 +92,10 @@ class ConfigValidationTest extends FunSpec with Matchers {
       resultant.getUserHeaderName.getQuality should be(0.4)
     }
 
-    it("validation fails when not given an ipv4-cidr nor an ipv6-cidr") {
+    it("validation fails when not given any cidr-ip elements") {
       val invalidConfig =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-          |
           |    <classifications>
           |        <classification label="sample-group"/>
           |    </classifications>
