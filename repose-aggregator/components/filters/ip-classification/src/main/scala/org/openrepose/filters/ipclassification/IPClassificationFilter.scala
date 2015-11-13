@@ -110,20 +110,7 @@ with UpdateListener[IpClassificationConfig] {
      */
     val replacementCidrList: List[LabeledCIDR] = classifications.flatMap { classification =>
       val label = classification.getLabel
-      def splitCIDR(javaCIDR: String): List[String] = {
-
-        Option(javaCIDR).map { cidr =>
-          cidr.split(" ").toList
-        } getOrElse {
-          List.empty[String]
-        }
-      }
-
-      //TODO: if we don't care that IPv6 CIDRS will also match IPv4 addresses we can union these before matching
-      //TODO: else we'll have to build some detection into the system to determine if the source IP is ipv4 or ipv6
-      splitCIDR(classification.getIpv4Cidr).map { cidr =>
-        LabeledCIDR(label, new CIDRUtils(cidr))
-      } ::: splitCIDR(classification.getIpv6Cidr).map { cidr =>
+      classification.getCidrIp.map { cidr =>
         LabeledCIDR(label, new CIDRUtils(cidr))
       }
     }
