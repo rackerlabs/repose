@@ -21,6 +21,8 @@
 
 <ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
     <classifications>
-        <classification label="local-group" ipv4-cidr="127.0.0.1/32"/>
+        <classification label="local-group">
+            <cidr-ip>127.0.0.1/32</cidr-ip>
+        </classification>
     </classifications>
 </ip-classification>
