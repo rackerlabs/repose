@@ -28,26 +28,28 @@ class IpClassificationTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
-        repose.start()
-
         //Just set up a simple endpoint
         deproxy.addEndpoint(properties.targetPort, 'origin service')
+    }
+
+    def cleanup() {
+        if (repose) {
+            repose.stop()
+        }
     }
 
     def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
-
-        if (repose) {
-            repose.stop()
-        }
     }
 
     def "classifying a request by its IP"() {
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipclassification", params)
+        repose.start()
+
         when: "Request is sent through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
         def sentRequest = ((MessageChain) mc).handlings[0]
@@ -55,11 +57,10 @@ class IpClassificationTest extends ReposeValveTest {
         then: "Repose will send x-pp-group with the configured value"
         mc.handlings.size() == 1
 
-        //TODO: do we want this?
-        //and: "Repose will send x-pp-user based on requestor ip"
+        and: "Repose will send x-pp-user based on requestor ip"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
         def user = sentRequest.request.headers.getFirstValue("x-pp-user")
-        //The possible IPv4 addresses
+        // The possible IPv4/6 addresses.
         user == "127.0.0.1;q=0.4" || user == "0:0:0:0:0:0:0:1;q=0.4" || user == "::1;q=0.4"
 
         and: "Repose will send x-pp-groups with the configured value"
@@ -80,9 +81,10 @@ class IpClassificationTest extends ReposeValveTest {
         then: "Repose will send x-pp-group with the configured value"
         mc.handlings.size() == 1
 
+        and: "Repose will send x-pp-user based on requestor ip"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
         def user = sentRequest.request.headers.getFirstValue("x-pp-user")
-        //The possible IPv4 addresses
+        // The possible IPv4/6 addresses.
         user == "127.0.0.1;q=0.7" || user == "0:0:0:0:0:0:0:1;q=0.7" || user == "::1;q=0.7"
 
         and: "Repose will send x-pp-groups with the configured value"
@@ -103,14 +105,16 @@ class IpClassificationTest extends ReposeValveTest {
         then: "Repose will send x-pp-group with the configured value"
         mc.handlings.size() == 1
 
+        and: "Repose will send x-pp-user based on requestor ip"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
         def user = sentRequest.request.headers.getFirstValue("x-pp-user")
-        //The possible IPv4 addresses
+        // The possible IPv4/6 addresses.
         user == "127.0.0.1;q=0.7" || user == "0:0:0:0:0:0:0:1;q=0.7" || user == "::1;q=0.7"
 
         and: "Repose will send x-pp-groups with the configured value"
-        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("match-all-group;q=0.6")
-        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.6")
-        !((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-lan-ip;q=0.6")
+        def group = ((Handling) sentRequest).request.headers.findAll("x-pp-groups")
+        group.contains("match-all-group;q=0.6")
+        !group.contains("local-group;q=0.6")
+        !group.contains("local-lan-ip;q=0.6")
     }
 }
