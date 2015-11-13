@@ -45,7 +45,7 @@
         </xs:all>
     </xs:complexType>
 
-    <!-- because this becaomse a complex type now, I cannot use defaults. Have to put them in the scala :( -->
+    <!-- because this became a complex type now, I cannot use defaults. Have to put them in the scala :( -->
     <!-- well, the quality could be optional, but not the name, and if the name isn't there, the quality isn't there either -->
     <xs:complexType name="HeaderType">
         <!-- quality attribute follows the default from ip-identity -->
@@ -65,7 +65,6 @@
                 </xs:attribute>
             </xs:extension>
         </xs:simpleContent>
-
     </xs:complexType>
 
     <xs:complexType name="ClassificationsType">
@@ -81,6 +80,14 @@
     </xs:complexType>
 
     <xs:complexType name="ClassificationType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of Classless Inter-Domain Routing (CIDR) addresses.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="cidr-ip" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -88,27 +95,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="ipv4-cidr" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The IPv4 CIDR notation to match against.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="ipv6-cidr" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The IPv6 CIDR notation to match against.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:assert vc:minVersion="1.1" test="@ipv6-cidr or @ipv4-cidr"
-                   xerces:message="Must define ipv4 or ipv6 CIDR notations (or both!)"
-                   saxon:message="Must define ipv4 or ipv6 CIDR notations (or both!)">
-        </xs:assert>
     </xs:complexType>
 
     <xs:simpleType name="doubleBetweenZeroandOne">
