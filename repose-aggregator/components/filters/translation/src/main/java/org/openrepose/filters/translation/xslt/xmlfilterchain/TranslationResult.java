@@ -20,7 +20,8 @@
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.docs.repose.httpx.v1.*;
 import org.openrepose.filters.translation.httpx.HttpxMarshaller;
 import org.openrepose.filters.translation.xslt.XsltParameter;
@@ -82,10 +83,10 @@ public class TranslationResult {
         return getStream(QUERY_OUTPUT);
     }
 
-    public void applyResults(final FilterDirector director) {
-        applyHeaders(director);
-        applyQueryParams(director);
-        applyRequestInfo(director);
+    public void applyResults(final HttpServletRequestWrapper request, final HttpServletResponseWrapper response) {
+        applyHeaders(request, response);
+        applyQueryParams(request);
+        applyRequestInfo(request);
     }
 
     public RequestInformation getRequestInfo() {
@@ -108,7 +109,7 @@ public class TranslationResult {
         return marshaller.unmarshallRequestInformation(input);
     }
 
-    private void applyRequestInfo(final FilterDirector director) {
+    private void applyRequestInfo(final HttpServletRequestWrapper request) {
         RequestInformation requestInfo = getRequestInfo();
 
         if (requestInfo == null) {
@@ -116,11 +117,13 @@ public class TranslationResult {
         }
 
         if (StringUtilities.isNotBlank(requestInfo.getUri())) {
-            director.setRequestUri(requestInfo.getUri());
+            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
+            //request.setRequestUri(requestInfo.getUri());
         }
 
         if (StringUtilities.isNotBlank(requestInfo.getUrl())) {
-            director.setRequestUrl(new StringBuffer(requestInfo.getUrl()));
+            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
+            //request.setRequestUrl(new StringBuffer(requestInfo.getUrl()));
         }
 
     }
@@ -141,7 +144,7 @@ public class TranslationResult {
 
     }
 
-    private void applyQueryParams(final FilterDirector director) {
+    private void applyQueryParams(final HttpServletRequestWrapper request) {
         QueryParameters params = getQueryParameters();
 
         if (params == null) {
@@ -159,7 +162,8 @@ public class TranslationResult {
                 sb.append(param.getName()).append("=").append(param.getValue() != null ? param.getValue() : "");
             }
 
-            director.setRequestUriQuery(sb.toString());
+            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
+            //request.setRequestUriQuery(sb.toString());
         }
     }
 
@@ -182,7 +186,7 @@ public class TranslationResult {
         return marshaller.unmarshallHeaders(input);
     }
 
-    private void applyHeaders(final FilterDirector director) {
+    private void applyHeaders(final HttpServletRequestWrapper request, final HttpServletResponseWrapper response) {
         Headers headers = getHeaders();
 
         if (headers == null) {
@@ -190,26 +194,29 @@ public class TranslationResult {
         }
 
         if (headers.getRequest() != null) {
-
-            director.requestHeaderManager().removeAllHeaders();
+            for (String header : request.getHeaderNamesList()) {
+                response.removeHeader(header);
+            }
 
             for (QualityNameValuePair header : headers.getRequest().getHeader()) {
                 if (header.getQuality() == 1.0) {
-                    director.requestHeaderManager().appendHeader(header.getName(), header.getValue());
+                    request.appendHeader(header.getName(), header.getValue());
                 } else {
-                    director.requestHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                    request.appendHeader(header.getName(), header.getValue(), header.getQuality());
                 }
             }
         }
 
         if (headers.getResponse() != null) {
-            director.responseHeaderManager().removeAllHeaders();
+            for (String header : response.getHeaderNames()) {
+                response.removeHeader(header);
+            }
 
             for (QualityNameValuePair header : headers.getResponse().getHeader()) {
                 if (header.getQuality() == 1.0) {
-                    director.responseHeaderManager().appendHeader(header.getName(), header.getValue());
+                    response.appendHeader(header.getName(), header.getValue());
                 } else {
-                    director.responseHeaderManager().appendHeader(header.getName(), header.getValue(), header.getQuality());
+                    response.appendHeader(header.getName(), header.getValue(), header.getQuality());
                 }
             }
         }
