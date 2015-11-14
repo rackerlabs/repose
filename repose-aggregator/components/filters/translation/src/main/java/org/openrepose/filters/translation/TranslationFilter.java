@@ -207,7 +207,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         return chains;
     }
 
-    private List<XsltParameter> getInputParameters(final TranslationType type, final HttpServletRequestWrapper request, final HttpServletResponseWrapper response, final TranslationResult lastResult) {
+    private List<XsltParameter> getInputParameters(final HttpServletRequestWrapper request, final HttpServletResponseWrapper response, final TranslationResult lastResult) {
         List<XsltParameter> inputs = new ArrayList<>();
         final String requestId = (String) request.getAttribute("requestId");
         inputs.add(new XsltParameter<>("request", request));
@@ -265,11 +265,12 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                     result = pool.executePool(
                             new TranslationPreProcessor(in, contentType, true).getBodyStream(),
                             new ByteBufferServletOutputStream(internalBuffer),
-                            getInputParameters(TranslationType.REQUEST, rtnRequest, response, result)
+                            getInputParameters(rtnRequest, response, result)
                     );
 
                     if (result.isSuccess()) {
                         rtnRequest = new HttpServletRequestWrapper(rtnRequest, new ByteBufferInputStream(internalBuffer));
+                        result.applyResults(rtnRequest, response);
                         if (StringUtilities.isNotBlank(pool.getResultContentType())) {
                             rtnRequest.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
                             contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
@@ -313,13 +314,14 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                             result = pool.executePool(
                                     new TranslationPreProcessor(in, contentType, true).getBodyStream(),
                                     baos,
-                                    getInputParameters(TranslationType.RESPONSE, request, response, result)
+                                    getInputParameters(request, response, result)
                             );
 
                             if (result.isSuccess()) {
+                                result.applyResults(request, response);
                                 if (StringUtilities.isNotBlank(pool.getResultContentType())) {
-                                    request.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
                                     contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
+                                    response.replaceHeader(CONTENT_TYPE, contentType.getValue());
                                 }
                                 response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
                             } else {
