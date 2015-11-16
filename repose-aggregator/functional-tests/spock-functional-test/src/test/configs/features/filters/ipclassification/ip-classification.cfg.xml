@@ -20,9 +20,7 @@
   -->
 
 <ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-    <classifications>
-        <classification label="local-group">
-            <cidr-ip>127.0.0.1/32</cidr-ip>
-        </classification>
-    </classifications>
+    <group name="local-group">
+        <cidr-ip>127.0.0.1/32</cidr-ip>
+    </group>
 </ip-classification>

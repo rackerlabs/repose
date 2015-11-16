@@ -20,17 +20,15 @@
   -->
 
 <ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-    <group-header-name quality="0.6"/>
-    <user-header-name quality="0.7"/>
-    <classifications>
-        <classification label="match-all-group">
-            <cidr-ip>0.0.0.0/0</cidr-ip>
-        </classification>
-        <classification label="local-lan-ip">
-            <cidr-ip>192.168.1.0/0</cidr-ip>
-        </classification>
-        <classification label="local-group">
-            <cidr-ip>127.0.0.1/32</cidr-ip>
-        </classification>
-    </classifications>
+    <user-header quality="0.7"/>
+    <group-header quality="0.6"/>
+    <group name="match-all-group">
+        <cidr-ip>0.0.0.0/0</cidr-ip>
+    </group>
+    <group name="local-lan-ip">
+        <cidr-ip>192.168.1.0/0</cidr-ip>
+    </group>
+    <group name="local-group">
+        <cidr-ip>127.0.0.1/32</cidr-ip>
+    </group>
 </ip-classification>

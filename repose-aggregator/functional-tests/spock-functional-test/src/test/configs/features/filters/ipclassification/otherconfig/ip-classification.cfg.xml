@@ -20,14 +20,12 @@
   -->
 
 <ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-    <group-header-name quality="0.5"/>
-    <user-header-name quality="0.7"/>
-    <classifications>
-        <classification label="other-group">
-            <cidr-ip>10.6.51.192/33</cidr-ip>
-        </classification>
-        <classification label="local-group">
-            <cidr-ip>127.0.0.1/32</cidr-ip>
-        </classification>
-    </classifications>
+    <user-header quality="0.7"/>
+    <group-header quality="0.5"/>
+    <group name="other-group">
+        <cidr-ip>10.6.51.192/33</cidr-ip>
+    </group>
+    <group name="local-group">
+        <cidr-ip>127.0.0.1/32</cidr-ip>
+    </group>
 </ip-classification>
