@@ -21,9 +21,6 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/ip-classification/v1.0"
            elementFormDefault="qualified"
@@ -38,11 +35,11 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <xs:element name="user-header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-user"/>
-            <xs:element name="group-header-name" type="HeaderType" minOccurs="0" maxOccurs="1" default="x-pp-groups"/>
-            <xs:element name="classifications" type="ClassificationsType" minOccurs="1" maxOccurs="1"/>
-        </xs:all>
+        <xs:sequence>
+            <xs:element name="user-header" type="UserHeaderType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group-header" type="GroupHeaderType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group" type="GroupType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 
     <!-- because this became a complex type now, I cannot use defaults. Have to put them in the scala :( -->
@@ -59,7 +56,7 @@
                 <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.4">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>The IPv6 CIDR notation to match against.</html:p>
+                            <html:p>The quality associated with this header value.</html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -67,31 +64,56 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="ClassificationsType">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>A list of classifications.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="classification" type="ClassificationType" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
+    <xs:complexType name="UserHeaderType">
+        <xs:simpleContent>
+            <xs:extension base="HeaderType">
+                <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-user">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The header name to be used.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="ClassificationType">
+    <xs:complexType name="GroupHeaderType">
+        <xs:simpleContent>
+            <xs:extension base="HeaderType">
+                <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-groups">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The header name to be used.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="GroupType">
         <xs:annotation>
             <xs:documentation>
                 <html:p>A list of Classless Inter-Domain Routing (CIDR) addresses.</html:p>
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="cidr-ip" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="cidr-ip" type="xs:string" minOccurs="1" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The Classless Inter-Domain Routing (CIDR) expression to match against.
+                            See: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
-        <xs:attribute name="label" type="xs:string" use="required">
+        <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Label to be placed in the named header.</html:p>
+                    <html:p>The name to be placed in the named group header.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
