@@ -10,25 +10,23 @@ class LabelApplicationTest extends FunSpec with Matchers {
     val validConfig =
       """<?xml version="1.0" encoding="UTF-8"?>
         |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-        |    <classifications>
-        |        <classification label="sample-group">
-        |            <cidr-ip>192.168.1.0/24</cidr-ip>
-        |            <cidr-ip>192.168.0.1/32</cidr-ip>
-        |        </classification>
-        |        <classification label="sample-ipv6-group">
-        |            <cidr-ip>2001:db8::/48</cidr-ip>
-        |        </classification>
-        |        <classification label="bolth-group">
-        |            <cidr-ip>10.10.220.0/24</cidr-ip>
-        |            <cidr-ip>2001:1938:80:bc::1/64</cidr-ip>
-        |        </classification>
-        |        <classification label="ipv4-match-all">
-        |            <cidr-ip>0.0.0.0/0</cidr-ip>
-        |        </classification>
-        |    </classifications>
+        |    <group name="sample-group">
+        |        <cidr-ip>192.168.1.0/24</cidr-ip>
+        |        <cidr-ip>192.168.0.1/32</cidr-ip>
+        |    </group>
+        |    <group name="sample-ipv6-group">
+        |        <cidr-ip>2001:db8::/48</cidr-ip>
+        |    </group>
+        |    <group name="bolth-group">
+        |        <cidr-ip>10.10.220.0/24</cidr-ip>
+        |        <cidr-ip>2001:1938:80:bc::1/64</cidr-ip>
+        |    </group>
+        |    <group name="ipv4-match-all">
+        |        <cidr-ip>0.0.0.0/0</cidr-ip>
+        |    </group>
         |</ip-classification>
       """.stripMargin
-    val filter = new IPClassificationFilter(null) //Not going to use the config Service
+    val filter = new IpClassificationFilter(null) //Not going to use the config Service
     filter.configurationUpdated(Marshaller.configFromString(validConfig))
 
     it("returns the correct label for an IPv4 address in 10.10.220.0/24") {
@@ -54,14 +52,12 @@ class LabelApplicationTest extends FunSpec with Matchers {
     val validConfig =
       """<?xml version="1.0" encoding="UTF-8"?>
         |<ip-classification xmlns="http://docs.openrepose.org/repose/ip-classification/v1.0">
-        |    <classifications>
-        |        <classification label="ipv6-match-all">
-        |            <cidr-ip>0::0/0</cidr-ip>
-        |        </classification>
-        |    </classifications>
+        |    <group name="ipv6-match-all">
+        |        <cidr-ip>0::0/0</cidr-ip>
+        |    </group>
         |</ip-classification>
       """.stripMargin
-    val filter = new IPClassificationFilter(null) //Not going to use the config Service
+    val filter = new IpClassificationFilter(null) //Not going to use the config Service
     filter.configurationUpdated(Marshaller.configFromString(validConfig))
 
     it("returns the IpV6 catch all, since the servlet filter doesn't know that it's IPv6 or IPv4") {
