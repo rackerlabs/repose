@@ -138,6 +138,6 @@
     </filter>
     <filter>
         <filter-name>ip-classification</filter-name>
-        <filter-class>org.openrepose.filters.ipclassification.IPClassificationFilter</filter-class>
+        <filter-class>org.openrepose.filters.ipclassification.IpClassificationFilter</filter-class>
     </filter>
 </web-fragment>
