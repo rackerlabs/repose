@@ -34,7 +34,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.ipclassification.config.IpClassificationConfig
 
 @Named
-class IPClassificationFilter @Inject()(configurationService: ConfigurationService) extends Filter
+class IpClassificationFilter @Inject()(configurationService: ConfigurationService) extends Filter
 with LazyLogging
 with UpdateListener[IpClassificationConfig] {
 
@@ -101,16 +101,16 @@ with UpdateListener[IpClassificationConfig] {
     //Create a new list to replace the old one
 
     import scala.collection.JavaConversions._
-    val classifications = classificationConfig.getClassifications.getClassification.toList
+    val groups = classificationConfig.getGroup.toList
 
     /**
      * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
      * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
      * them, but this does the same thing
      */
-    val replacementCidrList: List[LabeledCIDR] = classifications.flatMap { classification =>
-      val label = classification.getLabel
-      classification.getCidrIp.map { cidr =>
+    val replacementCidrList: List[LabeledCIDR] = groups.flatMap { group =>
+      val label = group.getName
+      group.getCidrIp.map { cidr =>
         LabeledCIDR(label, new CIDRUtils(cidr))
       }
     }
@@ -119,20 +119,20 @@ with UpdateListener[IpClassificationConfig] {
     cidrList.set(replacementCidrList)
 
     //Blergh, no useful defaults in XSD when I add complex types :(
-    groupHeaderName = Option(classificationConfig.getGroupHeaderName).map { headerName =>
-      headerName.getValue
+    groupHeaderName = Option(classificationConfig.getGroupHeader).map { header =>
+      header.getName
     } getOrElse "x-pp-groups"
 
-    groupHeaderQuality = Option(classificationConfig.getGroupHeaderName).map { headerName =>
-      headerName.getQuality
+    groupHeaderQuality = Option(classificationConfig.getGroupHeader).map { header =>
+      header.getQuality
     } getOrElse 0.4D
 
-    userHeaderName = Option(classificationConfig.getUserHeaderName).map { headerName =>
-      headerName.getValue
+    userHeaderName = Option(classificationConfig.getUserHeader).map { header =>
+      header.getName
     } getOrElse "x-pp-user"
 
-    userHeaderQuality = Option(classificationConfig.getUserHeaderName).map { headerName =>
-      headerName.getQuality
+    userHeaderQuality = Option(classificationConfig.getUserHeader).map { header =>
+      header.getQuality
     } getOrElse 0.4D
 
     initialized = true
