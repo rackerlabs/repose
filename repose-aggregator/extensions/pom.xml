@@ -19,7 +19,7 @@
     </description>
 
     <properties>
-        <api-checker.version>1.1.3</api-checker.version>
+        <api.checker.version>1.1.3</api.checker.version>
     </properties>
 
     <modules>
@@ -31,19 +31,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.openrepose</groupId>
-                <artifactId>core-service-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openrepose</groupId>
-                <artifactId>utilities</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.rackspace.papi.components.api-checker</groupId>
                 <artifactId>checker-core</artifactId>
-                <version>${api-checker.version}</version>
+                <version>${api.checker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
