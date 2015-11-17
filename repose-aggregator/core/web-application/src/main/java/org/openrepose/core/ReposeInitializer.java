@@ -43,14 +43,34 @@ public class ReposeInitializer implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
 
-        //Get the values out of the system properties that we'll need
-        String configRoot = System.getProperty(
-                ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT));
-        boolean insecure = Boolean.parseBoolean(
-                System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE), "false"));
+        final String CONFIG_ROOT = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT);
+        final String INSECURE = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE);
+        final String CLUSTER_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID);
+        final String NODE_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID);
 
-        String clusterId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID));
-        String nodeId = System.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID));
+        //Get the values out of the system properties that we'll need
+        String configRoot = System.getProperty(CONFIG_ROOT);
+        String clusterId = System.getProperty(CLUSTER_ID);
+        String nodeId = System.getProperty(NODE_ID);
+        String insecureString = System.getProperty(INSECURE);
+
+        if (configRoot == null) {
+            configRoot = servletContext.getInitParameter(CONFIG_ROOT);
+            if (configRoot == null) {
+                configRoot = "/etc/repose";
+            }
+        }
+        if (clusterId == null) {
+            clusterId = servletContext.getInitParameter(CLUSTER_ID);
+        }
+        if (nodeId == null) {
+            nodeId = servletContext.getInitParameter(NODE_ID);
+        }
+        if (insecureString == null) {
+            insecureString = servletContext.getInitParameter(INSECURE);
+        }
+
+        boolean insecure = Boolean.parseBoolean(insecureString);
 
         CoreSpringProvider csp = CoreSpringProvider.getInstance();
         csp.initializeCoreContext(configRoot, insecure);

@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.test.tomcat;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.openrepose.commons.utils.test.ReposeContainer;
@@ -42,7 +43,15 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.setPort(Integer.parseInt(listenPort));
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
-        tomcat.addWebapp("/", warLocation).setCrossContext(true);
+        Context reposeContext = tomcat.addWebapp("/", warLocation);
+        reposeContext.setCrossContext(true);
+        reposeContext.addParameter("repose-cluster-id", props.getClusterId());
+        reposeContext.addParameter("repose-node-id", props.getNodeId());
+
+        String configDir = props.getConfigDirectory();
+        if (configDir != null) {
+            reposeContext.addParameter("powerapi-config-directory", configDir);
+        }
 
         if (props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0) {
             for (String originService : props.getOriginServiceWars()) {
