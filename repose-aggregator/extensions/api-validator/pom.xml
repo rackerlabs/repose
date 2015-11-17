@@ -28,6 +28,7 @@
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- actually uses something from the commons project -->
         <dependency>
@@ -50,6 +51,7 @@
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rackspace.papi.components.api-checker</groupId>
