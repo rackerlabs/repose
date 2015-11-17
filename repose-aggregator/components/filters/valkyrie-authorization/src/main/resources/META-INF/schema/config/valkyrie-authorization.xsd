@@ -61,8 +61,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If disabled (false), then a secondary authorization call will be made and has the potential to increase
-                        in the response time (DEFAULT).
+                        If disabled (false), then a secondary authorization call will be made and has the potential to
+                        increase in the response time (DEFAULT).
                     </html:p>
                     <html:p>
                         If enabled (true), then the secondary authorization call is bypassed and also no culling of the
@@ -82,7 +82,9 @@
         <xs:attribute name="uri" type="xs:anyURI" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The target Valkyrie URI for credential requests including host, port, and path to service.</html:p>
+                    <html:p>
+                        The target Valkyrie URI for credential requests including host, port, and path to service.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -105,7 +107,10 @@
     <xs:complexType name="DelegatingType">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
+                <html:p>
+                    Whether or not you would like this filter to populate the delegation headers.
+                    Inclusion means you do.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
         <xs:attribute name="quality" type="QualityType" use="optional" default="0.1">
@@ -113,7 +118,8 @@
                 <xs:documentation>
                     <html:p>
                         What quality you want any output headers to be.
-                        When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is
+                        eventually output.
                         Default is 0.1
                     </html:p>
                 </xs:documentation>
@@ -152,6 +158,15 @@
         <xs:sequence>
             <xs:element name="resource" type="Resource" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="device-id-mismatch-action" type="DeviceIdMismatchAction" use="optional" default="fail">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The action to take when a null or non-matching value is found where a device ID is expected.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="Resource">
@@ -186,11 +201,11 @@
             <!-- We'll add this when we come back to support xml. At that point the json should switch to a minimum of 0
                  and validation should be in place so that they have at least one of the two specified.-->
             <!--<xs:element name="xml" type="pathTriplet" minOccurs="0" maxOccurs="1">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--<html:p>Specifies the x-paths necessary to make changes to the collection.</html:p>-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
+            <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+            <!--<html:p>Specifies the x-paths necessary to make changes to the collection.</html:p>-->
+            <!--</xs:documentation>-->
+            <!--</xs:annotation>-->
             <!--</xs:element>-->
         </xs:sequence>
     </xs:complexType>
@@ -249,4 +264,12 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:simpleType name="DeviceIdMismatchAction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="keep"/>
+            <xs:enumeration value="remove"/>
+            <xs:enumeration value="fail"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

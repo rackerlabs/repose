@@ -48,12 +48,14 @@ import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with MockitoSugar with HttpDelegationManager {
+  private final val CACHE_PREFIX = "VALKYRIE-FILTER"
+
   //todo: I suspect some of these tests are repetitive now, although they test it from different perspectives so
   // probably still worthwhile. I think some describe mocking behavior where it's not neccessary as well. Short
   // timelines mean i can't dig into them right now.
   val akkaServiceClient = mock[AkkaServiceClient]
   val mockDatastoreService = mock[DatastoreService]
-  private val mockDatastore: Datastore = mock[Datastore]
+  val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
   before {
@@ -654,8 +656,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
     it("should use the values from the datastore when available") {
       setup()
-      Mockito.when(mockDatastore.get(ValkyrieAuthorizationFilter.CACHE_PREFIX + "any" + transformedTenant + contactId))
-        .thenReturn(filter.UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[filter.DeviceToPermission]), Nil:_*)
+      Mockito.when(mockDatastore.get(CACHE_PREFIX + "any" + transformedTenant + contactId))
+        .thenReturn(filter.UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[filter.DeviceToPermission]), Nil: _*)
       val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -883,6 +885,162 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val json: JsValue = Json.parse(content)
       assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
       assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+    }
+
+    it("should remove null values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.REMOVE))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "null"))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
+    }
+
+    it("should not remove null values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.KEEP))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "null"))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+    }
+
+    it("should fail on null values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.FAIL))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "null"))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      assert(originalResponse.getStatusCode == 500)
+    }
+
+    it("should remove mismatched values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.REMOVE))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
+    }
+
+    it("should not remove mismatched values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.KEEP))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      val content: String = originalResponse.getOutputStreamContent
+      val json: JsValue = Json.parse(content)
+      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+    }
+
+    it("should fail on mismatched values") {
+      setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+      filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.FAIL))
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+      val mockFilterChain = mock[FilterChain]
+      val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+      Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit =
+          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+      })
+
+      filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+      assert(originalResponse.getStatusCode == 500)
     }
 
     it("should remove no values for account admins with Bypass Account Admin enabled") {
@@ -1115,9 +1273,9 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
       Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse])))
         .thenAnswer(new Answer[Unit] {
-        override def answer(invocation: InvocationOnMock): Unit =
-          invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print("butts")
-      })
+          override def answer(invocation: InvocationOnMock): Unit =
+            invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print("butts")
+        })
 
       filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
@@ -1159,9 +1317,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     configuration
   }
 
+  def setNullDeviceIdAction(valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig, deviceIdMismatchAction: DeviceIdMismatchAction): ValkyrieAuthorizationConfig = {
+    valkyrieAuthorizationConfig.getCollectionResources.setDeviceIdMismatchAction(deviceIdMismatchAction)
+    valkyrieAuthorizationConfig
+  }
+
   def setMockAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
     Mockito.when(akkaServiceClient.get(
-      ValkyrieAuthorizationFilter.CACHE_PREFIX + "any" + tenant + contactHeader,
+      CACHE_PREFIX + "any" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/permissions/contacts/any/by_contact/$contactHeader/effective",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
@@ -1169,7 +1332,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def setAdminAkkaBehavior(tenant: String, contactHeader: String, valkyrieCode: Int, valkyriePayload: String): Unit = {
     Mockito.when(akkaServiceClient.get(
-      ValkyrieAuthorizationFilter.CACHE_PREFIX + "account_admin" + tenant + contactHeader,
+      CACHE_PREFIX + "account_admin" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/inventory",
       Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
@@ -1230,51 +1393,51 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
   def accountInventory(deviceIdOne: String, deviceIdTwo: String): String = {
     s"""{
-       |    "inventory": [
-       |        {
-       |            "status": "Online",
-       |            "datacenter": "Datacenter (ABC1)",
-       |            "name": "126327-hyp1.abc.rvi.local",
-       |            "ipv6_network": "",
-       |            "type": "Server",
-       |            "primary_ipv4": "",
-       |            "primary_ipv6": "",
-       |            "primary_ipv4_gateway": "",
-       |            "datacenter_id": 1,
-       |            "platform": "Super Server",
-       |            "nickname": null,
-       |            "os": "Penguin Power",
-       |            "account_number": 11,
-       |            "primary_ipv4_netmask": "",
-       |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
-       |            "ipv6_server_allocation_block": "",
-       |            "permissions": [
-       |                "racker"
-       |            ]
-       |        },
-       |        {
-       |            "status": "Online",
-       |            "datacenter": "Datacenter (ABC1)",
-       |            "name": "783621-hyp1.abc.rvi.local",
-       |            "ipv6_network": "",
-       |            "type": "Server",
-       |            "primary_ipv4": "",
-       |            "primary_ipv6": "",
-       |            "primary_ipv4_gateway": "",
-       |            "datacenter_id": 1,
-       |            "platform": "Super Server",
-       |            "nickname": null,
-       |            "os": "Penguin Power",
-       |            "account_number": 11,
-       |            "primary_ipv4_netmask": "",
-       |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
-       |            "ipv6_server_allocation_block": "",
-       |            "permissions": [
-       |                "racker"
-       |            ]
-       |        }
-       |    ]
-       |}""".stripMargin.trim
+        |    "inventory": [
+        |        {
+        |            "status": "Online",
+        |            "datacenter": "Datacenter (ABC1)",
+        |            "name": "126327-hyp1.abc.rvi.local",
+        |            "ipv6_network": "",
+        |            "type": "Server",
+        |            "primary_ipv4": "",
+        |            "primary_ipv6": "",
+        |            "primary_ipv4_gateway": "",
+        |            "datacenter_id": 1,
+        |            "platform": "Super Server",
+        |            "nickname": null,
+        |            "os": "Penguin Power",
+        |            "account_number": 11,
+        |            "primary_ipv4_netmask": "",
+        |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
+        |            "ipv6_server_allocation_block": "",
+        |            "permissions": [
+        |                "racker"
+        |            ]
+        |        },
+        |        {
+        |            "status": "Online",
+        |            "datacenter": "Datacenter (ABC1)",
+        |            "name": "783621-hyp1.abc.rvi.local",
+        |            "ipv6_network": "",
+        |            "type": "Server",
+        |            "primary_ipv4": "",
+        |            "primary_ipv6": "",
+        |            "primary_ipv4_gateway": "",
+        |            "datacenter_id": 1,
+        |            "platform": "Super Server",
+        |            "nickname": null,
+        |            "os": "Penguin Power",
+        |            "account_number": 11,
+        |            "primary_ipv4_netmask": "",
+        |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
+        |            "ipv6_server_allocation_block": "",
+        |            "permissions": [
+        |                "racker"
+        |            ]
+        |        }
+        |    ]
+        |}""".stripMargin.trim
   }
 
   def createOriginServiceResponse(deviceId1: String, deviceId2: String): String = {
@@ -1318,5 +1481,9 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
             "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
         }
     }"""
+  }
+
+  def replaceUriValueWith(jsonString: String, replacement: String): String = {
+    jsonString.replaceAll( s"""\"uri\"\\s*:\\s*.+,""", s"""\"uri\": $replacement,""")
   }
 }

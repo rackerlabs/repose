@@ -11,7 +11,7 @@
     <!-- Activates role translation -->
     <translate-permissions-to-roles/>
     <!-- Sets up response resource culling -->
-    <collection-resources>
+    <collection-resources device-id-mismatch-action="fail">
         <resource>
             <!-- The resource that you want response culling on -->
             <path-regex>/devices/.*</path-regex>
