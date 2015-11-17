@@ -11,5 +11,6 @@
 /path/to/that  GET,PUT   ANY
 /path/to/that  ALL       super
 /path/to/test  GET,POST  user,useradmin
+/path/to/space GET       super wsp , useradmin wsp,admin wsp
     </resources>
 </simple-rbac>
