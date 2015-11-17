@@ -56,7 +56,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private ActorRef tokenActorRef;
 
     public AkkaServiceClientImpl(String connectionPoolId, HttpClientService httpClientService) {
-        this.serviceClient = getServiceClient(connectionPoolId, httpClientService);
+        this.serviceClient = new ServiceClient(connectionPoolId, httpClientService);
         final int numberOfActors = serviceClient.getPoolSize();
 
         Config customConf = ConfigFactory.load();
@@ -121,9 +121,5 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
                 return ask(tokenActorRef, hashableRequest, timeout);
             }
         });
-    }
-
-    public ServiceClient getServiceClient(String connectionPoolId, HttpClientService httpClientService) {
-        return new ServiceClient(connectionPoolId, httpClientService);
     }
 }

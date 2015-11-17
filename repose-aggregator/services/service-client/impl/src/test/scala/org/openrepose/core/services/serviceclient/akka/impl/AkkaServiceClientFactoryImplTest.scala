@@ -36,7 +36,7 @@ class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with Mockit
 
   describe("the factory will return an instance when") {
     List(null, "", "test_conn_pool").foreach { connectionPoolId =>
-      it(s"the connection pool id is $connectionPoolId") {
+      it(s"the specified connection pool id is $connectionPoolId") {
         when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
         val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService)
 
@@ -44,6 +44,15 @@ class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with Mockit
 
         akkaServiceClient should not be null
       }
+    }
+
+    it("the default method with no connection pool id is called") {
+      when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
+      val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService)
+
+      val akkaServiceClient = akkaServiceClientFactoryImpl.newAkkaServiceClient()
+
+      akkaServiceClient should not be null
     }
   }
 }

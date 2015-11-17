@@ -24,5 +24,6 @@ package org.openrepose.core.services.serviceclient.akka;
  * Interface for the factory that creates instances of AkkaServiceClient
  */
 public interface AkkaServiceClientFactory {
+    AkkaServiceClient newAkkaServiceClient();
     AkkaServiceClient newAkkaServiceClient(String connectionPoolId);
 }

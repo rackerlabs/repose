@@ -38,6 +38,11 @@ public class AkkaServiceClientFactoryImpl implements AkkaServiceClientFactory {
     }
 
     @Override
+    public AkkaServiceClient newAkkaServiceClient() {
+        return newAkkaServiceClient(null);
+    }
+
+    @Override
     public AkkaServiceClient newAkkaServiceClient(String connectionPoolId) {
         return new AkkaServiceClientImpl(connectionPoolId, httpClientService);
     }
