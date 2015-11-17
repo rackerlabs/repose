@@ -61,14 +61,13 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
     config.setDotOutput("simple-rbac.dot")
     val resources = new ResourcesType
     resources.setValue(
-      """
-        |/path/to/this  get       role1,role2,role3,role4
+      """/path/to/this  get       role1,role2,role3,role4
         |/path/to/this  PUT       role1,role2,role3
         |/path/to/this  POST      role1,role2
         |/path/to/this  DELETE    role1
         |/path/to/that  GET,put   any
         |/path/to/that  ALL       role1
-        | """.stripMargin.trim()
+        |""".stripMargin.trim()
     )
     config.setResources(resources)
   }
@@ -76,6 +75,9 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
   after {
     if (filter.isInitialized) filter.destroy()
   }
+
+  def resultShould: Int => String = { int => if (int == SC_OK) "should" else "should not" }
+  def maskWith: Boolean => String = { boolean => if (boolean) "with" else "without" }
 
   describe("when the configuration is updated") {
     it("should have a default Delegation Type") {
@@ -304,10 +306,8 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
   }
 
   List(false, true).foreach { case (isMasked) =>
-    val maskWith: Boolean => String = { boolean => if (boolean) "with" else "without" }
     describe(s"Simple RBAC ${maskWith(isMasked)} masked roles") {
-      val resultShould: Int => String = { int => if (int == SC_OK) "should" else "should not" }
-      val conditionsThis: List[(String, String, Int, Int)] = List(
+      List(
         //Method    Role      Result        Masked
         ("GET",     "role1",  SC_OK,        SC_OK),
         ("PUT",     "role1",  SC_OK,        SC_OK),
@@ -329,8 +329,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         ("PUT",     "role5",  SC_FORBIDDEN, SC_NOT_FOUND),
         ("POST",    "role5",  SC_FORBIDDEN, SC_NOT_FOUND),
         ("DELETE",  "role5",  SC_FORBIDDEN, SC_NOT_FOUND)
-      )
-      conditionsThis.foreach { case (method, role, result, masked) =>
+      ).foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method $method and having role $role.") {
           Given(s"a request using HTTP method $method and having role $role")
           servletRequest.setRequestURI("/path/to/this")
@@ -351,7 +350,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         }
       }
 
-      val conditionsThat: List[(String, String, Int, Int)] = List(
+      List(
         //Method    Role      Result        Masked
         ("GET",     "role1",  SC_OK,        SC_OK),
         ("PUT",     "role1",  SC_OK,        SC_OK),
@@ -361,8 +360,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         ("PUT",     "role2",  SC_OK,        SC_OK),
         ("POST",    "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
         ("DELETE",  "role2",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
-      )
-      conditionsThat.foreach { case (method, role, result, masked) =>
+      ).foreach { case (method, role, result, masked) =>
         it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method $method and having role $role.") {
           Given("a request with roles")
           servletRequest.setRequestURI("/path/to/that")
@@ -383,14 +381,13 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         }
       }
 
-      val conditionsNone: List[(String, Int, Int)] = List(
+      List(
         //Method    Result        Masked
         ("GET",     SC_OK,        SC_OK),
         ("PUT",     SC_OK,        SC_OK),
         ("POST",    SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
         ("DELETE",  SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
-      )
-      conditionsNone.foreach { case (method, result, masked) =>
+      ).foreach { case (method, result, masked) =>
         it(s"${resultShould(result)} allow the request to THAT resource when using HTTP method $method and having no roles.") {
           Given("a request without roles")
           servletRequest.setRequestURI("/path/to/that")
@@ -410,7 +407,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         }
       }
 
-      val conditionsMulti: List[(String, String, String, Int, Int)] = List(
+      List(
         //Method    RolesA          RolesB          Result        Masked
         ("GET",     "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
         ("PUT",     "role1, roleA", "role5, roleB", SC_OK,        SC_OK),
@@ -420,8 +417,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
         ("PUT",     "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
         ("POST",    "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
         ("DELETE",  "role4, roleA", "role5, roleB", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED)
-      )
-      conditionsMulti.foreach { case (method, rolesa, rolesb, result, masked) =>
+      ).foreach { case (method, rolesa, rolesb, result, masked) =>
         it(s"${resultShould(result)} allow the request to THIS resource when using HTTP method $method and having the roles $rolesa and $rolesb.") {
           Given("a request multiple roles")
           servletRequest.setRequestURI("/path/to/this")
@@ -450,7 +446,6 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
     ("/path/to/some/sub", SC_OK),
     ("/path/to-some/sub", SC_METHOD_NOT_ALLOWED)
   ).foreach { case (path, result) =>
-    val resultShould: Int => String = { int => if (int == SC_OK) "should" else "should not" }
     it(s"${resultShould(result)} allow the request to PARAM resource $path.") {
       Given("a request")
       val resources = new ResourcesType
@@ -469,6 +464,34 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
       Then("the request should be allowed access")
+      servletResponse.getStatus shouldBe result
+    }
+  }
+
+  List(
+    //Role        Result
+    ("role1 wsp", SC_OK       ),
+    ("role2 wsp", SC_OK       ),
+    ("role3 wsp", SC_OK       ),
+    ("role1",     SC_FORBIDDEN),
+    ("role2",     SC_FORBIDDEN),
+    ("role3",     SC_FORBIDDEN),
+    ("wsp",       SC_FORBIDDEN)
+  ).foreach { case (role, result) =>
+    it(s"${resultShould(result)} allow the request to resource /path/to/space with role $role.") {
+      Given(s"a request with role $role")
+      val resources = new ResourcesType
+      resources.setValue("/path/to/space   GET   role1 wsp , role2 wsp,role3 wsp")
+      config.setResources(resources)
+      servletRequest.setRequestURI("/path/to/space")
+      servletRequest.setMethod("GET")
+      servletRequest.addHeader(config.getRolesHeaderName, role)
+      filter.configurationUpdated(config)
+
+      When("the request is to access the resource")
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      Then(s"the request ${resultShould(result)} be allowed access")
       servletResponse.getStatus shouldBe result
     }
   }
