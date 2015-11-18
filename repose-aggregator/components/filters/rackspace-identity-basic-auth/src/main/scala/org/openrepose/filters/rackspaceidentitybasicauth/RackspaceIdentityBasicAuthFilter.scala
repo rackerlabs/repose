@@ -39,7 +39,7 @@ import org.openrepose.core.filter.logic.impl.{FilterDirectorImpl, FilterLogicHan
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.springframework.http.HttpHeaders
 
@@ -49,7 +49,7 @@ import scala.xml.XML
 
 @Named
 class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: ConfigurationService,
-                                                 akkaServiceClient: AkkaServiceClient,
+                                                 akkaServiceClientFactory: AkkaServiceClientFactory,
                                                  datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler
   with Filter
@@ -67,6 +67,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   private var identityServiceUri: String = _
   private var tokenCacheTtlMillis: Int = _
   private var delegationWithQuality: Option[Double] = _
+  private var akkaServiceClient: AkkaServiceClient = _
 
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -86,6 +87,11 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     identityServiceUri = config.getRackspaceIdentityServiceUri
     tokenCacheTtlMillis = config.getTokenCacheTimeoutMillis
     delegationWithQuality = Option(config.getDelegating).map(_.getQuality)
+
+    val akkaServiceClientOld = Option(akkaServiceClient)
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
+    akkaServiceClientOld.foreach(_.destroy())
+
     initialized = true
   }
 
@@ -275,6 +281,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   }
 
   override def destroy() {
+    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
   }
 
