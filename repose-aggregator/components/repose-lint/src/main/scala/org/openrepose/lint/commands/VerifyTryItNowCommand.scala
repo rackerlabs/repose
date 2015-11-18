@@ -92,9 +92,9 @@ object VerifyTryItNowCommand extends Command {
     def checkAuthN(filters: NodeSeq): JsValue = {
       case class AuthNFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
-                                  inTenantedMode: Boolean = true,
-                                  foyerAsServiceAdmin: Boolean = true,
-                                  foyerAsIgnoreTenant: Boolean = true,
+                                  inTenantedMode: Boolean = false,
+                                  foyerAsServiceAdmin: Boolean = false,
+                                  foyerAsIgnoreTenant: Boolean = false,
                                   foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
 
       case class AuthNCheck(listedInSystemModel: Boolean = false,
@@ -139,18 +139,18 @@ object VerifyTryItNowCommand extends Command {
             filterCheck = filterCheck.copy(missingConfiguration = false)
 
             val tenanted = (configRoot \ "openstack-auth" \ "@tenanted").map(node => node.text.toBoolean).headOption.getOrElse(true)
-            if (!tenanted) {
-              filterCheck = filterCheck.copy(inTenantedMode = false)
+            if (tenanted) {
+              filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            val serviceAdminFoyer = (configRoot \ "openstack-auth" \ "service-admin-roles" \ "role").find(node => node.text.equals("foyer"))
-            if (serviceAdminFoyer.isEmpty) {
-              filterCheck = filterCheck.copy(foyerAsServiceAdmin = false)
+            val isFoyerServiceAdmin = (configRoot \ "openstack-auth" \ "service-admin-roles" \ "role").exists(node => node.text.equals("foyer"))
+            if (isFoyerServiceAdmin) {
+              filterCheck = filterCheck.copy(foyerAsServiceAdmin = true)
             }
 
-            val ignoreTenantFoyer = (configRoot \ "openstack-auth" \ "ignore-tenant-roles" \ "role").find(node => node.text.equals("foyer"))
-            if (ignoreTenantFoyer.isEmpty) {
-              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = false)
+            val isFoyerIgnoreTenant = (configRoot \ "openstack-auth" \ "ignore-tenant-roles" \ "role").exists(node => node.text.equals("foyer"))
+            if (isFoyerIgnoreTenant) {
+              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = true)
             }
           }
 
@@ -186,7 +186,7 @@ object VerifyTryItNowCommand extends Command {
     def checkAuthZ(filters: NodeSeq): JsValue = {
       case class AuthZFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
-                                  foyerAsIgnoreTenant: Boolean = true,
+                                  foyerAsIgnoreTenant: Boolean = false,
                                   foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
 
       case class AuthZCheck(listedInSystemModel: Boolean = false,
@@ -227,8 +227,8 @@ object VerifyTryItNowCommand extends Command {
 
           config foreach { configRoot =>
             val ignoreTenantRoles = (configRoot \ "ignore-tenant-roles" \ "role") ++ (configRoot \ "ignore-tenant-roles" \ "ignore-tenant-role")
-            if (!ignoreTenantRoles.exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = false)
+            if (ignoreTenantRoles.exists(node => node.text.equals("foyer"))) {
+              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = true)
             }
           }
 
@@ -262,9 +262,9 @@ object VerifyTryItNowCommand extends Command {
     def checkKeystoneV2(filters: NodeSeq): JsValue = {
       case class KeystoneV2FilterCheck(filteredByUriRegex: Boolean = true,
                                        missingConfiguration: Boolean = true,
-                                       inTenantedMode: Boolean = true,
-                                       foyerAsPreAuth: Boolean = true,
-                                       catalogAuthorization: Boolean = true,
+                                       inTenantedMode: Boolean = false,
+                                       foyerAsPreAuth: Boolean = false,
+                                       catalogAuthorization: Boolean = false,
                                        foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
 
       case class KeystoneV2Check(listedInSystemModel: Boolean = false,
@@ -306,17 +306,16 @@ object VerifyTryItNowCommand extends Command {
           }
 
           config foreach { configRoot =>
-            val tenanted = (configRoot \ "tenant-handling" \ "validate-tenant").nonEmpty
-            if (!tenanted) {
-              filterCheck = filterCheck.copy(inTenantedMode = false)
+            if ((configRoot \ "tenant-handling" \ "validate-tenant").nonEmpty) {
+              filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            if (!(configRoot \ "pre-authorized-roles" \ "role").exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsPreAuth = false)
+            if ((configRoot \ "pre-authorized-roles" \ "role").exists(node => node.text.equals("foyer"))) {
+              filterCheck = filterCheck.copy(foyerAsPreAuth = true)
             }
 
-            if ((configRoot \ "require-service-endpoint").isEmpty) {
-              filterCheck = filterCheck.copy(catalogAuthorization = false)
+            if ((configRoot \ "require-service-endpoint").nonEmpty) {
+              filterCheck = filterCheck.copy(catalogAuthorization = true)
             }
           }
 
@@ -348,9 +347,9 @@ object VerifyTryItNowCommand extends Command {
     def checkIdentityV3(filters: NodeSeq): JsValue = {
       case class IdentityV3FilterCheck(filteredByUriRegex: Boolean = true,
                                        missingConfiguration: Boolean = true,
-                                       inTenantedMode: Boolean = true,
-                                       foyerAsBypassTenant: Boolean = true,
-                                       catalogAuthorization: Boolean = true,
+                                       inTenantedMode: Boolean = false,
+                                       foyerAsBypassTenant: Boolean = false,
+                                       catalogAuthorization: Boolean = false,
                                        foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
 
       case class IdentityV3Check(listedInSystemModel: Boolean = false,
@@ -392,17 +391,16 @@ object VerifyTryItNowCommand extends Command {
           }
 
           config foreach { configRoot =>
-            val tenanted = (configRoot \ "validate-project-id-in-uri").nonEmpty
-            if (!tenanted) {
-              filterCheck = filterCheck.copy(inTenantedMode = false)
+            if ((configRoot \ "validate-project-id-in-uri").nonEmpty) {
+              filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            if (!(configRoot \ "roles-which-bypass-project-id-check" \ "role").exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsBypassTenant = false)
+            if ((configRoot \ "roles-which-bypass-project-id-check" \ "role").exists(node => node.text.equals("foyer"))) {
+              filterCheck = filterCheck.copy(foyerAsBypassTenant = true)
             }
 
-            if ((configRoot \ "service-endpoint").isEmpty) {
-              filterCheck = filterCheck.copy(catalogAuthorization = false)
+            if ((configRoot \ "service-endpoint").nonEmpty) {
+              filterCheck = filterCheck.copy(catalogAuthorization = true)
             }
           }
 
