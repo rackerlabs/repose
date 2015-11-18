@@ -32,4 +32,6 @@ public interface AkkaServiceClient {
     ServiceClientResponse get(String token, String uri, Map<String, String> headers) throws AkkaServiceClientException;
 
     ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException;
+
+    void destroy();
 }
