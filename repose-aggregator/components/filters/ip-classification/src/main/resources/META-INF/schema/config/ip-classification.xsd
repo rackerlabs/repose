@@ -46,26 +46,17 @@
     <!-- well, the quality could be optional, but not the name, and if the name isn't there, the quality isn't there either -->
     <xs:complexType name="HeaderType">
         <!-- quality attribute follows the default from ip-identity -->
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>The header name to put the classification label in</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-                <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.4">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>The quality associated with this header value.</html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.4">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The quality associated with this header value.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="UserHeaderType">
-        <xs:simpleContent>
+        <xs:complexContent>
             <xs:extension base="HeaderType">
                 <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-user">
                     <xs:annotation>
@@ -75,11 +66,11 @@
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
-        </xs:simpleContent>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="GroupHeaderType">
-        <xs:simpleContent>
+        <xs:complexContent>
             <xs:extension base="HeaderType">
                 <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-groups">
                     <xs:annotation>
@@ -89,7 +80,7 @@
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
-        </xs:simpleContent>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="GroupType">
