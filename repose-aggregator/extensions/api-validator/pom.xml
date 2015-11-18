@@ -25,45 +25,37 @@
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <!-- actually uses something from the commons project -->
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.rackspace.papi.components.api-checker</groupId>
             <artifactId>checker-core</artifactId>
-            <version>1.1.2</version>
         </dependency>
     </dependencies>
 

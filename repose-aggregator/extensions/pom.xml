@@ -18,9 +18,23 @@
         No other filters should be developed here.
     </description>
 
+    <properties>
+        <api.checker.version>1.1.3</api.checker.version>
+    </properties>
+
     <modules>
         <module>api-validator</module>
         <module>simple-rbac</module>
         <module>extensions-filter-bundle</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.rackspace.papi.components.api-checker</groupId>
+                <artifactId>checker-core</artifactId>
+                <version>${api.checker.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

@@ -194,11 +194,22 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     def parseLine(line: String): Option[Resource] = {
       val values = line.trim.split("\\s+")
       values.length match {
-        case 3 =>
+        case x if x >= 3 =>
+          if (x > 3) {
+            logger.info(s"Roles with spaces detected in: $line")
+          }
           Some(new Resource(
             values(0),
             Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
-            Try(values(2).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty)
+            Try(
+              values.
+                slice(2, values.length).
+                mkString(" ").
+                split(',').
+                toSet[String].map(
+                  _.trim.replaceAll(" ", "&#xA0;")
+                )
+            ).getOrElse(Set.empty)
           ))
         case 1 if values(0).length == 0 =>
           None
