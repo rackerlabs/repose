@@ -37,7 +37,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
@@ -48,7 +48,7 @@ import scala.util.{Failure, Random, Success, Try}
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
-                                 akkaServiceClient: AkkaServiceClient,
+                                 akkaServiceClientFactory: AkkaServiceClientFactory,
                                  datastoreService: DatastoreService)
   extends Filter
   with HttpDelegationManager
@@ -62,6 +62,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private val datastore: Datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
 
   var keystoneV2Config: KeystoneV2Config = _
+  var akkaServiceClient: AkkaServiceClient = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -83,6 +84,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   override def destroy(): Unit = {
+    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
     configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
   }
@@ -626,6 +628,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // Removes an extra slash at the end of the URI if applicable
       val serviceUri = keystoneV2Config.getIdentityService.getUri
       keystoneV2Config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
+
+      val akkaServiceClientOld = Option(akkaServiceClient)
+      akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(keystoneV2Config.getIdentityService.getConnectionPoolId)
+      akkaServiceClientOld.foreach(_.destroy())
 
       initialized = true
     }
