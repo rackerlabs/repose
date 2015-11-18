@@ -19,7 +19,7 @@
  */
 package org.openrepose.lint.commands
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 
 import org.openrepose.lint.LintConfig
 import play.api.libs.json._
@@ -440,7 +440,7 @@ object VerifyTryItNowCommand extends Command {
 
     val clusters = getFile(SYSTEM_MODEL_FILENAME).map(getClusters) match {
       case Some(c) => c
-      case None => throw new Exception("System model configuration file not found")
+      case None => throw new FileNotFoundException("System model configuration file not found")
     }
 
     val clusterJsonObjects = clusters map { cluster =>
