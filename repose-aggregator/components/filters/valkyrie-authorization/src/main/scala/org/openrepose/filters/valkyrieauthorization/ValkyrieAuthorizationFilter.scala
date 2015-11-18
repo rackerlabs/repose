@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
 
 import com.fasterxml.jackson.core.JsonParseException
@@ -248,12 +249,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       mask403s(addRoles(authPermissions)) match {
         case ResponseResult(200, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-          try {
-            cullResponse(mutableHttpResponse, authPermissions, matchingResources)
-          } catch {
-            case rce: ResponseCullingException =>
-              logger.debug("Failed to cull response, wiping out response.", rce)
-              mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+          val status = mutableHttpResponse.getStatus
+          if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
+            try {
+              cullResponse(mutableHttpResponse, authPermissions, matchingResources)
+            } catch {
+              case rce: ResponseCullingException =>
+                logger.debug("Failed to cull response, wiping out response.", rce)
+                mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+            }
           }
         case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
           buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
