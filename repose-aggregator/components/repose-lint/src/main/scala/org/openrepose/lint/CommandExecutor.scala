@@ -40,7 +40,6 @@ object CommandExecutor {
 
     val parser = new OptionParser[LintConfig]("repose-lint") {
       head("repose-lint", lintVer)
-      // TODO: Should this option be a child of the verify-try-it-now command?
       opt[File]('c', "config-dir") valueName "<dir>" action { (x, c) =>
         c.copy(configDir = x)
       } validate { f =>
@@ -49,7 +48,16 @@ object CommandExecutor {
         } else {
           failure(s"unable to read from directory: ${f.getAbsolutePath}")
         }
-      } text "the root configuration directory for Repose (i.e., the directory containing your system-model), default: /etc/repose"
+      } text "the root configuration directory for Repose (i.e., the directory containing your system-model), default is the working directory"
+      opt[String]('r', "repose-version") required() action { (x, c) =>
+        c.copy(reposeVersion = x)
+      } validate { s =>
+        if ("(\\d+\\.?)+".r.pattern.matcher(s).matches()) {
+          success
+        } else {
+          failure(s"the provided version is invalid: $s")
+        }
+      } text "the version of Repose which these configuration files apply to"
       help("help") text "prints the usage text"
       version("version") text "prints the version of this utility"
       CommandRegistry.getAvailableCommands foreach { command =>
@@ -69,8 +77,8 @@ object CommandExecutor {
             } catch {
               case t: Throwable =>
                 // The command has failed
-                println(s"${command.getCommandToken} command failed")
-                println(s"Cause: ${t.getMessage}")
+                Console.err.println(s"${command.getCommandToken} command failed")
+                Console.err.println(s"Cause: ${t.getMessage}")
                 1
             }
           case None =>

@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.openrepose.lint.LintConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import play.api.libs.json.{JsArray, Json}
 
 @RunWith(classOf[JUnitRunner])
 class VerifyTryItNowCommandTest extends FunSpec with Matchers {
@@ -56,7 +57,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       an[Exception] should be thrownBy VerifyTryItNowCommand.perform(config)
     }
 
-    it("should report if filters are not listed in the system-model") {
+    it("should report not ready if filters are not listed in the system-model") {
       val configDir = new File(getClass.getResource("/configs/nofilters/").toURI)
       val config = new LintConfig(configDir = configDir)
 
@@ -67,11 +68,12 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n .* IS NOT listed in the system-model"
-      outputString should include regex "auth-z .* IS NOT listed in the system-model"
-      outputString should include regex "keystone-v2 .* IS NOT listed in the system-model"
-      outputString should include regex "identity-v3 .* IS NOT listed in the system-model"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \ "foyerStatus").as[String] should include("NotReady")
+      ((parsedOutput \ "clusters") (0) \ "authZCheck" \ "foyerStatus").as[String] should include("NotReady")
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \ "foyerStatus").as[String] should include("NotReady")
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "foyerStatus").as[String] should include("NotReady")
     }
 
     it("should report if filters are filtered by uri regex") {
@@ -85,11 +87,12 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n .* IS filtered by uri-regex"
-      outputString should include regex "auth-z .* IS filtered by uri-regex"
-      outputString should include regex "keystone-v2 .* IS filtered by uri-regex"
-      outputString should include regex "identity-v3 .* IS filtered by uri-regex"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "filteredByUriRegex").head.as[Boolean] shouldBe true
+      ((parsedOutput \ "clusters") (0) \ "authZCheck" \\ "filteredByUriRegex").head.as[Boolean] shouldBe true
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "filteredByUriRegex").head.as[Boolean] shouldBe true
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \\ "filteredByUriRegex").head.as[Boolean] shouldBe true
     }
 
     it("should report if auth-n is not in tenanted mode") {
@@ -103,8 +106,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n .* NOT IN tenanted mode"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "inTenantedMode").head.as[Boolean] shouldBe false
     }
 
     it("should report if auth-n has foyer as a service admin role") {
@@ -118,8 +122,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n .* DOES NOT HAVE service-admin role foyer"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerAsServiceAdmin").head.as[Boolean] shouldBe false
     }
 
     it("should report if auth-n has foyer as an ignore tenant role") {
@@ -133,8 +138,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n .* DOES NOT HAVE ignore-tenant role foyer"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerAsIgnoreTenant").head.as[Boolean] shouldBe false
     }
 
     it("should report if auth-z has foyer as a role bypass") {
@@ -148,8 +154,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-z .* DOES NOT HAVE ignore-tenant role foyer"
+      ((parsedOutput \ "clusters") (0) \ "authZCheck" \\ "foyerAsIgnoreTenant").head.as[Boolean] shouldBe false
     }
 
     it("should report if keystone-v2 is not in tenanted mode") {
@@ -163,8 +170,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "keystone-v2 .* NOT IN tenanted mode"
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "inTenantedMode").head.as[Boolean] shouldBe false
     }
 
     it("should report if keystone-v2 has foyer as a pre-authorized role") {
@@ -178,8 +186,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "keystone-v2 .* DOES NOT HAVE pre-authorized role foyer"
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "foyerAsPreAuthorized").head.as[Boolean] shouldBe false
     }
 
     it("should report if keystone-v2 authorization is present") {
@@ -193,8 +202,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "keystone-v2 .* DOES NOT HAVE service catalog authorization"
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "catalogAuthorization").head.as[Boolean] shouldBe false
     }
 
     it("should report if identity-v3 is not in tenanted mode") {
@@ -208,8 +218,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "identity-v3 .* NOT IN tenanted mode"
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \\ "inTenantedMode").head.as[Boolean] shouldBe false
     }
 
     it("should report if identity-v3 has foyer as a pre-authorized role") {
@@ -223,8 +234,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "identity-v3 .* DOES NOT HAVE tenant bypass role foyer"
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \\ "foyerAsBypassTenant").head.as[Boolean] shouldBe false
     }
 
     it("should report if identity-v3 authorization is present") {
@@ -238,8 +250,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "identity-v3 .* DOES NOT HAVE service catalog authorization"
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \\ "catalogAuthorization").head.as[Boolean] shouldBe false
     }
 
     it("should check multiple clusters if present") {
@@ -253,9 +266,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "Verifying.*cluster_1.*"
-      outputString should include regex "Verifying.*cluster_2.*"
+      (parsedOutput \\ "clusterId").map(_.as[String]) should (contain("cluster_1") and contain("cluster_2"))
     }
 
     it("should check multiple filers if present") {
@@ -269,21 +282,12 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       VerifyTryItNowCommand.perform(config)
 
       val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
 
-      outputString should include regex "auth-n.*(#1).*"
-      outputString should include regex "auth-n.*(#2).*"
-      outputString should include regex "auth-z.*(#1).*"
-      outputString should include regex "auth-z.*(#2).*"
-      outputString should include regex "keystone-v2.*(#1).*"
-      outputString should include regex "keystone-v2.*(#2).*"
-      outputString should include regex "identity-v3.*(#1).*"
-      outputString should include regex "identity-v3.*(#2).*"
-    }
-
-    List("2.8.x", "3.x", "4.x", "5.x", "6.x", "7.x") foreach { version =>
-      it(s"should handle configs from Repose version $version") {
-        pending
-      }
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \ "filters").as[JsArray].value should have size 2
+      ((parsedOutput \ "clusters") (0) \ "authZCheck" \ "filters").as[JsArray].value should have size 2
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \ "filters").as[JsArray].value should have size 2
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "filters").as[JsArray].value should have size 2
     }
   }
 }

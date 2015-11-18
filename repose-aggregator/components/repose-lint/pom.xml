@@ -42,6 +42,12 @@
             <artifactId>config</artifactId>
         </dependency>
 
+        <!-- Play JSON -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_2.10</artifactId>
+        </dependency>
+
         <!-- Command-line argument parser -->
         <dependency>
             <groupId>com.github.scopt</groupId>
@@ -103,6 +109,9 @@
                                     <mainClass>org.openrepose.lint.Lint</mainClass>
                                 </transformer>
                             </transformers>
+                            <dependencyReducedPomLocation>
+                                ${project.build.directory}/dependency-reduced-pom.xml
+                            </dependencyReducedPomLocation>
                         </configuration>
                     </execution>
                 </executions>

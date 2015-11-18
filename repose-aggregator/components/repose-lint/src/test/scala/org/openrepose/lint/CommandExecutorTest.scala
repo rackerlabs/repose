@@ -33,7 +33,7 @@ import org.scalatest.{FunSpec, Matchers}
 class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
 
   val mockConfig = mock[Config]
-  when(mockConfig.getString(anyString())).thenReturn("1.0.0.0-test")
+  when(mockConfig.getString(anyString())).thenReturn("1.0-test")
 
   describe("execute") {
     it("should exit if the command cannot be parsed") {
@@ -50,11 +50,32 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     }
 
     it("should execute the command") {
-      pending
+      val configDir = getClass.getResource("/configs/master/").getPath
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      val exitCode = CommandExecutor.execute(System.in, new PrintStream(out), System.err, mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+
+      val outString = new String(out.toByteArray)
+
+      exitCode shouldEqual 0
+      outString should include("foyerStatus")
     }
 
     it("should notify the user if a command fails") {
-      pending
+      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val err = new ByteArrayOutputStream()
+
+      Console.setErr(err)
+
+      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+
+      val errString = new String(err.toByteArray)
+
+      exitCode shouldEqual 1
+      errString should include("command failed")
+      errString should include("Cause:")
     }
   }
 }

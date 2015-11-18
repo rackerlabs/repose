@@ -22,4 +22,5 @@ package org.openrepose.lint
 import java.io.File
 
 case class LintConfig(commandToken: String = "",
-                      configDir: File = new File("/etc/repose"))
+                      configDir: File = new File("."),
+                      reposeVersion: String = "")
