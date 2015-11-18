@@ -30,14 +30,14 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.httpclient.HttpClientService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 
 @Named
 class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationService,
                                           datastoreService: DatastoreService,
                                           httpClientService: HttpClientService,
-                                          akkaServiceClient: AkkaServiceClient) extends Filter with LazyLogging {
+                                          akkaServiceClientFactory: AkkaServiceClientFactory) extends Filter with LazyLogging {
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
 
@@ -47,7 +47,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + config)
-    handlerFactory = new OpenStackIdentityV3HandlerFactory(akkaServiceClient, datastoreService)
+    handlerFactory = new OpenStackIdentityV3HandlerFactory(akkaServiceClientFactory, datastoreService)
     val xsdURL: URL = getClass.getResource("/META-INF/config/schema/openstack-identity-v3.xsd")
     // TODO: Clean up the asInstanceOf below, if possible?
     configurationService.subscribeTo(filterConfig.getFilterName,
@@ -62,6 +62,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   }
 
   override def destroy() {
+    handlerFactory.destroy()
     configurationService.unsubscribeFrom(config, handlerFactory)
   }
 }
