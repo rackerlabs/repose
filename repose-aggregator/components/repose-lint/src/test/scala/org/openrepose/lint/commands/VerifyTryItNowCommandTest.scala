@@ -289,5 +289,22 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \ "filters").as[JsArray].value should have size 2
       ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "filters").as[JsArray].value should have size 2
     }
+
+    it("should work for Repose version 2.8.x configs") {
+      val configDir = new File(getClass.getResource("/configs/2.8.x/").toURI)
+      val config = new LintConfig(configDir = configDir, reposeVersion = "2.8.6")
+
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
+
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "inTenantedMode").head.as[Boolean] shouldBe true
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should include("NotReady")
+    }
   }
 }
