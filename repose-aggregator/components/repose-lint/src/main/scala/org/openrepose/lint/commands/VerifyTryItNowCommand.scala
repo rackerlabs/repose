@@ -88,8 +88,10 @@ object VerifyTryItNowCommand extends Command {
       filters.filter(filter => (filter \ "@name").text.equals(filterName))
     }
 
-    // TODO: extract common structure for checking configs
     def checkAuthN(filters: NodeSeq): JsValue = {
+      // These case classes are intermediate storage for data before it is transformed into JSON.
+      // Defaults are provided to reduce unnecessary code. The default value for each individual check is set to the
+      // failing state to prevent false positives in case a bug exists.
       case class AuthNFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
                                   inTenantedMode: Boolean = false,
@@ -101,6 +103,8 @@ object VerifyTryItNowCommand extends Command {
                             authNFilterChecks: Seq[AuthNFilterCheck] = Seq.empty,
                             foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
 
+      // These Writes define the transformation from the above case classes into Play JSON objects which in turn can
+      // be written as strings.
       implicit val AuthNFilterCheckWrites = new Writes[AuthNFilterCheck] {
         override def writes(anfc: AuthNFilterCheck): JsValue = Json.obj(
           "filteredByUriRegex" -> anfc.filteredByUriRegex,
@@ -123,6 +127,7 @@ object VerifyTryItNowCommand extends Command {
       var check = AuthNCheck()
       val authNFilters = getFiltersNamed(AUTH_N_FILTER_NAME)(filters)
 
+      // If we have filters, perform a set of checks on their respective configurations.
       if (authNFilters.nonEmpty) {
         val authNFilterChecks = authNFilters map { filter =>
           var filterCheck = AuthNFilterCheck()
@@ -154,6 +159,7 @@ object VerifyTryItNowCommand extends Command {
             }
           }
 
+          // This is our truth table, defining "good" and "bad" states across versions.
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
           } else if (filterCheck.missingConfiguration || !filterCheck.inTenantedMode) {
@@ -169,6 +175,8 @@ object VerifyTryItNowCommand extends Command {
           filterCheck
         }
 
+        // This provides a status for the component (i.e., client-auth-n) as a whole, while the status for each
+        // filter is provided above.
         val checkFoyerStatus = if (authNFilterChecks.exists(ifc => FoyerStatus.Ready.equals(ifc.foyerStatus))) {
           FoyerStatus.Ready
         } else if (authNFilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
@@ -180,6 +188,7 @@ object VerifyTryItNowCommand extends Command {
         check = check.copy(authNFilterChecks = authNFilterChecks, foyerStatus = checkFoyerStatus)
       }
 
+      // Transform the data into JSON.
       Json.toJson(check)
     }
 
